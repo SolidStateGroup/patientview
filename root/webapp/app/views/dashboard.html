@@ -10,6 +10,9 @@
     .user-picture {
         max-width: 100%;
     }
+    .news-actions {
+        text-align: left;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -310,6 +313,11 @@
             <div class="user-details content-panel">
                 <div data-ng-show="loggedInUser.picture.length">
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+                </div>
+                <div data-ng-show="!loggedInUser.picture">
+                    <h3>No Photo Uploaded</h3>
+                    <p><a href="/#/settings">Upload a photo of yourself</a></p>
+                    <br/>
                 </div>
                 <ul class="unstyled">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>

@@ -109,6 +109,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // callback after user selects a file
     uploader.onAfterAddingFile = function() {
         $scope.uploadError = false;
+        delete $scope.pictureChangeSuccessMessage;
         $scope.uploadingPicture = true;
         delete $scope.uploadErrorMessage;
         uploader.uploadAll();
@@ -118,6 +119,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
         $scope.uploadError = true;
+        delete $scope.pictureChangeSuccessMessage;
         $scope.uploadErrorMessage = 'There was an error uploading your image file, please check that the file size is less than 1MB';
         $scope.uploadingPicture = false;
     };
@@ -126,18 +128,22 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
             $rootScope.loggedInUser.picture = "new";
+            $scope.pictureChangeSuccessMessage = 'Your photo has been uploaded successfully. Thank you.';
             $scope.uploadingPicture = false;
             getUser();
         } else {
             // error during upload
             $scope.uploadingPicture = false;
+            delete $scope.pictureChangeSuccessMessage;
         }
     };
         
     $scope.deletePicture = function() {
+        delete $scope.pictureChangeSuccessMessage;
         UserService.deletePicture($rootScope.loggedInUser.id).then(function (data) {
             delete $rootScope.loggedInUser.picture;
             getUser();
+            $scope.pictureChangeSuccessMessage = 'Your photo has been successfully removed.';
         }, function () {
            alert('Error removing photo');
         });
