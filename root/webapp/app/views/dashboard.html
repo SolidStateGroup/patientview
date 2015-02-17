@@ -8,7 +8,7 @@
         cursor: pointer;
     }
     .user-picture {
-        max-width: 100%;
+        max-width: 150px;
     }
     .news-actions {
         text-align: left;
@@ -315,7 +315,7 @@
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
                 </div>
                 <div data-ng-show="!loggedInUser.picture">
-                    <h3>No Photo Uploaded</h3>
+                    <h4>No Photo Uploaded</h4>
                     <p><a href="/#/settings">Upload a photo of yourself</a></p>
                     <br/>
                 </div>
