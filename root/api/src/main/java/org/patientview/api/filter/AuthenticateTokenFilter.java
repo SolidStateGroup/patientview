@@ -39,7 +39,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     private List<String> publicUrls = new ArrayList<>();
 
     /**
-     * Set up publicly available URLs 
+     * Set up publicly available URLs.
      */
     @PostConstruct
     public void init() {
@@ -79,7 +79,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * Check if path is publicly available (no login required) 
+     * Check if path is publicly available (no login required).
      * @param path String path to check is publicly available
      * @return true if publicly available, false if not
      */
@@ -124,7 +124,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     /**
      * Set the authentication in the security context, returning false if authentication request fails due to session
-     * expiration (will log out if expired) or failed authentication due to incorrect authentication token
+     * expiration (will log out if expired) or failed authentication due to incorrect authentication token.
      * @param httpServletRequest HttpServletRequest
      * @return true if request is authenticated, false if not
      */
@@ -149,7 +149,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * Sends unauthorised response to client if authentication has failed 
+     * Sends unauthorised response to client if authentication has failed.
      * @param response HttpServletResponse passed in to send error
      */
     private void redirectFailedAuthentication(HttpServletResponse response) {
@@ -162,7 +162,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * Set authentication manager, only required due to Spring Boot bug with delegating proxy
+     * Set authentication manager, only required due to Spring Boot bug with delegating proxy.
      * @param servletRequest ServletRequest
      */
     private void setAuthenticationManager(ServletRequest servletRequest) {
@@ -174,7 +174,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * Convert ServletRequest to HttpServletRequest, throwing exception if not a HTTP request
+     * Convert ServletRequest to HttpServletRequest, throwing exception if not a HTTP request.
      * @param request ServletRequest to convert to HttpServletRequest
      * @return HttpServletRequest converted from ServletRequest
      */
@@ -186,8 +186,8 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * Retrieve the String authentication token from a request, either as a header or if header not found, from a 
-     * request parameter
+     * Retrieve the String authentication token from a request, either as a header or if header not found, from a
+     * request parameter.
      * @param httpRequest HttpServletRequest to extract authentication token from
      * @return String authentication token
      */

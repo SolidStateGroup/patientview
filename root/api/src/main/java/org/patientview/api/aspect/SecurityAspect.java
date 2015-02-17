@@ -139,8 +139,8 @@ public final class SecurityAspect {
     }
 
     /**
-     * Check if User being retrieved or modified is the current User, typically used for service methods where only the 
-     * current user has permission to modify or view their own details. 
+     * Check if User being retrieved or modified is the current User, typically used for service methods where only the
+     * current user has permission to modify or view their own details.
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
@@ -156,7 +156,7 @@ public final class SecurityAspect {
     }
 
     /**
-     * Get ID from join point parameters, currently used to retrieve Group or User ID and assumes the annotation is 
+     * Get ID from join point parameters, currently used to retrieve Group or User ID and assumes the annotation is
      * applied to a method with a Group or User ID.
      * @param joinPoint Join point of aspect, typically on service method
      * @return Long ID of Group or User from join point parameters

@@ -5,7 +5,7 @@ import org.patientview.persistence.model.enums.AlertTypes;
 import java.util.Date;
 
 /**
- * Alert, used to represent result or letter alerts created by a User to inform them of updated results or letters when 
+ * Alert, used to represent result or letter alerts created by a User to inform them of updated results or letters when
  * new data is imported from their Groups.
  * Created by jamesr@solidstategroup.com
  * Created on 14/01/2015

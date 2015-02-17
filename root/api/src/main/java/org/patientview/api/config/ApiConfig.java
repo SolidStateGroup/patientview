@@ -34,7 +34,7 @@ public class ApiConfig {
     @Inject
     private Properties properties;
 
-    private final static int TEN_MB = 10485760;
+    private static final int TEN_MB = 10485760;
 
     //TODO this just gets the "name" of the enum
     // remove and implement JSON shape object
@@ -65,7 +65,7 @@ public class ApiConfig {
     }
 
     /**
-     * Configure JavaMailSender, used when sending emails. 
+     * Configure JavaMailSender, used when sending emails.
      * @return JavaMailSenderImpl with properties set from environment specific .properties file
      */
     @Bean

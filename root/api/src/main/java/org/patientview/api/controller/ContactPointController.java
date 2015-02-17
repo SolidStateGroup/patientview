@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
- * RESTful interface for the basic Crud operation for ContactPoints, a property of Groups.
+ * RESTful interface for CRUD operations for ContactPoints, a property of Groups.
  *
  * Created by jamesr@solidstategroup.com
  * Created on 30/07/2014

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Filter to attach common headers to all responses 
+ * Filter to attach common headers to all responses.
  * Created by james@solidstategroup.com
  * Created on 17/06/2014
  */

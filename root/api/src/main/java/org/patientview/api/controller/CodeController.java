@@ -33,6 +33,20 @@ public class CodeController extends BaseController<CodeController> {
     private CodeService codeService;
 
     /**
+     * Create a new Code.
+     * @param code Code object containing all required properties
+     * @return Code object, newly created (note: consider only returning ID or HTTP OK)
+     * @throws ResourceNotFoundException
+     * @throws EntityExistsException
+     */
+    @RequestMapping(value = "/code", method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Code> add(@RequestBody Code code)
+            throws ResourceNotFoundException, EntityExistsException {
+        return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
+    }
+
+    /**
      * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in
      * UI.
      * @param codeId ID of Code to clone
@@ -50,7 +64,7 @@ public class CodeController extends BaseController<CodeController> {
      */
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteCode(@PathVariable("codeId") Long codeId) {
+    public void delete(@PathVariable("codeId") Long codeId) {
         codeService.delete(codeId);
     }
 
@@ -74,22 +88,8 @@ public class CodeController extends BaseController<CodeController> {
      */
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Code> getCode(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
+    public ResponseEntity<Code> get(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
         return new ResponseEntity<>(codeService.get(codeId), HttpStatus.OK);
-    }
-
-    /**
-     * Create a new Code.
-     * @param code Code object containing all required properties
-     * @return Code object, newly created (note: consider only returning ID or HTTP OK)
-     * @throws ResourceNotFoundException
-     * @throws EntityExistsException
-     */
-    @RequestMapping(value = "/code", method = RequestMethod.POST
-            , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> newCode(@RequestBody Code code)
-        throws ResourceNotFoundException, EntityExistsException {
-        return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 
     /**
@@ -97,10 +97,11 @@ public class CodeController extends BaseController<CodeController> {
      * @param code Code object with updated properties
      * @return Code object, updated (note: consider only returning ID or HTTP OK)
      * @throws ResourceNotFoundException
+     * @throws EntityExistsException
      */
     @RequestMapping(value = "/code", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Code> saveCode(@RequestBody Code code) throws ResourceNotFoundException {
+    public ResponseEntity<Code> save(@RequestBody Code code) throws ResourceNotFoundException, EntityExistsException {
         return new ResponseEntity<>(codeService.save(code), HttpStatus.OK);
     }
 }

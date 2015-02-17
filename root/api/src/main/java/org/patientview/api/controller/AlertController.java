@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * RESTful interface for the basic Crud operation for Alerts.
+ * RESTful interface for the modifying and retrieving Alerts.
  * Alerts are created by a user to inform them when new result data or letters comes in via the importer. A user can
  * choose to be notified in the web interface (a "New" label is shown on the dashboard) or via email. Emails do not
  * contain any real patient data for privacy reasons.

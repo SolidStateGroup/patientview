@@ -13,12 +13,12 @@ import javax.inject.Inject;
  */
 @Component
 public class EmailTask {
-    
+
     @Inject
     private AlertService alertService;
 
     /**
-     * Check for result and letter alerts, updated by importer, which require an email to be sent to Users and then 
+     * Check for result and letter alerts, updated by importer, which require an email to be sent to Users and then
      * email them, run every 10 minutes.
      */
     @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
