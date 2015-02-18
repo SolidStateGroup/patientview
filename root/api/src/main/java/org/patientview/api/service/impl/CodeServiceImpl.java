@@ -71,7 +71,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
+            filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
 
         if (ArrayUtils.isNotEmpty(codeTypes) && ArrayUtils.isNotEmpty(standardTypes)) {
@@ -129,7 +129,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return code;
     }
 
-    public Code save(final Code code) throws EntityExistsException {
+    public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
+        if (!codeRepository.exists(code.getId())) {
+            throw new ResourceNotFoundException("Code does not exist");
+        }
 
         // check if another code with this code exists
         Code entityCode = codeRepository.findOneByCode(code.getCode());
@@ -168,10 +171,5 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
         return codeRepository.findAllByCodeAndType(code, codeType);
-    }
-
-    @Override
-    public List<Code> findAllByType(Lookup codeType) {
-        return codeRepository.findAllByType(codeType);
     }
 }

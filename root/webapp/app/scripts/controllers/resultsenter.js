@@ -103,8 +103,8 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
         $scope.minutes = UtilService.generateMinutes();
 
         ObservationHeadingService.getResultClusters().then(function(resultClusters) {
-
             $scope.resultClusters = resultClusters;
+            $scope.selectedResultCluster = resultClusters[0];
             $scope.loading = false;
         }, function () {
             alert('Cannot get result clusters');

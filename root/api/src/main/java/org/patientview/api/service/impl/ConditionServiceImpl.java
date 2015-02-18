@@ -11,8 +11,6 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 
@@ -30,36 +28,6 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
 
     @Inject
     private FhirResource fhirResource;
-
-    @Inject
-    private UserRepository userRepository;
-
-    @Override
-    public List<Condition> get(final Long userId, final String code)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        List<Condition> conditions = new ArrayList<>();
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
-                StringBuilder query = new StringBuilder();
-                query.append("SELECT  content::varchar ");
-                query.append("FROM    condition ");
-                query.append("WHERE   content -> 'subject' ->> 'display' = '");
-                query.append(fhirLink.getResourceId().toString());
-                query.append("' ");
-
-                conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
-            }
-        }
-
-        return conditions;
-    }
 
     @Override
     public List<Condition> get(final UUID patientUuid) throws FhirResourceException {

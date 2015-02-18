@@ -28,6 +28,8 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 /**
+ * RESTful interface for managing Groups and retrieving Group related information.
+ *
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
@@ -41,23 +43,106 @@ public class GroupController extends BaseController<GroupController> {
     @Inject
     private GroupStatisticService groupStatisticService;
 
+    /**
+     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
+     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
+     * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
+     * @param userId ID of User to get allowed relationship Groups
+     * @return Page of allowed relationship Groups
+     */
+    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
+            @PathVariable("userId") Long userId) {
+        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Add a Group as a child Group to another Group, defining a parent -> child relationship, e.g. Specialty -> Unit.
+     * @param groupId ID of parent Group to add child Group to
+     * @param childGroupId ID of child Group to be added
+     */
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void addChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
+        groupService.addChildGroup(groupId, childGroupId);
+    }
+
+    /**
+     * Add a Feature to a Group.
+     * @param groupId ID of Group to add Feature to
+     * @param featureId ID of Feature to add
+     */
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void addFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
+        groupService.addFeature(groupId, featureId);
+    }
+
+    /**
+     * Add a Group as a parent Group of another Group, defining a parent -> child relationship, e.g. Specialty -> Unit.
+     * Note: consider consolidating with addChildGroup() method.
+     * @param groupId ID of child Group to be added
+     * @param parentGroupId ID of parent Group to add child Group to
+     */
+    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void addParentGroup(@PathVariable("groupId") Long groupId,
+                               @PathVariable("parentId") Long parentGroupId) {
+        groupService.addParentGroup(groupId, parentGroupId);
+    }
+
+    /**
+     * Create a Group.
+     * @param group Group object containing all required properties
+     * @return Long ID of Group created successfully
+     */
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createGroup(@RequestBody Group group) {
         return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/public/group", method = RequestMethod.GET)
+    /**
+     * Remove a child Group from a parent Group.
+     * @param groupId ID of parent Group to remove child Group from
+     * @param childGroupId ID of child Group to remove from parent Group
+     */
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<List<org.patientview.api.model.Group>> getGroupsPublic() {
-        return new ResponseEntity<>(groupService.findAllPublic(), HttpStatus.OK);
+    public void deleteChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
+        groupService.deleteChildGroup(groupId, childGroupId);
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.GET)
+    /**
+     * Remove a Feature from a Group.
+     * @param groupId ID of Group to remove Feature from
+     * @param featureId ID of Feature to remove
+     */
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<List<Group>> getGroups() {
-        return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
+    public void deleteFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
+        groupService.deleteFeature(groupId, featureId);
     }
 
+    /**
+     * Remove a parent Group from a child Group. Note: consider consolidating with deleteChildGroup() method.
+     * @param groupId ID of child Group to remove from parent Group
+     * @param parentGroupId ID of parent Group to remove child Group from
+     */
+    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
+        groupService.deleteParentGroup(groupId, parentGroupId);
+    }
+
+    /**
+     * Get a single Group.
+     * @param groupId ID of Group to get
+     * @return Group object
+     * @throws SecurityException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId)
@@ -65,49 +150,48 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.PUT)
+    /**
+     * Get all Groups.
+     * @deprecated
+     * @return List of all Groups
+     */
+    @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
-    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException, ResourceForbiddenException {
-        groupService.save(group);
+    public ResponseEntity<List<Group>> getGroups() {
+        return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
+    /**
+     * Get publicly available information about all Groups.
+     * @return List of publicly available Group objects
+     */
+    @RequestMapping(value = "/public/group", method = RequestMethod.GET)
     @ResponseBody
-    public void addParentGroup(@PathVariable("groupId") Long groupId,
-                                                      @PathVariable("parentId") Long parentGroupId) {
-        groupService.addParentGroup(groupId, parentGroupId);
+    public ResponseEntity<List<org.patientview.api.model.Group>> getGroupsPublic() {
+        return new ResponseEntity<>(groupService.findAllPublic(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
+    /**
+     * Get list of Groups with MESSAGING Feature and Users that can be contacted by a User. On creating Conversation,
+     * where a User must select from a list of available Groups and then select a recipient.
+     * @param userId ID of User to retrieve
+     * @return List of BaseGroup containing minimal information on the Groups that can be contacted
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/messaginggroups", method = RequestMethod.GET)
     @ResponseBody
-    public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
-        groupService.deleteParentGroup(groupId, parentGroupId);
+    public ResponseEntity<List<BaseGroup>> getMessagingGroupsForUser(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(groupService.findMessagingGroupsByUserId(userId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
-    @ResponseBody
-    public void addChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
-        groupService.addChildGroup(groupId, childGroupId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public void deleteChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
-        groupService.deleteChildGroup(groupId, childGroupId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
-    @ResponseBody
-    public void addFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
-        groupService.addFeature(groupId, featureId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public void deleteFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
-        groupService.deleteFeature(groupId, featureId);
-    }
-
+    /**
+     * Get statistics for a Group given an ID.
+     * @param groupId ID of the Group to retrieve statistics for
+     * @return List of GroupStatisticTO objects with monthly statistics for a Group
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -116,6 +200,34 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
     }
 
+    /**
+     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc.
+     * @param userId ID of User retrieving Groups
+     * @param getParameters GetParameters object containing filters, page size, number etc
+     * @return Page of Group objects
+     */
+    @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getUserGroups(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
+        return new ResponseEntity<>(groupService.getUserGroups(userId, getParameters), HttpStatus.OK);
+    }
+
+    /**
+     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc. This
+     * includes all information on each Group so may return a large JSON object. Used on Contact Your Unit page.
+     * @param userId ID of User retrieving Groups
+     * @param getParameters GetParameters object containing filters, page size, number etc
+     * @return Page of Group objects
+     */
+    @RequestMapping(value = "/user/{userId}/groups/alldetails", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<Group>> getUserGroupsFull(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
+        return new ResponseEntity<>(groupService.getUserGroupsAllDetails(userId, getParameters), HttpStatus.OK);
+    }
 
     // migration only
     @RequestMapping(value = "/group/{groupId}/migratestatistics", method = RequestMethod.POST,
@@ -126,8 +238,17 @@ public class GroupController extends BaseController<GroupController> {
         groupStatisticService.migrateStatistics(groupId, statistics);
     }
 
-
-    // Second stage of forgotten password, if username or email have been forgotten
+    /**
+     * Used when a User does not know their username or password and must enter other patient identifiable information.
+     * Sends an email to an appropriate staff member given the Group selected by the user. Note: this is deprecated as
+     * considered unsafe to send patient identifiable information over email. May be re-enabled using
+     * Conversations to Group staff rather than sending emails.
+     * @param groupId ID of Group to send email to about User being unable to remember username or email
+     * @param unitRequest UnitRequest object containing typical patient identifying information, name, identifier etc
+     * @throws ResourceNotFoundException
+     * @throws MailException
+     * @throws MessagingException
+     */
     @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
     @ResponseBody
     public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
@@ -135,34 +256,15 @@ public class GroupController extends BaseController<GroupController> {
         groupService.passwordRequest(groupId, unitRequest);
     }
 
-    @RequestMapping(value = "/user/{userId}/messaginggroups", method = RequestMethod.GET)
+    /**
+     * Save an updated Group
+     * @param group Group to save
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<List<BaseGroup>> getMessagingGroupsForUser(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(groupService.findMessagingGroupsByUserId(userId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<org.patientview.api.model.Group>> getUserGroups(@PathVariable("userId") Long userId
-            , GetParameters getParameters) {
-        return new ResponseEntity<>(groupService.getUserGroups(userId, getParameters), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/user/{userId}/groups/alldetails", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<Group>> getUserGroupsFull(@PathVariable("userId") Long userId
-            , GetParameters getParameters) {
-        return new ResponseEntity<>(groupService.getUserGroupsAllDetails(userId, getParameters), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
-            @PathVariable("userId") Long userId) {
-        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException, ResourceForbiddenException {
+        groupService.save(group);
     }
 }

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * GroupStatisticTO, representing a number of different Group statistics for a certain time range.
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */

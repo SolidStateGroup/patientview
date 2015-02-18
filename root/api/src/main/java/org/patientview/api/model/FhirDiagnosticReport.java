@@ -3,10 +3,9 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * FhirDiagnosticReport, representing a diagnostic report and the associated Group which provided the data.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
- *
- * Reduced Group/Observation information FhirDiagnosticReport, for transport use
  */
 public class FhirDiagnosticReport {
 

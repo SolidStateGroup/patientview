@@ -230,6 +230,16 @@
                                         </a>
                                     </div>
                                 </li>
+                                <li class="feature-list-item pull-left" data-ng-show="statusFilter.length">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{statusFilter}} patients only</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeStatusFilter()" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -316,7 +326,7 @@
                         <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="last-login pull-left" data-ng-show="!user.lastLogin">The user has not yet logged in</div>
                         <div class="user-save-cancel pull-right">
-                            <button type="button" class="btn btn-grey close-edit" data-ng-click="user.showEdit = false">Cancel</button>
+                            <button type="button" class="btn btn-grey close-edit" data-ng-click="user.showEdit = false">Close</button>
                         </div>
                     </div>
                 </div>

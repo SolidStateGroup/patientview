@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * UserToken, representing a large amount of User and static information, retrieved after a User has authenticated
+ * successfully and has retrieved their authentication token.
  * Created by jamesr@solidstategroup.com
  * Created on 25/09/2014
  */
@@ -34,7 +36,6 @@ public class UserToken {
     private boolean groupMessagingEnabled;
 
     public UserToken() {
-
     }
 
     public UserToken(org.patientview.persistence.model.UserToken userToken) {

@@ -16,7 +16,15 @@
                 <div class="panel panel-default">
                     <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
                     <div class="panel-body">
-                        <table class="table table-bordered">
+                        <h5 data-ng-show="!patient.fhirPatient.surname && !patient.fhirPatient.forename
+                            && !patient.fhirPatient.gender && !patient.fhirPatient.dateOfBirthNoTime
+                            && !patient.fhirPatient.identifiers.length">
+                            No details have been provided by this group</h5>
+                        <br/>
+                        <table class="table table-bordered" data-ng-show="patient.fhirPatient.surname
+                            || patient.fhirPatient.forename
+                            || patient.fhirPatient.gender || patient.fhirPatient.dateOfBirthNoTime
+                            || patient.fhirPatient.identifiers.length">
                             <tbody>
                                 <tr><td colspan="2"><h4>Patient Details</h4></td></tr>
                                 <tr>
@@ -27,7 +35,7 @@
                                     <td class="forced-width">Forename(s)</td>
                                     <td>{{patient.fhirPatient.forename}}</td>
                                 </tr>
-                                <tr class="hidden">
+                                <tr>
                                     <td class="forced-width">Sex</td>
                                     <td>{{patient.fhirPatient.gender}}</td>
                                 </tr>
@@ -111,7 +119,7 @@
                 <!-- More About Me -->
                 <div class="panel-heading">
                     <h3>More About Me</h3>
-                    <p>Staff will see this information if they log into PatientView</p>
+                    <p>You can fill this in. Staff will see this information if they log into PatientView</p>
                 </div>
                 <div data-ng-show="!loading">
                     <div class="panel-body">

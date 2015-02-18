@@ -5,6 +5,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.mail.MailException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
@@ -36,6 +38,7 @@ public interface UserService {
     @RoleOnly
     Group getGenericGroup();
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
 
     User findByUsernameCaseInsensitive(String username);
@@ -67,7 +70,7 @@ public interface UserService {
      * @throws FhirResourceException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    void delete(Long userId, boolean forceDelete) 
+    void delete(Long userId, boolean forceDelete)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
@@ -136,4 +139,16 @@ public interface UserService {
     boolean currentUserCanSwitchToUser(User user);
 
     void deleteFhirLinks(Long userId);
+
+    @UserOnly
+    String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
+
+    byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+    boolean usernameExists(String username);
+
+    @UserOnly
+    void deletePicture(Long userId) throws ResourceNotFoundException;
 }

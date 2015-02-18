@@ -34,6 +34,7 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
         $scope.joinRequest.id = null;
         $scope.successMessage = null;
         $scope.errorMessage = null;
+        $scope.loading = true;
 
         var formOk = true;
 
@@ -72,9 +73,14 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
         if (formOk) {
             JoinRequestService.create(groupId, $scope.joinRequest).then(function () {
                 $scope.successMessage = 'The join request has been saved';
+                $scope.loading = false;
+                $scope.completed = true;
             }, function (result) {
                 $scope.errorMessage = 'The join request has not been submitted ' + result.data;
+                $scope.loading = false;
             });
+        } else {
+            $scope.loading = false;
         }
     };
 

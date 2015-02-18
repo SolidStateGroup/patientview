@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
+ * RESTful interface for retrieving the patient records associated with a User, retrieved from FHIR.
+ *
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
  */
@@ -25,6 +27,15 @@ public class PatientController  extends BaseController<PatientController> {
     @Inject
     private PatientService patientService;
 
+    /**
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
+     * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
+     * @param userId ID of User to retrieve patient record for
+     * @param groupIds IDs of Groups to retrieve patient records from
+     * @return List of Patient objects containing patient encounters, conditions etc
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(
@@ -32,5 +43,4 @@ public class PatientController  extends BaseController<PatientController> {
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(patientService.get(userId, groupIds), HttpStatus.OK);
     }
-
 }

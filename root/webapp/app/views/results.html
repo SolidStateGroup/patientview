@@ -10,7 +10,7 @@
         <li><a href="/#/resultsenter" class="btn blue pull-right">Enter Your Own Results</a></li>
     </ul>
     <span>Results</span>
-
+        <a href="/#/resultstable" class="btn btn-danger"><i class="glyphicon glyphicon-align-justify"></i> &nbsp; Table View</a>
     </h1>
 
     <div class="results-header content-panel">
@@ -19,7 +19,7 @@
         </div>
         <div class="content-inner clearfix">
             <form id="search-patient-results">
-                <div class="form-row pull-right">
+                <div class="form-row pull-right" data-ng-show="groups.length > 1">
                     <label for="specialty-select">Select Specialty: </label>
                     <select class="form-control" data-ng-model="selectedGroup"
                             data-ng-options="group.id as group.name for group in groups"
@@ -39,11 +39,8 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <a href="/#/resultstable" class="btn blue pull-right">Table View</a>
-        </div>
-        <div class="col-md-6">
-            <ul class="pagination results pull-left">
+        <div class="center-block">
+            <ul class="pagination results">
                 <li data-ng-repeat="(key, panel) in panels" data-ng-class="{active: currentPage == key}" data-ng-click="changePanel(key)">
                     <a href="" data-toggle="tooltip" data-placement="top" title="{{getPanelResultTitles(panel)}}">{{key}}</a>
                 </li>
@@ -64,8 +61,8 @@
                         </h4>
                     </div>
 
-                    <a href="/#/resultsdetail?code={{result.code}}">
-                        <div class="result-value" data-ng-show="result.latestObservation">
+                    <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                        <div class="result-value">
                             <dl class="result-change">
                                 <dt>
                                     <span data-ng-show="!result.latestObservation.value">Result value not available</span>
@@ -79,10 +76,14 @@
                                 </dt>
                             </dl>
                         </div>
-                        <div class="result-value" data-ng-show="!result.latestObservation">
+                    </a>
+
+                    <div data-ng-show="!result.latestObservation">
+                        <div class="result-value">
                             <h5>Not Available</h5>
                         </div>
-                    </a>
+                    </div>
+                    
                     <ul class="unstyled info-list pull-left" data-ng-show="result.latestObservation">
                         <li>
                             <span class="pull-right" data-ng-show="result.latestObservation.group">{{result.latestObservation.group.name}}</span>
@@ -91,8 +92,10 @@
                         </li>
                         <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
                     </ul>
+                    
                     <div class="result-footer">
-                        <a href="/#/resultsdetail?code={{result.code}}"><i class="icon-circle-arrow pull-right"></i>
+                        <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                            <i class="icon-circle-arrow pull-right"></i>
                             View More Details
                         </a>
                     </div>

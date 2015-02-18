@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='ASCII'?>
+<patientview>
+    <sequence>53</sequence>
+    <dateofreport>2015-02-10</dateofreport>
+    <flag></flag>
+    <centredetails>
+        <centrecode>ECS</centrecode>
+        <centrename>Emergency Care Summary, Scotland</centrename>
+    </centredetails>
+    <patient>
+        <personaldetails>
+            <nhsno>1111111111</nhsno>
+        </personaldetails>
+        <drugdetails>
+            <drug>
+                <drugstartdate>2014-03-25</drugstartdate>
+                <drugname>Advagraf 5mg modified-release capsules (Astellas Pharma Ltd) 56 capsule</drugname>
+                <drugdose>1 CAP IN THE MORNING </drugdose>
+                <code>
+                    <codetype> </codetype>
+                    <codevalue>00dG5OXwD9A</codevalue>
+                </code>
+            </drug>
+            <drug>
+                <drugstartdate>2013-06-20</drugstartdate>
+                <drugname>Azathioprine 50mg tablets 56 tablet</drugname>
+                <drugdose>1 TAB DAILY </drugdose>
+                <code>
+                    <codetype> </codetype>
+                    <codevalue>000000HTf4q</codevalue>
+                </code>
+            </drug>
+        </drugdetails>
+    </patient>
+</patientview>

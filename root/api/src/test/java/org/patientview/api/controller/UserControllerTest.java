@@ -485,7 +485,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testFindByIdentifier() throws ResourceNotFoundException  {
+    public void testFindByUsername() throws ResourceNotFoundException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -497,18 +497,67 @@ public class UserControllerTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        String identifier = "1234567890";
         User user2 = new User();
         user2.setId(1L);
+        user2.setUsername("user2");
 
-        when(userService.getByIdentifierValue(eq(identifier)))
+        when(userService.getByUsername(eq(user2.getUsername())))
                 .thenReturn(new org.patientview.api.model.User(user2, null));
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/identifier/" + identifier))
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/username/" + user2.getUsername()))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
+        }
+    }
+
+    @Test
+    public void testUsernameExists() {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User user2 = new User();
+        user2.setUsername("test");
+        user2.setId(1L);
+
+        when(userService.usernameExists(eq(user2.getUsername()))).thenReturn(true);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/usernameexists/" + user2.getUsername()))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+    }
+
+    @Test
+    public void testDeletePicture() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId() + "/picture"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
         }
     }
 }

@@ -4,8 +4,6 @@ import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,51 +19,68 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
+ * RESTful interface for retrieving static data such as Lookups or Features. Note: consider refactoring to remove this,
+ * it is not heavily used by the front end as now storing most static data in user information retrieved after login.
+ *
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
 @RestController
 public class StaticDataController extends BaseController<StaticDataController> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StaticDataController.class);
-
     @Inject
     private StaticDataManager staticDataManager;
 
+    /**
+     * Get all Features, optionally by type.
+     * @param featureType Optional type of Feature to retrieve
+     * @param request HttpServletRequest used to determine if type is passed as request parameter
+     * @return List of Feature objects
+     */
+    @RequestMapping(value = "/feature", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<Feature>> getAllFeatures(
+            @RequestParam(value = "type", required = false) String featureType, HttpServletRequest request) {
+        if (!request.getParameterMap().containsKey("type")) {
+            return new ResponseEntity<>(staticDataManager.getAllFeatures(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
+        }
+    }
+
+    /**
+     * Get all Lookups.
+     * @return List of Lookups
+     */
     @RequestMapping(value = "/lookup", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Lookup>> getAllLookups() {
         return new ResponseEntity<>(staticDataManager.getAllLookups(), HttpStatus.OK);
     }
 
-    // get lookups by lookupType type string
+    /**
+     * Get Lookups by type of Lookup.
+     * @param lookupType String for type of Lookup to retrieve
+     * @return Lookup object containing typically static data
+     */
     @RequestMapping(value = "/lookupType/{lookupType}/lookups", method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Lookup>> getLookupsByType(@PathVariable("lookupType") LookupTypes lookupType) {
-        LOG.debug("Request has been received to get lookups by type: {}", lookupType);
         return new ResponseEntity<>(staticDataManager.getLookupsByType(lookupType), HttpStatus.OK);
     }
 
-    // get lookup by lookupType type and value string
+    /**
+     * Get a single Lookup by type and value.
+     * @param lookupType String for type of Lookup to retrieve
+     * @param lookupValue String for value of Lookup to retrieve
+     * @return Lookup object containing typically static data
+     */
     @RequestMapping(value = "/lookupType/{lookupType}/lookups/{lookupValue}", method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Lookup> getLookupByTypeAndValue(@PathVariable("lookupType") LookupTypes lookupType,
                                                           @PathVariable("lookupValue") String lookupValue) {
-        LOG.debug("Request has been received to get lookups by type: {}", lookupType);
         return new ResponseEntity<>(staticDataManager.getLookupByTypeAndValue(lookupType, lookupValue), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/feature", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<Feature>> getAllFeatures(
-            @RequestParam(value = "type", required = false) String featureType, HttpServletRequest request) {
-
-        if (!request.getParameterMap().containsKey("type")) {
-            return new ResponseEntity<>(staticDataManager.getAllFeatures(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
-        }
     }
 }

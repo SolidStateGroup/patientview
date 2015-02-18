@@ -4,6 +4,7 @@ import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.enums.RoleName;
 
 /**
+ * Role, representing a single Role, such as PATIENT or UNIT_ADMIN.
  * Created by jamesr@solidstategroup.com
  * Created on 28/08/2014
  */

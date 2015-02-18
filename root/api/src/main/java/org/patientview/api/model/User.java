@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.UserFeature;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * User, representing user information and extending from the basic user information in BaseUser.
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
@@ -35,8 +37,10 @@ public class User extends BaseUser {
     // FHIR
     private Date fhirDateOfBirth;
 
-    public User() {
+    // picture, stored as base64 in database, but retrieved using separate call to User controller
+    private String picture;
 
+    public User() {
     }
 
     public User(org.patientview.persistence.model.User user, org.hl7.fhir.instance.model.Patient patient) {
@@ -77,6 +81,11 @@ public class User extends BaseUser {
         setIdentifiers(user.getIdentifiers());
         setDeleted(user.getDeleted());
         setRoleDescription(user.getRoleDescription());
+
+        // old method uses base64 to display image, doesn't work in ie8 so just return size as string
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            setPicture(Integer.toString(user.getPicture().length()));
+        }
     }
 
     public String getEmail() {
@@ -198,5 +207,13 @@ public class User extends BaseUser {
 
     public void setChangePassword(Boolean changePassword) {
         this.changePassword = changePassword;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

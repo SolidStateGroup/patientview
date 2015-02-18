@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * This is the class that executes the job to collate the stats.
+ * Scheduled tasks for generating Group statistics.
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */

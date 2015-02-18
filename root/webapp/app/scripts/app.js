@@ -42,7 +42,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngRoute',
     'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
     'angulartics.google.analytics',
-    'pasvaz.bindonce'       // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
+    'pasvaz.bindonce',       // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
+    'angularFileUpload'     // https://github.com/nervgh/angular-file-upload
 ]);
 
 patientviewApp.filter('startFrom', function() {
@@ -69,12 +70,15 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     function($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
              RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
+    // fastclick to remove 300ms delay on touch devices: https://github.com/ftlabs/fastclick
+    FastClick.attach(document.body);
+        
     $rootScope.ieTestMode = false;
     $rootScope.apiEndpoint = ENV.apiEndpoint;
     $rootScope.buildDateTime = ENV.buildDateTime;
 
     // rebuild routes from cookie, allow refresh of page
-    var buildRoute = function() {
+    $rootScope.buildRoute = function() {
         var data = { 'default': '/' };
         data.routes = [];
         var menu = localStorageService.get('routes');
@@ -230,11 +234,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     };
 
     $rootScope.$on('$locationChangeStart', function() {
-        buildRoute();
+        $rootScope.buildRoute();
     });
 
     $rootScope.$on('$routeChangeSuccess', function(event, currentRoute) {
         $rootScope.title = currentRoute.title;
+        $rootScope.resetTimeoutTimers();
     });
 
     $rootScope.$on('$viewContentLoaded', function(){
@@ -290,6 +295,14 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             alert('Cannot view patient');
         });
     };
+        
+    $rootScope.showTestHeader = function() {
+        return window.location.href.indexOf('test.patientview') > -1;
+    };
+        
+    $rootScope.getCurrentTime = function() {
+        return new Date();
+    };
 
     // get auth token
     var authToken = localStorageService.get('authToken');
@@ -323,7 +336,40 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
     $rootScope.initialised = true;
     $rootScope.endPoint = ENV.apiEndpoint;
+        
+    // client based timeouts, will log you out of back end in 60 minutes
+    $rootScope.timoutWarning = 3480000;     // 55 minutes
+    $rootScope.timoutNow = 3480000;         // 58 minutes
+    //$rootScope.timoutWarning = 5000;     // 5s
+    //$rootScope.timoutNow = 10000;         // 10s
 
+    $("#timeout").hide();
+
+    // Show idle timeout warning dialog.
+    var idleWarning = function IdleWarning() {
+        $("#timeout").show();
+    };
+
+    // Logout the user.
+    var idleTimeout = function IdleTimeout() {
+        window.location = '/#/logout';
+    };
+
+    // Start timers.
+    $rootScope.startTimers = function() {
+        if ($rootScope.authToken) {
+            $rootScope.warningTimer = setTimeout(idleWarning, $rootScope.timoutWarning);
+            $rootScope.timeoutTimer = setTimeout(idleTimeout, $rootScope.timoutNow);
+        }
+    };
+        
+    // Reset timers.
+    $rootScope.resetTimeoutTimers = function() {
+        clearTimeout($rootScope.warningTimer);
+        clearTimeout($rootScope.timeoutTimer);
+        $rootScope.startTimers();
+        $("#timeout").hide();
+    };
 }]);
 
 $('html').click(function(e){
@@ -374,4 +420,7 @@ $('html').click(function(e){
         tableElement.find('.faux-row').removeClass('dull');
         tableElement.find('.edit-button').removeClass('editing');
     }
+    
+    var scope = angular.element($('#timeout')).scope();
+    scope.resetTimeoutTimers();
 });

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * Configuration for cache management using ehcache, typically used for service method calls that happen every request.
  * Created by jamesr@solidstategroup.com
  * Created on 08/10/2014
  */

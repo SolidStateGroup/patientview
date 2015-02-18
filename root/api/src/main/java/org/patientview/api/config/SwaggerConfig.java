@@ -13,20 +13,19 @@ import javax.inject.Inject;
 import java.util.Properties;
 
 /**
+ * Configuration of Swagger, used to display API documentation in web interface for external API developers.
  * Created by jamesr@solidstategroup.com
  * Created on 23/01/2015
  */
 @Configuration
 @EnableSwagger
-@ComponentScan({
-        "org.patientview.api.controller"
-})
+@ComponentScan({ "org.patientview.api.controller" })
 public class SwaggerConfig {
 
     private SpringSwaggerConfig springSwaggerConfig;
-    
+
     @Inject
-    Properties properties;
+    private Properties properties;
 
     @Autowired
     public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig) {
@@ -34,7 +33,7 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public SwaggerSpringMvcPlugin customImplementation(){
+    public SwaggerSpringMvcPlugin customImplementation() {
         return new SwaggerSpringMvcPlugin(this.springSwaggerConfig)
                 .apiInfo(apiInfo())
                 .includePatterns(".*?")

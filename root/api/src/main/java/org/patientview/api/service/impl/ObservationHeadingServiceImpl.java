@@ -280,7 +280,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                     return uoh1.getCreated().compareTo(uoh2.getCreated());
                 }
             });
-            
+
             for (UserObservationHeading userObservationHeading : userObservationHeadings) {
                 observationHeadings.add(userObservationHeading.getObservationHeading());
             }

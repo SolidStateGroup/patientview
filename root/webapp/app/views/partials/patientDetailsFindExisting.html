@@ -1,11 +1,23 @@
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
+        <label for="username" class="control-label">Search by Username</label>
+    </div>
+    <div class="col-md-7">
+        <input type="text" class="form-control" id="username">
+    </div>
+    <div class="col-md-2">
+        <button class="btn blue" data-ng-click="findByUsername()" data-ng-show="permissions.canCreatePatients">Find</button>
+    </div>
+</div>
+<br/>
+<div class="form-horizontal row" role="form">
+    <div class="col-md-3">
         <label for="identifier" class="control-label">Search by Identifier</label>
     </div>
     <div class="col-md-7">
         <input type="text" class="form-control" id="identifier">
     </div>
     <div class="col-md-2">
-        <button class="btn blue" data-ng-click="find()" data-ng-show="permissions.canCreatePatients">Find</button>
+        <button class="btn blue" data-ng-click="findByIdentifier()" data-ng-show="permissions.canCreatePatients">Find</button>
     </div>
 </div>

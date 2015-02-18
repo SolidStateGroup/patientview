@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * BaseUser, representing the minimum information required for Users.
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
@@ -21,7 +22,6 @@ public class BaseUser {
     private String roleDescription;
 
     public BaseUser() {
-
     }
 
     public BaseUser(org.patientview.persistence.model.User user) {

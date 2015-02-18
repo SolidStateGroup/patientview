@@ -19,12 +19,9 @@ import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
-import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 
@@ -84,16 +81,16 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         try {
             patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
-            String errorMessage = patientview.getPatient().getPersonaldetails().getNhsno()
-                    + ": patient with identifier does not exist in PatientView";
+            String errorMessage =  "Patient with identifier '" 
+                    + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView";
             LOG.error(errorMessage);
             throw new ImportResourceException(errorMessage);
         }
 
         // Group exists
         if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
-            String errorMessage = patientview.getCentredetails().getCentrecode()
-                    + ": group does not exist in PatientView";
+            String errorMessage = "Group with code '" + patientview.getCentredetails().getCentrecode() 
+                    + "' does not exist in PatientView";
             LOG.error(errorMessage);
             throw new ImportResourceException(errorMessage);
         }
@@ -148,7 +145,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.info(patientview.getPatient().getPersonaldetails().getNhsno()
                     + ": Finished Import. Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
-            createAudit(AuditActions.PATIENT_DATA_SUCCESS, patientview.getPatient().getPersonaldetails().getNhsno(),
+            auditService.createAudit(AuditActions.PATIENT_DATA_SUCCESS, 
+                    patientview.getPatient().getPersonaldetails().getNhsno(),
                     patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);
             
             updateGroupLastImportDate(patientview.getCentredetails().getCentrecode());
@@ -165,37 +163,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
         long diffInMilliseconds = date2.getTime() - date1.getTime();
         return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
-    }
-
-    private void createAudit(AuditActions auditActions, String identifier, String unitCode,
-                             String information, String xml, Long importerUserId) {
-
-        Audit audit = new Audit();
-        audit.setAuditActions(auditActions);
-        audit.setActorId(importerUserId);
-        audit.setInformation(information);
-        audit.setXml(xml);
-
-        // attempt to set identifier and user being imported from identifier
-        if (identifier != null) {
-            audit.setIdentifier(identifier);
-            User patientUser = auditService.getUserByIdentifier(identifier);
-            if (patientUser != null) {
-                audit.setSourceObjectId(patientUser.getId());
-                audit.setSourceObjectType(AuditObjectTypes.User);
-                audit.setUsername(patientUser.getUsername());
-            }
-        }
-
-        // attempt to set group doing the importing
-        if (unitCode != null) {
-            Group group = auditService.getGroupByCode(unitCode);
-            if (group != null) {
-                audit.setGroup(group);
-            }
-        }
-
-        auditService.save(audit);
     }
     
     private void updateGroupLastImportDate(String groupCode) {

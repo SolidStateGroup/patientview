@@ -28,20 +28,34 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
                 $rootScope.loggedInUser = user;
                 localStorageService.set('loggedInUser', user);
-
                 $scope.loading = false;
 
-                if (user.changePassword) {
-                    $rootScope.routes = [];
-                    $rootScope.routes.push(RouteService.getChangePasswordRoute());
-                    $location.path('/changepassword');
-                    localStorageService.set('routes', $rootScope.routes);
+                if (userInformation.routes !== undefined && userInformation.routes.length) {
+                    if (user.changePassword) {
+                        $rootScope.routes = [];
+                        $rootScope.routes.push(RouteService.getChangePasswordRoute());
+                        localStorageService.set('routes', $rootScope.routes);
+                        
+                        // manually call buildroute, ios fix
+                        $rootScope.buildRoute();
+                        
+                        $location.path('/changepassword');
+                    } else {
+                        $rootScope.routes = userInformation.routes;
+                        localStorageService.set('routes', userInformation.routes);
+                        
+                        // manually call buildroute, ios fix
+                        $rootScope.buildRoute();
+                        
+                        $location.path('/dashboard');
+                    }
                 } else {
-                    $rootScope.routes = userInformation.routes;
-                    localStorageService.set('routes', userInformation.routes);
-                    $location.path('/dashboard');
+                    // error getting routes
+                    alert("Error retrieving routes, please contact PatientView support");
+                    $location.path('/logout');
                 }
 
+                $rootScope.startTimers();
             }, function(result) {
                 if (result.data) {
                     $scope.errorMessage = ' - ' + result.data;

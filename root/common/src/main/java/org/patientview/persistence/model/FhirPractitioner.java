@@ -36,7 +36,7 @@ public class FhirPractitioner extends BaseModel {
         if (practitioner.getAddress() != null) {
             Address address = practitioner.getAddress();
             if (!address.getLine().isEmpty()) {
-                setAddress1(address.getLine().get(0).getValue());
+                setAddress1(address.getLine().get(0).getValue().replace("''","'"));
             }
             setAddress2(address.getCitySimple());
             setAddress3(address.getStateSimple());

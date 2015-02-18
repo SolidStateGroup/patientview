@@ -49,6 +49,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.ObservationHeading;
@@ -56,6 +57,8 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
@@ -139,6 +142,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     // used during migration
     private HashMap<String, ObservationHeading> observationHeadingMap;
     private static final String GENDER_CODING = "gender";
+    private static final String RENAL_GROUP_CODE = "Renal";
+    private static final String GEN_CODE = "GEN";
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
@@ -154,7 +159,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         List<org.patientview.api.model.Patient> patients = new ArrayList<>();
         List<FhirLink> fhirLinks = new ArrayList<>();
         fhirLinks.addAll(user.getFhirLinks());
-
+        
         // sort fhirLinks by id
         Collections.sort(fhirLinks, new Comparator<FhirLink>() {
             public int compare(FhirLink f1, FhirLink f2) {
@@ -162,11 +167,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         });
 
+        List<Long> foundFhirLinkGroupIds = new ArrayList<>();
+        
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
             if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
                 if (fhirLink.getActive() && !Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
                     Patient fhirPatient = get(fhirLink.getResourceId());
+                    foundFhirLinkGroupIds.add(fhirLink.getGroup().getId());
 
                     if (fhirPatient != null) {
                         Practitioner fhirPractitioner = null;
@@ -182,8 +190,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
-                        // set encounters
-                        patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
+                        // set encounters (treatment)
+                        patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()), user);
 
                         // set edta diagnosis if present based on available codes
                         patient = setDiagnosisCodes(patient);
@@ -194,6 +202,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         patients.add(patient);
                     }
                 }
+            }
+        }
+
+        // make sure group links are displayed on screen, even if no fhirlink exists for the patient's groups, ignore
+        // specialty groups
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            if (!foundFhirLinkGroupIds.contains(group.getId()) && group.getVisible() 
+                    && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                org.patientview.api.model.Patient p = new org.patientview.api.model.Patient();
+                p.setFhirPatient(new FhirPatient());
+                p.setGroup(new org.patientview.api.model.Group(group));
+                patients.add(p);
             }
         }
 
@@ -260,8 +281,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     private org.patientview.api.model.Patient setEncounters(org.patientview.api.model.Patient patient,
-                                              List<Encounter> encounters) throws FhirResourceException {
+                                              List<Encounter> encounters, User user) throws FhirResourceException {
 
+        boolean hasTreatment = false;
         patient.setFhirEncounters(new ArrayList<FhirEncounter>());
 
         // replace fhirEncounter type field with a more useful description if it exists in codes
@@ -286,6 +308,31 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             patient.getFhirEncounters().add(fhirEncounter);
+
+            if (fhirEncounter.getEncounterType().equals(EncounterTypes.TREATMENT.toString())) {
+                hasTreatment = true;
+            }
+        }
+
+        // Card #314 if no treatment type encounter exists and patient is member of renal specialty, add GEN
+        if (!hasTreatment) {
+            boolean isMemberOfRenal = false;
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getGroup().getCode().equals(RENAL_GROUP_CODE)) {
+                    isMemberOfRenal = true;
+                }
+            }
+            if (isMemberOfRenal) {
+                List<Code> codes = codeService.findAllByCodeAndType(GEN_CODE,
+                        lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
+                if (!CollectionUtils.isEmpty(codes)) {
+                    FhirEncounter fhirEncounter = new FhirEncounter();
+                    fhirEncounter.setEncounterType(EncounterTypes.TREATMENT.toString());
+                    fhirEncounter.setLinks(codes.get(0).getLinks());
+                    fhirEncounter.setStatus(codes.get(0).getDescription());
+                    patient.getFhirEncounters().add(fhirEncounter);
+                }
+            }
         }
 
         return patient;

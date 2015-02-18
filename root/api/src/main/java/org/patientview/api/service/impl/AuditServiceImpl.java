@@ -142,7 +142,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
+            filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
 
         Page<org.patientview.persistence.model.Audit> audits;

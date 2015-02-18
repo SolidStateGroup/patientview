@@ -24,7 +24,9 @@ public enum StatisticType {
     PATIENT_VIEW_COUNT("Patients viewed"),
     UNIQUE_LOGGED_ON_COUNT("Unique logons"),
     UNIQUE_PATIENT_DATA_SUCCESS_COUNT("Unique successful imports"),
-    USER_COUNT("User count");
+    USER_COUNT("User count"),
+    INACTIVE_PATIENT_COUNT("Inactive Patients"),
+    LOCKED_PATIENT_COUNT("Locked Patients");
 
     private String name;
     StatisticType(String name) { this.name = name; }

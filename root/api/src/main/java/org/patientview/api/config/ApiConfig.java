@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 import java.util.Properties;
 
 /**
+ * Base configuration for API
  * Created by james@solidstategroup.com
  * Created on 03/06/2014.
  */
@@ -31,6 +33,8 @@ public class ApiConfig {
 
     @Inject
     private Properties properties;
+
+    private static final int TEN_MB = 10485760;
 
     //TODO this just gets the "name" of the enum
     // remove and implement JSON shape object
@@ -60,6 +64,10 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
+    /**
+     * Configure JavaMailSender, used when sending emails.
+     * @return JavaMailSenderImpl with properties set from environment specific .properties file
+     */
     @Bean
     public JavaMailSenderImpl javaMailSender() {
         final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
@@ -80,6 +88,10 @@ public class ApiConfig {
         return javaMailSender;
     }
 
+    /**
+     * Configure ThreadPoolTaskExecutor used by migration process when migrating observations quickly from PatientView1
+     * @return ThreadPoolTaskExecutor
+     */
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
@@ -87,5 +99,17 @@ public class ApiConfig {
         threadPoolTaskExecutor.setMaxPoolSize(1);
         threadPoolTaskExecutor.setQueueCapacity(Integer.MAX_VALUE);
         return threadPoolTaskExecutor;
+    }
+
+    /**
+     * Configure CommonsMultipartResolver for use when receiving MultiPartFile uploads
+     * @return CommonsMultipartResolver
+     */
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+        commonsMultipartResolver.setDefaultEncoding("utf-8");
+        commonsMultipartResolver.setMaxUploadSize(TEN_MB); // 10MB
+        return commonsMultipartResolver;
     }
 }

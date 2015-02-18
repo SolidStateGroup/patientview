@@ -881,4 +881,30 @@ public class UserServiceTest {
         Assert.assertEquals("Should not be able to get unit admin in same unit", false,
                 userService.currentUserCanSwitchToUser(switchUser4));
     }
+
+    @Test
+    public void testUsernameExists() {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User staffUser = TestUtils.createUser("existing");
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findByUsernameCaseInsensitive(eq(staffUser.getName()))).thenReturn(staffUser);
+
+        userService.usernameExists(staffUser.getUsername());
+        verify(userRepository, Mockito.times(1)).findByUsernameCaseInsensitive(eq(staffUser.getUsername()));
+    }
 }

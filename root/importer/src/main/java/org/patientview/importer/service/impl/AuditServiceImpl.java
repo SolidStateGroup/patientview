@@ -6,6 +6,8 @@ import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.RestrictedUsernames;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -31,15 +33,10 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     private UserRepository userRepository;
 
     @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
     private IdentifierRepository identifierRepository;
 
-    @Override
-    public Audit save(Audit audit) {
-        return auditRepository.save(audit);
-    }
+    @Inject
+    private GroupRepository groupRepository;
 
     @Override
     public Long getImporterUserId() throws ResourceNotFoundException {
@@ -50,8 +47,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         return importerUser.getId();
     }
 
-    @Override
-    public User getUserByIdentifier(String identifier) {
+    private User getUserByIdentifier(String identifier) {
         List<Identifier> identifiers = identifierRepository.findByValue(identifier);
         if (CollectionUtils.isEmpty(identifiers)) {
             return null;
@@ -60,9 +56,36 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         // assume identifiers are unique so get the user associated with the first identifier
         return identifiers.get(0).getUser();
     }
-
+    
     @Override
-    public Group getGroupByCode(String unitCode) {
-        return groupRepository.findByCode(unitCode);
+    public void createAudit(AuditActions auditActions, String identifier, String unitCode,
+                     String information, String xml, Long importerUserId) {
+
+        Audit audit = new Audit();
+        audit.setAuditActions(auditActions);
+        audit.setActorId(importerUserId);
+        audit.setInformation(information);
+        audit.setXml(xml);
+
+        // attempt to set identifier and user being imported from identifier
+        if (identifier != null) {
+            audit.setIdentifier(identifier);
+            User patientUser = getUserByIdentifier(identifier);
+            if (patientUser != null) {
+                audit.setSourceObjectId(patientUser.getId());
+                audit.setSourceObjectType(AuditObjectTypes.User);
+                audit.setUsername(patientUser.getUsername());
+            }
+        }
+
+        // attempt to set group doing the importing
+        if (unitCode != null) {
+            Group group = groupRepository.findByCode(unitCode);
+            if (group != null) {
+                audit.setGroup(group);
+            }
+        }
+
+        auditRepository.save(audit);
     }
 }

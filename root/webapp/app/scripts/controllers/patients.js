@@ -1,7 +1,5 @@
 'use strict';
 
-// todo: consider controllers in separate files
-
 // new patient modal instance controller
 var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
 function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
@@ -31,10 +29,27 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     // set role to first
     $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
 
+    // check username is not already in use
+    $scope.checkUsername = function () {
+        UserService.checkUsernameExists($scope.editUser.username).then(function (usernameExists) {
+            $scope.editUser.usernameChecked = true;
+            if (usernameExists === 'true') {
+                $scope.editUser.usernameExists = true;
+            } else {
+                $scope.editUser.usernameExists = false;
+            }
+        }, function (errorResult) {
+            alert("Error: " + errorResult.data);
+        });
+    };
+
+    // clear username check when username is changed
+    $scope.$watch('editUser.username', function () {
+        $scope.editUser.usernameChecked = false;
+    });
+
     // click Create New button
     $scope.create = function () {
-        var i;
-
         // check date of birth if entered
         if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
             && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
@@ -54,36 +69,8 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
                 });
             }, function(result) {
                 if (result.status === 409) {
-                    // 409 = CONFLICT, means user already exists, provide UI to edit existing user group roles
-                    // but only if user has rights to GET user
-
-                    UserService.get(result.data).then(function(result) {
-                        $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-                        $scope.editUser = result;
-                        $scope.existingUser = true;
-                        $scope.editMode = true;
-                        $scope.pagedItems = [];
-
-                        // get user existing group/roles from groupRoles
-                        $scope.editUser.groups = [];
-                        for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
-                            var groupRole = $scope.editUser.groupRoles[i];
-                            var group = groupRole.group;
-                            group.role = groupRole.role;
-                            $scope.editUser.groups.push(group);
-                        }
-
-                        // set available groups so user can add another group/role to the users existing group roles if required
-                        $scope.editUser.availableGroups = $scope.allGroups;
-                        for (i = 0; i < $scope.editUser.groups.length; i++) {
-                            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-                        }
-
-                        // set available user roles
-                        $scope.editUser.roles = $scope.allowedRoles;
-                    }, function () {
-                        $scope.warningMessage = 'This username is restricted, please try another';
-                    });
+                    // 409 = CONFLICT, means user already exists
+                    $scope.warningMessage = 'A patient with this username or email already exists. Please choose an alternative or search for an existing patient if you want to add them to your group';
                 } else {
                     // Other errors treated as standard errors
                     $scope.errorMessage = 'There was an error: ' + result.data;
@@ -117,38 +104,70 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.editMode = false;
     $scope.editUser = {};
 
-    // click Find button
-    $scope.find = function () {
-        var identifier = $('#identifier').val();
-        var i;
+    // click Find by username button
+    $scope.findByUsername = function () {
+        UserService.findByUsername($('#username').val()).then(function(result) {
+            showUserOnScreen(result, "username");
+        }, function () {
+            $scope.warningMessage = 'No patient exists with this username';
+        });
+    };
 
-        UserService.findByIdentifier(identifier).then(function(result) {
-            $scope.editUser = result;
-            $scope.existingUser = true;
-            $scope.editMode = true;
-            $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-            $scope.pagedItems = [];
-
-            // get user existing group/roles from groupRoles
-            $scope.editUser.groups = [];
-            for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
-                var groupRole = $scope.editUser.groupRoles[i];
-                var group = groupRole.group;
-                group.role = groupRole.role;
-                $scope.editUser.groups.push(group);
-            }
-
-            // set available groups so user can add another group/role to the users existing group roles if required
-            $scope.editUser.availableGroups = $scope.allGroups;
-            for (i = 0; i < $scope.editUser.groups.length; i++) {
-                $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-            }
-
-            // set available user roles
-            $scope.editUser.roles = $scope.allowedRoles;
+    // click Find by username button
+    $scope.findByIdentifier = function () {
+        UserService.findByIdentifier($('#identifier').val()).then(function(result) {
+            showUserOnScreen(result, "identifier");
         }, function () {
             $scope.warningMessage = 'No patient exists with this identifier';
         });
+    };
+
+    var showUserOnScreen = function (result, searchType) {
+        $scope.editUser = result;
+        $scope.existingUser = true;
+        $scope.editMode = true;
+        $scope.warningMessage = 'A user with this '
+            + searchType
+            + ' already exists. Add them to your group if required, then close this window. '
+            + 'You can then edit their details normally as they will appear in the refreshed list.';
+        $scope.pagedItems = [];
+        var i;
+
+        // get user existing group/roles from groupRoles
+        $scope.editUser.groups = [];
+        for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+            var groupRole = $scope.editUser.groupRoles[i];
+
+            // global admin can see all group roles of globaladmin
+            if ($scope.permissions.isSuperAdmin) {
+                if (groupRole.role.name === 'GLOBAL_ADMIN') {
+                    groupRole.group.visible = true;
+                }
+            }
+            
+            var group = groupRole.group;
+            group.role = groupRole.role;
+            $scope.editUser.groups.push(group);
+        }
+
+        // global admin can see all group roles of globaladmin
+        if ($scope.permissions.isSuperAdmin) {
+            for(i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                if ($scope.editUser.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                    $scope.editUser.groupRoles[i].group.visible = true;
+                }
+            }
+        }
+
+        // set available groups so user can add another group/role to the users existing group roles if required
+        $scope.editUser.availableGroups = $scope.allGroups;
+        for (i = 0; i < $scope.editUser.groups.length; i++) {
+            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups,
+                _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+        }
+
+        // set available user roles
+        $scope.editUser.roles = $scope.allowedRoles;
     };
 
     $scope.cancel = function () {
@@ -326,10 +345,10 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Patient controller
-angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location',
+angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location', '$routeParams',
     'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 'AuthService', 'localStorageService',
     'UtilService', '$route',
-    function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
+    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, RoleService, FeatureService,
               StaticDataService, AuthService, localStorageService, UtilService, $route) {
 
     $scope.itemsPerPage = 10;
@@ -338,6 +357,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
     $scope.searchItems = {};
+    $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
@@ -361,7 +381,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     });
 
     // filter users by group
-    $scope.selectedGroup = [];
     $scope.setSelectedGroup = function () {
         delete $scope.successMessage;
         var id = this.group.id;
@@ -400,38 +419,43 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.getItems();
     };
 
+    // pagination
     $scope.pageCount = function() {
-        return Math.ceil($scope.total/$scope.itemsPerPage);
+        return Math.ceil($scope.total / $scope.itemsPerPage);
     };
 
     $scope.range = function() {
-        var rangeSize = 10;
-        var ret = [];
-        var start;
+        var rangeSize = $scope.itemsPerPage;
+        var pageNumbers = [];
+        var startPage;
 
-        if ($scope.currentPage < 10) {
-            start = 0;
+        if (($scope.currentPage - $scope.itemsPerPage / 2) < 0) {
+            startPage = 0;
         } else {
-            start = $scope.currentPage;
+            startPage = $scope.currentPage - $scope.itemsPerPage / 2;
         }
 
-        if ( start > $scope.pageCount()-rangeSize ) {
-            start = $scope.pageCount()-rangeSize;
+        if (startPage > $scope.pageCount() - rangeSize) {
+            startPage = $scope.pageCount() - rangeSize;
         }
 
-        for (var i=start; i<start+rangeSize; i++) {
+        for (var i = startPage; i < startPage + rangeSize; i++) {
             if (i > -1) {
-                ret.push(i);
+                pageNumbers.push(i);
             }
         }
 
-        return ret;
+        return pageNumbers;
     };
 
-    $scope.setPage = function(n) {
-        if (n > -1 && n < $scope.totalPages) {
-            $scope.currentPage = n;
+    $scope.setPage = function(pageNumber) {
+        if (pageNumber > -1 && pageNumber < $scope.totalPages) {
+            $scope.currentPage = pageNumber;
         }
+    };
+
+    $scope.firstPage = function() {
+        $scope.currentPage = 0;
     };
 
     $scope.prevPage = function() {
@@ -440,18 +464,30 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? 'hidden' : '';
-    };
-
     $scope.nextPage = function() {
         if ($scope.currentPage < $scope.totalPages - 1) {
             $scope.currentPage++;
         }
     };
 
+    $scope.lastPage = function() {
+        $scope.currentPage = $scope.totalPages - 1;
+    };
+
+    $scope.firstPageDisabled = function() {
+        return (($scope.currentPage - $scope.itemsPerPage / 2) < 0) ? 'hidden' : '';
+    };
+
+    $scope.prevPageDisabled = function() {
+        return $scope.currentPage === 0 ? 'hidden' : '';
+    };
+
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'hidden' : '';
+    };
+
+    $scope.lastPageDisabled = function() {
+        return ($scope.currentPage + 6 > $scope.pageCount()) ? 'hidden' : '';
     };
 
     $scope.sortBy = function(sortField) {
@@ -473,7 +509,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
-        $scope.loadingMessage = 'Loading Patients';
         $scope.loading = true;
 
         var getParameters = {};
@@ -490,6 +525,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
         getParameters.searchEmail = $scope.searchItems.searchEmail;
 
+        // for filtering users by status (e.g. locked, active, inactive)
+        getParameters.statusFilter = $scope.statusFilter;
+
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
@@ -502,13 +540,26 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
             delete $scope.loading;
+        }, function() {
+            alert("Error retrieving users");
+            delete $scope.loading;
         });
     };
 
     // Init
     $scope.init = function () {
-
         $scope.initFinished = false;
+        
+        if ($routeParams.statusFilter !== undefined) {
+            var allowedStatusFilters = ['ACTIVE', 'INACTIVE', 'LOCKED'];
+            if (allowedStatusFilters.indexOf($routeParams.statusFilter.toUpperCase()) > -1) {
+                $scope.statusFilter = $routeParams.statusFilter;
+            }
+        }
+        
+        if ($routeParams.groupId !== undefined && !isNaN($routeParams.groupId)) {
+            $scope.selectedGroup.push(Number($routeParams.groupId));
+        }
 
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears();
@@ -822,12 +873,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             if (user.isNewUser) {
                 $scope.printSuccessMessage = true;
                 $scope.successMessage = 'User successfully created ' +
-                    'with username: "' + user.username + '" ' +
-                    'and password: "' + user.password + '"';
+                    'with username: ' + user.username + ' ' +
+                    'and password: ' + user.password;
                 $scope.userCreated = true;
             } else {
                 // is an already existing user, likely updated group roles
-                $scope.successMessage = 'User successfully updated with username: "' + user.username + '"';
+                $scope.successMessage = 'User successfully updated with username: ' + user.username;
             }
 
             $scope.currentPage = 0;
@@ -997,7 +1048,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             modalInstance.result.then(function (successResult) {
                 $scope.printSuccessMessage = true;
                 $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
-                    + ' (username "' + user.username + '"), new password is: "' + successResult.password + '"';
+                    + ' (username: ' + user.username + '), new password is: ' + successResult.password;
             }, function () {
                 // closed
             });
@@ -1044,6 +1095,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         printWindow.focus();
         printWindow.print();
         printWindow.close();
+    };
+
+    $scope.removeStatusFilter = function() {
+        delete $scope.statusFilter;
+        $scope.getItems();
     };
 
     $scope.init();

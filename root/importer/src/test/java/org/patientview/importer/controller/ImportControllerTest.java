@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.importer.service.QueueService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -42,13 +44,15 @@ public class ImportControllerTest {
     @Mock
     UriComponentsBuilder uriComponentsBuilder;
 
-    MockMvc mockMvc;
-
     @Mock
     QueueService queueService;
 
     @InjectMocks
     ImportController importController;
+
+    MockMvc mockMvc;
+    
+    private static final Logger LOG = LoggerFactory.getLogger(ImportControllerTest.class);
 
     @Before
     public void setup() {
@@ -85,7 +89,7 @@ public class ImportControllerTest {
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
-        post(getTestFile());
+        LOG.info(post(getTestFile()).toString());
     }
 
     // used to test the service once running (milestone 4 files)
@@ -114,6 +118,7 @@ public class ImportControllerTest {
 
         //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
         String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        //String fileName = "data/xml/ECS_1111111111_new.xml";
         //String fileName = "data/xml/PRODUCTION_TEST_1111111118.xml";
         //String fileName = "data/xml/SAC02_01436_1111111111_blankgp.xml";
         //String fileName = "data/xml/SAC02_01436_1111111111_single.xml";
@@ -139,7 +144,7 @@ public class ImportControllerTest {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="https://staging.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         String postUrl="http://localhost:8081/importer/import";
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";
         HttpPost post = new HttpPost(postUrl);

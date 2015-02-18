@@ -711,8 +711,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 direction = Sort.Direction.DESC;
             }
 
-            pageable = new PageRequest(pageConverted, sizeConverted, 
-                    new Sort(new Sort.Order(direction, sortField)));
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
@@ -722,7 +721,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
+            filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
         Page<Group> groupPage;
         User user = userRepository.findOne(userId);

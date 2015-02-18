@@ -1,6 +1,8 @@
 package org.patientview.api.model;
 
 /**
+ * ObservationHeadingGroup, representing the relationship between an ObservationHeading and a Group (specialty), used
+ * when determining panel and panel order of results in the default results view.
  * Created by jamesr@solidstategroup.com
  * Created on 17/09/2014
  */
@@ -13,7 +15,6 @@ public class ObservationHeadingGroup {
     private Long panelOrder;
 
     public ObservationHeadingGroup() {
-
     }
 
     public ObservationHeadingGroup(org.patientview.persistence.model.ObservationHeadingGroup observationHeadingGroup) {

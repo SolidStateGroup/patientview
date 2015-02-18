@@ -30,6 +30,8 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 
 /**
+ * RESTful interface for authentication actions, including login/logout, User password reset and viewing Users.
+ *
  * Created by james@solidstategroup.com
  * Created on 13/06/2014
  */
@@ -44,42 +46,16 @@ public class AuthController extends BaseController<AuthController> {
     @Inject
     private UserService userService;
 
-    @ExcludeFromApiDoc
-    @RequestMapping(value = "/status", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<String> testService() {
-        return new ResponseEntity<>("API OK", HttpStatus.OK);
-    }
-
-    // switch to another user by authenticating and returning token
-    @ApiOperation(value = "Switch User", notes = "Switch to a patient, equivalent to logging in as that user")
-    @CacheEvict(value = "unreadConversationCount", allEntries = true)
-    @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
-            throws AuthenticationServiceException {
-        return new ResponseEntity<>(authenticationService.switchToUser(userId), HttpStatus.OK);
-    }
-
-    // switch to previous user using previous auth token
-    @ApiOperation(value = "Switch to Previous User", notes = "Switch back to original user after viewing a patient")
-    @CacheEvict(value = "unreadConversationCount", allEntries = true)
-    @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
-                                                       @PathVariable("userId") Long userId) 
-            throws AuthenticationServiceException {
-        return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
-    }
-
-    // populate userToken with user information (security roles, groups etc) performed after login
-    @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user " +
-            "information and static data")
-    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
-            throws AuthenticationServiceException, ResourceForbiddenException {
-        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
-    }
-
-    // Stage 1 of Forgotten Password, user knows username and email
+    /**
+     * Method called by a user who has forgotten their own password. User's put in their username and email address and
+     * if they match receive an email with login details. User's must change their password on next login. This can be
+     * considered step 1 of the forgotten password process, where step 2 is used if they do not know their username or
+     * email.
+     * @param credentials ForgottenCredentials object with just username and email
+     * @throws ResourceNotFoundException
+     * @throws MailException
+     * @throws MessagingException
+     */
     @ExcludeFromApiDoc
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -88,8 +64,16 @@ public class AuthController extends BaseController<AuthController> {
         userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
     }
 
-    @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns " +
-            "token, which must be added to X-Auth-Token in header of all future requests")
+    /**
+     * Log in User, authenticate using username and password. Returns a token, which must be added to X-Auth-Token in
+     * the header of all future requests.
+     * @param credentials Credentials object containing only username and password
+     * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
+     * @throws UsernameNotFoundException
+     * @throws AuthenticationServiceException
+     */
+    @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns "
+            + "token, which must be added to X-Auth-Token in header of all future requests")
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> logIn(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
@@ -108,10 +92,74 @@ public class AuthController extends BaseController<AuthController> {
                 credentials.getUsername(), credentials.getPassword()), HttpStatus.OK);
     }
 
+    /**
+     * Log out User, clearing their session and deleting the token associated with their account, invalidating all
+     * future requests with this token.
+     * @param token String token associated with User
+     * @throws AuthenticationServiceException
+     */
     @ApiOperation(value = "Log Out", notes = "Log Out")
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
     public void logOut(@PathVariable("token") String token) throws AuthenticationServiceException {
         authenticationService.logout(token);
+    }
+
+    /**
+     * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.
+     * Performed after login.
+     * @param token String token associated with a successfully logged in user
+     * @return UserToken object containing relevant user information and static data
+     * @throws AuthenticationServiceException
+     * @throws ResourceForbiddenException
+     */
+    @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
+            + "information and static data")
+    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
+    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
+            throws AuthenticationServiceException, ResourceForbiddenException {
+        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
+    }
+
+    /**
+     * Switch from the current User to another by authenticating and returning a token associated with the new user.
+     * This is the equivalent of logging in as the new User and acting as them entirely.
+     * @param userId The User ID to switch to
+     * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
+     * @throws AuthenticationServiceException
+     */
+    @ApiOperation(value = "Switch User", notes = "Switch to a patient, equivalent to logging in as that user")
+    @CacheEvict(value = "unreadConversationCount", allEntries = true)
+    @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
+            throws AuthenticationServiceException {
+        return new ResponseEntity<>(authenticationService.switchToUser(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Switch back to the previous user using the token associated with the previous user.
+     * @param token String token associated with the previous user
+     * @param userId ID of the user to switch back
+     * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
+     * @throws AuthenticationServiceException
+     */
+    @ApiOperation(value = "Switch to Previous User", notes = "Switch back to original user after viewing a patient")
+    @CacheEvict(value = "unreadConversationCount", allEntries = true)
+    @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
+                                                       @PathVariable("userId") Long userId)
+            throws AuthenticationServiceException {
+        return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
+    }
+
+    /**
+     * Utility method to get status of API, used by external website monitoring tools.
+     * @return String "API OK" to show API is functioning as expected
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/status", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> testService() {
+        return new ResponseEntity<>("API OK", HttpStatus.OK);
     }
 }

@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation used to restrict retrieving and modifying User information not belonging to the current logged in User.
  * Created by james@solidstategroup.com
  * Created on 19/08/2014
  */

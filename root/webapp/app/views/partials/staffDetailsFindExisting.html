@@ -1,11 +1,23 @@
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
+        <label for="username" class="control-label">Search by Username</label>
+    </div>
+    <div class="col-md-7">
+        <input type="text" class="form-control" id="username">
+    </div>
+    <div class="col-md-2">
+        <button class="btn blue" data-ng-click="findByUsername()">Find</button>
+    </div>
+</div>
+<br/>
+<div class="form-horizontal row" role="form">
+    <div class="col-md-3">
         <label for="email" class="control-label">Search by Email</label>
     </div>
     <div class="col-md-7">
         <input type="text" class="form-control" id="email">
     </div>
     <div class="col-md-2">
-        <button class="btn blue" data-ng-click="find()">Find</button>
+        <button class="btn blue" data-ng-click="findByEmail()">Find</button>
     </div>
 </div>

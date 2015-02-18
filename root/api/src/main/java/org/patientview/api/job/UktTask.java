@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Get UKT data
+ * Scheduled tasks to retrieve from and provide data to UKT.
  * Created by jamesr@solidstategroup.com
  * Created on 05/01/2015
  */

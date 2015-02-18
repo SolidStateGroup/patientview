@@ -74,7 +74,11 @@ public class User extends RangeModel implements UserDetails {
     
     // only for staff users
     @Column(name = "role_description")
-    private String roleDescription;    
+    private String roleDescription;   
+    
+    // image data stored in base64
+    @Column(name = "picture")
+    private String picture;
     
     @Transient
     private String name;
@@ -353,5 +357,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setRoleDescription(String roleDescription) {
         this.roleDescription = roleDescription;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

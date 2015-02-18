@@ -3,10 +3,9 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * FhirMedicationStatement, representing medication and the associated Group which provided the data.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
- *
- * Reduced Group information FhirMedicationStatement, for transport use
  */
 public class FhirMedicationStatement {
 

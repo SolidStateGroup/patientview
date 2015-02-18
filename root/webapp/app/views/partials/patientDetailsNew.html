@@ -3,13 +3,18 @@
         <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
         <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
+        <div data-ng-show="editUser.username.length">
+            <span class="text-success" data-ng-show="editUser.usernameChecked && !editUser.usernameExists">Username OK</span>
+            <span class="text-danger" data-ng-show="editUser.usernameChecked && editUser.usernameExists">Username in use. If this is expected, use the "Add Existing" function instead. Else please change username now.</span>
+            <a href="" class="pull-right" data-ng-click="checkUsername()">Check Username</a>
+        </div>
     </div>
     <div class="col-md-3">
         <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span>
             <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
         <div><input type="email" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
-        <div>Don't have an email? <a href="http://www.rixg.org/patientview/pages/admin/unit-admin.php#addnew" target="_blank">Click for info</a></div>
+        <div>Don't have an email? <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Add_a_new_patient" target="_blank">Click for info</a></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">required</span></label>
@@ -26,22 +31,28 @@
 <br/>
 <div class="row">
     <div class="col-md-6">
-        <label class="control-label">Date Of Birth</label>
+        <label class="control-label">Date Of Birth  </label>
         <div class="dob-row">
             <div class="col-md-4 day">
-                Day:<select data-ng-model="editUser.selectedDay"
+                Day:
+                <span class="error" data-ng-show="!editUser.selectedDay && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedDay"
                             data-ng-options="option as option for option in days"
-                            class="form-control"></select>
+                            class="form-control" required></select>
             </div>
             <div class="col-md-4">
-                Month:<select data-ng-model="editUser.selectedMonth"
+                Month:
+                <span class="error" data-ng-show="!editUser.selectedMonth && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedMonth"
                               data-ng-options="option as option for option in months"
-                              class="form-control"></select>
+                              class="form-control" required></select>
             </div>
             <div class="col-md-4 year">
-                Year:<select data-ng-model="editUser.selectedYear"
+                Year:
+                <span class="error" data-ng-show="!editUser.selectedYear && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedYear"
                              data-ng-options="option as option for option in years"
-                             class="form-control"></select>
+                             class="form-control" required></select>
             </div>
         </div>
     </div>
@@ -69,8 +80,9 @@
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles <span class="error" data-ng-show="(!editUser.groupRoles || editUser.groupRoles.length == 0) && !userFormNew.$pristine">Please add a group and role for this patient</span></label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            <p>Choose which groups/roles this user should belong to. 
+                <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#How_to_manage_patients" target="_blank">
+                    More information here.</a>
             </p>
             <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">

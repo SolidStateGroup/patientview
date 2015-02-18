@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * ObservationSummary, representing a collection of Observations, ordered according to panel and panel order.
  * Created by jamesr@solidstategroup.com
  * Created on 12/09/2014
  */
@@ -12,7 +13,6 @@ public class ObservationSummary {
     private HashMap<Long, List<ObservationHeading>> panels = new HashMap<>();
 
     public ObservationSummary() {
-
     }
 
     public HashMap<Long, List<ObservationHeading>> getPanels() {
