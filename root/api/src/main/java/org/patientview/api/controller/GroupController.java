@@ -44,18 +44,13 @@ public class GroupController extends BaseController<GroupController> {
     private GroupStatisticService groupStatisticService;
 
     /**
-     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
-     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
-     * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
-     * @param userId ID of User to get allowed relationship Groups
-     * @return Page of allowed relationship Groups
+     * Create a Group.
+     * @param group Group object containing all required properties
+     * @return Long ID of Group created successfully
      */
-    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
-            @PathVariable("userId") Long userId) {
-        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> add(@RequestBody Group group) {
+        return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
     }
 
     /**
@@ -94,16 +89,6 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Create a Group.
-     * @param group Group object containing all required properties
-     * @return Long ID of Group created successfully
-     */
-    @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> createGroup(@RequestBody Group group) {
-        return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
-    }
-
-    /**
      * Remove a child Group from a parent Group.
      * @param groupId ID of parent Group to remove child Group from
      * @param childGroupId ID of child Group to remove from parent Group
@@ -134,6 +119,21 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
         groupService.deleteParentGroup(groupId, parentGroupId);
+    }
+
+    /**
+     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
+     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
+     * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
+     * @param userId ID of User to get allowed relationship Groups
+     * @return Page of allowed relationship Groups
+     */
+    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
+            @PathVariable("userId") Long userId) {
+        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
     }
 
     /**
@@ -257,7 +257,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Save an updated Group
+     * Save an updated Group.
      * @param group Group to save
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException

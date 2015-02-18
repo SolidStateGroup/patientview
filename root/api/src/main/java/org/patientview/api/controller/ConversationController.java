@@ -42,6 +42,21 @@ public class ConversationController extends BaseController<ConversationControlle
     private ConversationService conversationService;
 
     /**
+     * Create a new conversation, including recipients and associated Message.
+     * @param userId ID of User creating Conversation
+     * @param conversation Conversation object containing all required properties and first Message content
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addConversation(@PathVariable("userId") Long userId,
+                                @RequestBody org.patientview.persistence.model.Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.addConversation(userId, conversation);
+    }
+
+    /**
      * Add a Message to an existing Conversation.
      * @param conversationId ID of Conversation to add Message to
      * @param message Message object
@@ -56,9 +71,23 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
+     * Add a read receipt for a Message given the Message and User IDs.
+     * @param messageId ID of Message to add read receipt for
+     * @param userId ID of User who has read the Message
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.addMessageReadReceipt(messageId, userId);
+    }
+
+    /**
      * Get a Conversation, including Messages given a Conversation ID.
      * @param conversationId ID of Conversation to retrieve
-     * @return
+     * @return Conversation object
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
@@ -110,7 +139,7 @@ public class ConversationController extends BaseController<ConversationControlle
 
     /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
-     * Conversation to populate the dropdown of available recipients after a Group is selected.
+     * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
      * @param userId ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
@@ -132,7 +161,7 @@ public class ConversationController extends BaseController<ConversationControlle
      * Note: returns HTML as a String to avoid performance issues in ie8
      * @param userId ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
-     * @return HTML String for dropdown select
+     * @return HTML String for drop-down select
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
@@ -157,34 +186,5 @@ public class ConversationController extends BaseController<ConversationControlle
     public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
-    }
-
-    /**
-     * Create a new conversation, including recipients and associated Message.
-     * @param userId ID of User creating Conversation
-     * @param conversation Conversation object containing all required properties and first Message content
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void newConversation(@PathVariable("userId") Long userId,
-            @RequestBody org.patientview.persistence.model.Conversation conversation)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        conversationService.addConversation(userId, conversation);
-    }
-
-    /**
-     * Add a read receipt for a Message given the Message and User IDs.
-     * @param messageId ID of Message to add read receipt for
-     * @param userId ID of User who has read the Message
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
-    @ResponseBody
-    public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        conversationService.addMessageReadReceipt(messageId, userId);
     }
 }

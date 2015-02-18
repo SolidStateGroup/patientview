@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 /**
+ * Security service, much reduced since development began.
+ *
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
  */
@@ -22,8 +24,8 @@ public interface SecurityService {
      * User -> Features -> Routes
      * User -> Roles -> Routes
      *
-     * @param userId
-     * @return
+     * @param userId ID of User to retrieve Routes for
+     * @return Set of Routes
      */
     @UserOnly
     Set<Route> getUserRoutes(Long userId);

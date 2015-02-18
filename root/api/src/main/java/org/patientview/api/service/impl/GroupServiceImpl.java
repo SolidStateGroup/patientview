@@ -406,7 +406,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     // Attached the relationship of children groups and parents groups onto Transient objects
-    public List<Group> addParentAndChildGroups(List<Group> groups) {
+    private List<Group> addParentAndChildGroups(List<Group> groups) {
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);
         }

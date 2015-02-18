@@ -159,7 +159,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         List<org.patientview.api.model.Patient> patients = new ArrayList<>();
         List<FhirLink> fhirLinks = new ArrayList<>();
         fhirLinks.addAll(user.getFhirLinks());
-        
+
         // sort fhirLinks by id
         Collections.sort(fhirLinks, new Comparator<FhirLink>() {
             public int compare(FhirLink f1, FhirLink f2) {
@@ -168,7 +168,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         });
 
         List<Long> foundFhirLinkGroupIds = new ArrayList<>();
-        
+
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
             if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
@@ -209,7 +209,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // specialty groups
         for (GroupRole groupRole : user.getGroupRoles()) {
             Group group = groupRole.getGroup();
-            if (!foundFhirLinkGroupIds.contains(group.getId()) && group.getVisible() 
+            if (!foundFhirLinkGroupIds.contains(group.getId()) && group.getVisible()
                     && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                 org.patientview.api.model.Patient p = new org.patientview.api.model.Patient();
                 p.setFhirPatient(new FhirPatient());

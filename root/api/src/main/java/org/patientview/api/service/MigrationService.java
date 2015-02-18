@@ -8,6 +8,8 @@ import org.patientview.persistence.model.MigrationUser;
 import javax.persistence.EntityExistsException;
 
 /**
+ * Migration service, used in one-off operation to transfer information from PatientView 1 to PatientView 2.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/11/2014
  */

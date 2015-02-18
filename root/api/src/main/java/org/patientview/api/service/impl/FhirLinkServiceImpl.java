@@ -6,7 +6,6 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -33,9 +32,5 @@ public class FhirLinkServiceImpl extends AbstractServiceImpl<FhirLinkServiceImpl
     public FhirLink add(FhirLink fhirLink) {
         LOG.info("Not implemented");
         return null;
-    }
-
-    public FhirLink findByVersionId(String versionId) {
-        return fhirLinkRepository.findByVersionUuid(UUID.fromString(versionId));
     }
 }

@@ -78,20 +78,6 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Add UserInformation to a User, used when a patient adds More About Me etc.
-     * @param userId ID of User to add UserInformation to
-     * @param userInformation UserInformation to add to a User
-     * @throws ResourceNotFoundException
-     */
-    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void addInformation(@PathVariable("userId") Long userId,
-                               @RequestBody List<UserInformation> userInformation) throws ResourceNotFoundException {
-        userService.addInformation(userId, userInformation);
-    }
-
-    /**
      * Add a Group and associated Role to a User.
      * @param userId ID of User to add Group and Role to
      * @param groupId ID of Group user is added to
@@ -105,6 +91,20 @@ public class UserController extends BaseController<UserController> {
                              @PathVariable("roleId") Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addGroupRole(userId, groupId, roleId);
+    }
+
+    /**
+     * Add UserInformation to a User, used when a patient adds More About Me etc.
+     * @param userId ID of User to add UserInformation to
+     * @param userInformation UserInformation to add to a User
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void addInformation(@PathVariable("userId") Long userId,
+                               @RequestBody List<UserInformation> userInformation) throws ResourceNotFoundException {
+        userService.addInformation(userId, userInformation);
     }
 
     /**
@@ -409,8 +409,8 @@ public class UserController extends BaseController<UserController> {
 
     /**
      * Send verification email to a User in order to validate their email address is correct.
-     * @param userId
-     * @return
+     * @param userId ID of User to send verification email to
+     * @return True if sent successfully, false if not
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      * @throws MailException

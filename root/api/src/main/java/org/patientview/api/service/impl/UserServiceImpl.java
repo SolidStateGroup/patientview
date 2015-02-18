@@ -541,8 +541,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return transportUser;
     }
 
-    @Override
-    public boolean currentUserCanGetUser(User user) {
+    private boolean currentUserCanGetUser(User user) {
         // if i am trying to access myself
         if (getCurrentUser().equals(user)) {
             return true;

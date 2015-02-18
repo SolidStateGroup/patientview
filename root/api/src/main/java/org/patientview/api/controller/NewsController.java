@@ -107,20 +107,6 @@ public class NewsController extends BaseController<NewsController> {
     }
 
     /**
-     * Get a single NewsItem.
-     * @param newsItemId ID of NewsItem to retrieve
-     * @return NewsItem object
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<NewsItem> get(@PathVariable("newsItemId") Long newsItemId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(newsService.get(newsItemId), HttpStatus.OK);
-    }
-
-    /**
      * Get a Page of NewsItems for a specific User.
      * @param userId ID of User to retrieve news for
      * @param size Size of the page
@@ -131,7 +117,7 @@ public class NewsController extends BaseController<NewsController> {
     @RequestMapping(value = "/user/{userId}/news", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Page<org.patientview.api.model.NewsItem>> getByUser(
+    public ResponseEntity<Page<org.patientview.api.model.NewsItem>> findByUserId(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 
@@ -146,6 +132,20 @@ public class NewsController extends BaseController<NewsController> {
         }
 
         return new ResponseEntity<>(newsService.findByUserId(userId, pageable), HttpStatus.OK);
+    }
+
+    /**
+     * Get a single NewsItem.
+     * @param newsItemId ID of NewsItem to retrieve
+     * @return NewsItem object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<NewsItem> get(@PathVariable("newsItemId") Long newsItemId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(newsService.get(newsItemId), HttpStatus.OK);
     }
 
     /**
@@ -208,12 +208,11 @@ public class NewsController extends BaseController<NewsController> {
      * @param newsItemId ID of NewsItem to hide from a Role
      * @param roleId ID of a Role to hide the NewsItem from
      * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
      */
     @RequestMapping(value = "/news/{newsItemId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void removeRole(@PathVariable("newsItemId") Long newsItemId, @PathVariable("roleId") Long roleId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException {
         newsService.removeRole(newsItemId, roleId);
     }
 

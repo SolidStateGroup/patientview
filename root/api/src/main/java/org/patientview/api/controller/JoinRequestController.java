@@ -45,7 +45,7 @@ public class JoinRequestController extends BaseController<JoinRequestController>
      */
     @RequestMapping(value = "/public/joinrequest", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addJoinRequest(@RequestBody JoinRequest joinRequest)
+    public void add(@RequestBody JoinRequest joinRequest)
             throws ResourceNotFoundException, ResourceForbiddenException {
         joinRequestService.add(joinRequest);
     }
@@ -87,16 +87,6 @@ public class JoinRequestController extends BaseController<JoinRequestController>
     }
 
     /**
-     * Get list of available JoinRequestStatus, used in UI.
-     * @return List of JoinRequestStatus
-     */
-    @RequestMapping(value = "/joinrequest/statuses", method = RequestMethod.GET)
-    @ResponseBody
-    public List<JoinRequestStatus> getStatuses() {
-        return CollectionUtils.arrayToList(JoinRequestStatus.values());
-    }
-
-    /**
      * Get a count of viewable submitted JoinRequests given a user ID (staff user).
      * @param userId ID of User to retrieve submitted JoinRequest count
      * @return Long containing number of viewable submitted JoinRequests
@@ -104,12 +94,22 @@ public class JoinRequestController extends BaseController<JoinRequestController>
     @RequestMapping(value = "/user/{userId}/joinrequests/count", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<BigInteger> getSubmittedJoinRequestCount(@PathVariable("userId") Long userId) {
+    public ResponseEntity<BigInteger> getCount(@PathVariable("userId") Long userId) {
         try {
             return new ResponseEntity<>(joinRequestService.getCount(userId), HttpStatus.OK);
         } catch (ResourceNotFoundException rnf) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Get list of available JoinRequestStatus, used in UI.
+     * @return List of JoinRequestStatus
+     */
+    @RequestMapping(value = "/joinrequest/statuses", method = RequestMethod.GET)
+    @ResponseBody
+    public List<JoinRequestStatus> getStatuses() {
+        return CollectionUtils.arrayToList(JoinRequestStatus.values());
     }
 
     /**

@@ -9,6 +9,8 @@ import org.patientview.persistence.model.FhirLink;
 import java.util.List;
 
 /**
+ * Medication service, for storing and retrieving FHIR medication data.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */
@@ -25,7 +27,7 @@ public interface MedicationService {
             throws FhirResourceException;
 
     /**
-     * Get medication
+     * Get medication data from FHIR given a User ID
      * @param userId ID of user to get medication for
      * @return List of FhirMedicationStatement suitable for display in UI
      * @throws ResourceNotFoundException

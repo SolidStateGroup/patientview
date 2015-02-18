@@ -14,19 +14,35 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * Group statistic service, used when retrieving and creating Group statistics.
+ *
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupStatisticService {
 
+    /**
+     * Generate statistics for a Group over a specific time period. Uses SQL stored in LookupValues.
+     * @param startDate Start date of statistic period
+     * @param endDate End date of statistic period
+     * @param statisticPeriod StatisticPeriod enum, typically StatisticPeriod.MONTH
+     */
+    void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
+
+    /**
+     * Get statistics for a Group given an ID.
+     * @param groupId ID of the Group to retrieve statistics for
+     * @return List of GroupStatisticTO objects with monthly statistics for a Group
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
             RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
     List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
-
+    // migration only
     @GroupMemberOnly
     void migrateStatistics(Long groupId, List<GroupStatistic> statistics) throws ResourceNotFoundException;
 }
