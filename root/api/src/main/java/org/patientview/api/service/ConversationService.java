@@ -15,39 +15,41 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Conversation service, for CRUD operations related to Conversations and Messages.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ConversationService extends CrudService<Conversation> {
 
-    org.patientview.api.model.Conversation findByConversationId(Long conversationId)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+    @UserOnly
+    void addConversation(Long userId, Conversation conversation)
+    throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void addMessage(Long conversationId, org.patientview.api.model.Message message)
+    throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void addMessageReadReceipt(Long messageId, Long userId)
+    throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void deleteUserFromConversations(User user);
 
     @UserOnly
     Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void addMessage(Long conversationId, org.patientview.api.model.Message message)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    @UserOnly
-    void addConversation(Long userId, Conversation conversation)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    void addMessageReadReceipt(Long messageId, Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    @UserOnly
-    Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
+    org.patientview.api.model.Conversation findByConversationId(Long conversationId)
+    throws ResourceNotFoundException, ResourceForbiddenException;
 
     @UserOnly
     HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+    throws ResourceNotFoundException, ResourceForbiddenException;
 
     @UserOnly
     String getRecipientsFast(Long userId, Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+    throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void deleteUserFromConversations(User user);
+    @UserOnly
+    Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 }

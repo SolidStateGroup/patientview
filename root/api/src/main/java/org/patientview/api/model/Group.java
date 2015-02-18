@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Group, representing Group data and inheriting from the basic information in BaseGroup.
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
@@ -25,7 +26,6 @@ public class Group extends BaseGroup {
     private Date lastImportDate;
 
     public Group() {
-
     }
 
     public Group(org.patientview.persistence.model.Group group) {

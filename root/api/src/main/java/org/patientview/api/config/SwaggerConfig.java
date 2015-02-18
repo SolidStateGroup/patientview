@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import java.util.Properties;
 
 /**
+ * Configuration of Swagger, used to display API documentation in web interface for external API developers.
  * Created by jamesr@solidstategroup.com
  * Created on 23/01/2015
  */

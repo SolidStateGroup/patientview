@@ -5,10 +5,9 @@ import org.patientview.persistence.model.BaseModel;
 import java.util.Date;
 
 /**
+ * FhirDocumentReference, representing a letter and the associated Group which provided the data.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
- *
- * Reduced Group information FhirDocumentReference, for transport use
  */
 public class FhirDocumentReference extends BaseModel {
 

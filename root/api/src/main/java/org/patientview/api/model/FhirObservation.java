@@ -3,10 +3,9 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * FhirObservation, representing an Observation and the Group which provided the data.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
- *
- * Reduced Group information FhirObservation, for transport use
  */
 public class FhirObservation {
 

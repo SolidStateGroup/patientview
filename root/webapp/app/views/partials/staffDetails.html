@@ -1,3 +1,10 @@
+<!-- todo: move to main.css -->
+<style>
+    .user-picture {
+        max-width: 150px;
+    }
+</style>
+
 <div data-ng-show="editUser.picture.length" class="row text-center edit-staff" data-ng-if="editUser.id">
     <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
 </div>
@@ -57,8 +64,9 @@
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            <p>Choose which groups/roles this user should belong to.
+                <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#How_to_manage_staff" target="_blank">
+                    About staff roles and features.</a>
             </p>
             <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-show="groupRole.group.visible === true">

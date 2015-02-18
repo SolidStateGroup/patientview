@@ -29,6 +29,8 @@ import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
+ * RESTful interface for management and retrieval of observations (test results), stored in FHIR.
+ *
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
  */
@@ -43,9 +45,33 @@ public class ObservationController extends BaseController<ObservationController>
 
     private static final String DEFAULT_SORT = "appliesDateTime";
     private static final String DEFAULT_SORT_DIRECTION = "DESC";
-
     private static final Logger LOG = LoggerFactory.getLogger(ObservationController.class);
 
+    /**
+     * Used when Users enter their own results on the Enter Own Results page, takes a list of UserResultCluster and
+     * stores in FHIR under the PATIENT_ENTERED Group.
+     * @param userId ID of User to store patient entered results
+     * @param userResultClusters List of UserResultCluster objects used to represent a number of user entered results
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @RequestMapping(value = "/user/{userId}/observations/resultclusters", method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void addResultClusters(@PathVariable("userId") Long userId,
+                                  @RequestBody List<UserResultCluster> userResultClusters)
+            throws ResourceNotFoundException, FhirResourceException {
+        observationService.addUserResultClusters(userId, userResultClusters);
+    }
+
+    /**
+     * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c).
+     * @param userId ID of User to retrieve observations for
+     * @param code Code of the observation type to retrieve
+     * @return List of FhirObservation representing test results in FHIR
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
@@ -55,6 +81,17 @@ public class ObservationController extends BaseController<ObservationController>
             HttpStatus.OK);
     }
 
+    /**
+     * Get FhirObservationPage representing multiple different observations by Code for a User.
+     * @param userId ID of User to retrieve observations for
+     * @param code List of Codes defining the types of observations to retrieve
+     * @param limit Number of observations to retrieve
+     * @param offset Offset (page) of observations to retrieve
+     * @param orderDirection Ordering of observations e.g. date received descending
+     * @return FhirObservationPage representing observation data for a User
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<FhirObservationPage> getObservationsByCodes(
@@ -66,20 +103,18 @@ public class ObservationController extends BaseController<ObservationController>
             observationService.getMultipleByCode(userId, code, limit, offset, orderDirection), HttpStatus.OK);
     }
 
+    /**
+     * Get a summary of observation data for a User, used on the default Results page.
+     * @param userId ID of User to retrieve observation summary for
+     * @return List of ObservationSummary representing panels of result summary information by Group (specialty)
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/observations/summary", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<ObservationSummary>> getObservationSummary(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.getObservationSummary(userId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/user/{userId}/observations/resultclusters", method = RequestMethod.POST
-            , consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void addResultClusters(@PathVariable("userId") Long userId,
-                                  @RequestBody List<UserResultCluster> userResultClusters)
-            throws ResourceNotFoundException, FhirResourceException {
-        observationService.addUserResultClusters(userId, userResultClusters);
     }
 
     // Migration Only

@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * MessageReadReceipt, used when marking Messages as read by a User.
  * Created by jamesr@solidstategroup.com
  * Created on 19/09/2014
  */
@@ -13,7 +14,6 @@ public class MessageReadReceipt {
     private Date created;
 
     public MessageReadReceipt() {
-
     }
 
     public MessageReadReceipt(org.patientview.persistence.model.MessageReadReceipt readReceipt) {

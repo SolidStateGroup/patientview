@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
+ * RESTful interface for Diagnostics, not currently used heavily but found in UI from patient results page.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/10/2014
  */
@@ -25,6 +27,13 @@ public class DiagnosticController extends BaseController<DiagnosticController> {
     @Inject
     private DiagnosticService diagnosticService;
 
+    /**
+     * Get Diagnostics given a User ID.
+     * @param userId ID of User to get Diagnostics for
+     * @return List of diagnostic reports, retrieved from FHIR
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/diagnostics", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirDiagnosticReport>> getAllDiagnostics(@PathVariable("userId") Long userId)

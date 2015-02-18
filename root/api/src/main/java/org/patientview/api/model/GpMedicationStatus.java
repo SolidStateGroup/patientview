@@ -4,6 +4,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.FeatureType;
 
 /**
+ * GpMedicationStatus, representing the availability of GP medication and the User's opt-in/out status.
  * Created by jamesr@solidstategroup.com
  * Created on 24/11/2014
  */
@@ -19,7 +20,6 @@ public class GpMedicationStatus {
     private boolean available;
 
     public GpMedicationStatus() {
-
     }
 
     public GpMedicationStatus(UserFeature userGpMedicationFeature) {

@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.BaseModel;
 
 /**
+ * GroupRole, representing a specific combination of Group and Role, used for User security permissions.
  * Created by jamesr@solidstategroup.com
  * Created on 28/08/2014
  */

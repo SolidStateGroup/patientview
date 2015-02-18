@@ -5,6 +5,7 @@ import org.patientview.persistence.model.enums.JoinRequestStatus;
 import java.util.Date;
 
 /**
+ * JoinRequest, representing the information required when a potential patient is requesting to join PatientView.
  * Created by james@solidstategroup.com
  * Created on 23/09/2014
  */
@@ -25,7 +26,6 @@ public class JoinRequest {
     private String captcha;
 
     public JoinRequest() {
-
     }
 
     public JoinRequest(org.patientview.persistence.model.JoinRequest joinRequest) {

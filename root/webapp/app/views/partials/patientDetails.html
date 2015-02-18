@@ -1,3 +1,10 @@
+<!-- todo: move to main.css -->
+<style>
+    .user-picture {
+        max-width: 150px;
+    }
+</style>
+
 <div data-ng-show="editUser.picture.length" class="row text-center edit-staff" data-ng-if="editUser.id">
     <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
 </div>
@@ -21,7 +28,7 @@
             <input type="email" class="form-control" id="new-user-email" placeholder="Email" name="email"
                    data-ng-model="editUser.email" required data-ng-disabled="!permissions.canEditPatients"></div>
         <div>Don't have an email? 
-            <a href="http://www.rixg.org/patientview/pages/admin/unit-admin.php#addnew" target="_blank">Click for info</a>
+            <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Add_a_new_patient" target="_blank">Click for info</a>
         </div>
     </div>
     <div class="col-md-3">
@@ -49,17 +56,17 @@
             <div class="col-md-4 day">
                 Day:<select data-ng-model="editUser.selectedDay"
                             data-ng-options="option.toString() as option for option in days"
-                            class="form-control"></select>
+                            class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
             <div class="col-md-4">
                 Month:<select data-ng-model="editUser.selectedMonth"
                               data-ng-options="option.toString() as option for option in months"
-                              class="form-control"></select>
+                              class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
             <div class="col-md-4 year">
                 Year:<select data-ng-model="editUser.selectedYear"
                              data-ng-options="option.toString() as option for option in years"
-                             class="form-control"></select>
+                             class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
         </div>
     </div>
@@ -92,8 +99,9 @@
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            <p>Choose which groups/roles this user should belong to. 
+                <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#How_to_manage_patients" target="_blank">
+                    More information here.</a>
             </p>
             <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'"
@@ -165,7 +173,8 @@
                 <div class="col-sm-4">
                     <select id="identifier-identifier" class="form-control"
                             data-ng-model="identifier.identifierType.id"
-                            data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
+                            data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"
+                            data-ng-disabled="!permissions.canEditPatients"></select>
                 </div>
 
                 <span class="saved-notification" data-ng-show="identifier.saved">&nbsp; Saved Successfully!</span>

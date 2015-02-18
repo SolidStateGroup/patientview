@@ -326,12 +326,46 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // find by username
+        findByUsername: function (username) {
+            username = username.replace(/\./g,'[DOT]');
+            var deferred = $q.defer();
+            // GET /user/username/{username}
+            Restangular.one('user/username').customGET(username).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // find by email
         findByEmail: function (email) {
             email = email.replace(/\./g,'[DOT]');
             var deferred = $q.defer();
             // GET /user/email/{email}
             Restangular.one('user/email').customGET(email).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // check username exists (returns boolean true if does exist, false if doesn't)
+        checkUsernameExists: function (username) {
+            var deferred = $q.defer();
+            // GET /user/usernameexists/{username}
+            Restangular.one('user/usernameexists').customGET(username).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete picture associated with user
+        deletePicture: function (userId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/picture
+            Restangular.one('user', userId).one('picture').remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

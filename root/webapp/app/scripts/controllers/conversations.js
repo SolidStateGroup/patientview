@@ -230,7 +230,7 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent)
             .then(function() {
             conversation.addMessageContent = '';
-            conversation.successMessage = 'Successfully replied';
+            conversation.successMessage = 'Successfully sent message';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
@@ -254,7 +254,7 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
             .then(function() {
             conversation.quickReplyContent = '';
             conversation.quickReplyOpen = false;
-            $scope.successMessage = 'Successfully replied';
+            $scope.successMessage = 'Successfully sent message';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {

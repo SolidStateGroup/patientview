@@ -1,6 +1,7 @@
 package org.patientview.api.model;
 
 /**
+ * ObservationHeading, representing an Observation (result) type, including meta information.
  * Created by jamesr@solidstategroup.com
  * Created on 12/09/2014
  */
@@ -23,6 +24,9 @@ public class ObservationHeading {
     private FhirObservation latestObservation;
     private Double valueChange;
 
+    public ObservationHeading() {
+    }
+
     public ObservationHeading(org.patientview.persistence.model.ObservationHeading observationHeading) {
         this.id = observationHeading.getId();
         this.code = observationHeading.getCode();
@@ -36,10 +40,6 @@ public class ObservationHeading {
         this.panel = observationHeading.getDefaultPanel();
         this.panelOrder = observationHeading.getDefaultPanelOrder();
         this.decimalPlaces = observationHeading.getDecimalPlaces();
-    }
-
-    public ObservationHeading() {
-
     }
 
     public Long getId() {

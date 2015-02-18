@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.util.Properties;
 
 /**
+ * Base configuration for API
  * Created by james@solidstategroup.com
  * Created on 03/06/2014.
  */
@@ -33,7 +34,7 @@ public class ApiConfig {
     @Inject
     private Properties properties;
 
-    final private static int TEN_MB = 10485760;
+    private static final int TEN_MB = 10485760;
 
     //TODO this just gets the "name" of the enum
     // remove and implement JSON shape object
@@ -63,6 +64,10 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
+    /**
+     * Configure JavaMailSender, used when sending emails.
+     * @return JavaMailSenderImpl with properties set from environment specific .properties file
+     */
     @Bean
     public JavaMailSenderImpl javaMailSender() {
         final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
@@ -83,6 +88,10 @@ public class ApiConfig {
         return javaMailSender;
     }
 
+    /**
+     * Configure ThreadPoolTaskExecutor used by migration process when migrating observations quickly from PatientView1
+     * @return ThreadPoolTaskExecutor
+     */
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
@@ -92,14 +101,15 @@ public class ApiConfig {
         return threadPoolTaskExecutor;
     }
 
+    /**
+     * Configure CommonsMultipartResolver for use when receiving MultiPartFile uploads
+     * @return CommonsMultipartResolver
+     */
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
         commonsMultipartResolver.setDefaultEncoding("utf-8");
-        //commonsMultipartResolver.setMaxUploadSize(5000000); // 5MB
-        //commonsMultipartResolver.setMaxUploadSize(1048576); // 1MB
         commonsMultipartResolver.setMaxUploadSize(TEN_MB); // 10MB
-        //commonsMultipartResolver.setMaxUploadSize(50000); // 50K
         return commonsMultipartResolver;
     }
 }

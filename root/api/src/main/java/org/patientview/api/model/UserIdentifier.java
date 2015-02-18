@@ -3,10 +3,9 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.Identifier;
 
 /**
+ * UserIdentifier, representing the link between a User and one of their Identifiers, used when validating identifiers.
  * Created by jamesr@solidstategroup.com
  * Created on 23/10/2014
- *
- * Used when validating identifiers on front end
  */
 public class UserIdentifier {
 
@@ -15,7 +14,6 @@ public class UserIdentifier {
     private Identifier identifier;
 
     public UserIdentifier() {
-
     }
 
     public Long getUserId() {

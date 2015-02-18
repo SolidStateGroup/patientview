@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
+ * RESTful interface for retrieving medication information for patient Users, stored in FHIR.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */
@@ -25,6 +27,13 @@ public class MedicationController extends BaseController<MedicationController> {
     @Inject
     private MedicationService medicationService;
 
+    /**
+     * Retrieve all medication for a User as a List of FhirMedicationStatement.
+     * @param userId ID of User to retrieve medication for
+     * @return List of FhirMedicationStatement representing all medication associated with User
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/medication", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirMedicationStatement>> getAllMedication(@PathVariable("userId") Long userId)

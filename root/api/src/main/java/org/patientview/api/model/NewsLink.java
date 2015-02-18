@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import java.util.Date;
 
 /**
+ * NewsLink, representing the visibility of a NewsItem to Users in specific Groups and Roles.
  * Created by jamesr@solidstategroup.com
  * Created on 14/10/2014
  */
@@ -16,7 +17,6 @@ public class NewsLink {
     private boolean delete;
 
     public NewsLink() {
-
     }
 
     public NewsLink(org.patientview.persistence.model.NewsLink newsLink) {

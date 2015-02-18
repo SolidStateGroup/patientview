@@ -18,7 +18,11 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
             <div class="panel-body">
-                <table class="table table-bordered">
+                <h5 data-ng-show="!patient.diagnosisCodes.length && !patient.fhirConditions.length
+                    && !patient.fhirEncounters.length">No condition information has been provided by this group</h5>
+                <br/>
+                <table class="table table-bordered" data-ng-show="patient.diagnosisCodes.length
+                        || patient.fhirConditions.length || patient.fhirEncounters.length">
                     <tbody>
                     <tr><td colspan="2"><h4>Condition Information</h4></td></tr>
                     <tr>
@@ -63,6 +67,16 @@
                                 <span data-ng-repeat="link in encounter.links | orderBy:'displayOrder'">
                                     <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                 </span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="forced-width">Transplant Status</td>
+                        <td>
+                            <span data-ng-repeat="encounter in patient.fhirEncounters"
+                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
+                                Kidney: {{encounter.status}} &nbsp;
+                                <a href="http://www.rixg.org/rpv/transplant.html" target="_blank">(Explain This)</a>
                             </span>
                         </td>
                     </tr>
@@ -126,7 +140,7 @@
 
                 <table class="table table-bordered" data-ng-show="patient.group.links">
                     <tbody>
-                        <tr><td colspan="2"><h4>Unit Information</h4></td></tr>
+                        <tr><td colspan="2"><h4>Information Links</h4></td></tr>
                         <tr>
                             <td colspan="2">
                                 <ul>

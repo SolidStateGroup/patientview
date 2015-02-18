@@ -20,7 +20,7 @@ import javax.persistence.EntityExistsException;
 import java.lang.reflect.ParameterizedType;
 
 /**
- * Base controller containing exception handling
+ * RESTful base controller containing exception handling, other controllers extend from this
  *
  * Created by james@solidstategroup.com
  * Created on 05/06/2014

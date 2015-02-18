@@ -1,6 +1,8 @@
 package org.patientview.api.model;
 
 /**
+ * ConversationUser, representing the link between a Conversation and a User, including if the User wishes to remain
+ * anonymous.
  * Created by jamesr@solidstategroup.com
  * Created on 19/09/2014
  */
@@ -11,7 +13,6 @@ public class ConversationUser {
     private Boolean anonymous;
 
     public ConversationUser() {
-
     }
 
     public ConversationUser(org.patientview.persistence.model.ConversationUser conversationUser) {

@@ -16,7 +16,15 @@
                 <div class="panel panel-default">
                     <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
                     <div class="panel-body">
-                        <table class="table table-bordered">
+                        <h5 data-ng-show="!patient.fhirPatient.surname && !patient.fhirPatient.forename
+                            && !patient.fhirPatient.gender && !patient.fhirPatient.dateOfBirthNoTime
+                            && !patient.fhirPatient.identifiers.length">
+                            No details have been provided by this group</h5>
+                        <br/>
+                        <table class="table table-bordered" data-ng-show="patient.fhirPatient.surname
+                            || patient.fhirPatient.forename
+                            || patient.fhirPatient.gender || patient.fhirPatient.dateOfBirthNoTime
+                            || patient.fhirPatient.identifiers.length">
                             <tbody>
                                 <tr><td colspan="2"><h4>Patient Details</h4></td></tr>
                                 <tr>

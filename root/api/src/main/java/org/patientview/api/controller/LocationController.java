@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
+ * RESTful interface for management of Locations, attached to Groups.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 30/07/2014
  */
@@ -28,6 +30,14 @@ public class LocationController extends BaseController<LocationController> {
     @Inject
     private LocationService locationService;
 
+    /**
+     * Add a Location to a Group.
+     * @param groupId ID of Group to add Location to
+     * @param location Location to add
+     * @return Location object, newly created (note: consider just returning ID)
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -37,6 +47,12 @@ public class LocationController extends BaseController<LocationController> {
         return new ResponseEntity<>(locationService.add(groupId, location), HttpStatus.CREATED);
     }
 
+    /**
+     * Delete a Location.
+     * @param locationId ID of Location to delete
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/location/{locationId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void delete(@PathVariable("locationId") Long locationId)
@@ -44,6 +60,12 @@ public class LocationController extends BaseController<LocationController> {
         locationService.delete(locationId);
     }
 
+    /**
+     * Update a Location.
+     * @param location Location object to update
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/location", method = RequestMethod.PUT)
     @ResponseBody
     public void save(@RequestBody Location location)
