@@ -118,9 +118,20 @@
                             <dl class="col-md-6">
                                 <dt>Locked Users</dt>
                                 <dd>
-                                    {{lockedUsers}} 
-                                    (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedStaff}}</a> /
-                                    <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedPatients}}</a>)
+                                    {{lockedUsers}}
+                                    <span data-ng-show="lockedStaff !== null && lockedStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="lockedStaff === null || lockedStaff === undefined">
+                                        (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                     /
+                                    <span data-ng-show="lockedPatients !== null && lockedPatients !== undefined">
+                                        <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedPatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="lockedPatients === null || lockedPatients === undefined">
+                                        <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
                                 </dd>
                             </dl>
                         </div>
@@ -129,16 +140,38 @@
                                 <dt>Active Users</dt>
                                 <dd>
                                     {{activeUsers}}
-                                    (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activeStaff}}</a> /
-                                    <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activePatients}}</a>)
+                                    <span data-ng-show="activeStaff !== null && activeStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activeStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="activeStaff === null || activeStaff === undefined">
+                                        (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                        /
+                                    <span data-ng-show="activePatients !== null && activePatients !== undefined">
+                                        <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activePatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="activePatients === null || activePatients === undefined">
+                                        <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
                                 </dd>
                             </dl>
                             <dl class="col-md-6">
                                 <dt>Inactive Users (no login in 3 months)</dt>
                                 <dd>
                                     {{inactiveUsers}}
-                                    (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactiveStaff}}</a> /
-                                    <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactivePatients}}</a>)
+                                    <span data-ng-show="inactiveStaff !== null && inactiveStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactiveStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="inactiveStaff === null || inactiveStaff === undefined">
+                                        (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                        /
+                                    <span data-ng-show="inactivePatients !== null && inactivePatients !== undefined">
+                                        <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactivePatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="inactivePatients === null || inactivePatients === undefined">
+                                        <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
                                 </dd>
                             </dl>
                         </div>
