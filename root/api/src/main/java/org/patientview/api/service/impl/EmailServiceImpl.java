@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
@@ -50,10 +51,17 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                     helper.setTo(properties.getProperty("email.redirect.address").split(","));
                 }
             } else {
-                if (email.isBcc()) {
-                    helper.setBcc(email.getRecipients());
-                } else {
-                    helper.setTo(email.getRecipients());
+                try {
+                    if (email.isBcc()) {
+                        helper.setBcc(email.getRecipients());
+                    } else {
+                        helper.setTo(email.getRecipients());
+                    }
+                } catch (AddressException ae) {
+                    LOG.error("Email: Address Exception, could not send email to " 
+                            + Arrays.toString(email.getRecipients()) + " with subject '"
+                            + email.getSubject() + "'");
+                    throw ae;
                 }
             }
 
