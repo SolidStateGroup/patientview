@@ -70,8 +70,6 @@ public final class Util {
         return false;
     }
 
-    // Retrieve the list of Roles from the annotation.
-
     /**
      * Retrieve a an Array of RoleName from an aspect JoinPoint.
      * @param joinPoint Aspect JoinPoint
@@ -183,12 +181,12 @@ public final class Util {
                 }
             }
         }
-
         return false;
     }
 
     /**
      * Check if current User is a member of a Group with a certain Role, including parent groups (for specialty admins).
+     * Note: not currently used.
      * @param groupId ID of Group to find Role membership
      * @param roleName RoleName to find membership of
      * @return True if User is a member, false if not
@@ -210,7 +208,6 @@ public final class Util {
                 }
             }
         }
-
         return false;
     }
 
@@ -221,7 +218,6 @@ public final class Util {
      * @throws SecurityException
      */
     public static boolean doesContainRoles(RoleName... roleNames) throws SecurityException {
-
         if (CollectionUtils.isEmpty(getGroupRoles())) {
             return false;
         }
@@ -233,7 +229,6 @@ public final class Util {
             }
         }
         return false;
-
     }
 
     /**
@@ -245,9 +240,7 @@ public final class Util {
                 || SecurityContextHolder.getContext().getAuthentication() == null) {
             throw new SecurityException("Session is not authenticated");
         }
-        List<GroupRole> groupRoles = convertAuthorities(
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        return groupRoles;
+        return convertAuthorities(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
     }
 
     /**
@@ -256,11 +249,9 @@ public final class Util {
      */
     public static User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("Session is not authenticated");
         }
-
         return (User) authentication.getPrincipal();
     }
 
