@@ -39,8 +39,8 @@ public class FhirDocumentReference extends BaseModel {
             throw new FhirResourceException("Cannot convert FHIR DocumentReference, missing Type");
         }
 
-        if (documentReference.getDescription() == null) {
-            throw new FhirResourceException("Cannot convert FHIR DocumentReference, missing Description (content)");
+        if (documentReference.getDescription() != null) {
+            setContent(documentReference.getDescriptionSimple());
         }
 
         setType(documentReference.getType().getTextSimple());
