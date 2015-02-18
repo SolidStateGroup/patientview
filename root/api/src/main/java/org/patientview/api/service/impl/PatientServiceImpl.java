@@ -58,6 +58,7 @@ import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
@@ -158,7 +159,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         List<org.patientview.api.model.Patient> patients = new ArrayList<>();
         List<FhirLink> fhirLinks = new ArrayList<>();
         fhirLinks.addAll(user.getFhirLinks());
-
+        
         // sort fhirLinks by id
         Collections.sort(fhirLinks, new Comparator<FhirLink>() {
             public int compare(FhirLink f1, FhirLink f2) {
@@ -166,11 +167,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         });
 
+        List<Long> foundFhirLinkGroupIds = new ArrayList<>();
+        
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
             if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
                 if (fhirLink.getActive() && !Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
                     Patient fhirPatient = get(fhirLink.getResourceId());
+                    foundFhirLinkGroupIds.add(fhirLink.getGroup().getId());
 
                     if (fhirPatient != null) {
                         Practitioner fhirPractitioner = null;
@@ -198,6 +202,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         patients.add(patient);
                     }
                 }
+            }
+        }
+
+        // make sure group links are displayed on screen, even if no fhirlink exists for the patient's groups, ignore
+        // specialty groups
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            if (!foundFhirLinkGroupIds.contains(group.getId()) && group.getVisible() 
+                    && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                org.patientview.api.model.Patient p = new org.patientview.api.model.Patient();
+                p.setFhirPatient(new FhirPatient());
+                p.setGroup(new org.patientview.api.model.Group(group));
+                patients.add(p);
             }
         }
 
