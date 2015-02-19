@@ -1,4 +1,9 @@
-<div class="hider" data-ng-show="status.open"></div>
+<!-- todo: put in main.css -->
+<style>
+    .archive-link {
+        padding-right:10px;
+    }
+</style>
 
 <div data-ng-show="!loading && userHasMessagingFeature()">
     <h1>Messages <button class="btn blue" data-ng-click="openModalNewConversation('lg')">Create New</button></h1>
@@ -33,19 +38,32 @@
             <p>Before sending your first message, check that we have the right email address for you in <a href="#/settings">Settings</a></p>
             </div>
         </div>
-
-        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
-            <ul class="pagination">
-                <li data-ng-class="prevPageDisabled()">
-                    <a href data-ng-click="prevPage()">« Prev</a>
-                </li>
-                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
-                    <a href>{{n+1}}</a>
-                </li>
-                <li data-ng-class="nextPageDisabled()">
-                    <a href data-ng-click="nextPage()">Next »</a>
-                </li>
-            </ul>
+        
+        <div>
+            <h4>
+                Showing Messages In
+                <select data-ng-model="selectedFolder" data-ng-options="folder.name as folder.name for folder in folders"
+                        data-ng-change="changeFolder(selectedFolder)"></select>
+            </h4>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-body">
+                <div class="col-md-1">
+                    <h4>Search</h4>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" data-ng-model="searchText" placeholder="Search on subject, message or body.." class="form-control input-block-level" />
+                </div>
+                <div class="col-md-4">
+                    <h5>
+                        <input type="checkbox" data-ng-model="includeAllFoldersInSearch"> Include All Folders In Search
+                    </h5>
+                </div>
+                <div class="col-md-1">
+                    <a href="" class="btn blue pull-right" data-ng-click="search()">Search</a>
+                </div>
+            </div>
         </div>
 
         <div class="message-item" data-ng-repeat="conversation in pagedItems">
@@ -75,7 +93,13 @@
                             <span data-ng-show="getLastMessageUser(conversation).deleted"> (deleted)</span>
                         </h4>
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
-                        <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                        <p class="date-stamp">
+                            <strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                            <a class="pull-right archive-link" href="" data-ng-click="archive(conversation)" data-ng-show="!conversation.archived">
+                                Archive this conversation</a>
+                            <a class="pull-right archive-link" href="" data-ng-click="unArchive(conversation)" data-ng-show="conversation.archived">
+                                Unarchive this conversation</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -128,6 +152,20 @@
                     </fieldset>
                 </form>
             </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
         </div>
 
         <div data-ng-show="pagedItems.length < 1">

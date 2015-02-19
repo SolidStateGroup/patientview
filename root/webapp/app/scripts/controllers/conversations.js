@@ -79,10 +79,15 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
 angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'UserService',
-    function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
+function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
+        
+    // testing folders
+    $scope.folders = [];
+    $scope.folders.push({name:'INBOX'},{name:'ARCHIVE'});
+    $scope.selectedFolder = $scope.folders[0].name;
 
     $scope.range = function() {
         var rangeSize = 5;
@@ -335,5 +340,25 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
         if (message != null) {
             return message.user;            
         }
+    };
+    
+    $scope.changeFolder = function(folder) {
+        console.log(folder);
+    };
+    
+    $scope.search = function() {
+       console.log($scope.searchText);
+    };
+    
+    $scope.archive = function(conversation) {
+        console.log("archived");
+        conversation.archived = true;
+        $scope.currentPage = 0;
+    };
+
+    $scope.unArchive = function(conversation) {
+        console.log("unarchived");
+        conversation.archived = false;
+        $scope.currentPage = 0;
     }
 }]);
