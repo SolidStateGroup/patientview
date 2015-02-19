@@ -87,6 +87,28 @@ function ($http, $q, Restangular, $rootScope) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        addConversationUserLabel: function (userId, conversationId, conversationLabel) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/conversations/{conversationId}/conversationlabel/{conversationLabel}
+            Restangular.one('user', userId).one('conversations', conversationId)
+                .one('conversationlabel', conversationLabel).post().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        removeConversationUserLabel: function (userId, conversationId, conversationLabel) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/conversations/{conversationId}/conversationlabel/{conversationLabel}
+            Restangular.one('user', userId).one('conversations', conversationId)
+                .one('conversationlabel', conversationLabel).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

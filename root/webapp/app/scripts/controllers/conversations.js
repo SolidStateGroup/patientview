@@ -139,9 +139,19 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     };
 
     // get page of data every time currentPage is changed
-    $scope.$watch('currentPage', function(newValue) {
+    $scope.$watch('currentPage', function() {
+        $scope.getItems();
+    });
+    
+    $scope.getItems = function() {
         $scope.loading = true;
-        ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
+        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+            
+            // add archived property if present as a label for this user
+            for (var i=0; i<page.content.length; i++) {
+                page.content[i] = setArchivedStatus(page.content[i]);               
+            }
+            
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -150,7 +160,22 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
             $scope.loading = false;
             // error
         });
-    });
+    };
+    
+    var setArchivedStatus = function(conversation) {
+        var currentUserId = $scope.loggedInUser.id;
+        for (var i=0; i<conversation.conversationUsers.length; i++) {
+            var conversationUser = conversation.conversationUsers[i];
+            if (conversationUser.user.id === currentUserId) {
+                for (var j=0; j<conversationUser.conversationUserLabels.length; j++) {
+                    if (conversationUser.conversationUserLabels[j].conversationLabel === 'ARCHIVED') {
+                        conversation.archived = true;
+                    } 
+                }
+            }            
+        }
+        return conversation;
+    };
 
     $scope.hasUnreadMessages = function(conversation) {
         var i, j, unread, unreadMessages = 0;
@@ -351,14 +376,22 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     };
     
     $scope.archive = function(conversation) {
-        console.log("archived");
-        conversation.archived = true;
-        $scope.currentPage = 0;
+        ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+        .then(function() {
+            $scope.currentPage = 0;
+            $scope.getItems();
+        }, function() {
+            alert('Error archiving');
+        });
     };
 
     $scope.unArchive = function(conversation) {
-        console.log("unarchived");
-        conversation.archived = false;
-        $scope.currentPage = 0;
+        ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+        .then(function() {
+            $scope.currentPage = 0;
+            $scope.getItems();
+        }, function() {
+            alert('Error unarchiving');
+        });
     }
 }]);

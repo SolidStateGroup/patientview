@@ -8,6 +8,7 @@ import org.patientview.api.model.Message;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -56,6 +57,23 @@ public class ConversationController extends BaseController<ConversationControlle
         conversationService.addConversation(userId, conversation);
     }
 
+    /**
+     * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to add Conversation label to
+     * @param conversationId ID of Conversation to add label to
+     * @param conversationLabel ConversationLabel label to add to Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/{conversationId}/conversationlabel/{conversationLabel}",
+            method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addConversationUserLabel(@PathVariable("userId") Long userId,
+                                         @PathVariable("conversationId") Long conversationId,
+                                         @PathVariable("conversationLabel") ConversationLabel conversationLabel)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.addConversationUserLabel(userId, conversationId, conversationLabel);
+    }
+    
     /**
      * Add a Message to an existing Conversation.
      * @param conversationId ID of Conversation to add Message to
@@ -186,5 +204,22 @@ public class ConversationController extends BaseController<ConversationControlle
     public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Remove a label from a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to remove Conversation label from
+     * @param conversationId ID of Conversation to add label from
+     * @param conversationLabel ConversationLabel label to remove from Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/{conversationId}/conversationlabel/{conversationLabel}",
+            method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void removeConversationUserLabel(@PathVariable("userId") Long userId,
+                                         @PathVariable("conversationId") Long conversationId,
+                                         @PathVariable("conversationLabel") ConversationLabel conversationLabel)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.removeConversationUserLabel(userId, conversationId, conversationLabel);
     }
 }

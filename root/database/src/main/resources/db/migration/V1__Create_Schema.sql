@@ -119,7 +119,6 @@ CREATE TABLE PV_Group_Relationship
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_Role
 (
   Id               BIGINT      NOT NULL,
@@ -239,7 +238,6 @@ CREATE TABLE PV_News_Link (
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
   Type             VARCHAR(255) NOT NULL,
@@ -277,6 +275,17 @@ CREATE TABLE PV_Conversation_User (
   Created_By      BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Conversation_User_Label (
+  Id                      BIGINT    NOT NULL,
+  Conversation_User_Id    BIGINT    NOT NULL REFERENCES PV_Conversation_User (Id),
+  Conversation_Label      VARCHAR(255) NOT NULL,
+  Creation_Date           TIMESTAMP NOT NULL,
+  Created_By              BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date        TIMESTAMP,
+  Last_Updated_By         BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
@@ -502,7 +511,6 @@ CREATE TABLE PV_Route (
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_Route_Link (
   Id                   BIGINT        NOT NULL,
   Route_Id             BIGINT        NOT NULL  REFERENCES PV_Route (Id),
@@ -513,7 +521,6 @@ CREATE TABLE PV_Route_Link (
   Created_By           BIGINT        REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
-
 
 CREATE TABLE PV_Identifier
 (
@@ -529,7 +536,6 @@ CREATE TABLE PV_Identifier
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
-
 
 CREATE TABLE PV_Join_Request
 (

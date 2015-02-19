@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
+import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -25,6 +26,7 @@ import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
@@ -33,6 +35,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.ConversationUserLabelRepository;
 import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -46,6 +49,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -77,6 +81,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationUserRepository conversationUserRepository;
+
+    @Inject
+    private ConversationUserLabelRepository conversationUserLabelRepository;
 
     @Inject
     private MessageRepository messageRepository;
@@ -149,7 +156,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     private Conversation anonymiseConversation(Conversation conversation) {
-
         Conversation newConversation = new Conversation();
         newConversation.setConversationUsers(new HashSet<ConversationUser>());
         List<Long> anonUserIds = new ArrayList<>();
@@ -397,6 +403,53 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             // persist conversation
             conversationRepository.save(newConversation);
         }
+    }
+
+    @Override
+    public void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Conversation conversation = conversationRepository.findOne(conversationId);
+
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation does not exist");
+        }
+
+        if (!loggedInUserIsMemberOfConversation(conversation)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().getId().equals(userId)) {                
+                boolean found = false;
+                
+                // check existing label does not already exist for this user
+                if (!CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+                    for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
+                        if (conversationUserLabel.getConversationLabel().equals(conversationLabel)) {
+                            found = true;
+                        }
+                    }
+                } else {
+                    conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                }
+                
+                // if label doesn't already exist, add it to the ConversationUser
+                if (!found) {
+                    ConversationUserLabel newConversationUserLabel = new ConversationUserLabel();
+                    newConversationUserLabel.setConversationUser(conversationUser);
+                    newConversationUserLabel.setConversationLabel(conversationLabel);
+                    newConversationUserLabel.setCreated(new Date());
+                    newConversationUserLabel.setCreator(getCurrentUser());
+                    conversationUser.getConversationUserLabels().add(newConversationUserLabel);
+                }
+            }
+        }
+        
+        conversationRepository.save(conversation);
     }
 
     private void sendNewCentralSupportEmail(User entityUser, Conversation conversation) {
@@ -852,6 +905,37 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         user.setConversationUsers(new HashSet<ConversationUser>());
         userRepository.save(user);
+    }
+
+    @Override
+    public void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Conversation conversation = conversationRepository.findOne(conversationId);
+
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation does not exist");
+        }
+
+        if (!loggedInUserIsMemberOfConversation(conversation)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().getId().equals(userId)) {
+                if (!CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+                    for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
+                        if (conversationUserLabel.getConversationLabel().equals(conversationLabel)) {
+                            conversationUserLabelRepository.delete(conversationUserLabel);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private boolean userHasStaffMessagingFeatures(User user) {

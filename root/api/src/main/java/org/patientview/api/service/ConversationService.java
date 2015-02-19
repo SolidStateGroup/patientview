@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,6 +33,18 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     @UserOnly
     void addConversation(Long userId, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to add Conversation label to
+     * @param conversationId ID of Conversation to add label to
+     * @param conversationLabel ConversationLabel label to add to Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel) 
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -114,4 +127,15 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     @UserOnly
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
+
+    /**
+     * Remove a label from a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to remove Conversation label from
+     * @param conversationId ID of Conversation to add label from
+     * @param conversationLabel ConversationLabel label to remove from Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 }

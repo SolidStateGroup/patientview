@@ -109,20 +109,6 @@ public class IdentifierControllerTest {
         }
     }
 
-    // not used 05/11/14
-    /*@Test
-    public void testGetIdentifierByValue() throws ResourceNotFoundException  {
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
-        String identifierValue = "111111111";
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/identifier/value/" + identifierValue))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-    }*/
-
     @Test
     public void testValidateIdentifier() {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
