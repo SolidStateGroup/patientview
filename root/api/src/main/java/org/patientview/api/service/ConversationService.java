@@ -5,10 +5,10 @@ import org.patientview.api.model.BaseUser;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +44,7 @@ public interface ConversationService extends CrudService<Conversation> {
      * @throws ResourceForbiddenException
      */
     @UserOnly
-    void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel) 
+    void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -67,19 +67,22 @@ public interface ConversationService extends CrudService<Conversation> {
     void addMessageReadReceipt(Long messageId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    /**
+     * Delete a User from all Conversations, used during User deletion.
+     * @param user User to delete from all Conversations
+     */
     void deleteUserFromConversations(User user);
 
     /**
-     * Get a Page of Conversation objects given a User (who is a member of the Conversations) and Pageable containing
-     * pagination settings.
+     * Get a Page of Conversation objects given a User (who is a member of the Conversations).
      * @param userId ID of User to retrieve Conversations for
-     * @param pageable Pageable object containing pagination options
-     * @return Page of Conversations
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
+     * @return Page of Conversation objects
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @UserOnly
-    Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
+    Page<org.patientview.api.model.Conversation> findByUserId(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

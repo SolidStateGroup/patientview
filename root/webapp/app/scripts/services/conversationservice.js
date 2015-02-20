@@ -13,24 +13,24 @@ function ($http, $q, Restangular, $rootScope) {
             return deferred.promise;
         },
         getUnreadConversationCount: function (userId) {
-            /*var deferred = $q.defer();
+            var deferred = $q.defer();
             // GET /user/{userId}/conversations/unreadcount
             Restangular.one('user', userId).one('conversations/unreadcount').get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
-            return deferred.promise;*/
+            return deferred.promise;
 
             // temporary testing non-restangular for performance
             // GET /user/{userId}/conversations/unreadcount
-            var deferred = $q.defer();
+            /*var deferred = $q.defer();
             $http.get($rootScope.apiEndpoint + '/user/' + userId + '/conversations/unreadcount').success(function(successResult){
                 deferred.resolve(successResult);
             }).error(function(failureResult) {
                 deferred.reject(failureResult);
             });
-            return deferred.promise;
+            return deferred.promise;*/
         },
         getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
@@ -43,11 +43,10 @@ function ($http, $q, Restangular, $rootScope) {
             });
             return deferred.promise;
         },
-        getAll: function (user, page, size) {
+        getAll: function (user, getParameters) {
             var deferred = $q.defer();
             // GET /user/{userId}/conversations?page=0&size=5
-            Restangular.one('user', user.id).one('conversations').get({'page': page, 'size': size})
-                .then(function(successResult) {
+            Restangular.one('user', user.id).one('conversations').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

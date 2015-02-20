@@ -3,6 +3,9 @@
     .archive-link {
         padding-right:10px;
     }
+    .panel-body {
+        padding: 15px;
+    }
 </style>
 
 <div data-ng-show="!loading && userHasMessagingFeature()">
@@ -42,8 +45,8 @@
         <div>
             <h4>
                 Showing Messages In
-                <select data-ng-model="selectedFolder" data-ng-options="folder.name as folder.name for folder in folders"
-                        data-ng-change="changeFolder(selectedFolder)"></select>
+                <select data-ng-model="selectedFolder" data-ng-options="folder.name as folder.description for folder in folders"
+                        data-ng-change="changeFolder(selectedFolder)"></select> Folder
             </h4>
         </div>
         
@@ -68,6 +71,7 @@
 
         <div class="message-item" data-ng-repeat="conversation in pagedItems">
             <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
+            <span data-ng-show="conversation.archived" class="label label-danger pull-right new-message"> Archived</span>
             <div class="content-panel">
                 <ul class="pull-right aside-actions unstyled">
                     <li><a href="" class="aside-link active" data-ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>

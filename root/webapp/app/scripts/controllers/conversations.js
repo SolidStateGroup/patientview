@@ -86,7 +86,7 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
         
     // testing folders
     $scope.folders = [];
-    $scope.folders.push({name:'INBOX'},{name:'ARCHIVE'});
+    $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
     $scope.selectedFolder = $scope.folders[0].name;
 
     $scope.range = function() {
@@ -140,12 +140,20 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
 
     // get page of data every time currentPage is changed
     $scope.$watch('currentPage', function() {
-        $scope.getItems();
+        getItems();
     });
     
-    $scope.getItems = function() {
+    var getItems = function() {
         $scope.loading = true;
-        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+        var getParameters = {};
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        
+        // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
+        getParameters.conversationLabels = [];
+        getParameters.conversationLabels.push($scope.selectedFolder);
+        
+        ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
             
             // add archived property if present as a label for this user
             for (var i=0; i<page.content.length; i++) {
@@ -158,7 +166,7 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
             $scope.loading = false;
         }, function() {
             $scope.loading = false;
-            // error
+            alert("Could not get conversations");
         });
     };
     
@@ -368,30 +376,44 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     };
     
     $scope.changeFolder = function(folder) {
-        console.log(folder);
+        $scope.folder = folder;
+        $scope.currentPage = 0;
+        getItems();
     };
     
     $scope.search = function() {
        console.log($scope.searchText);
     };
     
+    // add ARCHIVE, remove INBOX
     $scope.archive = function(conversation) {
-        ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+        ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
         .then(function() {
-            $scope.currentPage = 0;
-            $scope.getItems();
+            ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+            .then(function() {
+                $scope.currentPage = 0;
+                getItems();
+            }, function() {
+                alert('Error archiving');
+            });
         }, function() {
             alert('Error archiving');
         });
     };
 
+    // remove ARCHIVE, add INBOX
     $scope.unArchive = function(conversation) {
         ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
         .then(function() {
-            $scope.currentPage = 0;
-            $scope.getItems();
+            ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
+            .then(function() {
+                $scope.currentPage = 0;
+                getItems();
+            }, function() {
+                alert('Error unarchiving');
+            });
         }, function() {
             alert('Error unarchiving');
         });
-    }
+    };
 }]);

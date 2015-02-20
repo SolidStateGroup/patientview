@@ -7,7 +7,8 @@ package org.patientview.persistence.model.enums;
  * Created on 19/02/2015
  */
 public enum ConversationLabel {
-    ARCHIVED("Archived");
+    ARCHIVED("Archived"),
+    INBOX("Inbox");
 
     private String name;
     ConversationLabel(String name) { this.name = name; }

@@ -45,7 +45,6 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -53,6 +52,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,6 +112,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private Properties properties;
+
+    @Inject
+    private EntityManager entityManager;
 
     public Conversation get(Long conversationId) {
         return anonymiseConversation(conversationRepository.findOne(conversationId));
@@ -216,7 +220,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return newConversation;
     }
 
-    public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
+    @Override
+    public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
@@ -224,17 +229,65 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Page<Conversation> conversationPage = conversationRepository.findByUser(entityUser, pageable);
+        Integer pageConverted = (StringUtils.isNotEmpty(getParameters.getPage()))
+                ? Integer.parseInt(getParameters.getPage()) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(getParameters.getSize()))
+                ? Integer.parseInt(getParameters.getSize()) : Integer.MAX_VALUE;
+        PageRequest pageable = new PageRequest(pageConverted, sizeConverted);
+
+        // Building String query manually rather than using pre-defined repository method for potential complex queries
+        // in future
+        boolean labelsSet = getParameters.getConversationLabels() != null
+                && getParameters.getConversationLabels().length > 0;
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("FROM Conversation c ");
+        sql.append("JOIN c.conversationUsers cu ");
+        if (labelsSet) {
+            sql.append("JOIN cu.conversationUserLabels cul ");
+        }
+        sql.append("WHERE cu.conversation = c ");
+        sql.append("AND cu.user = :user ");
+        if (labelsSet) {
+            sql.append("AND cul.conversationLabel IN :conversationLabels ");
+        }
+
+        Query listQuery = entityManager.createQuery("SELECT c " + sql.toString() + "ORDER BY c.lastUpdate DESC ");
+        Query countQuery = entityManager.createQuery("SELECT count(c.id) " + sql.toString());
+
+        listQuery.setParameter("user", entityUser);
+        countQuery.setParameter("user", entityUser);
+
+        if (labelsSet) {
+            List<ConversationLabel> conversationLabels = new ArrayList<>();
+            for (String conversationLabel : getParameters.getConversationLabels()) {
+                conversationLabels.add(ConversationLabel.valueOf(conversationLabel));
+            }
+            listQuery.setParameter("conversationLabels", conversationLabels);
+            countQuery.setParameter("conversationLabels", conversationLabels);
+        }
+
+        listQuery.setMaxResults(sizeConverted);
+
+        if (pageConverted == 0) {
+            listQuery.setFirstResult(0);
+        } else {
+            listQuery.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
+        }
+
+        List<Conversation> conversationList = listQuery.getResultList();
         List<org.patientview.api.model.Conversation> conversations = new ArrayList<>();
 
         // make anonymous if necessary
-        for (Conversation conversation : conversationPage.getContent()) {
+        for (Conversation conversation : conversationList) {
             conversations.add(new org.patientview.api.model.Conversation(anonymiseConversation(conversation)));
         }
 
-        return new PageImpl<>(conversations, pageable, conversationPage.getTotalElements());
+        return new PageImpl<>(conversations, pageable, (long) countQuery.getSingleResult());
     }
 
+    @Override
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -344,6 +397,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationUserSet;
     }
 
+    @Override
     public void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -423,9 +477,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-            if (conversationUser.getUser().getId().equals(userId)) {                
+            if (conversationUser.getUser().getId().equals(userId)) {
                 boolean found = false;
-                
+
                 // check existing label does not already exist for this user
                 if (!CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
                     for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
@@ -436,7 +490,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 } else {
                     conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
                 }
-                
+
                 // if label doesn't already exist, add it to the ConversationUser
                 if (!found) {
                     ConversationUserLabel newConversationUserLabel = new ConversationUserLabel();
@@ -448,7 +502,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
         }
-        
+
         conversationRepository.save(conversation);
     }
 
@@ -481,7 +535,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     private void sendNewMessageEmails(Set<ConversationUser> conversationUsers) {
-
         for (ConversationUser conversationUser : conversationUsers) {
             User user = conversationUser.getUser();
 
@@ -515,6 +568,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    @Override
     public void addMessageReadReceipt(Long messageId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
@@ -542,15 +596,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
-
-        if (!userRepository.exists(userId)) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
-
-        return conversationRepository.getUnreadConversationCount(userId);
-    }
-
     private List<org.patientview.api.model.BaseUser> convertUsersToTransportBaseUsers(List<User> users) {
         List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
 
@@ -564,9 +609,73 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
+    @Override
+    public void deleteUserFromConversations(User user) {
+
+        // remove from all conversations where user is a member (including messages)
+        List<Conversation> conversations
+                = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+
+        for (Conversation conversation : conversations) {
+            // remove from conversation user list
+            Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
+            for (ConversationUser conversationUser :conversation.getConversationUsers()) {
+                if (!conversationUser.getUser().getId().equals(user.getId())) {
+
+                    // remove as creator if set
+                    if (conversationUser.getCreator().getId().equals(user.getId())) {
+                        conversationUser.setCreator(null);
+                    }
+
+                    removedUserConversationUsers.add(conversationUser);
+                } else {
+                    conversationUserRepository.delete(conversationUser);
+                }
+            }
+            conversation.setConversationUsers(removedUserConversationUsers);
+
+            // remove from messages
+            List<Message> removedUserMessages = new ArrayList<>();
+            for (Message message : conversation.getMessages()) {
+                if (message.getUser().getId().equals(user.getId())) {
+                    message.setUser(null);
+                }
+
+                // remove read receipts for this user
+                Set<MessageReadReceipt> removedUserMessageReadReceipts = new HashSet<>();
+                for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                    if (!messageReadReceipt.getUser().getId().equals(user.getId())) {
+                        removedUserMessageReadReceipts.add(messageReadReceipt);
+                    } else {
+                        messageReadReceiptRepository.delete(messageReadReceipt);
+                    }
+                }
+                message.setReadReceipts(removedUserMessageReadReceipts);
+
+                removedUserMessages.add(message);
+            }
+            conversation.setMessages(removedUserMessages);
+
+            if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
+                conversation.setCreator(null);
+            }
+            conversationRepository.save(conversation);
+        }
+
+        user.setConversationUsers(new HashSet<ConversationUser>());
+        userRepository.save(user);
+    }
+
+    @Override
+    public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
+        if (!userRepository.exists(userId)) {
+            throw new ResourceNotFoundException("User does not exist");
+        }
+        return conversationRepository.getUnreadConversationCount(userId);
+    }
+
     private HashMap<String, List<BaseUser>> getGlobalAdminRecipients(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
         GetParameters getParameters = new GetParameters();
@@ -748,6 +857,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
+    @Override
     public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -848,63 +958,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public void deleteUserFromConversations(User user) {
-
-        // remove from all conversations where user is a member (including messages)
-        List<Conversation> conversations
-                = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
-
-        for (Conversation conversation : conversations) {
-            // remove from conversation user list
-            Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
-            for (ConversationUser conversationUser :conversation.getConversationUsers()) {
-                if (!conversationUser.getUser().getId().equals(user.getId())) {
-
-                    // remove as creator if set
-                    if (conversationUser.getCreator().getId().equals(user.getId())) {
-                        conversationUser.setCreator(null);
-                    }
-
-                    removedUserConversationUsers.add(conversationUser);
-                } else {
-                    conversationUserRepository.delete(conversationUser);
-                }
-            }
-            conversation.setConversationUsers(removedUserConversationUsers);
-
-            // remove from messages
-            List<Message> removedUserMessages = new ArrayList<>();
-            for (Message message : conversation.getMessages()) {
-                if (message.getUser().getId().equals(user.getId())) {
-                    message.setUser(null);
-                }
-
-                // remove read receipts for this user
-                Set<MessageReadReceipt> removedUserMessageReadReceipts = new HashSet<>();
-                for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
-                    if (!messageReadReceipt.getUser().getId().equals(user.getId())) {
-                        removedUserMessageReadReceipts.add(messageReadReceipt);
-                    } else {
-                        messageReadReceiptRepository.delete(messageReadReceipt);
-                    }
-                }
-                message.setReadReceipts(removedUserMessageReadReceipts);
-
-                removedUserMessages.add(message);
-            }
-            conversation.setMessages(removedUserMessages);
-
-            if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
-                conversation.setCreator(null);
-            }
-            conversationRepository.save(conversation);
-        }
-
-        user.setConversationUsers(new HashSet<ConversationUser>());
-        userRepository.save(user);
     }
 
     @Override

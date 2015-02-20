@@ -25,8 +25,8 @@ public class ConversationUser {
         setAnonymous(conversationUser.getAnonymous());
 
         setConversationUserLabels(new HashSet<ConversationUserLabel>());
-        for (org.patientview.persistence.model.ConversationUserLabel conversationUserLabel : 
-                conversationUser.getConversationUserLabels()) {
+        for (org.patientview.persistence.model.ConversationUserLabel conversationUserLabel
+                : conversationUser.getConversationUserLabels()) {
             getConversationUserLabels().add(new ConversationUserLabel(conversationUserLabel));
         }
     }

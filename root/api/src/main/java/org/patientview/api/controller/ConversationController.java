@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.Conversation;
@@ -8,11 +7,11 @@ import org.patientview.api.model.Message;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +72,7 @@ public class ConversationController extends BaseController<ConversationControlle
             throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addConversationUserLabel(userId, conversationId, conversationLabel);
     }
-    
+
     /**
      * Add a Message to an existing Conversation.
      * @param conversationId ID of Conversation to add Message to
@@ -118,11 +117,9 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
-     * Get a Page of Conversation objects given a User (who is a member of the Conversations). Note: simplified
-     * pagination using just page size and page number as parameters.
+     * Get a Page of Conversation objects given a User (who is a member of the Conversations).
      * @param userId ID of User to retrieve Conversations for
-     * @param size Integer size of page (for pagination)
-     * @param page Integer page number (for pagination)
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * @return Page of Conversation objects
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -132,27 +129,9 @@ public class ConversationController extends BaseController<ConversationControlle
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Page<Conversation>> getConversations(
-            @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
-            @RequestParam(value = "page", required = false) String page)
+            @PathVariable("userId") Long userId, GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        Integer pageConverted = null, sizeConverted = null;
-        PageRequest pageable;
-
-        if (StringUtils.isNotEmpty(page)) {
-            pageConverted = Integer.parseInt(page);
-        }
-
-        if (StringUtils.isNotEmpty(size)) {
-            sizeConverted = Integer.parseInt(size);
-        }
-
-        if (pageConverted != null && sizeConverted != null) {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        } else {
-            pageable = new PageRequest(0, Integer.MAX_VALUE);
-        }
-
-        return new ResponseEntity<>(conversationService.findByUserId(userId, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(conversationService.findByUserId(userId, getParameters), HttpStatus.OK);
     }
 
     /**
