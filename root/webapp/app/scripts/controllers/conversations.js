@@ -78,8 +78,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'UserService',
-function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', '$filter', 'ConversationService', 'GroupService', 'UserService',
+function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -169,10 +169,13 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
-        
-        // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
-        getParameters.conversationLabels = [];
-        getParameters.conversationLabels.push($scope.selectedFolder);
+        getParameters.filterText = $scope.filterText;
+        if (!$scope.includeAllFoldersInSearch) {
+
+            // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
+            getParameters.conversationLabels = [];
+            getParameters.conversationLabels.push($scope.selectedFolder);
+        }
         
         ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
             
@@ -370,7 +373,6 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     };
 
     $scope.userHasMessagingFeature = function() {
-
         // GLOBAL_ADMIN and PATIENT both always have messaging enabled
         if (UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)
             || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
@@ -399,11 +401,17 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     $scope.changeFolder = function(folder) {
         $scope.folder = folder;
         $scope.currentPage = 0;
+        delete $scope.filterText;
+        delete $scope.includeAllFoldersInSearch;
         getItems();
     };
     
     $scope.search = function() {
-       console.log($scope.searchText);
+        if ($scope.filterText !== undefined && !$scope.filterText.length) {
+            delete $scope.filterText;
+        }
+        $scope.currentPage = 0;
+        getItems();
     };
     
     // add ARCHIVE, remove INBOX
@@ -436,5 +444,39 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
         }, function() {
             alert('Error unarchiving');
         });
+    };
+    
+    $scope.printConversation = function(conversation) {
+        // ie8 compatibility
+        var printContent = $('<div>');
+        var archived = '';
+        var i;
+        if (conversation.archived) {
+            archived = '(archived)';
+        }
+        printContent.append('<h1>PatientView Conversation ' + archived 
+            + '</h1><h2>Subject: ' + conversation.title + '</h2>');
+        printContent.append('<h4>With:</h4><ul>');
+        for (i=0; i< conversation.conversationUsers.length; i++) {
+            printContent.append('<li>' + conversation.conversationUsers[i].user.forename + ' '
+                + conversation.conversationUsers[i].user.surname + '</li>');
+        }
+        
+        for (i=0; i< conversation.messages.length; i++) {
+            var message = conversation.messages[i];
+            printContent.append('<h4>Message Date: ' + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
+                + '</h4><h4>From: ' + message.user.forename + ' ' + message.user.surname + '</h4>');
+            printContent.append('<p>' + message.message + '</p>');
+        }
+        
+        var windowUrl = 'PatientView Conversation';
+        var uniqueName = new Date();
+        var windowName = 'Print' + uniqueName.getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+        printWindow.document.write(printContent.html());
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     };
 }]);

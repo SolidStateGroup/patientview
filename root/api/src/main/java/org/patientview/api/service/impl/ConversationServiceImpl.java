@@ -566,6 +566,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // pagination page number and size
         Integer pageConverted = (StringUtils.isNotEmpty(getParameters.getPage()))
                 ? Integer.parseInt(getParameters.getPage()) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(getParameters.getSize()))
@@ -576,6 +577,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // in future
         boolean labelsSet = getParameters.getConversationLabels() != null
                 && getParameters.getConversationLabels().length > 0;
+        boolean filterTextSet = StringUtils.isNotEmpty(getParameters.getFilterText());
 
         StringBuilder sql = new StringBuilder();
 
@@ -584,13 +586,32 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         if (labelsSet) {
             sql.append("JOIN cu.conversationUserLabels cul ");
         }
+        if (filterTextSet) {
+            sql.append("JOIN c.messages m ");
+            sql.append("JOIN c.conversationUsers cu2 ");
+        }
         sql.append("WHERE cu.conversation = c ");
         sql.append("AND cu.user = :user ");
         if (labelsSet) {
             sql.append("AND cul.conversationLabel IN :conversationLabels ");
         }
 
-        Query listQuery = entityManager.createQuery("SELECT c " + sql.toString() + "ORDER BY c.lastUpdate DESC ");
+        // search term
+        if (filterTextSet) {
+            sql.append("AND (UPPER(c.title) LIKE '%");
+            sql.append(getParameters.getFilterText().toUpperCase());
+            sql.append("%' OR UPPER(m.message) LIKE '%");
+            sql.append(getParameters.getFilterText().toUpperCase());
+            sql.append("%' OR UPPER(cu2.user.forename) LIKE '%");
+            sql.append(getParameters.getFilterText().toUpperCase());
+            sql.append("%' OR UPPER(cu2.user.surname) LIKE '%");
+            sql.append(getParameters.getFilterText().toUpperCase());
+            sql.append("%') ");
+        }
+
+        // two queries required, one for content, one for count used in pagination total
+        Query listQuery
+                = entityManager.createQuery("SELECT distinct(c) " + sql.toString() + "ORDER BY c.lastUpdate DESC ");
         Query countQuery = entityManager.createQuery("SELECT count(c.id) " + sql.toString());
 
         listQuery.setParameter("user", entityUser);
