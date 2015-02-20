@@ -89,29 +89,43 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
     $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
     $scope.selectedFolder = $scope.folders[0].name;
 
-    $scope.range = function() {
-        var rangeSize = 5;
-        var ret = [];
-        var start;
+    // pagination
+    $scope.pageCount = function() {
+        return Math.ceil($scope.total / $scope.itemsPerPage);
+    };
 
-        start = 1;
-        if ( start > $scope.totalPages-rangeSize ) {
-            start = $scope.totalPages-rangeSize;
+    $scope.range = function() {
+        var rangeSize = $scope.itemsPerPage;
+        var pageNumbers = [];
+        var startPage;
+
+        if (($scope.currentPage - $scope.itemsPerPage / 2) < 0) {
+            startPage = 0;
+        } else {
+            startPage = $scope.currentPage - $scope.itemsPerPage / 2;
         }
 
-        for (var i=start; i<start+rangeSize; i++) {
+        if (startPage > $scope.pageCount() - rangeSize) {
+            startPage = $scope.pageCount() - rangeSize;
+        }
+
+        for (var i = startPage; i < startPage + rangeSize; i++) {
             if (i > -1) {
-                ret.push(i);
+                pageNumbers.push(i);
             }
         }
 
-        return ret;
+        return pageNumbers;
     };
 
-    $scope.setPage = function(n) {
-        if (n > -1 && n < $scope.totalPages) {
-            $scope.currentPage = n;
+    $scope.setPage = function(pageNumber) {
+        if (pageNumber > -1 && pageNumber < $scope.totalPages) {
+            $scope.currentPage = pageNumber;
         }
+    };
+
+    $scope.firstPage = function() {
+        $scope.currentPage = 0;
     };
 
     $scope.prevPage = function() {
@@ -120,24 +134,31 @@ function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
         }
     };
 
-    $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? 'hidden' : '';
-    };
-
     $scope.nextPage = function() {
         if ($scope.currentPage < $scope.totalPages - 1) {
             $scope.currentPage++;
         }
     };
 
-    $scope.nextPageDisabled = function() {
-        if ($scope.totalPages > 0) {
-            return $scope.currentPage === $scope.totalPages - 1 ? 'hidden' : '';
-        } else {
-            return 'hidden';
-        }
+    $scope.lastPage = function() {
+        $scope.currentPage = $scope.totalPages - 1;
     };
 
+    $scope.firstPageDisabled = function() {
+        return (($scope.currentPage - $scope.itemsPerPage / 2) < 0) ? 'hidden' : '';
+    };
+
+    $scope.prevPageDisabled = function() {
+        return $scope.currentPage === 0 ? 'hidden' : '';
+    };
+
+    $scope.nextPageDisabled = function() {
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'hidden' : '';
+    };
+
+    $scope.lastPageDisabled = function() {
+        return ($scope.currentPage + 6 > $scope.pageCount()) ? 'hidden' : '';
+    };
     // get page of data every time currentPage is changed
     $scope.$watch('currentPage', function() {
         getItems();
