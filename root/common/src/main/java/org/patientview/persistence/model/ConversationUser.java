@@ -33,7 +33,8 @@ public class ConversationUser extends AuditModel {
     @Column(name = "anonymous")
     private Boolean anonymous;
 
-    @OneToMany(mappedBy = "conversationUser", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "conversationUser", 
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private Set<ConversationUserLabel> conversationUserLabels;
     
     @JsonIgnore
