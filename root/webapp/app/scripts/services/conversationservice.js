@@ -21,16 +21,6 @@ function ($http, $q, Restangular, $rootScope) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
-
-            // temporary testing non-restangular for performance
-            // GET /user/{userId}/conversations/unreadcount
-            /*var deferred = $q.defer();
-            $http.get($rootScope.apiEndpoint + '/user/' + userId + '/conversations/unreadcount').success(function(successResult){
-                deferred.resolve(successResult);
-            }).error(function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;*/
         },
         getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
@@ -107,6 +97,26 @@ function ($http, $q, Restangular, $rootScope) {
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
+            return deferred.promise;
+        },
+        addConversationUser: function (conversationId, userId) {
+            var deferred = $q.defer();
+            Restangular.one('conversation', conversationId).one('conversationuser', userId).post()
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
+        removeConversationUser: function (conversationId, userId) {
+            var deferred = $q.defer();
+            Restangular.one('conversation', conversationId).one('conversationuser', userId).remove()
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
             return deferred.promise;
         }
     };

@@ -8,7 +8,6 @@ function ($scope, ConversationService) {
         $scope.recipientsExist = false;
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
-
             var element = document.getElementById('conversation-add-recipient');
             if (element !== null) {
                 element.parentNode.removeChild(element);

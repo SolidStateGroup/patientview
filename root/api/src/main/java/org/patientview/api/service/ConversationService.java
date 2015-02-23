@@ -36,6 +36,16 @@ public interface ConversationService extends CrudService<Conversation> {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
+     * @param conversationId ID of Conversation to add User to
+     * @param userId ID of User to be added to Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    void addConversationUser(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
      * @param userId ID of User to add Conversation label to
      * @param conversationId ID of Conversation to add label to
@@ -130,6 +140,16 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     @UserOnly
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
+
+    /**
+     * Remove a User from a Conversation by deleting the ConversationUser.
+     * @param conversationId ID of Conversation to remove User from
+     * @param userId ID of User to be removed from Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    void removeConversationUser(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Remove a label from a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.

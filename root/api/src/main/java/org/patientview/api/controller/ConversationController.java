@@ -57,6 +57,20 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
+     * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
+     * @param conversationId ID of Conversation to add User to
+     * @param userId ID of User to be added to Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/conversation/{conversationId}/conversationuser/{userId}", method = RequestMethod.POST)
+    public void addConversationUser(@PathVariable("conversationId") Long conversationId,
+                                    @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.addConversationUser(conversationId, userId);
+    }
+
+    /**
      * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
      * @param userId ID of User to add Conversation label to
      * @param conversationId ID of Conversation to add label to
@@ -183,6 +197,20 @@ public class ConversationController extends BaseController<ConversationControlle
     public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Remove a User from a Conversation by deleting the ConversationUser.
+     * @param conversationId ID of Conversation to remove User from
+     * @param userId ID of User to be removed from Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/conversation/{conversationId}/conversationuser/{userId}", method = RequestMethod.DELETE)
+    public void removeConversationUser(@PathVariable("conversationId") Long conversationId,
+                                    @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.removeConversationUser(conversationId, userId);
     }
 
     /**

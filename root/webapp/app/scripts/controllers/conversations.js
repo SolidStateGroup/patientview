@@ -1,5 +1,99 @@
 'use strict';
 
+// change conversation recipients modal instance controller
+var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'ConversationService', 'conversation',
+    function ($scope, $rootScope, $modalInstance, GroupService, ConversationService, conversation) {
+        var init = function() {
+            delete $scope.errorMessage;
+            $scope.editConversation = conversation;
+            $scope.conversationGroups = [];
+
+            GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+                for (var i = 0; i < successResult.length; i++) {
+                    if (successResult[i].code !== 'Generic') {
+                        $scope.conversationGroups.push(successResult[i]);
+                    }
+                }
+            }, function(failResult) {
+                $scope.errorMessage = failResult.data;
+            });
+        };
+
+        $scope.cancel = function () {
+            delete $scope.errorMessage;
+            $modalInstance.dismiss('cancel');
+        };
+
+        $scope.selectGroup = function(conversation, groupId) {
+            $scope.modalLoading = true;
+            $scope.recipientsExist = false;
+
+            ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
+
+                var element = document.getElementById('conversation-add-recipient');
+                if (element !== null) {
+                    element.parentNode.removeChild(element);
+                }
+
+                var blankOption = '<option></option>';
+
+                // pure text, ie8 performance requires this
+                $('#recipient-select-container')
+                    .html('<select class="form-control recipient-select" id="conversation-add-recipient" onchange="recipientSelectChange()">'
+                        + blankOption + recipientOptions + '</select>');
+
+                $scope.recipientsExist = true;
+                $scope.modalLoading = false;
+            }, function (failureResult) {
+                if (failureResult.status === 404) {
+                    $scope.modalLoading = false;
+                } else {
+                    $scope.modalLoading = false;
+                    alert('Error loading message recipients');
+                }
+            });
+        };
+        
+        $scope.addConversationUser = function (conversation) {
+            var userId = $('#conversation-add-recipient option').filter(':selected').val();
+            var found = false;
+
+            // check not already added
+            for (var i = 0; i < conversation.conversationUsers.length; i++) {
+                // need to cast string to number using == not === for id
+                if (conversation.conversationUsers[i].user.id == userId) {
+                    found = true;
+                }
+            }
+
+            if (!found && userId !== '') {
+                ConversationService.addConversationUser(conversation.id, userId).then(function() {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                }, function() {
+                    alert('Error adding conversation user');
+                });
+            }
+        };
+
+        $scope.removeConversationUser = function (conversationId, userId) {
+            ConversationService.removeConversationUser(conversationId, userId).then(function() {
+                ConversationService.get(conversation.id).then(function(successResult) {
+                    $scope.editConversation = successResult;
+                }, function() {
+                    alert('Error getting conversation');
+                });
+            }, function() {
+                alert('Error removing conversation user');
+            });
+        };
+
+        init();
+    }];
+
 // new conversation modal instance controller
 var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
@@ -77,23 +171,23 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         init();
     }];
 
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', '$filter', 
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', '$filter',
     'ConversationService', 'GroupService', 'UserService',
 function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
-        
+
     // folders (equivalent to labels, currently only INBOX, ARCHIVED)
     $scope.folders = [];
     $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
     $scope.selectedFolder = $scope.folders[0].name;
-    
+
     // get page of data every time currentPage is changed
     $scope.$watch('currentPage', function() {
         getItems();
     });
-    
+
     var getItems = function() {
         $scope.loading = true;
         var getParameters = {};
@@ -106,14 +200,14 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
             getParameters.conversationLabels = [];
             getParameters.conversationLabels.push($scope.selectedFolder);
         }
-        
+
         ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
-            
+
             // add archived property if present as a label for this user
             for (var i=0; i<page.content.length; i++) {
-                page.content[i] = setArchivedStatus(page.content[i]);               
+                page.content[i] = setArchivedStatus(page.content[i]);
             }
-            
+
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -123,7 +217,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
             alert("Could not get conversations");
         });
     };
-    
+
     var setArchivedStatus = function(conversation) {
         var currentUserId = $scope.loggedInUser.id;
         for (var i=0; i<conversation.conversationUsers.length; i++) {
@@ -132,9 +226,9 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
                 for (var j=0; j<conversationUser.conversationUserLabels.length; j++) {
                     if (conversationUser.conversationUserLabels[j].conversationLabel === 'ARCHIVED') {
                         conversation.archived = true;
-                    } 
+                    }
                 }
-            }            
+            }
         }
         return conversation;
     };
@@ -302,6 +396,37 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         });
     };
 
+    // open modal for change conversation recipients
+    $scope.openModalChangeConversationRecipients = function (conversation) {
+        delete $scope.errorMessage;
+        delete $scope.successMessage;
+
+        // open modal
+        var modalInstance = $modal.open({
+            templateUrl: 'changeConversationRecipientsModal.html',
+            controller: ChangeConversationRecipientsModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                conversation: function () {
+                    return conversation;
+                },
+                ConversationService: function () {
+                    return ConversationService;
+                },
+                GroupService: function () {
+                    return GroupService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // only has close button
+        }, function () {
+            getItems();
+        });
+    };
+
     $scope.userHasMessagingFeature = function() {
         // GLOBAL_ADMIN and PATIENT both always have messaging enabled
         if (UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)
@@ -320,14 +445,14 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
 
         return false;
     };
-        
+
     $scope.getLastMessageUser = function(conversation) {
         var message = conversation.messages[conversation.messages.length-1];
         if (message != null) {
-            return message.user;            
+            return message.user;
         }
     };
-    
+
     $scope.changeFolder = function(folder) {
         $scope.folder = folder;
         $scope.currentPage = 0;
@@ -335,7 +460,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         delete $scope.includeAllFoldersInSearch;
         getItems();
     };
-    
+
     $scope.search = function() {
         if ($scope.filterText !== undefined && !$scope.filterText.length) {
             delete $scope.filterText;
@@ -343,7 +468,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         $scope.currentPage = 0;
         getItems();
     };
-    
+
     // add ARCHIVE, remove INBOX
     $scope.archive = function(conversation) {
         ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
@@ -375,7 +500,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
             alert('Error unarchiving');
         });
     };
-    
+
     $scope.printConversation = function(conversation) {
         // ie8 compatibility
         var printContent = $('<div>');
@@ -384,21 +509,21 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         if (conversation.archived) {
             archived = '(archived)';
         }
-        printContent.append('<h1>PatientView Conversation ' + archived 
+        printContent.append('<h1>PatientView Conversation ' + archived
             + '</h1><h2>Subject: ' + conversation.title + '</h2>');
         printContent.append('<h4>With:</h4><ul>');
         for (i=0; i< conversation.conversationUsers.length; i++) {
             printContent.append('<li>' + conversation.conversationUsers[i].user.forename + ' '
                 + conversation.conversationUsers[i].user.surname + '</li>');
         }
-        
+
         for (i=0; i< conversation.messages.length; i++) {
             var message = conversation.messages[i];
             printContent.append('<h4>Message Date: ' + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
                 + '</h4><h4>From: ' + message.user.forename + ' ' + message.user.surname + '</h4>');
             printContent.append('<p>' + message.message + '</p>');
         }
-        
+
         var windowUrl = 'PatientView Conversation';
         var uniqueName = new Date();
         var windowName = 'Print' + uniqueName.getTime();

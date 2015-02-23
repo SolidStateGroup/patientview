@@ -7,6 +7,9 @@
     .panel-body {
         padding: 15px;
     }
+    .conversation-user-label {
+        margin-right:5px;
+    }
 </style>
 
 <div data-ng-show="!loading && userHasMessagingFeature()">
@@ -15,7 +18,7 @@
     <script type="text/ng-template" id="newConversationModal.html">
         <div class="modal-header">
             <h3 class="modal-title">Create New Conversation</h3>
-            <p>Select Group and Recipient, then add your Title and Message</p>
+            <p>Select Group and Recipient, then add your Title and Message.</p>
         </div>
         <div class="modal-body">
             <form name="conversationFormNew" data-ng-model="newConversation">
@@ -28,6 +31,22 @@
             <button class="btn btn-primary" data-ng-click="ok()"
                     data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
                     data-ng-show="newConversation.recipients.length">Create New Conversation</button>
+        </div>
+    </script>
+    <!-- change recipients template -->
+    <script type="text/ng-template" id="changeConversationRecipientsModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Change Conversation Recipients</h3>
+            <p>Select Group and Recipient to add them to the conversation, you can also remove users from the conversation, hiding it from them.</p>
+        </div>
+        <div class="modal-body">
+            <form name="conversationFormEdit" data-ng-model="editConversation">
+                <div data-ng-include src="'views/partials/changeConversationRecipients.html'"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
         </div>
     </script>
 
@@ -84,11 +103,13 @@
                     <h2 class="message-title">
                         <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">{{conversation.title}}</a>
                         <span class="recipient pull-left">with:
-                            <span data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
+                            <span data-ng-repeat="conversationUser in conversation.conversationUsers" 
+                                  data-ng-show="conversationUser.user.id != loggedInUser.id" class="label label-info conversation-user-label">
                                 {{conversationUser.user.forename}} {{conversationUser.user.surname}}
                                 <span data-ng-show="conversationUser.user.roleDescription"> ({{conversationUser.user.roleDescription}})</span>
                                 <span data-ng-show="conversationUser.user.deleted"> (deleted)</span>
                             </span>
+                            <a href="" data-ng-click="openModalChangeConversationRecipients(conversation)">Change</a>
                         </span>
                     </h2>
                     <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>

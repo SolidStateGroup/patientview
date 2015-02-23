@@ -1,0 +1,73 @@
+<script>
+    var recipientSelectChange = function() {
+        var scope = angular.element($("#recipient-select-container")).scope();
+        scope.addConversationUser(scope.editConversation);
+    };
+</script>
+
+<div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
+    <div data-ng-show="conversationGroups.length > 0">
+        <div class="row" data-ng-show="editConversation.conversationUsers.length">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="conversation-select-group" class="control-label">Recipients </label>
+                    <ul class="feature-list unstyled">
+                        <li class="feature-list-item" data-ng-repeat="conversationUser in editConversation.conversationUsers | orderBy:['user.forename','user.surname']">
+                            <div class="feature-list-name">
+                                <span class="feature-list-name">{{conversationUser.user.forename}}</span> 
+                                <span class="feature-list-name">{{conversationUser.user.surname}}</span>
+                                &nbsp;
+                                <a id="remove-recipient-{{conversationUser.user.id}}" href="" 
+                                    data-ng-click="removeConversationUser(editConversation.id, conversationUser.user.id)"
+                                    data-ng-show="editConversation.conversationUsers.length > 1">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="error" data-ng-show="editConversation.conversationUsers.length < 1">There must be at least one recipient</div>
+                <br/>
+            </div>
+        </div>
+
+        <div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="conversation-select-group">Group</label>
+                    <select class="form-control recipient-select" id="conversation-select-group"
+                            data-ng-model="selectedGroupId"
+                            data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
+                            data-ng-change="selectGroup(editConversation, selectedGroupId)">
+                    </select>
+                </div>
+                <div class="col-md-6" data-ng-show="recipientsExist">
+                    <label for="recipient-select-container">Recipient</label>
+                    <div id="recipient-select-container"></div>
+                </div>
+                <div class="col-md-6" data-ng-show="!recipientsExist && selectedGroupId">
+                    <br/><br/>
+                    <p>There are no recipients available for this group</p>
+                </div>
+                <div class="col-md-6" data-ng-show="!selectedGroupId">
+                    <br/><br/>
+                    <p>Please select a group</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="!conversationGroups.length">
+        <p>You do not belong to any group with messaging enabled.</p>
+    </div>
+</div>
+
+<div data-ng-show="modalLoading" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Recipients</h3>
+    </div>
+</div>

@@ -184,6 +184,51 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     @Override
+    public void addConversationUser(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Conversation conversation = conversationRepository.findOne(conversationId);
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation not found");
+        }
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        boolean found = false;
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().getId().equals(userId)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            ConversationUser conversationUser = new ConversationUser();
+            conversationUser.setUser(user);
+            conversationUser.setCreator(getCurrentUser());
+            conversationUser.setCreated(new Date());
+            conversationUser.setConversation(conversation);
+            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.setAnonymous(false);
+
+            ConversationUserLabel newConversationUserLabel = new ConversationUserLabel();
+            newConversationUserLabel.setConversationUser(conversationUser);
+            newConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+            newConversationUserLabel.setCreated(new Date());
+            newConversationUserLabel.setCreator(getCurrentUser());
+            conversationUser.getConversationUserLabels().add(newConversationUserLabel);
+
+            conversation.getConversationUsers().add(conversationUser);
+            conversationRepository.save(conversation);
+        }
+    }
+
+    @Override
     public void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
         if (!loggedInUserHasMessagingFeatures()) {
@@ -971,6 +1016,38 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
         }
         return false;
+    }
+
+    @Override
+    public void removeConversationUser(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Conversation conversation = conversationRepository.findOne(conversationId);
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation not found");
+        }
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        ConversationUser foundConversationUser = null;
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().getId().equals(userId)) {
+                foundConversationUser = conversationUser;
+            }
+        }
+
+        if (foundConversationUser != null) {
+            conversationUserRepository.delete(foundConversationUser);
+            conversation.getConversationUsers().remove(foundConversationUser);
+            conversationRepository.save(conversation);
+        }
     }
 
     @Override
