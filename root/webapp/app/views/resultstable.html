@@ -68,6 +68,7 @@
         <div class="table-responsive">
             <table class="table">
                 <thead>
+                    <tr>
                     <th>
                         <a href="" data-ng-click="changeOrderDirection()">
                             Date
@@ -78,6 +79,7 @@
                             {{observationHeadingMap[code].name}}
                         </a>
                     </th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="row in pagedItems track by $index">
@@ -97,7 +99,7 @@
     </div>
 
     <!-- pagination -->
-    <div ng-include src="'views/partials/pagination.html'" data-ng-show="observationHeadingCodes.length"></div>
+    <pv-pagination data-ng-show="observationHeadingCodes.length"></pv-pagination>
 
 </div>
 <div data-ng-show="loading" class="container"><br/><br/>
