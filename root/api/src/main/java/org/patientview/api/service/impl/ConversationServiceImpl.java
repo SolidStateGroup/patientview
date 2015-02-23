@@ -612,7 +612,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // two queries required, one for content, one for count used in pagination total
         Query listQuery
                 = entityManager.createQuery("SELECT distinct(c) " + sql.toString() + "ORDER BY c.lastUpdate DESC ");
-        Query countQuery = entityManager.createQuery("SELECT count(c.id) " + sql.toString());
+        Query countQuery = entityManager.createQuery("SELECT distinct(c.id) " + sql.toString());
 
         listQuery.setParameter("user", entityUser);
         countQuery.setParameter("user", entityUser);
@@ -642,7 +642,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversations.add(new org.patientview.api.model.Conversation(anonymiseConversation(conversation)));
         }
 
-        return new PageImpl<>(conversations, pageable, (long) countQuery.getSingleResult());
+        return new PageImpl<>(conversations, pageable, countQuery.getResultList().size());
     }
 
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
