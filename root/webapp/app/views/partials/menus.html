@@ -10,6 +10,10 @@
         position: relative;
         top: -2px;
     }
+    .user-header-picture {
+        max-height: 40px;
+        padding-right:10px;
+    }
 </style>
 
 <div class="alert alert-danger" id="timeout" data-ng-show="authToken">
@@ -65,7 +69,12 @@
                 </ul>
             </div>
             <div class="nav-account pull-right" data-ng-hide="!loggedInUser">
-                <i class="icon-account pull-left"></i>
+                <i class="icon-account pull-left" data-ng-show="!loggedInUser.picture"></i>
+
+                <div data-ng-show="loggedInUser.picture.length" class="pull-left">
+                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-header-picture" src="">
+                </div>
+                
                 <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
                 <ul class="nav navbar-nav inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
