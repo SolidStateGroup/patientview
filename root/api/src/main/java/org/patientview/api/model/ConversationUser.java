@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import org.springframework.util.CollectionUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,9 +27,11 @@ public class ConversationUser {
         setAnonymous(conversationUser.getAnonymous());
 
         setConversationUserLabels(new HashSet<ConversationUserLabel>());
-        for (org.patientview.persistence.model.ConversationUserLabel conversationUserLabel
-                : conversationUser.getConversationUserLabels()) {
-            getConversationUserLabels().add(new ConversationUserLabel(conversationUserLabel));
+        if (!CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+            for (org.patientview.persistence.model.ConversationUserLabel conversationUserLabel
+                    : conversationUser.getConversationUserLabels()) {
+                getConversationUserLabels().add(new ConversationUserLabel(conversationUserLabel));
+            }
         }
     }
 

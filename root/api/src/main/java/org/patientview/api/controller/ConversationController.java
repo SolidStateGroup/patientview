@@ -12,6 +12,8 @@ import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,6 +130,31 @@ public class ConversationController extends BaseController<ConversationControlle
             @PathVariable("conversationId") Long conversationId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.findByConversationId(conversationId), HttpStatus.OK);
+    }
+
+    /**
+     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
+     * Will only retrieve picture if current user is a member of conversation.
+     * @param conversationId ID of User to retrieve picture for
+     * @param userId ID of User to retrieve picture for
+     * @return byte[] binary picture data
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/conversation/{conversationId}/user/{userId}/picture", method = RequestMethod.GET,
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public HttpEntity<byte[]> getPicture(@PathVariable("conversationId") Long conversationId,
+                                         @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        byte[] picture = conversationService.getConversationUserPicture(conversationId, userId);
+        if (picture != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); //or what ever type it is
+            headers.setContentLength(picture.length);
+            return new HttpEntity<>(picture, headers);
+        } else {
+            return new HttpEntity<>(null, null);
+        }
     }
 
     /**

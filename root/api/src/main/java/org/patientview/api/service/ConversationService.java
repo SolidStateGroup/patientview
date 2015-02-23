@@ -161,4 +161,16 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
+     * Will only retrieve picture if current user is a member of conversation.
+     * @param conversationId ID of User to retrieve picture for
+     * @param userId ID of User to retrieve picture for
+     * @return byte[] binary picture data
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    byte[] getConversationUserPicture(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 }

@@ -19,7 +19,7 @@
                                 &nbsp;
                                 <a id="remove-recipient-{{conversationUser.user.id}}" href="" 
                                     data-ng-click="removeConversationUser(editConversation.id, conversationUser.user.id)"
-                                    data-ng-show="editConversation.conversationUsers.length > 1">
+                                    data-ng-show="editConversation.conversationUsers.length > 1 && conversationUser.user.id !== -1">
                                     <i class="glyphicon glyphicon-remove"></i>
                                 </a>
                             </div>

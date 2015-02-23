@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
@@ -356,6 +357,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User anonUser = new User();
         anonUser.setForename("Anonymous");
         anonUser.setSurname("User");
+        anonUser.setId(-1L);
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             if (conversationUser.getAnonymous()) {
@@ -700,6 +702,48 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public Conversation get(Long conversationId) {
         return anonymiseConversation(conversationRepository.findOne(conversationId));
+    }
+
+    @Override
+    public byte[] getConversationUserPicture(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // anonymous users have id of -1
+        if (userId == -1) {
+            return null;
+        }
+
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Conversation conversation = conversationRepository.findOne(conversationId);
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation not found");
+        }
+
+        if (!loggedInUserIsMemberOfConversation(conversation)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        User entityUser = findEntityUser(userId);
+        boolean found = false;
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().getId().equals(userId)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            throw new ResourceForbiddenException("User does not belong to conversation");
+        }
+
+        if (StringUtils.isNotEmpty(entityUser.getPicture())) {
+            return Base64.decodeBase64(entityUser.getPicture());
+        } else {
+            return null;
+        }
     }
 
     private HashMap<String, List<BaseUser>> getGlobalAdminRecipients(Long groupId)
