@@ -81,11 +81,16 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
 
         $scope.removeConversationUser = function (conversationId, userId) {
             ConversationService.removeConversationUser(conversationId, userId).then(function() {
-                ConversationService.get(conversation.id).then(function(successResult) {
-                    $scope.editConversation = successResult;
-                }, function() {
-                    alert('Error getting conversation');
-                });
+                if (userId !== $scope.loggedInUser.id) {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                } else {
+                    // have removed own user from conversation
+                    $scope.removedSelfFromConversation = true;
+                }
             }, function() {
                 alert('Error removing conversation user');
             });

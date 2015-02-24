@@ -6,7 +6,7 @@
 </script>
 
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
-    <div data-ng-show="conversationGroups.length > 0">
+    <div data-ng-show="conversationGroups.length > 0 && !removedSelfFromConversation">
         <div class="row" data-ng-show="editConversation.conversationUsers.length">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
@@ -19,7 +19,8 @@
                                 &nbsp;
                                 <a id="remove-recipient-{{conversationUser.user.id}}" href="" 
                                     data-ng-click="removeConversationUser(editConversation.id, conversationUser.user.id)"
-                                    data-ng-show="editConversation.conversationUsers.length > 1 && conversationUser.user.id !== -1">
+                                    data-ng-show="editConversation.conversationUsers.length > 1 && conversationUser.user.id !== -1
+                                        && conversationUser.user.id === loggedInUser.id">
                                     <i class="glyphicon glyphicon-remove"></i>
                                 </a>
                             </div>
@@ -63,6 +64,9 @@
     </div>
     <div data-ng-show="!conversationGroups.length">
         <p>You do not belong to any group with messaging enabled.</p>
+    </div>
+    <div data-ng-show="removedSelfFromConversation" class="alert alert-success">
+        You have removed yourself from this conversation, it will no longer be available in your Messages view.
     </div>
 </div>
 
