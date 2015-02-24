@@ -6,7 +6,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     $scope.pw ='';
     $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
 
-    if ($rootScope.loggedInUser == null) {
+    if ($rootScope.loggedInUser === null) {
         $rootScope.logout();
     }
 
@@ -127,7 +127,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
-            $rootScope.loggedInUser.picture = "new";
+            $rootScope.loggedInUser.picture = 'new';
             $scope.pictureChangeSuccessMessage = 'Your photo has been uploaded successfully. Thank you.';
             $scope.uploadingPicture = false;
             getUser();
@@ -140,12 +140,12 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         
     $scope.deletePicture = function() {
         delete $scope.pictureChangeSuccessMessage;
-        UserService.deletePicture($rootScope.loggedInUser.id).then(function (data) {
+        UserService.deletePicture($rootScope.loggedInUser.id).then(function () {
             delete $rootScope.loggedInUser.picture;
             getUser();
             $scope.pictureChangeSuccessMessage = 'Your photo has been successfully removed.';
         }, function () {
-           alert('Error removing photo');
+            alert('Error removing photo');
         });
     };
 }]);

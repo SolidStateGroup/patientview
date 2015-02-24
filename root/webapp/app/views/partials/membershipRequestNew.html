@@ -1,0 +1,63 @@
+
+<div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
+    <div data-ng-show="conversationGroups.length > 0">
+
+        <div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="conversation-select-group">Group</label>
+                    <select class="form-control recipient-select" id="conversation-select-group"
+                            data-ng-model="selectedGroupId"
+                            data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
+                            data-ng-change="selectGroup(newConversation, selectedGroupId)">
+                    </select>
+                </div>
+                <div class="col-md-6" data-ng-show="recipientsExist">
+                    <label for="recipient-select-container">Recipient</label>
+                    <div id="recipient-select-container"></div>
+                </div>
+                <div class="col-md-6" data-ng-show="!recipientsExist && selectedGroupId">
+                    <br/><br/>
+                    <p>There are no recipients available for this group</p>
+                </div>
+                <div class="col-md-6" data-ng-show="!selectedGroupId">
+                    <br/><br/>
+                    <p>Please select a group</p>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="conversation-title" class="control-label">Title
+                        <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span>
+                    </label>
+                    <div><input type="text" class="form-control" id="conversation-title" placeholder="Title"
+                                         name="title" data-ng-model="newConversation.title"
+                                         data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required maxlength="200"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-horizontal" role="form">
+                    <div class="col-md-12">
+                        <label for="conversation-message" class="control-label">Message
+                            <span class="error" data-ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span>
+                        </label>
+                        <textarea class="form-control article-content" id="conversation-message" placeholder="Message"
+                                  name="message" data-ng-model="newConversation.message"
+                                  data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+        </div>
+    </div>
+    <div data-ng-show="!conversationGroups.length">
+        <p>You do not belong to any group with messaging enabled.</p>
+    </div>
+</div>
+
+<div data-ng-show="modalLoading" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Recipients</h3>
+    </div>
+</div>

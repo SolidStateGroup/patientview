@@ -1,5 +1,20 @@
 'use strict';
 
+// create membership request modal instance controller
+var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions',
+function ($scope, $rootScope, $modalInstance, permissions) {
+    
+    var init = function() {
+        $scope.permissions = permissions;
+    }
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+    
+    init();
+}];
+
 // find existing patient modal instance controller
 var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'identifierTypes', 'UserService',
 function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService) {
@@ -50,7 +65,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
                     groupRole.group.visible = true;
                 }
             }
-            
+
             var group = groupRole.group;
             group.role = groupRole.role;
             $scope.editUser.groups.push(group);
@@ -432,6 +447,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN ...
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showDeleteMenuOption = true;
+            $scope.permissions.showMembershipRequestMenuOption = true;
             $scope.permissions.canCreatePatients = true;
             $scope.permissions.canEditPatients = true;
             $scope.permissions.canResetPasswords = true;
@@ -686,6 +702,39 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 },
                 UserService: function(){
                     return UserService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function () {
+            // no ok button, do nothing
+        }, function () {
+            $scope.getItems();
+        });
+    };
+        
+    // handle opening modal for creating membership request
+    $scope.openModalCreateMembershipRequest = function (size) {
+        // close any open edit panels
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
+        // clear messages
+        $scope.errorMessage = '';
+        $scope.warningMessage = '';
+        $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
+
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'createMembershipRequestModal.html',
+            controller: CreateMembershipRequestModalInstanceCtrl,
+            size: size,
+            backdrop: 'static',
+            resolve: {
+                permissions: function(){
+                    return $scope.permissions;
                 }
             }
         });

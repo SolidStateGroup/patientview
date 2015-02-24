@@ -343,11 +343,11 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     //$rootScope.timoutWarning = 5000;     // 5s
     //$rootScope.timoutNow = 10000;         // 10s
 
-    $("#timeout").hide();
+    $('#timeout').hide();
 
     // Show idle timeout warning dialog.
     var idleWarning = function IdleWarning() {
-        $("#timeout").show();
+        $('#timeout').show();
     };
 
     // Logout the user.
@@ -368,7 +368,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         clearTimeout($rootScope.warningTimer);
         clearTimeout($rootScope.timeoutTimer);
         $rootScope.startTimers();
-        $("#timeout").hide();
+        $('#timeout').hide();
     };
 }]);
 
