@@ -109,31 +109,36 @@
             <div class="col-md-2">
                 <label for="search-surname" class="control-label">Surname</label>
                 <div>
-                    <input type="text" class="form-control" id="search-surname" placeholder="Surname">
+                    <input type="text" class="form-control" id="search-surname" placeholder="Surname"
+                           data-ng-keyup="$event.keyCode == 13 ? search() : null">
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="search-forename" class="control-label">Forename</label>
                 <div>
-                    <input type="text" class="form-control" id="search-forename" placeholder="Forename">
+                    <input type="text" class="form-control" id="search-forename" placeholder="Forename"
+                           data-ng-keyup="$event.keyCode == 13 ? search() : null">
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="search-identifier" class="control-label">Identifier</label>
                 <div>
-                    <input type="text" class="form-control" id="search-identifier" placeholder="Identifier">
+                    <input type="text" class="form-control" id="search-identifier" placeholder="Identifier"
+                           data-ng-keyup="$event.keyCode == 13 ? search() : null">
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="search-username" class="control-label">Username</label>
                 <div>
-                    <input type="text" class="form-control" id="search-username" placeholder="Username">
+                    <input type="text" class="form-control" id="search-username" placeholder="Username"
+                           data-ng-keyup="$event.keyCode == 13 ? search() : null">
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="search-email" class="control-label">Email</label>
                 <div>
-                    <input type="text" class="form-control" id="search-email" placeholder="Email">
+                    <input type="text" class="form-control" id="search-email" placeholder="Email"
+                           data-ng-keyup="$event.keyCode == 13 ? search() : null">
                 </div>
             </div>
         </div>

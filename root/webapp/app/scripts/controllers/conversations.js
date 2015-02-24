@@ -468,6 +468,13 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         $scope.currentPage = 0;
         getItems();
     };
+    
+    $scope.clearSearch = function() {
+        delete $scope.filterText;
+        delete $scope.includeAllFoldersInSearch;
+        $scope.currentPage = 0;
+        getItems();
+    };
 
     // add ARCHIVE, remove INBOX
     $scope.archive = function(conversation) {
@@ -511,7 +518,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         }
         printContent.append('<h1>PatientView Conversation ' + archived
             + '</h1><h2>Subject: ' + conversation.title + '</h2>');
-        printContent.append('<h4>With:</h4><ul>');
+        printContent.append('<h4>Between:</h4><ul>');
         for (i=0; i< conversation.conversationUsers.length; i++) {
             printContent.append('<li>' + conversation.conversationUsers[i].user.forename + ' '
                 + conversation.conversationUsers[i].user.surname + '</li>');
@@ -519,7 +526,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
 
         for (i=0; i< conversation.messages.length; i++) {
             var message = conversation.messages[i];
-            printContent.append('<h4>Message Date: ' + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
+            printContent.append('<hr><h4>Message Date: ' + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
                 + '</h4><h4>From: ' + message.user.forename + ' ' + message.user.surname + '</h4>');
             printContent.append('<p>' + message.message + '</p>');
         }
