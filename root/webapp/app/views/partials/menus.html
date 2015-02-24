@@ -71,7 +71,7 @@
             <div class="nav-account pull-right" data-ng-hide="!loggedInUser">
                 <i class="icon-account pull-left" data-ng-show="!loggedInUser.picture"></i>
 
-                <div data-ng-show="loggedInUser.picture.length" class="pull-left">
+                <div data-ng-if="loggedInUser.picture.length" class="pull-left">
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-header-picture" src="">
                 </div>
                 
