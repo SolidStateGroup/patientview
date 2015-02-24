@@ -746,6 +746,42 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    @Override
+    public List<BaseUser> getGroupRecipientsByFeature(Long groupId, String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!groupRepository.exists(groupId)) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        Feature feature = featureRepository.findByName(featureName);
+        if (feature == null) {
+            throw new ResourceNotFoundException("Feature not found");
+        }
+
+        // only users with certain roles
+        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+                || Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)
+                || Util.doesContainRoles(RoleName.SPECIALTY_ADMIN))) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(groupId);
+
+        List<Long> featureIds = new ArrayList<>();
+        featureIds.add(feature.getId());
+
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+        List<Long> roleIds = new ArrayList<>();
+        for (Role role : staffRoles) {
+            roleIds.add(role.getId());
+        }
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
+        return convertUsersToTransportBaseUsers(page.getContent());
+    }
+
     private HashMap<String, List<BaseUser>> getGlobalAdminRecipients(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();

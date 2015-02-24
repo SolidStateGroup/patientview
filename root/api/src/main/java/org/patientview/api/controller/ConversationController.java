@@ -176,6 +176,25 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
+     * Get a List of BaseUser used as recipients based on the feature passed in, currently DEFAULT_MESSAGING_CONTACT,
+     * used when creating a membership request from patients page.
+     * @param groupId ID of Group to find available recipients for
+     * @param featureName String name of Feature that Users must have to be recipients
+     * @return List of BaseUser
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/group/{groupId}/recipientsbyfeature/{featureName}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseUser>> getGroupRecipientsByFeature(@PathVariable("groupId") Long groupId,
+                                         @PathVariable(value = "featureName") String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(
+                conversationService.getGroupRecipientsByFeature(groupId, featureName), HttpStatus.OK);
+    }
+
+    /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.

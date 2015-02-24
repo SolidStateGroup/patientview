@@ -1,63 +1,94 @@
 
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
-    <div data-ng-show="conversationGroups.length > 0">
-
+    
+    <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+    
+    <div data-ng-show="conversationGroups.length > 0 && showForm">
         <div>
             <div class="row">
-                <div class="col-md-6">
-                    <label for="conversation-select-group">Group</label>
-                    <select class="form-control recipient-select" id="conversation-select-group"
-                            data-ng-model="selectedGroupId"
-                            data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
-                            data-ng-change="selectGroup(newConversation, selectedGroupId)">
-                    </select>
-                </div>
-                <div class="col-md-6" data-ng-show="recipientsExist">
-                    <label for="recipient-select-container">Recipient</label>
-                    <div id="recipient-select-container"></div>
-                </div>
-                <div class="col-md-6" data-ng-show="!recipientsExist && selectedGroupId">
-                    <br/><br/>
-                    <p>There are no recipients available for this group</p>
-                </div>
-                <div class="col-md-6" data-ng-show="!selectedGroupId">
-                    <br/><br/>
-                    <p>Please select a group</p>
+                <div class="col-md-12">
+                    <p>This will create a membership request for this patient, sent directly to the a local administrator
+                        at the group selected. The staff member will see details of the patient and can then
+                        choose to add them to their group. You can track and follow up this request under your Messages menu.</p>
                 </div>
             </div>
-            <hr/>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="conversation-title" class="control-label">Title
-                        <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span>
-                    </label>
-                    <div><input type="text" class="form-control" id="conversation-title" placeholder="Title"
-                                         name="title" data-ng-model="newConversation.title"
-                                         data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required maxlength="200"></div>
+                    <h4>Patient Details</h4>
+                    <table>
+                        <tr>
+                            <td>Surname:</td>
+                            <td>{{newConversation.patient.surname}}</td>
+                        </tr>
+                        <tr>
+                            <td>Forename:</td>
+                            <td>{{newConversation.patient.forename}}</td>
+                        </tr>
+                        <tr data-ng-show="user.dateOfBirth">
+                            <td>Date of Birth:</td>
+                            <td>{{newConversation.patient.dateOfBirth | date:'dd-MMM-yyyy'}}</td>
+                        </tr>
+                        <tr>
+                            <td>Identifier(s):</td>
+                            <td>
+                                <span data-ng-repeat="identifier in newConversation.patient.identifiers">{{identifier.identifier}}<br/></span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+            
+            <br/>
+            
             <div class="row">
-                <div class="form-horizontal" role="form">
+                <div class="col-md-6">
+                    <label for="conversation-select-group">Please select the group that this patient requests membership of:</label>
+                    <select class="form-control recipient-select" id="conversation-select-group"
+                            data-ng-model="newConversation.selectedGroup"
+                            data-ng-options="group as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
+                            data-ng-change="selectGroup(newConversation.selectedGroup)">
+                    </select>
+                </div>
+            </div>
+            <div data-ng-show="newConversation.recipients">
+                <div class="row">
                     <div class="col-md-12">
-                        <label for="conversation-message" class="control-label">Message
-                            <span class="error" data-ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span>
+                        <label for="conversation-message" class="control-label">
+                            Recipient(s):
                         </label>
-                        <textarea class="form-control article-content" id="conversation-message" placeholder="Message"
-                                  name="message" data-ng-model="newConversation.message"
-                                  data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required></textarea>
+                        <div>
+                            <span data-ng-repeat="user in newConversation.recipients" class="label label-info">
+                                {{user.forename}} {{user.surname}}
+                            </span>                            
+                        </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-horizontal" role="form">
+                        <div class="col-md-12">
+                            <label for="conversation-message" class="control-label">
+                                Please add any additional comments here:
+                            </label>
+                            <textarea class="form-control article-content" id="conversation-message" placeholder="Message"
+                                      name="additionalComments" data-ng-model="newConversation.additionalComments" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
             </div>
-            <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
         </div>
     </div>
-    <div data-ng-show="!conversationGroups.length">
-        <p>You do not belong to any group with messaging enabled.</p>
+    
+    <br/>
+    
+    <div data-ng-show="!recipientsExist && newConversation.selectedGroup" class="alert alert-danger">
+        No default contact exists for this group. Please contact the PatientView support team for assistance.
     </div>
 </div>
 
 <div data-ng-show="modalLoading" class="row"><br/>
     <div class="col-md-12">
-        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Recipients</h3>
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
     </div>
 </div>
+        

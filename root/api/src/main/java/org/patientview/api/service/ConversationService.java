@@ -106,6 +106,30 @@ public interface ConversationService extends CrudService<Conversation> {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
+     * Will only retrieve picture if current user is a member of conversation.
+     * @param conversationId ID of User to retrieve picture for
+     * @param userId ID of User to retrieve picture for
+     * @return byte[] binary picture data
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    byte[] getConversationUserPicture(Long conversationId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Get a List of BaseUser used as recipients based on the feature passed in, currently DEFAULT_MESSAGING_CONTACT,
+     * used when creating a membership request from patients page.
+     * @param groupId ID of Group to find available recipients for
+     * @param featureName String name of Feature that Users must have to be recipients
+     * @return List of BaseUser
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    List<BaseUser> getGroupRecipientsByFeature(Long groupId, String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
@@ -160,17 +184,5 @@ public interface ConversationService extends CrudService<Conversation> {
      * @throws ResourceForbiddenException
      */
     void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    /**
-     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
-     * Will only retrieve picture if current user is a member of conversation.
-     * @param conversationId ID of User to retrieve picture for
-     * @param userId ID of User to retrieve picture for
-     * @return byte[] binary picture data
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    byte[] getConversationUserPicture(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 }

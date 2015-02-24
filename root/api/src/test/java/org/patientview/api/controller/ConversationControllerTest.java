@@ -9,11 +9,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ConversationLabel;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -192,6 +194,33 @@ public class ConversationControllerTest {
 
             verify(conversationService, Mockito.times(1))
                     .removeConversationUserLabel(eq(user.getId()), eq(conversation.getId()), eq(conversationLabel));
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetGroupRecipientsByFeature() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
+        Feature feature = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/recipientsbyfeature/"
+                    + feature.getName())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(conversationService, Mockito.times(1))
+                    .getGroupRecipientsByFeature(eq(group.getId()), eq(feature.getName()));
         } catch (Exception e) {
             fail("Exception throw: " + e.getMessage());
         }

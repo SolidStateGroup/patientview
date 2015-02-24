@@ -1,13 +1,126 @@
 'use strict';
 
 // create membership request modal instance controller
-var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions',
-function ($scope, $rootScope, $modalInstance, permissions) {
+var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'user',
+    'GroupService', 'ConversationService', '$filter',
+function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, ConversationService, $filter) {
     
     var init = function() {
         $scope.permissions = permissions;
-    }
+        $scope.newConversation = {};
+        $scope.newConversation.patient = user;
+        $scope.showForm = true;
+        $scope.modalLoading = true;
+        $scope.loadingMessage = 'Loading Groups';
+        
+        // get public groups, only include groups of type UNIT or DISEASE_GROUP
+        GroupService.getAllPublic().then(function(groups) {
+            $scope.conversationGroups = [];
+            groups.forEach(function(group) {
+                if (group.visibleToJoin) {
+                    if (group.groupType.value === 'DISEASE_GROUP' || group.groupType.value === 'UNIT') {
+                        $scope.conversationGroups.push(group);
+                    }
+                }
+            });
+            $scope.modalLoading = false;
+        });
+    };
 
+    $scope.selectGroup = function(group) {
+        $scope.modalLoading = true;
+        $scope.loadingMessage = 'Loading Recipients';
+        $scope.recipientsExist = false;
+
+        ConversationService.getGroupRecipientsByFeature(group.id, 'DEFAULT_MESSAGING_CONTACT').then(function (recipients) {
+            if (recipients.length) {
+                $scope.newConversation.recipients = recipients;
+                $scope.recipientsExist = true;
+            } else {
+                delete $scope.newConversation.recipients;
+                $scope.recipientsExist = false;
+            }
+            $scope.modalLoading = false;
+        }, function (failureResult) {
+            if (failureResult.status === 404) {
+                $scope.modalLoading = false;
+            } else {
+                $scope.modalLoading = false;
+                alert('Error loading message recipients');
+            }
+        });
+    };
+
+    $scope.createMembershipRequest = function() {
+        $scope.modalLoading = true;
+        $scope.showForm = false;
+        $scope.loadingMessage = 'Sending Membership Request';
+
+        // build correct conversation from newConversation
+        var conversation = {}, i;
+        conversation.type = 'MEMBERSHIP_REQUEST';
+        conversation.title = 'Membership Request';
+        conversation.messages = [];
+        conversation.open = true;
+
+        // build message
+        var user = $scope.newConversation.patient;
+        var userDetailsText = user.forename + ' ' + user.surname;
+        if (user.dateOfBirth !== null && user.dateOfBirth.length) {
+            userDetailsText += ' (date of birth: ' + $filter('date')(user.dateOfBirth, 'dd-MMM-yyyy') + ')'
+        }
+        userDetailsText += ', identifier(s) ';
+        for (i=0; i<user.identifiers.length; i++) {
+            userDetailsText += user.identifiers[i].identifier + ' ';      
+        }
+        
+        var messageText = userDetailsText 
+            + '<br/>This user has requested that they be added to your unit group "'
+            + $scope.newConversation.selectedGroup.name
+            + '". I have seen an appropriate request/consent document. Thank you!';
+
+        if ($scope.newConversation.additionalComments !== undefined && $scope.newConversation.additionalComments.length) {
+            messageText = messageText + '<br/>Additional Comments: ' + $scope.newConversation.additionalComments;
+        }
+
+        var message = {};
+        message.user = {};
+        message.user.id = $scope.loggedInUser.id;
+        message.message = messageText;
+        message.type = 'MESSAGE';
+        conversation.messages[0] = message;
+
+        // add conversation users from list of users (temp anonymous = false)
+        var conversationUsers = [];
+        for (i=0; i<$scope.newConversation.recipients.length; i++) {
+            conversationUsers[i] = {};
+            conversationUsers[i].user = {};
+            conversationUsers[i].user.id = $scope.newConversation.recipients[i].id;
+            conversationUsers[i].anonymous = false;
+        }
+
+        // add logged in user to list of conversation users
+        var conversationUser = {};
+        conversationUser.user = {};
+        conversationUser.user.id = $scope.loggedInUser.id;
+        conversationUser.anonymous = false;
+        conversationUsers.push(conversationUser);
+
+        conversation.conversationUsers = conversationUsers;
+
+        ConversationService.create($scope.loggedInUser, conversation).then(function() {
+            $scope.successMessage = 'A local administrator for the selected group has been contacted with this request. You'
+                + ' can track and follow up this request under your Messages menu.';
+            $scope.modalLoading = false;
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = ' - ' + result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
+        });
+    };
+    
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
@@ -268,9 +381,10 @@ function ($scope, $modalInstance, user, UserService) {
 // Patient controller
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 
-    'AuthService', 'localStorageService', 'UtilService', '$route',
-    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, RoleService, FeatureService,
-              StaticDataService, AuthService, localStorageService, UtilService, $route) {
+    'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, 
+        RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
+        ConversationService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -715,7 +829,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
         
     // handle opening modal for creating membership request
-    $scope.openModalCreateMembershipRequest = function (size) {
+    $scope.openModalCreateMembershipRequest = function (user) {
         // close any open edit panels
         for (var i = 0; i < $scope.pagedItems.length; i++) {
             $scope.pagedItems[i].showEdit = false;
@@ -730,11 +844,20 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         var modalInstance = $modal.open({
             templateUrl: 'createMembershipRequestModal.html',
             controller: CreateMembershipRequestModalInstanceCtrl,
-            size: size,
+            size: 'lg',
             backdrop: 'static',
             resolve: {
-                permissions: function(){
+                ConversationService : function() {
+                    return ConversationService;                    
+                },
+                GroupService: function() {
+                    return GroupService;
+                },
+                permissions: function() {
                     return $scope.permissions;
+                },
+                user: function() {
+                    return user;
                 }
             }
         });

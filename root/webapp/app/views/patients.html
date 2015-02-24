@@ -15,12 +15,14 @@
             <div class="modal-body">
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
-                <form name="membershipRequestForm">
+                <form name="form.membershipRequestForm">
                     <div data-ng-include src="'views/partials/membershipRequestNew.html'"></div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+                <button class="btn blue" data-ng-click="createMembershipRequest()"
+                        data-ng-show="showForm && recipientsExist">Create Membership Request</button>
             </div>
         </script>
         
@@ -300,9 +302,9 @@
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                     <li><a href="" data-ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View Patient</a></li>
                                     <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li data-ng-show="permissions.showMembershipRequestMenuOption"><a href="" data-ng-click="openModalCreateMembershipRequest(user)" class="dropdown-menu-accordion-item">Send Membership Request</a></li>
                                     <li data-ng-hide="user.emailVerified || !permissions.canSendVerificationEmails" id="li-email-verified-{{user.id}}"><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
                                     <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
-                                    <li data-ng-show="permissions.showMembershipRequestMenuOption"><a href="" data-ng-click="openModalCreateMembershipRequest(user.id)" class="dropdown-menu-accordion-item">Send Membership Request</a></li>
                                 </ul>
                             </div>
                         </div>
