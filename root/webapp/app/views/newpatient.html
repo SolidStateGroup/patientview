@@ -1,0 +1,32 @@
+<div data-ng-show="!loading">
+    <h1>Create New Patient User
+        <a class="btn blue" href="/#/patients">Back to Patients</a>
+    </h1>
+
+    <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+    <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+    <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
+        {{successMessage}}
+        <a href="" class="print-success-message" data-ng-click="printSuccessMessageCompat()" data-ng-show="printSuccessMessage">Print</a>
+    </div>
+
+    <div class="panel content-panel" data-ng-show="showForm">
+        <div class="content-inner">
+        <form name="userFormNew" data-ng-show="!existingUser">
+            <div data-ng-include src="'views/partials/patientDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
+        </form>
+        </div>            
+    </div>
+
+    <a class="btn blue pull-right" href="" data-ng-click="showFormUI()" data-ng-show="!showForm">Create Another Patient</a>
+
+    <a class="btn blue pull-right" href="" data-ng-click="create()" data-ng-show="showForm" data-ng-disabled="!userFormNew.$valid
+                        || (!editUser.groupRoles || editUser.groupRoles.length == 0)
+                        || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New Patient</a>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+    </div>
+</div>

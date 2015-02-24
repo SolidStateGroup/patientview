@@ -1,99 +1,5 @@
 'use strict';
 
-// new patient modal instance controller
-var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
-    $scope.permissions = permissions;
-    $scope.editUser = newUser;
-    $scope.allGroups = allGroups;
-    $scope.allowedRoles = allowedRoles;
-    $scope.identifierTypes = identifierTypes;
-    $scope.editMode = false;
-
-    // date of birth
-    $scope.months = UtilService.generateMonths();
-    $scope.years = UtilService.generateYears();
-    $scope.days = UtilService.generateDays();
-    $scope.editUser.selectedYear = '';
-    $scope.editUser.selectedMonth = '';
-    $scope.editUser.selectedDay = '';
-
-    // set initial group and feature (avoid blank option)
-    if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
-        $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
-    }
-    if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
-        $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
-    }
-
-    // set role to first
-    $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
-
-    // check username is not already in use
-    $scope.checkUsername = function () {
-        UserService.checkUsernameExists($scope.editUser.username).then(function (usernameExists) {
-            $scope.editUser.usernameChecked = true;
-            if (usernameExists === 'true') {
-                $scope.editUser.usernameExists = true;
-            } else {
-                $scope.editUser.usernameExists = false;
-            }
-        }, function (errorResult) {
-            alert("Error: " + errorResult.data);
-        });
-    };
-
-    // clear username check when username is changed
-    $scope.$watch('editUser.username', function () {
-        $scope.editUser.usernameChecked = false;
-    });
-
-    // click Create New button
-    $scope.create = function () {
-        // check date of birth if entered
-        if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
-            && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
-            $scope.errorMessage = 'Please enter a valid date of birth (and not in the future)';
-        } else {
-            // generate password
-            var password = UtilService.generatePassword();
-            $scope.editUser.password = password;
-
-            UserService.create($scope.editUser).then(function(userId) {
-                UserService.get(userId).then(function(result) {
-                    result.isNewUser = true;
-                    result.password = password;
-                    $modalInstance.close(result);
-                }, function() {
-                    alert('Cannot get user (has been created)');
-                });
-            }, function(result) {
-                if (result.status === 409) {
-                    // 409 = CONFLICT, means user already exists
-                    $scope.warningMessage = 'A patient with this username or email already exists. Please choose an alternative or search for an existing patient if you want to add them to your group';
-                } else {
-                    // Other errors treated as standard errors
-                    $scope.errorMessage = 'There was an error: ' + result.data;
-                }
-            });
-        }
-    };
-
-    // click Update Existing button, (after finding user already exists)
-    $scope.edit = function () {
-        UserService.save($scope.editUser).then(function() {
-            $scope.editUser.isNewUser = false;
-            $modalInstance.close($scope.editUser);
-        }, function(result) {
-            $scope.errorMessage = 'There was an error: ' + result.data;
-        });
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
 // find existing patient modal instance controller
 var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'identifierTypes', 'UserService',
 function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService) {
@@ -345,9 +251,9 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Patient controller
-angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location', '$routeParams',
-    'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 'AuthService', 'localStorageService',
-    'UtilService', '$route',
+angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
+    '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 
+    'AuthService', 'localStorageService', 'UtilService', '$route',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, RoleService, FeatureService,
               StaticDataService, AuthService, localStorageService, UtilService, $route) {
 
@@ -478,7 +384,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // Init
     $scope.init = function () {
         $scope.initFinished = false;
-        
+
         if ($routeParams.statusFilter !== undefined) {
             var allowedStatusFilters = ['ACTIVE', 'INACTIVE', 'LOCKED'];
             if (allowedStatusFilters.indexOf($routeParams.statusFilter.toUpperCase()) > -1) {
@@ -563,6 +469,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // show error if user is not a member of any groups
             if (groups.length !== 0) {
+                $scope.filterUnitGroups = [];
+                $scope.filterDiseaseGroupGroups = [];
+                $scope.filterSpecialtyGroups = [];
 
                 // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                 for (i = 0; i < groups.length; i++) {
@@ -581,10 +490,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                         if (group.groupType.value === 'UNIT') {
                             $scope.showUnitFilter = true;
+                            $scope.filterUnitGroups.push(minimalGroup);
                         } else if (group.groupType.value === 'DISEASE_GROUP') {
                             $scope.showDiseaseGroupFilter = true;
+                            $scope.filterDiseaseGroupGroups.push(minimalGroup);
                         } else if (group.groupType.value === 'SPECIALTY') {
                             $scope.showSpecialtyFilter = true;
+                            $scope.filterSpecialtyGroups.push(minimalGroup);
                         }
                     }
                 }
@@ -739,84 +651,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 }
             });
         }
-    };
-
-    // handle opening modal (Angular UI Modal http://angular-ui.github.io/bootstrap/)
-    $scope.openModalNewPatient = function (size) {
-        // close any open edit panels
-        for (var i = 0; i < $scope.pagedItems.length; i++) {
-            $scope.pagedItems[i].showEdit = false;
-        }
-        // clear messages
-        $scope.errorMessage = '';
-        $scope.warningMessage = '';
-        $scope.successMessage = '';
-        $scope.printSuccessMessage = false;
-        $scope.userCreated = '';
-
-        // create new user with list of available roles, groups and features
-        $scope.editUser = {};
-        $scope.editUser.groupRoles = [];
-        $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
-        $scope.editUser.userFeatures = [];
-        $scope.editUser.selectedRole = '';
-        $scope.editUser.identifiers = [];
-
-        // open modal and pass in required objects for use in modal scope
-        var modalInstance = $modal.open({
-            templateUrl: 'newPatientModal.html',
-            controller: NewPatientModalInstanceCtrl,
-            size: size,
-            backdrop: 'static',
-            resolve: {
-                permissions: function(){
-                    return $scope.permissions;
-                },
-                newUser: function(){
-                    return $scope.editUser;
-                },
-                allGroups: function(){
-                    return $scope.allGroups;
-                },
-                allowedRoles: function(){
-                    return $scope.allowedRoles;
-                },
-                allFeatures: function(){
-                    return $scope.allFeatures;
-                },
-                identifierTypes: function(){
-                    return $scope.identifierTypes;
-                },
-                UserService: function(){
-                    return UserService;
-                },
-                UtilService: function(){
-                    return UtilService;
-                }
-            }
-        });
-
-        // handle modal close (via button click)
-        modalInstance.result.then(function (user) {
-            // check if user is newly created
-            if (user.isNewUser) {
-                $scope.printSuccessMessage = true;
-                $scope.successMessage = 'User successfully created ' +
-                    'with username: ' + user.username + ' ' +
-                    'and password: ' + user.password;
-                $scope.userCreated = true;
-            } else {
-                // is an already existing user, likely updated group roles
-                $scope.successMessage = 'User successfully updated with username: ' + user.username;
-            }
-
-            $scope.currentPage = 0;
-            $scope.getItems();
-            delete $scope.editUser;
-
-        }, function () {
-            $scope.getItems();
-        });
     };
 
     // handle opening modal for finding existing patient by identifier value

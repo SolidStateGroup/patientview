@@ -1,34 +1,12 @@
 <div>
     <h1 data-ng-show="!loading">Staff
-        <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button>
+        <a class="btn blue" href="/#/newstaff">Create New</a>
         <button class="btn blue" data-ng-click="openModalFindExistingStaff('lg')">Add Existing Staff</button>
     </h1>
 
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div data-ng-show="!fatalErrorMessage && !loading" data-ng-cloak>
-        <!-- new staff modal -->
-        <script type="text/ng-template" id="newStaffModal.html">
-            <div class="modal-header">
-                <h3 class="modal-title" data-ng-show="!existingUser">Create New Staff User</h3>
-                <h3 class="modal-title" data-ng-show="existingUser">Existing Staff User</h3>
-            </div>
-            <div class="modal-body">
-                <form name="userFormNew" data-ng-show="!existingUser">
-                    <div data-ng-include src="'views/partials/staffDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
-                </form>
-                <form name="userFormExisting" data-ng-show="existingUser">
-                    <div data-ng-include src="'views/partials/staffDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
-                <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
-            </div>
-        </script>
-
         <!-- existing staff modal (search by email) -->
         <script type="text/ng-template" id="findExistingStaffModal.html">
             <div class="modal-header">
@@ -99,6 +77,7 @@
                 </div>
             </div>
         </div>
+
         <div class="panel-footer clearfix">
             <div class="content-inner">
                 <div class="form-horizontal" role="form">
@@ -118,7 +97,7 @@
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='SPECIALTY'">
+                                <li data-ng-repeat="group in filterSpecialtyGroups | orderBy:['shortName']">
                                     <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
@@ -140,7 +119,7 @@
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='UNIT'">
+                                <li data-ng-repeat="group in filterUnitGroups | orderBy:['shortName']">
                                     <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
@@ -162,7 +141,7 @@
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
+                                <li data-ng-repeat="group in filterDiseaseGroupGroups | orderBy:['shortName']">
                                     <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
@@ -226,13 +205,13 @@
 
         <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
             {{successMessage}}
-            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
+            <a href="" class="print-success-message" data-ng-click="printSuccessMessageCompat()" data-ng-show="printSuccessMessage">Print</a>
         </div>
 
         <!-- data grid -->
         <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
-            <div class="accordion-title-row table-head">
+            <div class="table-head accordion-title-row">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text ">
                     <a data-ng-click="sortBy('surname');" class="sort-title"><i class="icon-sort pull-right"></i>Surname</a>
@@ -284,7 +263,7 @@
                 </div>
 
                 <!-- edit pane -->
-                <div class="panel-body" data-ng-show="user.showEdit">
+                <div class="panel-body" data-ng-if="user.showEdit">
                     <div data-ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
                     <div data-ng-show="!user.editLoading">
                         <form name="userForm">
