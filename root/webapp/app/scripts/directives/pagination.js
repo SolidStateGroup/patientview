@@ -2,7 +2,7 @@
 
 angular.module('patientviewApp').directive('pvPagination', ['$compile', function ($compile) {
     return {
-        restrict: 'E',
+        restrict: 'A',
         template: '<div class="col-md-12" data-ng-show="pagedItems.length > 0 && totalPages > 1">' +
             '<ul class="pagination">' +
             '<li data-ng-class="firstPageDisabled()"><a href data-ng-click="firstPage()">« First</a></li>' +
