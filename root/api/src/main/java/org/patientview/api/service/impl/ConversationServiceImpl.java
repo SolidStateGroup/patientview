@@ -126,8 +126,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (!loggedInUserHasMessagingFeatures() || !conversationUsersAndGroupsHaveMessagingFeatures(conversation)) {
-            throw new ResourceForbiddenException("Forbidden");
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden (current user features)");
+        }
+        
+        if (!conversationUsersAndGroupsHaveMessagingFeatures(conversation)) {
+            throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
 
         User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
