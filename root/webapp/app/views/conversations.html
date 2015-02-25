@@ -15,6 +15,11 @@
         margin-top: 5px;
         max-height: 50px;
     }
+    .label-archived {
+        font-size: 11px;
+        position: relative;
+        top: -2px;
+    }
 </style>
 
 <div data-ng-show="!loading && userHasMessagingFeature()">
@@ -111,7 +116,7 @@
                     <h2 class="message-title">
                         <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">
                             {{conversation.title}} 
-                            <span class="label label-danger" data-ng-show="conversation.archived">Archived</span>
+                            <span class="label label-danger label-archived" data-ng-show="conversation.archived">Archived</span>
                         </a>
 
                         <span class="recipient pull-left">with:
