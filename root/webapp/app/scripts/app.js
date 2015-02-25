@@ -70,6 +70,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     function($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
              RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
+    $('#timeout').hide();
+        
     // fastclick to remove 300ms delay on touch devices: https://github.com/ftlabs/fastclick
     FastClick.attach(document.body);
         
@@ -77,13 +79,28 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     $rootScope.apiEndpoint = ENV.apiEndpoint;
     $rootScope.buildDateTime = ENV.buildDateTime;
 
+    var routeExists = function(route, routeArr) {
+        for (var i=0; i<routeArr.length; i++) {
+            if (route.url === routeArr[i].url) {
+                return true;
+            }                    
+        }
+        return false;
+    };
+        
     // rebuild routes from cookie, allow refresh of page
     $rootScope.buildRoute = function() {
         var data = { 'default': '/' };
         data.routes = [];
-        var menu = localStorageService.get('routes');
-
-        if (menu !== null) {
+        var menu = null;
+        
+        if (localStorageService.isSupported) {
+            menu = localStorageService.get('routes');
+        } else {
+            menu = $rootScope.routes;
+        }
+        
+        if (menu !== null && menu !== undefined) {
             // handle caching issue where routes are []
             if (menu.length === 0) {
                 $rootScope.logout();
@@ -96,19 +113,38 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         if (data !== undefined && data.routes) {
 
             // add main/login/logout routes (for all users)
-            data.routes.push(RouteService.getMainRoute());
-            data.routes.push(RouteService.getVerifyRoute());
-            data.routes.push(RouteService.getLogoutRoute());
-            data.routes.push(RouteService.getLoginRoute());
-            data.routes.push(RouteService.getAccountRoute());
-            data.routes.push(RouteService.getJoinRequestRoute());
-            data.routes.push(RouteService.getForgottenPasswordRoute());
-            data.routes.push(RouteService.getContactUnitRoute());
-            data.routes.push(RouteService.getTermsRoute());
-            data.routes.push(RouteService.getPrivacyRoute());
+            if (!routeExists(RouteService.getMainRoute(), data.routes)) {
+                data.routes.push(RouteService.getMainRoute());
+            }
+            if (!routeExists(RouteService.getVerifyRoute(), data.routes)) {
+                data.routes.push(RouteService.getVerifyRoute());
+            }
+            if (!routeExists(RouteService.getLogoutRoute(), data.routes)) {
+                data.routes.push(RouteService.getLogoutRoute());
+            }
+            if (!routeExists(RouteService.getLoginRoute(), data.routes)) {
+                data.routes.push(RouteService.getLoginRoute());
+            }
+            if (!routeExists(RouteService.getAccountRoute(), data.routes)) {
+                data.routes.push(RouteService.getAccountRoute());
+            }
+            if (!routeExists(RouteService.getJoinRequestRoute(), data.routes)) {
+                data.routes.push(RouteService.getJoinRequestRoute());
+            }
+            if (!routeExists(RouteService.getForgottenPasswordRoute(), data.routes)) {
+                data.routes.push(RouteService.getForgottenPasswordRoute());
+            }
+            if (!routeExists(RouteService.getContactUnitRoute(), data.routes)) {
+                data.routes.push(RouteService.getContactUnitRoute());
+            }
+            if (!routeExists(RouteService.getTermsRoute(), data.routes)) {
+                data.routes.push(RouteService.getTermsRoute());
+            }
+            if (!routeExists(RouteService.getPrivacyRoute(), data.routes)) {
+                data.routes.push(RouteService.getPrivacyRoute());
+            }
 
             for (var j=0 ; j < data.routes.length; j++ ) {
-
                 var path = data.routes[j].url;
                 var route = {
                     controller: data.routes[j].controller,
@@ -254,6 +290,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             delete $rootScope.authToken;
             delete $rootScope.previousAuthToken;
             delete $rootScope.previousLoggedInUser;
+            delete $cookies.authToken;
             localStorageService.clearAll();
             $location.path('/');
         });
@@ -267,6 +304,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             localStorageService.remove('previousLoggedInUser');
 
             $rootScope.authToken = authToken;
+            $cookies.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
             // get user information, store in session
@@ -303,35 +341,70 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     $rootScope.getCurrentTime = function() {
         return new Date();
     };
+        
+    if (localStorageService.isSupported) {
+        // get auth token
+        var authToken = localStorageService.get('authToken');
+        if (authToken !== undefined) {
+            $rootScope.authToken = authToken;
+        }
 
-    // get auth token
-    var authToken = localStorageService.get('authToken');
-    if (authToken !== undefined) {
-        $rootScope.authToken = authToken;
-    }
+        // get previous auth token
+        var previousAuthToken = localStorageService.get('previousAuthToken');
+        if (previousAuthToken !== undefined) {
+            $rootScope.previousAuthToken = previousAuthToken;
+        }
 
-    // get previous auth token
-    var previousAuthToken = localStorageService.get('previousAuthToken');
-    if (previousAuthToken !== undefined) {
-        $rootScope.previousAuthToken = previousAuthToken;
-    }
+        // get previous logged in user
+        var previousLoggedInUser = localStorageService.get('previousLoggedInUser');
+        if (previousLoggedInUser !== undefined) {
+            $rootScope.previousLoggedInUser = previousLoggedInUser;
+        }
 
-    // get previous logged in user
-    var previousLoggedInUser = localStorageService.get('previousLoggedInUser');
-    if (previousLoggedInUser !== undefined) {
-        $rootScope.previousLoggedInUser = previousLoggedInUser;
-    }
+        // get cookie user
+        var loggedInUser = localStorageService.get('loggedInUser');
+        if (loggedInUser !== undefined) {
+            $rootScope.loggedInUser = loggedInUser;
+        }
 
-    // get cookie user
-    var loggedInUser = localStorageService.get('loggedInUser');
-    if (loggedInUser !== undefined) {
-        $rootScope.loggedInUser = loggedInUser;
-    }
+        // get cookie routes
+        var routes = localStorageService.get('routes');
+        if (routes !== undefined) {
+            $rootScope.routes = routes;
+        }
+    } else {
+        // Safari private browsing does not support local storage fully so retrieve user info if not present
+        if ($cookies.authToken && !$rootScope.authToken) {
+            $rootScope.authToken = $cookies.authToken;
+            AuthService.getUserInformation($cookies.authToken).then(function (userInformation) {
+                var user = userInformation.user;
+                delete userInformation.user;
+                user.userInformation = userInformation;
+                $rootScope.loggedInUser = user;
 
-    // get cookie routes
-    var routes = localStorageService.get('routes');
-    if (routes !== undefined) {
-        $rootScope.routes = routes;
+                if (userInformation.routes !== undefined && userInformation.routes.length) {
+                    if (user.changePassword) {
+                        $rootScope.routes = [];
+                        $rootScope.routes.push(RouteService.getChangePasswordRoute());
+                        // manually call buildroute, ios fix
+                        $rootScope.buildRoute();
+                        $location.path('/changepassword');
+                    } else {
+                        $rootScope.routes = userInformation.routes;
+                        // manually call buildroute, ios fix
+                        $rootScope.buildRoute();
+                        $location.path('/dashboard');
+                    }
+                } else {
+                    alert('Error retrieving routes, please contact PatientView support');
+                    $location.path('/logout');
+                }
+
+                $rootScope.startTimers();
+            }, function () {
+                alert("Error retrieving user information");
+            });
+        }
     }
 
     $rootScope.initialised = true;
@@ -340,10 +413,6 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     // client based timeouts, will log you out of back end in 60 minutes
     $rootScope.timoutWarning = 3480000;     // 55 minutes
     $rootScope.timoutNow = 3480000;         // 58 minutes
-    //$rootScope.timoutWarning = 5000;     // 5s
-    //$rootScope.timoutNow = 10000;         // 10s
-
-    $('#timeout').hide();
 
     // Show idle timeout warning dialog.
     var idleWarning = function IdleWarning() {
