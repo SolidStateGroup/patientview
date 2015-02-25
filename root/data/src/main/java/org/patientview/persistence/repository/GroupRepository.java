@@ -1,7 +1,7 @@
 package org.patientview.persistence.repository;
 
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
@@ -129,4 +129,8 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
 
     public List<Group> findAll();
 
+    @Query("SELECT g FROM Group g " +
+            "JOIN g.groupFeatures gf " +
+            "WHERE gf.feature = :feature ")
+    List<Group> findByFeature(@Param("feature") Feature feature);
 }

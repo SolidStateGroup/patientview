@@ -137,6 +137,20 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
+     * Get List of Groups by feature name, currently used to get list of groups with MESSAGING feature for creating
+     * membership request Conversations.
+     * @param featureName String name of feature that Group must have
+     * @return List of Groups
+     */
+    @RequestMapping(value = "/group/feature/{featureName}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<org.patientview.api.model.Group>> getByFeature(
+            @PathVariable(value = "featureName") String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(groupService.getByFeature(featureName), HttpStatus.OK);
+    }
+
+    /**
      * Get a single Group.
      * @param groupId ID of Group to get
      * @return Group object

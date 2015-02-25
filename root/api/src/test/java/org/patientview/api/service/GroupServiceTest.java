@@ -496,5 +496,25 @@ public class GroupServiceTest {
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
         verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, testUser, pageable);
     }
+    
+    @Test
+    public void testGetByFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
+
+        Group group = TestUtils.createGroup("TestGroup");
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+        
+        Feature feature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        when(groupRepository.findByFeature(eq(feature))).thenReturn(groups);
+        when(featureRepository.findByName(eq(feature.getName()))).thenReturn(feature);
+        
+        List<org.patientview.api.model.Group> foundGroups = groupService.getByFeature(FeatureType.MESSAGING.toString());
+        Assert.assertTrue("There should be returned Groups", !CollectionUtils.isEmpty(foundGroups));
+
+        verify(groupRepository, Mockito.times(1)).findByFeature(feature);
+        verify(featureRepository, Mockito.times(1)).findByName(feature.getName());
+    }
 
 }

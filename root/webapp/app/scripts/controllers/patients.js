@@ -4,7 +4,7 @@
 var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'user',
     'GroupService', 'ConversationService', '$filter',
 function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, ConversationService, $filter) {
-    
+
     var init = function() {
         $scope.permissions = permissions;
         $scope.newConversation = {};
@@ -26,29 +26,49 @@ function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, C
             $scope.modalLoading = false;
         });
     };
+    
+    var groupHasMessagingFeature = function(group) {
+        for (var i=0; i<group.groupFeatures.length; i++) {
+            if (group.groupFeatures[i].feature.name === 'MESSAGING') {
+                return true;                
+            }            
+        }
+        return false;
+    };
 
     $scope.selectGroup = function(group) {
-        $scope.modalLoading = true;
-        $scope.loadingMessage = 'Loading Recipients';
+        delete $scope.errorMessage;
+        delete $scope.newConversation.recipients;
         $scope.recipientsExist = false;
+        
+        if (groupHasMessagingFeature(group)) {
+            $scope.modalLoading = true;
+            $scope.loadingMessage = 'Loading Recipients';
+            $scope.recipientsExist = false;
 
-        ConversationService.getGroupRecipientsByFeature(group.id, 'DEFAULT_MESSAGING_CONTACT').then(function (recipients) {
-            if (recipients.length) {
-                $scope.newConversation.recipients = recipients;
-                $scope.recipientsExist = true;
-            } else {
-                delete $scope.newConversation.recipients;
-                $scope.recipientsExist = false;
-            }
-            $scope.modalLoading = false;
-        }, function (failureResult) {
-            if (failureResult.status === 404) {
+            ConversationService.getGroupRecipientsByFeature(group.id, 'DEFAULT_MESSAGING_CONTACT')
+            .then(function (recipients) {
+                if (recipients.length) {
+                    $scope.newConversation.recipients = recipients;
+                    $scope.recipientsExist = true;
+                } else {
+                    delete $scope.newConversation.recipients;
+                    $scope.recipientsExist = false;
+                    $scope.errorMessage = 'No default contact exists for this group. Please contact the PatientView support team for assistance.';
+                }
                 $scope.modalLoading = false;
-            } else {
-                $scope.modalLoading = false;
-                alert('Error loading message recipients');
-            }
-        });
+            }, function (failureResult) {
+                if (failureResult.status === 404) {
+                    $scope.modalLoading = false;
+                } else {
+                    $scope.modalLoading = false;
+                    alert('Error loading message recipients');
+                }
+            });
+        } else {
+            $scope.recipientsExist = false;
+            $scope.errorMessage = 'Group does not have messaging enabled. Please contact the PatientView support team for assistance.'
+        }
     };
 
     $scope.createMembershipRequest = function() {
@@ -384,7 +404,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, 
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies) {
+        ConversationService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;

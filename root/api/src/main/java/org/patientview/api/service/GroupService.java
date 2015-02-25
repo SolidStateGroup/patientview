@@ -167,6 +167,15 @@ public interface GroupService {
     Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId);
 
     /**
+     * Get List of Groups by feature name, currently used to get list of groups with MESSAGING feature for creating
+     * membership request Conversations.
+     * @param featureName String name of feature that Group must have
+     * @return List of Groups
+     */
+    List<org.patientview.api.model.Group> getByFeature(String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Find all Groups that a User belongs to, including all child properties, used during authentication.
      * @param userId ID of User to find Groups for
      * @return List of Groups

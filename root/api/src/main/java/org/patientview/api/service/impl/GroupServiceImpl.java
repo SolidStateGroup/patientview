@@ -18,6 +18,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -141,10 +142,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         List<org.patientview.api.model.Group> groups = convertToTransportGroups(
                 addParentAndChildGroups(groupRepository.findAll()));
 
-        // remove unneeded fields (features etc)
+        // remove unneeded fields 
         for (org.patientview.api.model.Group group : groups) {
             group.setVisible(null);
-            group.setGroupFeatures(null);
+            // group features required for creating membership requests
+            //group.setGroupFeatures(null);
             group.setChildGroups(null);
             group.setLinks(null);
             group.setLocations(null);
@@ -632,6 +634,32 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
 
         return new PageImpl<>(new ArrayList<org.patientview.api.model.Group>(), pageable, 0L);
+    }
+
+    @Override
+    public List<org.patientview.api.model.Group> getByFeature(String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        Feature feature = featureRepository.findByName(featureName);
+        if (feature == null) {
+            throw new ResourceNotFoundException("Feature not found");
+        }
+
+        List<org.patientview.api.model.Group> groups 
+                = convertGroupsToTransportGroups(groupRepository.findByFeature(feature));
+
+        // remove unneeded fields 
+        for (org.patientview.api.model.Group group : groups) {
+            group.setVisible(null);
+            // group features required for creating membership requests
+            //group.setGroupFeatures(null);
+            group.setChildGroups(null);
+            group.setLinks(null);
+            group.setLocations(null);
+            group.setLastImportDate(null);
+        }
+        
+        return groups;
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {

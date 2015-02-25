@@ -31,6 +31,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getByFeature: function (featureName) {
+            var deferred = $q.defer();
+            // GET /group/feature/{featureName}
+            Restangular.one('group/feature', featureName).getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getGroupsForUser: function (userId, getParameters) {
             var deferred = $q.defer();
             // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
