@@ -887,7 +887,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // only users with certain roles
         if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
-                || Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)
+                || Util.doesContainRoles(RoleName.UNIT_ADMIN)
                 || Util.doesContainRoles(RoleName.SPECIALTY_ADMIN))) {
             throw new ResourceForbiddenException("Forbidden");
         }

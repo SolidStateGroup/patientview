@@ -6,13 +6,14 @@ var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalI
 function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, ConversationService, $filter) {
 
     var init = function() {
-        $scope.permissions = permissions;
         $scope.newConversation = {};
         $scope.newConversation.patient = user;
+
+        $scope.permissions = permissions;
         $scope.showForm = true;
         $scope.modalLoading = true;
         $scope.loadingMessage = 'Loading Groups';
-        
+                
         // get public groups, only include groups of type UNIT or DISEASE_GROUP
         GroupService.getAllPublic().then(function(groups) {
             $scope.conversationGroups = [];
@@ -50,6 +51,10 @@ function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, C
             .then(function (recipients) {
                 if (recipients.length) {
                     $scope.newConversation.recipients = recipients;
+                    $scope.newConversation.readOnlyMessage = 
+                        'This user has requested that they be added to your group "'
+                        + $scope.newConversation.selectedGroup.name
+                        + '". I have seen an appropriate request/consent document. Thank you!';
                     $scope.recipientsExist = true;
                 } else {
                     delete $scope.newConversation.recipients;
@@ -62,7 +67,7 @@ function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, C
                     $scope.modalLoading = false;
                 } else {
                     $scope.modalLoading = false;
-                    alert('Error loading message recipients');
+                    $scope.errorMessage = 'Error loading message recipients';
                 }
             });
         } else {
@@ -94,12 +99,10 @@ function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, C
             userDetailsText += user.identifiers[i].identifier + ' ';      
         }
         
-        var messageText = userDetailsText 
-            + '<br/>This user has requested that they be added to your unit group "'
-            + $scope.newConversation.selectedGroup.name
-            + '". I have seen an appropriate request/consent document. Thank you!';
+        var messageText = userDetailsText + '<br/>' + $scope.newConversation.readOnlyMessage;
 
-        if ($scope.newConversation.additionalComments !== undefined && $scope.newConversation.additionalComments.length) {
+        if ($scope.newConversation.additionalComments !== undefined 
+            && $scope.newConversation.additionalComments.length) {
             messageText = messageText + '<br/>Additional Comments: ' + $scope.newConversation.additionalComments;
         }
         

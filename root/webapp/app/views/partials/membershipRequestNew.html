@@ -1,6 +1,9 @@
-
+<style>
+    .article-content-small {
+        height: 4em;
+    }    
+</style>
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
-    
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
     
     <div data-ng-show="conversationGroups.length > 0 && showForm">
@@ -50,6 +53,9 @@
                     </select>
                 </div>
             </div>
+            
+            <br/>
+            
             <div data-ng-show="newConversation.recipients">
                 <div class="row">
                     <div class="col-md-12">
@@ -66,8 +72,20 @@
                 <div class="row">
                     <div class="form-horizontal" role="form">
                         <div class="col-md-12">
+                            <label for="conversation-readonly-message" class="control-label">
+                                Message:
+                            </label>
+                            <textarea class="form-control article-content-small" id="conversation-readonly-message" 
+                                      name="readOnlyMessage" data-ng-model="newConversation.readOnlyMessage" 
+                                      readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-horizontal" role="form">
+                        <div class="col-md-12">
                             <label for="conversation-message" class="control-label">
-                                Please add any additional comments here:
+                                Please add any comments to be included in the message:
                             </label>
                             <textarea class="form-control article-content" id="conversation-message" placeholder="Message"
                                       name="additionalComments" data-ng-model="newConversation.additionalComments" required></textarea>
