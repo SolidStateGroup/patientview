@@ -241,7 +241,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
 
-        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> tempMap = new TreeMap<>();
+        Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> tempMap = new TreeMap<>();
 
         // convert to transport object
         for (Observation observation : observations) {
@@ -278,15 +278,19 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             // add to output for this date, overriding this observation type if present
             Long applies = fhirObservation.getApplies().getTime();
             if (!tempMap.containsKey(applies)) {
-                tempMap.put(applies, new HashMap<String, org.patientview.api.model.FhirObservation>());
+                tempMap.put(applies, new HashMap<String, List<org.patientview.api.model.FhirObservation>>());
             }
 
-            tempMap.get(applies).put(fhirObservation.getName(),
+            if (tempMap.get(applies).get(fhirObservation.getName()) == null) {
+                tempMap.get(applies).put(fhirObservation.getName(),
+                        new ArrayList<org.patientview.api.model.FhirObservation>());
+            }
+            tempMap.get(applies).get(fhirObservation.getName()).add(
                     new org.patientview.api.model.FhirObservation(fhirObservation));
         }
 
         // now reduce
-        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> output;
+        Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> output;
         ArrayList<Long> keys = new ArrayList<>(tempMap.keySet());
         Long count = Long.valueOf(keys.size());
 

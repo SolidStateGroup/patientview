@@ -48,7 +48,8 @@ public interface ObservationService {
     throws ResourceNotFoundException, FhirResourceException;
 
     /**
-     * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c).
+     * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
+     * view.
      * @param userId ID of User to retrieve observations for
      * @param code Code of the observation type to retrieve
      * @return List of FhirObservation representing test results in FHIR

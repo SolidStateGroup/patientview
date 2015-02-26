@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,23 +12,24 @@ public class FhirObservationPage {
 
     private Long totalElements;
     private Long totalPages;
-    private Map<Long, Map<String, FhirObservation>> data;
+    private Map<Long, Map<String, List<FhirObservation>>> data;
 
     public FhirObservationPage() {
     }
 
 
-    public FhirObservationPage(Map<Long, Map<String, FhirObservation>> data, Long totalElements, Long totalPages) {
+    public FhirObservationPage(Map<Long, Map<String, List<FhirObservation>>> data, Long totalElements,
+                               Long totalPages) {
         this.data = data;
         this.totalElements = totalElements;
         this.totalPages = totalPages;
     }
 
-    public Map<Long, Map<String, FhirObservation>> getData() {
+    public Map<Long, Map<String, List<FhirObservation>>> getData() {
         return data;
     }
 
-    public void setData(Map<Long, Map<String, FhirObservation>> data) {
+    public void setData(Map<Long, Map<String, List<FhirObservation>>> data) {
         this.data = data;
     }
 

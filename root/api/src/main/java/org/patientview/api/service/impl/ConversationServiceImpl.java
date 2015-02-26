@@ -1155,7 +1155,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 sb.append("</optgroup>");
             }
         }
-        
+
         sb.append("</select>");
         return sb.toString();
     }

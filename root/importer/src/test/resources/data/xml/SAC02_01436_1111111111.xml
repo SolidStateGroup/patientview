@@ -101,11 +101,23 @@
 <test>
 <testname>urea</testname>
 <testcode>urea</testcode>
-<units></units>
+<units>mg</units>
 <daterange start="2000-01-01" stop="2013-11-13"/>
     <result>
         <datestamp>2013-11-07T09:00:00</datestamp>
-        <value>112.40</value>
+        <value>113</value>
+    </result>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>114</value>
+    </result>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>115</value>
+    </result>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>116</value>
     </result>
 <result>
 <datestamp>2013-11-05T08:00:00</datestamp>

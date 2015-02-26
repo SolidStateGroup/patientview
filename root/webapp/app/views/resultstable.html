@@ -83,14 +83,17 @@
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="row in pagedItems track by $index">
-                        <td data-ng-repeat="item in row track by $index">
-                            <span ng-if="item === row[0]" >
-                                {{item}}
+                        <td data-ng-repeat="resultList in row track by $index">
+                            <span ng-if="resultList === row[0]" >
+                                {{resultList}}
                             </span>
-                            <span ng-if="item !== row[0]">
-                                <strong>{{item.comparator}}{{item.value}}</strong>
+                            <span ng-if="resultList !== row[0]">
+                                <span data-ng-repeat="result in resultList track by $index">
+                                    <strong>{{result.comparator}}{{result.value}}</strong>
+                                    <span class="small" data-ng-if="result.group">&nbsp;({{result.group.shortName}})</span>
+                                    <br data-ng-if="resultList.length > 1"/>
+                                </span>
                             </span>
-                            <span class="small" data-ng-show="item.group">&nbsp;({{item.group.shortName}})</span>
                         </td>
                     </tr>
                 </tbody>
