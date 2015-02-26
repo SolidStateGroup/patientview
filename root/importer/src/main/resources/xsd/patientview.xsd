@@ -16,6 +16,7 @@
                     </xs:simpleType>
                 </xs:element>
                 <xs:element maxOccurs="1" minOccurs="1" name="dateofreport" type="xs:dateTime"/>
+                <xs:element maxOccurs="1" minOccurs="0" name="datereportprocessed" type="xs:dateTime"/>
                 <xs:element maxOccurs="1" minOccurs="1" name="flag" type="pv_status"/>
                 <xs:element maxOccurs="1" minOccurs="1" name="centredetails">
                     <xs:complexType>
