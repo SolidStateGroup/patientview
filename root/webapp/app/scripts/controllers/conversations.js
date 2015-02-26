@@ -555,19 +555,22 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         if (conversation.archived) {
             archived = '(archived)';
         }
-        printContent.append('<h1>PatientView Conversation ' + archived
-            + '</h1><h2>Subject: ' + conversation.title + '</h2>');
-        printContent.append('<h4>Between:</h4><ul>');
+        printContent.append('<h1 style="font-family: sans-serif;">PatientView Conversation ' + archived
+            + '</h1><h2 style="font-family: sans-serif;">Subject: ' + conversation.title + '</h2>');
+        printContent.append('<h4 style="font-family: sans-serif;">Between:</h4><ul>');
         for (i=0; i< conversation.conversationUsers.length; i++) {
-            printContent.append('<li>' + conversation.conversationUsers[i].user.forename + ' '
+            printContent.append('<li style="font-family: sans-serif;">'
+                + conversation.conversationUsers[i].user.forename + ' '
                 + conversation.conversationUsers[i].user.surname + '</li>');
         }
 
         for (i=0; i< conversation.messages.length; i++) {
             var message = conversation.messages[i];
-            printContent.append('<hr><h4>Message Date: ' + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
-                + '</h4><h4>From: ' + message.user.forename + ' ' + message.user.surname + '</h4>');
-            printContent.append('<p>' + message.message + '</p>');
+            printContent.append('<hr><h4 style="font-family: sans-serif;">Message Date: '
+                + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
+                + '</h4><h4 style="font-family: sans-serif;">From: '
+                + message.user.forename + ' ' + message.user.surname + '</h4>');
+            printContent.append('<p style="font-family: sans-serif;">' + message.message + '</p>');
         }
 
         var windowUrl = 'PatientView Conversation';
