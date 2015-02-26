@@ -1090,7 +1090,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
 
         StringBuilder sb = new StringBuilder();
-        boolean addSpacing = false;
 
         // sort correctly
         List<String> sortOrder = new ArrayList<>();
@@ -1115,8 +1114,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // For selectize.js
-        sb.append("<select id=\"select-recipient\" class=\"demo-default\" placeholder=\"Select recipient...\">");
-        sb.append("<option value=\"\">Select recipient...</option>");
+        sb.append("<select id=\"select-recipient\" class=\"demo-default\" placeholder=\"Search for recipient..\">");
+        sb.append("<option value=\"\">Search for recipient..</option>");
 
         for (String userType : sortedKeys) {
             List<BaseUser> users = userMap.get(userType);
