@@ -5,7 +5,8 @@
 </style>
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
-    
+    <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+
     <div data-ng-show="conversationGroups.length > 0 && showForm">
         <div>
             <div class="row">

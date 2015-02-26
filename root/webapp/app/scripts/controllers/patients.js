@@ -6,26 +6,42 @@ var CreateMembershipRequestModalInstanceCtrl = ['$scope', '$rootScope', '$modalI
 function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, ConversationService, $filter) {
 
     var init = function() {
-        $scope.newConversation = {};
-        $scope.newConversation.patient = user;
+        if (userHasMessagingFeature()) {
+            $scope.newConversation = {};
+            $scope.newConversation.patient = user;
 
-        $scope.permissions = permissions;
-        $scope.showForm = true;
-        $scope.modalLoading = true;
-        $scope.loadingMessage = 'Loading Groups';
-                
-        // get public groups, only include groups of type UNIT or DISEASE_GROUP
-        GroupService.getAllPublic().then(function(groups) {
-            $scope.conversationGroups = [];
-            groups.forEach(function(group) {
-                if (group.visibleToJoin) {
-                    if (group.groupType.value === 'DISEASE_GROUP' || group.groupType.value === 'UNIT') {
-                        $scope.conversationGroups.push(group);
+            $scope.permissions = permissions;
+            $scope.showForm = true;
+            $scope.modalLoading = true;
+            $scope.loadingMessage = 'Loading Groups';
+
+            // get public groups, only include groups of type UNIT or DISEASE_GROUP
+            GroupService.getAllPublic().then(function(groups) {
+                $scope.conversationGroups = [];
+                groups.forEach(function(group) {
+                    if (group.visibleToJoin) {
+                        if (group.groupType.value === 'DISEASE_GROUP' || group.groupType.value === 'UNIT') {
+                            $scope.conversationGroups.push(group);
+                        }
                     }
-                }
+                });
+                $scope.modalLoading = false;
             });
-            $scope.modalLoading = false;
-        });
+        } else {
+            $scope.warningMessage = 'You must have the Messaging feature added to your account prior to sending a ' +
+                'membership request. This may be done on the Staff screen, clicking Edit on your account and adding ' +
+                'the Messaging feature. Please contact the PatientView support team if assistance is needed.';
+        }
+    };
+    
+    var userHasMessagingFeature = function() {
+        for (var i=0; i<$rootScope.loggedInUser.userFeatures.length; i++) {
+            if ($rootScope.loggedInUser.userFeatures[i].feature.name === 'MESSAGING'
+                || $rootScope.loggedInUser.userFeatures[i].feature.name === 'DEFAULT_MESSAGING_CONTACT') {
+                return true;                
+            }            
+        }
+        return false;
     };
     
     var groupHasMessagingFeature = function(group) {
