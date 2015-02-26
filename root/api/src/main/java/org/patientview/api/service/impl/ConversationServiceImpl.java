@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
+import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.ConversationService;
@@ -27,6 +28,8 @@ import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -68,6 +71,8 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
+ * Conversation service, for CRUD operations related to Conversations and Messages.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
@@ -76,7 +81,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         implements ConversationService {
 
     @Inject
-    private UserRepository userRepository;
+    private AuditService auditService;
+    
+    @Inject
+    private EmailService emailService;
 
     @Inject
     private ConversationRepository conversationRepository;
@@ -88,10 +96,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private ConversationUserLabelRepository conversationUserLabelRepository;
 
     @Inject
-    private MessageRepository messageRepository;
-
-    @Inject
-    private MessageReadReceiptRepository messageReadReceiptRepository;
+    private EntityManager entityManager;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -103,25 +108,35 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private GroupService groupService;
 
     @Inject
-    private RoleService roleService;
+    private MessageReadReceiptRepository messageReadReceiptRepository;
 
     @Inject
-    private UserService userService;
-
-    @Inject
-    private EmailService emailService;
+    private MessageRepository messageRepository;
 
     @Inject
     private Properties properties;
 
     @Inject
-    private EntityManager entityManager;
+    private RoleService roleService;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
 
     public Conversation add(Conversation conversation) {
         // TODO: add conversation
         return conversationRepository.findOne(conversation.getId());
     }
 
+    /**
+     * Create a new conversation, including recipients and associated Message.
+     * @param userId ID of User creating Conversation
+     * @param conversation Conversation object containing all required properties and first Message content
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -185,9 +200,27 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // persist conversation
             conversationRepository.save(newConversation);
+            
+            // create audit
+            if (conversation.getType().equals(ConversationTypes.MEMBERSHIP_REQUEST) 
+                    && conversation.getUserId() != null && conversation.getGroupId() != null) {
+                entityUser = userRepository.findOne(conversation.getUserId());
+                Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+                if (entityUser != null && entityGroup != null) {
+                    auditService.createAudit(AuditActions.MEMBERSHIP_REQUEST_SENT, entityUser.getUsername(), 
+                            getCurrentUser(), conversation.getUserId(), AuditObjectTypes.User, entityGroup);
+                }
+            }
         }
     }
 
+    /**
+     * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
+     * @param conversationId ID of Conversation to add User to
+     * @param userId ID of User to be added to Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void addConversationUser(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -233,6 +266,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to add Conversation label to
+     * @param conversationId ID of Conversation to add label to
+     * @param conversationLabel ConversationLabel label to add to Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -280,6 +321,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.save(conversation);
     }
 
+    /**
+     * Add a Message to an existing Conversation.
+     * @param conversationId ID of Conversation to add Message to
+     * @param message Message object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -326,6 +374,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         sendNewMessageEmails(entityConversation.getConversationUsers());
     }
 
+    /**
+     * Add a read receipt for a Message given the Message and User IDs.
+     * @param messageId ID of Message to add read receipt for
+     * @param userId ID of User who has read the Message
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void addMessageReadReceipt(Long messageId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -354,6 +409,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Anonymise Conversation by replacing Users who wish to remain anonymous with a dummy user if required.
+     * @param conversation Conversation to anonymise (if required)
+     * @return Conversation where Users have been made anonymous (if required)
+     */
     private Conversation anonymiseConversation(Conversation conversation) {
         Conversation newConversation = new Conversation();
         newConversation.setConversationUsers(new HashSet<ConversationUser>());
@@ -416,7 +476,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return newConversation;
     }
 
-    // verify all conversation users have messaging features and member of group with messaging enabled
+    /**
+     * Verify all conversation users have messaging features and member of group with messaging enabled
+     * @param conversation Conversation to verify
+     * @return true if all conversation users have messaging features and member of group with messaging enabled
+     */
     private boolean conversationUsersAndGroupsHaveMessagingFeatures(Conversation conversation) {
         int usersWithMessagingFeaturesCount = 0;
 
@@ -528,10 +592,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationUserSet;
     }
 
+    /**
+     * Delete a Conversation given ID.
+     * @param conversationId ID of Conversation to delete
+     */
     public void delete(Long conversationId) {
         conversationRepository.delete(conversationId);
     }
 
+    /**
+     * Delete a User from all Conversations, used during User deletion.
+     * @param user User to delete from all Conversations
+     */
     @Override
     public void deleteUserFromConversations(User user) {
         // remove from all conversations where user is a member (including messages)
@@ -588,6 +660,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         userRepository.save(user);
     }
 
+    /**
+     * Get a Conversation, including Messages given a Conversation ID.
+     * @param conversationId ID of Conversation to retrieve
+     * @return Conversation object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @Override
     public org.patientview.api.model.Conversation findByConversationId(Long conversationId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -608,6 +688,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return new org.patientview.api.model.Conversation(anonymiseConversation(conversation));
     }
 
+    /**
+     * Get a Page of Conversation objects given a User (who is a member of the Conversations).
+     * @param userId ID of User to retrieve Conversations for
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
+     * @return Page of Conversation objects
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -696,6 +784,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return new PageImpl<>(conversations, pageable, countQuery.getResultList().size());
     }
 
+    /**
+     * Helper method to get a User given their id.
+     * @param userId ID of User to get
+     * @return User object
+     * @throws ResourceNotFoundException
+     */
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
@@ -704,10 +798,25 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return entityUser;
     }
 
+    /**
+     * Get Conversation by ID.
+     * @param conversationId ID of Conversation to get
+     * @return Conversation object
+     */
+    @Override
     public Conversation get(Long conversationId) {
         return anonymiseConversation(conversationRepository.findOne(conversationId));
     }
 
+    /**
+     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
+     * Will only retrieve picture if current user is a member of conversation.
+     * @param conversationId ID of User to retrieve picture for
+     * @param userId ID of User to retrieve picture for
+     * @return byte[] binary picture data
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public byte[] getConversationUserPicture(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -750,6 +859,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Get a List of BaseUser (used as Conversation recipients) for a Group based on the feature passed in, currently
+     * DEFAULT_MESSAGING_CONTACT. Used when creating a membership request from patients page.
+     * @param groupId ID of Group to find available recipients for
+     * @param featureName String name of Feature that Users must have to be recipients
+     * @return List of BaseUser
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public List<BaseUser> getGroupRecipientsByFeature(Long groupId, String featureName)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -786,6 +904,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return convertUsersToTransportBaseUsers(page.getContent());
     }
 
+    /**
+     * Get a Map of BaseUsers organised by Role type for global admins, used for potential Conversation recipients.
+     * @param groupId ID of Group to get recipients for (optional, will get for all Groups if null)
+     * @return Map of BaseUsers organised by Role type
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     private HashMap<String, List<BaseUser>> getGlobalAdminRecipients(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
@@ -837,6 +962,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
+    /**
+     * Get a Map of BaseUsers organised by Role type for patients, used for potential Conversation recipients.
+     * @param groupId ID of Group to get recipients for (optional, will use all a User's Groups if null)
+     * @return Map of BaseUsers organised by Role type
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     private HashMap<String, List<BaseUser>> getPatientRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
@@ -865,7 +997,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
 
-        // only search for groups patient is in (excluding specialties so only units)
+        // only search for groups patient is in (excluding specialties so only units and disease groups)
         List<Group> patientGroups
                 = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
                 "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
@@ -901,6 +1033,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
+    /**
+     * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
+     * Conversation to populate the drop-down select of available recipients after a Group is selected.
+     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
+     * @param userId ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return Object containing Lists of BaseUser organised by Role
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -928,6 +1070,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
+    /**
+     * Fast method of returning available Conversation recipients when a User has selected a Group in the UI.
+     * Note: returns HTML as a String to avoid performance issues in ie8
+     * @param userId ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return HTML String for drop-down select
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public String getRecipientsFast(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -1004,6 +1155,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return sb.toString();
     }
 
+    /**
+     * Get a Map of BaseUsers organised by Role type for staff members, used for potential Conversation recipients.
+     * @param groupId ID of Group to get recipients for (optional, will use all a User's Groups if null)
+     * @return Map of BaseUsers organised by Role type
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     private HashMap<String, List<BaseUser>> getStaffRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
@@ -1072,6 +1230,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
+    /**
+     * Get the number of unread Messages (those with no read receipt) for a User.
+     * @param userId ID of User to find number of unread messages for
+     * @return Long containing number of unread messages
+     * @throws ResourceNotFoundException
+     */
     @Override
     public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
         if (!userRepository.exists(userId)) {
@@ -1081,6 +1245,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     // verify logged in user has messaging feature
+
+    /**
+     * Verify the current logged in User has messaging feature
+     * @return
+     */
     private boolean loggedInUserHasMessagingFeatures() {
         User loggedInUser = getCurrentUser();
         if (Util.doesContainRoles(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {

@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Audit service, used for creating, modifying, retrieving Audits.
+ * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
+ * Logon)
  *
  * Created by james@solidstategroup.com
  * Created on 06/08/2014
@@ -24,13 +25,13 @@ public interface AuditService {
     /**
      * Create an Audit item, given required properties.
      * @param auditActions An AuditActions enum representing the type of Audit
-     * @param preValue Value before Audit took place (note: not currently used)
+     * @param username String username
      * @param actor User who is performing the action, can be a regular User or the importer User etc
      * @param sourceObjectId ID of object being audited
      * @param sourceObjectType AuditObjectTypes type of the object being audited, e.g. Group or User
      * @param group Group, if relevant to Audit action, e.g. adding User to Group
      */
-    void createAudit(AuditActions auditActions, String preValue, org.patientview.persistence.model.User actor,
+    void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
                             Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group);
 
     /**

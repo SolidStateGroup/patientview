@@ -84,6 +84,16 @@ public interface ConversationService extends CrudService<Conversation> {
     void deleteUserFromConversations(User user);
 
     /**
+     * Get a Conversation, including Messages given a Conversation ID.
+     * @param conversationId ID of Conversation to retrieve
+     * @return Conversation object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    org.patientview.api.model.Conversation findByConversationId(Long conversationId)
+    throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Get a Page of Conversation objects given a User (who is a member of the Conversations).
      * @param userId ID of User to retrieve Conversations for
      * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
@@ -93,16 +103,6 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     @UserOnly
     Page<org.patientview.api.model.Conversation> findByUserId(Long userId, GetParameters getParameters)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    /**
-     * Get a Conversation, including Messages given a Conversation ID.
-     * @param conversationId ID of Conversation to retrieve
-     * @return Conversation object
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    org.patientview.api.model.Conversation findByConversationId(Long conversationId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -118,8 +118,8 @@ public interface ConversationService extends CrudService<Conversation> {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Get a List of BaseUser used as recipients based on the feature passed in, currently DEFAULT_MESSAGING_CONTACT,
-     * used when creating a membership request from patients page.
+     * Get a List of BaseUser (used as Conversation recipients) for a Group based on the feature passed in, currently
+     * DEFAULT_MESSAGING_CONTACT. Used when creating a membership request from patients page.
      * @param groupId ID of Group to find available recipients for
      * @param featureName String name of Feature that Users must have to be recipients
      * @return List of BaseUser

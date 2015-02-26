@@ -102,6 +102,10 @@ function ($scope, $rootScope, $modalInstance, permissions, user, GroupService, C
         if ($scope.newConversation.additionalComments !== undefined && $scope.newConversation.additionalComments.length) {
             messageText = messageText + '<br/>Additional Comments: ' + $scope.newConversation.additionalComments;
         }
+        
+        // add userId and groupId for audit purposes
+        conversation.userId = user.id;
+        conversation.groupId = $scope.newConversation.selectedGroup.id;
 
         var message = {};
         message.user = {};
