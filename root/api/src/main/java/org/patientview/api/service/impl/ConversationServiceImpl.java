@@ -82,7 +82,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private AuditService auditService;
-    
+
     @Inject
     private EmailService emailService;
 
@@ -125,9 +125,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     @Inject
     private UserService userService;
 
+    /**
+     * Add a new conversation.
+     * @param conversation Conversation to add
+     * @return Conversation, newly added
+     */
     public Conversation add(Conversation conversation) {
         // TODO: add conversation
-        return conversationRepository.findOne(conversation.getId());
+        return null;
     }
 
     /**
@@ -144,7 +149,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         if (!loggedInUserHasMessagingFeatures()) {
             throw new ResourceForbiddenException("Forbidden (current user features)");
         }
-        
+
         if (!conversationUsersAndGroupsHaveMessagingFeatures(conversation)) {
             throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
@@ -200,14 +205,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // persist conversation
             conversationRepository.save(newConversation);
-            
+
             // create audit
-            if (conversation.getType().equals(ConversationTypes.MEMBERSHIP_REQUEST) 
+            if (conversation.getType().equals(ConversationTypes.MEMBERSHIP_REQUEST)
                     && conversation.getUserId() != null && conversation.getGroupId() != null) {
                 entityUser = userRepository.findOne(conversation.getUserId());
                 Group entityGroup = groupRepository.findOne(conversation.getGroupId());
                 if (entityUser != null && entityGroup != null) {
-                    auditService.createAudit(AuditActions.MEMBERSHIP_REQUEST_SENT, entityUser.getUsername(), 
+                    auditService.createAudit(AuditActions.MEMBERSHIP_REQUEST_SENT, entityUser.getUsername(),
                             getCurrentUser(), conversation.getUserId(), AuditObjectTypes.User, entityGroup);
                 }
             }
@@ -1244,11 +1249,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationRepository.getUnreadConversationCount(userId);
     }
 
-    // verify logged in user has messaging feature
-
     /**
-     * Verify the current logged in User has messaging feature
-     * @return
+     * Verify the current logged in User has messaging features, assume all patients and global admins do.
+     * @return True if current logged in User has messaging features, false if not
      */
     private boolean loggedInUserHasMessagingFeatures() {
         User loggedInUser = getCurrentUser();
@@ -1259,7 +1262,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userHasStaffMessagingFeatures(userRepository.findOne(loggedInUser.getId()));
     }
 
-    // verify logged in user can open conversation
+    /**
+     * Verify the current logged in User is a member of a Conversation.
+     * @param conversation Conversation to verify current logged in User is a member of
+     * @return True if current logged in User is a member of the Conversation, false if not
+     */
     private boolean loggedInUserIsMemberOfConversation(Conversation conversation) {
         User loggedInUser = getCurrentUser();
 
@@ -1271,6 +1278,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return false;
     }
 
+    /**
+     * Remove a User from a Conversation by deleting the ConversationUser.
+     * @param conversationId ID of Conversation to remove User from
+     * @param userId ID of User to be removed from Conversation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void removeConversationUser(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -1303,6 +1317,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Remove a label from a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
+     * @param userId ID of User to remove Conversation label from
+     * @param conversationId ID of Conversation to add label from
+     * @param conversationLabel ConversationLabel label to remove from Conversation for this User
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -1341,6 +1363,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Update an existing Conversation.
+     * @param conversation Conversation to update
+     * @return Updated Conversation
+     * @throws ResourceNotFoundException
+     */
     public Conversation save(Conversation conversation) throws ResourceNotFoundException {
         Conversation entityConversation = conversationRepository.findOne(conversation.getId());
         if (entityConversation == null) {
@@ -1351,6 +1379,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationRepository.save(entityConversation);
     }
 
+    /**
+     * Send an email to PatientView central support.
+     * @param entityUser User sending email
+     * @param conversation Conversation containing Message for email content
+     */
     private void sendNewCentralSupportEmail(User entityUser, Conversation conversation) {
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
@@ -1379,6 +1412,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * Send new Message emails to a Set of Users.
+     * @param conversationUsers Set of ConversationUsers to retrieve User details from
+     */
     private void sendNewMessageEmails(Set<ConversationUser> conversationUsers) {
         for (ConversationUser conversationUser : conversationUsers) {
             User user = conversationUser.getUser();
@@ -1413,7 +1450,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    // verify at least one of the user's groups has messaging enabled
+    /**
+     * Verify at least one of a User's Groups has the MESSAGING Feature enabled.
+     * @param user User to check has at least one Group with MESSAGING Feature enabled
+     * @return True if User has at least one Group with MESSAGING Feature enabled, false if not
+     */
     private boolean userGroupsHaveMessagingFeature(User user) {
         User entityUser = userRepository.findOne(user.getId());
 
@@ -1439,7 +1480,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return false;
     }
 
-    // if user has any number of roles passed in, return true
+    /**
+     * Check User has at least one of the RoleNames passed in.
+     * @param user User to check Role membership for
+     * @param roleNames RoleName(s) to check User has
+     * @return true if User has at least one of the RoleNames passed in
+     */
     private boolean userHasRole(User user, RoleName ... roleNames) {
         User entityUser = userRepository.findOne(user.getId());
 
@@ -1453,6 +1499,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return false;
     }
 
+    /**
+     * Check User has at least one Feature from a restricted list of staff messaging Features.
+     * @param user User to check has staff messaging Feature
+     * @return True if User has at least one Feature from a restricted list of staff messaging Features, false if not
+     */
     private boolean userHasStaffMessagingFeatures(User user) {
         User entityUser = userRepository.findOne(user.getId());
 

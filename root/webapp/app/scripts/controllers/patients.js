@@ -408,7 +408,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, 
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService) {
+        ConversationService, $cookies) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;

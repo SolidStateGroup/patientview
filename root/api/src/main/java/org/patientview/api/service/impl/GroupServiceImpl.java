@@ -142,7 +142,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         List<org.patientview.api.model.Group> groups = convertToTransportGroups(
                 addParentAndChildGroups(groupRepository.findAll()));
 
-        // remove unneeded fields 
+        // remove unneeded fields
         for (org.patientview.api.model.Group group : groups) {
             group.setVisible(null);
             // group features required for creating membership requests
@@ -645,10 +645,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException("Feature not found");
         }
 
-        List<org.patientview.api.model.Group> groups 
+        List<org.patientview.api.model.Group> groups
                 = convertGroupsToTransportGroups(groupRepository.findByFeature(feature));
 
-        // remove unneeded fields 
+        // remove unneeded fields
         for (org.patientview.api.model.Group group : groups) {
             group.setVisible(null);
             // group features required for creating membership requests
@@ -658,7 +658,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             group.setLocations(null);
             group.setLastImportDate(null);
         }
-        
+
         return groups;
     }
 
