@@ -779,4 +779,3 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groupPage;
     }
 }
-

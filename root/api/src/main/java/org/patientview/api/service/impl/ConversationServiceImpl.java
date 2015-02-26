@@ -921,7 +921,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
         GetParameters getParameters = new GetParameters();
-        getParameters.setSortField("forename");
+        getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
         List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
@@ -980,7 +980,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
         GetParameters getParameters = new GetParameters();
-        getParameters.setSortField("forename");
+        getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
         List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
@@ -1130,9 +1130,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     sb.append("<option value=\"");
                     sb.append(baseUser.getId());
                     sb.append("\">");
+                    sb.append(baseUser.getSurname().replace("<", "").replace(">", ""));
+                    sb.append(", ");
                     sb.append(baseUser.getForename().replace("<", "").replace(">", ""));
-                    sb.append(" ");
-                    sb.append(baseUser.getSurname());
 
                     if (baseUser.getDateOfBirth() != null) {
                         Date dob = baseUser.getDateOfBirth();
@@ -1173,7 +1173,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
         GetParameters getParameters = new GetParameters();
-        getParameters.setSortField("forename");
+        getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
         List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
