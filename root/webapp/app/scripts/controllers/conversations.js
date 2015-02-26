@@ -1,8 +1,9 @@
 'use strict';
 
 // change conversation recipients modal instance controller
-var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'ConversationService', 'conversation',
-    function ($scope, $rootScope, $modalInstance, GroupService, ConversationService, conversation) {
+var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', '$timeout',
+    'GroupService', 'ConversationService', 'conversation',
+    function ($scope, $rootScope, $modalInstance, $timeout, GroupService, ConversationService, conversation) {
         var init = function() {
             delete $scope.errorMessage;
             $scope.editConversation = conversation;
@@ -29,18 +30,21 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
             $scope.recipientsExist = false;
 
             ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
-
                 var element = document.getElementById('conversation-add-recipient');
                 if (element !== null) {
                     element.parentNode.removeChild(element);
                 }
 
-                var blankOption = '<option></option>';
+                $('#recipient-select-container').html(recipientOptions);
 
-                // pure text, ie8 performance requires this
-                $('#recipient-select-container')
-                    .html('<select class="form-control recipient-select" id="conversation-add-recipient" onchange="recipientSelectChange()">'
-                        + blankOption + recipientOptions + '</select>');
+                $('#select-recipient').selectize({
+                    sortField: 'text',
+                    onChange: function(userId) {
+                        if (userId.length) {
+                            addConversationUser(userId);
+                        }
+                    }
+                });
 
                 $scope.recipientsExist = true;
                 $scope.modalLoading = false;
@@ -51,6 +55,35 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
                     $scope.modalLoading = false;
                     alert('Error loading message recipients');
                 }
+            });
+        };
+
+        var addConversationUser = function (userId) {
+            var found = false;
+            var conversation = $scope.editConversation;
+
+            // check not already added
+            for (var i = 0; i < conversation.conversationUsers.length; i++) {
+                // need to cast string to number using == not === for id
+                if (conversation.conversationUsers[i].user.id == userId) {
+                    found = true;
+                }
+            }
+
+            if (!found && userId !== '') {
+                ConversationService.addConversationUser(conversation.id, userId).then(function() {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                }, function() {
+                    alert('Error adding conversation user');
+                });
+            }
+
+            $timeout(function() {
+                $scope.$apply();
             });
         };
         
@@ -100,7 +133,8 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
     }];
 
 // new conversation modal instance controller
-var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
+var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService',
+    'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
         var i;
 

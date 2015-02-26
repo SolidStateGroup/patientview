@@ -1114,19 +1114,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
         }
 
+        // For selectize.js
+        sb.append("<select id=\"select-recipient\" class=\"demo-default\" placeholder=\"Select recipient...\">");
+        sb.append("<option value=\"\">Select recipient...</option>");
+
         for (String userType : sortedKeys) {
             List<BaseUser> users = userMap.get(userType);
 
             if (!users.isEmpty()) {
-                if (addSpacing) {
-                    sb.append("<option class=\"option-header\" value=\"\" disabled></option>");
-                }
-                sb.append("<option class=\"option-header\" value=\"\" disabled>");
+                sb.append("<optgroup label=\"");
                 sb.append(userType);
-                sb.append("</option>");
+                sb.append("\">");
 
                 for (BaseUser baseUser : users) {
-
                     sb.append("<option value=\"");
                     sb.append(baseUser.getId());
                     sb.append("\">");
@@ -1152,11 +1152,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                     sb.append("</option>");
                 }
-
-                addSpacing = true;
+                sb.append("</optgroup>");
             }
         }
-
+        
+        sb.append("</select>");
         return sb.toString();
     }
 
