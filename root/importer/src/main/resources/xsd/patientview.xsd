@@ -16,6 +16,7 @@
                     </xs:simpleType>
                 </xs:element>
                 <xs:element maxOccurs="1" minOccurs="1" name="dateofreport" type="xs:dateTime"/>
+                <xs:element maxOccurs="1" minOccurs="0" name="datereportprocessed" type="xs:dateTime"/>
                 <xs:element maxOccurs="1" minOccurs="1" name="flag" type="pv_status"/>
                 <xs:element maxOccurs="1" minOccurs="1" name="centredetails">
                     <xs:complexType>
@@ -463,9 +464,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-
-
-
     <xs:simpleType name="ibd_disease_extent">
         <xs:annotation>
             <xs:documentation>IBD Disease Extent</xs:documentation>
@@ -481,11 +479,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-
-
-
-
-
     <xs:complexType name="ibd_disease_complications">
         <xs:simpleContent>
             <xs:extension base="ibd_disease_complication">
@@ -498,10 +491,6 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-
-
-
-
 
     <xs:complexType name="body_parts_affected">
         <xs:simpleContent>
@@ -530,8 +519,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-
-
     <xs:complexType name="smoking_history">
         <xs:simpleContent>
             <xs:extension base="smoking_history_description">
@@ -545,8 +532,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-
-
     <xs:complexType name="surgical_history">
         <xs:simpleContent>
             <xs:extension base="surgical_history_description">
@@ -559,8 +544,6 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-
-
 
     <xs:complexType name="vaccination_record">
         <xs:simpleContent>
@@ -588,6 +571,7 @@
             <xs:enumeration value="Followup"/>
         </xs:restriction>
     </xs:simpleType>
+
     <xs:simpleType name="sex">
         <xs:annotation>
             <xs:documentation>Sex</xs:documentation>
@@ -601,11 +585,16 @@
             <xs:enumeration value="U"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <!-- changed 2014.02.27 to allow any test code -->
     <xs:simpleType name="testcode">
         <xs:annotation>
             <xs:documentation>Test codes. Ciclosporin, tacrolimus and sirolimus are drug levels. PCR is protein-creatinine ratio. ACR is albumin creatinine ratio.</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
+            <xs:maxLength value="60"/>
+        </xs:restriction>
+        <!--<xs:restriction base="xs:string">
             <xs:enumeration value="hb"/>
             <xs:enumeration value="wbc"/>
             <xs:enumeration value="platelets"/>
@@ -651,7 +640,7 @@
             <xs:enumeration value="magnesium"/>
             <xs:enumeration value="psa"/>
             <xs:enumeration value="vitd"/>
-        </xs:restriction>
+        </xs:restriction>-->
     </xs:simpleType>
     <xs:simpleType name="prepost">
         <xs:annotation>
