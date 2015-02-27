@@ -12,7 +12,7 @@
             <td>Heading</td>
             <td><span data-ng-show="result.heading">{{result.heading}}</span>
                 <span data-ng-show="!result.heading">Not Available</span></td>
-        </tr><tr>
+        </tr><tr class="hidden">
             <td>Code</td>
             <td><span data-ng-show="result.code">{{result.code}}</span>
                 <span data-ng-show="!result.code">Not Available</span></td>
@@ -24,14 +24,14 @@
             <td>Normal Range</td>
             <td><span data-ng-show="result.normalRange">{{result.normalRange}}</span>
                 <span data-ng-show="!result.normalRange">Not Available</span></td>
-        </tr><tr>
+        </tr><tr class="hidden">
             <td>Decimal Places</td>
             <td><span data-ng-show="result.decimalPlaces">{{result.decimalPlaces}}</span>
                 <span data-ng-show="!result.decimalPlaces">Not Available</span></td>
         </tr><tr>
             <td>Information</td>
             <td class="result-link">
-                <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">{{result.infoLink}}</a>
+                <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">More information about this test</a>
                 <span data-ng-show="!result.infoLink">Not Available</span>
             </td>
         </tr>
