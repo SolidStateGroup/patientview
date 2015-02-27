@@ -146,17 +146,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
-    $scope.searchItems = {};
     $scope.selectedRole = [];
     $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
         delete $scope.successMessage;
-        $scope.searchItems.searchUsername = $('#search-username').val();
-        $scope.searchItems.searchForename = $('#search-forename').val();
-        $scope.searchItems.searchSurname = $('#search-surname').val();
-        $scope.searchItems.searchEmail = $('#search-email').val();
         $scope.currentPage = 0;
         $scope.getItems();
     };
@@ -257,7 +252,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
         $scope.loading = true;
-
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
@@ -265,11 +259,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         getParameters.sortDirection = $scope.sortDirection;
 
         // multi search
-        getParameters.searchUsername = $scope.searchItems.searchUsername;
-        getParameters.searchForename = $scope.searchItems.searchForename;
-        getParameters.searchSurname = $scope.searchItems.searchSurname;
-        getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
-        getParameters.searchEmail = $scope.searchItems.searchEmail;
+        getParameters.searchUsername = $('#search-username').val();
+        getParameters.searchForename = $('#search-forename').val();
+        getParameters.searchSurname = $('#search-surname').val();
+        getParameters.searchIdentifier = $('#search-identifier').val();
+        getParameters.searchEmail = $('#search-email').val();
 
         // for filtering users by status (e.g. locked, active, inactive)
         getParameters.statusFilter = $scope.statusFilter;

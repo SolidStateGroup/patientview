@@ -434,17 +434,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
-    $scope.searchItems = {};
     $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
         delete $scope.successMessage;
-        $scope.searchItems.searchUsername = $('#search-username').val();
-        $scope.searchItems.searchForename = $('#search-forename').val();
-        $scope.searchItems.searchSurname = $('#search-surname').val();
-        $scope.searchItems.searchIdentifier = $('#search-identifier').val();
-        $scope.searchItems.searchEmail = $('#search-email').val();
         $scope.currentPage = 0;
         $scope.getItems();
     };
@@ -526,11 +520,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         getParameters.roleIds = $scope.roleIds;
 
         // multi search
-        getParameters.searchUsername = $scope.searchItems.searchUsername;
-        getParameters.searchForename = $scope.searchItems.searchForename;
-        getParameters.searchSurname = $scope.searchItems.searchSurname;
-        getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
-        getParameters.searchEmail = $scope.searchItems.searchEmail;
+        getParameters.searchUsername = $('#search-username').val();
+        getParameters.searchForename = $('#search-forename').val();
+        getParameters.searchSurname = $('#search-surname').val();
+        getParameters.searchIdentifier = $('#search-identifier').val();
+        getParameters.searchEmail = $('#search-email').val();
 
         // for filtering users by status (e.g. locked, active, inactive)
         getParameters.statusFilter = $scope.statusFilter;
