@@ -53,15 +53,14 @@ public class ObservationsBuilder {
 
     // Normally any invalid data would fail the whole XML
     public void build() {
-
         dateRanges = new HashMap<>();
 
         // build from tests e.g. ciclosporin, weight etc
         if (results.getPatient().getTestdetails() != null) {
             for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
 
-                dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
-                String testCode = test.getTestcode().value().toUpperCase();
+                dateRanges.put(test.getTestcode().toUpperCase(), test.getDaterange());
+                String testCode = test.getTestcode().toUpperCase();
 
                 if (alertMap == null) {
                     alertMap = new HashMap<>();
@@ -77,7 +76,7 @@ public class ObservationsBuilder {
                         observations.add(createObservation(test, result));
 
                         // handle alerts
-                        if (alertMap.containsKey(testCode)) {
+                        if (alertMap.containsKey(testCode) && alert != null) {
                             if (alert.getLatestDate() == null) {
                                 // is the first time a result has come in for this alert
                                 alert.setLatestDate(result.getDatestamp().toGregorianCalendar().getTime());
@@ -99,7 +98,7 @@ public class ObservationsBuilder {
                         }
 
                         success++;
-                    } catch (FhirResourceException e) {
+                    } catch (Exception e) {
                         LOG.error("Invalid data in XML: " + e.getMessage());
                     }
                     count++;
@@ -331,7 +330,7 @@ public class ObservationsBuilder {
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)
-        throws FhirResourceException {
+            throws FhirResourceException {
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
@@ -451,13 +450,13 @@ public class ObservationsBuilder {
         org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
         identifier.setLabelSimple("resultcode");
         // note: name is generated from xsd so hco3 becomes HCO_3 therefore use value
-        identifier.setValueSimple(test.getTestcode().value());
+        identifier.setValueSimple(test.getTestcode());
         return identifier;
     }
 
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.setTextSimple(test.getTestcode().value());
+        codeableConcept.setTextSimple(test.getTestcode());
         codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(test.getTestname()));
         return codeableConcept;
     }
