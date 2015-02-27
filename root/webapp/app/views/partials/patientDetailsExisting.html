@@ -28,6 +28,10 @@
         <div class="col-sm-9"><span type="text" class="form-control" id="new-user-surname">{{editUser.surname}}</span></div>
     </div>
     <div class="form-group">
+        <label for="new-user-dateofbirth" class="col-sm-2 control-label">Date of Birth</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-dateofbirth">{{editUser.dateOfBirth | date:'dd-MMM-yyyy'}}</span></div>
+    </div>
+    <div class="form-group">
         <label for="new-user-locked" class="col-sm-2 control-label">Locked</label>
         <div class="col-sm-9"><input type="checkbox" id="new-user-locked" name="new-user-locked"
                                      data-ng-model="editUser.locked" data-ng-disabled="true"/></div>
