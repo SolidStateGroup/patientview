@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', '$rootScope', 'UserService', 'IdentifierService',
-function ($scope, $rootScope, UserService, IdentifierService) {
+angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', '$rootScope', 'UserService',
+    'IdentifierService', 'localStorageService',
+function ($scope, $rootScope, UserService, IdentifierService, localStorageService) {
     var i;
 
     // add group to current group, remove from allowed
@@ -108,7 +109,12 @@ function ($scope, $rootScope, UserService, IdentifierService) {
                         }
                     }
                     if (user.id == $rootScope.loggedInUser.id) {
-                        $rootScope.loggedInUser.userFeatures = successResult.userFeatures;
+                        if (localStorageService.isSupported) {
+                            var localStorageUser = localStorageService.get('loggedInUser');
+                            localStorageUser.userFeatures = successResult.userFeatures;
+                            localStorageService.set('loggedInUser', localStorageUser);
+                        }
+                        $rootScope.loggedInUser.userFeatures = successResult.userFeatures;                        
                     }
                 }, function () {
                     alert('Error updating header (saved successfully)');
@@ -157,6 +163,11 @@ function ($scope, $rootScope, UserService, IdentifierService) {
                         }
                     }
                     if (user.id == $rootScope.loggedInUser.id) {
+                        if (localStorageService.isSupported) {
+                            var localStorageUser = localStorageService.get('loggedInUser');
+                            localStorageUser.userFeatures = successResult.userFeatures;
+                            localStorageService.set('loggedInUser', localStorageUser);
+                        }
                         $rootScope.loggedInUser.userFeatures = successResult.userFeatures;
                     }
                 }, function () {

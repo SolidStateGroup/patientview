@@ -4,18 +4,20 @@
     }    
 </style>
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>This will create a membership request for this patient, sent directly to the a local administrator
+                at the group selected. The staff member will see details of the patient and can then
+                choose to add them to their group. You can track and follow up this request under your Messages menu.</p>
+        </div>
+    </div>
+    
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
 
     <div data-ng-show="conversationGroups.length > 0 && showForm">
         <div>
-            <div class="row">
-                <div class="col-md-12">
-                    <p>This will create a membership request for this patient, sent directly to the a local administrator
-                        at the group selected. The staff member will see details of the patient and can then
-                        choose to add them to their group. You can track and follow up this request under your Messages menu.</p>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-12">
                     <h4>Patient Details</h4>
