@@ -1238,6 +1238,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
+        user.setVerificationCode(CommonUtils.getAuthToken());
+        userRepository.save(user);
 
         return emailService.sendEmail(getVerifyEmailEmail(user));
     }
