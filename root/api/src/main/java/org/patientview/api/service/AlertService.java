@@ -31,7 +31,8 @@ public interface AlertService {
      * @throws FhirResourceException
      */
     @UserOnly
-    void addAlert(Long userId, Alert alert) throws ResourceNotFoundException, FhirResourceException;
+    void addAlert(Long userId, Alert alert)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
      * Get a User's Alerts, given the AlertTypes type of Alert.

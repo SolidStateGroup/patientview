@@ -91,13 +91,15 @@ public class ObservationController extends BaseController<ObservationController>
      * @param userId ID of User to retrieve observations for
      * @param code Code of the observation type to retrieve
      * @return List of FhirObservation representing test results in FHIR
-     * @throws FhirResourceException
      * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
      */
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
-            @PathVariable("code") String code) throws FhirResourceException, ResourceNotFoundException {
+            @PathVariable("code") String code) 
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(
             observationService.get(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
             HttpStatus.OK);

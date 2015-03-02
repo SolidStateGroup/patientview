@@ -73,10 +73,9 @@ public interface ObservationService {
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
-    @UserOnly
-    @RoleOnly(roles = { RoleName.PATIENT })
+    @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
     List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
-            throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
      * Used when retrieving non test FHIR Observations from FHIR.

@@ -1,5 +1,8 @@
 package org.patientview.api.service;
 
+import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.json.JSONArray;
@@ -11,7 +14,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationRange;
@@ -46,7 +48,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 
@@ -263,5 +264,186 @@ public class ObservationServiceTest {
                 .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
 
         observationService.addTestObservations(patient.getId(), group.getId(), fhirObservationRange);
+    }
+
+    @Test
+    public void testGetObservations()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
+
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        User patient = TestUtils.createUser("testUser");
+        patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
+        patient.setFhirLinks(new HashSet<FhirLink>());
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(patient);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
+        fhirLink.setActive(true);
+        patient.getFhirLinks().add(fhirLink);
+
+        String code = "wbc";
+        String value = "999";
+        
+        List<Observation> fhirObservations = new ArrayList<>();
+        
+        Observation observation = new Observation();
+        CodeableConcept valueConcept = new CodeableConcept();
+        valueConcept.setTextSimple(value);
+        valueConcept.addCoding().setDisplaySimple(value);
+        observation.setValue(valueConcept);
+        
+        DateTime dateTime = new DateTime();
+        DateAndTime dateAndTime = new DateAndTime(new Date());
+        dateTime.setValue(dateAndTime);
+        observation.setApplies(dateTime);
+        fhirObservations.add(observation);
+
+        CodeableConcept nameConcept = new CodeableConcept();
+        nameConcept.setTextSimple(code);
+        nameConcept.addCoding().setDisplaySimple(code);
+        observation.setName(nameConcept);
+        
+
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
+                .thenReturn(fhirObservations);
+
+        List<FhirObservation> apiObservations
+                = observationService.get(patient.getId(), code, "appliesDateTime", "ASC", Long.MAX_VALUE);
+        
+        Assert.assertEquals("Should return observations", true, apiObservations.size() > 0);
+        Assert.assertEquals("Should return 1 observation", 1, apiObservations.size());
+        Assert.assertEquals("Should return correct observation", value, apiObservations.get(0).getValue());
+    }
+
+    @Test
+    public void testGetObservations_ownObservations()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+
+        GroupRole groupRole = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        patient.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(patient, groupRoles);
+
+        patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
+        patient.setFhirLinks(new HashSet<FhirLink>());
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(patient);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
+        fhirLink.setActive(true);
+        patient.getFhirLinks().add(fhirLink);
+
+        String code = "wbc";
+        String value = "999";
+
+        List<Observation> fhirObservations = new ArrayList<>();
+
+        Observation observation = new Observation();
+        CodeableConcept valueConcept = new CodeableConcept();
+        valueConcept.setTextSimple(value);
+        valueConcept.addCoding().setDisplaySimple(value);
+        observation.setValue(valueConcept);
+
+        DateTime dateTime = new DateTime();
+        DateAndTime dateAndTime = new DateAndTime(new Date());
+        dateTime.setValue(dateAndTime);
+        observation.setApplies(dateTime);
+        fhirObservations.add(observation);
+
+        CodeableConcept nameConcept = new CodeableConcept();
+        nameConcept.setTextSimple(code);
+        nameConcept.addCoding().setDisplaySimple(code);
+        observation.setName(nameConcept);
+
+
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
+                .thenReturn(fhirObservations);
+
+        List<FhirObservation> apiObservations
+                = observationService.get(patient.getId(), code, "appliesDateTime", "ASC", Long.MAX_VALUE);
+
+        Assert.assertEquals("Should return observations", true, apiObservations.size() > 0);
+        Assert.assertEquals("Should return 1 observation", 1, apiObservations.size());
+        Assert.assertEquals("Should return correct observation", value, apiObservations.get(0).getValue());
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testGetObservations_incorrectRole()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        User patient = TestUtils.createUser("testUser");
+        patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
+        patient.setFhirLinks(new HashSet<FhirLink>());
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(patient);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
+        fhirLink.setActive(true);
+        patient.getFhirLinks().add(fhirLink);
+
+        String code = "wbc";
+        String value = "999";
+
+        List<Observation> fhirObservations = new ArrayList<>();
+
+        Observation observation = new Observation();
+        CodeableConcept valueConcept = new CodeableConcept();
+        valueConcept.setTextSimple(value);
+        valueConcept.addCoding().setDisplaySimple(value);
+        observation.setValue(valueConcept);
+
+        DateTime dateTime = new DateTime();
+        DateAndTime dateAndTime = new DateAndTime(new Date());
+        dateTime.setValue(dateAndTime);
+        observation.setApplies(dateTime);
+        fhirObservations.add(observation);
+
+        CodeableConcept nameConcept = new CodeableConcept();
+        nameConcept.setTextSimple(code);
+        nameConcept.addCoding().setDisplaySimple(code);
+        observation.setName(nameConcept);
+
+
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
+                .thenReturn(fhirObservations);
+
+        List<FhirObservation> apiObservations
+                = observationService.get(patient.getId(), code, "appliesDateTime", "ASC", Long.MAX_VALUE);
+
+        Assert.assertEquals("Should return observations", true, apiObservations.size() > 0);
+        Assert.assertEquals("Should return 1 observation", 1, apiObservations.size());
+        Assert.assertEquals("Should return correct observation", value, apiObservations.get(0).getValue());
     }
 }

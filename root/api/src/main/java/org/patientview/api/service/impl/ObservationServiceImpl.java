@@ -33,9 +33,11 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -504,14 +506,48 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    /**
+     * Check that current User is an API user (UNIT_ADMIN_API) for a Group that the User belongs to, used when
+     * retrieving Observations for a User (can only be done by a User for themselves or by a UNIT_ADMIN_API User).
+     * @param user User to check (not current User)
+     * @return True if current User is an API user for a Group that the User belongs to
+     */
+    private boolean isCurrentUserApiUserForUser(User user) {
+        for (GroupRole userGroupRole : user.getGroupRoles()) {
+            Group userGroup = userGroupRole.getGroup();
+            Role userRole = userGroupRole.getRole();
+            if (userRole.getName().equals(RoleName.GLOBAL_ADMIN)) {
+                return true;
+            }
+            
+            for (GroupRole currentUserGroupRole : getCurrentUser().getGroupRoles()) {
+                if (currentUserGroupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)) {
+                    return true;
+                }
+                if (currentUserGroupRole.getRole().getName().equals(RoleName.UNIT_ADMIN_API)
+                        && currentUserGroupRole.getGroup().equals(userGroup)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
                                                    final String orderBy, final String orderDirection, final Long limit)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
+        // check user exists
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
+        }
+        
+        // check either current user or API user with rights to a User's groups
+        if (!(getCurrentUser().getId().equals(userId) || isCurrentUserApiUserForUser(user))) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         List<ObservationHeading> observationHeadings = observationHeadingService.findByCode(code);
