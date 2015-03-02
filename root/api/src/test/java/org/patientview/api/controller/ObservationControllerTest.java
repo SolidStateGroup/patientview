@@ -6,7 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;
@@ -24,11 +27,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -121,6 +128,37 @@ public class ObservationControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/observations/resultclusters")
                     .content(mapper.writeValueAsString(userResultClusters)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+    }
+
+    @Test
+    public void testPostObservations() {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User patient = TestUtils.createUser("testPatient");
+
+        FhirObservationRange fhirObservationRange = new FhirObservationRange();
+        fhirObservationRange.setCode("wbc");
+        fhirObservationRange.setStartDate(new Date());
+        fhirObservationRange.setEndDate(new Date());
+        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                    .post("/user/" + patient.getId() + "/group/" + group.getId() + "/observations")
+                    .content(mapper.writeValueAsString(fhirObservationRange)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    
+            verify(observationService, Mockito.times(1))
+                    .addTestObservations(eq(patient.getId()), eq(group.getId()), any(FhirObservationRange.class));
         } catch (Exception e) {
             fail("Exception throw");
         }

@@ -4,8 +4,10 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
+import org.patientview.api.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirDatabaseObservation;
@@ -23,6 +25,20 @@ import java.util.List;
  */
 public interface ObservationService {
 
+    // API
+    /**
+     * Given a User ID, Group ID, Observation code, date range and a list of Observations, remove existing Observations
+     * within the date range then store the new Observations. This follows the method when using PatientView XML.
+     * @param userId ID of User to add Observations for
+     * @param groupId ID of the Group associated with these Observations
+     * @param fhirObservationRange FhirObservationRange object containing code, date range and List of FhirObservation
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    void addTestObservations(Long userId, Long groupId, FhirObservationRange fhirObservationRange)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
     /**
      * Used when Users enter their own results on the Enter Own Results page, takes a list of UserResultCluster and
      * stores in FHIR under the PATIENT_ENTERED Group.
@@ -34,18 +50,18 @@ public interface ObservationService {
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
-    throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, FhirResourceException;
 
     // used by migration
     FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
             org.patientview.persistence.model.FhirObservation fhirObservation, FhirLink fhirLink)
-    throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, FhirResourceException;
 
     // used by migration
     FhirDatabaseObservation buildFhirDatabaseObservation(
             org.patientview.persistence.model.FhirObservation fhirObservation,
             ObservationHeading observationHeading, FhirLink fhirLink)
-    throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
