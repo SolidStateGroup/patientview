@@ -14,7 +14,8 @@ public enum RoleName {
     GLOBAL_ADMIN("Global Admin"),
     GP_ADMIN("GP Admin"),
     MEMBER("Member"),
-    PUBLIC("Public");
+    PUBLIC("Public"),
+    UNIT_ADMIN_API("Unit Admin API");
 
     private String name;
     RoleName(String name) { this.name = name; }

@@ -1,5 +1,7 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +15,9 @@ import org.patientview.api.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
@@ -134,10 +139,10 @@ public class ObservationControllerTest {
     }
 
     @Test
-    public void testPostObservations() {
+    public void testPostObservations() throws Exception {
         User user = TestUtils.createUser("testUser");
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -151,17 +156,13 @@ public class ObservationControllerTest {
         fhirObservationRange.setEndDate(new Date());
         fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders
-                    .post("/user/" + patient.getId() + "/group/" + group.getId() + "/observations")
-                    .content(mapper.writeValueAsString(fhirObservationRange)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-                    
-            verify(observationService, Mockito.times(1))
-                    .addTestObservations(eq(patient.getId()), eq(group.getId()), any(FhirObservationRange.class));
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/user/" + patient.getId() + "/group/" + group.getId() + "/observations")
+                .content(mapper.writeValueAsString(fhirObservationRange)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+                
+        verify(observationService, Mockito.times(1))
+                .addTestObservations(eq(patient.getId()), eq(group.getId()), any(FhirObservationRange.class));
     }
 }
 

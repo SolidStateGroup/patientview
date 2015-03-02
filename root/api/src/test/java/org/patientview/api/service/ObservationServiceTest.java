@@ -184,7 +184,7 @@ public class ObservationServiceTest {
 
         Group group = TestUtils.createGroup("testGroup");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
                 
         User staff = TestUtils.createUser("testStaff");
         GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
@@ -210,7 +210,51 @@ public class ObservationServiceTest {
         
         FhirObservation fhirObservation = new FhirObservation();
         fhirObservation.setApplies(new Date());
-        fhirObservation.setValue("99");
+        fhirObservation.setValue("999");
+        fhirObservationRange.getObservations().add(fhirObservation);
+
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirResource.marshallFhirRecord(any(Observation.class)))
+                .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
+
+        observationService.addTestObservations(patient.getId(), group.getId(), fhirObservationRange);
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testAddObservations_incorrectGroup()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
+
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group2, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        User patient = TestUtils.createUser("testUser");
+        patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
+        patient.setFhirLinks(new HashSet<FhirLink>());
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(patient);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
+        patient.getFhirLinks().add(fhirLink);
+
+        FhirObservationRange fhirObservationRange = new FhirObservationRange();
+        fhirObservationRange.setCode("wbc");
+        fhirObservationRange.setStartDate(new Date());
+        fhirObservationRange.setEndDate(new Date());
+        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+
+        FhirObservation fhirObservation = new FhirObservation();
+        fhirObservation.setApplies(new Date());
+        fhirObservation.setValue("999");
         fhirObservationRange.getObservations().add(fhirObservation);
 
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);

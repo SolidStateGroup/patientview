@@ -104,8 +104,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         // check current logged in user has rights to this group
         if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
-                || Util.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
-                || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN))) {
+                || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN_API))) {
             throw new ResourceForbiddenException("Failed group and role validation");
         }
 

@@ -36,6 +36,7 @@ public interface ObservationService {
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
+    @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })
     void addTestObservations(Long userId, Long groupId, FhirObservationRange fhirObservationRange)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
