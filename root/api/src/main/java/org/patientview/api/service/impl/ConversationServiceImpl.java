@@ -473,7 +473,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     readReceipt.setUser(message.getUser());
                 }
             }
-            
+
             newMessage.setReadReceipts(message.getReadReceipts());
             newMessages.add(newMessage);
         }
@@ -606,11 +606,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationUserLabel.setCreated(new Date());
             conversationUserLabel.setCreator(creator);
             conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
-            
+
             if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
                 conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
             }
-            
+
             conversationUser.getConversationUserLabels().add(conversationUserLabel);
         }
 

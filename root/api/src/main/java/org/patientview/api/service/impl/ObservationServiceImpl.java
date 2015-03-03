@@ -18,10 +18,6 @@ import org.patientview.api.builder.TestObservationsBuilder;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.FhirObservationPage;
 import org.patientview.api.model.FhirObservationRange;
-import org.patientview.api.util.Util;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.persistence.model.FhirDatabaseObservation;
-import org.patientview.persistence.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
@@ -29,15 +25,17 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -509,7 +507,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             fhirResource.executeSQL(sb.toString());
         }
     }
-    
+
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
                                                    final String orderBy, final String orderDirection, final Long limit)
@@ -520,7 +518,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
-        
+
         // check either current user or API user with rights to a User's groups
         if (!(getCurrentUser().getId().equals(userId) || Util.isCurrentUserApiUserForUser(user))) {
             throw new ResourceForbiddenException("Forbidden");

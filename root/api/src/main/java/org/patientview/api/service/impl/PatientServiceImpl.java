@@ -84,6 +84,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
+ * Patient service, for managing the patient records associated with a User, retrieved from FHIR.
+ *
  * Created by james@solidstategroup.com
  * Created on 02/09/2014
  */
@@ -289,6 +291,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
+    /**
+     * Build a FHIR Patient, used when entering own results if no current link between PatientView and FHIR.
+     * @param user User to build FHIR Patient for
+     * @param identifier Identifier associated with User and to be assigned to new FHIR Patient
+     * @return FHIR Patient
+     */
     @Override
     public Patient buildPatient(User user, Identifier identifier) {
         Patient patient = new Patient();
@@ -324,7 +332,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return fhirLinkService.save(fhirLink);
     }
 
-    // delete all FHIR related Observation data for this patient (not other patient data)
+    /**
+     * Delete all Observations from FHIR given a Set of FhirLink, used when deleting a patient and in migration.
+     * @param fhirLinks Set of FhirLink
+     * @throws FhirResourceException
+     */
+    @Override
     public void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException {
 
         if (fhirLinks != null) {
@@ -335,7 +348,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    // delete all FHIR related Patient data for this patient (not Observations)
+    /**
+     * Delete all non Observation Patient data stored in Fhir given a Set of FhirLink.
+     * @param fhirLinks Set of FhirLink
+     * @throws FhirResourceException
+     */
+    @Override
     public void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException {
 
         if (fhirLinks != null) {
@@ -470,6 +488,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
+    /**
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
+     * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
+     * @param userId ID of User to retrieve patient record for
+     * @param groupIds IDs of Groups to retrieve patient records from
+     * @return List of Patient objects containing patient encounters, conditions etc
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException {
@@ -564,6 +591,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return patients;
     }
 
+    /**
+     * Get a FHIR Patient record given the UUID associated with the Patient in FHIR.
+     * @param uuid UUID of Patient in FHIR to retrieve
+     * @return FHIR Patient
+     * @throws FhirResourceException
+     */
     @Override
     public Patient get(final UUID uuid) throws FhirResourceException {
         try {
@@ -641,7 +674,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                 UUID practitionerUuid;
                 List<UUID> practitionerUuids
-                        = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
+                    = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
 
                 if (CollectionUtils.isEmpty(practitionerUuids)) {
                     practitionerUuid = practitionerService.addPractitioner(fhirPatient.getPractitioner());
@@ -837,7 +870,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 : migrationUser.getMedicationStatements()) {
             Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
             FhirLink fhirLink
-                    = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
+                = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
 
             if (fhirLink == null) {
                 fhirLink = createPatientAndFhirLink(entityUser, fhirMedicationStatement.getGroup(), identifier);

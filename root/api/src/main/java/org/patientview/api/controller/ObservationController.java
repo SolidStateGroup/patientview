@@ -99,7 +99,7 @@ public class ObservationController extends BaseController<ObservationController>
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
-            @PathVariable("code") String code) 
+            @PathVariable("code") String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(
             observationService.get(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
