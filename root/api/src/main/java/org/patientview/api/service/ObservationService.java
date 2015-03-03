@@ -64,6 +64,7 @@ public interface ObservationService {
             ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
 
+    // API
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
      * view.

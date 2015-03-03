@@ -255,6 +255,34 @@ public final class Util {
         return (User) authentication.getPrincipal();
     }
 
+
+    /**
+     * Check that current User is an API user (UNIT_ADMIN_API) for a Group that the User belongs to, used when
+     * retrieving Observations for a User (can only be done by a User for themselves or by a UNIT_ADMIN_API User).
+     * @param user User to check (not current User)
+     * @return True if current User is an API user for a Group that the User belongs to
+     */
+    public static boolean isCurrentUserApiUserForUser(User user) {
+        for (GroupRole userGroupRole : user.getGroupRoles()) {
+            Group userGroup = userGroupRole.getGroup();
+            Role userRole = userGroupRole.getRole();
+            if (userRole.getName().equals(RoleName.GLOBAL_ADMIN)) {
+                return true;
+            }
+
+            for (GroupRole currentUserGroupRole : getGroupRoles()) {
+                if (currentUserGroupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)) {
+                    return true;
+                }
+                if (currentUserGroupRole.getRole().getName().equals(RoleName.UNIT_ADMIN_API)
+                        && currentUserGroupRole.getGroup().equals(userGroup)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
     /**
      * Create a FHIR ResourceReference from a UUID.
      * @param uuid UUID to convert to FHIR ResourceReference

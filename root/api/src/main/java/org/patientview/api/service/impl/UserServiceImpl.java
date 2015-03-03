@@ -659,7 +659,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         boolean isPatient = false;
-
         boolean isLocked = user.getLocked() && !entityUser.getLocked();
         boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
 

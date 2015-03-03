@@ -86,6 +86,7 @@ public class ObservationController extends BaseController<ObservationController>
         observationService.addUserResultClusters(userId, userResultClusters);
     }
 
+    // API
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c).
      * @param userId ID of User to retrieve observations for

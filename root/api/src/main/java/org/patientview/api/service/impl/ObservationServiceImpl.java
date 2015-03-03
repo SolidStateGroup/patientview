@@ -72,8 +72,10 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 /**
+ * Observation service, for management and retrieval of observations (test results), stored in FHIR.
+ *
  * Created by james@solidstategroup.com
- * Created on 03/09/2014
+ * Created on 02/09/2014
  */
 @Service
 public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServiceImpl> implements ObservationService {
@@ -281,6 +283,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    // used by migration
     @Override
     public FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
             FhirObservation fhirObservation, FhirLink fhirLink)
@@ -298,6 +301,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    // used by migration
     @Override
     public FhirDatabaseObservation buildFhirDatabaseObservation(FhirObservation fhirObservation,
                                                             ObservationHeading observationHeading, FhirLink fhirLink)
@@ -505,34 +509,6 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             fhirResource.executeSQL(sb.toString());
         }
     }
-
-    /**
-     * Check that current User is an API user (UNIT_ADMIN_API) for a Group that the User belongs to, used when
-     * retrieving Observations for a User (can only be done by a User for themselves or by a UNIT_ADMIN_API User).
-     * @param user User to check (not current User)
-     * @return True if current User is an API user for a Group that the User belongs to
-     */
-    private boolean isCurrentUserApiUserForUser(User user) {
-        for (GroupRole userGroupRole : user.getGroupRoles()) {
-            Group userGroup = userGroupRole.getGroup();
-            Role userRole = userGroupRole.getRole();
-            if (userRole.getName().equals(RoleName.GLOBAL_ADMIN)) {
-                return true;
-            }
-            
-            for (GroupRole currentUserGroupRole : getCurrentUser().getGroupRoles()) {
-                if (currentUserGroupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)) {
-                    return true;
-                }
-                if (currentUserGroupRole.getRole().getName().equals(RoleName.UNIT_ADMIN_API)
-                        && currentUserGroupRole.getGroup().equals(userGroup)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
     
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
@@ -546,7 +522,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
         
         // check either current user or API user with rights to a User's groups
-        if (!(getCurrentUser().getId().equals(userId) || isCurrentUserApiUserForUser(user))) {
+        if (!(getCurrentUser().getId().equals(userId) || Util.isCurrentUserApiUserForUser(user))) {
             throw new ResourceForbiddenException("Forbidden");
         }
 

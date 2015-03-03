@@ -62,7 +62,7 @@ public class TestObservationsBuilder {
         try {
             observation.setValue(createQuantity(fhirObservation));
         } catch (FhirResourceException e) {
-            // text based value
+            // text based value, note only quantity has units
             CodeableConcept valueConcept = new CodeableConcept();
             valueConcept.setTextSimple(CommonUtils.cleanSql(fhirObservation.getValue()));
             valueConcept.addCoding().setDisplaySimple(CommonUtils.cleanSql(fhirObservation.getValue()));
@@ -80,39 +80,22 @@ public class TestObservationsBuilder {
         return observation;
     }
 
-    // note: not adding units
-    private Quantity createQuantity(FhirObservation fhirObservation) throws FhirResourceException {
-        Quantity quantity = new Quantity();
-        quantity.setValue(createDecimal(fhirObservation.getValue()));
-
-        Quantity.QuantityComparator comparator = getComparator(fhirObservation);
-        if (comparator != null) {
-            quantity.setComparatorSimple(comparator);
-        }
-        return quantity;
+    private CodeableConcept createConcept(String text) {
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setTextSimple(text);
+        codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(text));
+        return codeableConcept;
     }
 
-    private Quantity.QuantityComparator getComparator(FhirObservation fhirObservation) {
-
-        if (StringUtils.isNotEmpty(fhirObservation.getComparator())) {
-            if (fhirObservation.getComparator().contains(">=")) {
-                return Quantity.QuantityComparator.greaterOrEqual;
-            }
-
-            if (fhirObservation.getComparator().contains("<=")) {
-                return Quantity.QuantityComparator.lessOrEqual;
-            }
-
-            if (fhirObservation.getComparator().contains(">")) {
-                return Quantity.QuantityComparator.greaterThan;
-            }
-
-            if (fhirObservation.getComparator().contains("<")) {
-                return Quantity.QuantityComparator.lessThan;
-            }
+    private DateTime createDateTime(FhirObservation fhirObservation) throws FhirResourceException {
+        try {
+            DateTime dateTime = new DateTime();
+            DateAndTime dateAndTime = new DateAndTime(fhirObservation.getApplies());
+            dateTime.setValue(dateAndTime);
+            return dateTime;
+        } catch (NullPointerException npe) {
+            throw new FhirResourceException("Result timestamp is incorrectly formatted");
         }
-
-        return null;
     }
 
     private Decimal createDecimal(String text) throws FhirResourceException {
@@ -144,22 +127,42 @@ public class TestObservationsBuilder {
         return identifier;
     }
 
-    private CodeableConcept createConcept(String text) {
-        CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.setTextSimple(text);
-        codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(text));
-        return codeableConcept;
+    private Quantity createQuantity(FhirObservation fhirObservation) throws FhirResourceException {
+        Quantity quantity = new Quantity();
+        quantity.setValue(createDecimal(fhirObservation.getValue()));
+
+        Quantity.QuantityComparator comparator = getComparator(fhirObservation);
+        if (comparator != null) {
+            quantity.setComparatorSimple(comparator);
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getUnits())) {
+            quantity.setUnitsSimple(fhirObservation.getUnits());
+        }
+        return quantity;
     }
 
-    private DateTime createDateTime(FhirObservation fhirObservation) throws FhirResourceException {
-        try {
-            DateTime dateTime = new DateTime();
-            DateAndTime dateAndTime = new DateAndTime(fhirObservation.getApplies());
-            dateTime.setValue(dateAndTime);
-            return dateTime;
-        } catch (NullPointerException npe) {
-            throw new FhirResourceException("Result timestamp is incorrectly formatted");
+    private Quantity.QuantityComparator getComparator(FhirObservation fhirObservation) {
+
+        if (StringUtils.isNotEmpty(fhirObservation.getComparator())) {
+            if (fhirObservation.getComparator().contains(">=")) {
+                return Quantity.QuantityComparator.greaterOrEqual;
+            }
+
+            if (fhirObservation.getComparator().contains("<=")) {
+                return Quantity.QuantityComparator.lessOrEqual;
+            }
+
+            if (fhirObservation.getComparator().contains(">")) {
+                return Quantity.QuantityComparator.greaterThan;
+            }
+
+            if (fhirObservation.getComparator().contains("<")) {
+                return Quantity.QuantityComparator.lessThan;
+            }
         }
+
+        return null;
     }
 
     public List<Observation> getObservations() {
