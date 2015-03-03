@@ -1,4 +1,4 @@
-<div>
+<div data-ng-hide="sendingMessage">
     <div class="row">
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
@@ -11,23 +11,29 @@
             </div>
         </div>
     </div>
+    <div data-ng-hide="!selectedContactOption || selectedContactOption < 0" data-ng-cloak>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="conversation-title" class="control-label">Subject <span class="error" data-ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="conversation.title" required></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="contactUnitForm.message.$error.required && !contactUnitForm.$pristine"> *required</span></label>
+                    <div><textarea class="form-control" id="conversation-message" placeholder="Message" name="message" data-ng-model="conversation.message" required></textarea></div>
+                </div>
+            </div>
+        </div>
+        <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+    </div>
 </div>
-<div data-ng-hide="!selectedContactOption || selectedContactOption < 0" data-ng-cloak>
-    <div class="row">
-        <div class="form-horizontal" role="form">
-            <div class="col-md-12">
-                <label for="conversation-title" class="control-label">Subject <span class="error" data-ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
-                <div><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="conversation.title" required></div>
-            </div>
-        </div>
+
+<div data-ng-show="sendingMessage" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Sending Message</h3>
     </div>
-    <div class="row">
-        <div class="form-horizontal" role="form">
-            <div class="col-md-12">
-                <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="contactUnitForm.message.$error.required && !contactUnitForm.$pristine"> *required</span></label>
-                <div><textarea class="form-control" id="conversation-message" placeholder="Message" name="message" data-ng-model="conversation.message" required></textarea></div>
-            </div>
-        </div>
-    </div>
-    <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
 </div>

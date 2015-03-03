@@ -428,6 +428,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         anonUser.setSurname("User");
         anonUser.setId(-1L);
 
+        // anonymise conversation users
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             if (conversationUser.getAnonymous()) {
                 anonUserIds.add(conversationUser.getUser().getId());
@@ -436,6 +437,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 anonConversationUser.setAnonymous(true);
                 anonConversationUser.setUser(anonUser);
                 anonConversationUser.setConversation(conversation);
+                anonConversationUser.setConversationUserLabels(conversationUser.getConversationUserLabels());
                 newConversation.getConversationUsers().add(anonConversationUser);
             } else {
                 newConversation.getConversationUsers().add(conversationUser);
@@ -444,13 +446,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         List<Message> newMessages = new ArrayList<>();
 
+        // anonymise messages
         for (Message message : conversation.getMessages()) {
             Message newMessage = new Message();
             newMessage.setId(message.getId());
             newMessage.setConversation(newConversation);
             newMessage.setType(message.getType());
             newMessage.setMessage(message.getMessage());
-            newMessage.setReadReceipts(message.getReadReceipts());
             newMessage.setCreated(message.getCreated());
 
             if (message.getUser() != null) {
@@ -460,6 +462,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     newMessage.setUser(message.getUser());
                 }
             }
+
+            // anonymise read receipts (include user id for creating read receipts in future)
+            for (MessageReadReceipt readReceipt : message.getReadReceipts()) {
+                Long userId = readReceipt.getUser().getId();
+                if (anonUserIds.contains(userId)) {
+                    readReceipt.setUser(anonUser);
+                    readReceipt.getUser().setId(userId);
+                } else {
+                    readReceipt.setUser(message.getUser());
+                }
+            }
+            
+            newMessage.setReadReceipts(message.getReadReceipts());
             newMessages.add(newMessage);
         }
 
@@ -591,6 +606,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationUserLabel.setCreated(new Date());
             conversationUserLabel.setCreator(creator);
             conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+            
+            if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            }
+            
             conversationUser.getConversationUserLabels().add(conversationUserLabel);
         }
 

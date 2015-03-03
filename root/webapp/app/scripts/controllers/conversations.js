@@ -157,6 +157,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
         $scope.ok = function () {
             delete $scope.errorMessage;
+            $scope.sendingMessage = true;
 
             // build correct conversation from newConversation
             var conversation = {};
@@ -193,12 +194,14 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             ConversationService.create($scope.loggedInUser, conversation).then(function() {
                 $modalInstance.close();
+                delete $scope.sendingMessage;
             }, function(result) {
                 if (result.data) {
                     $scope.errorMessage = ' - ' + result.data;
                 } else {
                     $scope.errorMessage = ' ';
                 }
+                delete $scope.sendingMessage;
             });
         };
 

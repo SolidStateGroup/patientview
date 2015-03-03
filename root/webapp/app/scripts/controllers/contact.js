@@ -19,6 +19,8 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     $scope.modalLoading = false;
 
     $scope.ok = function () {
+        $scope.sendingMessage = true;
+        
         // build correct conversation from conversation
         var conversation = {};
         conversation.type = 'CONTACT_UNIT';
@@ -48,12 +50,14 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
 
         ConversationService.create($scope.loggedInUser, conversation).then(function() {
             $modalInstance.close();
+            delete $scope.sendingMessage;
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;
             } else {
                 $scope.errorMessage = ' ';
             }
+            delete $scope.sendingMessage;
         });
     };
 
