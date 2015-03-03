@@ -7,6 +7,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.User;
@@ -76,4 +77,9 @@ public interface PatientService {
     // migration only
     void migrateTestObservations(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
+
+    // API
+    @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })
+    void update(Long userId, Long groupId, FhirPatient fhirPatient)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 }

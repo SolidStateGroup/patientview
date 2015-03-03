@@ -1,8 +1,10 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.PatientService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirPatient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,5 +44,14 @@ public class PatientController  extends BaseController<PatientController> {
             @PathVariable("userId") Long userId, @RequestParam(value = "groupId", required = false) List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(patientService.get(userId, groupIds), HttpStatus.OK);
+    }
+
+    // API
+    @RequestMapping(value = "/patient/{userId}/group/{groupId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void update(@PathVariable("userId") Long userId, @PathVariable(value = "groupId") Long groupId, 
+                       FhirPatient fhirPatient)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        patientService.update(userId, groupId, fhirPatient);
     }
 }

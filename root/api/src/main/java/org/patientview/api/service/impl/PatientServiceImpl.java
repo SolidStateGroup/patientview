@@ -64,9 +64,11 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
@@ -93,18 +95,6 @@ import java.util.UUID;
 public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> implements PatientService {
 
     @Inject
-    private FhirResource fhirResource;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
-    private UserService userService;
-
-    @Inject
-    private GroupService groupService;
-
-    @Inject
     private CodeService codeService;
 
     @Inject
@@ -114,19 +104,25 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private EncounterService encounterService;
 
     @Inject
+    private DiagnosticService diagnosticService;
+
+    @Inject
     private FhirLinkService fhirLinkService;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private FhirResource fhirResource;
 
     @Inject
-    private ObservationService observationService;
+    private GroupRepository groupRepository;
 
     @Inject
-    private MedicationService medicationService;
+    private GroupService groupService;
 
     @Inject
-    private DiagnosticService diagnosticService;
+    private IdentifierRepository identifierRepository;
+
+    @Inject
+    private IdentifierService identifierService;
 
     @Inject
     private LetterService letterService;
@@ -135,13 +131,22 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private LookupService lookupService;
 
     @Inject
+    private MedicationService medicationService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
     private PractitionerService practitionerService;
 
     @Inject
-    private IdentifierService identifierService;
+    private UserService userService;
 
     @Inject
-    private IdentifierRepository identifierRepository;
+    private UserRepository userRepository;
 
     // used during migration
     private HashMap<String, ObservationHeading> observationHeadingMap;
@@ -1108,5 +1113,33 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         return patient;
+    }
+
+    @Override
+    public void update(Long userId, Long groupId, FhirPatient fhirPatient)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        // check current logged in user has rights to this group
+        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+                || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN_API))) {
+            throw new ResourceForbiddenException("Failed group and role validation");
+        }
+
+        // check User exists
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        // check user has fhirLink associated with this group
+        FhirLink foundFhirLink = null;
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+            if (fhirLink.getGroup().getId().equals(groupId)) {
+                foundFhirLink = fhirLink;
+            }
+        }
+        if (foundFhirLink == null) {
+            throw new ResourceForbiddenException("Failed fhirLink validation");
+        }
     }
 }
