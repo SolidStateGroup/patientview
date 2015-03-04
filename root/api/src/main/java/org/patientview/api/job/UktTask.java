@@ -54,6 +54,7 @@ public class UktTask {
      * Export UKT data, wiping out existing file contents
      */
     //@Scheduled(cron = "0 0 */1 * * ?") // every hour
+    //@Scheduled(cron = "0 */1 * * * ?") // every minute
     @Scheduled(cron = "0 0 2 * * ?") // every day at 02:00
     public void exportUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         Boolean exportEnabled = Boolean.parseBoolean(properties.getProperty("ukt.export.enabled"));

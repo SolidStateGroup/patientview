@@ -1,5 +1,7 @@
 package org.patientview.api.service;
 
+import org.hl7.fhir.instance.model.Address;
+import org.hl7.fhir.instance.model.Patient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -12,6 +14,7 @@ import org.patientview.api.service.impl.UktServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.UktException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -24,16 +27,20 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.eq;
 
 /**
+ * Test UKT/NHSBT import/export feed.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/01/2015
  */
@@ -45,22 +52,25 @@ public class UktServiceTest {
     AuditRepository auditRepository;
 
     @Mock
-    IdentifierRepository identifierRepository;
-
-    @Mock
-    UserRepository userRepository;
-
-    @Mock
     EncounterService encounterService;
 
     @Mock
     GroupService groupService;
 
+    @Mock
+    IdentifierRepository identifierRepository;
+    
+    @Mock
+    PatientService patientService;
+
+    @Mock
+    Properties properties;
+
     @InjectMocks
     UktService uktService = new UktServiceImpl();
 
     @Mock
-    Properties properties;
+    UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -123,6 +133,10 @@ public class UktServiceTest {
     @Ignore("Jenkins fails to find resources")
     public void testExport() throws ResourceNotFoundException, FhirResourceException, UktException {
 
+        String path = getClass().getResource("/ukt").getPath();
+        UUID resourceId = UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287");
+        
+        // example patient user
         User user = TestUtils.createUser("testUser");
         LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
         Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
@@ -130,16 +144,34 @@ public class UktServiceTest {
         Set<Identifier> identifiers = new HashSet<>();
         identifiers.add(identifier);
         user.setIdentifiers(identifiers);
+        
+        // handle stripping brackets
+        user.setForename("fore]name");        
+        // handle stripping quotes and double spaces
+        user.setSurname("sur\" name");      
+        // example date of birth
+        user.setDateOfBirth(new Date());
+        
+        // fhirLink for postcode from FHIR
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(user);
+        fhirLink.setResourceId(resourceId);
+        user.setFhirLinks(new HashSet<FhirLink>());
+        user.getFhirLinks().add(fhirLink);
+        
+        List<User> users = new ArrayList<>();
+        users.add(user);
 
-        List<User> patients = new ArrayList<>();
-        patients.add(user);
-
-        String path = getClass().getResource("/ukt").getPath();
+        // FHIR patient object required to retrieve postcode
+        Patient patient = new Patient();
+        Address address = patient.addAddress();
+        address.setZipSimple("AB123CDE");        
 
         when(properties.getProperty("ukt.export.enabled")).thenReturn("true");
         when(properties.getProperty("ukt.export.directory")).thenReturn(path);
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
-        when(userRepository.findAllPatients()).thenReturn(patients);
+        when(userRepository.findAllPatients()).thenReturn(users);
+        when(patientService.get(eq(resourceId))).thenReturn(patient);
 
         uktService.exportData();
 

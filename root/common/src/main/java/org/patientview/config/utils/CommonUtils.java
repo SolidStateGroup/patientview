@@ -34,7 +34,7 @@ public final class CommonUtils {
         try {
             // if non numeric then assume is dummy and return type as NHS number
             if (!NumberUtils.isNumber(identifier)) {
-                return IdentifierTypes.NHS_NUMBER;
+                return IdentifierTypes.NON_UK_UNIQUE;
             } else {
                 Long identifierNumber = Long.parseLong(identifier);
 
