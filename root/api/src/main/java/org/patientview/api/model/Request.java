@@ -1,15 +1,16 @@
 package org.patientview.api.model;
 
-import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RequestStatus;
+import org.patientview.persistence.model.enums.RequestTypes;
 
 import java.util.Date;
 
 /**
- * JoinRequest, representing the information required when a potential patient is requesting to join PatientView.
+ * Request, representing the information required when a potential patient is requesting to join PatientView.
  * Created by james@solidstategroup.com
  * Created on 23/09/2014
  */
-public class JoinRequest {
+public class Request {
 
     private Long id;
     private String forename;
@@ -19,37 +20,38 @@ public class JoinRequest {
     private Group group;
     private String email;
     private Date created;
-    private JoinRequestStatus status;
+    private RequestStatus status;
     private Date completionDate;
     private User completedBy;
     private String notes;
     private String captcha;
+    private RequestTypes type;
 
-    public JoinRequest() {
+    public Request() {
     }
 
-    public JoinRequest(org.patientview.persistence.model.JoinRequest joinRequest) {
-        setId(joinRequest.getId());
-        setForename(joinRequest.getForename());
-        setSurname(joinRequest.getSurname());
-        setDateOfBirth(joinRequest.getDateOfBirth());
-        setNhsNumber(joinRequest.getNhsNumber());
+    public Request(org.patientview.persistence.model.Request request) {
+        setId(request.getId());
+        setForename(request.getForename());
+        setSurname(request.getSurname());
+        setDateOfBirth(request.getDateOfBirth());
+        setNhsNumber(request.getNhsNumber());
 
-        if (joinRequest.getGroup() != null) {
-            setGroup(new Group(joinRequest.getGroup()));
+        if (request.getGroup() != null) {
+            setGroup(new Group(request.getGroup()));
         }
 
-        setEmail(joinRequest.getEmail());
-        setCreated(joinRequest.getCreated());
-        setStatus(joinRequest.getStatus());
-        setCompletionDate(joinRequest.getCompletionDate());
+        setEmail(request.getEmail());
+        setCreated(request.getCreated());
+        setStatus(request.getStatus());
+        setCompletionDate(request.getCompletionDate());
 
-        if (joinRequest.getCompletedBy() != null) {
-            setCompletedBy(new User(joinRequest.getCompletedBy(), null));
+        if (request.getCompletedBy() != null) {
+            setCompletedBy(new User(request.getCompletedBy(), null));
         }
 
-        setNotes(joinRequest.getNotes());
-
+        setNotes(request.getNotes());
+        setType(request.getType());
     }
 
     public Long getId() {
@@ -116,11 +118,11 @@ public class JoinRequest {
         this.created = created;
     }
 
-    public JoinRequestStatus getStatus() {
+    public RequestStatus getStatus() {
         return status;
     }
 
-    public void setStatus(JoinRequestStatus status) {
+    public void setStatus(RequestStatus status) {
         this.status = status;
     }
 
@@ -154,5 +156,13 @@ public class JoinRequest {
 
     public void setCaptcha(String captcha) {
         this.captcha = captcha;
+    }
+
+    public RequestTypes getType() {
+        return type;
+    }
+
+    public void setType(RequestTypes type) {
+        this.type = type;
     }
 }

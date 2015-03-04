@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
-import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RequestStatus;
+import org.patientview.persistence.model.enums.RequestTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,8 +21,8 @@ import java.util.Date;
  * Created on 30/07/2014
  */
 @Entity
-@Table(name = "pv_join_request")
-public class JoinRequest extends BaseModel {
+@Table(name = "pv_request")
+public class Request extends BaseModel {
 
     @Column(name = "forename")
     private String forename;
@@ -49,7 +50,7 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private JoinRequestStatus status;
+    private RequestStatus status;
 
     @Column(name = "completion_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -61,6 +62,11 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "notes")
     private String notes;
+    
+    // type of request, join request, forgotten credentials
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private RequestTypes type;
 
     // used when public creation of join requests
     @Transient
@@ -125,11 +131,11 @@ public class JoinRequest extends BaseModel {
         this.created = created;
     }
 
-    public JoinRequestStatus getStatus() {
+    public RequestStatus getStatus() {
         return status;
     }
 
-    public void setStatus(final JoinRequestStatus status) {
+    public void setStatus(final RequestStatus status) {
         this.status = status;
     }
 
@@ -171,5 +177,13 @@ public class JoinRequest extends BaseModel {
 
     public void setCaptcha(String captcha) {
         this.captcha = captcha;
+    }
+
+    public RequestTypes getType() {
+        return type;
+    }
+
+    public void setType(RequestTypes type) {
+        this.type = type;
     }
 }

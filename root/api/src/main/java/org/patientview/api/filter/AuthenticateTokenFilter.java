@@ -56,7 +56,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         // patient join requests
         publicUrls.add("/public/group");
-        publicUrls.add("/public/joinrequest");
+        publicUrls.add("/public/request");
 
         // patient password request (contact unit)
         publicUrls.add("/public/passwordrequest");

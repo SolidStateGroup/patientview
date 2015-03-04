@@ -10,7 +10,7 @@
         margin-top: 10px;
     }
 </style>
-<h1 data-ng-show="!loading">Join Request Admin</h1>
+<h1 data-ng-show="!loading">Request Admin</h1>
 <p data-ng-show="!loading">To manage this request list, click Edit and pick a new status when you deal with each.
     Remember to click Save when you have changed a status.</p>
 <div class="content-panel filter-panel" data-ng-show="!loading" data-ng-cloak>
@@ -106,32 +106,32 @@
         <div class="head-item accordion-title-text "></div>
     </div>
 
-    <div class="item-header" data-ng-repeat="joinRequest in pagedItems">
+    <div class="item-header" data-ng-repeat="request in pagedItems">
         <div class="faux-row">
-            <div class="row-item hidden">{{joinRequest.id}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.nhsNumber}}</div>
-            <div class="row-item accordion-heading-text row-break">{{joinRequest.email}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.group.name}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.created  | date:'dd-MMM-yyyy'}}</div>
+            <div class="row-item hidden">{{request.id}}</div>
+            <div class="row-item accordion-heading-text">{{request.forename}} {{request.surname}}</div>
+            <div class="row-item accordion-heading-text">{{request.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
+            <div class="row-item accordion-heading-text">{{request.nhsNumber}}</div>
+            <div class="row-item accordion-heading-text row-break">{{request.email}}</div>
+            <div class="row-item accordion-heading-text">{{request.group.name}}</div>
+            <div class="row-item accordion-heading-text">{{request.created  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">
-                <span data-ng-if="joinRequest.status==='COMPLETED'" class="badge badge-small completed"></span>
-                <span data-ng-if="joinRequest.status==='SUBMITTED'" class="badge badge-small warning"></span>
-                <span data-ng-if="joinRequest.status==='INCOMPLETE'" class="badge badge-small warning"></span>
-                <span data-ng-if="joinRequest.status==='IGNORED'" class="badge badge-small ignored"></span>
-                <span data-ng-if="joinRequest.status==='DUPLICATE'" class="badge badge-small ignored"></span>
-                &nbsp;{{joinRequest.status}}
+                <span data-ng-if="request.status==='COMPLETED'" class="badge badge-small completed"></span>
+                <span data-ng-if="request.status==='SUBMITTED'" class="badge badge-small warning"></span>
+                <span data-ng-if="request.status==='INCOMPLETE'" class="badge badge-small warning"></span>
+                <span data-ng-if="request.status==='IGNORED'" class="badge badge-small ignored"></span>
+                <span data-ng-if="request.status==='DUPLICATE'" class="badge badge-small ignored"></span>
+                &nbsp;{{request.status}}
             </div>
             <div class="row-item accordion-heading-text">
-                <button type="button" class="btn blue edit-button" data-ng-click="opened(joinRequest)">Edit</button>
+                <button type="button" class="btn blue edit-button" data-ng-click="opened(request)">Edit</button>
             </div>
         </div>
-        <div class="panel-body" data-ng-show="joinRequest.showEdit">
-            <div data-ng-show="joinRequest.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-            <div data-ng-show="!joinRequest.editLoading">
-                <form name="joinRequestForm">
-                    <div data-ng-include src="'views/partials/joinrequestdetails.html'"></div>
+        <div class="panel-body" data-ng-show="request.showEdit">
+            <div data-ng-show="request.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+            <div data-ng-show="!request.editLoading">
+                <form name="requestForm">
+                    <div data-ng-include src="'views/partials/requestdetails.html'"></div>
                 </form>
             </div>
         </div>
@@ -140,7 +140,7 @@
 
 <div data-ng-show="pagedItems.length == 0 && !loading">
     <br/>
-    <h4>No Join Requests found</h4>
+    <h4>No Requests found</h4>
 </div>
 
 <!-- pagination -->
@@ -148,6 +148,6 @@
 
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">
-        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Join Requests</h3>
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Requests</h3>
     </div>
 </div>

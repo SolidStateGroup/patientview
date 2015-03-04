@@ -139,29 +139,14 @@ public class MigrationController {
         });
 
         modelMap.addAttribute("statusMessage", "Started Observation Migration");*/
-
         modelMap.addAttribute("statusMessage", "Not started: use API based migration instead for performance");
         return "observations";
-    }
-
-    @RequestMapping(value = "/step6-join-requests", method = RequestMethod.GET)
-    public String doStep6Joinrequests(ModelMap modelMap) throws JsonMigrationException {
-        Date start = new Date();
-        adminDataMigrationService.init();
-        adminDataMigrationService.migrateJoinRequests();
-
-        String status = "Migration of Join Requests "
-                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
-
-        modelMap.addAttribute("statusMessage", status);
-        return "staticdata";
     }
 
     @RequestMapping(value = "/bulkusers", method = RequestMethod.GET)
 	public String doBulkUsers(ModelMap modelMap) throws JsonMigrationException {
         Long usersToCreate = 10L;
         Date start = new Date();
-        //RoleName role = RoleName.PATIENT;
         RoleName role = RoleName.UNIT_ADMIN;
 
         adminDataMigrationService.init();

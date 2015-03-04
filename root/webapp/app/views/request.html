@@ -17,7 +17,7 @@
 </script>
 
 <script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit' type="text/javascript" async defer></script>
-<h1>Join Request</h1>
+<h1>Request</h1>
 <div class="content-panel user-settings">
     <div class="content-inner">
 
@@ -41,7 +41,7 @@
             <div class="form-group">
                 <label for="forename" class="col-md-4 control-label">Forename (required):</label>
                 <div class="col-md-5">
-                    <input id="forename" name="forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
+                    <input id="forename" name="forename" type="text" class="form-control" data-ng-model="request.forename"
                            required=""/>
                 </div>
             </div>
@@ -49,7 +49,7 @@
             <div class="form-group">
                 <label for="surname" class="col-md-4 control-label">Surname (required):</label>
                 <div class="col-md-5">
-                    <input id="surname" name="surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
+                    <input id="surname" name="surname" type="text" class="form-control" data-ng-model="request.surname"
                            required=""/>
                 </div>
             </div>
@@ -59,19 +59,19 @@
                 <div class="col-md-5 dob-row">
                     <div class="col-md-4 day">
                     Day:<select required="required"
-                                data-ng-model="joinRequest.selectedDay"
+                                data-ng-model="request.selectedDay"
                                 data-ng-options="option as option for option in days"
                                 class="form-control"></select>
                     </div>
                     <div class="col-md-4">
                     Month:<select required="required"
-                                  data-ng-model="joinRequest.selectedMonth"
+                                  data-ng-model="request.selectedMonth"
                                   data-ng-options="option as option for option in months"
                                   class="form-control"></select>
                     </div>
                     <div class="col-md-4 year">
                     Year:<select required="required"
-                                 data-ng-model="joinRequest.selectedYear"
+                                 data-ng-model="request.selectedYear"
                                  data-ng-options="option as option for option in years"
                                  class="form-control"></select>
                     </div>
@@ -81,7 +81,7 @@
             <div class="form-group">
                 <label for="nhsNumber" class="col-md-4 control-label">NHS/CHI/H&SC Number if known (10 digits):</label>
                 <div class="col-md-5">
-                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="joinRequest.nhsNumber"/>
+                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="request.nhsNumber"/>
                 </div>
             </div>
 
@@ -90,7 +90,7 @@
                 <div class="col-md-5">
                     <select id="specialty"
                             required="required"
-                            data-ng-model="joinRequest.specialty"
+                            data-ng-model="request.specialty"
                             data-ng-change="refreshUnits()"
                             data-ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
                             class="form-control"></select>
@@ -102,7 +102,7 @@
                 <div class="col-md-5">
                     <select id="unit"
                             required="required"
-                            data-ng-model="joinRequest.unit"
+                            data-ng-model="request.unit"
                             data-ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
                             class="form-control"
                             data-ng-show="units.length"></select>
@@ -113,7 +113,7 @@
             <div class="form-group">
                 <label for="email" class="col-md-4 control-label">Email (required):</label>
                 <div class="col-md-5">
-                    <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
+                    <input id="email" name="email" type="text" class="form-control" data-ng-model="request.email" required=""/>
                 </div>
             </div>
 
@@ -124,8 +124,8 @@
             <div class="form-group">
                 <div class="col-md-5 col-sm-offset-4">
                     <button data-ng-click="submit()" class="btn blue"
-                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear
-                            || !joinRequest.email || !units.length || !joinRequest.unit || !joinRequest.captcha">
+                            data-ng-disabled="!request.selectedDay || !request.selectedMonth || !request.selectedYear
+                            || !request.email || !units.length || !request.unit || !request.captcha">
                         Submit Request</button>
                 </div>
             </div>

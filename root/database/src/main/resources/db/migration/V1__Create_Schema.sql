@@ -537,7 +537,7 @@ CREATE TABLE PV_Identifier
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Join_Request
+CREATE TABLE PV_Request
 (
   Id               BIGINT      NOT NULL,
   Forename         VARCHAR(500)   NOT NULL,
@@ -549,6 +549,7 @@ CREATE TABLE PV_Join_Request
   Completion_Date  TIMESTAMP,
   Completed_By     BIGINT REFERENCES PV_User (Id),
   Status           VARCHAR(50),
+  Type             VARCHAR(50),
   Group_Id         BIGINT REFERENCES PV_Group (Id),
   Creation_Date    TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)

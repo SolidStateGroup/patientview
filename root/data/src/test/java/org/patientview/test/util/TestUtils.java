@@ -11,7 +11,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -25,7 +25,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.ContactPointTypes;
-import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -397,15 +397,15 @@ public final class TestUtils {
         return newsLink;
     }
 
-    public static JoinRequest createJoinRequest(Group group, JoinRequestStatus status) {
+    public static Request createRequest(Group group, RequestStatus status) {
 
-        JoinRequest joinRequest = new JoinRequest();
-        joinRequest.setCreated(new Date());
-        joinRequest.setStatus(status);
-        joinRequest.setGroup(group);
-        joinRequest.setNhsNumber("234234234");
-        joinRequest.setDateOfBirth(new Date());
-        return joinRequest;
+        Request request = new Request();
+        request.setCreated(new Date());
+        request.setStatus(status);
+        request.setGroup(group);
+        request.setNhsNumber("234234234");
+        request.setDateOfBirth(new Date());
+        return request;
     }
 
     public static ContactPoint createContactPoint(String value, ContactPointTypes contactPointTypes) {

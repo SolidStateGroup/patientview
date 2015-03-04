@@ -12,7 +12,7 @@ import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.service.JoinRequestService;
+import org.patientview.api.service.RequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -50,7 +50,7 @@ public class GroupControllerTest {
     private GroupService groupService;
 
     @Mock
-    private JoinRequestService joinRequestService;
+    private RequestService requestService;
 
     @Mock
     private GroupStatisticService groupStatisticService;

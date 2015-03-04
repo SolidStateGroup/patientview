@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope',
-function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScope) {
+angular.module('patientviewApp').controller('RequestAdminCtrl', ['GroupService', 'RequestService', 'StaticDataService', '$scope', '$rootScope',
+function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -34,7 +34,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
             }
         }
 
-        JoinRequestService.getStatuses().then(function(statuses) {
+        RequestService.getStatuses().then(function(statuses) {
             if (statuses.length > 0) {
                 $scope.statuses = statuses.sort();
             }
@@ -63,7 +63,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
             getParameters.groupIds = $scope.selectedGroup;
         }
 
-        JoinRequestService.getByUser($scope.loggedInUser.id, getParameters).then(function(page) {
+        RequestService.getByUser($scope.loggedInUser.id, getParameters).then(function(page) {
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -146,13 +146,13 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
         $scope.getItems();
     };
 
-    $scope.save = function(form, joinRequest) {
-        JoinRequestService.save(joinRequest).then(function(){
+    $scope.save = function(form, request) {
+        RequestService.save(request).then(function(){
             $scope.saved = true;
-            $rootScope.setSubmittedJoinRequestCount();
+            $rootScope.setSubmittedRequestCount();
 
-            // update accordion header for join request with data from GET
-            JoinRequestService.get(joinRequest.id).then(function (successResult) {
+            // update accordion header for request with data from GET
+            RequestService.get(request.id).then(function (successResult) {
                 for(var i=0;i<$scope.pagedItems.length;i++) {
                     if($scope.pagedItems[i].id === successResult.id) {
                         var headerDetails = $scope.pagedItems[i];
@@ -164,7 +164,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
                 alert('Error updating header (saved successfully)');
             });
         }, function() {
-            alert('Failed to save join request');
+            alert('Failed to save request');
         });
     };
 
@@ -185,8 +185,8 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
             openedItem.showEdit = true;
             openedItem.editLoading = true;
 
-            // using lightweight list, do GET on id to get full join request and populate editItem
-            JoinRequestService.get(openedItem.id).then(function (item) {
+            // using lightweight list, do GET on id to get full request and populate editItem
+            RequestService.get(openedItem.id).then(function (item) {
                 $scope.successMessage = '';
                 $scope.saved = '';
                 $scope.editItem = _.clone(item);

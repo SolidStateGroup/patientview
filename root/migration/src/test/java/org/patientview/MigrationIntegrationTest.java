@@ -84,17 +84,6 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(3) Migrate join requests
-     *
-     */
-    @Test
-    @Transactional
-    @Rollback(false)
-    public void test04JoinRequestMigration() {
-        // migrate join requests
-    }
-
-    /**
      * Order(4) Migrate news
      *
      */

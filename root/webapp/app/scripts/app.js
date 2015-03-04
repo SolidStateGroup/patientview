@@ -66,9 +66,9 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
     }]);
 
 patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
-    '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService', 'UserService', 'AuthService',
+    '$route', 'RouteService', 'ENV', 'ConversationService', 'RequestService', 'UserService', 'AuthService',
     function($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
-             RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
+             RouteService, ENV, ConversationService, RequestService, UserService, AuthService) {
 
     $('#timeout').hide();
         
@@ -128,8 +128,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             if (!routeExists(RouteService.getAccountRoute(), data.routes)) {
                 data.routes.push(RouteService.getAccountRoute());
             }
-            if (!routeExists(RouteService.getJoinRequestRoute(), data.routes)) {
-                data.routes.push(RouteService.getJoinRequestRoute());
+            if (!routeExists(RouteService.getRequestRoute(), data.routes)) {
+                data.routes.push(RouteService.getRequestRoute());
             }
             if (!routeExists(RouteService.getForgottenPasswordRoute(), data.routes)) {
                 data.routes.push(RouteService.getForgottenPasswordRoute());
@@ -189,8 +189,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         }
     };
 
-    // global function to retrieve number of submitted join requests
-    $rootScope.setSubmittedJoinRequestCount = function() {
+    // global function to retrieve number of submitted requests
+    $rootScope.setSubmittedRequestCount = function() {
         if ($rootScope.loggedInUser) {
 
             var isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser);
@@ -199,8 +199,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             var isUnitStaff = UserService.checkRoleExists('UNIT_STAFF', $rootScope.loggedInUser);
 
             if (isSuperAdmin || isSpecialtyAdmin || isUnitAdmin || isUnitStaff) {
-                JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function (unreadCount) {
-                    $rootScope.submittedJoinRequestCount = unreadCount.toString();
+                RequestService.getSubmittedRequestCount($rootScope.loggedInUser.id).then(function (unreadCount) {
+                    $rootScope.submittedRequestCount = unreadCount.toString();
                 }, function () {
 
                 });
@@ -280,7 +280,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
     $rootScope.$on('$viewContentLoaded', function(){
         $rootScope.setUnreadConversationCount();
-        $rootScope.setSubmittedJoinRequestCount();
+        $rootScope.setSubmittedRequestCount();
     });
 
     $rootScope.logout = function() {

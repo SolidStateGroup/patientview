@@ -280,6 +280,7 @@ public class UserServiceTest {
         staffUser.setGroupRoles(groupRolesStaff);
 
         when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
         when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 

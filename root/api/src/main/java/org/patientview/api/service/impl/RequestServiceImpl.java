@@ -2,21 +2,21 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CaptchaService;
+import org.patientview.api.service.RequestService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
-import org.patientview.api.service.JoinRequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
-import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.JoinRequestRepository;
+import org.patientview.persistence.repository.RequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +40,7 @@ import java.util.Properties;
  * Created on 30/07/2014
  */
 @Service
-public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServiceImpl> implements JoinRequestService {
+public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> implements RequestService {
 
     @Inject
     private UserRepository userRepository;
@@ -49,7 +49,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     private GroupRepository groupRepository;
 
     @Inject
-    private JoinRequestRepository joinRequestRepository;
+    private RequestRepository requestRepository;
 
     @Inject
     private EmailService emailService;
@@ -61,51 +61,39 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     private Properties properties;
 
     @Override
-    public JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (captchaService.verify(joinRequest.getCaptcha())) {
+        if (captchaService.verify(request.getCaptcha())) {
             throw new ResourceForbiddenException("Captcha exception");
         }
 
-        Group group = findGroup(joinRequest.getGroupId());
+        Group group = findGroup(request.getGroupId());
 
         if (group == null) {
             throw new ResourceNotFoundException("Group not found");
         }
 
-        joinRequest.setGroup(group);
-        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
-        JoinRequest entityJoinRequest = joinRequestRepository.save(joinRequest);
+        request.setGroup(group);
+        request.setStatus(RequestStatus.SUBMITTED);
+        Request entityRequest = requestRepository.save(request);
 
         // attempt to find PV Admin Email address
-        Email email = createJoinRequestEmail(entityJoinRequest);
+        Email email = createJoinRequestEmail(entityRequest);
         ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
 
         // send email, but continue if it cant be sent
         if (contactPoint == null) {
-            LOG.error("No suitable group contact point set for join request email");
+            LOG.error("No suitable group contact point set for request email");
         } else {
             email.setRecipients(new String[]{contactPoint.getContent()});
             try {
                 emailService.sendEmail(email);
             } catch (MessagingException | MailException me) {
-                LOG.error("Cannot send join request email");
+                LOG.error("Cannot send request email");
             }
         }
 
-        return entityJoinRequest;
-    }
-
-    @Override
-    public void migrate(List<JoinRequest> joinRequests) {
-
-        // delete existing join requests by forename, surname, date of birth (guaranteed fields)
-        for (JoinRequest joinRequest: joinRequests) {
-            joinRequestRepository.deleteByForenameSurnameDateOfBirth(joinRequest.getForename(),
-                    joinRequest.getSurname(), joinRequest.getDateOfBirth());
-        }
-
-        joinRequestRepository.save(joinRequests);
+        return entityRequest;
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
@@ -120,10 +108,10 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return null;
     }
 
-    private List<JoinRequestStatus> convertStringArrayToStatusList(String[] statuses) {
-        List<JoinRequestStatus> statusList = new ArrayList<>();
+    private List<RequestStatus> convertStringArrayToStatusList(String[] statuses) {
+        List<RequestStatus> statusList = new ArrayList<>();
         for (String status : statuses) {
-            JoinRequestStatus found = JoinRequestStatus.valueOf(status);
+            RequestStatus found = RequestStatus.valueOf(status);
             if (found != null) {
                 statusList.add(found);
             }
@@ -131,7 +119,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return statusList;
     }
 
-    private Email createJoinRequestEmail(JoinRequest joinRequest) {
+    private Email createJoinRequestEmail(Request request) {
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
         email.setSenderName(properties.getProperty("smtp.sender.name"));
@@ -148,20 +136,20 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return email;
     }
 
-    private Page<org.patientview.api.model.JoinRequest> convertPageToTransport(
-            Page<JoinRequest> joinRequestPage, Pageable pageable, long total) {
+    private Page<org.patientview.api.model.Request> convertPageToTransport(
+            Page<Request> requestPage, Pageable pageable, long total) {
 
-        List<org.patientview.api.model.JoinRequest> joinRequests = new ArrayList<>();
+        List<org.patientview.api.model.Request> requests = new ArrayList<>();
 
-        for (JoinRequest joinRequest : joinRequestPage.getContent()) {
-            joinRequests.add(new org.patientview.api.model.JoinRequest(joinRequest));
+        for (Request request : requestPage.getContent()) {
+            requests.add(new org.patientview.api.model.Request(request));
         }
 
-        return new PageImpl<>(joinRequests, pageable, total);
+        return new PageImpl<>(requests, pageable, total);
     }
 
     @Override
-    public Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)
+    public Page<org.patientview.api.model.Request> getByUser(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException {
 
         User user = findUser(userId);
@@ -170,7 +158,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        List<JoinRequestStatus> statusList = new ArrayList<>();
+        List<RequestStatus> statusList = new ArrayList<>();
         if (getParameters.getStatuses() != null) {
             statusList = convertStringArrayToStatusList(getParameters.getStatuses());
         }
@@ -192,81 +180,81 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        Page<JoinRequest> joinRequestPage;
+        Page<Request> requestPage;
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            joinRequestPage = findAll(statusList, groupIdList, pageable);
+            requestPage = findAll(statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            joinRequestPage = findByParentUser(user, statusList, groupIdList, pageable);
+            requestPage = findByParentUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            joinRequestPage = findByUser(user, statusList, groupIdList, pageable);
+            requestPage = findByUser(user, statusList, groupIdList, pageable);
         } else {
-            throw new SecurityException("Invalid role for join requests");
+            throw new SecurityException("Invalid role for requests");
         }
 
-        return convertPageToTransport(joinRequestPage, pageable, joinRequestPage.getTotalElements());
+        return convertPageToTransport(requestPage, pageable, requestPage.getTotalElements());
     }
 
-    private Page<JoinRequest> findByParentUser(User user, List<JoinRequestStatus> statusList,
+    private Page<Request> findByParentUser(User user, List<RequestStatus> statusList,
                                                 List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findByParentUser(user, pageable);
+                return requestRepository.findByParentUser(user, pageable);
             } else {
-                return joinRequestRepository.findByParentUserAndGroups(user, groupIds, pageable);
+                return requestRepository.findByParentUserAndGroups(user, groupIds, pageable);
             }
         } else {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findByParentUserAndStatuses(user, statusList, pageable);
+                return requestRepository.findByParentUserAndStatuses(user, statusList, pageable);
             } else {
-                return joinRequestRepository.findByParentUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
+                return requestRepository.findByParentUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
             }
         }
     }
 
-    private Page<JoinRequest> findByUser(User user, List<JoinRequestStatus> statusList,
+    private Page<Request> findByUser(User user, List<RequestStatus> statusList,
                                           List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findByUser(user, pageable);
+                return requestRepository.findByUser(user, pageable);
             } else {
-                return joinRequestRepository.findByUserAndGroups(user, groupIds, pageable);
+                return requestRepository.findByUserAndGroups(user, groupIds, pageable);
             }
         } else {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findByUserAndStatuses(user, statusList, pageable);
+                return requestRepository.findByUserAndStatuses(user, statusList, pageable);
             } else {
-                return joinRequestRepository.findByUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
+                return requestRepository.findByUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
             }
         }
     }
 
-    private Page<JoinRequest> findAll(List<JoinRequestStatus> statusList,
+    private Page<Request> findAll(List<RequestStatus> statusList,
                                        List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findAll(pageable);
+                return requestRepository.findAll(pageable);
             } else {
-                return joinRequestRepository.findAllByGroups(groupIds, pageable);
+                return requestRepository.findAllByGroups(groupIds, pageable);
             }
         } else {
             if (groupIds.isEmpty()) {
-                return joinRequestRepository.findAllByStatuses(statusList, pageable);
+                return requestRepository.findAllByStatuses(statusList, pageable);
             } else {
-                return joinRequestRepository.findAllByStatusesAndGroups(statusList, groupIds, pageable);
+                return requestRepository.findAllByStatusesAndGroups(statusList, groupIds, pageable);
             }
         }
     }
 
     @Override
-    public org.patientview.api.model.JoinRequest get(Long joinRequestId) throws ResourceNotFoundException {
-        JoinRequest entityJoinRequest = joinRequestRepository.findOne(joinRequestId);
+    public org.patientview.api.model.Request get(Long requestId) throws ResourceNotFoundException {
+        Request entityRequest = requestRepository.findOne(requestId);
 
-        if (entityJoinRequest == null) {
-            throw new ResourceNotFoundException("Join Request not found");
+        if (entityRequest == null) {
+            throw new ResourceNotFoundException("Request not found");
         }
 
-        return new org.patientview.api.model.JoinRequest(entityJoinRequest);
+        return new org.patientview.api.model.Request(entityRequest);
     }
 
     @Override
@@ -276,21 +264,21 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         }
 
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            return joinRequestRepository.countSubmittedByParentUser(userId);
+            return requestRepository.countSubmittedByParentUser(userId);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            return joinRequestRepository.countSubmittedByUser(userId);
+            return requestRepository.countSubmittedByUser(userId);
         } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            return joinRequestRepository.countSubmitted();
+            return requestRepository.countSubmitted();
         }
 
-        throw new SecurityException("Invalid role for join requests count");
+        throw new SecurityException("Invalid role for requests count");
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
-            throw new ResourceNotFoundException(String.format("Could not find unit for Join Request with id %s"
+            throw new ResourceNotFoundException(String.format("Could not find unit for Request with id %s"
                     , groupId));
         }
         return group;
@@ -300,35 +288,35 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         User user = userRepository.findOne(userid);
 
         if (user == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user for Join Request with id %s"
+            throw new ResourceNotFoundException(String.format("Could not find user for Request with id %s"
                     , userid));
         }
         return user;
     }
 
     /**
-     * When saving a join request, when the status of 'COMPLETE' is sent then the person who completed it is saved
+     * When saving a request, when the status of 'COMPLETE' is sent then the person who completed it is saved
      *
-     * @param joinRequest
+     * @param request
      * @return
      * @throws ResourceNotFoundException
      */
     @Override
-    public org.patientview.api.model.JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException {
-        JoinRequest entityJoinRequest = joinRequestRepository.findOne(joinRequest.getId());
+    public org.patientview.api.model.Request save(Request request) throws ResourceNotFoundException {
+        Request entityRequest = requestRepository.findOne(request.getId());
 
-        if (entityJoinRequest == null) {
-            throw new ResourceNotFoundException("Join Request not found");
+        if (entityRequest == null) {
+            throw new ResourceNotFoundException("Request not found");
         }
 
-        if (joinRequest.getStatus() == JoinRequestStatus.COMPLETED) {
+        if (request.getStatus() == RequestStatus.COMPLETED) {
             User user = getUser();
-            entityJoinRequest.setCompletedBy(userRepository.findOne(user.getId()));
-            entityJoinRequest.setCompletionDate(new Date());
+            entityRequest.setCompletedBy(userRepository.findOne(user.getId()));
+            entityRequest.setCompletionDate(new Date());
         }
 
-        entityJoinRequest.setStatus(joinRequest.getStatus());
-        entityJoinRequest.setNotes(joinRequest.getNotes());
-        return new org.patientview.api.model.JoinRequest(joinRequestRepository.save(entityJoinRequest));
+        entityRequest.setStatus(request.getStatus());
+        entityRequest.setNotes(request.getNotes());
+        return new org.patientview.api.model.Request(requestRepository.save(entityRequest));
     }
 }

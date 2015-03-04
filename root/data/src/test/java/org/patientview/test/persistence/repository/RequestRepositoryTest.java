@@ -7,14 +7,14 @@ import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
-import org.patientview.persistence.repository.JoinRequestRepository;
+import org.patientview.persistence.repository.RequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -35,13 +35,13 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
-public class JoinRequestRepositoryTest {
+public class RequestRepositoryTest {
 
     @Inject
     DataTestUtils dataTestUtils;
 
     @Inject
-    JoinRequestRepository joinRequestRepository;
+    RequestRepository requestRepository;
 
     @Inject
     UserRepository userRepository;
@@ -62,8 +62,8 @@ public class JoinRequestRepositoryTest {
     }
 
     /**
-     * Test: Create a parent and child relationship. Add a join request to the child and a user to the parent
-     * Fail: The join request is not found
+     * Test: Create a parent and child relationship. Add a request to the child and a user to the parent
+     * Fail: The request is not found
      * @throws Exception
      */
     @Test
@@ -81,8 +81,8 @@ public class JoinRequestRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(childGroup, JoinRequestStatus.COMPLETED);
-        joinRequestRepository.save(joinRequest);
+        Request request = TestUtils.createRequest(childGroup, RequestStatus.COMPLETED);
+        requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.PATIENT);
@@ -91,14 +91,14 @@ public class JoinRequestRepositoryTest {
         userRepository.save(user);
 
         PageRequest pageable = new PageRequest(0, 999);
-        List<JoinRequest> joinRequests = joinRequestRepository.findByParentUser(user, pageable).getContent();
+        List<Request> requests = requestRepository.findByParentUser(user, pageable).getContent();
 
-        Assert.assertTrue("The is one join request", !CollectionUtils.isEmpty(joinRequests));
+        Assert.assertTrue("The is one request", !CollectionUtils.isEmpty(requests));
     }
 
     /**
-     * Test: Create a parent and child relationship. Add a join request to the child and a user to the parent
-     * Fail: The join request is not found
+     * Test: Create a parent and child relationship. Add a request to the child and a user to the parent
+     * Fail: The request is not found
      * @throws Exception
      */
     @Test
@@ -116,8 +116,8 @@ public class JoinRequestRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(childGroup, JoinRequestStatus.SUBMITTED);
-        joinRequestRepository.save(joinRequest);
+        Request request = TestUtils.createRequest(childGroup, RequestStatus.SUBMITTED);
+        requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
@@ -125,14 +125,14 @@ public class JoinRequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user, parentGroup, role));
         userRepository.save(user);
 
-        BigInteger count = joinRequestRepository.countSubmittedByParentUser(user.getId());
+        BigInteger count = requestRepository.countSubmittedByParentUser(user.getId());
 
-        Assert.assertTrue("The is one join request", count == BigInteger.ONE);
+        Assert.assertTrue("The is one request", count == BigInteger.ONE);
     }
 
     /**
-     * Test: Create a parent and child relationship. Add a join request to the child and a user to the parent
-     * Fail: The join request is not found
+     * Test: Create a parent and child relationship. Add a request to the child and a user to the parent
+     * Fail: The request is not found
      * @throws Exception
      */
     @Test
@@ -140,8 +140,8 @@ public class JoinRequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(group, JoinRequestStatus.SUBMITTED);
-        joinRequestRepository.save(joinRequest);
+        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED);
+        requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
@@ -149,9 +149,9 @@ public class JoinRequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user, group, role));
         userRepository.save(user);
 
-        BigInteger count = joinRequestRepository.countSubmittedByUser(user.getId());
+        BigInteger count = requestRepository.countSubmittedByUser(user.getId());
 
-        Assert.assertTrue("The is one join request", count == BigInteger.ONE);
+        Assert.assertTrue("The is one request", count == BigInteger.ONE);
     }
 
     @Test
@@ -159,8 +159,8 @@ public class JoinRequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(group, JoinRequestStatus.SUBMITTED);
-        joinRequestRepository.save(joinRequest);
+        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED);
+        requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
@@ -171,10 +171,10 @@ public class JoinRequestRepositoryTest {
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
 
-        Page<JoinRequest> joinRequests = joinRequestRepository.findByUserAndGroups(user, groupIds,
+        Page<Request> requests = requestRepository.findByUserAndGroups(user, groupIds,
                 new PageRequest(0, Integer.MAX_VALUE));
 
-        Assert.assertEquals("There should be one join request", 1, joinRequests.getContent().size());
+        Assert.assertEquals("There should be one request", 1, requests.getContent().size());
     }
 
     @Test
@@ -182,8 +182,8 @@ public class JoinRequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(group, JoinRequestStatus.IGNORED);
-        joinRequestRepository.save(joinRequest);
+        Request request = TestUtils.createRequest(group, RequestStatus.IGNORED);
+        requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
@@ -194,12 +194,12 @@ public class JoinRequestRepositoryTest {
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
 
-        List<JoinRequestStatus> statuses = new ArrayList<>();
-        statuses.add(JoinRequestStatus.IGNORED);
+        List<RequestStatus> statuses = new ArrayList<>();
+        statuses.add(RequestStatus.IGNORED);
 
-        Page<JoinRequest> joinRequests = joinRequestRepository.findByUserAndStatusesAndGroups(user, statuses, groupIds,
+        Page<Request> requests = requestRepository.findByUserAndStatusesAndGroups(user, statuses, groupIds,
                 new PageRequest(0, Integer.MAX_VALUE));
 
-        Assert.assertEquals("There should be one join request", 1, joinRequests.getContent().size());
+        Assert.assertEquals("There should be one request", 1, requests.getContent().size());
     }
 }
