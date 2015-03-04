@@ -1,5 +1,9 @@
 package org.patientview.api.service;
 
+import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.config.TestCommonConfig;
 import org.patientview.api.service.impl.PatientServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -19,19 +22,19 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
 
 /**
  * Tests for PatientService, used for reading and writing patient record in FHIR.
@@ -44,58 +47,16 @@ public class PatientServiceTest {
     @InjectMocks
     PatientService patientService = new PatientServiceImpl();
 
-    @Mock
-    private CodeService codeService;
-
-    @Mock
-    private ConditionService conditionService;
-
     private User creator;
-    
-    @Mock
-    private EncounterService encounterService;
 
     @Mock
-    private DiagnosticService diagnosticService;
-
-    @Mock
-    private FhirLinkService fhirLinkService;
+    private FhirLinkRepository fhirLinkRepository;
 
     @Mock
     private FhirResource fhirResource;
 
     @Mock
     private GroupRepository groupRepository;
-
-    @Mock
-    private GroupService groupService;
-
-    @Mock
-    private IdentifierRepository identifierRepository;
-
-    @Mock
-    private IdentifierService identifierService;
-
-    @Mock
-    private LetterService letterService;
-
-    @Mock
-    private LookupService lookupService;
-
-    @Mock
-    private MedicationService medicationService;
-
-    @Mock
-    private ObservationHeadingService observationHeadingService;
-
-    @Mock
-    private ObservationService observationService;
-
-    @Mock
-    private PractitionerService practitionerService;
-
-    @Mock
-    private UserService userService;
 
     @Mock
     private UserRepository userRepository;
@@ -114,6 +75,9 @@ public class PatientServiceTest {
     @Test
     public void testUpdate() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
+        String resourceId = "d52847eb-c2c7-4015-ba6c-952962536287";
+        String versionId = "31d2f326-230a-4ce0-879b-443154a4d9e6";
+
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
@@ -131,17 +95,41 @@ public class PatientServiceTest {
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(patient);
         fhirLink.setGroup(group);
-        fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
+        fhirLink.setResourceId(UUID.fromString(resourceId));
         fhirLink.setActive(true);
         patient.getFhirLinks().add(fhirLink);
 
-        // object containing updated data
+        // original patient object
         FhirPatient fhirPatient = new FhirPatient();
         fhirPatient.setForename("forename");
         fhirPatient.setSurname("surname");
-        
+
+        JSONObject content = new JSONObject();
+        content.put("resourceType","Patient");
+
+        JSONObject link = new JSONObject();
+        link.put("href", "http://www.patientview.org/patient/" + versionId);
+
+        JSONArray links = new JSONArray();
+        links.put(link);
+
+        JSONObject resource = new JSONObject();
+        resource.put("link", links);
+        resource.put("id", resourceId);
+        resource.put("content", content);
+
+        JSONArray resultArray = new JSONArray();
+        resultArray.put(resource);
+
+        JSONObject patientJson = new JSONObject();
+        patientJson.put("entry", resultArray);
+
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        
+        when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
+        when(fhirResource.getResource(UUID.fromString(resourceId), ResourceType.Patient)).thenReturn(patientJson);
+        when(fhirResource.updateFhirObject(
+            any(Patient.class), eq(fhirLink.getResourceId()), eq(fhirLink.getVersionId()))).thenReturn(patientJson);
+
         patientService.update(patient.getId(), group.getId(), fhirPatient);
     }
 }

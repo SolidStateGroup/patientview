@@ -13,10 +13,15 @@ public class FhirIdentifier extends BaseModel {
 
     public FhirIdentifier() {
     }
+    
+    public FhirIdentifier(String label, String value) {
+        this.label = label;
+        this.value = value;
+    }
 
     public FhirIdentifier(Identifier identifier) {
-        setLabel(identifier.getLabelSimple());
-        setValue(identifier.getValueSimple());
+        this.label = identifier.getLabelSimple();
+        this.value = identifier.getValueSimple();
     }
 
     public String getLabel() {

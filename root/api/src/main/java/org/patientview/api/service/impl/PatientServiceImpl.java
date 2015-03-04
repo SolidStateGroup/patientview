@@ -17,6 +17,7 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
+import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
@@ -66,6 +67,7 @@ import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -79,6 +81,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,6 +108,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private DiagnosticService diagnosticService;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
 
     @Inject
     private FhirLinkService fhirLinkService;
@@ -1115,6 +1121,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return patient;
     }
 
+    // API
     @Override
     public void update(Long userId, Long groupId, FhirPatient fhirPatient)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
@@ -1141,5 +1148,26 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (foundFhirLink == null) {
             throw new ResourceForbiddenException("Failed fhirLink validation");
         }
+
+        // check patient exists
+        Patient currentPatient = get(foundFhirLink.getResourceId());
+        if (currentPatient == null) {
+            throw new ResourceNotFoundException("Patient not found");
+        }
+
+        // build updated patient
+        PatientBuilder patientBuilder = new PatientBuilder(currentPatient, fhirPatient);
+        Patient updatedPatient = patientBuilder.build();
+
+        // store updated patient in FHIR
+        JSONObject jsonObject
+                = fhirResource.updateFhirObject(
+                    updatedPatient, foundFhirLink.getResourceId(), foundFhirLink.getVersionId());
+        UUID versionId = Util.getVersionId(jsonObject);
+
+        // update FhirLink
+        foundFhirLink.setVersionId(versionId);
+        foundFhirLink.setUpdated(new Date());
+        fhirLinkRepository.save(foundFhirLink);
     }
 }

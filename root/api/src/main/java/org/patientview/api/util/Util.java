@@ -3,6 +3,8 @@ package org.patientview.api.util;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.persistence.model.Group;
@@ -118,6 +120,15 @@ public final class Util {
         }
         throw new RuntimeException("No value() method returning a Roles[] roles was found in annotation "
                         + annotation.getClass().getCanonicalName());
+    }
+
+    public static UUID getVersionId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        JSONArray links = (JSONArray) resource.get("link");
+        JSONObject link = (JSONObject)  links.get(0);
+        String[] href = link.getString("href").split("/");
+        return UUID.fromString(href[href.length - 1]);
     }
 
     /**
