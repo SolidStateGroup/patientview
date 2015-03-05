@@ -143,13 +143,13 @@
             <div class="row-item accordion-heading-text">{{request.group.name}}</div>
             <div class="row-item accordion-heading-text">{{request.created  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">
+                {{request.type.replace('_',' ')}} <br/>
                 <span data-ng-if="request.status==='COMPLETED'" class="badge badge-small completed"></span>
                 <span data-ng-if="request.status==='SUBMITTED'" class="badge badge-small warning"></span>
                 <span data-ng-if="request.status==='INCOMPLETE'" class="badge badge-small warning"></span>
                 <span data-ng-if="request.status==='IGNORED'" class="badge badge-small ignored"></span>
                 <span data-ng-if="request.status==='DUPLICATE'" class="badge badge-small ignored"></span>
-                &nbsp;{{request.status}}<br/>
-                {{request.type.replace('_',' ')}}
+                &nbsp;{{request.status}}
             </div>
             <div class="row-item accordion-heading-text">
                 <button type="button" class="btn blue edit-button" data-ng-click="opened(request)">Edit</button>

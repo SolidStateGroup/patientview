@@ -148,12 +148,12 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
         email.setSenderName(properties.getProperty("smtp.sender.name"));
-        email.setSubject("PatientView - Forgotten Credentials Request");
+        email.setSubject("PatientView - Forgot Login Request");
 
         String body = "Dear Sir/Madam, <br/><br/> "
                 + "A patient has made a forgotten login request for the <a href=\""
                 + properties.getProperty("site.url")
-                + "\">PatientView website</a> as they cannot log in and have forgotten their credentials and email."
+                + "\">PatientView website</a>."
                 + "<br/><br/> Please log in to PatientView to see the details of the request then follow it up "
                 + "using your usual process";
 
