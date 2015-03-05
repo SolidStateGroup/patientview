@@ -5,7 +5,6 @@ import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -15,11 +14,9 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
-import org.springframework.mail.MailException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.UUID;
@@ -209,20 +206,6 @@ public interface GroupService {
      */
     @UserOnly
     Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
-
-    /**
-     * Used when a User does not know their username or password and must enter other patient identifiable information.
-     * Sends an email to an appropriate staff member given the Group selected by the user. Note: this is deprecated as
-     * considered unsafe to send patient identifiable information over email. May be re-enabled using
-     * Conversations to Group staff rather than sending emails.
-     * @param groupId ID of Group to send email to about User being unable to remember username or email
-     * @param unitRequest UnitRequest object containing typical patient identifying information, name, identifier etc
-     * @throws ResourceNotFoundException
-     * @throws MailException
-     * @throws MessagingException
-     */
-    void passwordRequest(Long groupId, UnitRequest unitRequest)
-            throws ResourceNotFoundException, MailException, MessagingException;
 
     /**
      * Save an updated Group.

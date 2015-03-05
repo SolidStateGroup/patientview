@@ -3,7 +3,6 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.GroupStatisticTO;
-import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import javax.mail.MessagingException;
 import java.util.List;
 
 /**
@@ -250,24 +247,6 @@ public class GroupController extends BaseController<GroupController> {
     public void migrateStatistics(@PathVariable("groupId") Long groupId, @RequestBody List<GroupStatistic> statistics)
             throws ResourceNotFoundException {
         groupStatisticService.migrateStatistics(groupId, statistics);
-    }
-
-    /**
-     * Used when a User does not know their username or password and must enter other patient identifiable information.
-     * Sends an email to an appropriate staff member given the Group selected by the user. Note: this is deprecated as
-     * considered unsafe to send patient identifiable information over email. May be re-enabled using
-     * Conversations to Group staff rather than sending emails.
-     * @param groupId ID of Group to send email to about User being unable to remember username or email
-     * @param unitRequest UnitRequest object containing typical patient identifying information, name, identifier etc
-     * @throws ResourceNotFoundException
-     * @throws MailException
-     * @throws MessagingException
-     */
-    @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
-    @ResponseBody
-    public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
-            throws ResourceNotFoundException, MailException, MessagingException {
-        groupService.passwordRequest(groupId, unitRequest);
     }
 
     /**

@@ -281,22 +281,6 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
-        },
-        // contact unit for password forgotten (deprecated)
-        passwordRequest: function (groupId, unitRequest) {
-            unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
-
-            // correctly format DOB
-            unitRequest.dateOfBirth = unitRequest.dateOfBirth.split('-')[2] + '-'
-                + unitRequest.dateOfBirth.split('-')[1] + '-' + unitRequest.dateOfBirth.split('-')[0];
-
-            var deferred = $q.defer();
-            Restangular.all('public/passwordrequest/group/' + groupId).customPOST(unitRequest).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
         }
     };
 }]);
