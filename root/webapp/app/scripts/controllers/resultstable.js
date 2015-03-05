@@ -172,6 +172,29 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
             // closed
         });
     };
+    
+    $scope.getGroupsFromRow = function (row) {
+        var groups = [];
+        var out = [];
+        for (var i=1; i<row.length; i++) {
+            var resultList = row[i];
+            if (resultList !== null) {
+                for (var j = 0; j < resultList.length; j++) {
+                    if (resultList[j].group.shortName !== null) {
+                        groups[resultList[j].group.shortName] = resultList[j].group.shortName;
+                    }
+                }
+            }
+        }
+
+        for (var key in groups) {
+            if (groups.hasOwnProperty(key)) {
+                out.push(key);
+            }
+        }
+
+        return out;
+    };
 
     $scope.init();
 }]);
