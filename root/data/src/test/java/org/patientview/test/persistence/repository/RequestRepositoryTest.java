@@ -12,6 +12,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.RequestRepository;
@@ -81,7 +82,7 @@ public class RequestRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        Request request = TestUtils.createRequest(childGroup, RequestStatus.COMPLETED);
+        Request request = TestUtils.createRequest(childGroup, RequestStatus.COMPLETED, RequestTypes.JOIN_REQUEST);
         requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
@@ -90,8 +91,11 @@ public class RequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user,parentGroup,role));
         userRepository.save(user);
 
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
         PageRequest pageable = new PageRequest(0, 999);
-        List<Request> requests = requestRepository.findByParentUser(user, pageable).getContent();
+        List<Request> requests = requestRepository.findByParentUser(user, requestTypes, pageable).getContent();
 
         Assert.assertTrue("The is one request", !CollectionUtils.isEmpty(requests));
     }
@@ -116,7 +120,7 @@ public class RequestRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        Request request = TestUtils.createRequest(childGroup, RequestStatus.SUBMITTED);
+        Request request = TestUtils.createRequest(childGroup, RequestStatus.SUBMITTED, RequestTypes.JOIN_REQUEST);
         requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
@@ -140,7 +144,7 @@ public class RequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED);
+        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED, RequestTypes.JOIN_REQUEST);
         requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
@@ -159,7 +163,7 @@ public class RequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED);
+        Request request = TestUtils.createRequest(group, RequestStatus.SUBMITTED, RequestTypes.JOIN_REQUEST);
         requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
@@ -170,8 +174,11 @@ public class RequestRepositoryTest {
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
+        
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        Page<Request> requests = requestRepository.findByUserAndGroups(user, groupIds,
+        Page<Request> requests = requestRepository.findByUserAndGroups(user, groupIds, requestTypes,
                 new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("There should be one request", 1, requests.getContent().size());
@@ -182,7 +189,7 @@ public class RequestRepositoryTest {
 
         Group group = dataTestUtils.createGroup("parentGroup");
 
-        Request request = TestUtils.createRequest(group, RequestStatus.IGNORED);
+        Request request = TestUtils.createRequest(group, RequestStatus.IGNORED, RequestTypes.JOIN_REQUEST);
         requestRepository.save(request);
 
         User user = dataTestUtils.createUser("TestUser");
@@ -197,8 +204,11 @@ public class RequestRepositoryTest {
         List<RequestStatus> statuses = new ArrayList<>();
         statuses.add(RequestStatus.IGNORED);
 
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
         Page<Request> requests = requestRepository.findByUserAndStatusesAndGroups(user, statuses, groupIds,
-                new PageRequest(0, Integer.MAX_VALUE));
+                requestTypes, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("There should be one request", 1, requests.getContent().size());
     }

@@ -21,6 +21,11 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
         $scope.statuses = [];
         $scope.allGroups = [];
         $scope.initFinished = false;
+        
+        // basic types currently only JOIN_REQUEST and FORGOT_LOGIN
+        $scope.types = [];
+        $scope.types.push('JOIN_REQUEST');
+        $scope.types.push('FORGOT_LOGIN');
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userInformation.userGroups;
@@ -46,7 +51,6 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
 
             $scope.initFinished = true;
         });
-
     };
 
     $scope.getItems = function() {
@@ -56,6 +60,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
         getParameters.statuses = $scope.selectedStatus;
+        getParameters.types = $scope.selectedType;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
 
@@ -71,6 +76,34 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
         }, function() {
             $scope.loading = false;
         });
+    };
+
+    // filter by type
+    $scope.selectedType = [];
+    $scope.setSelectedType = function (type) {
+        if (_.contains($scope.selectedType, type)) {
+            $scope.selectedType = _.without($scope.selectedTypes, type);
+        } else {
+            $scope.selectedType.push(type);
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.isTypeChecked = function (type) {
+        if (_.contains($scope.selectedType, type)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+    $scope.removeAllTypes = function () {
+        $scope.selectedType = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.removeSelectedType = function (type) {
+        $scope.selectedType.splice($scope.selectedType.indexOf(type), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
 
     // filter by status
@@ -96,7 +129,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
         $scope.getItems();
     };
     $scope.removeSelectedStatus = function (status) {
-        $scope.selectedStatus.splice($scope.selectedGroup.indexOf(status), 1);
+        $scope.selectedStatus.splice($scope.selectedStatus.indexOf(status), 1);
         $scope.currentPage = 0;
         $scope.getItems();
     };

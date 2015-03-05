@@ -28,6 +28,7 @@ import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StatisticPeriod;
@@ -397,7 +398,7 @@ public final class TestUtils {
         return newsLink;
     }
 
-    public static Request createRequest(Group group, RequestStatus status) {
+    public static Request createRequest(Group group, RequestStatus status, RequestTypes type) {
 
         Request request = new Request();
         request.setCreated(new Date());
@@ -405,6 +406,7 @@ public final class TestUtils {
         request.setGroup(group);
         request.setNhsNumber("234234234");
         request.setDateOfBirth(new Date());
+        request.setType(type);
         return request;
     }
 

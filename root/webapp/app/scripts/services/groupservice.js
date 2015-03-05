@@ -282,7 +282,7 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // contact unit for password forgotten
+        // contact unit for password forgotten (deprecated)
         passwordRequest: function (groupId, unitRequest) {
             unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
 

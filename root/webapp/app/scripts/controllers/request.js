@@ -1,17 +1,31 @@
 'use strict';
 
 angular.module('patientviewApp').controller('RequestCtrl', ['GroupService', 'RequestService',
-    'StaticDataService', '$scope', '$rootScope', 'UtilService','ENV','$timeout',
-function (GroupService,RequestService,StaticDataService,$scope,$rootScope,UtilService,ENV,$timeout) {
+    'StaticDataService', '$scope', '$rootScope', 'UtilService', 'ENV', '$timeout', '$routeParams', '$location',
+function (GroupService, RequestService, StaticDataService, $scope, $rootScope, UtilService, ENV, $timeout,
+          $routeParams, $location) {
 
-    $scope.request = {};
-    $scope.pw = '';
-    $scope.months = UtilService.generateMonths();
-    $scope.years = UtilService.generateYears();
-    $scope.days = UtilService.generateDays();
-    $scope.request.selectedYear = '';
-    $scope.request.selectedMonth = '';
-    $scope.request.selectedDay = '';
+    var init = function() {
+        $scope.request = {};
+        $scope.pw = '';
+        $scope.months = UtilService.generateMonths();
+        $scope.years = UtilService.generateYears();
+        $scope.days = UtilService.generateDays();
+        $scope.request.selectedYear = '';
+        $scope.request.selectedMonth = '';
+        $scope.request.selectedDay = '';
+        
+        // get type of request from route parameters, if none then assume JOIN_REQUEST
+        if ($routeParams.type !== undefined) {
+            if ($routeParams.type === 'FORGOT_LOGIN') {
+                $scope.request.type = 'FORGOT_LOGIN';
+            } else {
+                $location.path('/');
+            }
+        } else {
+            $scope.request.type = 'JOIN_REQUEST';
+        }
+    };
 
     GroupService.getAllPublic().then(function(groups) {
         $scope.specialties = [];
@@ -19,11 +33,21 @@ function (GroupService,RequestService,StaticDataService,$scope,$rootScope,UtilSe
 
         // separate SPECIALTY from UNIT groups
         groups.forEach(function(group) {
-            if (group.visibleToJoin) {
-                if (group.groupType.value === 'SPECIALTY') {
-                    $scope.specialties.push(group);
-                } else if (group.groupType.value === 'UNIT') {
-                    $scope.childUnits.push(group);
+            if ($scope.request.type === 'JOIN_REQUEST') {
+                if (group.visibleToJoin) {
+                    if (group.groupType.value === 'SPECIALTY') {
+                        $scope.specialties.push(group);
+                    } else if (group.groupType.value === 'UNIT') {
+                        $scope.childUnits.push(group);
+                    }
+                }
+            } else {
+                if (group.visible) {
+                    if (group.groupType.value === 'SPECIALTY') {
+                        $scope.specialties.push(group);
+                    } else if (group.groupType.value === 'UNIT') {
+                        $scope.childUnits.push(group);
+                    }
                 }
             }
         });
@@ -72,11 +96,11 @@ function (GroupService,RequestService,StaticDataService,$scope,$rootScope,UtilSe
 
         if (formOk) {
             RequestService.create(groupId, $scope.request).then(function () {
-                $scope.successMessage = 'The join request has been saved';
+                $scope.successMessage = 'Your request has been submitted';
                 $scope.loading = false;
                 $scope.completed = true;
             }, function (result) {
-                $scope.errorMessage = 'The join request has not been submitted ' + result.data;
+                $scope.errorMessage = 'Your request has not been submitted ' + result.data;
                 $scope.loading = false;
             });
         } else {
@@ -105,4 +129,6 @@ function (GroupService,RequestService,StaticDataService,$scope,$rootScope,UtilSe
     $scope.getReCaptchaPublicKey = function() {
         return ENV.reCaptchaPublicKey;
     };
+    
+    init();
 }]);

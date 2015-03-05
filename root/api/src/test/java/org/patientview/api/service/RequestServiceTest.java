@@ -19,6 +19,7 @@ import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
+import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RequestRepository;
@@ -95,6 +96,7 @@ public class RequestServiceTest {
         request.setSurname("User");
         request.setDateOfBirth(new Date());
         request.setGroupId(group.getId());
+        request.setType(RequestTypes.JOIN_REQUEST);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(requestRepository.save(any(Request.class))).thenReturn(request);
@@ -151,22 +153,26 @@ public class RequestServiceTest {
         request.setDateOfBirth(new Date());
         request.setGroup(group);
 
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
-        when(requestRepository.findByUser(eq(user), any(Pageable.class))).thenReturn(requestPage);
-
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+        
+        when(requestRepository.findByUser(eq(user), eq(requestTypes), any(Pageable.class))).thenReturn(requestPage);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
         GetParameters getParameters = new GetParameters();
-        String[] statuses = {RequestStatus.COMPLETED.toString()};
-        getParameters.setStatuses(statuses);
+        getParameters.setTypes(new String[]{RequestTypes.JOIN_REQUEST.toString()});
 
-        requestService.getByUser(group.getId(), new GetParameters());
+        requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(requestRepository, Mockito.times(1)).findByUser(eq(user), eq(new PageRequest(0, Integer.MAX_VALUE)));
+        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(requestRepository, Mockito.times(1)).findByUser(eq(user), eq(requestTypes),
+                eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
 
     private List<RequestStatus> convertStringArrayToStatusList (String[] statuses) {
@@ -197,24 +203,29 @@ public class RequestServiceTest {
         request.setDateOfBirth(new Date());
         request.setGroup(group);
 
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
-        when(requestRepository.findByUserAndStatuses(eq(user), any(new ArrayList<Request>().getClass()),
-                any(Pageable.class))).thenReturn(requestPage);
+        when(requestRepository.findByUserAndStatuses(eq(user),
+                any(new ArrayList<Request>().getClass()),
+                eq(requestTypes), any(Pageable.class))).thenReturn(requestPage);
 
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
         GetParameters getParameters = new GetParameters();
-        String[] statuses = {RequestStatus.COMPLETED.toString()};
-        getParameters.setStatuses(statuses);
+        getParameters.setStatuses(new String[]{RequestStatus.COMPLETED.toString()});
+        getParameters.setTypes(new String[]{RequestTypes.JOIN_REQUEST.toString()});
 
-        requestService.getByUser(group.getId(), getParameters);
+        requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
         verify(requestRepository, Mockito.times(1)).findByUserAndStatuses(eq(user),
-            eq(convertStringArrayToStatusList(getParameters.getStatuses())), eq(new PageRequest(0, Integer.MAX_VALUE)));
+            eq(convertStringArrayToStatusList(getParameters.getStatuses())), eq(requestTypes), 
+                eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -234,19 +245,25 @@ public class RequestServiceTest {
         request.setDateOfBirth(new Date());
         request.setGroup(group);
 
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
-        when(requestRepository.findByParentUser(eq(user), any(Pageable.class))).thenReturn(requestPage);
+        
+        when(requestRepository.findByParentUser(eq(user), eq(requestTypes),
+                any(Pageable.class))).thenReturn(requestPage);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        
+        GetParameters getParameters = new GetParameters();
+        getParameters.setTypes(new String[]{RequestTypes.JOIN_REQUEST.toString()});
 
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+        requestService.getByUser(user.getId(), getParameters);
 
-        requestService.getByUser(group.getId(), new GetParameters());
-
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(requestRepository, Mockito.times(1)).findByParentUser(eq(user),
-                eq(new PageRequest(0, Integer.MAX_VALUE)));
+                eq(requestTypes), eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -267,16 +284,20 @@ public class RequestServiceTest {
         request.setDateOfBirth(new Date());
         request.setGroup(group);
 
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(null);
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(null);
 
         GetParameters getParameters = new GetParameters();
         String[] statuses = {RequestStatus.COMPLETED.toString()};
         getParameters.setStatuses(statuses);
 
-        requestService.getByUser(group.getId(), getParameters);
+        requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(requestRepository, Mockito.times(0)).findByUser(eq(user), eq(new PageRequest(0, Integer.MAX_VALUE)));
+        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(requestRepository, Mockito.times(0)).findByUser(eq(user), eq(requestTypes), 
+                eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
 
     /**

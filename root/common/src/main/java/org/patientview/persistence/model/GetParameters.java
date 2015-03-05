@@ -1,7 +1,5 @@
 package org.patientview.persistence.model;
 
-import org.patientview.persistence.model.enums.ConversationLabel;
-
 /**
  * GetParameters, used for handling typical parameters in GET requests.
  *
@@ -27,6 +25,9 @@ public class GetParameters {
     private String[] roleIds;
     private String[] auditActions;
     private String[] featureIds;
+    
+    // for join requests/forgotten login requests
+    private String[] types;
     
     // date ranges
     private Long start;
@@ -222,5 +223,13 @@ public class GetParameters {
 
     public void setConversationLabels(String[] conversationLabels) {
         this.conversationLabels = conversationLabels;
+    }
+
+    public String[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(String[] types) {
+        this.types = types;
     }
 }

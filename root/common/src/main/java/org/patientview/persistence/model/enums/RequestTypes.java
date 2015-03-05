@@ -8,7 +8,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum RequestTypes {
     JOIN_REQUEST("Join Request"),
-    FORGOTTEN_CREDENTIALS("Forgotten Credentials");
+    FORGOT_LOGIN("Forgot Login");
 
     private String name;
     RequestTypes(String name) { this.name = name; }

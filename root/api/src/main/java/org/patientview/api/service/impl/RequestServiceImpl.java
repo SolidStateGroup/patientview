@@ -1,8 +1,10 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.RequestService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
@@ -14,6 +16,7 @@ import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
+import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RequestRepository;
@@ -25,11 +28,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -75,21 +80,30 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         request.setGroup(group);
         request.setStatus(RequestStatus.SUBMITTED);
+        request.setType(request.getType());
         Request entityRequest = requestRepository.save(request);
 
         // attempt to find PV Admin Email address
-        Email email = createJoinRequestEmail(entityRequest);
-        ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
+        Email email = null;
+        if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
+            email = createJoinRequestEmail(entityRequest);
+        } else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
+            email = createForgottenCredentialsRequestEmail(entityRequest);
+        }
 
-        // send email, but continue if it cant be sent
-        if (contactPoint == null) {
-            LOG.error("No suitable group contact point set for request email");
-        } else {
-            email.setRecipients(new String[]{contactPoint.getContent()});
-            try {
-                emailService.sendEmail(email);
-            } catch (MessagingException | MailException me) {
-                LOG.error("Cannot send request email");
+        if (email != null) {
+            ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
+
+            // send email, but continue if it cant be sent
+            if (contactPoint == null) {
+                LOG.error("No suitable group contact point set for request email");
+            } else {
+                email.setRecipients(new String[]{contactPoint.getContent()});
+                try {
+                    emailService.sendEmail(email);
+                } catch (MessagingException | MailException me) {
+                    LOG.error("Cannot send request email");
+                }
             }
         }
 
@@ -108,6 +122,17 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         return null;
     }
 
+    private Page<org.patientview.api.model.Request> convertPageToTransport(
+            Page<Request> requestPage, Pageable pageable, long total) {
+        List<org.patientview.api.model.Request> requests = new ArrayList<>();
+
+        for (Request request : requestPage.getContent()) {
+            requests.add(new org.patientview.api.model.Request(request));
+        }
+
+        return new PageImpl<>(requests, pageable, total);
+    }
+
     private List<RequestStatus> convertStringArrayToStatusList(String[] statuses) {
         List<RequestStatus> statusList = new ArrayList<>();
         for (String status : statuses) {
@@ -117,6 +142,23 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             }
         }
         return statusList;
+    }
+
+    private Email createForgottenCredentialsRequestEmail(Request request) {
+        Email email = new Email();
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
+        email.setSubject("PatientView - Forgotten Credentials Request");
+
+        String body = "Dear Sir/Madam, <br/><br/> "
+                + "A patient has made a forgotten login request for the <a href=\""
+                + properties.getProperty("site.url")
+                + "\">PatientView website</a> as they cannot log in and have forgotten their credentials and email."
+                + "<br/><br/> Please log in to PatientView to see the details of the request then follow it up "
+                + "using your usual process";
+
+        email.setBody(body);
+        return email;
     }
 
     private Email createJoinRequestEmail(Request request) {
@@ -136,22 +178,93 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         return email;
     }
 
-    private Page<org.patientview.api.model.Request> convertPageToTransport(
-            Page<Request> requestPage, Pageable pageable, long total) {
+    private Page<Request> findByParentUser(User user, List<RequestStatus> statusList,
+                                            List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findByParentUser(user, requestTypes, pageable);
+            } else {
+                return requestRepository.findByParentUserAndGroups(user, groupIds, requestTypes, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findByParentUserAndStatuses(user, statusList, requestTypes, pageable);
+            } else {
+                return requestRepository.findByParentUserAndStatusesAndGroups(
+                        user, statusList, groupIds, requestTypes, pageable);
+            }
+        }
+    }
 
-        List<org.patientview.api.model.Request> requests = new ArrayList<>();
+    private Page<Request> findByUser(User user, List<RequestStatus> statusList,
+                                          List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findByUser(user, requestTypes, pageable);
+            } else {
+                return requestRepository.findByUserAndGroups(user, groupIds, requestTypes, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findByUserAndStatuses(user, statusList, requestTypes, pageable);
+            } else {
+                return requestRepository.findByUserAndStatusesAndGroups(
+                        user, statusList, groupIds, requestTypes, pageable);
+            }
+        }
+    }
 
-        for (Request request : requestPage.getContent()) {
-            requests.add(new org.patientview.api.model.Request(request));
+    private Page<Request> findAll(List<RequestStatus> statusList,
+                                       List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findAll(requestTypes, pageable);
+            } else {
+                return requestRepository.findAllByGroups(groupIds, requestTypes, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return requestRepository.findAllByStatuses(statusList, requestTypes, pageable);
+            } else {
+                return requestRepository.findAllByStatusesAndGroups(statusList, groupIds, requestTypes, pageable);
+            }
+        }
+    }
+
+    private Group findGroup(Long groupId) throws ResourceNotFoundException {
+        Group group = groupRepository.findOne(groupId);
+
+        if (group == null) {
+            throw new ResourceNotFoundException(String.format("Could not find unit for Request with id %s"
+                    , groupId));
+        }
+        return group;
+    }
+
+    private User findUser(Long userid) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userid);
+
+        if (user == null) {
+            throw new ResourceNotFoundException(String.format("Could not find user for Request with id %s"
+                    , userid));
+        }
+        return user;
+    }
+
+    @Override
+    public org.patientview.api.model.Request get(Long requestId) throws ResourceNotFoundException {
+        Request entityRequest = requestRepository.findOne(requestId);
+
+        if (entityRequest == null) {
+            throw new ResourceNotFoundException("Request not found");
         }
 
-        return new PageImpl<>(requests, pageable, total);
+        return new org.patientview.api.model.Request(entityRequest);
     }
 
     @Override
     public Page<org.patientview.api.model.Request> getByUser(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException {
-
         User user = findUser(userId);
 
         String size = getParameters.getSize();
@@ -182,79 +295,32 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         Page<Request> requestPage;
 
+        // manage request types
+        List<RequestTypes> requestTypes = new ArrayList<>();
+
+        if (!ArrayUtils.isEmpty(getParameters.getTypes())) {
+            for (String requestType : getParameters.getTypes()) {
+                if (Util.isInEnum(requestType, RequestTypes.class)) {
+                    requestTypes.add(RequestTypes.valueOf(requestType));
+                }
+            }
+        }
+
+        if (CollectionUtils.isEmpty(requestTypes)) {
+            requestTypes.addAll(Arrays.asList(RequestTypes.values()));
+        }
+
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            requestPage = findAll(statusList, groupIdList, pageable);
+            requestPage = findAll(statusList, groupIdList, requestTypes, pageable);
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            requestPage = findByParentUser(user, statusList, groupIdList, pageable);
+            requestPage = findByParentUser(user, statusList, groupIdList, requestTypes, pageable);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            requestPage = findByUser(user, statusList, groupIdList, pageable);
+            requestPage = findByUser(user, statusList, groupIdList, requestTypes, pageable);
         } else {
             throw new SecurityException("Invalid role for requests");
         }
 
         return convertPageToTransport(requestPage, pageable, requestPage.getTotalElements());
-    }
-
-    private Page<Request> findByParentUser(User user, List<RequestStatus> statusList,
-                                                List<Long> groupIds, Pageable pageable) {
-        if (statusList.isEmpty()) {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findByParentUser(user, pageable);
-            } else {
-                return requestRepository.findByParentUserAndGroups(user, groupIds, pageable);
-            }
-        } else {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findByParentUserAndStatuses(user, statusList, pageable);
-            } else {
-                return requestRepository.findByParentUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
-            }
-        }
-    }
-
-    private Page<Request> findByUser(User user, List<RequestStatus> statusList,
-                                          List<Long> groupIds, Pageable pageable) {
-        if (statusList.isEmpty()) {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findByUser(user, pageable);
-            } else {
-                return requestRepository.findByUserAndGroups(user, groupIds, pageable);
-            }
-        } else {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findByUserAndStatuses(user, statusList, pageable);
-            } else {
-                return requestRepository.findByUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
-            }
-        }
-    }
-
-    private Page<Request> findAll(List<RequestStatus> statusList,
-                                       List<Long> groupIds, Pageable pageable) {
-        if (statusList.isEmpty()) {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findAll(pageable);
-            } else {
-                return requestRepository.findAllByGroups(groupIds, pageable);
-            }
-        } else {
-            if (groupIds.isEmpty()) {
-                return requestRepository.findAllByStatuses(statusList, pageable);
-            } else {
-                return requestRepository.findAllByStatusesAndGroups(statusList, groupIds, pageable);
-            }
-        }
-    }
-
-    @Override
-    public org.patientview.api.model.Request get(Long requestId) throws ResourceNotFoundException {
-        Request entityRequest = requestRepository.findOne(requestId);
-
-        if (entityRequest == null) {
-            throw new ResourceNotFoundException("Request not found");
-        }
-
-        return new org.patientview.api.model.Request(entityRequest);
     }
 
     @Override
@@ -272,26 +338,6 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         throw new SecurityException("Invalid role for requests count");
-    }
-
-    private Group findGroup(Long groupId) throws ResourceNotFoundException {
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException(String.format("Could not find unit for Request with id %s"
-                    , groupId));
-        }
-        return group;
-    }
-
-    private User findUser(Long userid) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userid);
-
-        if (user == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user for Request with id %s"
-                    , userid));
-        }
-        return user;
     }
 
     /**

@@ -8,32 +8,50 @@
         getAngularScope().reCaptchaCallback(response);
     };
     var onloadCallback = function() {
-        grecaptcha.render('recaptcha', {
-            'sitekey' : getAngularScope().getReCaptchaPublicKey(),
-            'callback' : reCaptchaCallback,
-            'theme' : 'light'
-        });
+        var scope = getAngularScope();
+        if (scope !== undefined) {
+            grecaptcha.render('recaptcha', {
+                'sitekey': scope.getReCaptchaPublicKey(),
+                'callback': reCaptchaCallback,
+                'theme': 'light'
+            });
+        }
     };
 </script>
 
 <script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit' type="text/javascript" async defer></script>
-<h1>Request</h1>
+<h1>
+    <span data-ng-if="request.type==='JOIN_REQUEST'">Join</span>
+    <span data-ng-if="request.type==='FORGOT_LOGIN'">Forgot Login</span>
+    Request
+</h1>
 <div class="content-panel user-settings">
     <div class="content-inner">
 
-        <div class="alert alert-success" data-ng-show="successMessage">
+        <div class="alert alert-success" data-ng-show="successMessage && request.type==='JOIN_REQUEST'">
             <strong>Thank you for submitting your request to join PatientView. Your selected unit will follow up shortly
                 with the enrolment forms, after which you will receive your account details.</strong>
         </div>
         
+        <div class="alert alert-success" data-ng-show="successMessage && request.type==='FORGOT_LOGIN'">
+            <strong>Thank you for submitting your forgotten login request. Your selected unit will follow up shortly
+                and contact you with details of how to log in to PatientView.</strong>
+        </div>
+        
         <form class="form-horizontal" data-ng-cloak id="account-settings-form" data-ng-hide="loading || completed">
-            <div>
+            <div data-ng-if="request.type==='JOIN_REQUEST'">
                 <p>Please enter your details. Ensure they are accurate since they will be used by your unit's staff to
                     verify who you are and to contact you to add you to PatientView.</p>
                 <p>If your local unit has PatientView, the message will go to the local PatientView admin. If it
                     doesn't, we'll send it to someone senior at the unit.
                     <a href="http://www.rixg.org/developer/pages/how-to/where.php" target="_blank">See if your unit has
                         PatientView on the map</a></p>
+            </div>
+            <div data-ng-if="request.type==='FORGOT_LOGIN'">
+                <p>If you do not know your username, password or email you can enter your details to submit a forgotten
+                    login request. You need to be a patient of a unit within PatientView.</p>
+                <p>Ensure your details are accurate as they will be used by a member of your unit's staff to verify who
+                    you are.</p>
             </div>
 
             <br/>
@@ -106,7 +124,9 @@
                             data-ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
                             class="form-control"
                             data-ng-show="units.length"></select>
-                    <p data-ng-show="!units.length">You must choose a specialty with units available to join</p>
+                    <p data-ng-show="!units.length && request.type==='JOIN_REQUEST'">
+                        You must choose a specialty with units available to join
+                    </p>
                 </div>
             </div>
 

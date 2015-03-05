@@ -144,7 +144,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         // remove unneeded fields
         for (org.patientview.api.model.Group group : groups) {
-            group.setVisible(null);
             // group features required for creating membership requests
             //group.setGroupFeatures(null);
             group.setChildGroups(null);
