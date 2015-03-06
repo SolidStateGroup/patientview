@@ -5,10 +5,14 @@
         padding-top: 10px;
         color: #940012;
     }
-    .label-join-request {
+    .label-request {
         margin-left: 10px;
         position: relative;
         top: -2px;
+    }
+    .user-header-picture {
+        max-height: 40px;
+        padding-right:10px;
     }
 </style>
 
@@ -51,7 +55,7 @@
                 <div class="nav-public pull-right" data-ng-hide="loggedInUser">
                     <ul class="nav navbar-nav navbar-right public pull-left" data-ng-cloak>
                         <li class="login"><a data-ng-href="#/login" ><i class="icon-login-large pull-left hidden-xs"></i> Sign In</a></li>
-                        <li class="join"><a data-ng-href="#/joinrequest" ><i class="icon-join-large pull-left hidden-xs"></i><span class="hidden-xs"> I want to </span>Join</a></li>
+                        <li class="join"><a data-ng-href="#/request" ><i class="icon-join-large pull-left hidden-xs"></i><span class="hidden-xs"> I want to </span>Join</a></li>
                     </ul>
                 </div>
             </div>
@@ -61,11 +65,16 @@
             <div class="nav-public pull-right" data-ng-hide="loggedInUser">
                 <ul class="nav navbar-nav navbar-right public pull-left" data-ng-cloak>
                     <li class="login"><a data-ng-href="#/login" ><i class="icon-login-large pull-left"></i> Sign In</a></li>
-                    <li class="join"><a data-ng-href="#/joinrequest" ><i class="icon-join-large pull-left"></i> I want to join</a></li>
+                    <li class="join"><a data-ng-href="#/request" ><i class="icon-join-large pull-left"></i> I want to join</a></li>
                 </ul>
             </div>
             <div class="nav-account pull-right" data-ng-hide="!loggedInUser">
-                <i class="icon-account pull-left"></i>
+                <i class="icon-account pull-left" data-ng-show="!loggedInUser.picture"></i>
+
+                <div data-ng-if="loggedInUser.picture.length" class="pull-left">
+                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-header-picture" src="">
+                </div>
+                
                 <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
                 <ul class="nav navbar-nav inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
@@ -103,8 +112,8 @@
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
                         <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" 
-                                  class="label label-warning label-join-request">{{submittedJoinRequestCount}}</span>
+                            <span data-ng-if="menuitem.title === 'Requests' && submittedRequestCount > 0"
+                                  class="label label-warning label-request">{{submittedRequestCount}}</span>
                         </a>
                     </li>
                 </ul>

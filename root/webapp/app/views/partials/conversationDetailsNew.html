@@ -1,11 +1,4 @@
-<script>
-    var recipientSelectChange = function() {
-        var scope = angular.element($("#recipient-select-container")).scope();
-        scope.addRecipient(scope.conversationFormNew, scope.newConversation);
-    };
-</script>
-
-<div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
+<div data-ng-show="!modalLoading && !sendingMessage" xmlns="http://www.w3.org/1999/html">
     <div data-ng-show="conversationGroups.length > 0">
         <div class="row" data-ng-show="newConversation.recipients.length">
             <div class="form-horizontal" role="form">
@@ -86,5 +79,11 @@
 <div data-ng-show="modalLoading" class="row"><br/>
     <div class="col-md-12">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Recipients</h3>
+    </div>
+</div>
+        
+<div data-ng-show="sendingMessage" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Sending Message</h3>
     </div>
 </div>

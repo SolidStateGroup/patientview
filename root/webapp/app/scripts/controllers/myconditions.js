@@ -8,9 +8,9 @@ function ($scope, PatientService, GroupService) {
         GroupService.getAllPublic().then(function(groups) {
             $scope.unitGroups = [];
 
-            // only need UNIT groups
+            // only need UNIT and DISEASE_GROUP groups
             groups.forEach(function(group) {
-                if (group.groupType.value === 'UNIT') {
+                if (group.groupType.value === 'UNIT' || group.groupType.value === 'DISEASE_GROUP') {
                     $scope.unitGroups.push(group);
                 }
             });

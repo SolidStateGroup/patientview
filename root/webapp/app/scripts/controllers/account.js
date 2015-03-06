@@ -6,7 +6,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     $scope.pw ='';
     $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
 
-    if ($rootScope.loggedInUser == null) {
+    if ($rootScope.loggedInUser === null) {
         $rootScope.logout();
     }
 
@@ -97,37 +97,42 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         url: $scope.userPicture,
         headers: {'X-Auth-Token': $rootScope.authToken}
     });
-
-    uploader.filters.push({
-        name: 'imageFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-            return '|jpg|png|jpeg|bmp|gif|'.indexOf(type) !== -1;
-        }
-    });
+        
+    var isImageFiletype = function(item) {
+        var type = '|' + item.file.type.slice(item.file.type.lastIndexOf('/') + 1) + '|';
+        return '|jpg|png|jpeg|bmp|gif|'.indexOf(type) !== -1;
+    };
 
     // callback after user selects a file
-    uploader.onAfterAddingFile = function() {
-        $scope.uploadError = false;
+    uploader.onAfterAddingFile = function(item) {
+        delete $scope.uploadErrorMessage;
         delete $scope.pictureChangeSuccessMessage;
         $scope.uploadingPicture = true;
-        delete $scope.uploadErrorMessage;
-        uploader.uploadAll();
-        uploader.queue = [];
+        $scope.uploadError = false;
+        
+        if (isImageFiletype(item)) {            
+            uploader.uploadAll();
+            uploader.queue = [];
+        } else {
+            $scope.uploadError = true;
+            $scope.uploadingPicture = false;
+            $scope.uploadErrorMessage = 'There was an error processing this file - please choose an image file.';
+            uploader.queue = [];
+        }
     };
     
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
         $scope.uploadError = true;
         delete $scope.pictureChangeSuccessMessage;
-        $scope.uploadErrorMessage = 'There was an error uploading your image file, please check that the file size is less than 1MB';
+        $scope.uploadErrorMessage = 'There was an error uploading your image file.';
         $scope.uploadingPicture = false;
     };
     
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
-            $rootScope.loggedInUser.picture = "new";
+            $rootScope.loggedInUser.picture = 'new';
             $scope.pictureChangeSuccessMessage = 'Your photo has been uploaded successfully. Thank you.';
             $scope.uploadingPicture = false;
             getUser();
@@ -139,13 +144,14 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     };
         
     $scope.deletePicture = function() {
+        delete $scope.uploadErrorMessage;
         delete $scope.pictureChangeSuccessMessage;
-        UserService.deletePicture($rootScope.loggedInUser.id).then(function (data) {
+        UserService.deletePicture($rootScope.loggedInUser.id).then(function () {
             delete $rootScope.loggedInUser.picture;
             getUser();
             $scope.pictureChangeSuccessMessage = 'Your photo has been successfully removed.';
         }, function () {
-           alert('Error removing photo');
+            $scope.uploadErrorMessage = 'Error removing photo';
         });
     };
 }]);

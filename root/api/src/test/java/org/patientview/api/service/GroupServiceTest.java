@@ -11,12 +11,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
-import org.patientview.persistence.model.Email;
-import org.patientview.api.model.UnitRequest;
+import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.api.service.impl.GroupServiceImpl;
-import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -25,7 +22,6 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -45,14 +41,12 @@ import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -376,79 +370,7 @@ public class GroupServiceTest {
 
         verify(groupRepository, Mockito.times(1)).findChildren(eq(testGroup));
         Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
-
     }
-
-    /**
-     * Test: Password Request / Contact Unit functionality.
-     * Fail: Doesnt send an email of any type
-     */
-    @Test
-    public void testPasswordRequest() throws Exception {
-        UnitRequest unitRequest = new UnitRequest();
-        unitRequest.setNhsNumber("234234234");
-        unitRequest.setDateOfBirth(new Date());
-        unitRequest.setForename("forename");
-        unitRequest.setSurname("surname");
-
-        Group group = TestUtils.createGroup("TestGroup");
-        group.setContactPoints(new HashSet<ContactPoint>());
-        group.getContactPoints().add(TestUtils.createContactPoint("83", ContactPointTypes.PV_ADMIN_EMAIL));
-
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(properties.getProperty(eq("site.url"))).thenReturn("");
-
-        groupService.passwordRequest(group.getId(), unitRequest);
-
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
-    }
-
-    /**
-     * Test: Password Request / Contact Unit functionality with no email address
-     * Fail: Doesn't raise an exception
-     */
-    @Test(expected = ResourceNotFoundException.class)
-    public void testPasswordRequest_NotContactEmail() throws Exception {
-        UnitRequest unitRequest = new UnitRequest();
-        unitRequest.setNhsNumber("234234234");
-        unitRequest.setDateOfBirth(new Date());
-        unitRequest.setForename("forename");
-        unitRequest.setSurname("surname");
-
-        Group group = TestUtils.createGroup("TestGroup");
-        group.setContactPoints(new HashSet<ContactPoint>());
-
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(properties.getProperty(eq("site.url"))).thenReturn("");
-
-        groupService.passwordRequest(group.getId(), unitRequest);
-
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
-    }
-
-    /**
-     * Test: Password Request / Contact Unit functionality with a valid unit
-     * Fail: Doesnt raise an exception
-     */
-    @Test(expected = ResourceNotFoundException.class)
-    public void testPasswordRequest_NoGroupExists() throws Exception {
-        UnitRequest unitRequest = new UnitRequest();
-        unitRequest.setNhsNumber("234234234");
-        unitRequest.setDateOfBirth(new Date());
-        unitRequest.setForename("forename");
-        unitRequest.setSurname("surname");
-
-        Group group = TestUtils.createGroup("TestGroup");
-        group.setContactPoints(new HashSet<ContactPoint>());
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
-        groupService.passwordRequest(group.getId(), unitRequest);
-
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
-    }
-
 
     /**
      * Test: Call the find all method if a User has the superadmin role
@@ -495,6 +417,26 @@ public class GroupServiceTest {
         String filterText = "%%";
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
         verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, testUser, pageable);
+    }
+    
+    @Test
+    public void testGetByFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
+
+        Group group = TestUtils.createGroup("TestGroup");
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+        
+        Feature feature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        when(groupRepository.findByFeature(eq(feature))).thenReturn(groups);
+        when(featureRepository.findByName(eq(feature.getName()))).thenReturn(feature);
+        
+        List<org.patientview.api.model.Group> foundGroups = groupService.getByFeature(FeatureType.MESSAGING.toString());
+        Assert.assertTrue("There should be returned Groups", !CollectionUtils.isEmpty(foundGroups));
+
+        verify(groupRepository, Mockito.times(1)).findByFeature(feature);
+        verify(featureRepository, Mockito.times(1)).findByName(feature.getName());
     }
 
 }

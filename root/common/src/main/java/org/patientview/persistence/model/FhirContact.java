@@ -8,22 +8,20 @@ package org.patientview.persistence.model;
  */
 public class FhirContact extends BaseModel {
 
-    private String value;
-
     // phone, fax etc
     private String system;
 
     // mobile, home, work etc
     private String use;
 
+    private String value;
+
     public FhirContact() {
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
+    public FhirContact(String system, String use, String value) {
+        this.system = system;
+        this.use = use;
         this.value = value;
     }
 
@@ -41,5 +39,13 @@ public class FhirContact extends BaseModel {
 
     public void setUse(String use) {
         this.use = use;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

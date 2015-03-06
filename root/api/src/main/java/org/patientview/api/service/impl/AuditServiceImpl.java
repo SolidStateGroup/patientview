@@ -30,8 +30,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * TODO Sprint 3 factor into aspect
- * A service to audit when the security context cannot be used (ie Logon
+ * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
+ * Logon)
  *
  * Created by james@solidstategroup.com
  * Created on 06/08/2014
@@ -43,16 +43,108 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     private AuditRepository auditRepository;
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
     private GroupRepository groupRepository;
 
-    @Override
-    public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
-        return auditRepository.save(audit);
+    @Inject
+    private UserRepository userRepository;
+
+    /**
+     * Convert a List of persistence Audit to api Audit for display in UI, adds details on source object if User or
+     * Group.
+     * @param audits List of persistence Audit
+     * @return List of api Audit
+     */
+    private List<Audit> convertToTransport(List<org.patientview.persistence.model.Audit> audits) {
+        List<Audit> transportAudits = new ArrayList<>();
+
+        for (org.patientview.persistence.model.Audit audit : audits) {
+            Audit transportAudit = new Audit(audit);
+
+            // get actor if exists
+            if (audit.getActorId() != null) {
+                org.patientview.persistence.model.User actor = userRepository.findOne(audit.getActorId());
+                if (actor != null) {
+                    transportAudit.setActor(new User(actor, null));
+                }
+            }
+
+            // if source object is User get source user if exists
+            if (audit.getSourceObjectType() != null && audit.getSourceObjectId() != null) {
+
+                if (audit.getSourceObjectType().equals(AuditObjectTypes.User)) {
+                    org.patientview.persistence.model.User sourceObject
+                            = userRepository.findOne(audit.getSourceObjectId());
+
+                    if (sourceObject != null) {
+                        transportAudit.setSourceObjectUser(new User(sourceObject, null));
+                    }
+                } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
+                    org.patientview.persistence.model.Group sourceObject
+                            = groupRepository.findOne(audit.getSourceObjectId());
+
+                    if (sourceObject != null) {
+                        transportAudit.setSourceObjectGroup(new BaseGroup(sourceObject));
+                    }
+                }
+            }
+
+            transportAudit.setUsername(audit.getUsername());
+            transportAudits.add(transportAudit);
+        }
+
+        return transportAudits;
     }
 
+    /**
+     * Create an Audit item, given required properties.
+     * @param auditActions An AuditActions enum representing the type of Audit
+     * @param username String username
+     * @param actor User who is performing the action, can be a regular User or the importer User etc
+     * @param sourceObjectId ID of object being audited
+     * @param sourceObjectType AuditObjectTypes type of the object being audited, e.g. Group or User
+     * @param group Group, if relevant to Audit action, e.g. adding User to Group
+     */
+    @Override
+    public void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
+                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group) {
+
+        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
+        audit.setAuditActions(auditActions);
+        audit.setUsername(username);
+
+        if (actor != null) {
+            audit.setActorId(actor.getId());
+        }
+
+        if (group != null) {
+            audit.setGroup(groupRepository.findOne(group.getId()));
+        }
+
+        audit.setSourceObjectId(sourceObjectId);
+        if (sourceObjectType != null) {
+            audit.setSourceObjectType(sourceObjectType);
+        }
+
+        save(audit);
+    }
+
+    /**
+     * Remove all Audit entries associated with a User.
+     * @param user User to delete Audit entries for
+     */
+    @Override
+    public void deleteUserFromAudit(org.patientview.persistence.model.User user) {
+        auditRepository.removeActorId(user.getId());
+    }
+
+    /**
+     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
+     * of page etc
+     * @return Page containing a number of Audit objects, each of which has a Date, Action etc
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @Override
     public Page<Audit> findAll(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -172,75 +264,14 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
     }
 
+    /**
+     * Update an existing Audit object.
+     * @param audit Audit object to update
+     * @return Updated Audit object
+     */
     @Override
-    public void deleteUserFromAudit(org.patientview.persistence.model.User user) {
-        auditRepository.removeActorId(user.getId());
-    }
-
-    @Override
-    public void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
-                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group) {
-
-        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
-        audit.setAuditActions(auditActions);
-        audit.setUsername(username);
-
-        if (actor != null) {
-            audit.setActorId(actor.getId());
-        }
-
-        if (group != null) {
-            audit.setGroup(groupRepository.findOne(group.getId()));
-        }
-
-        audit.setSourceObjectId(sourceObjectId);
-        if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType);
-        }
-
-        save(audit);
-    }
-
-    private List<Audit> convertToTransport(List<org.patientview.persistence.model.Audit> audits) {
-        List<Audit> transportAudits = new ArrayList<>();
-
-        for (org.patientview.persistence.model.Audit audit : audits) {
-            Audit transportAudit = new Audit(audit);
-
-            // get actor if exists
-            if (audit.getActorId() != null) {
-                org.patientview.persistence.model.User actor = userRepository.findOne(audit.getActorId());
-                if (actor != null) {
-                    transportAudit.setActor(new User(actor, null));
-                }
-            }
-
-            // if source object is User get source user if exists
-            if (audit.getSourceObjectType() != null && audit.getSourceObjectId() != null) {
-
-                if (audit.getSourceObjectType().equals(AuditObjectTypes.User)) {
-                    org.patientview.persistence.model.User sourceObject
-                            = userRepository.findOne(audit.getSourceObjectId());
-
-                    if (sourceObject != null) {
-                        transportAudit.setSourceObjectUser(new User(sourceObject, null));
-                    }
-                } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
-                    org.patientview.persistence.model.Group sourceObject
-                            = groupRepository.findOne(audit.getSourceObjectId());
-
-                    if (sourceObject != null) {
-                        transportAudit.setSourceObjectGroup(new BaseGroup(sourceObject));
-                    }
-                }
-            }
-
-            transportAudit.setUsername(audit.getUsername());
-
-            transportAudits.add(transportAudit);
-        }
-
-        return transportAudits;
+    public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
+        return auditRepository.save(audit);
     }
 
 }

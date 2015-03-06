@@ -1,90 +1,5 @@
 'use strict';
 
-// new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
-    $scope.permissions = permissions;
-    $scope.editUser = newUser;
-    $scope.allGroups = allGroups;
-    $scope.allowedRoles = allowedRoles;
-    $scope.identifierTypes = identifierTypes;
-    $scope.editMode = false;
-
-    // hide 'CENTRAL_SUPPORT_CONTACT'
-    for (var i = 0; i < $scope.editUser.availableFeatures.length; i++) {
-        if ($scope.editUser.availableFeatures[i].feature.name === 'CENTRAL_SUPPORT_CONTACT') {
-            $scope.editUser.availableFeatures.splice(i, 1);
-        }
-    }
-    
-    // set initial group and feature (avoid blank option)
-    if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
-        $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
-    }
-    if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
-        $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
-    }
-
-    // set role to first
-    $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
-
-    // check username is not already in use
-    $scope.checkUsername = function () {
-        UserService.checkUsernameExists($scope.editUser.username).then(function (usernameExists) {
-            $scope.editUser.usernameChecked = true;
-            $scope.editUser.usernameExists = usernameExists === 'true';
-        }, function (errorResult) {
-            alert("Error: " + errorResult.data);
-        });
-    };
-    
-    // clear username check when username is changed
-    $scope.$watch('editUser.username', function () {
-        $scope.editUser.usernameChecked = false;
-    });
-    
-    // click Create New button
-    $scope.create = function () {
-        // generate password
-        var password = UtilService.generatePassword();
-        $scope.editUser.password = password;
-
-        UserService.create($scope.editUser).then(function(userId) {
-            // successfully created new user
-            UserService.get(userId).then(function(result) {
-                result.isNewUser = true;
-                result.password = password;
-                $modalInstance.close(result);
-            }, function() {
-                alert('Cannot get user (has been created)');
-            });
-        }, function(result) {
-            if (result.status === 409) {
-                // 409 = CONFLICT, means user already exists
-                $scope.warningMessage = 'A user with this username or email already exists. Please choose an alternative or search for an existing staff member if you want to add them to your group';
-            } else {
-                // Other errors treated as standard errors
-                $scope.errorMessage = 'There was an error: ' + result.data;
-            }
-        });
-    };
-
-    // click Update Existing button, (after finding user already exists)
-    $scope.edit = function () {
-        UserService.save($scope.editUser).then(function() {
-            // successfully saved existing user
-            $scope.editUser.isNewUser = false;
-            $modalInstance.close($scope.editUser);
-        }, function(result) {
-            $scope.errorMessage = 'There was an error: ' + result.data;
-        });
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
 // find existing staff modal instance controller
 var FindExistingStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'UserService',
 function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, UserService) {
@@ -222,25 +137,21 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$routeParams', 'UserService', 'UtilService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, $routeParams, UserService, UtilService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
+    '$routeParams', 'UserService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, $routeParams, UserService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
-    $scope.searchItems = {};
     $scope.selectedRole = [];
     $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
         delete $scope.successMessage;
-        $scope.searchItems.searchUsername = $('#search-username').val();
-        $scope.searchItems.searchForename = $('#search-forename').val();
-        $scope.searchItems.searchSurname = $('#search-surname').val();
-        $scope.searchItems.searchEmail = $('#search-email').val();
         $scope.currentPage = 0;
         $scope.getItems();
     };
@@ -321,77 +232,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.getItems();
     };
 
-    // pagination
-    $scope.pageCount = function() {
-        return Math.ceil($scope.total / $scope.itemsPerPage);
-    };
-
-    $scope.range = function() {
-        var rangeSize = $scope.itemsPerPage;
-        var pageNumbers = [];
-        var startPage;
-
-        if (($scope.currentPage - $scope.itemsPerPage / 2) < 0) {
-            startPage = 0;
-        } else {
-            startPage = $scope.currentPage - $scope.itemsPerPage / 2;
-        }
-
-        if (startPage > $scope.pageCount() - rangeSize) {
-            startPage = $scope.pageCount() - rangeSize;
-        }
-
-        for (var i = startPage; i < startPage + rangeSize; i++) {
-            if (i > -1) {
-                pageNumbers.push(i);
-            }
-        }
-
-        return pageNumbers;
-    };
-
-    $scope.setPage = function(pageNumber) {
-        if (pageNumber > -1 && pageNumber < $scope.totalPages) {
-            $scope.currentPage = pageNumber;
-        }
-    };
-
-    $scope.firstPage = function() {
-        $scope.currentPage = 0;
-    };
-
-    $scope.prevPage = function() {
-        if ($scope.currentPage > 0) {
-            $scope.currentPage--;
-        }
-    };
-
-    $scope.nextPage = function() {
-        if ($scope.currentPage < $scope.totalPages - 1) {
-            $scope.currentPage++;
-        }
-    };
-
-    $scope.lastPage = function() {
-        $scope.currentPage = $scope.totalPages - 1;
-    };
-
-    $scope.firstPageDisabled = function() {
-        return (($scope.currentPage - $scope.itemsPerPage / 2) < 0) ? 'hidden' : '';
-    };
-
-    $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? 'hidden' : '';
-    };
-
-    $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? 'hidden' : '';
-    };
-
-    $scope.lastPageDisabled = function() {
-        return ($scope.currentPage + 6 > $scope.pageCount()) ? 'hidden' : '';
-    };
-
     $scope.sortBy = function(sortField) {
         delete $scope.successMessage;
         $scope.currentPage = 0;
@@ -412,7 +252,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
         $scope.loading = true;
-
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
@@ -420,11 +259,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         getParameters.sortDirection = $scope.sortDirection;
 
         // multi search
-        getParameters.searchUsername = $scope.searchItems.searchUsername;
-        getParameters.searchForename = $scope.searchItems.searchForename;
-        getParameters.searchSurname = $scope.searchItems.searchSurname;
-        getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
-        getParameters.searchEmail = $scope.searchItems.searchEmail;
+        getParameters.searchUsername = $('#search-username').val();
+        getParameters.searchForename = $('#search-forename').val();
+        getParameters.searchSurname = $('#search-surname').val();
+        getParameters.searchIdentifier = $('#search-identifier').val();
+        getParameters.searchEmail = $('#search-email').val();
 
         // for filtering users by status (e.g. locked, active, inactive)
         getParameters.statusFilter = $scope.statusFilter;
@@ -509,6 +348,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         // show error if user is not a member of any groups
         if (groups.length !== 0) {
+            $scope.filterUnitGroups = [];
+            $scope.filterDiseaseGroupGroups = [];
+            $scope.filterSpecialtyGroups = [];
 
             // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
             for (i = 0; i < groups.length; i++) {
@@ -534,10 +376,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
                     if (group.groupType.value === 'UNIT') {
                         $scope.showUnitFilter = true;
+                        $scope.filterUnitGroups.push(minimalGroup);
                     } else if (group.groupType.value === 'DISEASE_GROUP') {
                         $scope.showDiseaseGroupFilter = true;
+                        $scope.filterDiseaseGroupGroups.push(minimalGroup);
                     } else if (group.groupType.value === 'SPECIALTY') {
                         $scope.showSpecialtyFilter = true;
+                        $scope.filterSpecialtyGroups.push(minimalGroup);
                     }
                 }
             }
@@ -682,84 +527,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
     };
 
-    // handle opening modal (Angular UI Modal http://angular-ui.github.io/bootstrap/)
-    $scope.openModalNewStaff = function (size) {
-        // close any open edit panels
-        for (var i = 0; i < $scope.pagedItems.length; i++) {
-            $scope.pagedItems[i].showEdit = false;
-        }
-        // clear messages
-        $scope.errorMessage = '';
-        $scope.warningMessage = '';
-        $scope.successMessage = '';
-        $scope.printSuccessMessage = false;
-        $scope.userCreated = '';
-
-        // create new user with list of available roles, groups and features
-        $scope.editUser = {};
-        $scope.editUser.groupRoles = [];
-        $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
-        $scope.editUser.userFeatures = [];
-        $scope.editUser.selectedRole = '';
-        $scope.editUser.identifiers = [];
-
-        // open modal and pass in required objects for use in modal scope
-        var modalInstance = $modal.open({
-            templateUrl: 'newStaffModal.html',
-            controller: NewStaffModalInstanceCtrl,
-            size: size,
-            backdrop: 'static',
-            resolve: {
-                permissions: function(){
-                    return $scope.permissions;
-                },
-                newUser: function(){
-                    return $scope.editUser;
-                },
-                allGroups: function(){
-                    return $scope.allGroups;
-                },
-                allowedRoles: function(){
-                    return $scope.allowedRoles;
-                },
-                allFeatures: function(){
-                    return $scope.allFeatures;
-                },
-                identifierTypes: function(){
-                    return $scope.identifierTypes;
-                },
-                UserService: function(){
-                    return UserService;
-                },
-                UtilService: function(){
-                    return UtilService;
-                }
-            }
-        });
-
-        // handle modal close (via button click)
-        modalInstance.result.then(function (user) {
-            // check if user is newly created
-            if (user.isNewUser) {
-                $scope.printSuccessMessage = true;
-                $scope.successMessage = 'User successfully created ' +
-                    'with username: ' + user.username + ' ' +
-                    'and password: ' + user.password;
-                $scope.userCreated = true;
-            } else {
-                // is an already existing user, likely updated group roles
-                $scope.successMessage = 'User successfully updated with username: "' + user.username + '"';
-            }
-
-            $scope.currentPage = 0;
-            $scope.getItems();
-            delete $scope.editUser;
-
-        }, function () {
-            $scope.getItems();
-        });
-    };
-
     // handle opening modal for finding existing staff by email
     $scope.openModalFindExistingStaff = function (size) {
         // close any open edit panels
@@ -890,15 +657,21 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
     };
 
-    $scope.printSuccessMessage = function() {
-        var w=window.open();
-        var successMessage = $('#success-message').clone();
-        successMessage.children('.print-success-message').remove();
-        w.document.write(successMessage.html());
-        w.print();
-        w.close();
+    $scope.printSuccessMessageCompat = function() {
+        // ie8 compatibility
+        var printContent = $('#success-message').clone();
+        printContent.children('.print-success-message').remove();
+        var windowUrl = 'PatientView';
+        var uniqueName = new Date();
+        var windowName = 'Print' + uniqueName.getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+        printWindow.document.write(printContent.html());
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     };
-        
+
     $scope.removeStatusFilter = function() {
         delete $scope.statusFilter;
         $scope.getItems();

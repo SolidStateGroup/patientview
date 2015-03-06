@@ -14,15 +14,12 @@ import org.patientview.patientview.model.SpecialtyResultHeading;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
-import org.patientview.patientview.model.JoinRequest;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.repository.EdtaCodeDao;
-import org.patientview.repository.JoinRequestDao;
 import org.patientview.repository.ResultHeadingDao;
 import org.patientview.repository.SpecialtyDao;
 import org.slf4j.Logger;
@@ -31,8 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,9 +49,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     @Inject
     private SpecialtyDao specialtyDao;
-
-    @Inject
-    private JoinRequestDao joinRequestDao;
 
     private List<Group> groups;
     private List<Role> roles;
@@ -90,12 +82,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
         createCodes(getLookupByName("TREATMENT"), "treatment");
         createObservationHeadings();
-    }
-
-    @Override
-    public void migrateJoinRequests() throws JsonMigrationException {
-        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
-        createJoinRequests();
     }
 
     private Code callApiCreateCode(Code code) {
@@ -201,55 +187,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             }
 
             callApiCreateObservationHeading(observationHeading);
-        }
-    }
-
-    private void createJoinRequests() {
-        List<JoinRequest> pv1JoinRequests = joinRequestDao.getAll();
-
-        List<org.patientview.persistence.model.JoinRequest> apiJoinRequests
-                = new ArrayList<org.patientview.persistence.model.JoinRequest>();
-
-        for (JoinRequest pv1JoinRequest : pv1JoinRequests) {
-            Group group = getGroupByCode(pv1JoinRequest.getUnitcode());
-            if (group != null) {
-                org.patientview.persistence.model.JoinRequest apiJoinRequest
-                        = new org.patientview.persistence.model.JoinRequest();
-
-                if (pv1JoinRequest.getDateOfRequest() != null) {
-                    apiJoinRequest.setCreated(pv1JoinRequest.getDateOfRequest());
-                } else {
-                    apiJoinRequest.setCreated(new Date());
-                }
-                apiJoinRequest.setGroup(group);
-                apiJoinRequest.setForename(pv1JoinRequest.getFirstName());
-                apiJoinRequest.setSurname(pv1JoinRequest.getLastName());
-                apiJoinRequest.setDateOfBirth(pv1JoinRequest.getDateOfBirth());
-                apiJoinRequest.setEmail(pv1JoinRequest.getEmail());
-                apiJoinRequest.setNhsNumber(pv1JoinRequest.getNhsNo());
-                apiJoinRequest.setNotes(pv1JoinRequest.getNotes());
-
-                if (pv1JoinRequest.getIsComplete()) {
-                    apiJoinRequest.setStatus(JoinRequestStatus.COMPLETED);
-                } else {
-                    apiJoinRequest.setStatus(JoinRequestStatus.SUBMITTED);
-                }
-
-                apiJoinRequests.add(apiJoinRequest);
-
-            } else {
-                LOG.error("Join request group not found from unitcode: " + pv1JoinRequest.getUnitcode());
-            }
-        }
-
-        try {
-            JsonUtil.jsonRequest(JsonUtil.pvUrl + "/migrate/joinrequests",
-                    null, apiJoinRequests, HttpPost.class, false);
-            LOG.info("Migrated " + apiJoinRequests.size() + " join requests");
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to migrate join requests: ", jme.getMessage());
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to migrate join requests: ", jee.getMessage());
         }
     }
 

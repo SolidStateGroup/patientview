@@ -3,7 +3,6 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.GroupStatisticTO;
-import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import javax.mail.MessagingException;
 import java.util.List;
 
 /**
@@ -44,18 +41,13 @@ public class GroupController extends BaseController<GroupController> {
     private GroupStatisticService groupStatisticService;
 
     /**
-     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
-     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
-     * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
-     * @param userId ID of User to get allowed relationship Groups
-     * @return Page of allowed relationship Groups
+     * Create a Group.
+     * @param group Group object containing all required properties
+     * @return Long ID of Group created successfully
      */
-    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
-            @PathVariable("userId") Long userId) {
-        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> add(@RequestBody Group group) {
+        return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
     }
 
     /**
@@ -94,16 +86,6 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Create a Group.
-     * @param group Group object containing all required properties
-     * @return Long ID of Group created successfully
-     */
-    @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> createGroup(@RequestBody Group group) {
-        return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
-    }
-
-    /**
      * Remove a child Group from a parent Group.
      * @param groupId ID of parent Group to remove child Group from
      * @param childGroupId ID of child Group to remove from parent Group
@@ -134,6 +116,35 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
         groupService.deleteParentGroup(groupId, parentGroupId);
+    }
+
+    /**
+     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
+     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
+     * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
+     * @param userId ID of User to get allowed relationship Groups
+     * @return Page of allowed relationship Groups
+     */
+    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
+            @PathVariable("userId") Long userId) {
+        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Get List of Groups by feature name, currently used to get list of groups with MESSAGING feature for creating
+     * membership request Conversations.
+     * @param featureName String name of feature that Group must have
+     * @return List of Groups
+     */
+    @RequestMapping(value = "/group/feature/{featureName}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<org.patientview.api.model.Group>> getByFeature(
+            @PathVariable(value = "featureName") String featureName)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(groupService.getByFeature(featureName), HttpStatus.OK);
     }
 
     /**
@@ -239,25 +250,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Used when a User does not know their username or password and must enter other patient identifiable information.
-     * Sends an email to an appropriate staff member given the Group selected by the user. Note: this is deprecated as
-     * considered unsafe to send patient identifiable information over email. May be re-enabled using
-     * Conversations to Group staff rather than sending emails.
-     * @param groupId ID of Group to send email to about User being unable to remember username or email
-     * @param unitRequest UnitRequest object containing typical patient identifying information, name, identifier etc
-     * @throws ResourceNotFoundException
-     * @throws MailException
-     * @throws MessagingException
-     */
-    @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
-    @ResponseBody
-    public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
-            throws ResourceNotFoundException, MailException, MessagingException {
-        groupService.passwordRequest(groupId, unitRequest);
-    }
-
-    /**
-     * Save an updated Group
+     * Save an updated Group.
      * @param group Group to save
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException

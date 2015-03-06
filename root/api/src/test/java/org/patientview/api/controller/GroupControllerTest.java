@@ -9,10 +9,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.SecurityAspect;
-import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.service.JoinRequestService;
+import org.patientview.api.service.RequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -21,18 +20,15 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -50,7 +46,7 @@ public class GroupControllerTest {
     private GroupService groupService;
 
     @Mock
-    private JoinRequestService joinRequestService;
+    private RequestService requestService;
 
     @Mock
     private GroupStatisticService groupStatisticService;
@@ -195,30 +191,6 @@ public class GroupControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Test: The submission of a password reset object to the controller
-     * Fail: The password reset object is not passed to the service
-     */
-    @Test
-    public void testPasswordRequest() {
-
-        UnitRequest unitRequest = new UnitRequest();
-        unitRequest.setForename("Test");
-        unitRequest.setSurname("User");
-        unitRequest.setDateOfBirth(new Date());
-        unitRequest.setNhsNumber("ASDASDA");
-        Long groupId = 2L;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/public/passwordrequest/group/" + groupId)
-                    .content(mapper.writeValueAsString(unitRequest)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(groupService, Mockito.times(1)).passwordRequest(eq(groupId), any(UnitRequest.class));
         } catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }

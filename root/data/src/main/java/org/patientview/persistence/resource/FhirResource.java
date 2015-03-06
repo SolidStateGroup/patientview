@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -660,6 +661,51 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    public List<UUID> getObservationUuidsBySubjectNameDateRange(UUID subjectId, String name, Date start, Date end)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content->'appliesDateTime' ");
+        query.append("FROM observation ");
+        query.append("WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' ");
+        query.append("AND UPPER(content-> 'name' ->> 'text') = '");
+        query.append(name.toUpperCase());
+        query.append("' ");
+
+        // execute and return map of logical ids
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> observationUuids = new ArrayList<>();
+
+            while ((results.next())) {
+                if (StringUtils.isNotEmpty(results.getString(2))) {
+                    try {
+                        String dateString = results.getString(2).replace("\"", "");
+                        XMLGregorianCalendar xmlDate
+                                = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                        Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
+
+                        if (start.getTime() <= applies && end.getTime() >= applies) {
+                            observationUuids.add(UUID.fromString(results.getString(1)));
+                        }
+                    } catch (DatatypeConfigurationException e) {
+                        LOG.error(e.getMessage());
+                    }
+                }
+            }
+
+            connection.close();
+            return observationUuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
         }
     }
 

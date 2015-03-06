@@ -12,13 +12,15 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     $scope.contactOptions.push({'id':0, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
     $scope.contactOptions.push({'id':1, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Feedback to my unit (public)'});
     $scope.contactOptions.push({'id':2, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': true, 'description':'Feedback to my unit (anonymous)'});
-    $scope.contactOptions.push({'id':3, 'staffFeature': 'UNIT_TECHNICAL_CONTACT', 'anonymous': false, 'description':'Comments about PatientView for the system administrators'});
+    $scope.contactOptions.push({'id':3, 'staffFeature': 'UNIT_TECHNICAL_CONTACT', 'anonymous': false, 'description':'Feedback on technical issues to your local PatientView administrator'});
     $scope.contactOptions.push({'id':4, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Other comments to your local PatientView administrator'});
     $scope.contactOptions.push({'id':5, 'staffFeature': 'CENTRAL_SUPPORT_CONTACT', 'anonymous': false, 'description':'Comments to central PatientView support (will be sent via email)'});
     $scope.selectedContactOption = $scope.contactOptions[-1];
     $scope.modalLoading = false;
 
     $scope.ok = function () {
+        $scope.sendingMessage = true;
+        
         // build correct conversation from conversation
         var conversation = {};
         conversation.type = 'CONTACT_UNIT';
@@ -48,12 +50,14 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
 
         ConversationService.create($scope.loggedInUser, conversation).then(function() {
             $modalInstance.close();
+            delete $scope.sendingMessage;
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;
             } else {
                 $scope.errorMessage = ' ';
             }
+            delete $scope.sendingMessage;
         });
     };
 

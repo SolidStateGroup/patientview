@@ -5,12 +5,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ConversationService;
+import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ConversationLabel;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -24,6 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -56,7 +63,6 @@ public class ConversationControllerTest {
 
     @Test
     public void testGetUserConversations() {
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
@@ -71,6 +77,150 @@ public class ConversationControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations?size=5&page=0")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAddConversationUser() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
+        User user2 = TestUtils.createUser("test2User");
+
+        Conversation conversation = new Conversation();
+        conversation.setId(1L);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/conversation/"
+                    + conversation.getId() + "/conversationuser/" + user2.getId())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(conversationService, Mockito.times(1))
+                    .addConversationUser(eq(conversation.getId()), eq(user2.getId()));
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAddConversationUserLabel() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
+        Conversation conversation = new Conversation();
+        conversation.setId(1L);
+
+        ConversationLabel conversationLabel = ConversationLabel.ARCHIVED;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/conversations/"
+                    + conversation.getId() + "/conversationlabel/" + conversationLabel.toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRemoveConversationUser() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User user2 = TestUtils.createUser("test2User");
+
+        Conversation conversation = new Conversation();
+        conversation.setId(1L);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/conversation/"
+                    + conversation.getId() + "/conversationuser/" + user2.getId())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(conversationService, Mockito.times(1))
+                    .removeConversationUser(eq(conversation.getId()), eq(user2.getId()));
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRemoveConversationUserLabel() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Conversation conversation = new Conversation();
+        conversation.setId(1L);
+
+        ConversationLabel conversationLabel = ConversationLabel.ARCHIVED;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId() + "/conversations/"
+                    + conversation.getId() + "/conversationlabel/" + conversationLabel.toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(conversationService, Mockito.times(1))
+                    .removeConversationUserLabel(eq(user.getId()), eq(conversation.getId()), eq(conversationLabel));
+        } catch (Exception e) {
+            fail("Exception throw: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetGroupRecipientsByFeature() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
+        Feature feature = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/recipientsbyfeature/"
+                    + feature.getName())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(conversationService, Mockito.times(1))
+                    .getGroupRecipientsByFeature(eq(group.getId()), eq(feature.getName()));
         } catch (Exception e) {
             fail("Exception throw: " + e.getMessage());
         }

@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserService', 'IdentifierService',
-function ($scope, UserService, IdentifierService) {
+angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', '$rootScope', 'UserService',
+    'IdentifierService', 'localStorageService',
+function ($scope, $rootScope, UserService, IdentifierService, localStorageService) {
     var i;
 
     // add group to current group, remove from allowed
@@ -84,7 +85,7 @@ function ($scope, UserService, IdentifierService) {
         }
     };
 
-    // add feature to current feature, remove from allowed
+    // add feature to current feature, remove from allowed, add to current logged in user if required
     $scope.addFeature = function (form, user, featureId) {
         if ($scope.editMode) {
             UserService.addFeature(user, featureId).then(function () {
@@ -106,6 +107,14 @@ function ($scope, UserService, IdentifierService) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.userFeatures = successResult.userFeatures;
                         }
+                    }
+                    if (user.id == $rootScope.loggedInUser.id) {
+                        if (localStorageService.isSupported) {
+                            var localStorageUser = localStorageService.get('loggedInUser');
+                            localStorageUser.userFeatures = successResult.userFeatures;
+                            localStorageService.set('loggedInUser', localStorageUser);
+                        }
+                        $rootScope.loggedInUser.userFeatures = successResult.userFeatures;                        
                     }
                 }, function () {
                     alert('Error updating header (saved successfully)');
@@ -152,6 +161,14 @@ function ($scope, UserService, IdentifierService) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.userFeatures = successResult.userFeatures;
                         }
+                    }
+                    if (user.id == $rootScope.loggedInUser.id) {
+                        if (localStorageService.isSupported) {
+                            var localStorageUser = localStorageService.get('loggedInUser');
+                            localStorageUser.userFeatures = successResult.userFeatures;
+                            localStorageService.set('loggedInUser', localStorageUser);
+                        }
+                        $rootScope.loggedInUser.userFeatures = successResult.userFeatures;
                     }
                 }, function () {
                     // failure

@@ -8,7 +8,8 @@ public enum ConversationTypes {
     MESSAGE("Message"),
     FEEDBACK("Feedback"),
     SHARED_THOUGHT("Shared Thought"),
-    CONTACT_UNIT("Contact Unit");
+    CONTACT_UNIT("Contact Unit"),
+    MEMBERSHIP_REQUEST("Membership Request");
 
     private String name;
     ConversationTypes(String name) { this.name = name; }

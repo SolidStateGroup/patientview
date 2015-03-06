@@ -98,7 +98,10 @@ public enum AuditActions {
     PATIENT_DATA_FAIL("Patient data failed import"),
 
     // ECS (GP Medication)
-    GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)");
+    GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)"),
+    
+    // membership request conversation created
+    MEMBERSHIP_REQUEST_SENT("Membership request sent");
 
     private String name;
     AuditActions(String name) { this.name = name; }

@@ -1,7 +1,140 @@
 'use strict';
 
+// change conversation recipients modal instance controller
+var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', '$timeout',
+    'GroupService', 'ConversationService', 'conversation',
+    function ($scope, $rootScope, $modalInstance, $timeout, GroupService, ConversationService, conversation) {
+        var init = function() {
+            delete $scope.errorMessage;
+            $scope.editConversation = conversation;
+            $scope.conversationGroups = [];
+
+            GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+                for (var i = 0; i < successResult.length; i++) {
+                    if (successResult[i].code !== 'Generic') {
+                        $scope.conversationGroups.push(successResult[i]);
+                    }
+                }
+            }, function(failResult) {
+                $scope.errorMessage = failResult.data;
+            });
+        };
+
+        $scope.cancel = function () {
+            delete $scope.errorMessage;
+            $modalInstance.dismiss('cancel');
+        };
+
+        $scope.selectGroup = function(conversation, groupId) {
+            $scope.modalLoading = true;
+            $scope.recipientsExist = false;
+
+            ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
+                var element = document.getElementById('conversation-add-recipient');
+                if (element !== null) {
+                    element.parentNode.removeChild(element);
+                }
+
+                $('#recipient-select-container').html(recipientOptions);
+
+                $('#select-recipient').selectize({
+                    sortField: 'text',
+                    onChange: function(userId) {
+                        if (userId.length) {
+                            addConversationUser(userId);
+                        }
+                    }
+                });
+
+                $scope.recipientsExist = true;
+                $scope.modalLoading = false;
+            }, function (failureResult) {
+                if (failureResult.status === 404) {
+                    $scope.modalLoading = false;
+                } else {
+                    $scope.modalLoading = false;
+                    alert('Error loading message recipients');
+                }
+            });
+        };
+
+        var addConversationUser = function (userId) {
+            var found = false;
+            var conversation = $scope.editConversation;
+
+            // check not already added
+            for (var i = 0; i < conversation.conversationUsers.length; i++) {
+                // need to cast string to number using == not === for id
+                if (conversation.conversationUsers[i].user.id == userId) {
+                    found = true;
+                }
+            }
+
+            if (!found && userId !== '') {
+                ConversationService.addConversationUser(conversation.id, userId).then(function() {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                }, function() {
+                    alert('Error adding conversation user');
+                });
+            }
+
+            $timeout(function() {
+                $scope.$apply();
+            });
+        };
+        
+        $scope.addConversationUser = function (conversation) {
+            var userId = $('#conversation-add-recipient option').filter(':selected').val();
+            var found = false;
+
+            // check not already added
+            for (var i = 0; i < conversation.conversationUsers.length; i++) {
+                // need to cast string to number using == not === for id
+                if (conversation.conversationUsers[i].user.id == userId) {
+                    found = true;
+                }
+            }
+
+            if (!found && userId !== '') {
+                ConversationService.addConversationUser(conversation.id, userId).then(function() {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                }, function() {
+                    alert('Error adding conversation user');
+                });
+            }
+        };
+
+        $scope.removeConversationUser = function (conversationId, userId) {
+            ConversationService.removeConversationUser(conversationId, userId).then(function() {
+                if (userId !== $scope.loggedInUser.id) {
+                    ConversationService.get(conversation.id).then(function(successResult) {
+                        $scope.editConversation = successResult;
+                    }, function() {
+                        alert('Error getting conversation');
+                    });
+                } else {
+                    // have removed own user from conversation
+                    $scope.removedSelfFromConversation = true;
+                }
+            }, function() {
+                alert('Error removing conversation user');
+            });
+        };
+
+        init();
+    }];
+
 // new conversation modal instance controller
-var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
+var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService',
+    'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
         var i;
 
@@ -24,6 +157,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
         $scope.ok = function () {
             delete $scope.errorMessage;
+            $scope.sendingMessage = true;
 
             // build correct conversation from newConversation
             var conversation = {};
@@ -60,12 +194,14 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             ConversationService.create($scope.loggedInUser, conversation).then(function() {
                 $modalInstance.close();
+                delete $scope.sendingMessage;
             }, function(result) {
                 if (result.data) {
                     $scope.errorMessage = ' - ' + result.data;
                 } else {
                     $scope.errorMessage = ' ';
                 }
+                delete $scope.sendingMessage;
             });
         };
 
@@ -77,75 +213,67 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         init();
     }];
 
-// pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'UserService',
-    function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', '$filter',
+    'ConversationService', 'GroupService', 'UserService',
+function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
 
-    $scope.range = function() {
-        var rangeSize = 5;
-        var ret = [];
-        var start;
-
-        start = 1;
-        if ( start > $scope.totalPages-rangeSize ) {
-            start = $scope.totalPages-rangeSize;
-        }
-
-        for (var i=start; i<start+rangeSize; i++) {
-            if (i > -1) {
-                ret.push(i);
-            }
-        }
-
-        return ret;
-    };
-
-    $scope.setPage = function(n) {
-        if (n > -1 && n < $scope.totalPages) {
-            $scope.currentPage = n;
-        }
-    };
-
-    $scope.prevPage = function() {
-        if ($scope.currentPage > 0) {
-            $scope.currentPage--;
-        }
-    };
-
-    $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? 'hidden' : '';
-    };
-
-    $scope.nextPage = function() {
-        if ($scope.currentPage < $scope.totalPages - 1) {
-            $scope.currentPage++;
-        }
-    };
-
-    $scope.nextPageDisabled = function() {
-        if ($scope.totalPages > 0) {
-            return $scope.currentPage === $scope.totalPages - 1 ? 'hidden' : '';
-        } else {
-            return 'hidden';
-        }
-    };
+    // folders (equivalent to labels, currently only INBOX, ARCHIVED)
+    $scope.folders = [];
+    $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
+    $scope.selectedFolder = $scope.folders[0].name;
 
     // get page of data every time currentPage is changed
-    $scope.$watch('currentPage', function(newValue) {
+    $scope.$watch('currentPage', function() {
+        getItems();
+    });
+
+    var getItems = function() {
         $scope.loading = true;
-        ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
+        var getParameters = {};
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        if (!$scope.includeAllFoldersInSearch) {
+
+            // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
+            getParameters.conversationLabels = [];
+            getParameters.conversationLabels.push($scope.selectedFolder);
+        }
+
+        ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
+
+            // add archived property if present as a label for this user
+            for (var i=0; i<page.content.length; i++) {
+                page.content[i] = setArchivedStatus(page.content[i]);
+            }
+
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
             $scope.loading = false;
         }, function() {
             $scope.loading = false;
-            // error
+            alert("Could not get conversations");
         });
-    });
+    };
+
+    var setArchivedStatus = function(conversation) {
+        var currentUserId = $scope.loggedInUser.id;
+        for (var i=0; i<conversation.conversationUsers.length; i++) {
+            var conversationUser = conversation.conversationUsers[i];
+            if (conversationUser.user.id === currentUserId) {
+                for (var j=0; j<conversationUser.conversationUserLabels.length; j++) {
+                    if (conversationUser.conversationUserLabels[j].conversationLabel === 'ARCHIVED') {
+                        conversation.archived = true;
+                    }
+                }
+            }
+        }
+        return conversation;
+    };
 
     $scope.hasUnreadMessages = function(conversation) {
         var i, j, unread, unreadMessages = 0;
@@ -310,8 +438,38 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
         });
     };
 
-    $scope.userHasMessagingFeature = function() {
+    // open modal for change conversation recipients
+    $scope.openModalChangeConversationRecipients = function (conversation) {
+        delete $scope.errorMessage;
+        delete $scope.successMessage;
 
+        // open modal
+        var modalInstance = $modal.open({
+            templateUrl: 'changeConversationRecipientsModal.html',
+            controller: ChangeConversationRecipientsModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                conversation: function () {
+                    return conversation;
+                },
+                ConversationService: function () {
+                    return ConversationService;
+                },
+                GroupService: function () {
+                    return GroupService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // only has close button
+        }, function () {
+            getItems();
+        });
+    };
+
+    $scope.userHasMessagingFeature = function() {
         // GLOBAL_ADMIN and PATIENT both always have messaging enabled
         if (UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)
             || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
@@ -329,11 +487,103 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
 
         return false;
     };
-        
+
     $scope.getLastMessageUser = function(conversation) {
         var message = conversation.messages[conversation.messages.length-1];
         if (message != null) {
-            return message.user;            
+            return message.user;
         }
-    }
+    };
+
+    $scope.changeFolder = function(folder) {
+        $scope.folder = folder;
+        $scope.currentPage = 0;
+        delete $scope.filterText;
+        delete $scope.includeAllFoldersInSearch;
+        getItems();
+    };
+
+    $scope.search = function() {
+        if ($scope.filterText !== undefined && !$scope.filterText.length) {
+            delete $scope.filterText;
+        }
+        $scope.currentPage = 0;
+        getItems();
+    };
+    
+    $scope.clearSearch = function() {
+        delete $scope.filterText;
+        delete $scope.includeAllFoldersInSearch;
+        $scope.currentPage = 0;
+        getItems();
+    };
+
+    // add ARCHIVE, remove INBOX
+    $scope.archive = function(conversation) {
+        ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
+        .then(function() {
+            ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+            .then(function() {
+                $scope.currentPage = 0;
+                getItems();
+            }, function() {
+                alert('Error archiving');
+            });
+        }, function() {
+            alert('Error archiving');
+        });
+    };
+
+    // remove ARCHIVE, add INBOX
+    $scope.unArchive = function(conversation) {
+        ConversationService.removeConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
+        .then(function() {
+            ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
+            .then(function() {
+                $scope.currentPage = 0;
+                getItems();
+            }, function() {
+                alert('Error unarchiving');
+            });
+        }, function() {
+            alert('Error unarchiving');
+        });
+    };
+
+    $scope.printConversation = function(conversation) {
+        // ie8 compatibility
+        var printContent = $('<div>');
+        var archived = '';
+        var i;
+        if (conversation.archived) {
+            archived = '(archived)';
+        }
+        printContent.append('<h1 style="font-family: sans-serif;">PatientView Conversation ' + archived
+            + '</h1><h2 style="font-family: sans-serif;">Subject: ' + conversation.title + '</h2>');
+        printContent.append('<h4 style="font-family: sans-serif;">Between:</h4><ul>');
+        for (i=0; i< conversation.conversationUsers.length; i++) {
+            printContent.append('<li style="font-family: sans-serif;">'
+                + conversation.conversationUsers[i].user.forename + ' '
+                + conversation.conversationUsers[i].user.surname + '</li>');
+        }
+
+        for (i=0; i< conversation.messages.length; i++) {
+            var message = conversation.messages[i];
+            printContent.append('<hr><h4 style="font-family: sans-serif;">Message Date: '
+                + $filter('date')(message.created, 'dd-MMM-yyyy HH:mm')
+                + '</h4><h4 style="font-family: sans-serif;">From: '
+                + message.user.forename + ' ' + message.user.surname + '</h4>');
+            printContent.append('<p style="font-family: sans-serif;">' + message.message + '</p>');
+        }
+
+        var windowUrl = 'PatientView Conversation';
+        var uniqueName = new Date();
+        var windowName = 'Print' + uniqueName.getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+        printWindow.document.write(printContent.html());
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
 }]);

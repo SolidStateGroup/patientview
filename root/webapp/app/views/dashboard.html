@@ -27,7 +27,11 @@
                                 Unread Messages<span class="message-count">{{unreadConversationCount}}</span>
                             </a>
                         </li>
-                        <li data-ng-show="permissions.showJoinRequestButton"><a href="#/joinrequestadmin" class="aside-link reply">Join Requests<span class="message-count">{{submittedJoinRequestCount}}</span></a></li>
+                        <li data-ng-show="permissions.showRequestButton">
+                            <a href="#/requestadmin" class="aside-link reply">Requests
+                                <span class="message-count">{{submittedRequestCount}}</span>
+                            </a>
+                        </li>
                     </ul>
                     <div class="item-detail row">
                         <dl class="col-md-6">

@@ -7,10 +7,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
+ * ConversationUser, for link between Conversation and User, also includes ConversationUserLabels and anonymous option.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
@@ -29,6 +33,10 @@ public class ConversationUser extends AuditModel {
     @Column(name = "anonymous")
     private Boolean anonymous;
 
+    @OneToMany(mappedBy = "conversationUser", 
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private Set<ConversationUserLabel> conversationUserLabels;
+    
     @JsonIgnore
     public Conversation getConversation() {
         return conversation;
@@ -52,5 +60,13 @@ public class ConversationUser extends AuditModel {
 
     public void setAnonymous(Boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public Set<ConversationUserLabel> getConversationUserLabels() {
+        return conversationUserLabels;
+    }
+
+    public void setConversationUserLabels(Set<ConversationUserLabel> conversationUserLabels) {
+        this.conversationUserLabels = conversationUserLabels;
     }
 }

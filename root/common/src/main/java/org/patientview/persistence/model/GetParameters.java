@@ -1,24 +1,35 @@
 package org.patientview.persistence.model;
 
 /**
+ * GetParameters, used for handling typical parameters in GET requests.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 26/08/2014
  */
 public class GetParameters {
-
-    private String[] codeTypes;
+    
+    // search and pagination
     private String filterText;
     private String page;
     private String size;
     private String sortField;
     private String sortDirection;
+    
+    // codes
     private String[] standardTypes;
+    private String[] codeTypes;
+    
     private String[] statuses;
     private String[] groupTypes;
     private String[] groupIds;
     private String[] roleIds;
     private String[] auditActions;
     private String[] featureIds;
+    
+    // for join requests/forgotten login requests
+    private String[] types;
+    
+    // date ranges
     private Long start;
     private Long end;
 
@@ -31,7 +42,10 @@ public class GetParameters {
     
     // for filtering users by status (e.g. locked, active, inactive)
     private String statusFilter;
-
+    
+    // for messaging, filter by label (used for inbox, archive)
+    private String[] conversationLabels;
+    
     public GetParameters() {
     }
 
@@ -201,5 +215,21 @@ public class GetParameters {
 
     public void setStatusFilter(String statusFilter) {
         this.statusFilter = statusFilter;
+    }
+
+    public String[] getConversationLabels() {
+        return conversationLabels;
+    }
+
+    public void setConversationLabels(String[] conversationLabels) {
+        this.conversationLabels = conversationLabels;
+    }
+
+    public String[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(String[] types) {
+        this.types = types;
     }
 }

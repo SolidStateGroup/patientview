@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService','$scope', '$rootScope','$routeParams','$location','AuthService','RouteService',
-    function (localStorageService, $scope, $rootScope, $routeParams, $location, AuthService, RouteService) {
+angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService','$scope', '$rootScope','$routeParams',
+    '$location','$cookies','AuthService','RouteService',
+    function (localStorageService, $scope, $rootScope, $routeParams, $location, $cookies, AuthService, RouteService) {
 
     $scope.login = function() {
         $scope.errorMessage = '';
@@ -17,6 +18,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
+            $cookies.authToken = authToken;
             $scope.loadingMessage = 'Loading Your Information';
 
             AuthService.getUserInformation(authToken).then(function (userInformation) {
@@ -51,7 +53,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                     }
                 } else {
                     // error getting routes
-                    alert("Error retrieving routes, please contact PatientView support");
+                    alert('Error retrieving routes, please contact PatientView support');
                     $location.path('/logout');
                 }
 

@@ -37,9 +37,6 @@ public class User extends BaseUser {
     // FHIR
     private Date fhirDateOfBirth;
 
-    // picture, stored as base64 in database, but retrieved using separate call to User controller
-    private String picture;
-
     public User() {
     }
 
@@ -207,13 +204,5 @@ public class User extends BaseUser {
 
     public void setChangePassword(Boolean changePassword) {
         this.changePassword = changePassword;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
     }
 }

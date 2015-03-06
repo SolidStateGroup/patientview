@@ -47,7 +47,7 @@ public class AlertController extends BaseController<AlertController> {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void addAlert(@PathVariable("userId") Long userId, @RequestBody Alert alert)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         alertService.addAlert(userId, alert);
     }
 

@@ -4,9 +4,9 @@
         <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
         <div data-ng-show="editUser.username.length">
+            <a href="" data-ng-click="checkUsername()">Check Username</a>
             <span class="text-success" data-ng-show="editUser.usernameChecked && !editUser.usernameExists">Username OK</span>
             <span class="text-danger" data-ng-show="editUser.usernameChecked && editUser.usernameExists">Username in use. If this is expected, use the "Add Existing" function instead. Else please change username now.</span>
-            <a href="" class="pull-right" data-ng-click="checkUsername()">Check Username</a>
         </div>
     </div>
     <div class="col-md-3">

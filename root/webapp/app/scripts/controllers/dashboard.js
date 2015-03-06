@@ -149,7 +149,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
-            $scope.permissions.showJoinRequestButton = true;
+            $scope.permissions.showRequestButton = true;
         }
 
         if ($scope.permissions.isPatient) {

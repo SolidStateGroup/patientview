@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService','UserService', 'AuthService',
-    '$scope', '$rootScope', 'UtilService', 'localStorageService',
-    function (RouteService,UserService,AuthService,$scope,$rootScope,UtilService,localStorageService) {
+    '$scope', '$rootScope', '$cookies', 'UtilService', 'localStorageService',
+    function (RouteService,UserService,AuthService,$scope,$rootScope,$cookies,UtilService,localStorageService) {
 
     $scope.userdetails = $rootScope.loggedInUser;
 
@@ -12,7 +12,6 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
         if ($scope.pw !== $scope.userdetails.confirmPassword) {
             $scope.passwordErrorMessage = 'The passwords do not match';
         } else {
-
             $scope.loading = true;
 
             AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword})
@@ -23,6 +22,7 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
 
                 // set the authtoken
                 $rootScope.authToken = authToken;
+                $cookies.authToken = authToken;
                 localStorageService.set('authToken', authToken);
 
                 UserService.changePassword($scope.userdetails).then(function () {

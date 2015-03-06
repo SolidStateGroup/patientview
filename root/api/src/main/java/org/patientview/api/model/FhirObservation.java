@@ -19,6 +19,7 @@ public class FhirObservation {
     private String temporaryUuid;
     private String bodySite;
     private String location;
+    private String units;
 
     public FhirObservation() {
     }
@@ -36,6 +37,7 @@ public class FhirObservation {
         }
         this.bodySite = fhirObservation.getBodySite();
         this.location = fhirObservation.getLocation();
+        this.units = fhirObservation.getUnits();
     }
 
     public Long getId() {
@@ -116,5 +118,13 @@ public class FhirObservation {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
     }
 }

@@ -9,10 +9,8 @@ import org.patientview.config.exception.ResourceNotFoundException;
  * Created on 05/08/2014
  */
 public interface CrudService<T> {
-
     T add(T t);
     T get(Long id) throws ResourceNotFoundException;
     void delete(Long id);
     T save(T t) throws ResourceNotFoundException;
-
 }

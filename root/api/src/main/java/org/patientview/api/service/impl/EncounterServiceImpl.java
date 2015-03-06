@@ -45,38 +45,6 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
     private DataSource dataSource;
 
     @Override
-    public List<FhirEncounter> get(final Long userId, final String code)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        List<Encounter> encounters = new ArrayList<>();
-        List<FhirEncounter> fhirEncounters = new ArrayList<>();
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
-                StringBuilder query = new StringBuilder();
-                query.append("SELECT  content::varchar ");
-                query.append("FROM    encounter ");
-                query.append("WHERE   content -> 'subject' ->> 'display' = '");
-                query.append(fhirLink.getResourceId().toString());
-                query.append("' ");
-
-                encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
-            }
-        }
-
-        // convert to transport encounters
-        for (Encounter encounter : encounters) {
-            fhirEncounters.add(new FhirEncounter(encounter));
-        }
-        return fhirEncounters;
-    }
-
-    @Override
     public List<UUID> getUuidsByUserIdAndType(final Long userId, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException {
 

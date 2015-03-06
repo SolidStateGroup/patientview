@@ -130,17 +130,22 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
-        if (!codeRepository.exists(code.getId())) {
+        Code entityCode = codeRepository.findOne(code.getId());
+        if (entityCode == null) {
             throw new ResourceNotFoundException("Code does not exist");
         }
 
         // check if another code with this code exists
-        Code entityCode = codeRepository.findOneByCode(code.getCode());
-        if (codeExists(code) && !(entityCode.getId().equals(code.getId()))) {
+        Code existingCode = codeRepository.findOneByCode(code.getCode());
+        if (codeExists(code) && !(existingCode.getId().equals(code.getId()))) {
             throw new EntityExistsException("Code already exists with this code");
         }
 
-        return codeRepository.save(code);
+        entityCode.setCode(code.getCode());
+        entityCode.setDescription(code.getDescription());
+        entityCode.setCodeType(code.getCodeType());
+        entityCode.setStandardType(code.getStandardType());
+        return codeRepository.save(entityCode);
     }
 
     public Code cloneCode(final Long codeId) {

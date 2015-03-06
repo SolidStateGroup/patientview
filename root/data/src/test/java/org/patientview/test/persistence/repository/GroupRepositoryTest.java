@@ -6,7 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
@@ -14,10 +16,12 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -51,6 +55,9 @@ public class GroupRepositoryTest {
 
     @Inject
     DataTestUtils dataTestUtils;
+    
+    @Inject
+    GroupFeatureRepository groupFeatureRepository;
 
     User creator;
 
@@ -73,6 +80,22 @@ public class GroupRepositoryTest {
         Iterable<Group> groups = groupRepository.findGroupByUser(user);
 
         Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
+    }
+
+    @Test
+    public void testFindGroupByFeature() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Feature feature = dataTestUtils.createFeature(FeatureType.MESSAGING.toString());
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setGroup(group);
+        groupFeature.setFeature(feature);
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(groupFeature);
+        groupFeatureRepository.save(groupFeature);
+
+        Iterable<Group> groups = groupRepository.findByFeature(feature);
+
+        Assert.assertTrue("No group found by feature", groups.iterator().hasNext());
     }
 
     @Test

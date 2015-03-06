@@ -31,6 +31,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getByFeature: function (featureName) {
+            var deferred = $q.defer();
+            // GET /group/feature/{featureName}
+            Restangular.one('group/feature', featureName).getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getGroupsForUser: function (userId, getParameters) {
             var deferred = $q.defer();
             // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
@@ -266,22 +276,6 @@ function ($q, Restangular, UtilService) {
             // POST /group/{groupId}/contactpoints
             Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint,
                 'contactPoint')).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // contact unit for password forgotten
-        passwordRequest: function (groupId, unitRequest) {
-            unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
-
-            // correctly format DOB
-            unitRequest.dateOfBirth = unitRequest.dateOfBirth.split('-')[2] + '-'
-                + unitRequest.dateOfBirth.split('-')[1] + '-' + unitRequest.dateOfBirth.split('-')[0];
-
-            var deferred = $q.defer();
-            Restangular.all('public/passwordrequest/group/' + groupId).customPOST(unitRequest).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

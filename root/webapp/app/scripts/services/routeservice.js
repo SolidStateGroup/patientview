@@ -87,12 +87,12 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                 }
             };
         },
-        getJoinRequestRoute: function() {
+        getRequestRoute: function() {
             return {
-                'url': '/joinrequest',
-                'templateUrl': 'views/joinrequest.html',
-                'controller': 'JoinRequestCtrl',
-                'title': 'Join Request',
+                'url': '/request',
+                'templateUrl': 'views/request.html',
+                'controller': 'RequestCtrl',
+                'title': 'Request',
                 'lookup': {
                     'id': 98,
                     'value': 'NOT_DISPLAYED',

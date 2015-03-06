@@ -36,9 +36,9 @@
 <mobile>018118181</mobile>
 </personaldetails>
 <clinicaldetails>
-<rrtstatus>TP</rrtstatus>
-<diagnosisedta>80</diagnosisedta>
-    <diagnosisdate>2001-12-24</diagnosisdate>
+<rrtstatus></rrtstatus>
+<diagnosisedta></diagnosisedta>
+    <diagnosisdate></diagnosisdate>
 <diagnosis>(EDTA PRD) 80 Diabetes Type 1 (Insulin dependent)</diagnosis>
 <diagnosis>A second diagnosis</diagnosis>
 <bloodgroup>B</bloodgroup>

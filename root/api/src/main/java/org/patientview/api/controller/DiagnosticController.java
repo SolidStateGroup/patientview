@@ -28,7 +28,7 @@ public class DiagnosticController extends BaseController<DiagnosticController> {
     private DiagnosticService diagnosticService;
 
     /**
-     * Get Diagnostics given a User ID.
+     * Get Diagnostics for a patient from FHIR given a User ID.
      * @param userId ID of User to get Diagnostics for
      * @return List of diagnostic reports, retrieved from FHIR
      * @throws FhirResourceException

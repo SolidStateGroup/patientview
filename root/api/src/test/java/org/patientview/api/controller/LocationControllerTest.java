@@ -32,13 +32,13 @@ import static org.junit.Assert.fail;
  */
 public class LocationControllerTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    @InjectMocks
+    private LocationController locationController;
 
     @Mock
     private LocationService locationService;
 
-    @InjectMocks
-    private LocationController locationController;
+    private ObjectMapper mapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

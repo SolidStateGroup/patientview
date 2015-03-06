@@ -541,8 +541,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return transportUser;
     }
 
-    @Override
-    public boolean currentUserCanGetUser(User user) {
+    private boolean currentUserCanGetUser(User user) {
         // if i am trying to access myself
         if (getCurrentUser().equals(user)) {
             return true;
@@ -660,7 +659,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         boolean isPatient = false;
-
         boolean isLocked = user.getLocked() && !entityUser.getLocked();
         boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
 
@@ -1239,6 +1237,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
+        user.setVerificationCode(CommonUtils.getAuthToken());
+        userRepository.save(user);
 
         return emailService.sendEmail(getVerifyEmailEmail(user));
     }

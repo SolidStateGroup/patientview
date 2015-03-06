@@ -35,6 +35,9 @@ public class FhirObservation extends BaseModel {
 
     // only used by migration
     private String identifier;
+    
+    // stored during import if value can be stored as Quantity
+    private String units;
 
     public FhirObservation() {
     }
@@ -66,6 +69,12 @@ public class FhirObservation extends BaseModel {
             Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();
             if (quantityComparator != null && !quantityComparator.equals(Quantity.QuantityComparator.Null)) {
                 setComparator(quantityComparator.toCode());
+            }
+            
+            // units
+            String units = value.getUnitsSimple();
+            if (StringUtils.isNotEmpty(units)) {
+                setUnits(units);
             }
 
         } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
@@ -170,5 +179,13 @@ public class FhirObservation extends BaseModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
     }
 }

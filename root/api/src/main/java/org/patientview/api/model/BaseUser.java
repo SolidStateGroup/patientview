@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 
 /**
@@ -21,6 +23,9 @@ public class BaseUser {
     // onyl staff users
     private String roleDescription;
 
+    // picture, stored as base64 in database, but retrieved using separate call to User controller
+    private String picture;
+
     public BaseUser() {
     }
 
@@ -32,6 +37,9 @@ public class BaseUser {
         setDateOfBirth(user.getDateOfBirth());
         setDeleted(user.getDeleted());
         setRoleDescription(user.getRoleDescription());
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            setPicture(Integer.toString(user.getPicture().length()));
+        }
     }
 
     public BaseUser(org.patientview.api.model.User user) {
@@ -42,6 +50,9 @@ public class BaseUser {
         setDateOfBirth(user.getDateOfBirth());
         setDeleted(user.getDeleted());
         setRoleDescription(user.getRoleDescription());
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            setPicture(Integer.toString(user.getPicture().length()));
+        }
     }
 
     public Long getId() {
@@ -98,5 +109,13 @@ public class BaseUser {
 
     public void setRoleDescription(String roleDescription) {
         this.roleDescription = roleDescription;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

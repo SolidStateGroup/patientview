@@ -82,7 +82,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Override
     public void addAlert(Long userId, org.patientview.api.model.Alert alert)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
         if (user == null) {

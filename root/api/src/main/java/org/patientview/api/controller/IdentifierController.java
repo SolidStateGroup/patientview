@@ -90,7 +90,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     }
 
     /**
-     * Validate an Identifier, e.g. NHS Number must be within certain range.
+     * Validate an Identifier, e.g. NHS Number must be within certain range, not already in use.
      * @param userIdentifier UserIdentifier object containing required information to validate Identifier value
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -100,7 +100,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     @RequestMapping(value = "/identifier/validate", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void validateNoUser(@RequestBody UserIdentifier userIdentifier)
+    public void validate(@RequestBody UserIdentifier userIdentifier)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
         identifierService.validate(userIdentifier);
     }

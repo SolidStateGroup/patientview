@@ -1,18 +1,22 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.PatientService;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -21,7 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by james@solidstategroup.com
@@ -29,13 +34,15 @@ import static org.junit.Assert.fail;
  */
 public class PatientControllerTest {
 
-    @Mock
-    private PatientService patientService;
+    private ObjectMapper mapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @InjectMocks
     private PatientController patientController;
 
-    private MockMvc mockMvc;
+    @Mock
+    private PatientService patientService;
 
     @Before
     public void setup() {
@@ -48,12 +55,8 @@ public class PatientControllerTest {
         TestUtils.removeAuthentication();
     }
 
-    /**
-     * Test: Send a GET request with a long parameter to the patient controller
-     * Fail: The service does not get called with the parameter
-     */
     @Test
-    public void testGetUser() {
+    public void testGet() throws Exception {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -64,11 +67,30 @@ public class PatientControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+    
+    @Test
+    public void testUpdate() throws Exception {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
+        FhirPatient fhirPatient = new FhirPatient();
+        fhirPatient.setForename("forename");
+        fhirPatient.setSurname("surname");
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/patient/" + user.getId() + "/group/" + group.getId())
+                .content(mapper.writeValueAsString(fhirPatient)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        //verify(patientService, Mockito.times(1)).update(eq(user.getId()), eq(group.getId()), eq(fhirPatient));
     }
 }
