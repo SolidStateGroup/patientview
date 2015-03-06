@@ -436,6 +436,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 ConversationUser anonConversationUser = new ConversationUser();
                 anonConversationUser.setAnonymous(true);
                 anonConversationUser.setUser(anonUser);
+                anonConversationUser.getUser().setId(conversationUser.getUser().getId());
                 anonConversationUser.setConversation(conversation);
                 anonConversationUser.setConversationUserLabels(conversationUser.getConversationUserLabels());
                 newConversation.getConversationUsers().add(anonConversationUser);
@@ -464,17 +465,20 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             // anonymise read receipts (include user id for creating read receipts in future)
+            Set<MessageReadReceipt> readReceipts = new HashSet<>();
             for (MessageReadReceipt readReceipt : message.getReadReceipts()) {
                 Long userId = readReceipt.getUser().getId();
+                MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
                 if (anonUserIds.contains(userId)) {
-                    readReceipt.setUser(anonUser);
-                    readReceipt.getUser().setId(userId);
+                    messageReadReceipt.setUser(anonUser);
+                    messageReadReceipt.getUser().setId(userId);
                 } else {
-                    readReceipt.setUser(message.getUser());
+                    messageReadReceipt.setUser(readReceipt.getUser());
                 }
+                readReceipts.add(messageReadReceipt);
             }
 
-            newMessage.setReadReceipts(message.getReadReceipts());
+            newMessage.setReadReceipts(readReceipts);
             newMessages.add(newMessage);
         }
 

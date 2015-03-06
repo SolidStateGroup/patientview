@@ -213,17 +213,19 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         init();
     }];
 
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', '$filter',
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$rootScope', '$modal', '$q', '$filter',
     'ConversationService', 'GroupService', 'UserService',
-function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
+function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
 
-    $scope.itemsPerPage = 5;
-    $scope.currentPage = 0;
+    var init = function() {
+        $scope.itemsPerPage = 5;
+        $scope.currentPage = 0;
 
-    // folders (equivalent to labels, currently only INBOX, ARCHIVED)
-    $scope.folders = [];
-    $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
-    $scope.selectedFolder = $scope.folders[0].name;
+        // folders (equivalent to labels, currently only INBOX, ARCHIVED)
+        $scope.folders = [];
+        $scope.folders.push({name:'INBOX', description:'Inbox'}, {name:'ARCHIVED', description:'Archived'});
+        $scope.selectedFolder = $scope.folders[0].name;
+    };
 
     // get page of data every time currentPage is changed
     $scope.$watch('currentPage', function() {
@@ -248,6 +250,7 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
             // add archived property if present as a label for this user
             for (var i=0; i<page.content.length; i++) {
                 page.content[i] = setArchivedStatus(page.content[i]);
+                page.content[i].unread = hasUnreadMessages(page.content[i]);
             }
 
             $scope.pagedItems = page.content;
@@ -275,16 +278,19 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         return conversation;
     };
 
-    $scope.hasUnreadMessages = function(conversation) {
+    var hasUnreadMessages = function(conversation) {
         var i, j, unread, unreadMessages = 0;
         for (i=0;i<conversation.messages.length;i++) {
             unread = true;
-            for (j=0;j<conversation.messages[i].readReceipts.length;j++) {
-                var readReceipt = conversation.messages[i].readReceipts[j];
-                if (readReceipt.user.id === $scope.loggedInUser.id) {
+            var message = conversation.messages[i];
+            
+            for (j = 0; j < message.readReceipts.length; j++) {
+                var readReceipt = message.readReceipts[j];
+                if (readReceipt.user.id == $scope.loggedInUser.id) {
                     unread = false;
                 }
             }
+            
             if (unread) {
                 unreadMessages++;
             }
@@ -300,7 +306,9 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
 
         if (conversation.showMessages) {
             ConversationService.get(conversation.id).then(function(successResult) {
-                conversation.messages = successResult.messages;
+                //conversation.messages = successResult.messages;
+                conversation = successResult;
+                conversation.unread = hasUnreadMessages(conversation);
             }, function() {
                 alert('Error getting conversation');
             });
@@ -338,9 +346,9 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
                 }
 
                 $q.all(promises).then(function () {
-                    //conversation.unread = false;
+                    conversation.unread = false;
                     conversation.showMessages = true;
-                    $scope.setUnreadConversationCount();
+                    $rootScope.setUnreadConversationCount();
                 }, function() {
                     alert('Error adding read receipt for new messages');
                 });
@@ -421,19 +429,30 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
 
         modalInstance.result.then(function () {
             $scope.loading = true;
-            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage)
-                .then(function (page) {
+            var getParameters = {};
+            getParameters.page = $scope.currentPage;
+            getParameters.size = $scope.itemsPerPage;
+            getParameters.filterText = $scope.filterText;
+            if (!$scope.includeAllFoldersInSearch) {
+                getParameters.conversationLabels = [];
+                getParameters.conversationLabels.push($scope.selectedFolder);
+            }
+
+            ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
+                // add archived property if present as a label for this user
+                for (var i=0; i<page.content.length; i++) {
+                    page.content[i] = setArchivedStatus(page.content[i]);
+                }
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
-                $scope.loading = false;
                 $scope.successMessage = 'Successfully sent message';
-            }, function () {
                 $scope.loading = false;
-                // error
+            }, function() {
+                $scope.loading = false;
+                alert("Could not get conversations");
             });
         }, function () {
-            // cancel
             $scope.editConversation = '';
         });
     };
@@ -586,4 +605,6 @@ function ($scope, $modal, $q, $filter, ConversationService, GroupService, UserSe
         printWindow.print();
         printWindow.close();
     };
+    
+    init();
 }]);
