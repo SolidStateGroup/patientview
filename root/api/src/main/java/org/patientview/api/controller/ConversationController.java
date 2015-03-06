@@ -165,7 +165,7 @@ public class ConversationController extends BaseController<ConversationControlle
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @CacheEvict(value = "unreadConversationCount", allEntries = true)
+    //@CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -236,7 +236,7 @@ public class ConversationController extends BaseController<ConversationControlle
      * @return Long containing number of unread messages
      * @throws ResourceNotFoundException
      */
-    @Cacheable(value = "unreadConversationCount")
+    //@Cacheable(value = "unreadConversationCount")
     @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
