@@ -44,7 +44,6 @@ public class FhirDocumentReference extends BaseModel {
         }
 
         setType(documentReference.getType().getTextSimple());
-        setContent(documentReference.getDescriptionSimple());
         setGroup(group);
     }
 

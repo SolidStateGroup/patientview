@@ -330,7 +330,7 @@ public class ObservationsBuilder {
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)
-        throws FhirResourceException {
+            throws FhirResourceException {
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
