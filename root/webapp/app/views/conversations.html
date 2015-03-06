@@ -114,7 +114,7 @@
 
         <div class="message-item" data-ng-repeat="conversation in pagedItems">
             <span class="pull-right">
-                <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success new-message"> New</span>
+                <span data-ng-show="conversation.unread" class="label label-success new-message"> New</span>
             </span>
             <div class="content-panel">
                 <ul class="pull-right aside-actions unstyled">
