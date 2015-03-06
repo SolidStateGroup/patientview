@@ -463,7 +463,7 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:simpleType name="ibd_disease_extent">
         <xs:annotation>
             <xs:documentation>IBD Disease Extent</xs:documentation>
@@ -478,7 +478,7 @@
             <xs:enumeration value="Isolated Upper GI Disease"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:complexType name="ibd_disease_complications">
         <xs:simpleContent>
             <xs:extension base="ibd_disease_complication">
@@ -491,7 +491,7 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:complexType name="body_parts_affected">
         <xs:simpleContent>
             <xs:extension base="body_part">
@@ -531,7 +531,7 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:complexType name="surgical_history">
         <xs:simpleContent>
             <xs:extension base="surgical_history_description">
@@ -544,7 +544,7 @@
             <xs:maxLength value="60"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:complexType name="vaccination_record">
         <xs:simpleContent>
             <xs:extension base="vaccination_record_description">
@@ -571,7 +571,7 @@
             <xs:enumeration value="Followup"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:simpleType name="sex">
         <xs:annotation>
             <xs:documentation>Sex</xs:documentation>
@@ -585,7 +585,7 @@
             <xs:enumeration value="U"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <!-- changed 2014.02.27 to allow any test code -->
     <xs:simpleType name="testcode">
         <xs:annotation>
@@ -593,7 +593,7 @@
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:maxLength value="60"/>
-        </xs:restriction>        
+        </xs:restriction>
         <!--<xs:restriction base="xs:string">
             <xs:enumeration value="hb"/>
             <xs:enumeration value="wbc"/>
