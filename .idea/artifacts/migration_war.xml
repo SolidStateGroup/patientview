@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="migration:war">
+    <output-path>$PROJECT_DIR$/root/migration/target</output-path>
+    <root id="archive" name="migration.war">
+      <element id="artifact" artifact-name="migration:war exploded" />
+    </root>
+  </artifact>
+</component>

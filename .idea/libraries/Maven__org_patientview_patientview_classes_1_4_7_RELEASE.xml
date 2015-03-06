@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.patientview:patientview:classes:1.4.7-RELEASE">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/patientview/patientview/1.4.7-RELEASE/patientview-1.4.7-RELEASE-classes.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/patientview/patientview/1.4.7-RELEASE/patientview-1.4.7-RELEASE-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/patientview/patientview/1.4.7-RELEASE/patientview-1.4.7-RELEASE-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
