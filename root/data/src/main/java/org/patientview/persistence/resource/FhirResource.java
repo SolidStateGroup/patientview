@@ -729,6 +729,19 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("executeSQL Exception: " + sql);
+            LOG.error("executeSQL Exception:", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
