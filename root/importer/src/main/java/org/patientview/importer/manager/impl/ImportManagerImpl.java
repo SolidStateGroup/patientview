@@ -151,9 +151,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             
             updateGroupLastImportDate(patientview.getCentredetails().getCentrecode());
 
-        } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
+        } catch (Exception e) {
             LOG.error(patientview.getPatient().getPersonaldetails().getNhsno()
-                    + ": Error, unable to build patient. Message: " + e.getMessage());
+                    + ": Error importing patient. Message: " + e.getMessage(), e);
 
             throw new ImportResourceException(patientview.getPatient().getPersonaldetails().getNhsno()
                     + ": Error, " + e.getMessage());
