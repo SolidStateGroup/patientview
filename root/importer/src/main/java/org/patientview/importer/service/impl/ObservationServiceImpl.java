@@ -96,132 +96,142 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         List<BasicObservation> observations = getBasicObservationBySubjectId(fhirLink.getResourceId());
 
         // get uuids of existing observations to delete
-        LOG.info(nhsno + ": Deleting Existing Observations");
-        List<UUID> observationsUuidsToDelete = new ArrayList<>();
+        try {
+            LOG.info(nhsno + ": Deleting Existing Observations");
+            List<UUID> observationsUuidsToDelete = new ArrayList<>();
 
-        for (BasicObservation observation : observations) {
-            String code = observation.getCode();
-            UUID uuid = observation.getLogicalId();
-            Date applies = observation.getApplies();
+            for (BasicObservation observation : observations) {
+                String code = observation.getCode();
+                UUID uuid = observation.getLogicalId();
+                Date applies = observation.getApplies();
 
-            // only delete test result observations between date range (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
-            if (!Util.isInEnum(code, NonTestObservationTypes.class)
-                    && !Util.isInEnum(code, DiagnosticReportObservationTypes.class)) {
+                // only delete test result observations between date range (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
+                if (!Util.isInEnum(code, NonTestObservationTypes.class)
+                        && !Util.isInEnum(code, DiagnosticReportObservationTypes.class)) {
 
-                Patientview.Patient.Testdetails.Test.Daterange daterange
-                        = observationsBuilder.getDateRanges().get(code.toUpperCase());
+                    Patientview.Patient.Testdetails.Test.Daterange daterange
+                            = observationsBuilder.getDateRanges().get(code.toUpperCase());
 
-                // between dates in <test><daterange>
-                if (daterange != null) {
-                    DateRange convertedDateRange = new DateRange(daterange);
+                    // between dates in <test><daterange>
+                    if (daterange != null) {
+                        DateRange convertedDateRange = new DateRange(daterange);
 
-                    Long start = convertedDateRange.getStart().getTime();
-                    Long end = convertedDateRange.getEnd().getTime();
+                        Long start = convertedDateRange.getStart().getTime();
+                        Long end = convertedDateRange.getEnd().getTime();
 
-                    if (applies.getTime() >= start && applies.getTime() <= end) {
-                        observationsUuidsToDelete.add(uuid);
+                        if (applies.getTime() >= start && applies.getTime() <= end) {
+                            observationsUuidsToDelete.add(uuid);
+                        }
+                    }
+                } else if (Util.isInEnum(code, NonTestObservationTypes.class)) {
+                    // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE etc then delete
+                    observationsUuidsToDelete.add(uuid);
+                }
+            }
+
+            // natively delete observations
+            if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("DELETE FROM observation WHERE logical_id IN (");
+
+                for (int i = 0; i < observationsUuidsToDelete.size(); i++) {
+                    UUID uuid = observationsUuidsToDelete.get(i);
+
+                    sb.append("'").append(uuid).append("'");
+
+                    if (i != (observationsUuidsToDelete.size() - 1)) {
+                        sb.append(",");
                     }
                 }
-            } else if (Util.isInEnum(code, NonTestObservationTypes.class)) {
-                // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE etc then delete
-                observationsUuidsToDelete.add(uuid);
+
+                sb.append(")");
+                fhirResource.executeSQL(sb.toString());
             }
-        }
-
-        // natively delete observations
-        if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("DELETE FROM observation WHERE logical_id IN (");
-
-            for (int i = 0; i < observationsUuidsToDelete.size() ; i++) {
-                UUID uuid = observationsUuidsToDelete.get(i);
-
-                sb.append("'").append(uuid).append("'");
-
-                if (i != (observationsUuidsToDelete.size() - 1)) {
-                    sb.append(",");
-                }
-            }
-
-            sb.append(")");
-            fhirResource.executeSQL(sb.toString());
+        } catch (Exception e) {
+            LOG.error("Error deleting existing observations", e);
+            throw new FhirResourceException(e);
         }
 
         int count = 0;
 
-        LOG.info(nhsno + ": Creating New Observations");
-        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+        try {
+            LOG.info(nhsno + ": Creating New Observations");
+            List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
 
-        for (Observation observation : observationsBuilder.getObservations()) {
-            LOG.trace("Creating... observation " + count);
-            try {
-                // only add observations within daterange or those without a daterange (non test observation type)
-                Patientview.Patient.Testdetails.Test.Daterange daterange
-                        = observationsBuilder.getDateRanges().get(observation.getIdentifier()
+            for (Observation observation : observationsBuilder.getObservations()) {
+                LOG.trace("Creating... observation " + count);
+                try {
+                    // only add observations within daterange or those without a daterange (non test observation type)
+                    Patientview.Patient.Testdetails.Test.Daterange daterange
+                            = observationsBuilder.getDateRanges().get(observation.getIdentifier()
                             .getValueSimple().toUpperCase());
 
-                if (daterange != null) {
-                    DateRange convertedDateRange = new DateRange(daterange);
-                    Date applies = convertDateTime((DateTime) observation.getApplies());
+                    if (daterange != null) {
+                        DateRange convertedDateRange = new DateRange(daterange);
+                        Date applies = convertDateTime((DateTime) observation.getApplies());
 
-                    Long start = convertedDateRange.getStart().getTime();
-                    Long end = convertedDateRange.getEnd().getTime();
+                        Long start = convertedDateRange.getStart().getTime();
+                        Long end = convertedDateRange.getEnd().getTime();
 
-                    if (applies.getTime() >= start && applies.getTime() <= end) {
+                        if (applies.getTime() >= start && applies.getTime() <= end) {
+                            fhirDatabaseObservations.add(
+                                    new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                        }
+                    } else {
                         fhirDatabaseObservations.add(
                                 new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                     }
-                } else {
-                    fhirDatabaseObservations.add(
-                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                } catch (FhirResourceException e) {
+                    LOG.error(nhsno + ": Unable to build observation {} " + e.getCause());
                 }
-            } catch (FhirResourceException e) {
-                LOG.error(nhsno + ": Unable to build observation {} " + e.getCause());
+                LOG.trace(nhsno + ": Finished creating observation " + count++);
             }
-            LOG.trace(nhsno + ": Finished creating observation " + count++);
+
+            // now have collection, manually insert using native SQL
+            if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("INSERT INTO observation ");
+                sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
+
+                for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
+                    FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+                    sb.append("(");
+                    sb.append("'").append(obs.getLogicalId().toString()).append("','");
+                    sb.append(obs.getVersionId().toString()).append("','");
+                    sb.append(obs.getResourceType()).append("','");
+                    sb.append(obs.getPublished().toString()).append("','");
+                    sb.append(obs.getUpdated().toString()).append("','");
+                    sb.append(obs.getContent());
+                    sb.append("')");
+                    if (i != (fhirDatabaseObservations.size() - 1)) {
+                        sb.append(",");
+                    }
+                }
+                fhirResource.executeSQL(sb.toString());
+
+                // handle updating alerts if present, emails are sent by scheduled task, not here
+                Map<String, Alert> alertMap = observationsBuilder.getAlertMap();
+
+                for (String code : alertMap.keySet()) {
+                    Alert alert = alertMap.get(code);
+                    if (alert.isUpdated()) {
+                        Alert entityAlert = alertRepository.findOne(alert.getId());
+                        entityAlert.setLatestValue(alert.getLatestValue());
+                        entityAlert.setLatestDate(alert.getLatestDate());
+                        entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                        entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
+                        entityAlert.setLastUpdate(new Date());
+                        alertRepository.save(entityAlert);
+                    }
+                }
+            }
+
+            LOG.info(nhsno + ": Processed {} of {} observations",
+                    observationsBuilder.getSuccess(), observationsBuilder.getCount());
+        } catch (Exception e) {
+            LOG.error("Error creating observations", e);
+            throw new FhirResourceException(e);
         }
-
-        // now have collection, manually insert using native SQL
-        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO observation ");
-            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
-
-            for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
-                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
-                sb.append("(");
-                sb.append("'").append(obs.getLogicalId().toString()).append("','");
-                sb.append(obs.getVersionId().toString()).append("','");
-                sb.append(obs.getResourceType()).append("','");
-                sb.append(obs.getPublished().toString()).append("','");
-                sb.append(obs.getUpdated().toString()).append("','");
-                sb.append(obs.getContent());
-                sb.append("')");
-                if (i != (fhirDatabaseObservations.size() - 1)) {
-                    sb.append(",");
-                }
-            }
-            fhirResource.executeSQL(sb.toString());
-
-            // handle updating alerts if present, emails are sent by scheduled task, not here
-            Map<String, Alert> alertMap = observationsBuilder.getAlertMap();
-
-            for (String code : alertMap.keySet()) {
-                Alert alert = alertMap.get(code);
-                if (alert.isUpdated()) {
-                    Alert entityAlert = alertRepository.findOne(alert.getId());
-                    entityAlert.setLatestValue(alert.getLatestValue());
-                    entityAlert.setLatestDate(alert.getLatestDate());
-                    entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
-                    entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
-                    entityAlert.setLastUpdate(new Date());
-                    alertRepository.save(entityAlert);
-                }
-            }
-        }
-
-        LOG.info(nhsno + ": Processed {} of {} observations",
-                observationsBuilder.getSuccess(), observationsBuilder.getCount());
     }
 
     private Date convertDateTime(DateTime dateTime) {
@@ -234,17 +244,17 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     private List<BasicObservation> getBasicObservationBySubjectId(final UUID subjectId)
             throws FhirResourceException {
-
-        // build query
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id, content->'appliesDateTime', content->'name'->'text' ");
-        query.append("FROM observation ");
-        query.append("WHERE content -> 'subject' ->> 'display' = '");
-        query.append(subjectId);
-        query.append("' ");
-
-        // execute and return map of logical ids and applies
+        
         try {
+            // build query
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT logical_id, content->'appliesDateTime', content->'name'->'text' ");
+            query.append("FROM observation ");
+            query.append("WHERE content -> 'subject' ->> 'display' = '");
+            query.append(subjectId);
+            query.append("' ");
+    
+            // execute and return map of logical ids and applies
             Connection connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
@@ -279,7 +289,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
             connection.close();
             return observations;
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            LOG.error("Error getting existing observations", e);
             throw new FhirResourceException(e);
         }
     }
