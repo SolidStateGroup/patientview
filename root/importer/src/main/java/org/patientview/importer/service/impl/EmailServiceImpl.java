@@ -65,8 +65,8 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
         if (recipientEmails.isEmpty()) {
             recipientEmails.add(centralSupportEmail);
         }
-        
-        email.setRecipients(new String[]{recipientEmails.toString()});
+
+        email.setRecipients(recipientEmails.toArray(new String[recipientEmails.size()]));
         
         StringBuilder sb = new StringBuilder();
         sb.append("Dear ");
