@@ -73,6 +73,11 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
             }
         }
 
+        // if no fhirLinks return empty array
+        if (StringUtils.isEmpty(fhirLinkString)) {
+            return encounterUuids;
+        }
+
         StringBuilder query = new StringBuilder();
         query.append("SELECT logical_id ");
         query.append("FROM encounter ");
