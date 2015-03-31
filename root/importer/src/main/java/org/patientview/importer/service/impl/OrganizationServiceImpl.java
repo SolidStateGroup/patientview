@@ -80,7 +80,9 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                         fhirResource.updateFhirObject(
                                 importOrganization, objectData.get("logicalId"), objectData.get("versionId"));
                     } catch (FhirResourceException e) {
-                        LOG.error(nhsno + ": Could not update organization: " + e.getMessage(), e);
+                        // no longer logging organization update errors, due to multiple calls to FHIR stored
+                        // procedures for the same organization causing locking errors
+                        //LOG.error(nhsno + ": Could not update organization: " + e.getMessage(), e);
                     }
                 }
 

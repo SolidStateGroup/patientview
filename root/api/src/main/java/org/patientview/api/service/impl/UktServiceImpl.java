@@ -125,8 +125,10 @@ import java.util.UUID;
         List<UUID> encounterUuids
                 = encounterService.getUuidsByUserIdAndType(user.getId(), EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
 
-        for (UUID uuid : encounterUuids) {
-            fhirResource.delete(uuid, ResourceType.Encounter);
+        if (!encounterUuids.isEmpty()) {
+            for (UUID uuid : encounterUuids) {
+                fhirResource.delete(uuid, ResourceType.Encounter);
+            }
         }
     }
 
