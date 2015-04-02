@@ -60,29 +60,6 @@ public class AlertControllerTest {
     }
 
     @Test
-    public void testGetAlerts() throws ResourceNotFoundException {
-
-        User user = TestUtils.createUser("testuser");
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        AlertTypes alertType = AlertTypes.RESULT;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alerts/" + alertType.toString())
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-        verify(alertService, Mockito.times(1)).getAlerts(user.getId(), alertType);
-    }
-
-    @Test
     public void testAddAlert() throws ResourceNotFoundException {
 
         User user = TestUtils.createUser("testuser");
@@ -112,6 +89,50 @@ public class AlertControllerTest {
         } catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testGetAlerts() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        AlertTypes alertType = AlertTypes.RESULT;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alerts/" + alertType.toString())
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+        verify(alertService, Mockito.times(1)).getAlerts(user.getId(), alertType);
+    }
+
+    @Test
+    public void testGetContactAlerts() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/contactalerts/")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+        verify(alertService, Mockito.times(1)).getContactAlerts(user.getId());
     }
 
     @Test

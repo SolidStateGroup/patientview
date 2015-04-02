@@ -76,6 +76,32 @@
                 </div>
             </div>
 
+            <div class="tab-panel-item" data-ng-show="!permissions.isPatient && ((permissions.showContactAlerts && contactAlerts.length) || unreadConversationCount.length || submittedRequestCount.length)">
+                <div class="content-panel">
+                    <div class="panel-intro">
+                        <h3>Staff Alerts</h3>
+                    </div>
+                    <div class="content-inner">
+                        <ul>
+                            <li data-ng-show="contactAlertsLoading && permissions.showContactAlerts">
+                                Checking if any of your groups are missing users with important features (e.g. Default Messaging Contact)
+                            </li>
+                            <li data-ng-repeat="contactAlert in contactAlerts" data-ng-show="!contactAlertsLoading && permissions.showContactAlerts">
+                                {{contactAlert.group.shortName}} is missing a {{contactAlert.featureName}}
+                            </li>
+                            <li data-ng-show="unreadConversationCount">
+                                <a href="#/conversations">You have {{unreadConversationCount}} unread message(s)
+                                </a>
+                            </li>
+                            <li data-ng-show="submittedRequestCount">
+                                <a href="#/requestadmin">There are {{submittedRequestCount}} submitted request(s)
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
                     <h3 data-ng-hide="graphGroups.length > 1 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
@@ -182,6 +208,7 @@
                     </div>
                 </div>
             </div>
+
 
             <div class="tab-panel-item" data-ng-show="observationHeadings.length">
                 <div class="content-panel">

@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.ContactAlert;
 import org.patientview.api.service.impl.AlertServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -43,19 +45,22 @@ public class AlertServiceTest {
     User creator;
 
     @Mock
-    UserRepository userRepository;
-
-    @Mock
     AlertRepository alertRepository;
+
+    @InjectMocks
+    AlertService alertService = new AlertServiceImpl();
 
     @Mock
     EmailService emailService;
 
     @Mock
+    GroupService groupService;
+
+    @Mock
     Properties properties;
 
-    @InjectMocks
-    AlertService alertService = new AlertServiceImpl();
+    @Mock
+    UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -66,6 +71,26 @@ public class AlertServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testGetContactAlerts() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+
+        when(groupService.findGroupsByUser(user)).thenReturn(groups);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        List<ContactAlert> contactAlerts = alertService.getContactAlerts(user.getId());
+        Assert.assertEquals("Should return 3 contact alerts", 3, contactAlerts.size());
     }
 
     @Test

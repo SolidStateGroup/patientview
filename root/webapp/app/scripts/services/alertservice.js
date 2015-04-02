@@ -12,6 +12,26 @@ angular.module('patientviewApp').factory('AlertService', ['$q', 'Restangular', f
             });
             return deferred.promise;
         },
+        getAlerts: function(userId, alertType) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/alerts/{alertType}
+            Restangular.one('user', userId).one('alerts', alertType).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getContactAlerts: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/contactalerts
+            Restangular.one('user', userId).one('contactalerts').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         removeAlert: function(userId, alertId) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/alerts/{alertId}
@@ -26,16 +46,6 @@ angular.module('patientviewApp').factory('AlertService', ['$q', 'Restangular', f
             var deferred = $q.defer();
             // PUT /user/{userId}/alert
             Restangular.one('user', userId).customPUT(alert, 'alert').then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        getAlerts: function(userId, alertType) {
-            var deferred = $q.defer();
-            // GET /user/{userId}/alerts/{alertType}
-            Restangular.one('user', userId).one('alerts', alertType).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

@@ -150,6 +150,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showRequestButton = true;
+            $scope.permissions.showContactAlerts = true;
         }
 
         if ($scope.permissions.isPatient) {
@@ -184,6 +185,19 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         }, function() {
             $scope.loading = false;
         });
+
+        // get contact alerts for admin users
+        if ($scope.permissions.showContactAlerts) {
+            $scope.contactAlertsLoading = true;
+            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(contactAlerts) {
+                $scope.contactAlertsLoading = false;
+                console.log(contactAlerts);
+                $scope.contactAlerts = contactAlerts;
+            }, function() {
+                alert("Error getting contact alerts");
+                $scope.contactAlertsLoading = false;
+            });
+        }
     };
 
     $scope.viewNewsItem = function(news) {

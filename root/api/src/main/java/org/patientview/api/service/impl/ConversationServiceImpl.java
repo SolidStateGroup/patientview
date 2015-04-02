@@ -1133,6 +1133,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // sort correctly
         List<String> sortOrder = new ArrayList<>();
+        sortOrder.add(RoleName.SPECIALTY_ADMIN.getName());
         sortOrder.add(RoleName.UNIT_ADMIN.getName());
         sortOrder.add(RoleName.STAFF_ADMIN.getName());
         sortOrder.add(RoleName.PATIENT.getName());

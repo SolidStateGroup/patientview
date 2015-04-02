@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Alert;
+import org.patientview.api.model.ContactAlert;
 import org.patientview.api.service.AlertService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -63,8 +64,16 @@ public class AlertController extends BaseController<AlertController> {
     @ResponseBody
     public ResponseEntity<List<Alert>> getAlerts(
             @PathVariable("userId") Long userId, @PathVariable("alertType") AlertTypes alertType)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(alertService.getAlerts(userId, alertType), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/contactalerts", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ContactAlert>> getContactAlerts(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(alertService.getContactAlerts(userId), HttpStatus.OK);
     }
 
     /**
