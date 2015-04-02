@@ -399,14 +399,17 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             }
 
             groups = new ArrayList<>(groupSet);
-        } else {
-            // UNIT_ADMIN, STAFF_ADMIN, DISEASE_GROUP_ADMIN PATIENT do not add specialty type groups
+        } else if (doesContainRoles(RoleName.PATIENT)) {
+            // PATIENT do not add specialty type groups
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             for (Group parentGroup : parentGroups) {
                 if (!parentGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                     groups.add(parentGroup);
                 }
             }
+        } else {
+            // UNIT_ADMIN, STAFF_ADMIN, DISEASE_GROUP_ADMIN get all group types
+            groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(entityUser)));
         }
 
         // keep only groups with MESSAGING feature and convert to base groups
