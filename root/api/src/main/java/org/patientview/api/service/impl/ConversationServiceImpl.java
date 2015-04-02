@@ -639,6 +639,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
 
+        // required if previously failed to cleanly delete conversation user labels (RPV-582)
+        List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
+        for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
+            conversationUserLabelRepository.delete(conversationUserLabel);
+        }
+        conversationUserLabels = conversationUserLabelRepository.findByCreator(user);
+        for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
+            conversationUserLabelRepository.delete(conversationUserLabel);
+        }
+
         for (Conversation conversation : conversations) {
             // remove from conversation user list
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
@@ -656,7 +666,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
                         conversationUserLabelRepository.delete(conversationUserLabel.getId());
                     }
-
+                    conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                    conversationUserRepository.save(conversationUser);
                     conversationUserRepository.delete(conversationUser);
                 }
             }
