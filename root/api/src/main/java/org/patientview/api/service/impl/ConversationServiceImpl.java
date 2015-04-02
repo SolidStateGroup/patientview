@@ -652,6 +652,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                     removedUserConversationUsers.add(conversationUser);
                 } else {
+                    // remove conversation user labels
+                    for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
+                        conversationUserLabelRepository.delete(conversationUserLabel.getId());
+                    }
+
                     conversationUserRepository.delete(conversationUser);
                 }
             }
