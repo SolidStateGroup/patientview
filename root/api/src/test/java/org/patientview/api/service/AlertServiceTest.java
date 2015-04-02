@@ -14,16 +14,27 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.Email;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,6 +62,9 @@ public class AlertServiceTest {
     AlertService alertService = new AlertServiceImpl();
 
     @Mock
+    FeatureRepository featureRepository;
+
+    @Mock
     EmailService emailService;
 
     @Mock
@@ -58,6 +72,9 @@ public class AlertServiceTest {
 
     @Mock
     Properties properties;
+
+    @Mock
+    RoleRepository roleRepository;
 
     @Mock
     UserRepository userRepository;
@@ -76,21 +93,41 @@ public class AlertServiceTest {
     @Test
     public void testGetContactAlerts() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup("GROUP1");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        PageImpl<User> userPage = new PageImpl<>(users);
+
         List<Group> groups = new ArrayList<>();
         groups.add(group);
 
+        Feature feature1 = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+        Feature feature2 = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
+        Feature feature3 = TestUtils.createFeature(FeatureType.UNIT_TECHNICAL_CONTACT.toString());
+
         when(groupService.findGroupsByUser(user)).thenReturn(groups);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(roleRepository.findByRoleType(eq(RoleType.STAFF))).thenReturn(roles);
+        when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()))).thenReturn(feature1);
+        when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()))).thenReturn(feature2);
+        when(featureRepository.findByName(eq(FeatureType.UNIT_TECHNICAL_CONTACT.toString()))).thenReturn(feature3);
+        when(userRepository.findStaffByGroupsRolesFeatures(
+                eq("%%"), any(List.class), any(List.class), any(List.class), any(Pageable.class)))
+                .thenReturn(userPage);
 
         List<ContactAlert> contactAlerts = alertService.getContactAlerts(user.getId());
-        Assert.assertEquals("Should return 3 contact alerts", 3, contactAlerts.size());
+        Assert.assertEquals("Should return 0 contact alerts", 0, contactAlerts.size());
     }
 
     @Test
