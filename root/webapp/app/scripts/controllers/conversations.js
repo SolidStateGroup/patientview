@@ -5,15 +5,6 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
     'GroupService', 'ConversationService', 'conversation',
     function ($scope, $rootScope, $modalInstance, $timeout, GroupService, ConversationService, conversation) {
 
-        var memberOfGroup = function(group) {
-           for (var i=0; i<$rootScope.loggedInUser.groupRoles.length; i++) {
-               if ($scope.loggedInUser.groupRoles[i].group.id === group.id) {
-                   return true;
-               }
-           }
-            return false;
-        };
-
         var init = function() {
             delete $scope.errorMessage;
             $scope.editConversation = conversation;
@@ -22,7 +13,7 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
                 for (var i = 0; i < successResult.length; i++) {
                     if (successResult[i].code !== 'Generic') {
-                        if (memberOfGroup(successResult[i])) {
+                        if (ConversationService.memberOfGroup(successResult[i])) {
                             successResult[i].name = successResult[i].name + ' (member)';
                         }
                         $scope.conversationGroups.push(successResult[i]);
@@ -151,15 +142,6 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
         var i;
 
-        var memberOfGroup = function(group) {
-            for (var i=0; i<$rootScope.loggedInUser.groupRoles.length; i++) {
-                if ($scope.loggedInUser.groupRoles[i].group.id === group.id) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
         var init = function() {
             delete $scope.errorMessage;
             $scope.newConversation = {};
@@ -167,14 +149,34 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             $scope.conversationGroups = [];
 
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+
+                var myGroups = [];
+                var supportGroups = [];
+                var otherGroups = [];
+
+                // custom ordering
                 for (var i = 0; i < successResult.length; i++) {
-                    if (successResult[i].code !== 'Generic') {
-                        if (memberOfGroup(successResult[i])) {
-                            successResult[i].name = successResult[i].name + ' (member)';
+                    var group = successResult[i];
+                    if (group.code !== 'Generic') {
+                        if (group.groupType.value === 'CENTRAL_SUPPORT') {
+                            supportGroups.push(group)
+                        } else if (ConversationService.memberOfGroup(group)) {
+                            group.groupType.value = 'MY_GROUP';
+                            group.name = group.name + ' (' + group.groupType.description + ')';
+                            group.groupType.description = 'My Groups';
+                            myGroups.push(group);
+                        } else {
+                            group.groupType.value = 'OTHER_GROUP';
+                            group.name = group.name + ' (' + group.groupType.description + ')';
+                            group.groupType.description = 'Other Groups';
+                            otherGroups.push(group);
                         }
-                        $scope.conversationGroups.push(successResult[i]);
                     }
                 }
+
+                $scope.conversationGroups = $scope.conversationGroups.concat(myGroups);
+                $scope.conversationGroups = $scope.conversationGroups.concat(supportGroups);
+                $scope.conversationGroups = $scope.conversationGroups.concat(otherGroups);
             }, function(failResult) {
                 $scope.errorMessage = failResult.data;
             });

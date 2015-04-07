@@ -114,6 +114,15 @@ function ($http, $q, Restangular, $rootScope) {
             });
             return deferred.promise;
         },
+        memberOfGroup: function(group) {
+            console.log($rootScope.loggedInUser);
+            for (var i=0; i<$rootScope.loggedInUser.userInformation.userGroups.length; i++) {
+                if ($rootScope.loggedInUser.userInformation.userGroups[i].id === group.id) {
+                    return true;
+                }
+            }
+            return false;
+        },
         removeConversationUser: function (conversationId, userId) {
             var deferred = $q.defer();
             // DELETE /conversation/{conversationId}/conversationuser/{userId}

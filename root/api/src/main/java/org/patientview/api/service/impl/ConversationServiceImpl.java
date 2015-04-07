@@ -1307,13 +1307,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             userMap.put(role.getName().getName(), users);
         }
 
-        for (Role role : patientRoles) {
-            getParameters.setRoleIds(new String[]{role.getId().toString()});
+        // when groupId is set, can only get patients if current user is member of group
+        if (groupId != null && isCurrentUserMemberOfGroup(groupRepository.findOne(groupId))) {
+            for (Role role : patientRoles) {
+                getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
+                List<BaseUser> users = convertUsersToTransportBaseUsers(
+                        userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
-            userMap.put(role.getName().getName(), users);
+                userMap.put(role.getName().getName(), users);
+            }
         }
 
         return userMap;

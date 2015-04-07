@@ -409,8 +409,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                     groups.add(parentGroup);
                 }
             }
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            // UNIT_ADMIN get all groups (participant list is secured later)
+            groups.addAll(groupRepository.findAll());
         } else {
-            // UNIT_ADMIN, STAFF_ADMIN, DISEASE_GROUP_ADMIN get all group types
+            // STAFF_ADMIN, DISEASE_GROUP_ADMIN get all group types by user
             groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(entityUser)));
 
             // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
