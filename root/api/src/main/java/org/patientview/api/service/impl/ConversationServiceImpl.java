@@ -33,6 +33,7 @@ import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -964,8 +965,30 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
-        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        // #310 QA: On selecting a specialty, it should only list users who are in the specialty admin role with the
+        // messaging feature assigned.
+        boolean isSpecialtyGroup = false;
+        if (groupId != null) {
+            Group group = groupRepository.findOne(groupId);
+            if (group == null) {
+                throw new ResourceNotFoundException("Group not found with ID " + groupId);
+            }
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                isSpecialtyGroup = true;
+            }
+        }
+
+        List<Role> staffRoles = new ArrayList<>();
+        List<Role> patientRoles = new ArrayList<>();
+
+        if (isSpecialtyGroup) {
+            staffRoles.add(roleService.findByRoleTypeAndName(RoleType.STAFF, RoleName.SPECIALTY_ADMIN));
+        } else {
+            staffRoles = roleService.getRolesByType(RoleType.STAFF);
+            patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        }
+
         List<String> featureIds = new ArrayList<>();
 
         // only retrieve users with features
@@ -1216,8 +1239,29 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
-        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        // #310 QA: On selecting a specialty, it should only list users who are in the specialty admin role with the
+        // messaging feature assigned.
+        boolean isSpecialtyGroup = false;
+        if (groupId != null) {
+            Group group = groupRepository.findOne(groupId);
+            if (group == null) {
+                throw new ResourceNotFoundException("Group not found with ID " + groupId);
+            }
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                isSpecialtyGroup = true;
+            }
+        }
+
+        List<Role> staffRoles = new ArrayList<>();
+        List<Role> patientRoles = new ArrayList<>();
+
+        if (isSpecialtyGroup) {
+            staffRoles.add(roleService.findByRoleTypeAndName(RoleType.STAFF, RoleName.SPECIALTY_ADMIN));
+        } else {
+            staffRoles = roleService.getRolesByType(RoleType.STAFF);
+            patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        }
 
         // specialty/unit staff and admin can contact all users in specialty/unit
         // staff & patient users can only contact those in their groups
