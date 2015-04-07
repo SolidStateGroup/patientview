@@ -13,6 +13,9 @@
     .news-actions {
         text-align: left;
     }
+    .panel-intro-statistics p {
+        margin: 0;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -77,9 +80,9 @@
             </div>
 
             <div class="tab-panel-item" data-ng-show="!permissions.isPatient && ((permissions.showContactAlerts && contactAlerts.length) || unreadConversationCount.length || submittedRequestCount.length)">
-                <div class="content-panel">
+                <div class="content-panel chart-container">
                     <div class="panel-intro">
-                        <h3>Staff Alerts</h3>
+                        <h3>Notifications</h3>
                     </div>
                     <div class="content-inner">
                         <ul>
@@ -129,8 +132,8 @@
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
 
-            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
-                <div class="panel-intro">
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+                <div class="panel-intro panel-intro-statistics">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
                     <p>Values are calculated daily, please click to see more, numbers are Total (Staff/Patient) counts</p>
                 </div>
