@@ -4,6 +4,16 @@
 var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', '$timeout',
     'GroupService', 'ConversationService', 'conversation',
     function ($scope, $rootScope, $modalInstance, $timeout, GroupService, ConversationService, conversation) {
+
+        var memberOfGroup = function(group) {
+           for (var i=0; i<$rootScope.loggedInUser.groupRoles.length; i++) {
+               if ($scope.loggedInUser.groupRoles[i].group.id === group.id) {
+                   return true;
+               }
+           }
+            return false;
+        };
+
         var init = function() {
             delete $scope.errorMessage;
             $scope.editConversation = conversation;
@@ -12,6 +22,9 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
                 for (var i = 0; i < successResult.length; i++) {
                     if (successResult[i].code !== 'Generic') {
+                        if (memberOfGroup(successResult[i])) {
+                            successResult[i].name = successResult[i].name + ' (member)';
+                        }
                         $scope.conversationGroups.push(successResult[i]);
                     }
                 }
@@ -138,6 +151,15 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
         var i;
 
+        var memberOfGroup = function(group) {
+            for (var i=0; i<$rootScope.loggedInUser.groupRoles.length; i++) {
+                if ($scope.loggedInUser.groupRoles[i].group.id === group.id) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         var init = function() {
             delete $scope.errorMessage;
             $scope.newConversation = {};
@@ -147,6 +169,9 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
                 for (var i = 0; i < successResult.length; i++) {
                     if (successResult[i].code !== 'Generic') {
+                        if (memberOfGroup(successResult[i])) {
+                            successResult[i].name = successResult[i].name + ' (member)';
+                        }
                         $scope.conversationGroups.push(successResult[i]);
                     }
                 }
