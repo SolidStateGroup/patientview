@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum GroupTypes {
 
-    UNIT("unit"), DISEASE_GROUP("Disease Group"), SPECIALTY("Specialty");
+    UNIT("unit"), DISEASE_GROUP("Disease Group"), SPECIALTY("Specialty"), CENTRAL_SUPPORT("Central Support");
 
     private String name;
     GroupTypes(String name) { this.name = name; }

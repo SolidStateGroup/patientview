@@ -22,10 +22,12 @@ import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ContactPointRepository;
@@ -382,23 +384,23 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException("User does not exist");
         }
 
-        List<Group> groups = new ArrayList<>();
+        Set<Group> groups = new HashSet<>();
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             // GLOBAL_ADMIN can reach all groups
-            groups = Util.convertIterable(groupRepository.findAll());
+            groups = new HashSet<>(Util.convertIterable(groupRepository.findAll()));
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             // SPECIALTY_ADMIN gets groups and child groups if available
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             parentGroups = addParentAndChildGroups(parentGroups);
 
             // add child groups
-            Set<Group> groupSet = new HashSet<>();
             for (Group parentGroup : parentGroups) {
-                groupSet.addAll(findChildren(parentGroup.getId()));
+                groups.addAll(findChildren(parentGroup.getId()));
             }
 
-            groups = new ArrayList<>(groupSet);
+            // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
+            groups.addAll(getSupportGroups());
         } else if (doesContainRoles(RoleName.PATIENT)) {
             // PATIENT do not add specialty type groups
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
@@ -410,6 +412,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         } else {
             // UNIT_ADMIN, STAFF_ADMIN, DISEASE_GROUP_ADMIN get all group types
             groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(entityUser)));
+
+            // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
+            groups.addAll(getSupportGroups());
         }
 
         // keep only groups with MESSAGING feature and convert to base groups
@@ -426,67 +431,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     public Group get(Long id) throws ResourceForbiddenException {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
-    }
-
-    public List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id ");
-        query.append("FROM organization ");
-        query.append("WHERE content #> '{identifier,0}' -> 'value' = '\"");
-        query.append(code);
-        query.append("\"' ");
-
-        // execute and return UUIDs
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            List<UUID> uuids = new ArrayList<>();
-
-            while ((results.next())) {
-                uuids.add(UUID.fromString(results.getString(1)));
-            }
-
-            connection.close();
-            return uuids;
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-    }
-
-    public Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters) {
-        String size = getParameters.getSize();
-        String page = getParameters.getPage();
-        String sortField = getParameters.getSortField();
-        String sortDirection = getParameters.getSortDirection();
-
-        PageRequest pageable;
-        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
-        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
-
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
-
-        Page<Group> groupPage = getUserGroupsData(userId, getParameters);
-        if (groupPage == null) {
-            return new PageImpl<>(new ArrayList<org.patientview.api.model.Group>(), pageable, 0L);
-        }
-
-        // add parent and child groups
-        List<Group> content = addParentAndChildGroups(groupPage.getContent());
-
-        // convert to lightweight transport objects, create Page and return
-        List<org.patientview.api.model.Group> transportContent = convertGroupsToTransportGroups(content);
-        return new PageImpl<>(transportContent, pageable, groupPage.getTotalElements());
     }
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
@@ -541,6 +485,82 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
 
         return groups;
+    }
+
+    public List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM organization ");
+        query.append("WHERE content #> '{identifier,0}' -> 'value' = '\"");
+        query.append(code);
+        query.append("\"' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    private List<Group> getSupportGroups() {
+        List<Group> groups = new ArrayList<>();
+        List<Long> groupTypes = new ArrayList<>();
+        Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.CENTRAL_SUPPORT.toString());
+        if (lookup != null) {
+            groupTypes.add(lookup.getId());
+            Page<Group> supportGroups
+                    = groupRepository.findAllByGroupType("%%", groupTypes, new PageRequest(0, Integer.MAX_VALUE));
+            if (!supportGroups.getContent().isEmpty()) {
+                groups.addAll(supportGroups.getContent());
+            }
+        }
+        return groups;
+    }
+
+    public Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters) {
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
+
+        Page<Group> groupPage = getUserGroupsData(userId, getParameters);
+        if (groupPage == null) {
+            return new PageImpl<>(new ArrayList<org.patientview.api.model.Group>(), pageable, 0L);
+        }
+
+        // add parent and child groups
+        List<Group> content = addParentAndChildGroups(groupPage.getContent());
+
+        // convert to lightweight transport objects, create Page and return
+        List<org.patientview.api.model.Group> transportContent = convertGroupsToTransportGroups(content);
+        return new PageImpl<>(transportContent, pageable, groupPage.getTotalElements());
     }
 
     public Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters) {
@@ -634,6 +654,17 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     private boolean groupExists(Group group) {
         return groupRepository.findByCode(group.getCode()) != null;
+    }
+
+    @Override
+    public boolean groupIdIsSupportGroup(Long groupId) throws ResourceNotFoundException {
+        List<Group> supportGroups = getSupportGroups();
+        for (Group group : supportGroups) {
+            if (group.getId().equals(groupId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {

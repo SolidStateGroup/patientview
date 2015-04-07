@@ -233,34 +233,36 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
     });
 
     var getItems = function() {
-        $scope.loading = true;
-        var getParameters = {};
-        getParameters.page = $scope.currentPage;
-        getParameters.size = $scope.itemsPerPage;
-        getParameters.filterText = $scope.filterText;
-        if (!$scope.includeAllFoldersInSearch) {
+        if ($scope.userHasMessagingFeature()) {
+            $scope.loading = true;
+            var getParameters = {};
+            getParameters.page = $scope.currentPage;
+            getParameters.size = $scope.itemsPerPage;
+            getParameters.filterText = $scope.filterText;
+            if (!$scope.includeAllFoldersInSearch) {
 
-            // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
-            getParameters.conversationLabels = [];
-            getParameters.conversationLabels.push($scope.selectedFolder);
-        }
-
-        ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
-
-            // add archived property if present as a label for this user
-            for (var i=0; i<page.content.length; i++) {
-                page.content[i] = setArchivedStatus(page.content[i]);
-                page.content[i].unread = hasUnreadMessages(page.content[i]);
+                // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
+                getParameters.conversationLabels = [];
+                getParameters.conversationLabels.push($scope.selectedFolder);
             }
 
-            $scope.pagedItems = page.content;
-            $scope.total = page.totalElements;
-            $scope.totalPages = page.totalPages;
-            $scope.loading = false;
-        }, function() {
-            $scope.loading = false;
-            alert("Could not get conversations");
-        });
+            ConversationService.getAll($scope.loggedInUser, getParameters).then(function (page) {
+
+                // add archived property if present as a label for this user
+                for (var i = 0; i < page.content.length; i++) {
+                    page.content[i] = setArchivedStatus(page.content[i]);
+                    page.content[i].unread = hasUnreadMessages(page.content[i]);
+                }
+
+                $scope.pagedItems = page.content;
+                $scope.total = page.totalElements;
+                $scope.totalPages = page.totalPages;
+                $scope.loading = false;
+            }, function () {
+                $scope.loading = false;
+                alert("Could not get conversations");
+            });
+        }
     };
 
     var setArchivedStatus = function(conversation) {
@@ -495,7 +497,8 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             return true;
         }
 
-        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT'];
+        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
+            'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
 
         for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
             var feature = $scope.loggedInUser.userInformation.userFeatures[i];

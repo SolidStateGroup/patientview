@@ -1272,7 +1272,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // if restricted to one group
         if (groupId != null) {
-            if (groupIdList.contains(groupId.toString())) {
+            if (groupIdList.contains(groupId.toString()) || groupService.groupIdIsSupportGroup(groupId)) {
                 getParameters.setGroupIds(new String[]{groupId.toString()});
             } else {
                 throw new ResourceForbiddenException("Forbidden");

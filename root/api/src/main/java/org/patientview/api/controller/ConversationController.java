@@ -9,8 +9,6 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.enums.ConversationLabel;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -165,7 +163,6 @@ public class ConversationController extends BaseController<ConversationControlle
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    //@CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -236,7 +233,6 @@ public class ConversationController extends BaseController<ConversationControlle
      * @return Long containing number of unread messages
      * @throws ResourceNotFoundException
      */
-    //@Cacheable(value = "unreadConversationCount")
     @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

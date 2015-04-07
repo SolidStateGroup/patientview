@@ -1004,7 +1004,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (entityGroup == null) {
                 throw new ResourceNotFoundException("Unknown Group");
             }
-            if (!isCurrentUserMemberOfGroup(entityGroup)) {
+            if (!isCurrentUserMemberOfGroup(entityGroup) && !groupService.groupIdIsSupportGroup(groupId)) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }
