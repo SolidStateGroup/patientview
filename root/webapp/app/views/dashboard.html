@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <div class="tab-panel-item" data-ng-show="!permissions.isPatient && ((permissions.showContactAlerts && contactAlerts.length) || unreadConversationCount || submittedRequestCount)">
+            <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts && (contactAlerts.length || unreadConversationCount || submittedRequestCount)">
                 <div class="content-panel chart-container">
                     <div class="panel-intro">
                         <h3>Notifications</h3>

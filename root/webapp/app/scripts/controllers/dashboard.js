@@ -150,7 +150,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showRequestButton = true;
-            $scope.permissions.showContactAlerts = true;
+            $scope.permissions.showStaffAlerts = true;
         }
 
         if ($scope.permissions.isPatient) {
@@ -187,15 +187,14 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         });
 
         // get contact alerts for admin users
-        if ($scope.permissions.showContactAlerts) {
-            $scope.contactAlertsLoading = true;
-            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(contactAlerts) {
-                $scope.contactAlertsLoading = false;
-                console.log(contactAlerts);
-                $scope.contactAlerts = contactAlerts;
+        if ($scope.permissions.showStaffAlerts) {
+            $scope.StaffAlertsLoading = true;
+            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(StaffAlerts) {
+                $scope.StaffAlertsLoading = false;
+                $scope.StaffAlerts = StaffAlerts;
             }, function() {
-                alert("Error getting contact alerts");
-                $scope.contactAlertsLoading = false;
+                alert("Error getting staff notifications");
+                $scope.StaffAlertsLoading = false;
             });
         }
     };
