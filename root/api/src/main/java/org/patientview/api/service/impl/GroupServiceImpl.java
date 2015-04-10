@@ -520,7 +520,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     private List<Group> getSupportGroups() {
         List<Group> groups = new ArrayList<>();
         List<Long> groupTypes = new ArrayList<>();
-        Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.CENTRAL_SUPPORT.toString());
+        Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.GROUP, "CENTRAL_SUPPORT");
         if (lookup != null) {
             groupTypes.add(lookup.getId());
             Page<Group> supportGroups
