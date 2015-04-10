@@ -16,6 +16,10 @@
     .panel-intro-statistics p {
         margin: 0;
     }
+    .panel-help-link {
+        font-size: 14px;
+        font-family: Lato, sans-serif;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -81,7 +85,10 @@
             <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts">
                 <div class="content-panel chart-container">
                     <div class="panel-intro">
-                        <h3>Notifications</h3>
+                        <h3>Notifications<a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard" target="_blank"
+                                            class="pull-right panel-help-link">Help</a></h3>
+
+
                     </div>
                     <div class="content-inner">
                         <ul>
@@ -129,9 +136,6 @@
                             </ul>
                         </div>
 
-                        <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard" target="_blank">
-                            Help on notifications
-                        </a>
                     </div>
                 </div>
             </div>
