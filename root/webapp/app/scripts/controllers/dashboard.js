@@ -188,13 +188,14 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
         // get contact alerts for admin users
         if ($scope.permissions.showStaffAlerts) {
-            $scope.StaffAlertsLoading = true;
-            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(StaffAlerts) {
-                $scope.StaffAlertsLoading = false;
-                $scope.StaffAlerts = StaffAlerts;
+            $scope.contactAlertsLoading = true;
+            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(contactAlerts) {
+                console.log(contactAlerts);
+                $scope.contactAlertsLoading = false;
+                $scope.contactAlerts = contactAlerts;
             }, function() {
-                alert("Error getting staff notifications");
-                $scope.StaffAlertsLoading = false;
+                alert("Error getting contact alerts");
+                $scope.contactAlertsLoading = false;
             });
         }
     };

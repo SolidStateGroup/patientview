@@ -78,7 +78,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts && (contactAlerts.length || unreadConversationCount || submittedRequestCount)">
                 <div class="content-panel chart-container">
                     <div class="panel-intro">
@@ -86,10 +85,10 @@
                     </div>
                     <div class="content-inner">
                         <ul>
-                            <li data-ng-show="contactAlertsLoading && permissions.showContactAlerts">
+                            <li data-ng-show="contactAlertsLoading">
                                 Checking if any of your groups are missing users with important features (e.g. Default Messaging Contact)
                             </li>
-                            <li data-ng-repeat="contactAlert in contactAlerts" data-ng-show="!contactAlertsLoading && permissions.showContactAlerts">
+                            <li data-ng-repeat="contactAlert in contactAlerts" data-ng-show="!contactAlertsLoading">
                                 {{contactAlert.group.shortName}} is missing a {{contactAlert.featureName}}
                             </li>
                             <li data-ng-show="unreadConversationCount">
@@ -101,6 +100,9 @@
                                 </a>
                             </li>
                         </ul>
+                        <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard" target="_blank">
+                            Help on notifications
+                        </a>
                     </div>
                 </div>
             </div>
