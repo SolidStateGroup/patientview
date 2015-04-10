@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirDocumentReference;
+import org.patientview.api.model.Group;
 import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
@@ -15,7 +16,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
-import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -107,7 +108,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<Group> groups = groupService.findGroupsByUser(user);
+        List<Group> groups
+                = groupService.getUserGroups(userId, new GetParameters()).getContent();
         List<ContactAlert> contactAlerts = new ArrayList<>();
 
         for (Group group : groups) {

@@ -18,6 +18,11 @@ public class ContactAlert {
         this.featureName = featureType.getName();
     }
 
+    public ContactAlert(org.patientview.api.model.Group group, FeatureType featureType) {
+        this.group = new BaseGroup(group);
+        this.featureName = featureType.getName();
+    }
+
     public BaseGroup getGroup() {
         return group;
     }

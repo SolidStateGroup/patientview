@@ -2,6 +2,8 @@ package org.patientview.api.model;
 
 import org.patientview.persistence.model.Lookup;
 
+import java.util.Date;
+
 /**
  * BaseGroup, representing the minimum information required for Groups.
  * Created by jamesr@solidstategroup.com
@@ -16,6 +18,7 @@ public class BaseGroup {
     private Boolean visible;
     private Boolean visibleToJoin;
     private Lookup groupType;
+    private Date lastImportDate;
 
     public BaseGroup() {
     }
@@ -28,6 +31,18 @@ public class BaseGroup {
         setVisible(group.getVisible());
         setGroupType(group.getGroupType());
         setVisibleToJoin(group.getVisibleToJoin());
+        setLastImportDate(group.getLastImportDate());
+    }
+
+    public BaseGroup(org.patientview.api.model.Group group) {
+        setCode(group.getCode());
+        setId(group.getId());
+        setName(group.getName());
+        setShortName(group.getShortName());
+        setVisible(group.getVisible());
+        setGroupType(group.getGroupType());
+        setVisibleToJoin(group.getVisibleToJoin());
+        setLastImportDate(group.getLastImportDate());
     }
 
     public Long getId() {
@@ -84,5 +99,13 @@ public class BaseGroup {
 
     public void setVisibleToJoin(Boolean visibleToJoin) {
         this.visibleToJoin = visibleToJoin;
+    }
+
+    public Date getLastImportDate() {
+        return lastImportDate;
+    }
+
+    public void setLastImportDate(Date lastImportDate) {
+        this.lastImportDate = lastImportDate;
     }
 }

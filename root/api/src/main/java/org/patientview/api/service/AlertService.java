@@ -47,6 +47,12 @@ public interface AlertService {
     @UserOnly
     List<Alert> getAlerts(Long userId, AlertTypes alertType) throws ResourceNotFoundException;
 
+    /**
+     * Get alerts used for notifying if missing Users with DEFAULT_MESSAGING_CONTACT etc for a Group.
+     * @param userId ID of User to get ContactAlerts for
+     * @return List of ContactAlerts
+     * @throws ResourceNotFoundException
+     */
     @UserOnly
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     List<ContactAlert> getContactAlerts(Long userId) throws ResourceNotFoundException;
