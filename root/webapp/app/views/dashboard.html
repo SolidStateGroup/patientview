@@ -108,6 +108,8 @@
                         <div data-ng-show="showStaffGroupAlerts">
                             <a href="" data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
                                     data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
+                            <br/>
+                            <strong>Missing Contact Alerts</strong>
                             <ul>
                                 <li data-ng-show="contactAlertsLoading">
                                     Checking Group contact information
@@ -120,6 +122,7 @@
                                     All of your Groups have the required contact information
                                 </li>
                             </ul>
+                            <strong>Data Submission Alerts</strong>
                             <ul>
                                 <li data-ng-show="oldSubmissionDateGroupsLoading">
                                     Checking Group last submission date
