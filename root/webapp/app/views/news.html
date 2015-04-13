@@ -3,7 +3,7 @@
         <button class="btn blue" data-ng-click="openModalNewNews('lg')" data-ng-show="permissions.canAddNews">Create New</button>
     </h1>
 
-    <p><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
+    <p data-ng-show="permissions.canAddNews"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
           target="_blank">Guidance on creating news items.</a></p>
 
     <!-- new news modal template -->
