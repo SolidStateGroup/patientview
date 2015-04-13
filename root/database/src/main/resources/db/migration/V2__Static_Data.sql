@@ -58,6 +58,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (48, now(), 'HOSPITAL_NUMBER','Hospital Number','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (49, now(), 'RADAR_NUMBER','Radar Number','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (57, now(), 'NON_UK_UNIQUE','Non UK Unique Identifier','1','8');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (60, now(), 'CENTRAL_SUPPORT','Central Support','1','1');
 
 /* Group Statistics (see AuditActions.java) */
 

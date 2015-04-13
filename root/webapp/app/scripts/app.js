@@ -243,9 +243,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     $rootScope.orderGroups = function (group) {
         if (group.groupType) {
             var groupTypes = [];
-            groupTypes.SPECIALTY = 1;
-            groupTypes.UNIT = 2;
-            groupTypes.DISEASE_GROUP = 3;
+            groupTypes.MY_GROUP = 1;
+            groupTypes.SPECIALTY = 2;
+            groupTypes.UNIT = 3;
+            groupTypes.DISEASE_GROUP = 4;
+            groupTypes.CENTRAL_SUPPORT = 5;
+            groupTypes.OTHER_GROUP = 6;
 
             if (groupTypes[group.groupType.value]) {
                 return groupTypes[group.groupType.value];

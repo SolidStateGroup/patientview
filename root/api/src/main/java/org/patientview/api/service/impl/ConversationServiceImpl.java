@@ -33,6 +33,7 @@ import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -639,6 +640,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
 
+        // required if previously failed to cleanly delete conversation user labels (RPV-582)
+        List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
+        for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
+            conversationUserLabelRepository.delete(conversationUserLabel);
+        }
+        conversationUserLabels = conversationUserLabelRepository.findByCreator(user);
+        for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
+            conversationUserLabelRepository.delete(conversationUserLabel);
+        }
+
         for (Conversation conversation : conversations) {
             // remove from conversation user list
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
@@ -652,6 +663,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                     removedUserConversationUsers.add(conversationUser);
                 } else {
+                    // remove conversation user labels
+                    for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
+                        conversationUserLabelRepository.delete(conversationUserLabel.getId());
+                    }
+                    conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                    conversationUserRepository.save(conversationUser);
                     conversationUserRepository.delete(conversationUser);
                 }
             }
@@ -948,8 +965,30 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
-        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        // #310 QA: On selecting a specialty, it should only list users who are in the specialty admin role with the
+        // messaging feature assigned.
+        boolean isSpecialtyGroup = false;
+        if (groupId != null) {
+            Group group = groupRepository.findOne(groupId);
+            if (group == null) {
+                throw new ResourceNotFoundException("Group not found with ID " + groupId);
+            }
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                isSpecialtyGroup = true;
+            }
+        }
+
+        List<Role> staffRoles = new ArrayList<>();
+        List<Role> patientRoles = new ArrayList<>();
+
+        if (isSpecialtyGroup) {
+            staffRoles.add(roleService.findByRoleTypeAndName(RoleType.STAFF, RoleName.SPECIALTY_ADMIN));
+        } else {
+            staffRoles = roleService.getRolesByType(RoleType.STAFF);
+            patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        }
+
         List<String> featureIds = new ArrayList<>();
 
         // only retrieve users with features
@@ -1117,6 +1156,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // sort correctly
         List<String> sortOrder = new ArrayList<>();
+        sortOrder.add(RoleName.SPECIALTY_ADMIN.getName());
         sortOrder.add(RoleName.UNIT_ADMIN.getName());
         sortOrder.add(RoleName.STAFF_ADMIN.getName());
         sortOrder.add(RoleName.PATIENT.getName());
@@ -1199,8 +1239,29 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         getParameters.setSortField("surname");
         getParameters.setSortDirection("ASC");
         List<String> groupIdList = new ArrayList<>();
-        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        // #310 QA: On selecting a specialty, it should only list users who are in the specialty admin role with the
+        // messaging feature assigned.
+        boolean isSpecialtyGroup = false;
+        if (groupId != null) {
+            Group group = groupRepository.findOne(groupId);
+            if (group == null) {
+                throw new ResourceNotFoundException("Group not found with ID " + groupId);
+            }
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                isSpecialtyGroup = true;
+            }
+        }
+
+        List<Role> staffRoles = new ArrayList<>();
+        List<Role> patientRoles = new ArrayList<>();
+
+        if (isSpecialtyGroup) {
+            staffRoles.add(roleService.findByRoleTypeAndName(RoleType.STAFF, RoleName.SPECIALTY_ADMIN));
+        } else {
+            staffRoles = roleService.getRolesByType(RoleType.STAFF);
+            patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        }
 
         // specialty/unit staff and admin can contact all users in specialty/unit
         // staff & patient users can only contact those in their groups
@@ -1211,7 +1272,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // if restricted to one group
         if (groupId != null) {
-            if (groupIdList.contains(groupId.toString())) {
+            if (groupIdList.contains(groupId.toString()) || groupService.groupIdIsSupportGroup(groupId)) {
                 getParameters.setGroupIds(new String[]{groupId.toString()});
             } else {
                 throw new ResourceForbiddenException("Forbidden");
@@ -1246,13 +1307,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             userMap.put(role.getName().getName(), users);
         }
 
-        for (Role role : patientRoles) {
-            getParameters.setRoleIds(new String[]{role.getId().toString()});
+        // when groupId is set, can only get patients if current user is member of group
+        if (groupId != null && isCurrentUserMemberOfGroup(groupRepository.findOne(groupId))) {
+            for (Role role : patientRoles) {
+                getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
+                List<BaseUser> users = convertUsersToTransportBaseUsers(
+                        userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
-            userMap.put(role.getName().getName(), users);
+                userMap.put(role.getName().getName(), users);
+            }
         }
 
         return userMap;

@@ -111,19 +111,19 @@ public interface GroupService {
     List<org.patientview.api.model.Group> findAllPublic();
 
     /**
+     * Find a single Group by its unique Group code.
+     * @param code String code of a Group
+     * @return Group object
+     */
+    Group findByCode(String code);
+
+    /**
      * Get children of a Group given ID.
      * @param groupId ID of Group to get child Groups for
      * @return List of child Groups
      * @throws ResourceNotFoundException
      */
     List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
-
-    /**
-     * Find a single Group by its unique Group code.
-     * @param code String code of a Group
-     * @return Group object
-     */
-    Group findByCode(String code);
 
     /**
      * Find all Groups that a User belongs to.
@@ -164,6 +164,14 @@ public interface GroupService {
     Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId);
 
     /**
+     * Find all Groups that a User belongs to, including all child properties, used during authentication.
+     * @param userId ID of User to find Groups for
+     * @return List of Groups
+     */
+    @UserOnly
+    List<Group> getAllUserGroupsAllDetails(Long userId);
+
+    /**
      * Get List of Groups by feature name, currently used to get list of groups with MESSAGING feature for creating
      * membership request Conversations.
      * @param featureName String name of feature that Group must have
@@ -173,20 +181,21 @@ public interface GroupService {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Find all Groups that a User belongs to, including all child properties, used during authentication.
-     * @param userId ID of User to find Groups for
-     * @return List of Groups
-     */
-    @UserOnly
-    List<Group> getAllUserGroupsAllDetails(Long userId);
-
-    /**
      * Get a List of FHIR Organization UUIDs from FHIR given an FHIR Organization/Group code.
      * @param code String code of a Group/Organization
      * @return List of FHIR Organization UUIDs
      * @throws FhirResourceException
      */
     List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException;
+
+    /**
+     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc.
+     * @param userId ID of User retrieving Groups
+     * @param getParameters GetParameters object containing filters, page size, number etc
+     * @return Page of Group objects
+     */
+    @UserOnly
+    Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
 
     /**
      * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc. This
@@ -199,13 +208,11 @@ public interface GroupService {
     Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters);
 
     /**
-     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc.
-     * @param userId ID of User retrieving Groups
-     * @param getParameters GetParameters object containing filters, page size, number etc
-     * @return Page of Group objects
+     * Check if Group ID is member of CENTRAL_SUPPORT groups.
+     * @param groupId ID of Group to check is a CENTRAL_SUPPORT Group
+     * @return True if Group is CENTRAL_SUPPORT type
      */
-    @UserOnly
-    Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
+    boolean groupIdIsSupportGroup(Long groupId) throws ResourceNotFoundException;
 
     /**
      * Save an updated Group.

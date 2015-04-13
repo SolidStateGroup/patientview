@@ -4,6 +4,7 @@
 var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', '$timeout',
     'GroupService', 'ConversationService', 'conversation',
     function ($scope, $rootScope, $modalInstance, $timeout, GroupService, ConversationService, conversation) {
+
         var init = function() {
             delete $scope.errorMessage;
             $scope.editConversation = conversation;
@@ -12,6 +13,9 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
                 for (var i = 0; i < successResult.length; i++) {
                     if (successResult[i].code !== 'Generic') {
+                        if (ConversationService.memberOfGroup(successResult[i])) {
+                            successResult[i].name = successResult[i].name + ' (member)';
+                        }
                         $scope.conversationGroups.push(successResult[i]);
                     }
                 }
@@ -145,11 +149,34 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             $scope.conversationGroups = [];
 
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+
+                var myGroups = [];
+                var supportGroups = [];
+                var otherGroups = [];
+
+                // custom ordering
                 for (var i = 0; i < successResult.length; i++) {
-                    if (successResult[i].code !== 'Generic') {
-                        $scope.conversationGroups.push(successResult[i]);
+                    var group = successResult[i];
+                    if (group.code !== 'Generic') {
+                        if (group.groupType.value === 'CENTRAL_SUPPORT') {
+                            supportGroups.push(group)
+                        } else if (ConversationService.memberOfGroup(group)) {
+                            group.groupType.value = 'MY_GROUP';
+                            group.name = group.name + ' (' + group.groupType.description + ')';
+                            group.groupType.description = 'My Groups';
+                            myGroups.push(group);
+                        } else {
+                            group.groupType.value = 'OTHER_GROUP';
+                            group.name = group.name + ' (' + group.groupType.description + ')';
+                            group.groupType.description = 'Other Groups';
+                            otherGroups.push(group);
+                        }
                     }
                 }
+
+                $scope.conversationGroups = $scope.conversationGroups.concat(myGroups);
+                $scope.conversationGroups = $scope.conversationGroups.concat(supportGroups);
+                $scope.conversationGroups = $scope.conversationGroups.concat(otherGroups);
             }, function(failResult) {
                 $scope.errorMessage = failResult.data;
             });
@@ -233,34 +260,36 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
     });
 
     var getItems = function() {
-        $scope.loading = true;
-        var getParameters = {};
-        getParameters.page = $scope.currentPage;
-        getParameters.size = $scope.itemsPerPage;
-        getParameters.filterText = $scope.filterText;
-        if (!$scope.includeAllFoldersInSearch) {
+        if ($scope.userHasMessagingFeature()) {
+            $scope.loading = true;
+            var getParameters = {};
+            getParameters.page = $scope.currentPage;
+            getParameters.size = $scope.itemsPerPage;
+            getParameters.filterText = $scope.filterText;
+            if (!$scope.includeAllFoldersInSearch) {
 
-            // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
-            getParameters.conversationLabels = [];
-            getParameters.conversationLabels.push($scope.selectedFolder);
-        }
-
-        ConversationService.getAll($scope.loggedInUser, getParameters).then(function(page) {
-
-            // add archived property if present as a label for this user
-            for (var i=0; i<page.content.length; i++) {
-                page.content[i] = setArchivedStatus(page.content[i]);
-                page.content[i].unread = hasUnreadMessages(page.content[i]);
+                // labels passed as array, currently only one label at a time to emulate INBOX, ARCHIVED folders
+                getParameters.conversationLabels = [];
+                getParameters.conversationLabels.push($scope.selectedFolder);
             }
 
-            $scope.pagedItems = page.content;
-            $scope.total = page.totalElements;
-            $scope.totalPages = page.totalPages;
-            $scope.loading = false;
-        }, function() {
-            $scope.loading = false;
-            alert("Could not get conversations");
-        });
+            ConversationService.getAll($scope.loggedInUser, getParameters).then(function (page) {
+
+                // add archived property if present as a label for this user
+                for (var i = 0; i < page.content.length; i++) {
+                    page.content[i] = setArchivedStatus(page.content[i]);
+                    page.content[i].unread = hasUnreadMessages(page.content[i]);
+                }
+
+                $scope.pagedItems = page.content;
+                $scope.total = page.totalElements;
+                $scope.totalPages = page.totalPages;
+                $scope.loading = false;
+            }, function () {
+                $scope.loading = false;
+                alert("Could not get conversations");
+            });
+        }
     };
 
     var setArchivedStatus = function(conversation) {
@@ -495,7 +524,8 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             return true;
         }
 
-        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT'];
+        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
+            'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
 
         for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
             var feature = $scope.loggedInUser.userInformation.userFeatures[i];

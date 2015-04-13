@@ -12,7 +12,6 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -129,7 +128,6 @@ public class AuthController extends BaseController<AuthController> {
      * @throws AuthenticationServiceException
      */
     @ApiOperation(value = "Switch User", notes = "Switch to a patient, equivalent to logging in as that user")
-    //@CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
             throws AuthenticationServiceException {
@@ -144,7 +142,6 @@ public class AuthController extends BaseController<AuthController> {
      * @throws AuthenticationServiceException
      */
     @ApiOperation(value = "Switch to Previous User", notes = "Switch back to original user after viewing a patient")
-    //@CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
                                                        @PathVariable("userId") Long userId)

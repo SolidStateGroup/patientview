@@ -1,10 +1,13 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirDocumentReference;
+import org.patientview.api.model.Group;
 import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.FhirResourceException;
@@ -12,12 +15,21 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.Email;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,25 +53,34 @@ import java.util.Set;
 public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> implements AlertService {
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
     private AlertRepository alertRepository;
-
-    @Inject
-    private ObservationHeadingRepository observationHeadingRepository;
-
-    @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private LetterService letterService;
 
     @Inject
     private EmailService emailService;
 
     @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private LetterService letterService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
     private Properties properties;
+
+    @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public List<org.patientview.api.model.Alert> getAlerts(Long userId, AlertTypes alertType)
@@ -78,6 +99,52 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         }
 
         return transportAlerts;
+    }
+
+    @Override
+    public List<ContactAlert> getContactAlerts(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<Group> groups
+                = groupService.getUserGroups(userId, new GetParameters()).getContent();
+        List<ContactAlert> contactAlerts = new ArrayList<>();
+
+        for (Group group : groups) {
+            if (!group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                if (groupIsMissingUserWithFeature(group, FeatureType.DEFAULT_MESSAGING_CONTACT)) {
+                    contactAlerts.add(new ContactAlert(group, FeatureType.DEFAULT_MESSAGING_CONTACT));
+                }
+                if (groupIsMissingUserWithFeature(group, FeatureType.PATIENT_SUPPORT_CONTACT)) {
+                    contactAlerts.add(new ContactAlert(group, FeatureType.PATIENT_SUPPORT_CONTACT));
+                }
+                if (groupIsMissingUserWithFeature(group, FeatureType.UNIT_TECHNICAL_CONTACT)) {
+                    contactAlerts.add(new ContactAlert(group, FeatureType.UNIT_TECHNICAL_CONTACT));
+                }
+            }
+        }
+
+        return contactAlerts;
+    }
+
+    private boolean groupIsMissingUserWithFeature(Group group, FeatureType featureType) {
+        List<Role> roles = roleRepository.findByRoleType(RoleType.STAFF);
+        List<Long> roleIds = new ArrayList<>();
+        for (Role role : roles) {
+            roleIds.add(role.getId());
+        }
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+
+        List<Long> featureIds = new ArrayList<>();
+        Feature feature = featureRepository.findByName(featureType.toString());
+        featureIds.add(feature.getId());
+
+        return !(userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds,
+                new PageRequest(0, Integer.MAX_VALUE)).getTotalElements() > 0L);
     }
 
     @Override

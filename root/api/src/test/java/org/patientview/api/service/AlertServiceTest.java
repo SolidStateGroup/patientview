@@ -1,27 +1,42 @@
 package org.patientview.api.service;
 
+import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.ContactAlert;
 import org.patientview.api.service.impl.AlertServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.Email;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,19 +58,28 @@ public class AlertServiceTest {
     User creator;
 
     @Mock
-    UserRepository userRepository;
+    AlertRepository alertRepository;
+
+    @InjectMocks
+    AlertService alertService = new AlertServiceImpl();
 
     @Mock
-    AlertRepository alertRepository;
+    FeatureRepository featureRepository;
 
     @Mock
     EmailService emailService;
 
     @Mock
+    GroupService groupService;
+
+    @Mock
     Properties properties;
 
-    @InjectMocks
-    AlertService alertService = new AlertServiceImpl();
+    @Mock
+    RoleRepository roleRepository;
+
+    @Mock
+    UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -66,6 +90,48 @@ public class AlertServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Ignore("Security issue, todo")
+    @Test
+    public void testGetContactAlerts() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup("GROUP1");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        PageImpl<User> userPage = new PageImpl<>(users);
+
+        List<org.patientview.api.model.Group> groupList = new ArrayList<>();
+        groupList.add(new org.patientview.api.model.Group(group));
+        PageImpl<org.patientview.api.model.Group> groups = new PageImpl<>(groupList);
+
+        Feature feature1 = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+        Feature feature2 = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
+        Feature feature3 = TestUtils.createFeature(FeatureType.UNIT_TECHNICAL_CONTACT.toString());
+
+        when(groupService.getUserGroups(eq(user.getId()), any(GetParameters.class))).thenReturn(groups);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(roleRepository.findByRoleType(eq(RoleType.STAFF))).thenReturn(roles);
+        when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()))).thenReturn(feature1);
+        when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()))).thenReturn(feature2);
+        when(featureRepository.findByName(eq(FeatureType.UNIT_TECHNICAL_CONTACT.toString()))).thenReturn(feature3);
+        when(userRepository.findStaffByGroupsRolesFeatures(
+                eq("%%"), any(List.class), any(List.class), any(List.class), any(Pageable.class)))
+                .thenReturn(userPage);
+
+        List<ContactAlert> contactAlerts = alertService.getContactAlerts(user.getId());
+        Assert.assertEquals("Should return 0 contact alerts", 0, contactAlerts.size());
     }
 
     @Test

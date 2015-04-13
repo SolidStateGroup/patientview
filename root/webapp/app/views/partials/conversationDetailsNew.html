@@ -28,7 +28,7 @@
                     <label for="conversation-select-group">Group</label>
                     <select class="form-control recipient-select" id="conversation-select-group"
                             data-ng-model="selectedGroupId"
-                            data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
+                            data-ng-options="group.id as group.name group by group.groupType.description for group in conversationGroups | orderBy:[orderGroups,'name']"
                             data-ng-change="selectGroup(newConversation, selectedGroupId)">
                     </select>
                 </div>

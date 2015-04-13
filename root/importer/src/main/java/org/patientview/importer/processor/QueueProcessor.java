@@ -165,10 +165,22 @@ public class QueueProcessor extends DefaultConsumer {
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message, importerUserId);
 
-                    emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(),
-                            patient.getCentredetails().getCentrecode());
+                    // don't send emails for certain specific errors
+                    if (errorMessageNeedsEmailSending(errorMessage)) {
+                        emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(),
+                                patient.getCentredetails().getCentrecode());
+                    }
                 }
             }
+        }
+
+        private boolean errorMessageNeedsEmailSending(String errorMessage) {
+            // don't send emails for FHIR stored procedure errors due to version id mismatch
+            if (errorMessage.contains("ERROR: Wrong version_id")) {
+                return false;
+            }
+
+            return true;
         }
     }
 

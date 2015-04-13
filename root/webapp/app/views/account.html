@@ -3,6 +3,12 @@
 <div class="content-panel user-settings">
     <div class="content-inner">
         <form class="form-horizontal" data-ng-cloak id="account-settings-form">
+
+            <a href="/#/settings/#change-contact-details">Change Contact Details</a> |
+            <a href="/#/settings/#change-password">Change Password</a> |
+            <a href="/#/settings/#change-photo">Add or Change Photo</a>
+            <br/><br/>
+
             <div class="form-group">
                 <label class="col-sm-2 control-label">Username:</label>
                 <div class="col-sm-4">
@@ -10,6 +16,7 @@
                 </div>
             </div>
 
+            <a name="change-contact-details"></a>
             <h4>Change Contact Details</h4>
             <p>Confirm your email address by entering the email you wish to use in both boxes below. If there is an email in the
                 first box, then that was entered when your account was created. You may confirm that or use another email of
@@ -71,6 +78,7 @@
             </div>
         </form>
 
+        <a name="change-password"></a>
         <form class="form-horizontal" data-ng-cloak id="account-password-form">
             <h4>Change Password</h4>
             <p>When updating your password, check how strong it is using the bar to the right. Basically, a mix of
@@ -123,6 +131,7 @@
             </div>
         </form>
 
+        <a name="change-photo"></a>
         <form class="form-horizontal" id="imageForm" name="imageForm">
             <h4>Your PatientView Photo</h4>
             <p>Please upload a photo of yourself here. The photo will be visible to members of staff with the ability 

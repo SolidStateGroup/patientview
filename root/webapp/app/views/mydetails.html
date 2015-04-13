@@ -1,3 +1,8 @@
+<style>
+    .about-textarea {
+        height: 150px;
+    }
+</style>
 <h1 data-ng-show="!loading">My Details</h1>
 
 <div class="patient-details" data-ng-show="!loading">
@@ -129,6 +134,7 @@
                                     <label for="should-know-input" class="control-label">Things people should know about me</label>
                                     <div>
                                         <textarea id="should-know-input" data-ng-model="moreAboutMe.shouldKnow" class="form-control"
+                                                  style="height: 150px;"
                                                   placeholder="E.g. my interests and relevant personal details" ></textarea>
                                     </div>
                                 </div>
@@ -140,6 +146,7 @@
                                     <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
                                     <div>
                                         <textarea id="talk-about-input" data-ng-model="moreAboutMe.talkAbout" class="form-control"
+                                                  style="height: 150px;"
                                                   placeholder="E.g. how my treatment is progressing or possible questions about new treatment options"></textarea>
                                     </div>
                                 </div>

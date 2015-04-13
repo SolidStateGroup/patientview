@@ -150,6 +150,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showRequestButton = true;
+            $scope.permissions.showStaffAlerts = true;
         }
 
         if ($scope.permissions.isPatient) {
@@ -184,6 +185,48 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         }, function() {
             $scope.loading = false;
         });
+    };
+
+    $scope.getContactAlertsAndOldSubmissionDateGroups = function() {
+        // get contact alerts for admin users
+        if ($scope.permissions.showStaffAlerts) {
+            $scope.showStaffGroupAlerts = true;
+            $scope.contactAlerts = [];
+            $scope.oldSubmissionDateGroups = [];
+
+            // get contact alerts
+            $scope.contactAlertsLoading = true;
+            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(contactAlerts) {
+                $scope.contactAlertsLoading = false;
+                for (var i=0; i<contactAlerts.length; i++) {
+                    if (contactAlerts[i].group.groupType.value === 'UNIT') {
+                        $scope.contactAlerts.push(contactAlerts[i]);
+                    }
+                }
+            }, function() {
+                alert("Error getting contact alerts");
+                $scope.contactAlertsLoading = false;
+            });
+
+            // identify groups which have last import date more than 48 hours in past, note: could be done from user
+            // information but would require log out and in again
+            $scope.oldSubmissionDateGroupsLoading = true;
+            GroupService.getGroupsForUser($scope.loggedInUser.id, {}).then(function(page) {
+                for (var i=0; i<page.content.length; i++) {
+                    var group = page.content[i];
+                    var fortyEightHoursAgo = new Date().getTime() - 172800000;
+                    if (group.groupType.value === 'UNIT') {
+                        if (group.lastImportDate === null || group.lastImportDate < fortyEightHoursAgo) {
+                            $scope.oldSubmissionDateGroups.push(group);
+                        }
+                    }
+                    $scope.oldSubmissionDateGroupsLoading = false;
+                }
+            }, function () {
+                alert("Error getting user groups");
+                $scope.oldSubmissionDateGroupsLoading = false;
+            });
+        }
     };
 
     $scope.viewNewsItem = function(news) {

@@ -349,7 +349,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         // show error if user is not a member of any groups
         if (groups.length !== 0) {
             $scope.filterUnitGroups = [];
-            $scope.filterDiseaseGroupGroups = [];
+            $scope.filterOtherGroups = [];
             $scope.filterSpecialtyGroups = [];
 
             // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
@@ -377,9 +377,10 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     if (group.groupType.value === 'UNIT') {
                         $scope.showUnitFilter = true;
                         $scope.filterUnitGroups.push(minimalGroup);
-                    } else if (group.groupType.value === 'DISEASE_GROUP') {
-                        $scope.showDiseaseGroupFilter = true;
-                        $scope.filterDiseaseGroupGroups.push(minimalGroup);
+                    } else if (group.groupType.value === 'DISEASE_GROUP'
+                            || group.groupType.value === 'CENTRAL_SUPPORT') {
+                        $scope.showOtherGroupFilter = true;
+                        $scope.filterOtherGroups.push(minimalGroup);
                     } else if (group.groupType.value === 'SPECIALTY') {
                         $scope.showSpecialtyFilter = true;
                         $scope.filterSpecialtyGroups.push(minimalGroup);

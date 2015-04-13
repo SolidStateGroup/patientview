@@ -6,7 +6,6 @@ import org.patientview.persistence.model.Location;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +22,6 @@ public class Group extends BaseGroup {
     private List<Group> childGroups;
     private List<Link> links;
     private Set<Location> locations;
-    private Date lastImportDate;
 
     public Group() {
     }
@@ -110,13 +108,5 @@ public class Group extends BaseGroup {
 
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
-    }
-
-    public Date getLastImportDate() {
-        return lastImportDate;
-    }
-
-    public void setLastImportDate(Date lastImportDate) {
-        this.lastImportDate = lastImportDate;
     }
 }

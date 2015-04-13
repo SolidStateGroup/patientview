@@ -13,6 +13,13 @@
     .news-actions {
         text-align: left;
     }
+    .panel-intro-statistics p {
+        margin: 0;
+    }
+    .panel-help-link {
+        font-size: 14px;
+        font-family: Lato, sans-serif;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -75,6 +82,66 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts">
+                <div class="content-panel chart-container">
+                    <div class="panel-intro">
+                        <h3>Notifications<a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard" target="_blank"
+                                            class="pull-right panel-help-link">Help</a></h3>
+
+
+                    </div>
+                    <div class="content-inner">
+                        <ul>
+                            <li data-ng-show="unreadConversationCount">
+                                <a href="#/conversations">You have {{unreadConversationCount}} unread message(s)
+                                </a>
+                            </li>
+                            <li data-ng-show="submittedRequestCount">
+                                <a href="#/requestadmin">There are {{submittedRequestCount}} submitted request(s)
+                                </a>
+                            </li>
+                        </ul>
+
+                        <p><a href="" data-ng-click="getContactAlertsAndOldSubmissionDateGroups()"
+                           data-ng-show="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
+
+                        <div data-ng-show="showStaffGroupAlerts">
+                            <a href="" data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
+                                    data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
+                            <br/>
+                            <strong>Missing Contact Alerts</strong>
+                            <ul>
+                                <li data-ng-show="contactAlertsLoading">
+                                    Checking Group contact information
+                                </li>
+                                <li data-ng-repeat="contactAlert in contactAlerts | orderBy:'group.shortName'"
+                                    data-ng-show="!contactAlertsLoading">
+                                    {{contactAlert.group.shortName}} is missing a {{contactAlert.featureName}}
+                                </li>
+                                <li data-ng-show="!contactAlertsLoading && !contactAlerts.length > 0">
+                                    All of your Groups have the required contact information
+                                </li>
+                            </ul>
+                            <strong>Data Submission Alerts</strong>
+                            <ul>
+                                <li data-ng-show="oldSubmissionDateGroupsLoading">
+                                    Checking Group last submission date
+                                </li>
+                                <li data-ng-repeat="group in oldSubmissionDateGroups | orderBy:'shortName'"
+                                    data-ng-show="!oldSubmissionDateGroupsLoading">
+                                    {{group.shortName}} last submitted data over 48 hours ago
+                                    <span data-ng-show="group.lastImportDate">({{group.lastImportDate | date:'dd-MMM-yyyy HH:mm'}})</span>
+                                    <span data-ng-show="!group.lastImportDate">(never)</span>
+                                </li>
+                                <li data-ng-show="!oldSubmissionDateGroupsLoading && !oldSubmissionDateGroups.length > 0">
+                                    All of your Groups have submitted data in the last 48 hours
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
 
             <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
@@ -103,8 +170,8 @@
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
 
-            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
-                <div class="panel-intro">
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+                <div class="panel-intro panel-intro-statistics">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
                     <p>Values are calculated daily, please click to see more, numbers are Total (Staff/Patient) counts</p>
                 </div>
@@ -182,6 +249,7 @@
                     </div>
                 </div>
             </div>
+
 
             <div class="tab-panel-item" data-ng-show="observationHeadings.length">
                 <div class="content-panel">

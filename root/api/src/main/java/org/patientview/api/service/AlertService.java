@@ -1,11 +1,14 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.Alert;
+import org.patientview.api.model.ContactAlert;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +46,16 @@ public interface AlertService {
      */
     @UserOnly
     List<Alert> getAlerts(Long userId, AlertTypes alertType) throws ResourceNotFoundException;
+
+    /**
+     * Get alerts used for notifying if missing Users with DEFAULT_MESSAGING_CONTACT etc for a Group.
+     * @param userId ID of User to get ContactAlerts for
+     * @return List of ContactAlerts
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    List<ContactAlert> getContactAlerts(Long userId) throws ResourceNotFoundException;
 
     /**
      * Remove a User's Alert.

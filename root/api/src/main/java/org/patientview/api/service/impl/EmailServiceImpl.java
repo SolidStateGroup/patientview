@@ -58,7 +58,7 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                         helper.setTo(email.getRecipients());
                     }
                 } catch (AddressException ae) {
-                    LOG.error("Email: Address Exception, could not send email to " 
+                    LOG.error("Email: Address Exception, could not send email to "
                             + Arrays.toString(email.getRecipients()) + " with subject '"
                             + email.getSubject() + "'");
                     throw ae;
