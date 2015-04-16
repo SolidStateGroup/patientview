@@ -8,6 +8,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
@@ -770,5 +771,31 @@ public class FhirResource {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.getString("id"));
+    }
+
+    public void updateEntity(Resource resource, String resourceType, UUID logicalId) throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+
+        executeSQL("UPDATE organization SET content = '" + entity.getContent() +
+                "', version_id = '" + entity.getVersionId() +
+                "', updated = '" + entity.getUpdated() +
+                "' WHERE logical_id = '" + logicalId.toString() + "' ");
+    }
+
+    public UUID createEntity(Resource resource, String resourceType, String tableName) throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+        entity.setLogicalId(UUID.randomUUID());
+        entity.setPublished(entity.getUpdated());
+
+        executeSQL("INSERT INTO " + tableName +
+                " (logical_id, version_id, resource_type, published, updated, content) VALUES " +
+                "('" + entity.getLogicalId() + "'," +
+                "'" + entity.getVersionId() + "'," +
+                "'" + entity.getResourceType() + "'," +
+                "'" + entity.getPublished() + "'," +
+                "'" + entity.getUpdated() + "'," +
+                "'" + entity.getContent() + "')");
+
+        return entity.getLogicalId();
     }
 }

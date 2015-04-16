@@ -169,8 +169,6 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         } else {
             query.append("AND (content #> '{telecom,0}' ->> 'value') IS NULL ");
         }
-        
-        //LOG.info(query.toString());
 
         // execute and return UUIDs
         try {

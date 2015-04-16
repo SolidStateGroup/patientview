@@ -33,6 +33,12 @@ public class OrganizationBuilder {
         identifier.setValueSimple(centre.getCentrecode());
         identifier.setLabelSimple("CODE");
 
+        // name
+        if (StringUtils.isNotEmpty(centre.getCentrename())) {
+            organization.setNameSimple(CommonUtils.cleanSql(centre.getCentrename()));
+        }
+
+        // address
         if (StringUtils.isNotEmpty(centre.getCentreaddress1())
             || StringUtils.isNotEmpty(centre.getCentreaddress2())
             || StringUtils.isNotEmpty(centre.getCentreaddress3())
@@ -57,12 +63,14 @@ public class OrganizationBuilder {
             }
         }
 
+        // telephone
         if (StringUtils.isNotEmpty(centre.getCentretelephone())) {
             Contact telephone = organization.addTelecom();
             telephone.setValueSimple(CommonUtils.cleanSql(centre.getCentretelephone()));
             telephone.setSystem(new Enumeration(Contact.ContactSystem.phone));
         }
 
+        // email
         if (StringUtils.isNotEmpty(centre.getCentreemail())) {
             Contact email = organization.addTelecom();
             email.setValueSimple(CommonUtils.cleanSql(centre.getCentreemail()));
