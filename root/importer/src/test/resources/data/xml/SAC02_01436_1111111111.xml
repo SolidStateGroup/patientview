@@ -14,9 +14,9 @@
         <centretelephone>01563 521133</centretelephone>
     </centredetails>
     <gpdetails>
-        <gpname>O'DONNEL2</gpname>
+        <gpname>O'DONNEL</gpname>
         <gpaddress1>O'DONNEL</gpaddress1>
-        <gpaddress2>23 Templehill</gpaddress2>
+        <gpaddress2>24 Templehill</gpaddress2>
         <gpaddress3>Troon</gpaddress3>
         <gpaddress4>Ayrshire</gpaddress4>
         <gppostcode>KA10 6BQ</gppostcode>
@@ -24,7 +24,7 @@
     </gpdetails>
     <patient>
         <personaldetails>
-            <surname>patbsur</surname>
+            <surname>patbs'ur</surname>
             <forename>patbfore</forename>
             <!--<dateofbirth>1944-03-17</dateofbirth>-->
             <dateofbirth>1952-10-31</dateofbirth>
