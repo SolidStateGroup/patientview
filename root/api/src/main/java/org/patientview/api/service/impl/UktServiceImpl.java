@@ -127,7 +127,7 @@ import java.util.UUID;
 
         if (!encounterUuids.isEmpty()) {
             for (UUID uuid : encounterUuids) {
-                fhirResource.delete(uuid, ResourceType.Encounter);
+                fhirResource.deleteEntity(uuid, "encounter");
             }
         }
     }

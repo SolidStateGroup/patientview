@@ -373,16 +373,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 UUID subjectId = fhirLink.getResourceId();
 
                 // Patient
-                fhirResource.delete(subjectId, ResourceType.Patient);
+                fhirResource.deleteEntity(subjectId, "patient");
 
                 // Conditions
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.Condition);
+                    fhirResource.deleteEntity(uuid, "condition");
                 }
 
                 // Encounters
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.Encounter);
+                    fhirResource.deleteEntity(uuid, "encounter");
                 }
 
                 // MedicationStatements (and associated Medicine)
@@ -391,11 +391,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete medication associated with medication statement
                     MedicationStatement medicationStatement
                             = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
-                    fhirResource.delete(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                            ResourceType.Medication);
+                    fhirResource.deleteEntity(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
+                            "medication");
 
                     // delete medication statement
-                    fhirResource.delete(uuid, ResourceType.MedicationStatement);
+                    fhirResource.deleteEntity(uuid, "medicationstatement");
                 }
 
                 // DiagnosticReports (and associated Observation)
@@ -404,16 +404,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete observation (result) associated with diagnostic report
                     DiagnosticReport diagnosticReport
                             = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
-                    fhirResource.delete(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                            ResourceType.Observation);
+                    fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
+                            "observation");
 
                     // delete diagnostic report
-                    fhirResource.delete(uuid, ResourceType.DiagnosticReport);
+                    fhirResource.deleteEntity(uuid, "diagnosticreport");
                 }
 
                 // DocumentReferences (letters)
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.DocumentReference);
+                    fhirResource.deleteEntity(uuid, "documentreference");
                 }
 
                 // AllergyIntolerance and Substance (allergy)
@@ -422,16 +422,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete Substance associated with AllergyIntolerance
                     AllergyIntolerance allergyIntolerance
                             = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
-                    fhirResource.delete(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                            ResourceType.Substance);
+                    fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
+                            "substance");
 
                     // delete AllergyIntolerance
-                    fhirResource.delete(uuid, ResourceType.AllergyIntolerance);
+                    fhirResource.deleteEntity(uuid, "allergyintolerance");
                 }
 
                 // AdverseReaction (allergy)
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.AdverseReaction);
+                    fhirResource.deleteEntity(uuid, "adversereaction");
                 }
             }
         }
