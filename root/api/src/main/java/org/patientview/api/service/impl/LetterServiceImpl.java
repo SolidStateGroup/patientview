@@ -131,7 +131,7 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
             }
         }
 
-        fhirResource.create(documentReference);
+        fhirResource.createEntity(documentReference, ResourceType.DocumentReference.name(), "documentreference");
     }
 
     @Override

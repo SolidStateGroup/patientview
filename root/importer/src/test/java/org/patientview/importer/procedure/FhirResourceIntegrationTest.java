@@ -4,6 +4,7 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -41,14 +42,15 @@ public class FhirResourceIntegrationTest extends BaseTest {
     @Ignore("Integration Test")
     public void testCreateResource() throws Exception {
         Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
-        System.out.println(fhirResource.create(FhirTestUtil.createTestPatient("1231321312")));
+        System.out.println(fhirResource.createEntity(
+                FhirTestUtil.createTestPatient("1231321312"), ResourceType.Patient.name(), "patient"));
     }
 
     @Test
     @Ignore("Integration Test")
     public void testUpdateResource() throws Exception {
         Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
-        fhirResource.create(FhirTestUtil.createTestPatient("1231321312"));
+        fhirResource.createEntity(FhirTestUtil.createTestPatient("1231321312"), ResourceType.Patient.name(), "patient");
     }
 
     @Test
@@ -65,7 +67,7 @@ public class FhirResourceIntegrationTest extends BaseTest {
 
         int i = 0;
         for (Observation observation : observationsBuilder.getObservations()) {
-            fhirResource.create(observation);
+            fhirResource.createEntity(observation, ResourceType.Observation.name(), "observation");
             System.out.println(i++);
         }
     }

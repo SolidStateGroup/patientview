@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Organization;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
@@ -16,6 +17,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -228,7 +230,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Contact email = organization.addTelecom();
         email.setSystem(new Enumeration(Contact.ContactSystem.email));
 
-        return FhirResource.getLogicalId(fhirResource.create(organization));
+        FhirDatabaseEntity entity
+                = fhirResource.createEntity(organization, ResourceType.Organization.name(), "organization");
+
+        return entity.getLogicalId();
     }
 
     // Attached the relationship of children groups and parents groups onto Transient objects

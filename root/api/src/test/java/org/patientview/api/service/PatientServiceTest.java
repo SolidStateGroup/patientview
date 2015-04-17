@@ -15,6 +15,7 @@ import org.patientview.api.service.impl.PatientServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
@@ -124,11 +125,14 @@ public class PatientServiceTest {
         JSONObject patientJson = new JSONObject();
         patientJson.put("entry", resultArray);
 
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(patientJson.toString(), ResourceType.Patient.name());
+        entity.setLogicalId(UUID.randomUUID());
+
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
         when(fhirResource.getResource(UUID.fromString(resourceId), ResourceType.Patient)).thenReturn(patientJson);
-        when(fhirResource.updateFhirObject(
-            any(Patient.class), eq(fhirLink.getResourceId()), eq(fhirLink.getVersionId()))).thenReturn(patientJson);
+        when(fhirResource.updateEntity(
+                any(Patient.class), eq(ResourceType.Patient.name()), eq(fhirLink.getResourceId()))).thenReturn(entity);
 
         patientService.update(patient.getId(), group.getId(), fhirPatient);
     }

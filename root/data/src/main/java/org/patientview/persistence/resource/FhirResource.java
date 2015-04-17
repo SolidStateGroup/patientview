@@ -71,6 +71,7 @@ public class FhirResource {
      * @return JSONObject JSON version of saved Resource
      * @throws FhirResourceException
      */
+    @Deprecated
     public JSONObject create(Resource resource) throws FhirResourceException {
         //LOG.info("c1 " + new Date().getTime());
         PGobject result;
@@ -118,6 +119,7 @@ public class FhirResource {
      * @return JSONObject JSON version of saved Resource
      * @throws FhirResourceException
      */
+    @Deprecated
     public void createFast(Resource resource) throws FhirResourceException {
         //LOG.info("c1 " + new Date().getTime());
         Connection connection = null;
@@ -159,6 +161,7 @@ public class FhirResource {
      * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
      *
      */
+    @Deprecated
     public JSONObject updateFhirObject(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
 
         PGobject result;
@@ -215,6 +218,7 @@ public class FhirResource {
      * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
      *
      */
+    @Deprecated
     public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
 
         PGobject result;
@@ -258,6 +262,7 @@ public class FhirResource {
      * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
      *
      */
+    @Deprecated
     public void delete(UUID uuid, ResourceType resourceType) throws FhirResourceException {
 
         //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());

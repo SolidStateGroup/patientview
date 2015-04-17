@@ -1,7 +1,7 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
-import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
@@ -100,7 +100,7 @@ public class PatientServiceTest extends BaseTest {
 
         patientService.add(patient, new ResourceReference());
 
-        verify(fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
+        verify(fhirResource, Mockito.times(1)).createEntity(any(org.hl7.fhir.instance.model.Resource.class), any(String.class), any(String.class));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
         verify(userRepository, Mockito.times(1)).save(eq(user));
     }
@@ -134,7 +134,7 @@ public class PatientServiceTest extends BaseTest {
 
         patientService.add(patient, new ResourceReference());
 
-        verify(fhirResource, Mockito.times(1)).update(any(Resource.class), eq(fhirLink));
+        verify(fhirResource, Mockito.times(1)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()), eq(fhirLink.getResourceId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
         verify(userRepository, Mockito.times(1)).save(eq(user));
     }

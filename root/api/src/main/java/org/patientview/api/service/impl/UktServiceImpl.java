@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
-import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;

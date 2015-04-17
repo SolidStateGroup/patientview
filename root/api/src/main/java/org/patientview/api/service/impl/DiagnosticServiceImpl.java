@@ -13,6 +13,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -146,13 +147,15 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
         diagnosticReport.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
 
         // create observation
-        UUID observationUuid = FhirResource.getLogicalId(fhirResource.create(observation));
+        FhirDatabaseEntity entity
+                = fhirResource.createEntity(observation, ResourceType.Observation.name(), "observation");
+        UUID observationUuid = entity.getLogicalId();
 
         // add observation (result) reference to diagnostic report
         ResourceReference resultReference = diagnosticReport.addResult();
         resultReference.setDisplaySimple(observationUuid.toString());
 
         // create diagnostic report
-        fhirResource.create(diagnosticReport);
+        fhirResource.createEntity(diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
     }
 }

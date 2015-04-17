@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Identifier;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.util.Util;
@@ -146,6 +147,6 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         encounter.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
         encounter.setServiceProvider(Util.createFhirResourceReference(organizationUuid));
 
-        fhirResource.create(encounter);
+        fhirResource.createEntity(encounter, ResourceType.Encounter.name(), "encounter");
     }
 }

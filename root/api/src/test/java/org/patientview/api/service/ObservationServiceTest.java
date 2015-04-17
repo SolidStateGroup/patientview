@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -20,6 +21,7 @@ import org.patientview.api.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -160,13 +162,16 @@ public class ObservationServiceTest {
         resultArray.put(resource);
         fhirPatientJson.put("entry", resultArray);
 
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(fhirPatientJson.toString(), ResourceType.Patient.name());
+        entity.setLogicalId(UUID.randomUUID());
+
         try {
             when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
             when(observationHeadingService.get(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
             when(observationHeadingService.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
             when(groupService.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
             when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
-            when(fhirResource.create(eq(fhirPatient))).thenReturn(fhirPatientJson);
+            when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient"))).thenReturn(entity);
 
             when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
 

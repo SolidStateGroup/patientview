@@ -16,6 +16,7 @@ import org.patientview.api.service.MedicationService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
@@ -56,7 +57,8 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
         code.setTextSimple(fhirMedicationStatement.getName());
         medication.setCode(code);
 
-        UUID medicationUuid = FhirResource.getLogicalId(fhirResource.create(medication));
+        FhirDatabaseEntity medicationEntity
+                = fhirResource.createEntity(medication, ResourceType.Medication.name(), "medication");
 
         // Medication statement, stores date, dose
         MedicationStatement medicationStatement = new MedicationStatement();
@@ -79,9 +81,9 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
         }
 
         medicationStatement.setPatient(Util.createFhirResourceReference(fhirLink.getResourceId()));
-        medicationStatement.setMedication(Util.createFhirResourceReference(medicationUuid));
+        medicationStatement.setMedication(Util.createFhirResourceReference(medicationEntity.getLogicalId()));
 
-        fhirResource.create(medicationStatement);
+        fhirResource.createEntity(medicationStatement, ResourceType.MedicationStatement.name(), "medicationstatement");
     }
 
     @Override
