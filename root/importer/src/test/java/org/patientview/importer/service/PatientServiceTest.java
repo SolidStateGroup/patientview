@@ -134,7 +134,7 @@ public class PatientServiceTest extends BaseTest {
 
         patientService.add(patient, new ResourceReference());
 
-        verify(fhirResource, Mockito.times(1)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()), eq(fhirLink.getResourceId()));
+        verify(fhirResource, Mockito.times(1)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()), eq("patient"), eq(fhirLink.getResourceId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
         verify(userRepository, Mockito.times(1)).save(eq(user));
     }

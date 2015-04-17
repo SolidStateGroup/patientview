@@ -132,7 +132,8 @@ public class PatientServiceTest {
         when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
         when(fhirResource.getResource(UUID.fromString(resourceId), ResourceType.Patient)).thenReturn(patientJson);
         when(fhirResource.updateEntity(
-                any(Patient.class), eq(ResourceType.Patient.name()), eq(fhirLink.getResourceId()))).thenReturn(entity);
+                any(Patient.class), eq(ResourceType.Patient.name()),
+                eq("patient"), eq(fhirLink.getResourceId()))).thenReturn(entity);
 
         patientService.update(patient.getId(), group.getId(), fhirPatient);
     }

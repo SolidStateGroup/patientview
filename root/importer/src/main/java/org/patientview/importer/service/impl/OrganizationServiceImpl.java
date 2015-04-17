@@ -73,7 +73,8 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                 UUID logicalId = null;
 
                 for (Map<String, UUID> objectData : uuids) {
-                    fhirResource.updateEntity(importOrganization, "Organization", objectData.get("logicalId"));
+                    fhirResource.updateEntity(importOrganization,
+                            ResourceType.Organization.name(), "organization", objectData.get("logicalId"));
                     logicalId = objectData.get("logicalId");
                 }
 

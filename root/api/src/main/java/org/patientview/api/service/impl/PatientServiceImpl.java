@@ -1162,7 +1162,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // store updated patient in FHIR
         FhirDatabaseEntity entity
-                = fhirResource.updateEntity(updatedPatient, ResourceType.Patient.name(), foundFhirLink.getResourceId());
+                = fhirResource.updateEntity(
+                updatedPatient, ResourceType.Patient.name(), "patient", foundFhirLink.getResourceId());
 
         // update FhirLink
         foundFhirLink.setVersionId(entity.getVersionId());

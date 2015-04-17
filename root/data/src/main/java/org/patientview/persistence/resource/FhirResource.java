@@ -822,11 +822,11 @@ public class FhirResource {
      * @return FhirDatabaseEntity that has just been stored, including version, logical ids etc
      * @throws FhirResourceException
      */
-    public FhirDatabaseEntity updateEntity(Resource resource, String resourceType, UUID logicalId)
+    public FhirDatabaseEntity updateEntity(Resource resource, String resourceType, String tableName, UUID logicalId)
             throws FhirResourceException {
         FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
 
-        executeSQL("UPDATE organization SET content = '" + CommonUtils.cleanSql(entity.getContent()) +
+        executeSQL("UPDATE " + tableName + " SET content = '" + CommonUtils.cleanSql(entity.getContent()) +
                 "', version_id = '" + entity.getVersionId() +
                 "', updated = '" + entity.getUpdated() +
                 "' WHERE logical_id = '" + logicalId.toString() + "' ");

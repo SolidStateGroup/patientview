@@ -81,7 +81,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (fhirLink != null) {
             // link to FHIR exists, native update patient
             FhirDatabaseEntity patientEntity
-                    = fhirResource.updateEntity(newFhirPatient, "Patient", fhirLink.getResourceId());
+                    = fhirResource.updateEntity(newFhirPatient,
+                    ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
 
             // update FHIR link
             fhirLink.setVersionId(patientEntity.getVersionId());

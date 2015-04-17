@@ -82,7 +82,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                     UUID logicalId = null;
 
                     for (Map<String, UUID> objectData : uuids) {
-                        fhirResource.updateEntity(importPractitioner, "Practitioner", objectData.get("logicalId"));
+                        fhirResource.updateEntity(importPractitioner,
+                                ResourceType.Practitioner.name(), "practitioner", objectData.get("logicalId"));
                         logicalId = objectData.get("logicalId");
                     }
 
