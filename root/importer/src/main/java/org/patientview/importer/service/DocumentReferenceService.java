@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -17,6 +16,4 @@ import java.util.UUID;
 public interface DocumentReferenceService {
 
     public void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
-
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException;
 }

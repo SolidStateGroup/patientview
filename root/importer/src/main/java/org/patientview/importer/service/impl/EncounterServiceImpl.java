@@ -62,7 +62,7 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                 encountersBuilder.getCount());
     }
 
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
         for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
 
             // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS

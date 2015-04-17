@@ -8,13 +8,13 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.hl7.fhir.instance.model.Substance;
-import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.builder.AllergyIntoleranceBuilder;
 import org.patientview.importer.builder.SubstanceBuilder;
 import org.patientview.importer.service.AllergyService;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
@@ -79,23 +79,26 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
 
             try {
                 // create Substance in FHIR
-                JSONObject storedSubstance = fhirResource.create(substance);
+                FhirDatabaseEntity storedSubstance
+                        = fhirResource.createEntity(substance, ResourceType.Substance.name(), "substance");
 
                 // create AdverseReaction in FHIR
-                JSONObject storedAdverseReaction = fhirResource.create(adverseReaction);
+                FhirDatabaseEntity storedAdverseReaction = fhirResource.createEntity(
+                        adverseReaction, ResourceType.AdverseReaction.name(), "adversereaction");
 
                 // set references to Substance and AdverseReaction in AllergyIntolerance
-                allergyIntolerance.setSubstance(Util.createResourceReference(Util.getResourceId(storedSubstance)));
+                allergyIntolerance.setSubstance(Util.createResourceReference(storedSubstance.getLogicalId()));
                 ResourceReference reaction = allergyIntolerance.addReaction();
-                reaction.setDisplaySimple(Util.getResourceId(storedAdverseReaction).toString());
+                reaction.setDisplaySimple(storedAdverseReaction.getLogicalId().toString());
 
                 // create AllergyIntolerance in FHIR
-                fhirResource.create(allergyIntolerance);
+                fhirResource.createEntity(
+                        allergyIntolerance, ResourceType.AllergyIntolerance.name(), "allergyintolerance");
 
                 success += 1;
 
             } catch (FhirResourceException e) {
-                LOG.error(nhsno + ": Unable to build AllergyIntolerance, Substance or AdverseReaction");
+                LOG.error(nhsno + ": Unable to save AllergyIntolerance, Substance or AdverseReaction");
             }
 
             LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
@@ -108,21 +111,21 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
 
         // delete AllergyIntolerance and Substance associated with subject
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("allergyintolerance", subjectId)) {
+        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("allergyintolerance", subjectId)) {
 
             // delete Substance associated with AllergyIntolerance
             AllergyIntolerance allergyIntolerance
-                    = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
-            fhirResource.delete(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                    ResourceType.Substance);
+                    = (AllergyIntolerance) fhirResource.get(logicalUuid, ResourceType.AllergyIntolerance);
+            fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
+                    "substance");
 
             // delete AllergyIntolerance
-            fhirResource.delete(uuid, ResourceType.AllergyIntolerance);
+            fhirResource.deleteEntity(logicalUuid, "allergyintolerance");
         }
 
         // delete AdverseReaction associated with subject
         for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.AdverseReaction);
+            fhirResource.deleteEntity(uuid, "adversereaction");
         }
     }
 }

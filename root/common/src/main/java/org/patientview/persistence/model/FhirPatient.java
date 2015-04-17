@@ -41,10 +41,10 @@ public class FhirPatient extends BaseModel {
         // name from first recorded name record, if present
         if (!patient.getName().isEmpty()) {
             if (!patient.getName().get(0).getGiven().isEmpty()) {
-                setForename(patient.getName().get(0).getGiven().get(0).getValue());
+                setForename(patient.getName().get(0).getGiven().get(0).getValue().replace("''","'"));
             }
             if (!patient.getName().get(0).getFamily().isEmpty()) {
-                setSurname(patient.getName().get(0).getFamily().get(0).getValue());
+                setSurname(patient.getName().get(0).getFamily().get(0).getValue().replace("''","'"));
             }
         }
 

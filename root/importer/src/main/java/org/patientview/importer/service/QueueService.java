@@ -10,5 +10,4 @@ import org.patientview.importer.exception.ImportResourceException;
 public interface QueueService {
 
     public void importRecord(Patientview patientview) throws ImportResourceException;
-
 }

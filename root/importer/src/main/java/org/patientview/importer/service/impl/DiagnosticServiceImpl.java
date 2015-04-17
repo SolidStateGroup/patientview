@@ -10,9 +10,9 @@ import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONObject;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.DiagnosticReportBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DiagnosticService;
@@ -86,17 +86,19 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
                     try {
                         // create result observation in FHIR
-                        JSONObject storedObservation = fhirResource.create(observation);
+                        FhirDatabaseEntity storedObservation
+                            = fhirResource.createEntity(observation, ResourceType.Observation.name(), "observation");
 
                         // get observation (result) reference and add to diagnostic report
                         ResourceReference resultReference = diagnosticReport.addResult();
-                        resultReference.setDisplaySimple(Util.getResourceId(storedObservation).toString());
+                        resultReference.setDisplaySimple(storedObservation.getLogicalId().toString());
 
                         // set patient reference
                         diagnosticReport.setSubject(patientReference);
 
                         // create diagnostic report in FHIR
-                        fhirResource.create(diagnosticReport);
+                        fhirResource.createEntity(
+                                diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
 
                         success += 1;
 
@@ -112,17 +114,17 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         LOG.info(nhsno + ": Processed {} of {} diagnostics", success, count);
     }
 
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("diagnosticreport", subjectId)) {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("diagnosticreport", subjectId)) {
 
             // delete observation (result) associated with diagnostic report
             DiagnosticReport diagnosticReport
-                    = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
-            fhirResource.delete(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                    ResourceType.Observation);
+                    = (DiagnosticReport) fhirResource.get(logicalUuid, ResourceType.DiagnosticReport);
+            fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
+                    "observation");
 
             // delete diagnostic report
-            fhirResource.delete(uuid, ResourceType.DiagnosticReport);
+            fhirResource.deleteEntity(logicalUuid, "diagnosticreport");
         }
     }
 }

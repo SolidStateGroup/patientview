@@ -106,7 +106,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                 LOG.info(nhsno + ": Deleting DocumentReference");
                             }
                         }
-                        fhirResource.delete(existingUuid, ResourceType.DocumentReference);
+                        fhirResource.deleteEntity(existingUuid, "documentreference");
                     }
                 }
 
@@ -121,7 +121,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                             LOG.info(nhsno + ": Adding DocumentReference");
                         }
                     }
-                    fhirResource.create(newDocumentReference);
+                    fhirResource.createEntity(
+                            newDocumentReference, ResourceType.DocumentReference.name(), "documentreference");
                     success++;
                 } catch (FhirResourceException e) {
                     LOG.error(nhsno + ": Unable to create DocumentReference");
@@ -144,12 +145,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
         LOG.info(nhsno + ": Finished DocumentReference (letter) Process");
         LOG.info(nhsno + ": Processed {} of {} letters", success, documentReferenceBuilder.getCount());
-    }
-
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.DocumentReference);
-        }
     }
 
     private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink)
