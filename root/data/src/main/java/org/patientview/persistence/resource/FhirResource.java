@@ -774,16 +774,15 @@ public class FhirResource {
         return UUID.fromString(resource.getString("id"));
     }
 
-    public void updateEntity(Resource resource, String resourceType, UUID logicalId) throws FhirResourceException {
-        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
-
-        executeSQL("UPDATE organization SET content = '" + CommonUtils.cleanSql(entity.getContent()) +
-                "', version_id = '" + entity.getVersionId() +
-                "', updated = '" + entity.getUpdated() +
-                "' WHERE logical_id = '" + logicalId.toString() + "' ");
-    }
-
-    public UUID createEntity(Resource resource, String resourceType, String tableName) throws FhirResourceException {
+    /**
+     * Natively update FHIR entity, returning newly created Resource logical UUID.
+     * @param resource Resource to create, e.g. Observation, Patient, etc
+     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @return FhirDatabaseEntity, used to create newly created Resource
+     * @throws FhirResourceException
+     */
+    public FhirDatabaseEntity createEntity(Resource resource, String resourceType, String tableName) throws FhirResourceException {
         FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
         entity.setLogicalId(UUID.randomUUID());
         entity.setPublished(entity.getUpdated());
@@ -797,6 +796,36 @@ public class FhirResource {
                 "'" + entity.getUpdated() + "'," +
                 "'" + CommonUtils.cleanSql(entity.getContent()) + "')");
 
-        return entity.getLogicalId();
+        return entity;
+    }
+
+    /**
+     * Simple delete statement to remove entity based on logical id and table name.
+     * @param logicalId Logical UUID of the object to delete, the primary key
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @throws FhirResourceException
+     */
+    public void deleteEntity(UUID logicalId, String tableName) throws FhirResourceException {
+        executeSQL("DELETE FROM " + tableName + " WHERE logical_id = '" + logicalId + "'");
+    }
+
+    /**
+     * Natively update FHIR entity, returning version UUID.
+     * @param resource Resource to update, e.g. Observation, Patient, etc
+     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
+     * @param logicalId Logical UUID of the object to update, the primary key
+     * @return FhirDatabaseEntity that has just been stored, including version, logical ids etc
+     * @throws FhirResourceException
+     */
+    public FhirDatabaseEntity updateEntity(Resource resource, String resourceType, UUID logicalId)
+            throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+
+        executeSQL("UPDATE organization SET content = '" + CommonUtils.cleanSql(entity.getContent()) +
+                "', version_id = '" + entity.getVersionId() +
+                "', updated = '" + entity.getUpdated() +
+                "' WHERE logical_id = '" + logicalId.toString() + "' ");
+
+        return entity;
     }
 }

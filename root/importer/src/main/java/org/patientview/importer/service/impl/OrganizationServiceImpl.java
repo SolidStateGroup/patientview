@@ -3,8 +3,10 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.instance.model.Organization;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.OrganizationBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;
 import org.patientview.config.exception.FhirResourceException;
@@ -79,9 +81,10 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                 return logicalId;
             } else {
                 // native create new FHIR organization
-                UUID logicalId = fhirResource.createEntity(importOrganization, "Organization", "organization");
-                LOG.info(nhsno + ": New Organization, " + logicalId);
-                return logicalId;
+                FhirDatabaseEntity entity
+                    = fhirResource.createEntity(importOrganization, ResourceType.Organization.name(), "organization");
+                LOG.info(nhsno + ": New Organization, " + entity.getLogicalId());
+                return entity.getLogicalId();
             }
         } catch (FhirResourceException e) {
             LOG.error(nhsno + ": Unable to save organization: " + e.getMessage());

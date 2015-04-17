@@ -52,7 +52,7 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         for (Encounter encounter : encountersBuilder.build()) {
             LOG.trace(nhsno + ": Creating... encounter " + count);
             try {
-                fhirResource.create(encounter);
+                fhirResource.createEntity(encounter, ResourceType.Encounter.name(), "encounter");
             } catch (FhirResourceException e) {
                 LOG.error(nhsno + ": Unable to build encounter");
             }
@@ -63,17 +63,17 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
+        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
 
             // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
             // as these come from uktstatus table during migration
-            Encounter encounter = (Encounter) fhirResource.get(uuid, ResourceType.Encounter);
+            Encounter encounter = (Encounter) fhirResource.get(logicalUuid, ResourceType.Encounter);
 
             if (!CollectionUtils.isEmpty(encounter.getIdentifier())) {
                 String encounterType = encounter.getIdentifier().get(0).getValueSimple();
                 if (!encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString())
                         && !encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())) {
-                    fhirResource.delete(uuid, ResourceType.Encounter);
+                    fhirResource.deleteEntity(logicalUuid, "encounter");
                 }
             }
         }

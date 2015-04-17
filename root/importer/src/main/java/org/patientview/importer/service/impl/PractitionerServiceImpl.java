@@ -4,8 +4,10 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.config.exception.FhirResourceException;
@@ -89,9 +91,10 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
 
                 } else {
                     // native create new FHIR object
-                    UUID logicalId = fhirResource.createEntity(importPractitioner, "Practitioner", "practitioner");
-                    LOG.info(nhsno + ": New Practitioner, " + logicalId);
-                    return logicalId;
+                    FhirDatabaseEntity entity = fhirResource.createEntity(
+                            importPractitioner, ResourceType.Practitioner.name(), "practitioner");
+                    LOG.info(nhsno + ": New Practitioner, " + entity.getLogicalId());
+                    return entity.getLogicalId();
                 }
             } catch (FhirResourceException e) {
                 LOG.error(nhsno + ": Unable to build practitioner");

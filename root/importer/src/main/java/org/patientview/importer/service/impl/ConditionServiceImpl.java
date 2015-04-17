@@ -46,7 +46,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
         for (Condition condition : conditionsBuilder.build()) {
             LOG.trace(nhsno + ": Creating... condition " + count);
             try {
-                fhirResource.create(condition);
+                fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
             } catch (FhirResourceException e) {
                 LOG.error(nhsno + ": Unable to build condition");
             }
@@ -57,10 +57,8 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.Condition);
+        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
+            fhirResource.deleteEntity(logicalUuid, "condition");
         }
     }
 }
-
-

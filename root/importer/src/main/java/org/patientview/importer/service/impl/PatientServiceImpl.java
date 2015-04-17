@@ -8,6 +8,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.PatientBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
@@ -80,22 +81,21 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // create Fhir patient from XML
         PatientBuilder patientBuilder = new PatientBuilder(patient, practitionerReference);
         Patient newFhirPatient = patientBuilder.build();
-        UUID versionId;
 
         if (fhirLink != null) {
-            // link to FHIR exists, update patient
-            JSONObject jsonObject
-                    = fhirResource.updateFhirObject(newFhirPatient, fhirLink.getResourceId(), fhirLink.getVersionId());
-            versionId = Util.getVersionId(jsonObject);
+            // link to FHIR exists, native update patient
+            FhirDatabaseEntity patientEntity
+                    = fhirResource.updateEntity(newFhirPatient, "Patient", fhirLink.getResourceId());
 
-            // update link
-            fhirLink.setVersionId(versionId);
-            fhirLink.setUpdated(new Date());
+            // update FHIR link
+            fhirLink.setVersionId(patientEntity.getVersionId());
+            fhirLink.setUpdated(patientEntity.getUpdated());
             fhirLinkRepository.save(fhirLink);
         } else {
-            // Create a new Fhir record and add the link to the User and Unit
-            JSONObject jsonObject = create(newFhirPatient);
-            fhirLink = addLink(identifier, group, jsonObject);
+            // Create a new FHIR record and add the link to the User and Unit
+            FhirDatabaseEntity patientEntity
+                    = fhirResource.createEntity(newFhirPatient, ResourceType.Patient.name(), "patient");
+            fhirLink = addLink(identifier, group, patientEntity);
         }
 
         // update User date of birth, forename, surname (if present in imported data)
@@ -121,7 +121,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             userRepository.save(entityUser);
         }
 
-        LOG.info(nhsno + ": Processed Patient Data");
+        LOG.info(nhsno + ": Processed Patient");
         return fhirLink;
     }
 
@@ -185,7 +185,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    private FhirLink addLink(Identifier identifier, Group group, JSONObject bundle) {
+    private FhirLink addLink(Identifier identifier, Group group, FhirDatabaseEntity entity) {
         if (CollectionUtils.isEmpty(identifier.getUser().getFhirLinks())) {
             identifier.getUser().setFhirLinks(new HashSet<FhirLink>());
         }
@@ -196,8 +196,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         fhirLink.setUser(identifier.getUser());
         fhirLink.setIdentifier(identifier);
         fhirLink.setGroup(group);
-        fhirLink.setResourceId(Util.getResourceId(bundle));
-        fhirLink.setVersionId((Util.getVersionId(bundle)));
+        fhirLink.setResourceId(entity.getLogicalId());
+        fhirLink.setVersionId(entity.getVersionId());
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
         fhirLink.setCreated(now);
