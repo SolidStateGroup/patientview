@@ -48,7 +48,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     public UUID add(final Patientview data) throws FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Practitioner Process");
+        //LOG.info(nhsno + ": Starting Practitioner Process");
 
         if (data.getGpdetails() != null) {
             try {

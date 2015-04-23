@@ -63,7 +63,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throws ResourceNotFoundException, FhirResourceException {
 
         this.nhsno = patient.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Patient Process");
+        LOG.trace(nhsno + ": Starting Patient Process");
 
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatientByIdentifierValue(patient);

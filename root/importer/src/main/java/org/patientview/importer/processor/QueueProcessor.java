@@ -128,7 +128,7 @@ public class QueueProcessor extends DefaultConsumer {
             // validate XML
             if (!fail) {
                 try {
-                    LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": received");
+                    LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": Received, valid XML");
                     importManager.validate(patient);
                 } catch (ImportResourceException ire) {
                     String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 

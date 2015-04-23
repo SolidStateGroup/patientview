@@ -37,12 +37,11 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     @Override
     public void add(final Patientview data, final FhirLink fhirLink, final ResourceReference groupReference)
             throws FhirResourceException, SQLException {
+        LOG.trace(nhsno + ": Starting Encounter Process");
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         EncountersBuilder encountersBuilder = new EncountersBuilder(data, patientReference, groupReference);
-
-        LOG.info(nhsno + ": Starting Encounter Process");
 
         // delete existing
         deleteBySubjectId(fhirLink.getResourceId());
@@ -71,7 +70,6 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
             + EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString() + "','"
             + EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString() + "');"
         );
-        LOG.info(subjectId.toString());
     }
 }
 

@@ -67,7 +67,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
+        LOG.trace(nhsno + ": Starting DocumentReference (letter) Process");
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int success = 0;
         boolean verboseLogging = false;
@@ -143,7 +143,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             }
         }
 
-        LOG.info(nhsno + ": Finished DocumentReference (letter) Process");
+        LOG.trace(nhsno + ": Finished DocumentReference (letter) Process");
         LOG.info(nhsno + ": Processed {} of {} letters", success, documentReferenceBuilder.getCount());
     }
 

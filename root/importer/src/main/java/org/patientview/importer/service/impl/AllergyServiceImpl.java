@@ -46,7 +46,7 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
+        LOG.trace(nhsno + ": Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
@@ -104,7 +104,7 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
             LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
         }
 
-        LOG.info(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");
+        LOG.trace(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");
         LOG.info(nhsno + ": Processed {} of {} allergy", success, count);
     }
 

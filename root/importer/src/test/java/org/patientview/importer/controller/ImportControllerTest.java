@@ -139,7 +139,6 @@ public class ImportControllerTest {
         //String fileName = "data/xml/2.0.6tests/SGC02_01439_1312045485.xml"; // ok, 288 observations
         //String fileName = "data/xml/2.0.6tests/SGC02_01439_2609995652.xml"; // ok, 282 observations
 
-        //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
         String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/ECS_1111111111_new.xml";
         //String fileName = "data/xml/PRODUCTION_TEST_1111111118.xml";
@@ -169,13 +168,11 @@ public class ImportControllerTest {
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
         //String postUrl="https://test.patientview.org/importer/import";
-
         //String postUrl="https://production.patientview.org/importer/import";
         String postUrl="http://localhost:8081/importer/import";
-        //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";
+
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
-
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/xml");
         HttpResponse httpResponse = httpClient.execute(post);

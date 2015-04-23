@@ -48,7 +48,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting DiagnosticReport and associated Observation (result) Process");
+        LOG.trace(nhsno + ": Starting DiagnosticReport and associated Observation (result) Process");
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;

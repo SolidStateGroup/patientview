@@ -43,7 +43,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Medication Statement and Medication Process");
+        LOG.trace(nhsno + ": Starting Medication Statement and Medication Process");
 
         if (data.getPatient().getDrugdetails() != null) {
             ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());

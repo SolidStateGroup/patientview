@@ -52,7 +52,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     public UUID add(final Patientview data) throws ResourceNotFoundException, FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Organization Process");
+        //LOG.info(nhsno + ": Starting Organization Process");
 
         // validate that group exists in patientview using persistence module, otherwise throw exception
         if (!groupWithCodeExists(data.getCentredetails().getCentrecode())) {

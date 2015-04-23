@@ -36,7 +36,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         int count = 0;
-        LOG.info(nhsno + ": Starting Condition Process");
+        LOG.trace(nhsno + ": Starting Condition Process");
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
 
