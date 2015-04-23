@@ -91,17 +91,17 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID logicalUuid : fhirResource.getLogicalIdsByPatientId("medicationstatement", subjectId)) {
+        // delete medication natively
+        fhirResource.executeSQL(
+            "DELETE FROM medication WHERE logical_id::TEXT IN (SELECT CONTENT -> 'medication' ->> 'display' " +
+            "FROM medicationstatement WHERE CONTENT -> 'patient' ->> 'display' = '" + subjectId.toString() + "')"
+        );
 
-            // delete medication associated with medication statement
-            MedicationStatement medicationStatement
-                    = (MedicationStatement) fhirResource.get(logicalUuid, ResourceType.MedicationStatement);
-            fhirResource.deleteEntity(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                    "medication");
-
-            // delete medication statement
-            fhirResource.deleteEntity(logicalUuid, "medicationstatement");
-        }
+        // delete medication statement natively
+        fhirResource.executeSQL(
+            "DELETE FROM medicationstatement WHERE CONTENT -> 'patient' ->> 'display' = '"
+            + subjectId.toString() + "'"
+        );
     }
 }
 

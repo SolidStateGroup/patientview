@@ -115,17 +115,16 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("diagnosticreport", subjectId)) {
+        // delete Observation associated with DiagnosticReport
+        fhirResource.executeSQL(
+            "DELETE FROM observation WHERE logical_id::TEXT IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
+            "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
+        );
 
-            // delete observation (result) associated with diagnostic report
-            DiagnosticReport diagnosticReport
-                    = (DiagnosticReport) fhirResource.get(logicalUuid, ResourceType.DiagnosticReport);
-            fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                    "observation");
-
-            // delete diagnostic report
-            fhirResource.deleteEntity(logicalUuid, "diagnosticreport");
-        }
+        // delete DiagnosticReport
+        fhirResource.executeSQL(
+            "DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
     }
 }
 

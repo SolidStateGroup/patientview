@@ -109,24 +109,21 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        // delete Substance associated with AllergyIntolerance
+        fhirResource.executeSQL(
+            "DELETE FROM substance WHERE logical_id::TEXT IN (SELECT CONTENT -> 'substance' ->> 'display' " +
+            "FROM allergyintolerance WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
+        );
 
-        // delete AllergyIntolerance and Substance associated with subject
-        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("allergyintolerance", subjectId)) {
+        // delete AllergyIntolerance
+        fhirResource.executeSQL(
+            "DELETE FROM allergyintolerance WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
 
-            // delete Substance associated with AllergyIntolerance
-            AllergyIntolerance allergyIntolerance
-                    = (AllergyIntolerance) fhirResource.get(logicalUuid, ResourceType.AllergyIntolerance);
-            fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                    "substance");
-
-            // delete AllergyIntolerance
-            fhirResource.deleteEntity(logicalUuid, "allergyintolerance");
-        }
-
-        // delete AdverseReaction associated with subject
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
-            fhirResource.deleteEntity(uuid, "adversereaction");
-        }
+        // delete AdverseReaction
+        fhirResource.executeSQL(
+            "DELETE FROM adversereaction WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
     }
 }
 

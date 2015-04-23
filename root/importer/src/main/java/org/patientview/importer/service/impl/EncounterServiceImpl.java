@@ -12,7 +12,6 @@ import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
@@ -63,20 +62,16 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
-
-            // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
-            // as these come from uktstatus table during migration
-            Encounter encounter = (Encounter) fhirResource.get(logicalUuid, ResourceType.Encounter);
-
-            if (!CollectionUtils.isEmpty(encounter.getIdentifier())) {
-                String encounterType = encounter.getIdentifier().get(0).getValueSimple();
-                if (!encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString())
-                        && !encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())) {
-                    fhirResource.deleteEntity(logicalUuid, "encounter");
-                }
-            }
-        }
+        // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
+        // as these come from uktstatus table during migration, delete encounter natively
+        fhirResource.executeSQL(
+            "DELETE FROM encounter WHERE CONTENT -> 'subject' ->> 'display' = '"
+            + subjectId.toString()
+            + "' AND CONTENT #> '{identifier,0}' ->> 'value' NOT IN ('"
+            + EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString() + "','"
+            + EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString() + "');"
+        );
+        LOG.info(subjectId.toString());
     }
 }
 

@@ -57,8 +57,9 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID logicalUuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
-            fhirResource.deleteEntity(logicalUuid, "condition");
-        }
+        // native delete
+        fhirResource.executeSQL(
+            "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
     }
 }
