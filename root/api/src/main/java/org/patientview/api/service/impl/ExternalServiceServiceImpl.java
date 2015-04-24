@@ -53,9 +53,6 @@ import java.util.Properties;
 
     @Override
     public void sendToExternalService() {
-
-        LOG.info("Starting send to external services");
-
         // get unsent or failed
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
         statuses.add(ExternalServiceTaskQueueStatus.FAILED);
