@@ -626,6 +626,15 @@ CREATE TABLE PV_External_Service_Task_Queue_Item
   PRIMARY KEY (Id)
 )
 
+CREATE TABLE PV_File_Data
+(
+  Id              BIGINT NOT NULL,
+  name            TEXT NOT NULL,
+  type            TEXT NOT NULL,
+  Creation_Date   TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

@@ -4,12 +4,16 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DocumentReference;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
+import org.patientview.importer.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
@@ -42,17 +46,20 @@ import java.util.UUID;
 public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentReferenceService> implements DocumentReferenceService {
 
     @Inject
-    private FhirResource fhirResource;
-
-    @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
     private AlertRepository alertRepository;
 
     @Inject
     @Named("fhir")
     private BasicDataSource dataSource;
+
+    @Inject
+    private FhirResource fhirResource;
+
+    @Inject
+    private FileDataRepository fileDataRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     private String nhsno;
     private Alert alert;
@@ -93,14 +100,25 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
                 try {
-                    DocumentReferenceBuilder builder = new DocumentReferenceBuilder(letter, patientReference);
-                    DocumentReference documentReference = builder.build();
+                    // set up Media and DocumentReference builders and build DocumentReference
+                    DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(letter, patientReference);
+                    MediaBuilder mediaBuilder = new MediaBuilder(letter);
+                    DocumentReference documentReference = docBuilder.build();
 
-                    // delete existing
+                    // if binary file then build media
+                    if (letter.getLetterfilebody() != null) {
+                        mediaBuilder.build();
+
+                        // set title of DocumentReference if possible (overwrites type)
+                        if (StringUtils.isNotEmpty(letter.getLettertitle())) {
+                            documentReference.setDescriptionSimple(letter.getLettertitle());
+                        }
+                    }
+
+                    // delete existing document reference
                     List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
                     if (!existingUuids.isEmpty()) {
                         for (UUID existingUuid : existingUuids) {
-                            // logging for testing only
                             if (verboseLogging) {
                                 if (documentReference.getCreated() != null) {
                                     LOG.info(nhsno + ": Deleting DocumentReference with date "
@@ -110,42 +128,101 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                 }
                             }
                             fhirResource.deleteEntity(existingUuid, "documentreference");
+
+                            if (documentReference.getLocation() != null) {
+                                // delete associated media and binary data if present
+                                Media media = (Media) fhirResource.get(
+                                        UUID.fromString(documentReference.getLocationSimple()), ResourceType.Media);
+                                if (media != null) {
+                                    // delete media
+                                    fhirResource.deleteEntity(
+                                            UUID.fromString(documentReference.getLocationSimple()), "media");
+
+                                    // delete binary data
+                                    try {
+                                        fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                    } catch (NumberFormatException nfe) {
+                                        LOG.info("Error deleting existing bianry data, " +
+                                                "Media reference to binary data is not Long, ignoring");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    boolean failed = false;
+                    FileData fileData = null;
+
+                    // create new binary file and Media
+                    if (letter.getLetterfilebody() != null) {
+                        Media media = mediaBuilder.getMedia();
+
+                        // create binary file
+                        fileData = new FileData();
+                        fileData.setCreated(new Date());
+                        if (media.getContent().getTitle() != null) {
+                            fileData.setName(media.getContent().getTitleSimple());
+                        }
+                        if (media.getContent().getContentType() != null) {
+                            fileData.setName(media.getContent().getContentTypeSimple());
+                        }
+                        fileData = fileDataRepository.save(fileData);
+
+                        media = mediaBuilder.setFileDataId(media, fileData.getId());
+
+                        // create Media
+                        try {
+                            LOG.info(nhsno + ": Adding Media");
+                            fhirResource.createEntity(media, ResourceType.DocumentReference.name(), "media");
+                        } catch (FhirResourceException e) {
+                            LOG.error(nhsno + ": Unable to create Media");
+                            failed = true;
                         }
                     }
 
                     // create new DocumentReference
-                    try {
-                        // logging for testing only
-                        if (verboseLogging) {
-                            if (documentReference.getCreated() != null) {
-                                LOG.info(nhsno + ": Adding DocumentReference with date "
-                                        + documentReference.getCreated().getValue().toString());
-                            } else {
-                                LOG.info(nhsno + ": Adding DocumentReference");
+                    if (!failed) {
+                        try {
+                            if (verboseLogging) {
+                                if (documentReference.getCreated() != null) {
+                                    LOG.info(nhsno + ": Adding DocumentReference with date "
+                                            + documentReference.getCreated().getValue().toString());
+                                } else {
+                                    LOG.info(nhsno + ": Adding DocumentReference");
+                                }
                             }
+                            fhirResource.createEntity(
+                                    documentReference, ResourceType.DocumentReference.name(), "documentreference");
+                        } catch (FhirResourceException e) {
+                            LOG.error(nhsno + ": Unable to create DocumentReference");
+                            failed = true;
                         }
-                        fhirResource.createEntity(
-                                documentReference, ResourceType.DocumentReference.name(), "documentreference");
-                        success++;
-                    } catch (FhirResourceException e) {
-                        LOG.error(nhsno + ": Unable to create DocumentReference");
                     }
 
-                    if (alert != null) {
-                        if (alert.getLatestDate() == null) {
-                            alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
-                            alert.setLatestValue(letter.getLettertype());
-                            alert.setEmailAlertSent(false);
-                            alert.setWebAlertViewed(false);
-                            alert.setUpdated(true);
-                        } else {
-                            if (alert.getLatestDate().getTime()
-                                    < letter.getLetterdate().toGregorianCalendar().getTime().getTime()) {
+                    // if any object creation failed, clean up binary data
+                    if (failed) {
+                        if (fileData != null) {
+                            fileDataRepository.delete(fileData);
+                            LOG.error(nhsno + ": Had to clean up binary data");
+                        }
+                    } else {
+                        success++;
+                        if (alert != null) {
+                            if (alert.getLatestDate() == null) {
                                 alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
                                 alert.setLatestValue(letter.getLettertype());
                                 alert.setEmailAlertSent(false);
                                 alert.setWebAlertViewed(false);
                                 alert.setUpdated(true);
+                            } else {
+                                if (alert.getLatestDate().getTime()
+                                        < letter.getLetterdate().toGregorianCalendar().getTime().getTime()) {
+                                    alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                                    alert.setLatestValue(letter.getLettertype());
+                                    alert.setEmailAlertSent(false);
+                                    alert.setWebAlertViewed(false);
+                                    alert.setUpdated(true);
+                                }
                             }
                         }
                     }
