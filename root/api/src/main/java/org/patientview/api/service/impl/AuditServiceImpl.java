@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
@@ -47,6 +49,9 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private Properties properties;
 
     /**
      * Convert a List of persistence Audit to api Audit for display in UI, adds details on source object if User or
@@ -262,6 +267,17 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         // convert to transport objects, create Page and return
         List<Audit> transportContent = convertToTransport(audits.getContent());
         return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
+    }
+
+    /**
+     * Set xml column to NULL for older audit entries, configured by properties file
+     */
+    @Override
+    public void removeOldAuditXml() {
+        if (Boolean.parseBoolean(properties.getProperty("remove.old.audit.xml"))) {
+            Integer days = Integer.parseInt(properties.getProperty("remove.old.audit.xml.days"));
+            auditRepository.removeOldAuditXml(new DateTime().minusDays(days).toDate());
+        }
     }
 
     /**

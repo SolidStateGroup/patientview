@@ -1,6 +1,8 @@
 package org.patientview.test.persistence.repository;
 
 import junit.framework.Assert;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -788,8 +790,68 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%%";
-        Page<Audit> audits = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
+        Page<Audit> audits
+                = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
                 new PageRequest(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
+    }
+
+    @Test
+    public void testRemoveOldAuditXml() {
+        User user = dataTestUtils.createUser("testUser");
+
+        DateTime now = new DateTime();
+        DateTime thirty = now.minusDays(30);
+        DateTime ninety = now.minusDays(90);
+        DateTime oneEighty = now.minusDays(180);
+
+        Audit audit1 = new Audit();
+        audit1.setSourceObjectId(user.getId());
+        audit1.setSourceObjectType(AuditObjectTypes.User);
+        audit1.setXml("xml");
+        audit1.setCreationDate(now.toDate());
+
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(user.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.User);
+        audit2.setXml("xml");
+        audit2.setCreationDate(thirty.toDate());
+
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setXml("xml");
+        audit3.setCreationDate(oneEighty.toDate());
+
+        auditRepository.save(audit1);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        Page<Audit> audits
+                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
+
+        int countWithXML = 0;
+        for (Audit audit : audits) {
+            if (StringUtils.isNotEmpty(audit.getXml())) {
+                countWithXML += 1;
+            }
+        }
+
+        Assert.assertEquals("Should be 3 audits with XML", 3, countWithXML);
+
+        auditRepository.removeOldAuditXml(ninety.toDate());
+        Page<Audit> audits2
+                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), new PageRequest(0, Integer.MAX_VALUE));
+
+        countWithXML = 0;
+        for (Audit audit : audits2) {
+            if (StringUtils.isNotEmpty(audit.getXml())) {
+                countWithXML += 1;
+            }
+        }
+
+        Assert.assertEquals("Should be 2 audits with XML", 2, countWithXML);
     }
 }

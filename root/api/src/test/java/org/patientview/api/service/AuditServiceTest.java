@@ -25,9 +25,12 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -40,11 +43,14 @@ public class AuditServiceTest {
     @Mock
     AuditRepository auditRepository;
 
-    @Mock
-    UserRepository userRepository;
-
     @InjectMocks
     AuditService auditService = new AuditServiceImpl();
+
+    @Mock
+    Properties properties;
+
+    @Mock
+    UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -80,4 +86,13 @@ public class AuditServiceTest {
         Assert.assertEquals("There should be 1 audit record", 1, returnedAudits.getContent().size());
     }
 
+    @Test
+    public void testRemoveOldAuditXml() {
+        when(properties.getProperty("remove.old.audit.xml")).thenReturn("true");
+        when(properties.getProperty("remove.old.audit.xml.days")).thenReturn("90");
+
+        auditService.removeOldAuditXml();
+
+        verify(auditRepository, times(1)).removeOldAuditXml(any(Date.class));
+    }
 }

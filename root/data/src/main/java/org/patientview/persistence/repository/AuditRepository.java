@@ -169,4 +169,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
                                                       @Param("filterText") String filterText,
                                                       @Param("groupIds") List<Long> groupIds,
                                                       @Param("actions") List<AuditActions> actions, Pageable pageable);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Audit a SET a.xml = NULL WHERE a.creationDate <= :date")
+    void removeOldAuditXml(@Param("date") Date date);
 }
