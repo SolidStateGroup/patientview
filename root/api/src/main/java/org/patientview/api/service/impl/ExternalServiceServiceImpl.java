@@ -1,11 +1,17 @@
 package org.patientview.api.service.impl;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.ExternalServiceTaskQueueItemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -23,10 +29,13 @@ import java.util.Properties;
 @Service public class ExternalServiceServiceImpl implements ExternalServiceService {
 
     @Inject
-    ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
+    private ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
 
     @Inject
-    Properties properties;
+    private Properties properties;
+
+    private static final int HTTP_OK = 200;
+    protected final Logger LOG = LoggerFactory.getLogger(ExternalServiceServiceImpl.class);
 
     @Override
     public void addToQueue(ExternalServices externalService, String xml, User creator, Date created) {
@@ -44,6 +53,9 @@ import java.util.Properties;
 
     @Override
     public void sendToExternalService() {
+
+        LOG.info("Starting send to external services");
+
         // get unsent or failed
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
         statuses.add(ExternalServiceTaskQueueStatus.FAILED);
@@ -53,7 +65,41 @@ import java.util.Properties;
                 = externalServiceTaskQueueItemRepository.findByStatus(statuses);
 
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
-            // todo: send to external service
+            if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
+                try {
+                    externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
+                    externalServiceTaskQueueItem.setLastUpdate(new Date());
+                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
+
+                    HttpResponse response
+                            = post(externalServiceTaskQueueItem.getContent(), externalServiceTaskQueueItem.getUrl());
+                    if (response.getStatusLine().getStatusCode() == HTTP_OK) {
+                        // OK, delete queue item
+                        externalServiceTaskQueueItemRepository.delete(externalServiceTaskQueueItem);
+                    } else {
+                        // not OK, set as failed
+                        externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
+                        externalServiceTaskQueueItem.setResponseCode(
+                                Integer.valueOf(response.getStatusLine().getStatusCode()));
+                        externalServiceTaskQueueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
+                        externalServiceTaskQueueItem.setLastUpdate(new Date());
+                        externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
+                    }
+                } catch (Exception e) {
+                    // exception, set as failed
+                    externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
+                    externalServiceTaskQueueItem.setLastUpdate(new Date());
+                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
+                }
+            }
         }
+    }
+
+    private static org.apache.http.HttpResponse post(String content, String url) throws Exception {
+        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+        HttpPost post = new HttpPost(url);
+        post.setEntity(new StringEntity(content));
+        post.setHeader("Content-type", "application/xml");
+        return httpClient.execute(post);
     }
 }

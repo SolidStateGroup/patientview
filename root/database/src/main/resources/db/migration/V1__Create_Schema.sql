@@ -617,6 +617,8 @@ CREATE TABLE PV_External_Service_Task_Queue_Item
   Method                      TEXT NOT NULL,
   Content                     TEXT NOT NULL,
   Status                      TEXT NOT NULL,
+  Response_Code               INT,
+  Response_Reason             TEXT,
   Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Creation_Date               TIMESTAMP    NOT NULL,
   Last_Update_Date            TIMESTAMP,

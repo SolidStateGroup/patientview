@@ -347,7 +347,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
 
-        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(), getCurrentUser(), now);
+        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
+                getCurrentUser(), now);
     }
 
     @Override

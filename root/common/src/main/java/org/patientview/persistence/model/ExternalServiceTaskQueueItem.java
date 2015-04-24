@@ -32,6 +32,12 @@ public class ExternalServiceTaskQueueItem extends AuditModel {
     @Enumerated(EnumType.STRING)
     private ExternalServiceTaskQueueStatus status;
 
+    @Column(name = "response_code")
+    private Integer responseCode;
+
+    @Column(name = "response_reason")
+    private String responseReason;
+
     public ExternalServiceTaskQueueItem() {}
 
     public ExternalServiceTaskQueueItem(String url, String method, String content,
@@ -74,5 +80,21 @@ public class ExternalServiceTaskQueueItem extends AuditModel {
 
     public void setStatus(ExternalServiceTaskQueueStatus status) {
         this.status = status;
+    }
+
+    public Integer getResponseCode() {
+        return responseCode;
+    }
+
+    public void setResponseCode(Integer responseCode) {
+        this.responseCode = responseCode;
+    }
+
+    public String getResponseReason() {
+        return responseReason;
+    }
+
+    public void setResponseReason(String responseReason) {
+        this.responseReason = responseReason;
     }
 }
