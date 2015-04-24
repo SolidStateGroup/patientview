@@ -374,6 +374,12 @@
                                                                 Letter content should be sent as a CDATA section to avoid parsing errors. E.g.<![CDATA[ and end with the string ]]>															</xs:documentation>
                                                         </xs:annotation>
                                                     </xs:element>
+                                                    <!-- added for binary files, e.g. PDF -->
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="lettertitle" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="letterfilename" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="letterfiletype" type="xs:string"/>
+                                                    <!-- base64 encoded binary data -->
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="letterfilebody" type="xs:string"/>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
