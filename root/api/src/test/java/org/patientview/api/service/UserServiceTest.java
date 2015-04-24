@@ -489,6 +489,7 @@ public class UserServiceTest {
         Role newRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
 
         // newly created grouprole
+        group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         GroupRole newGroupRole = TestUtils.createGroupRole(newRole, group, patientUser);
 
         when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
@@ -582,6 +583,8 @@ public class UserServiceTest {
                 .thenReturn(groupRolePatient);
 
         // add GroupRole to staff user
+        group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
+        group2.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         userService.deleteGroupRole(patientUser.getId(), group.getId(), patientRole.getId());
         verify(groupRoleRepository, times(1)).delete(any(GroupRole.class));
 
