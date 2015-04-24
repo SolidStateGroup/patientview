@@ -7,9 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.Utility.Util;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -26,10 +23,10 @@ public class DocumentReferenceBuilderTest extends BaseTest {
     public void testLetterBuilder() throws Exception {
         Patientview patientview = Util.unmarshallPatientRecord(getTestFile());
         DocumentReferenceBuilder documentReferenceBuilder
-                = new DocumentReferenceBuilder(patientview, new ResourceReference());
-        List<DocumentReference> documentReferences = documentReferenceBuilder.build();
+                = new DocumentReferenceBuilder(patientview.getPatient().getLetterdetails().getLetter().get(0),
+                new ResourceReference());
+        DocumentReference documentReference = documentReferenceBuilder.build();
 
-        Assert.assertTrue("The documentReferences list should not be empty",
-                !CollectionUtils.isEmpty(documentReferences));
+        Assert.assertNotNull("The documentReference should not be null", documentReference);
     }
 }
