@@ -128,9 +128,12 @@ public class UserServiceTest {
     @Mock
     private UserTokenRepository userTokenRepository;
 
+    private User creator;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        creator = TestUtils.createUser("creator");
     }
 
     @After
@@ -453,7 +456,8 @@ public class UserServiceTest {
 
         // verify queued to RDC
         verify(externalServiceService, times(0))
-                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class));
+                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
+                        any(String.class), any(User.class), any(Date.class));
     }
 
     @Test
@@ -501,7 +505,8 @@ public class UserServiceTest {
 
         // verify queued to RDC
         verify(externalServiceService, times(1))
-                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class));
+                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
+                        any(User.class), any(Date.class));
     }
 
     /**
@@ -582,7 +587,8 @@ public class UserServiceTest {
 
         // verify queued to RDC
         verify(externalServiceService, times(1))
-                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class));
+                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
+                        any(User.class), any(Date.class));
     }
 
     @Test
