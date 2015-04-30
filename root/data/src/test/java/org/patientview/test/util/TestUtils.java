@@ -144,6 +144,7 @@ public final class TestUtils {
         group.setVisible(true);
         group.setVisibleToJoin(true);
         group.setGroupRelationships(new HashSet<GroupRelationship>());
+        group.setGroupType(createLookup(createLookupType(LookupTypes.GROUP), "UNIT"));
         return group;
     }
 

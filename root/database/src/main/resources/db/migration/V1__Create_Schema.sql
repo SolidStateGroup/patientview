@@ -610,6 +610,20 @@ CREATE TABLE PV_Alert
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_External_Service_Task_Queue_Item
+(
+  Id                          BIGINT NOT NULL,
+  Url                         TEXT NOT NULL,
+  Method                      TEXT NOT NULL,
+  Content                     TEXT NOT NULL,
+  Status                      TEXT NOT NULL,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
