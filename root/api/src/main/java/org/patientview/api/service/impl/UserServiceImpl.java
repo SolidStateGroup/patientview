@@ -12,6 +12,7 @@ import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
@@ -36,6 +37,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -99,40 +101,7 @@ import java.util.Set;
 public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
-    private GroupService groupService;
-
-    @Inject
-    private PatientService patientService;
-
-    @Inject
-    private FeatureRepository featureRepository;
-
-    @Inject
-    private GroupRoleRepository groupRoleRepository;
-
-    @Inject
-    private RoleRepository roleRepository;
-
-    @Inject
-    private UserInformationRepository userInformationRepository;
-
-    @Inject
-    private UserFeatureRepository userFeatureRepository;
-
-    @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
-    private FhirLinkRepository fhirLinkRepository;
-
-    @Inject
-    private EmailService emailService;
+    private AlertRepository alertRepository;
 
     @Inject
     private AuditService auditService;
@@ -141,7 +110,46 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private ConversationService conversationService;
 
     @Inject
-    private UserTokenRepository userTokenRepository;
+    private EmailService emailService;
+
+    @Inject
+    private EntityManager entityManager;
+
+    @Inject
+    private ExternalServiceService externalServiceService;
+
+    @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
+
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private Properties properties;
+
+    @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private UserFeatureRepository userFeatureRepository;
+
+    @Inject
+    private UserInformationRepository userInformationRepository;
 
     @Inject
     private UserMigrationRepository userMigrationRepository;
@@ -150,13 +158,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private UserObservationHeadingRepository userObservationHeadingRepository;
 
     @Inject
-    private AlertRepository alertRepository;
+    private UserTokenRepository userTokenRepository;
 
     @Inject
-    private Properties properties;
-
-    @Inject
-    private EntityManager entityManager;
+    private UserRepository userRepository;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -248,6 +253,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (isPatient) {
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, group);
+
+            // send membership notification to RDC, not GroupTypes.SPECIALTY
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                sendGroupMemberShipNotification(groupRole, true);
+            }
         } else {
             auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, user.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, group);
@@ -305,6 +315,41 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
+        Date now = new Date();
+        StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
+
+        if (groupRole.getUser().getIdentifiers() != null) {
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+                xml.append("<PatientNumber><Number>");
+                xml.append(identifier.getIdentifier());
+                xml.append("</Number><Organization>");
+                xml.append(identifier.getIdentifierType().getValue());
+                xml.append("</Organization></PatientNumber>");
+            }
+        }
+
+        xml.append("</PatientNumbers></Patient><ProgramMemberships><ProgramMembership><EnteredBy>");
+        xml.append(getCurrentUser().getUsername());
+        xml.append("</EnteredBy><EnteredAt>PV2</EnteredAt><EnteredOn>");
+        xml.append(now);
+        xml.append("</EnteredOn><ExternalId>");
+        xml.append(groupRole.getId());
+        xml.append("</ExternalId><ProgramName>");
+        xml.append(groupRole.getGroup().getCode());
+        xml.append("</ProgramName><ProgramDescription>");
+        xml.append(groupRole.getGroup().getName());
+        xml.append("</ProgramDescription><FromTime>");
+        xml.append(groupRole.getCreated());
+        xml.append("</FromTime><ToTime>");
+        if (!adding) {
+            xml.append(now);
+        }
+        xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
+
+        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(), getCurrentUser(), now);
+    }
+
     @Override
     public void removeAllGroupRoles(Long userId) throws ResourceNotFoundException {
         groupRoleRepository.removeAllGroupRoles(findUser(userId));
@@ -353,6 +398,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (isPatient) {
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
+
+            // send membership notification to RDC, not GroupTypes.SPECIALTY
+            if (!entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                sendGroupMemberShipNotification(entityGroupRole, false);
+            }
         } else {
             auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, entityUser.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
