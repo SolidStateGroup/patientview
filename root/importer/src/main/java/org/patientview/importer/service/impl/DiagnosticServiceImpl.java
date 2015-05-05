@@ -60,10 +60,17 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         // delete existing
         deleteBySubjectId(fhirLink.getResourceId());
 
+        if (verboseLogging) {
+            LOG.info(nhsno + ": Deleted existing");
+        }
+
         if (data.getPatient().getDiagnostics() != null) {
             for (Diagnostic diagnostic : data.getPatient().getDiagnostics().getDiagnostic()) {
 
                 if (StringUtils.isNotEmpty(diagnostic.getDiagnosticresult())) {
+                    if (verboseLogging) {
+                        LOG.info(nhsno + ": Building diagnostic " + count);
+                    }
                     // build result observation
                     Observation observation = new Observation();
                     observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
@@ -88,6 +95,9 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                     DiagnosticReport diagnosticReport = diagnosticReportBuilder.build();
 
                     try {
+                        if (verboseLogging) {
+                            LOG.info(nhsno + ": Saving diagnostic " + count);
+                        }
                         // create result observation in FHIR
                         FhirDatabaseEntity storedObservation
                             = fhirResource.createEntity(observation, ResourceType.Observation.name(), "observation");
@@ -104,6 +114,10 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                                 diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
 
                         success += 1;
+
+                        if (verboseLogging) {
+                            LOG.info(nhsno + ": Saved diagnostic " + count);
+                        }
 
                     } catch (FhirResourceException e) {
                         LOG.error(nhsno + ": Unable to build Observation (result) or DiagnosticReport");
