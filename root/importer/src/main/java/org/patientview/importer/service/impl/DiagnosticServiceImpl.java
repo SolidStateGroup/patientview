@@ -130,8 +130,11 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                     } catch (FhirResourceException e) {
                         LOG.error(nhsno + ": Unable to build Observation (result) or DiagnosticReport");
                     }
+
+                    count += 1;
+
                     if (verboseLogging) {
-                        LOG.info(nhsno + ": Finished creating DiagnosticReport " + count++);
+                        LOG.info(nhsno + ": Finished creating DiagnosticReport " + count);
                     }
                 }
             }
