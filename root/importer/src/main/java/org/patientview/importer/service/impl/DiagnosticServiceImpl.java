@@ -145,31 +145,41 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                         "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')");
 
         // performance testing
-        /*StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder();
         query.append("SELECT CONTENT #> '{result,0}' ->> 'display' ");
         query.append("FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
         query.append(subjectId.toString());
         query.append("'");
 
+        StringBuilder inStatement = new StringBuilder("'");
         try {
             Connection connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
 
             while ((results.next())) {
-                output = results.getString(1);
+                inStatement.append(results.getString(1));
+                inStatement.append("','");
             }
 
             connection.close();
         } catch (SQLException e) {
             throw new FhirResourceException(e);
-        }*/
+        }
+        LOG.info("DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")");
+
+        if (inStatement.length() > 2) {
+            inStatement.delete(inStatement.length() - 2, inStatement.length());
+            fhirResource.executeSQL(
+                    "DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")"
+            );
+        }
 
         // delete Observation associated with DiagnosticReport
-        fhirResource.executeSQL(
+        /*fhirResource.executeSQL(
                 "DELETE FROM observation WHERE logical_id IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
                         "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
-        );
+        );*/
 
         LOG.info("DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'");
         // delete DiagnosticReport
