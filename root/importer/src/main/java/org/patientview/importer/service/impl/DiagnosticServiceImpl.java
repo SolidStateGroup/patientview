@@ -22,6 +22,10 @@ import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -34,6 +38,10 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    @Named("fhir")
+    private DataSource dataSource;
 
     private String nhsno;
 
@@ -133,12 +141,34 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        LOG.info("DELETE FROM observation WHERE logical_id::TEXT IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
+        LOG.info("DELETE FROM observation WHERE logical_id IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
                         "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')");
+
+        // performance testing
+        /*StringBuilder query = new StringBuilder();
+        query.append("SELECT CONTENT #> '{result,0}' ->> 'display' ");
+        query.append("FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
+        query.append(subjectId.toString());
+        query.append("'");
+
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                output = results.getString(1);
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }*/
+
         // delete Observation associated with DiagnosticReport
         fhirResource.executeSQL(
-            "DELETE FROM observation WHERE logical_id::TEXT IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
-            "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
+                "DELETE FROM observation WHERE logical_id IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
+                        "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
         );
 
         LOG.info("DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'");
