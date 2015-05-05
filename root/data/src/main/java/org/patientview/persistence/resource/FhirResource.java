@@ -52,8 +52,13 @@ public class FhirResource {
     private DataSource dataSource;
 
     public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-
         JSONObject jsonObject = getBundle(uuid, resourceType);
+
+        // return null if not found
+        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
+            return null;
+        }
+
         JSONArray resultArray = (JSONArray) jsonObject.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
 

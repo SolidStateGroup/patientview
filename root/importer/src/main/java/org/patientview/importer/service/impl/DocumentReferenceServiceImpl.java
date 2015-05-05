@@ -10,6 +10,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
 import org.patientview.importer.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.repository.AlertRepository;
@@ -115,7 +116,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                         }
                     }
 
-                    // delete existing document reference
+                    // delete existing document reference, media and binary data if present
                     List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
                     if (!existingUuids.isEmpty()) {
                         for (UUID existingUuid : existingUuids) {
@@ -127,33 +128,35 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                     LOG.info(nhsno + ": Deleting DocumentReference");
                                 }
                             }
-                            fhirResource.deleteEntity(existingUuid, "documentreference");
 
-                            if (documentReference.getLocation() != null) {
+                            String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+
+                            if (locationUuid != null) {
                                 // delete associated media and binary data if present
-                                Media media = (Media) fhirResource.get(
-                                        UUID.fromString(documentReference.getLocationSimple()), ResourceType.Media);
+                                Media media
+                                        = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
                                 if (media != null) {
                                     // delete media
-                                    fhirResource.deleteEntity(
-                                            UUID.fromString(documentReference.getLocationSimple()), "media");
+                                    fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
 
                                     // delete binary data
                                     try {
                                         fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
                                     } catch (NumberFormatException nfe) {
-                                        LOG.info("Error deleting existing bianry data, " +
+                                        LOG.info("Error deleting existing binary data, " +
                                                 "Media reference to binary data is not Long, ignoring");
                                     }
                                 }
                             }
+
+                            fhirResource.deleteEntity(existingUuid, "documentreference");
                         }
                     }
 
                     boolean failed = false;
                     FileData fileData = null;
 
-                    // create new binary file and Media
+                    // create new binary file and Media if letter has file body (base64 binary)
                     if (letter.getLetterfilebody() != null) {
                         Media media = mediaBuilder.getMedia();
 
@@ -164,16 +167,17 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                             fileData.setName(media.getContent().getTitleSimple());
                         }
                         if (media.getContent().getContentType() != null) {
-                            fileData.setName(media.getContent().getContentTypeSimple());
+                            fileData.setType(media.getContent().getContentTypeSimple());
                         }
                         fileData = fileDataRepository.save(fileData);
 
                         media = mediaBuilder.setFileDataId(media, fileData.getId());
 
-                        // create Media
+                        // create Media and set DocumentReference location to newly created Media logicalId
                         try {
-                            LOG.info(nhsno + ": Adding Media");
-                            fhirResource.createEntity(media, ResourceType.DocumentReference.name(), "media");
+                            FhirDatabaseEntity createdMedia
+                                    = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+                            documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
                         } catch (FhirResourceException e) {
                             LOG.error(nhsno + ": Unable to create Media");
                             failed = true;
@@ -247,6 +251,33 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
         LOG.trace(nhsno + ": Finished DocumentReference (letter) Process");
         LOG.info(nhsno + ": Processed {} of {} letters", success, count);
+    }
+
+    private String getLocationUuidFromLogicalUuid(UUID logicalId) throws FhirResourceException {
+        String output = null;
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT content->>'location' ");
+        query.append("FROM documentreference ");
+        query.append("WHERE logical_id = '");
+        query.append(logicalId.toString());
+        query.append("' ");
+
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                output = results.getString(1);
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+
+        return output;
     }
 
     private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink)

@@ -392,11 +392,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete medication associated with medication statement
                     MedicationStatement medicationStatement
                             = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
-                    fhirResource.deleteEntity(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                            "medication");
+                    if (medicationStatement != null) {
+                        fhirResource.deleteEntity(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
+                                "medication");
 
-                    // delete medication statement
-                    fhirResource.deleteEntity(uuid, "medicationstatement");
+                        // delete medication statement
+                        fhirResource.deleteEntity(uuid, "medicationstatement");
+                    }
                 }
 
                 // DiagnosticReports (and associated Observation)
@@ -405,15 +407,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete observation (result) associated with diagnostic report
                     DiagnosticReport diagnosticReport
                             = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
-                    fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                            "observation");
+                    if (diagnosticReport != null) {
+                        fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
+                                "observation");
 
-                    // delete diagnostic report
-                    fhirResource.deleteEntity(uuid, "diagnosticreport");
+                        // delete diagnostic report
+                        fhirResource.deleteEntity(uuid, "diagnosticreport");
+                    }
                 }
 
                 // DocumentReferences (letters)
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
+                    // todo: delete associated media and binary filedata if present
+
                     fhirResource.deleteEntity(uuid, "documentreference");
                 }
 
@@ -423,11 +429,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete Substance associated with AllergyIntolerance
                     AllergyIntolerance allergyIntolerance
                             = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
-                    fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                            "substance");
+                    if (allergyIntolerance != null) {
+                        fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
+                                "substance");
 
-                    // delete AllergyIntolerance
-                    fhirResource.deleteEntity(uuid, "allergyintolerance");
+                        // delete AllergyIntolerance
+                        fhirResource.deleteEntity(uuid, "allergyintolerance");
+                    }
                 }
 
                 // AdverseReaction (allergy)
