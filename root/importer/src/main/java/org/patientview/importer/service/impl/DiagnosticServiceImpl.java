@@ -55,7 +55,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        boolean verboseLogging = true;
+        boolean verboseLogging = false;
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         if (verboseLogging) {
             LOG.info(nhsno + ": Starting DiagnosticReport and associated Observation (result) Process");
@@ -141,10 +141,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        LOG.info("DELETE FROM observation WHERE logical_id IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
-                        "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')");
-
-        // performance testing
+        // split query to avoid DELETE FROM observation WHERE logical_id::TEXT conversion of uuid to text
         StringBuilder query = new StringBuilder();
         query.append("SELECT CONTENT #> '{result,0}' ->> 'display' ");
         query.append("FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
@@ -166,22 +163,12 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         }
-        LOG.info("DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")");
 
         if (inStatement.length() > 2) {
             inStatement.delete(inStatement.length() - 2, inStatement.length());
-            fhirResource.executeSQL(
-                    "DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")"
-            );
+            fhirResource.executeSQL("DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")");
         }
 
-        // delete Observation associated with DiagnosticReport
-        /*fhirResource.executeSQL(
-                "DELETE FROM observation WHERE logical_id IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
-                        "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
-        );*/
-
-        LOG.info("DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'");
         // delete DiagnosticReport
         fhirResource.executeSQL(
             "DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"

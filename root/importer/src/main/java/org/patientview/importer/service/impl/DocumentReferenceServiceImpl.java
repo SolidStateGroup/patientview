@@ -76,7 +76,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        boolean verboseLogging = true;
+        boolean verboseLogging = false;
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         if (verboseLogging) {
             LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
