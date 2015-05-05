@@ -133,12 +133,15 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        LOG.info("DELETE FROM observation WHERE logical_id::TEXT IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
+                        "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')");
         // delete Observation associated with DiagnosticReport
         fhirResource.executeSQL(
             "DELETE FROM observation WHERE logical_id::TEXT IN (SELECT CONTENT #> '{result,0}' ->> 'display' " +
             "FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
         );
 
+        LOG.info("DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'");
         // delete DiagnosticReport
         fhirResource.executeSQL(
             "DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
