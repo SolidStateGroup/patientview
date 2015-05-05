@@ -145,7 +145,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         if (userHasFileData(user, fileDataId)) {
             return fileDataRepository.getOne(fileDataId);
         } else {
-            throw new ResourceNotFoundException("User does not have file");
+            throw new ResourceNotFoundException("File not found");
         }
     }
 
