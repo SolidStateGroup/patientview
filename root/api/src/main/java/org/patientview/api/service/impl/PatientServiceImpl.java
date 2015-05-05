@@ -8,9 +8,11 @@ import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DiagnosticReport;
+import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
@@ -22,6 +24,7 @@ import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.FhirLinkService;
+import org.patientview.api.service.FileDataService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
@@ -116,6 +119,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private FileDataService fileDataService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -393,8 +399,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     MedicationStatement medicationStatement
                             = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
                     if (medicationStatement != null) {
-                        fhirResource.deleteEntity(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                                "medication");
+                        fhirResource.deleteEntity(
+                                UUID.fromString(medicationStatement.getMedication().getDisplaySimple()), "medication");
 
                         // delete medication statement
                         fhirResource.deleteEntity(uuid, "medicationstatement");
@@ -408,19 +414,41 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     DiagnosticReport diagnosticReport
                             = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
                     if (diagnosticReport != null) {
-                        fhirResource.deleteEntity(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                                "observation");
+                        fhirResource.deleteEntity(
+                                UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()), "observation");
 
                         // delete diagnostic report
                         fhirResource.deleteEntity(uuid, "diagnosticreport");
                     }
                 }
 
-                // DocumentReferences (letters)
+                // DocumentReferences (letters) including associated Media and FileData
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
-                    // todo: delete associated media and binary filedata if present
+                    DocumentReference documentReference
+                            = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
+                    if (documentReference != null) {
+                        if (documentReference.getLocation() != null) {
+                            // check if media exists, if so try deleting binary data associated with media url
+                            Media media = (Media) fhirResource.get(
+                                    UUID.fromString(documentReference.getLocationSimple()), ResourceType.Media);
 
-                    fhirResource.deleteEntity(uuid, "documentreference");
+                            if (media != null) {
+                                // delete media
+                                fhirResource.deleteEntity(
+                                        UUID.fromString(documentReference.getLocationSimple()), "media");
+                                if (media.getContent() != null && media.getContent().getUrl() != null) {
+                                    try {
+                                        // delete binary data
+                                        fileDataService.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                    } catch (NumberFormatException nfe) {
+                                        LOG.error("Error deleting FileData, NumberFormatException for Media url");
+                                    }
+                                }
+                            }
+                        }
+                        // delete DocumentReference
+                        fhirResource.deleteEntity(uuid, "documentreference");
+                    }
                 }
 
                 // AllergyIntolerance and Substance (allergy)

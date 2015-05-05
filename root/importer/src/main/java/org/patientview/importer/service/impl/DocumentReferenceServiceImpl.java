@@ -80,7 +80,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
         int success = 0;
-        boolean verboseLogging = true;
+        boolean verboseLogging = false;
 
         if (data.getPatient().getLetterdetails() != null) {
 
