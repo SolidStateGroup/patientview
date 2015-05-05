@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.FileDataService;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,10 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
     @Override
     public void delete(Long id) {
         fileDataRepository.delete(id);
+    }
+
+    @Override
+    public FileData get(Long id) {
+        return fileDataRepository.getOne(id);
     }
 }

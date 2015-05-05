@@ -5,10 +5,10 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DocumentReference;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.util.Util;
@@ -18,6 +18,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -35,7 +36,7 @@ import java.util.UUID;
  * Created on 07/10/2014
  */
 @Service
-public class LetterServiceImpl extends BaseController<LetterServiceImpl> implements LetterService {
+public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> implements LetterService {
 
     @Inject
     private FhirResource fhirResource;
@@ -44,10 +45,13 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
     private FhirLinkRepository fhirLinkRepository;
 
     @Inject
-    private UserRepository userRepository;
+    private GroupRepository groupRepository;
 
     @Inject
-    private GroupRepository groupRepository;
+    private FileDataRepository fileDataRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public List<FhirDocumentReference> getByUserId(final Long userId)
@@ -79,6 +83,25 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                     org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
                             = new org.patientview.persistence.model.FhirDocumentReference(
                             documentReference, fhirLink.getGroup());
+
+                    // if location is present on document reference means there is Media and binary data associated
+                    if (documentReference.getLocation() != null) {
+                        Media media = (Media) fhirResource.get(UUID.fromString(
+                                documentReference.getLocationSimple()), ResourceType.Media);
+                        if (media != null && media.getContent() != null && media.getContent().getUrl() != null) {
+                            try {
+                                if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                    fhirDocumentReference.setFilename(media.getContent().getTitleSimple());
+                                    fhirDocumentReference.setFiletype(media.getContent().getContentTypeSimple());
+                                    fhirDocumentReference.setFileDataId(
+                                            Long.valueOf(media.getContent().getUrlSimple()));
+                                }
+                            } catch (NumberFormatException nfe) {
+                                LOG.info("Error checking for binary data, " +
+                                        "Media reference to binary data is not Long, ignoring");
+                            }
+                        }
+                    }
 
                     if (fhirDocumentReference.getDate() != null) {
                         fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));

@@ -16,6 +16,11 @@ public class FhirDocumentReference extends BaseModel {
     private String content;
     private BaseGroup group;
 
+    // only present for DocumentReference with associated Media and binary FileData
+    private String filename;
+    private String filetype;
+    private Long fileDataId;
+
     public FhirDocumentReference() {
     }
 
@@ -26,6 +31,9 @@ public class FhirDocumentReference extends BaseModel {
         if (fhirDocumentReference.getGroup() != null) {
             this.group = new BaseGroup(fhirDocumentReference.getGroup());
         }
+        this.filename = fhirDocumentReference.getFilename();
+        this.filetype = fhirDocumentReference.getFiletype();
+        this.fileDataId = fhirDocumentReference.getFileDataId();
     }
 
     public Date getDate() {
@@ -42,5 +50,17 @@ public class FhirDocumentReference extends BaseModel {
 
     public BaseGroup getGroup() {
         return group;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public Long getFileDataId() {
+        return fileDataId;
     }
 }

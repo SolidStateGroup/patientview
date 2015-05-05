@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.FileData;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,4 +16,6 @@ public interface FileDataService {
     String byteArrayToBase64(byte[] byteArray);
 
     void delete(Long id);
+
+    FileData get(Long id);
 }

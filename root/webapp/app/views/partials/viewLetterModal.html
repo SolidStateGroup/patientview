@@ -4,6 +4,10 @@
 <div class="modal-body">
     <h5>Sent {{letter.date | date:'dd-MMM-yyyy'}} by {{letter.group.name}}</h5>
     <p data-ng-bind-html="parseHTMLText(letter.content)"></p>
+    <p data-ng-show="letter.fileDataId">
+        <a href="../api/user/{{loggedInUser.id}}/letters/{{letter.fileDataId}}/download?token={{authToken}}">
+            Download '{{letter.filename}}'</a> ({{letter.filetype}})
+    </p>
 </div>
 <div class="modal-footer">
     <button class="btn blue" data-ng-click="print()">Print</button>
