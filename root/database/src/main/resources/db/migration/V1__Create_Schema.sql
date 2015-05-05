@@ -629,8 +629,9 @@ CREATE TABLE PV_External_Service_Task_Queue_Item
 CREATE TABLE PV_File_Data
 (
   Id              BIGINT NOT NULL,
-  name            TEXT NOT NULL,
-  type            TEXT NOT NULL,
+  Name            TEXT NOT NULL,
+  Type            TEXT NOT NULL,
+  Content         BYTEA NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 )

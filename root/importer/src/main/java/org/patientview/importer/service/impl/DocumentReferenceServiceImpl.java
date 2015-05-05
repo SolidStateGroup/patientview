@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
 import org.patientview.importer.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
@@ -141,7 +142,10 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
                                     // delete binary data
                                     try {
-                                        fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                        if (fileDataRepository.exists(Long.valueOf(
+                                                media.getContent().getUrlSimple()))) {
+                                            fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                        }
                                     } catch (NumberFormatException nfe) {
                                         LOG.info("Error deleting existing binary data, " +
                                                 "Media reference to binary data is not Long, ignoring");
@@ -169,6 +173,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                         if (media.getContent().getContentType() != null) {
                             fileData.setType(media.getContent().getContentTypeSimple());
                         }
+                        // convert base64 string to binary
+                        fileData.setContent(CommonUtils.base64ToByteArray(letter.getLetterfilebody()));
                         fileData = fileDataRepository.save(fileData);
 
                         media = mediaBuilder.setFileDataId(media, fileData.getId());
@@ -232,6 +238,9 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                     }
                 } catch (FhirResourceException e) {
                     LOG.error("Invalid data in XML: " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("DocumentReference Exception: " + e.getMessage());
+                    throw new FhirResourceException(e);
                 }
                 count++;
             }

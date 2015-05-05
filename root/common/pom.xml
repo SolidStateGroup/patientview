@@ -50,6 +50,12 @@
             <version>4.0.5.RELEASE</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
+
         <!-- 28/11/14 move model to common required dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

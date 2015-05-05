@@ -10,5 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface FileDataService {
+    byte[] base64ToByteArray(String base64);
+
+    String byteArrayToBase64(byte[] byteArray);
+
     void delete(Long id);
 }

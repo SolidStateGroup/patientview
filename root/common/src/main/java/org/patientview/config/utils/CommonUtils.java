@@ -1,5 +1,6 @@
 package org.patientview.config.utils;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -12,6 +13,14 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 public final class CommonUtils {
 
     private CommonUtils() {
+    }
+
+    public static byte[] base64ToByteArray(String base64) {
+        return Base64.decodeBase64(base64);
+    }
+
+    public static String byteArrayToBase64(byte[] byteArray) {
+        return Base64.encodeBase64String(byteArray);
     }
 
     public static String getAuthToken() {

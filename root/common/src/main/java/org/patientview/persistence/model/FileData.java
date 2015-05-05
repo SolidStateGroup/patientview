@@ -32,8 +32,8 @@ public class FileData {
     @Column(name = "type", nullable = false)
     private String type;
 
-    //@Column(name = "content", nullable = false)
-    //private byte[] content;
+    @Column(name = "content", nullable = false)
+    private byte[] content;
 
     public Long getId() {
         return id;
@@ -67,11 +67,11 @@ public class FileData {
         this.type = type;
     }
 
-    /*public byte[] getContent() {
+    public byte[] getContent() {
         return content;
     }
 
     public void setContent(byte[] content) {
         this.content = content;
-    }*/
+    }
 }
