@@ -5,6 +5,7 @@ import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FileData;
 
 import java.util.List;
 
@@ -40,4 +41,7 @@ public interface LetterService {
      */
     @UserOnly
     List<FhirDocumentReference> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+
+    @UserOnly
+    FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;
 }

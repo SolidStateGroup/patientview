@@ -6,7 +6,7 @@
     <p data-ng-bind-html="parseHTMLText(letter.content)"></p>
     <p data-ng-show="letter.fileDataId">
         <a href="../api/user/{{loggedInUser.id}}/letters/{{letter.fileDataId}}/download?token={{authToken}}">
-            Download '{{letter.filename}}'</a> ({{letter.filetype}})
+            Download '{{letter.filename}}'</a>
     </p>
 </div>
 <div class="modal-footer">

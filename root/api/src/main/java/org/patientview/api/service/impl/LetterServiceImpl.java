@@ -15,6 +15,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -25,6 +26,12 @@ import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,6 +59,10 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    @Named("fhir")
+    private DataSource dataSource;
 
     @Override
     public List<FhirDocumentReference> getByUserId(final Long userId)
@@ -122,6 +133,75 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         fhirDocumentReferences.addAll(fhirDocumentReferencesNoDate);
 
         return fhirDocumentReferences;
+    }
+
+    @Override
+    public FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        if (userHasFileData(user, fileDataId)) {
+            return fileDataRepository.getOne(fileDataId);
+        } else {
+            throw new ResourceNotFoundException("User does not have file");
+        }
+    }
+
+    private boolean userHasFileData(User user, Long fileDataId) throws FhirResourceException {
+        // get all FhirLink and check FileData exists for this DocumentReference for this user
+        StringBuilder inString = new StringBuilder("'");
+        FhirLink[] fhirLinks = user.getFhirLinks().toArray(new FhirLink[user.getFhirLinks().size()]);
+
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getActive()) {
+                inString.append("");
+                inString.append(fhirLink.getResourceId().toString());
+                inString.append("','");
+            }
+        }
+
+        if (inString.length() > 0) {
+            inString.delete(inString.length() - 2, inString.length());
+
+            // retrieve Media url if they exist for these subjects
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT CONTENT -> 'content' ->> 'url' FROM media WHERE logical_id::TEXT IN ");
+            query.append("(SELECT content ->> 'location' ");
+            query.append("FROM documentreference ");
+            query.append("WHERE content -> 'subject' ->> 'display' IN (");
+            query.append(inString.toString());
+            query.append("))");
+
+            Connection connection = null;
+            try {
+                connection = dataSource.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(query.toString());
+
+                while ((results.next())) {
+                    Long foundFileDataId = results.getLong(1);
+                    if (fileDataId.equals(foundFileDataId)) {
+                        connection.close();
+                        return true;
+                    }
+                }
+
+                connection.close();
+            } catch (SQLException e) {
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e2) {
+                    throw new FhirResourceException(e2);
+                }
+
+                throw new FhirResourceException(e);
+            }
+        }
+        return false;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.model.FhirDocumentReference;
-import org.patientview.api.service.FileDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -30,9 +29,6 @@ import java.util.List;
 public class LetterController extends BaseController<LetterController> {
 
     @Inject
-    private FileDataService fileDataService;
-
-    @Inject
     private LetterService letterService;
 
     /**
@@ -54,16 +50,18 @@ public class LetterController extends BaseController<LetterController> {
     @RequestMapping(value = "/user/{userId}/letters/{fileDataId}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> download(@PathVariable("userId") Long userId,
-                                       @PathVariable("fileDataId") Long fileDataId) {
-        FileData fileData = fileDataService.get(fileDataId);
+                                       @PathVariable("fileDataId") Long fileDataId)
+            throws ResourceNotFoundException, FhirResourceException {
+        FileData fileData = letterService.getFileData(userId, fileDataId);
+
         if (fileData != null) {
             HttpHeaders header = new HttpHeaders();
-            if (fileData.getType().equals("application/pdf")) {
-                header.setContentType(new MediaType("application", "pdf"));
+            String[] contentTypeArr = fileData.getType().split("/");
+            if (contentTypeArr.length == 2) {
+                header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
             }
             header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
             header.setContentLength(fileData.getContent().length);
-
             return new HttpEntity<>(fileData.getContent(), header);
         }
 
