@@ -83,6 +83,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -317,6 +319,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
+        // for ISO1806 date format
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
         StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
@@ -332,7 +336,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("</PatientNumbers></Patient><ProgramMemberships><ProgramMembership><EnteredBy>");
         xml.append(getCurrentUser().getUsername());
         xml.append("</EnteredBy><EnteredAt>PV2</EnteredAt><EnteredOn>");
-        xml.append(now);
+        xml.append(df.format(now));
         xml.append("</EnteredOn><ExternalId>");
         xml.append(groupRole.getId());
         xml.append("</ExternalId><ProgramName>");
@@ -340,10 +344,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("</ProgramName><ProgramDescription>");
         xml.append(groupRole.getGroup().getName());
         xml.append("</ProgramDescription><FromTime>");
-        xml.append(groupRole.getCreated());
+        xml.append(df.format(groupRole.getCreated()));
         xml.append("</FromTime><ToTime>");
         if (!adding) {
-            xml.append(now);
+            xml.append(df.format(now));
         }
         xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
 
