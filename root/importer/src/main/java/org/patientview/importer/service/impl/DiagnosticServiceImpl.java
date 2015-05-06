@@ -152,8 +152,9 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         query.append("'");
 
         StringBuilder inStatement = new StringBuilder("'");
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
 
@@ -164,6 +165,14 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
             connection.close();
         } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e2) {
+                    throw new FhirResourceException(e2);
+                }
+            }
+
             throw new FhirResourceException(e);
         }
 
