@@ -32,6 +32,9 @@ public class FileData {
     @Column(name = "type", nullable = false)
     private String type;
 
+    @Column(name = "size", nullable = false)
+    private Long size;
+
     @Column(name = "content", nullable = false)
     private byte[] content;
 
@@ -65,6 +68,14 @@ public class FileData {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 
     public byte[] getContent() {

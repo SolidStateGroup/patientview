@@ -106,6 +106,13 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                                     fhirDocumentReference.setFiletype(media.getContent().getContentTypeSimple());
                                     fhirDocumentReference.setFileDataId(
                                             Long.valueOf(media.getContent().getUrlSimple()));
+                                    try {
+                                        fhirDocumentReference.setFilesize(
+                                                Long.valueOf(media.getContent().getSizeSimple()));
+                                    } catch (NumberFormatException nfe) {
+                                        LOG.info("Error checking for binary data, " +
+                                                "File size cannot be found, ignoring");
+                                    }
                                 }
                             } catch (NumberFormatException nfe) {
                                 LOG.info("Error checking for binary data, " +

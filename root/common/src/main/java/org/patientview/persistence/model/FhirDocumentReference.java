@@ -26,6 +26,7 @@ public class FhirDocumentReference extends BaseModel {
     private String filename;
     private String filetype;
     private Long fileDataId;
+    private Long filesize;
 
     public FhirDocumentReference() {
     }
@@ -106,6 +107,14 @@ public class FhirDocumentReference extends BaseModel {
 
     public void setFiletype(String filetype) {
         this.filetype = filetype;
+    }
+
+    public Long getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(Long filesize) {
+        this.filesize = filesize;
     }
 
     public Long getFileDataId() {

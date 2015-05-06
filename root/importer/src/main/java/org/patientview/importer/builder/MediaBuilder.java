@@ -70,4 +70,13 @@ public class MediaBuilder {
 
         return media;
     }
+
+    public Media setFileSize(Media media, Integer fileSize) throws FhirResourceException {
+        if (media.getContent() == null) {
+            throw new FhirResourceException("Must have built Media");
+        }
+
+        media.getContent().setSizeSimple(fileSize);
+        return media;
+    }
 }

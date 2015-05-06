@@ -19,6 +19,7 @@ public class FhirDocumentReference extends BaseModel {
     // only present for DocumentReference with associated Media and binary FileData
     private String filename;
     private String filetype;
+    private Long filesize;
     private Long fileDataId;
 
     public FhirDocumentReference() {
@@ -33,6 +34,7 @@ public class FhirDocumentReference extends BaseModel {
         }
         this.filename = fhirDocumentReference.getFilename();
         this.filetype = fhirDocumentReference.getFiletype();
+        this.filesize = fhirDocumentReference.getFilesize();
         this.fileDataId = fhirDocumentReference.getFileDataId();
     }
 
@@ -54,6 +56,10 @@ public class FhirDocumentReference extends BaseModel {
 
     public String getFilename() {
         return filename;
+    }
+
+    public Long getFilesize() {
+        return filesize;
     }
 
     public String getFiletype() {

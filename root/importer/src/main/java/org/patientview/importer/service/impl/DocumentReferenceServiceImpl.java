@@ -176,10 +176,13 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                             fileData.setType(media.getContent().getContentTypeSimple());
                         }
                         // convert base64 string to binary
-                        fileData.setContent(CommonUtils.base64ToByteArray(letter.getLetterfilebody()));
+                        byte[] content = CommonUtils.base64ToByteArray(letter.getLetterfilebody());
+                        fileData.setContent(content);
+                        fileData.setSize(Long.valueOf(content.length));
                         fileData = fileDataRepository.save(fileData);
 
                         media = mediaBuilder.setFileDataId(media, fileData.getId());
+                        media = mediaBuilder.setFileSize(media, content.length);
 
                         // create Media and set DocumentReference location to newly created Media logicalId
                         try {
