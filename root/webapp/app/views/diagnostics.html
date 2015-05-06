@@ -1,3 +1,8 @@
+<style>
+    .filetype-icon{
+        margin-right: 5px;
+    }
+</style>
 <h1 data-ng-show="!loading"><a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading"><i class="icon-back-to pull-left"> </i> Back to Results</a> Diagnostics</h1>
 
 <div data-ng-show="!loading">
@@ -19,6 +24,7 @@
                     <th>Name</th>
                     <th>Result</th>
                     <th>Source</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,6 +34,15 @@
                     <td>{{diagnostic.name}}</td>
                     <td>{{diagnostic.result.value}}</td>
                     <td>{{diagnostic.group.name}}</td>
+                    <td>
+                        <img src="../images/icons/imageicon.png" data-ng-show="diagnostic.filetype==='application/jpeg'" class="filetype-icon">
+                        <img src="../images/icons/pdficon.png" data-ng-show="diagnostic.filetype==='application/pdf'" class="filetype-icon">
+                        <img src="../images/icons/wordicon.png" data-ng-show="diagnostic.filetype==='application/msword'" class="filetype-icon">
+                        <a href="../api/user/{{loggedInUser.id}}/diagnostics/{{diagnostic.fileDataId}}/download?token={{authToken}}" data-ng-show="diagnostic.fileDataId">
+                            Download
+                            <span data-ng-show="diagnostic.filesize">({{diagnostic.filesize | filesize}})</span>
+                        </a>
+                    </td>
                 </tr>
                 </tbody>
             </table>

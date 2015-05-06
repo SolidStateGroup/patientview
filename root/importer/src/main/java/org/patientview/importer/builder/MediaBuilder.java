@@ -1,5 +1,6 @@
 package org.patientview.importer.builder;
 
+import generated.Patientview.Patient.Diagnostics.Diagnostic;
 import generated.Patientview.Patient.Letterdetails.Letter;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Attachment;
@@ -16,6 +17,7 @@ import org.patientview.config.exception.FhirResourceException;
  */
 public class MediaBuilder {
 
+    private Diagnostic diagnostic;
     private Letter letter;
     private Media media;
 
@@ -23,30 +25,60 @@ public class MediaBuilder {
         this.letter = letter;
     }
 
+    public MediaBuilder(Diagnostic diagnostic) {
+        this.diagnostic = diagnostic;
+    }
+
     public void build() throws FhirResourceException {
         media = new Media();
         Attachment attachment = new Attachment();
 
-        // date
-        if (letter.getLetterdate() != null) {
-            try {
-                DateAndTime dateAndTime = new DateAndTime(letter.getLetterdate().toGregorianCalendar().getTime());
-                DateTime date = new DateTime();
-                date.setValue(dateAndTime);
-                media.setDateTime(date);
-            } catch (NullPointerException npe) {
-                throw new FhirResourceException("Letter timestamp is incorrectly formatted");
+        // build based on either Letter or Diagnostic
+        if (letter != null) {
+            // date
+            if (letter.getLetterdate() != null) {
+                try {
+                    DateAndTime dateAndTime = new DateAndTime(letter.getLetterdate().toGregorianCalendar().getTime());
+                    DateTime date = new DateTime();
+                    date.setValue(dateAndTime);
+                    media.setDateTime(date);
+                } catch (NullPointerException npe) {
+                    throw new FhirResourceException("Letter timestamp is incorrectly formatted");
+                }
             }
-        }
 
-        // filename
-        if (StringUtils.isNotEmpty(letter.getLetterfilename())) {
-            attachment.setTitleSimple(letter.getLetterfilename());
-        }
+            // filename
+            if (StringUtils.isNotEmpty(letter.getLetterfilename())) {
+                attachment.setTitleSimple(letter.getLetterfilename());
+            }
 
-        // file type
-        if (StringUtils.isNotEmpty(letter.getLetterfiletype())) {
-            attachment.setContentTypeSimple(letter.getLetterfiletype());
+            // file type
+            if (StringUtils.isNotEmpty(letter.getLetterfiletype())) {
+                attachment.setContentTypeSimple(letter.getLetterfiletype());
+            }
+        } else if (diagnostic != null) {
+            // date
+            if (diagnostic.getDiagnosticdate() != null) {
+                try {
+                    DateAndTime dateAndTime
+                            = new DateAndTime(diagnostic.getDiagnosticdate().toGregorianCalendar().getTime());
+                    DateTime date = new DateTime();
+                    date.setValue(dateAndTime);
+                    media.setDateTime(date);
+                } catch (NullPointerException npe) {
+                    throw new FhirResourceException("Diagnostic timestamp is incorrectly formatted");
+                }
+            }
+
+            // filename
+            if (StringUtils.isNotEmpty(diagnostic.getDiagnosticfilename())) {
+                attachment.setTitleSimple(diagnostic.getDiagnosticfilename());
+            }
+
+            // file type
+            if (StringUtils.isNotEmpty(diagnostic.getDiagnosticfiletype())) {
+                attachment.setContentTypeSimple(diagnostic.getDiagnosticfiletype());
+            }
         }
 
         media.setContent(attachment);

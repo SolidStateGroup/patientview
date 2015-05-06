@@ -7,13 +7,17 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DiagnosticReport;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.DiagnosticReportBuilder;
+import org.patientview.importer.builder.MediaBuilder;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.Utility.Util;
@@ -27,6 +31,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,6 +45,9 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private FileDataRepository fileDataRepository;
 
     @Inject
     @Named("fhir")
@@ -99,6 +109,13 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                     identifier.setValueSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
                     observation.setIdentifier(identifier);
 
+                    // if binary file then build media
+                    if (diagnostic.getDiagnosticfilebody() != null) {
+                        MediaBuilder mediaBuilder = new MediaBuilder(diagnostic);
+                        mediaBuilder.build();
+                    }
+
+                    // Build diagnostic report
                     DiagnosticReportBuilder diagnosticReportBuilder = new DiagnosticReportBuilder(diagnostic);
                     DiagnosticReport diagnosticReport = diagnosticReportBuilder.build();
 
@@ -116,6 +133,52 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
                         // set patient reference
                         diagnosticReport.setSubject(patientReference);
+
+                        // if binary file then build media, store and add reference to DiagnosticReport
+                        if (diagnostic.getDiagnosticfilebody() != null) {
+                            MediaBuilder mediaBuilder = new MediaBuilder(diagnostic);
+                            mediaBuilder.build();
+                            Media media = mediaBuilder.getMedia();
+
+                            // create binary file
+                            FileData fileData = new FileData();
+                            fileData.setCreated(new Date());
+                            if (media.getContent().getTitle() != null) {
+                                fileData.setName(media.getContent().getTitleSimple());
+                            }
+                            if (media.getContent().getContentType() != null) {
+                                fileData.setType(media.getContent().getContentTypeSimple());
+                            }
+                            // convert base64 string to binary
+                            byte[] content = CommonUtils.base64ToByteArray(diagnostic.getDiagnosticfilebody());
+                            fileData.setContent(content);
+                            fileData.setSize(Long.valueOf(content.length));
+
+                            // store binary data
+                            fileData = fileDataRepository.save(fileData);
+
+                            // set Media file data ID and size
+                            media = mediaBuilder.setFileDataId(media, fileData.getId());
+                            media = mediaBuilder.setFileSize(media, content.length);
+
+                            // create Media and set DocumentReference location to newly created Media logicalId
+                            try {
+                                // create Media
+                                FhirDatabaseEntity createdMedia
+                                        = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+
+                                // create ResourceReference to newly created Media and add to new
+                                // DiagnosticReportImageComponent on DiagnosticReport as Link
+                                DiagnosticReport.DiagnosticReportImageComponent imageComponent
+                                        = diagnosticReport.addImage();
+
+                                ResourceReference mediaReference = new ResourceReference();
+                                mediaReference.setDisplaySimple(createdMedia.getLogicalId().toString());
+                                imageComponent.setLink(mediaReference);
+                            } catch (FhirResourceException e) {
+                                LOG.error(nhsno + ": Unable to create Media");
+                            }
+                        }
 
                         // create diagnostic report in FHIR
                         fhirResource.createEntity(
@@ -146,12 +209,13 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
         // split query to avoid DELETE FROM observation WHERE logical_id::TEXT conversion of uuid to text
         StringBuilder query = new StringBuilder();
-        query.append("SELECT CONTENT #> '{result,0}' ->> 'display' ");
+        query.append("SELECT CONTENT #> '{result,0}' ->> 'display', CONTENT #> '{image,0}' -> 'link' ->> 'display'");
         query.append("FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
         query.append(subjectId.toString());
         query.append("'");
 
-        StringBuilder inStatement = new StringBuilder("'");
+        StringBuilder observationIn = new StringBuilder("'");
+        List<UUID> mediaUuids = new ArrayList<>();
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
@@ -159,8 +223,11 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
             ResultSet results = statement.executeQuery(query.toString());
 
             while ((results.next())) {
-                inStatement.append(results.getString(1));
-                inStatement.append("','");
+                observationIn.append(results.getString(1));
+                observationIn.append("','");
+                if (results.getString(2) != null) {
+                    mediaUuids.add(UUID.fromString(results.getString(2)));
+                }
             }
 
             connection.close();
@@ -176,9 +243,31 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
             throw new FhirResourceException(e);
         }
 
-        if (inStatement.length() > 2) {
-            inStatement.delete(inStatement.length() - 2, inStatement.length());
-            fhirResource.executeSQL("DELETE FROM observation WHERE logical_id IN (" + inStatement.toString() + ")");
+        if (observationIn.length() > 2) {
+            observationIn.delete(observationIn.length() - 2, observationIn.length());
+            fhirResource.executeSQL("DELETE FROM observation WHERE logical_id IN (" + observationIn.toString() + ")");
+        }
+
+        // delete Media and binary file if present
+        if (!mediaUuids.isEmpty()) {
+            for (UUID mediaUuid : mediaUuids) {
+                // delete associated media and binary data if present
+                Media media = (Media) fhirResource.get(mediaUuid, ResourceType.Media);
+                if (media != null) {
+                    // delete media
+                    fhirResource.deleteEntity(mediaUuid, "media");
+
+                    // delete binary data
+                    try {
+                        if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                            fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                        }
+                    } catch (NumberFormatException nfe) {
+                        LOG.info("Error deleting existing binary data, " +
+                                "Media reference to binary data is not Long, ignoring");
+                    }
+                }
+            }
         }
 
         // delete DiagnosticReport

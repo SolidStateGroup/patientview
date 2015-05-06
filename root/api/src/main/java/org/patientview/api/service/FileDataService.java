@@ -1,6 +1,9 @@
 package org.patientview.api.service;
 
+import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,4 +21,6 @@ public interface FileDataService {
     void delete(Long id);
 
     FileData get(Long id);
+
+    boolean userHasFileData(User user, Long fileDataId, ResourceType resourceType) throws FhirResourceException;
 }

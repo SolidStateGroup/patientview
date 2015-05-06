@@ -47,6 +47,14 @@ public class LetterController extends BaseController<LetterController> {
         letterService.delete(userId, groupId, date);
     }
 
+    /**
+     * Download a letter, given User ID and FileData ID.
+     * @param userId ID of User to download letter for
+     * @param fileDataId ID of FileData containing binary letter data
+     * @return HttpEntity to allow client to download in browser
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
     @RequestMapping(value = "/user/{userId}/letters/{fileDataId}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> download(@PathVariable("userId") Long userId,
