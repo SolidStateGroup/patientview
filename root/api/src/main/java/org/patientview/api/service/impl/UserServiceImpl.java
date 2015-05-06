@@ -320,7 +320,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
         // for ISO1806 date format
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
