@@ -396,6 +396,11 @@
                                                     <xs:element maxOccurs="1" minOccurs="1" name="diagnosticresult" type="xs:string"/>
                                                     <xs:element maxOccurs="1" minOccurs="1" name="diagnosticname" type="xs:string"/>
                                                     <xs:element maxOccurs="1" minOccurs="0" name="diagnostictype" type="xs:string"/>
+                                                    <!-- added for binary files, e.g. PDF -->
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="diagnosticfilename" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="diagnosticfiletype" type="xs:string"/>
+                                                    <!-- base64 encoded binary data -->
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="diagnosticfilebody" type="xs:string"/>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
