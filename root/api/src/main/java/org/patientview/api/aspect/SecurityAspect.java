@@ -100,14 +100,14 @@ public final class SecurityAspect {
 
         // Cannot validate when security has not been initialised
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("The request must be authenticated");
+            throw new ResourceForbiddenException("The request must be authenticated");
         }
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // Cannot validate without the principal
         if (user == null) {
-            throw new SecurityException("The user must be authenticated");
+            throw new ResourceForbiddenException("The user must be authenticated");
         }
 
         // Refactor later into two different PointCuts - one for groupIds being passed, another for whole groups
