@@ -5,6 +5,7 @@ import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.EncounterTypes;
 
 import java.util.List;
@@ -39,12 +40,12 @@ public interface EncounterService {
 
     /**
      * Get a list of UUIDs representing FHIR encounters, used when deleting UKT data.
-     * @param userId ID of User to find FHIR Encounter UUIDs for
+     * @param user User to find FHIR Encounter UUIDs for
      * @param encounterType EncounterTypes type of Encounter to find, e.g. EncounterTypes.TRANSPLANT_STATUS_KIDNEY
      * @return List of Encounter UUIDs
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    List<UUID> getUuidsByUserIdAndType(final Long userId, final EncounterTypes encounterType)
+    List<UUID> getUuidsByUserAndType(final User user, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException;
 }

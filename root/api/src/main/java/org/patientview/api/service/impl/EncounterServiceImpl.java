@@ -46,14 +46,13 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
     private DataSource dataSource;
 
     @Override
-    public List<UUID> getUuidsByUserIdAndType(final Long userId, final EncounterTypes encounterType)
+    public List<UUID> getUuidsByUserAndType(final User user, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<UUID> encounterUuids = new ArrayList<>();
 
-        User user = userRepository.findOne(userId);
         if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
+            throw new ResourceNotFoundException("No user");
         }
 
         if (encounterType == null) {
@@ -89,9 +88,7 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         query.append("\"'");
 
         try {
-            if (connection == null) {
-                connection = dataSource.getConnection();
-            }
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
 
@@ -102,7 +99,9 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
             connection.close();
         } catch (SQLException e) {
             try {
-                connection.close();
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e1) {
                 throw new FhirResourceException(e);
             }

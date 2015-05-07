@@ -123,7 +123,7 @@ import java.util.UUID;
      */
     private void deleteExistingUktData(User user) throws ResourceNotFoundException, FhirResourceException {
         List<UUID> encounterUuids
-                = encounterService.getUuidsByUserIdAndType(user.getId(), EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
+                = encounterService.getUuidsByUserAndType(user, EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
 
         if (!encounterUuids.isEmpty()) {
             for (UUID uuid : encounterUuids) {
