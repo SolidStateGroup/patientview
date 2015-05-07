@@ -212,9 +212,6 @@ public class ObservationsBuilder {
                 applies.setValue(dateAndTime);
                 observation.setApplies(applies);
 
-                observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-                observation.setStatusSimple(Observation.ObservationStatus.registered);
-
                 CodeableConcept bodySite = new CodeableConcept();
                 bodySite.setTextSimple(bodyData.getLocation());
                 observation.setBodySite(bodySite);
@@ -297,9 +294,6 @@ public class ObservationsBuilder {
                 applies.setValue(dateAndTime);
                 observation.setApplies(applies);
 
-                observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-                observation.setStatusSimple(Observation.ObservationStatus.registered);
-
                 CodeableConcept bodySite = new CodeableConcept();
                 bodySite.setTextSimple(bodyData.getLocation());
                 observation.setBodySite(bodySite);
@@ -329,11 +323,10 @@ public class ObservationsBuilder {
         }
     }
 
-    private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)
+    private Observation createObservation(Patientview.Patient.Testdetails.Test test,
+                                          Patientview.Patient.Testdetails.Test.Result result)
             throws FhirResourceException {
         Observation observation = new Observation();
-        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-        observation.setStatusSimple(Observation.ObservationStatus.registered);
 
         try {
             observation.setValue(createQuantity(result, test));
@@ -359,8 +352,6 @@ public class ObservationsBuilder {
     // store type in name and identifier, store value in comments
     private Observation createObservationNonTest(String type, String value) throws FhirResourceException{
         Observation observation = new Observation();
-        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-        observation.setStatusSimple(Observation.ObservationStatus.registered);
 
         // text based value
         CodeableConcept valueConcept = new CodeableConcept();
@@ -376,7 +367,6 @@ public class ObservationsBuilder {
         observation.setName(name);
 
         Identifier identifier = new Identifier();
-        //identifier.setLabelSimple("resultcode");
         identifier.setValueSimple(type);
         observation.setIdentifier(identifier);
 
@@ -457,7 +447,9 @@ public class ObservationsBuilder {
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
         codeableConcept.setTextSimple(test.getTestcode());
-        codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(test.getTestname()));
+        if (StringUtils.isNotEmpty(test.getTestname())) {
+            codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(test.getTestname()));
+        }
         return codeableConcept;
     }
 

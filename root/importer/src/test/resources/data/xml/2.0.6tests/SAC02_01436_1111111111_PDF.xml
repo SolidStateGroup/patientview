@@ -4,7 +4,8 @@
     <datereportprocessed>2013-10-12T15:38:18</datereportprocessed>
     <flag>Follow-up-report</flag>
     <centredetails>
-        <centrecode>RQR00</centrecode>
+        <!-- RQR00 for staging -->
+        <centrecode>RENALB</centrecode>
         <centrename>Renal' B</centrename>
         <centreaddress1>Renal Unit</centreaddress1>
         <centreaddress2>14 Lister Street</centreaddress2>
@@ -238,7 +239,7 @@
                 </result>
                 <result>
                     <datestamp>2014-09-22T00:00:00</datestamp>
-                    <value>3.61</value>
+                    <value>3.62</value>
                 </result>
             </test>
         </testdetails>
