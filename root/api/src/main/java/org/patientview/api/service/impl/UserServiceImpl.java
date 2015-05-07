@@ -1347,6 +1347,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void resetPasswordByUsernameAndEmail(String username, String email)
             throws ResourceNotFoundException, MailException, MessagingException {
 
+        LOG.info("Forgotten password (username, email) for " + username);
         User user = userRepository.findByUsernameCaseInsensitive(username);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find account");
