@@ -46,10 +46,8 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
     private DataSource dataSource;
 
     @Override
-    public List<UUID> getUuidsByUserAndType(final User user, final EncounterTypes encounterType)
+    public void deleteByUserAndType(final User user, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException {
-
-        List<UUID> encounterUuids = new ArrayList<>();
 
         if (user == null) {
             throw new ResourceNotFoundException("No user");
@@ -75,12 +73,11 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
 
         // if no fhirLinks return empty array
         if (StringUtils.isEmpty(fhirLinkString)) {
-            return encounterUuids;
+            return;
         }
 
         StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id ");
-        query.append("FROM encounter ");
+        query.append("DELETE FROM encounter ");
         query.append("WHERE content -> 'subject' ->> 'display' IN (");
         query.append(fhirLinkString);
         query.append(") AND content #> '{identifier,0}' -> 'value' = '\"");
@@ -90,12 +87,7 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         try {
             connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                encounterUuids.add(UUID.fromString(results.getString(1)));
-            }
-
+            statement.executeQuery(query.toString());
             connection.close();
         } catch (SQLException e) {
             try {
@@ -106,8 +98,6 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
                 throw new FhirResourceException(e);
             }
         }
-
-        return encounterUuids;
     }
 
     @Override

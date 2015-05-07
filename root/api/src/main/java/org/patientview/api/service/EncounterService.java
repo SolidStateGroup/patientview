@@ -39,13 +39,12 @@ public interface EncounterService {
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
     /**
-     * Get a list of UUIDs representing FHIR encounters, used when deleting UKT data.
-     * @param user User to find FHIR Encounter UUIDs for
-     * @param encounterType EncounterTypes type of Encounter to find, e.g. EncounterTypes.TRANSPLANT_STATUS_KIDNEY
-     * @return List of Encounter UUIDs
+     * Delete FHIR encounters for a User given type, used when deleting UKT data.
+     * @param user User to delete FHIR Encounters for
+     * @param encounterType EncounterTypes type of Encounter to delete, e.g. EncounterTypes.TRANSPLANT_STATUS_KIDNEY
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    List<UUID> getUuidsByUserAndType(final User user, final EncounterTypes encounterType)
+    void deleteByUserAndType(final User user, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException;
 }

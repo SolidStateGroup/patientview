@@ -116,23 +116,6 @@ import java.util.UUID;
     }
 
     /**
-     * Remove TRANSPLANT_STATUS_KIDNEY Encounters in FHIR for a single User.
-     * @param user User to remove TRANSPLANT_STATUS_KIDNEY Encounters for
-     * @throws ResourceNotFoundException
-     * @throws FhirResourceException
-     */
-    private void deleteExistingUktData(User user) throws ResourceNotFoundException, FhirResourceException {
-        List<UUID> encounterUuids
-                = encounterService.getUuidsByUserAndType(user, EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
-
-        if (!encounterUuids.isEmpty()) {
-            for (UUID uuid : encounterUuids) {
-                fhirResource.deleteEntity(uuid, "encounter");
-            }
-        }
-    }
-
-    /**
      * Export UKT data to text file from FHIR.
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
@@ -290,7 +273,7 @@ import java.util.UUID;
                     List<Identifier> identifiers = identifierRepository.findByValue(identifier);
                     if (!CollectionUtils.isEmpty(identifiers)) {
                         User user = identifiers.get(0).getUser();
-                        deleteExistingUktData(user);
+                        encounterService.deleteByUserAndType(user, EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
                         addKidneyTransplantStatus(user, kidneyStatus);
                         updated++;
                     }

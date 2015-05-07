@@ -504,8 +504,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         query.append("\"' ");
 
         // execute and return UUIDs
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
 
@@ -518,6 +519,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             connection.close();
             return uuids;
         } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e2) {
+                    throw new FhirResourceException(e2);
+                }
+            }
             throw new FhirResourceException(e);
         }
     }
