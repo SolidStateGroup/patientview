@@ -98,7 +98,9 @@ public class MediaBuilder {
         }
 
         // reference to patientview FileData object containing binary data
-        media.getContent().setUrlSimple(fileDataId.toString());
+        if (fileDataId != null) {
+            media.getContent().setUrlSimple(fileDataId.toString());
+        }
 
         return media;
     }
@@ -108,7 +110,9 @@ public class MediaBuilder {
             throw new FhirResourceException("Must have built Media");
         }
 
-        media.getContent().setSizeSimple(fileSize);
+        if (fileSize != null) {
+            media.getContent().setSizeSimple(fileSize);
+        }
         return media;
     }
 }

@@ -11,7 +11,7 @@
     <p data-ng-bind-html="parseHTMLText(letter.content)"></p>
     <p data-ng-show="letter.fileDataId" class="p-download alert alert-success">
         <a href="../api/user/{{loggedInUser.id}}/letters/{{letter.fileDataId}}/download?token={{authToken}}" class="a-download">
-            <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'"><img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'"><img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'"><span class="span-download">Download '{{letter.filename}}' <span data-ng-show="letter.filesize">({{letter.filesize | filesize}})</span></span></a>
+            <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'"><img src="../images/icons/fileicon.png" data-ng-show="letter.filetype==='application/unknown'"><img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'"><img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'"><span class="span-download">Download '{{letter.filename}}' <span data-ng-show="letter.filesize">({{letter.filesize | filesize}})</span></span></a>
     </p>
 </div>
 <div class="modal-footer">

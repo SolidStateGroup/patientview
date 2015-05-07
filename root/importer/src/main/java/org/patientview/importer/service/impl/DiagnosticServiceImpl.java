@@ -86,9 +86,12 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
             for (Diagnostic diagnostic : data.getPatient().getDiagnostics().getDiagnostic()) {
 
                 if (StringUtils.isNotEmpty(diagnostic.getDiagnosticresult())) {
+                    Date now = new Date();
+
                     if (verboseLogging) {
                         LOG.info(nhsno + ": Building diagnostic " + count);
                     }
+
                     // build result observation
                     Observation observation = new Observation();
                     observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
@@ -108,12 +111,6 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                     identifier.setLabelSimple("resultcode");
                     identifier.setValueSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
                     observation.setIdentifier(identifier);
-
-                    // if binary file then build media
-                    if (diagnostic.getDiagnosticfilebody() != null) {
-                        MediaBuilder mediaBuilder = new MediaBuilder(diagnostic);
-                        mediaBuilder.build();
-                    }
 
                     // Build diagnostic report
                     DiagnosticReportBuilder diagnosticReportBuilder = new DiagnosticReportBuilder(diagnostic);
@@ -136,18 +133,29 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
                         // if binary file then build media, store and add reference to DiagnosticReport
                         if (diagnostic.getDiagnosticfilebody() != null) {
+                            // set filename and type if not set in XML
+                            if (StringUtils.isEmpty(diagnostic.getDiagnosticfilename())) {
+                                diagnostic.setDiagnosticfilename(String.valueOf(now.getTime()));
+                            }
+                            if (StringUtils.isEmpty(diagnostic.getDiagnosticfiletype())) {
+                                diagnostic.setDiagnosticfiletype("application/unknown");
+                            }
                             MediaBuilder mediaBuilder = new MediaBuilder(diagnostic);
                             mediaBuilder.build();
                             Media media = mediaBuilder.getMedia();
 
                             // create binary file
                             FileData fileData = new FileData();
-                            fileData.setCreated(new Date());
+                            fileData.setCreated(now);
                             if (media.getContent().getTitle() != null) {
                                 fileData.setName(media.getContent().getTitleSimple());
+                            } else {
+                                fileData.setName(String.valueOf(now.getTime()));
                             }
                             if (media.getContent().getContentType() != null) {
                                 fileData.setType(media.getContent().getContentTypeSimple());
+                            } else {
+                                fileData.setType("application/unknown");
                             }
                             // convert base64 string to binary
                             byte[] content = CommonUtils.base64ToByteArray(diagnostic.getDiagnosticfilebody());

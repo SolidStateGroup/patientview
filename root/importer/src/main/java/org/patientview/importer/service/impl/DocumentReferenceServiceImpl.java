@@ -104,13 +104,23 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
                 try {
+                    Date now = new Date();
                     // set up Media and DocumentReference builders and build DocumentReference
                     DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(letter, patientReference);
-                    MediaBuilder mediaBuilder = new MediaBuilder(letter);
+                    MediaBuilder mediaBuilder = null;
                     DocumentReference documentReference = docBuilder.build();
 
                     // if binary file then build media
                     if (letter.getLetterfilebody() != null) {
+
+                        // set filename and type if not set in XML
+                        if (StringUtils.isEmpty(letter.getLetterfilename())) {
+                            letter.setLetterfilename(String.valueOf(now.getTime()));
+                        }
+                        if (StringUtils.isEmpty(letter.getLetterfiletype())) {
+                            letter.setLetterfiletype("application/unknown");
+                        }
+                        mediaBuilder = new MediaBuilder(letter);
                         mediaBuilder.build();
 
                         // set title of DocumentReference if possible (overwrites type)
@@ -168,12 +178,16 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
                         // create binary file
                         fileData = new FileData();
-                        fileData.setCreated(new Date());
+                        fileData.setCreated(now);
                         if (media.getContent().getTitle() != null) {
                             fileData.setName(media.getContent().getTitleSimple());
+                        } else {
+                            fileData.setName(String.valueOf(now.getTime()));
                         }
                         if (media.getContent().getContentType() != null) {
                             fileData.setType(media.getContent().getContentTypeSimple());
+                        } else {
+                            fileData.setType("application/unknown");
                         }
                         // convert base64 string to binary
                         byte[] content = CommonUtils.base64ToByteArray(letter.getLetterfilebody());

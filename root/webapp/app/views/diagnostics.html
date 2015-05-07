@@ -35,6 +35,7 @@
                     <td>{{diagnostic.result.value}}</td>
                     <td>{{diagnostic.group.name}}</td>
                     <td>
+                        <img src="../images/icons/fileicon.png" data-ng-show="diagnostic.filetype==='application/unknown'" class="filetype-icon">
                         <img src="../images/icons/imageicon.png" data-ng-show="diagnostic.filetype==='application/jpeg'" class="filetype-icon">
                         <img src="../images/icons/pdficon.png" data-ng-show="diagnostic.filetype==='application/pdf'" class="filetype-icon">
                         <img src="../images/icons/wordicon.png" data-ng-show="diagnostic.filetype==='application/msword'" class="filetype-icon">

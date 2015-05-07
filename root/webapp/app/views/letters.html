@@ -35,6 +35,7 @@
                     | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <td>{{letter.date | date: 'dd-MMM-yyyy'}}</td>
                     <td>
+                        <img src="../images/icons/fileicon.png" data-ng-show="letter.filetype==='application/unknown'" class="filetype-icon">
                         <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'" class="filetype-icon">
                         <img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'" class="filetype-icon">
                         <img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'" class="filetype-icon">
