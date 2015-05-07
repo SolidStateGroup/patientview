@@ -180,6 +180,11 @@ public class QueueProcessor extends DefaultConsumer {
                 return false;
             }
 
+            // don't send for out of disk space
+            if (errorMessage.contains("No space left on device")) {
+                return false;
+            }
+
             return true;
         }
     }
