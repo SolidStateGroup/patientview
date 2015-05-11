@@ -8,13 +8,13 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.hl7.fhir.instance.model.Substance;
-import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.builder.AllergyIntoleranceBuilder;
 import org.patientview.importer.builder.SubstanceBuilder;
 import org.patientview.importer.service.AllergyService;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
+        LOG.trace(nhsno + ": Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
@@ -79,51 +79,51 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
 
             try {
                 // create Substance in FHIR
-                JSONObject storedSubstance = fhirResource.create(substance);
+                FhirDatabaseEntity storedSubstance
+                        = fhirResource.createEntity(substance, ResourceType.Substance.name(), "substance");
 
                 // create AdverseReaction in FHIR
-                JSONObject storedAdverseReaction = fhirResource.create(adverseReaction);
+                FhirDatabaseEntity storedAdverseReaction = fhirResource.createEntity(
+                        adverseReaction, ResourceType.AdverseReaction.name(), "adversereaction");
 
                 // set references to Substance and AdverseReaction in AllergyIntolerance
-                allergyIntolerance.setSubstance(Util.createResourceReference(Util.getResourceId(storedSubstance)));
+                allergyIntolerance.setSubstance(Util.createResourceReference(storedSubstance.getLogicalId()));
                 ResourceReference reaction = allergyIntolerance.addReaction();
-                reaction.setDisplaySimple(Util.getResourceId(storedAdverseReaction).toString());
+                reaction.setDisplaySimple(storedAdverseReaction.getLogicalId().toString());
 
                 // create AllergyIntolerance in FHIR
-                fhirResource.create(allergyIntolerance);
+                fhirResource.createEntity(
+                        allergyIntolerance, ResourceType.AllergyIntolerance.name(), "allergyintolerance");
 
                 success += 1;
 
             } catch (FhirResourceException e) {
-                LOG.error(nhsno + ": Unable to build AllergyIntolerance, Substance or AdverseReaction");
+                LOG.error(nhsno + ": Unable to save AllergyIntolerance, Substance or AdverseReaction");
             }
 
             LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
         }
 
-        LOG.info(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");
+        LOG.trace(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");
         LOG.info(nhsno + ": Processed {} of {} allergy", success, count);
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        // delete Substance associated with AllergyIntolerance
+        fhirResource.executeSQL(
+            "DELETE FROM substance WHERE logical_id::TEXT IN (SELECT CONTENT -> 'substance' ->> 'display' " +
+            "FROM allergyintolerance WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "')"
+        );
 
-        // delete AllergyIntolerance and Substance associated with subject
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("allergyintolerance", subjectId)) {
+        // delete AllergyIntolerance
+        fhirResource.executeSQL(
+            "DELETE FROM allergyintolerance WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
 
-            // delete Substance associated with AllergyIntolerance
-            AllergyIntolerance allergyIntolerance
-                    = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
-            fhirResource.delete(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                    ResourceType.Substance);
-
-            // delete AllergyIntolerance
-            fhirResource.delete(uuid, ResourceType.AllergyIntolerance);
-        }
-
-        // delete AdverseReaction associated with subject
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.AdverseReaction);
-        }
+        // delete AdverseReaction
+        fhirResource.executeSQL(
+            "DELETE FROM adversereaction WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
     }
 }
 

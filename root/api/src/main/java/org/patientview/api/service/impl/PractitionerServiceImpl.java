@@ -6,10 +6,12 @@ import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.PractitionerService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirContact;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
@@ -73,7 +75,9 @@ public class PractitionerServiceImpl extends BaseController<PractitionerServiceI
             }
         }
 
-        return FhirResource.getLogicalId(fhirResource.create(practitioner));
+        FhirDatabaseEntity entity
+                = fhirResource.createEntity(practitioner, ResourceType.Practitioner.name(), "practitioner");
+        return entity.getLogicalId();
     }
 
     public List<UUID> getPractitionerLogicalUuidsByName(final String name) throws FhirResourceException {

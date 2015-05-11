@@ -16,6 +16,12 @@ public class FhirDiagnosticReport {
     private String type;
     private BaseGroup group;
 
+    // only present for DocumentReference with associated Media and binary FileData
+    private String filename;
+    private String filetype;
+    private Long filesize;
+    private Long fileDataId;
+
     public FhirDiagnosticReport() {
     }
 
@@ -29,6 +35,10 @@ public class FhirDiagnosticReport {
         if (fhirDiagnosticReport.getGroup() != null) {
             this.group = new BaseGroup(fhirDiagnosticReport.getGroup());
         }
+        this.filename = fhirDiagnosticReport.getFilename();
+        this.filetype = fhirDiagnosticReport.getFiletype();
+        this.filesize = fhirDiagnosticReport.getFilesize();
+        this.fileDataId = fhirDiagnosticReport.getFileDataId();
     }
 
     public Long getId() {
@@ -53,5 +63,21 @@ public class FhirDiagnosticReport {
 
     public BaseGroup getGroup() {
         return group;
+    }
+
+    public Long getFileDataId() {
+        return fileDataId;
+    }
+
+    public Long getFilesize() {
+        return filesize;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public String getFilename() {
+        return filename;
     }
 }

@@ -5,30 +5,27 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONObject;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.PatientBuilder;
-import org.patientview.persistence.model.User;
-import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
-import org.patientview.importer.Utility.Util;
-import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -66,7 +63,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throws ResourceNotFoundException, FhirResourceException {
 
         this.nhsno = patient.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Patient Data Process");
+        LOG.trace(nhsno + ": Starting Patient Process");
 
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatientByIdentifierValue(patient);
@@ -80,22 +77,22 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // create Fhir patient from XML
         PatientBuilder patientBuilder = new PatientBuilder(patient, practitionerReference);
         Patient newFhirPatient = patientBuilder.build();
-        UUID versionId;
 
         if (fhirLink != null) {
-            // link to FHIR exists, update patient
-            JSONObject jsonObject
-                    = fhirResource.updateFhirObject(newFhirPatient, fhirLink.getResourceId(), fhirLink.getVersionId());
-            versionId = Util.getVersionId(jsonObject);
+            // link to FHIR exists, native update patient
+            FhirDatabaseEntity patientEntity
+                    = fhirResource.updateEntity(newFhirPatient,
+                    ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
 
-            // update link
-            fhirLink.setVersionId(versionId);
-            fhirLink.setUpdated(new Date());
+            // update FHIR link
+            fhirLink.setVersionId(patientEntity.getVersionId());
+            fhirLink.setUpdated(patientEntity.getUpdated());
             fhirLinkRepository.save(fhirLink);
         } else {
-            // Create a new Fhir record and add the link to the User and Unit
-            JSONObject jsonObject = create(newFhirPatient);
-            fhirLink = addLink(identifier, group, jsonObject);
+            // Create a new FHIR record and add the link to the User and Unit
+            FhirDatabaseEntity patientEntity
+                    = fhirResource.createEntity(newFhirPatient, ResourceType.Patient.name(), "patient");
+            fhirLink = addLink(identifier, group, patientEntity);
         }
 
         // update User date of birth, forename, surname (if present in imported data)
@@ -121,43 +118,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             userRepository.save(entityUser);
         }
 
-        LOG.info(nhsno + ": Processed Patient Data");
+        LOG.info(nhsno + ": Processed Patient");
         return fhirLink;
-    }
-
-    public List<FhirLink> getInactivePatientFhirLinksByGroup(Patientview patientview) throws ResourceNotFoundException {
-        Identifier identifier = matchPatientByIdentifierValue(patientview);
-        Group group = groupRepository.findByCode(patientview.getCentredetails().getCentrecode());
-
-        if (group == null) {
-            throw new ResourceNotFoundException(
-                    nhsno + ": Group not found in PatientView database from imported <centrecode>");
-        }
-
-        return fhirLinkRepository.findInActiveByUserAndGroup(identifier.getUser(), group);
-    }
-
-    public void deleteByResourceId(UUID resourceId) throws FhirResourceException, SQLException {
-        fhirResource.delete(resourceId, ResourceType.Patient);
-    }
-
-    public void deleteFhirLink(FhirLink fhirlink) throws ResourceNotFoundException {
-        FhirLink entityFhirLink = fhirLinkRepository.findOne(fhirlink.getId());
-
-        if (entityFhirLink == null) {
-            throw new ResourceNotFoundException(nhsno + ": FhirLink not found");
-        }
-
-        fhirLinkRepository.delete(entityFhirLink);
-    }
-
-    private JSONObject create(Patient patient) throws FhirResourceException {
-        try {
-            return fhirResource.create(patient);
-        } catch (Exception e) {
-            LOG.error(nhsno + ": Could not build patient resource", e);
-            throw new FhirResourceException(e.getMessage());
-        }
     }
 
     public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {
@@ -185,7 +147,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    private FhirLink addLink(Identifier identifier, Group group, JSONObject bundle) {
+    private FhirLink addLink(Identifier identifier, Group group, FhirDatabaseEntity entity) {
         if (CollectionUtils.isEmpty(identifier.getUser().getFhirLinks())) {
             identifier.getUser().setFhirLinks(new HashSet<FhirLink>());
         }
@@ -196,8 +158,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         fhirLink.setUser(identifier.getUser());
         fhirLink.setIdentifier(identifier);
         fhirLink.setGroup(group);
-        fhirLink.setResourceId(Util.getResourceId(bundle));
-        fhirLink.setVersionId((Util.getVersionId(bundle)));
+        fhirLink.setResourceId(entity.getLogicalId());
+        fhirLink.setVersionId(entity.getVersionId());
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
         fhirLink.setCreated(now);

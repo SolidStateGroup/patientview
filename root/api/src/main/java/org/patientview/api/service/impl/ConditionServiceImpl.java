@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.util.Util;
@@ -74,6 +75,6 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
             condition.setDateAssertedSimple(dateAndTime);
         }
 
-        fhirResource.create(condition);
+        fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
     }
 }

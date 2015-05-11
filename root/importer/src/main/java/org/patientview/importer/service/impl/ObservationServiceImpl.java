@@ -70,7 +70,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Observation Process");
+        LOG.trace(nhsno + ": Starting Observation Process");
 
         // create map to hold user alerts (if present)
         Map<String, Alert> currentAlertMap = new HashMap<>();
@@ -92,12 +92,12 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         observationsBuilder.setAlertMap(currentAlertMap);
         observationsBuilder.build();
 
-        LOG.info(nhsno + ": Getting Existing Observations");
+        LOG.trace(nhsno + ": Getting Existing Observations");
         List<BasicObservation> observations = getBasicObservationBySubjectId(fhirLink.getResourceId());
 
         // get uuids of existing observations to delete
         try {
-            LOG.info(nhsno + ": Deleting Existing Observations");
+            LOG.trace(nhsno + ": Deleting Existing Observations");
             List<UUID> observationsUuidsToDelete = new ArrayList<>();
 
             for (BasicObservation observation : observations) {
@@ -155,7 +155,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         int count = 0;
 
         try {
-            LOG.info(nhsno + ": Creating New Observations");
+            LOG.trace(nhsno + ": Creating New Observations");
             List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
 
             for (Observation observation : observationsBuilder.getObservations()) {

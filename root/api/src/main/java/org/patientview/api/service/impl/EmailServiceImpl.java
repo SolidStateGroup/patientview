@@ -13,7 +13,9 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -29,78 +31,105 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
     @Inject
     private Properties properties;
 
-    public boolean sendEmail(Email email) throws MailException, MessagingException {
+    private static final int BATCH_SIZE = 50;
 
+    public boolean sendEmail(Email email) throws MailException, MessagingException {
         //LOG.info("Email: Preparing to send email");
 
         // only send emails if enabled in properties file
         if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
 
+            // send emails in batches of 50 to avoid SMTP send error due to too many participants
+            List<String[]> recipientBatches = splitArray(email.getRecipients(), BATCH_SIZE);
+
             // set HTML email content
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setSubject(email.getSubject());
-
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            // if redirect enabled in properties the send to redirect email not actual recipient
-            if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
-                LOG.info("Email: Email redirect enabled");
-                if (email.isBcc()) {
-                    helper.setBcc(properties.getProperty("email.redirect.address").split(","));
-                } else {
-                    helper.setTo(properties.getProperty("email.redirect.address").split(","));
-                }
-            } else {
-                try {
+            for (String[] recipientBatch : recipientBatches) {
+                // if redirect enabled in properties the send to redirect email not actual recipient
+                if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
+                    LOG.info("Email: Email redirect enabled");
                     if (email.isBcc()) {
-                        helper.setBcc(email.getRecipients());
+                        helper.setBcc(properties.getProperty("email.redirect.address").split(","));
                     } else {
-                        helper.setTo(email.getRecipients());
+                        helper.setTo(properties.getProperty("email.redirect.address").split(","));
                     }
-                } catch (AddressException ae) {
-                    LOG.error("Email: Address Exception, could not send email to "
-                            + Arrays.toString(email.getRecipients()) + " with subject '"
+                } else {
+                    try {
+                        if (email.isBcc()) {
+                            helper.setBcc(recipientBatch);
+                        } else {
+                            helper.setTo(recipientBatch);
+                        }
+                    } catch (AddressException ae) {
+                        LOG.error("Email: Address Exception, could not send email to "
+                                + Arrays.toString(recipientBatch) + " with subject '"
+                                + email.getSubject() + "'");
+                        throw ae;
+                    }
+                }
+
+                try {
+                    InternetAddress fromAddress = new InternetAddress(email.getSenderEmail(), email.getSenderName());
+                    helper.setFrom(fromAddress);
+
+                    if (email.isBcc()) {
+                        fromAddress.setPersonal("PatientView User");
+                        helper.setTo(fromAddress);
+                    }
+                    //LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
+                } catch (UnsupportedEncodingException uee) {
+                    helper.setFrom(email.getSenderEmail());
+
+                    if (email.isBcc()) {
+                        helper.setTo(email.getSenderEmail());
+                    }
+                    //LOG.info("Email: Set from " + email.getSenderEmail());
+                }
+
+                helper.setText(properties.getProperty("email.header") + email.getBody()
+                        + properties.getProperty("email.footer"), true);
+
+                try {
+                    //LOG.info("Email: Attempting to send email to " + Arrays.toString(recipientBatch)
+                    //        + " with subject '" + email.getSubject() + "'");
+                    javaMailSender.send(message);
+                    LOG.info("Email: Sent email to " + Arrays.toString(recipientBatch) + " with subject '"
                             + email.getSubject() + "'");
-                    throw ae;
+                } catch (MailException ex) {
+                    LOG.error("Email: Could not send email to " + Arrays.toString(recipientBatch)
+                            + " with subject '" + email.getSubject() + "'");
+                    throw ex;
                 }
             }
-
-            try {
-                InternetAddress fromAddress = new InternetAddress(email.getSenderEmail(), email.getSenderName());
-                helper.setFrom(fromAddress);
-
-                if (email.isBcc()) {
-                    fromAddress.setPersonal("PatientView User");
-                    helper.setTo(fromAddress);
-                }
-                //LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
-            } catch (UnsupportedEncodingException uee) {
-                helper.setFrom(email.getSenderEmail());
-
-                if (email.isBcc()) {
-                    helper.setTo(email.getSenderEmail());
-                }
-                //LOG.info("Email: Set from " + email.getSenderEmail());
-            }
-
-            helper.setText(properties.getProperty("email.header") + email.getBody()
-                    + properties.getProperty("email.footer"), true);
-
-            try {
-                //LOG.info("Email: Attempting to send email to " + Arrays.toString(email.getRecipients())
-                //        + " with subject '" + email.getSubject() + "'");
-                javaMailSender.send(message);
-                LOG.info("Email: Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
-                        + email.getSubject() + "'");
-                return true;
-            } catch (MailException ex) {
-                LOG.error("Email: Could not send email to " + Arrays.toString(email.getRecipients()) + " with subject '"
-                        + email.getSubject() + "'");
-                throw ex;
-            }
+            return true;
         } else {
             LOG.info("Email: Email sending not enabled");
             return true;
         }
+    }
+
+    private List<String[]> splitArray(String[] originalArray, int chunkSize) {
+        List<String[]> listOfArrays = new ArrayList<>();
+        int totalSize = originalArray.length;
+        if (totalSize < chunkSize) {
+            chunkSize = totalSize;
+        }
+        int from = 0;
+        int to = chunkSize;
+
+        while (from < totalSize) {
+            String[] partArray = Arrays.copyOfRange(originalArray, from, to);
+            listOfArrays.add(partArray);
+
+            from += chunkSize;
+            to = from + chunkSize;
+            if (to > totalSize) {
+                to = totalSize;
+            }
+        }
+        return listOfArrays;
     }
 }

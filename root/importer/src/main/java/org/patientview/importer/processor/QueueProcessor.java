@@ -128,7 +128,7 @@ public class QueueProcessor extends DefaultConsumer {
             // validate XML
             if (!fail) {
                 try {
-                    LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": received");
+                    LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": Received, valid XML");
                     importManager.validate(patient);
                 } catch (ImportResourceException ire) {
                     String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 
@@ -177,6 +177,11 @@ public class QueueProcessor extends DefaultConsumer {
         private boolean errorMessageNeedsEmailSending(String errorMessage) {
             // don't send emails for FHIR stored procedure errors due to version id mismatch
             if (errorMessage.contains("ERROR: Wrong version_id")) {
+                return false;
+            }
+
+            // don't send for out of disk space
+            if (errorMessage.contains("No space left on device")) {
                 return false;
             }
 

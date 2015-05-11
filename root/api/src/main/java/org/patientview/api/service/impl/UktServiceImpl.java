@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
-import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
@@ -36,6 +35,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -116,23 +116,6 @@ import java.util.UUID;
     }
 
     /**
-     * Remove TRANSPLANT_STATUS_KIDNEY Encounters in FHIR for a single User.
-     * @param user User to remove TRANSPLANT_STATUS_KIDNEY Encounters for
-     * @throws ResourceNotFoundException
-     * @throws FhirResourceException
-     */
-    private void deleteExistingUktData(User user) throws ResourceNotFoundException, FhirResourceException {
-        List<UUID> encounterUuids
-                = encounterService.getUuidsByUserIdAndType(user.getId(), EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
-
-        if (!encounterUuids.isEmpty()) {
-            for (UUID uuid : encounterUuids) {
-                fhirResource.delete(uuid, ResourceType.Encounter);
-            }
-        }
-    }
-
-    /**
      * Export UKT data to text file from FHIR.
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
@@ -142,6 +125,7 @@ import java.util.UUID;
     public void exportData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String exportDirectory = properties.getProperty("ukt.export.directory");
         String tempExportFilename = properties.getProperty("ukt.export.filename") + ".temp";
+        String logFilename = properties.getProperty("ukt.export.filename") + ".log";
         String exportFilename = properties.getProperty("ukt.export.filename");
         String tempFailExportFilename = properties.getProperty("ukt.export.filename") + ".failed.temp";
         String failExportFilename = properties.getProperty("ukt.export.filename") + ".failed.txt";
@@ -149,11 +133,18 @@ import java.util.UUID;
 
         if (exportEnabled) {
             try {
+                BufferedWriter logWriter
+                        = new BufferedWriter(new FileWriter(exportDirectory + "/" + logFilename, true));
                 BufferedWriter writer
                         = new BufferedWriter(new FileWriter(exportDirectory + "/" + tempExportFilename, false));
                 BufferedWriter writerFailed
                         = new BufferedWriter(new FileWriter(exportDirectory + "/" + tempFailExportFilename, false));
+
+                logWriter.write(new Date().toString() + ": Started");
+                logWriter.newLine();
                 List<User> patients = userRepository.findAllPatients();
+                logWriter.write(new Date().toString() + ": " + patients.size() + " patients");
+                logWriter.newLine();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
                 for (User user : patients) {
@@ -212,6 +203,11 @@ import java.util.UUID;
                 exportFailFile.delete();
                 FileUtils.copyFile(tempFailFile, exportFailFile);
                 tempFailFile.delete();
+
+                logWriter.write(new Date().toString() + ": Finished");
+                logWriter.newLine();
+                logWriter.flush();
+                logWriter.close();
             } catch (Exception e) {
                 throw new UktException(e);
             }
@@ -254,14 +250,21 @@ import java.util.UUID;
     public void importData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String importDirectory = properties.getProperty("ukt.import.directory");
         String importFilename = properties.getProperty("ukt.import.filename");
+        String logFilename = properties.getProperty("ukt.import.filename") + ".log";
         Boolean importEnabled = Boolean.parseBoolean(properties.getProperty("ukt.import.enabled"));
 
         if (importEnabled) {
             BufferedReader br = null;
+            int count = 0;
+            int updated = 0;
 
             try {
+                BufferedWriter logWriter
+                    = new BufferedWriter(new FileWriter(importDirectory + "/" + logFilename, true));
                 br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
                 String line;
+                logWriter.write(new Date().toString() + ": Started");
+                logWriter.newLine();
 
                 while ((line = br.readLine()) != null) {
                     String identifier = line.split(" ")[0].trim();
@@ -270,12 +273,18 @@ import java.util.UUID;
                     List<Identifier> identifiers = identifierRepository.findByValue(identifier);
                     if (!CollectionUtils.isEmpty(identifiers)) {
                         User user = identifiers.get(0).getUser();
-
-                        deleteExistingUktData(user);
+                        encounterService.deleteByUserAndType(user, EncounterTypes.TRANSPLANT_STATUS_KIDNEY);
                         addKidneyTransplantStatus(user, kidneyStatus);
+                        updated++;
                     }
+                    count++;
                 }
 
+                logWriter.write(new Date().toString() + ": Finished, " + count + " entries, "
+                        + updated + " patients updated");
+                logWriter.newLine();
+                logWriter.flush();
+                logWriter.close();
                 br.close();
             } catch (IOException e) {
                 LOG.error("IOException, likely cannot read file: " + importDirectory + "/" + importFilename);

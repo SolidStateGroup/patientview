@@ -6,9 +6,9 @@ import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONObject;
 import org.patientview.importer.builder.MedicationBuilder;
 import org.patientview.importer.builder.MedicationStatementBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.Utility.Util;
@@ -43,7 +43,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Medication Statement and Medication Process");
+        LOG.trace(nhsno + ": Starting Medication Statement and Medication Process");
 
         if (data.getPatient().getDrugdetails() != null) {
             ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
@@ -62,16 +62,18 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
 
                 try {
                     // create medication in FHIR
-                    JSONObject storedMedication = fhirResource.create(medication);
+                    FhirDatabaseEntity storedMedication
+                            = fhirResource.createEntity(medication, ResourceType.Medication.name(), "medication");
 
                     // get medication reference and add to medication statement
-                    medicationStatement.setMedication(Util.createResourceReference(Util.getResourceId(storedMedication)));
+                    medicationStatement.setMedication(Util.createResourceReference(storedMedication.getLogicalId()));
 
                     // set patient reference
                     medicationStatement.setPatient(patientReference);
 
                     // create medication statement in FHIR
-                    fhirResource.create(medicationStatement);
+                    fhirResource.createEntity(
+                            medicationStatement, ResourceType.MedicationStatement.name(), "medicationstatement");
 
                     success += 1;
 
@@ -88,18 +90,18 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
         }
     }
 
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsByPatientId("medicationstatement", subjectId)) {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        // delete medication natively
+        fhirResource.executeSQL(
+            "DELETE FROM medication WHERE logical_id::TEXT IN (SELECT CONTENT -> 'medication' ->> 'display' " +
+            "FROM medicationstatement WHERE CONTENT -> 'patient' ->> 'display' = '" + subjectId.toString() + "')"
+        );
 
-            // delete medication associated with medication statement
-            MedicationStatement medicationStatement
-                    = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
-            fhirResource.delete(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                    ResourceType.Medication);
-
-            // delete medication statement
-            fhirResource.delete(uuid, ResourceType.MedicationStatement);
-        }
+        // delete medication statement natively
+        fhirResource.executeSQL(
+            "DELETE FROM medicationstatement WHERE CONTENT -> 'patient' ->> 'display' = '"
+            + subjectId.toString() + "'"
+        );
     }
 }
 

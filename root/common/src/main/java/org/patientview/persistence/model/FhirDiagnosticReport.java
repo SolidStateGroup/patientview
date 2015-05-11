@@ -24,6 +24,12 @@ public class FhirDiagnosticReport extends BaseModel {
     // used by migration
     private String identifier;
 
+    // only present for DiagnosticReport with associated Media and binary FileData
+    private String filename;
+    private String filetype;
+    private Long fileDataId;
+    private Long filesize;
+
     public FhirDiagnosticReport() {
     }
 
@@ -113,5 +119,37 @@ public class FhirDiagnosticReport extends BaseModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public void setFiletype(String filetype) {
+        this.filetype = filetype;
+    }
+
+    public Long getFileDataId() {
+        return fileDataId;
+    }
+
+    public void setFileDataId(Long fileDataId) {
+        this.fileDataId = fileDataId;
+    }
+
+    public Long getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(Long filesize) {
+        this.filesize = filesize;
     }
 }

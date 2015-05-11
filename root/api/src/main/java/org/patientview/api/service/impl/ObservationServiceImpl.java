@@ -29,6 +29,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
@@ -227,15 +228,16 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
                 if (fhirLink == null) {
                     Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
-                    JSONObject fhirPatient = fhirResource.create(patient);
+                    FhirDatabaseEntity fhirPatient
+                            = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
                     // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
                     fhirLink = new FhirLink();
                     fhirLink.setUser(patientUser);
                     fhirLink.setIdentifier(patientIdentifier);
                     fhirLink.setGroup(patientEnteredResultsGroup);
-                    fhirLink.setResourceId(getResourceId(fhirPatient));
-                    fhirLink.setVersionId(getVersionId(fhirPatient));
+                    fhirLink.setResourceId(fhirPatient.getLogicalId());
+                    fhirLink.setVersionId(fhirPatient.getVersionId());
                     fhirLink.setResourceType(ResourceType.Patient.name());
                     fhirLink.setActive(true);
 

@@ -5,7 +5,7 @@
     <flag>Follow-up-report</flag>
     <centredetails>
         <centrecode>RENALB</centrecode>
-        <centrename>Renal B</centrename>
+        <centrename>Renal' B</centrename>
         <centreaddress1>Renal Unit</centreaddress1>
         <centreaddress2>14 Lister Street</centreaddress2>
         <centreaddress3>Kilmarnock</centreaddress3>
@@ -14,9 +14,9 @@
         <centretelephone>01563 521133</centretelephone>
     </centredetails>
     <gpdetails>
-        <gpname>O'DONNEL2</gpname>
+        <gpname>O'DONNEL</gpname>
         <gpaddress1>O'DONNEL</gpaddress1>
-        <gpaddress2>23 Templehill</gpaddress2>
+        <gpaddress2>24 Templehill</gpaddress2>
         <gpaddress3>Troon</gpaddress3>
         <gpaddress4>Ayrshire</gpaddress4>
         <gppostcode>KA10 6BQ</gppostcode>
@@ -24,7 +24,7 @@
     </gpdetails>
     <patient>
         <personaldetails>
-            <surname>patbsur</surname>
+            <surname>patbs'ur</surname>
             <forename>patbfore</forename>
             <!--<dateofbirth>1944-03-17</dateofbirth>-->
             <dateofbirth>1952-10-31</dateofbirth>
@@ -246,42 +246,42 @@
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>Levemir FlexPen 100units/ml solution for injection 3ml pr...</drugname>
-                <drugdose>(10) AS DIRECTED</drugdose>
+                <drugdose>1 (10) AS DIRECTED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
-                <drugname>NovoRapid FlexPen 100units/ml solution for injection 3ml ...</drugname>
-                <drugdose>(10) AS DIRECTED</drugdose>
+                <drugname>NovoRapid FlexPen 100units/ml soluti'on for injection 3ml ...</drugname>
+                <drugdose>2 (10) AS DIRECTED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>Ursodeoxycholic acid 250mg capsules</drugname>
-                <drugdose>(150) 2 EVERY MORNING 3 AT NIGHT</drugdose>
+                <drugdose>3 (150) 2 EVERY MORNING 3 AT NIGHT</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>GlucaGen Hypokit 1mg powder and solvent for solution for ...</drugname>
-                <drugdose>(1) WHEN REQUIRED</drugdose>
+                <drugdose>4 (1) WHEN REQUIRED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>Multiclix lancets 0.3mm/30gauge (Roche Diagnostics Ltd)</drugname>
-                <drugdose>(204) WHEN REQUIRED</drugdose>
+                <drugdose>5 (204) WHEN REQUIRED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>FreeStyle Lite testing strips (Abbott Laboratories Ltd)</drugname>
-                <drugdose>(200) AS DIRECTED</drugdose>
+                <drugdose>6 (200) AS DIRECTED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-03-18</drugstartdate>
                 <drugname>BD Micro-Fine Ultra hypodermic insulin needles for pre-fi...</drugname>
-                <drugdose>(100) AS DIRECTED</drugdose>
+                <drugdose>7 (100) AS DIRECTED</drugdose>
             </drug>
             <drug>
                 <drugstartdate>2014-06-17</drugstartdate>
                 <drugname>FreeStyle Lite testing strips (Abbott Laboratories Ltd)</drugname>
-                <drugdose>(200) AS DIRECTED</drugdose>
+                <drugdose>8 (200) AS DIRECTED</drugdose>
             </drug>
         </drugdetails>
         <footcheckup>

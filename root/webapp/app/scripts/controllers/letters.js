@@ -11,6 +11,7 @@ function ($scope, $modalInstance, letter) {
         // ie8 compatibility
         var printContent = $('.modal-content').clone();
         printContent.children('.modal-footer').remove();
+        printContent.find('.p-download').remove();
         var windowUrl = 'PatientView';
         var uniqueName = new Date();
         var windowName = 'Print' + uniqueName.getTime();

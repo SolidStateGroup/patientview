@@ -15,5 +15,4 @@ import java.util.UUID;
 public interface PractitionerService {
 
     public UUID add(Patientview data) throws FhirResourceException;
-
 }

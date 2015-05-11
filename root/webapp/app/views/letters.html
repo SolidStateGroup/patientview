@@ -1,3 +1,8 @@
+<style>
+    .filetype-icon{
+        margin-right: 5px;
+    }
+</style>
 <div data-ng-show="!loading">
     <h1>Letters</h1>
 
@@ -29,11 +34,18 @@
                 <tr data-ng-repeat="letter in letters | orderBy: predicate :reverse
                     | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <td>{{letter.date | date: 'dd-MMM-yyyy'}}</td>
-                    <td>{{letter.type}}</td>
+                    <td>
+                        <img src="../images/icons/fileicon.png" data-ng-show="letter.filetype==='application/unknown'" class="filetype-icon">
+                        <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'" class="filetype-icon">
+                        <img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'" class="filetype-icon">
+                        <img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'" class="filetype-icon">
+                        {{letter.type}}
+                    </td>
                     <td>{{letter.group.name}}</td>
                     <td>
                         <div class="btn-group">
                             <a href="" class="btn blue" data-ng-click="viewLetter(letter)">View</a>
+                            <a href="../api/user/{{loggedInUser.id}}/letters/{{letter.fileDataId}}/download?token={{authToken}}" class="btn blue" data-ng-show="letter.fileDataId">Download</a>
                             <a href="" class="btn btn-danger" data-ng-click="deleteLetter(letter)">Delete</a>
                         </div>
                     </td>

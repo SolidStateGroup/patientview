@@ -96,7 +96,6 @@ public class ImportControllerTest {
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTestMilestone4() throws Exception {
-
         List<String> files = new ArrayList<>();
         files.add("data/xml/milestone4/SAC02_01439_41737438900.xml"); // 336 observations
         files.add("data/xml/milestone4/SGC04_01436_57703939407.xml"); // big
@@ -114,20 +113,34 @@ public class ImportControllerTest {
         }
     }
 
+    // used to test the service once running (2.0.6 files)
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTest206() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/2.0.6tests/SAC02_01439_1202913202.xml"); // ok, 290 observations
+        files.add("data/xml/2.0.6tests/SAC02_01439_1312455233.xml"); // 400 bad request, wrong xml
+        files.add("data/xml/2.0.6tests/SAC02_01439_3103833318.xml"); // ok, 336 observations
+        files.add("data/xml/2.0.6tests/SGC02_01439_1312045485.xml"); // ok, 288 observations
+        files.add("data/xml/2.0.6tests/SGC02_01439_2609995652.xml"); // ok, 282 observations
+
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
 
-        //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
-        String fileName = "data/xml/SAC02_01436_1111111111.xml";
-        //String fileName = "data/xml/ECS_1111111111_new.xml";
-        //String fileName = "data/xml/PRODUCTION_TEST_1111111118.xml";
-        //String fileName = "data/xml/SAC02_01436_1111111111_blankgp.xml";
-        //String fileName = "data/xml/SAC02_01436_1111111111_single.xml";
-        //String fileName = "data/xml/IMPORTGROUP_1111111111.xml";
-        //String fileName = "data/xml/ECS_1111111111.xml";
-        //String fileName = "data/xml/DIA01_1111111111.xml";
-        //String fileName = "data/xml/errors/1111111111_damaged.xml";
-        //String fileName = "data/xml/errors/abc123_unknown_identifier.xml";
-        //String fileName = "data/xml/errors/1111111111_unknown_group.xml";
+        // 2.0.6 testing
+        //String fileName = "data/xml/2.0.6tests/SAC02_01439_1202913202.xml"; // ok, 290 observations
+        //String fileName = "data/xml/2.0.6tests/SAC02_01439_1312455233.xml"; // 400 bad request, wrong xml
+        //String fileName = "data/xml/2.0.6tests/SAC02_01439_3103833318.xml"; // ok, 336 observations
+        //String fileName = "data/xml/2.0.6tests/SGC02_01439_1312045485.xml"; // ok, 288 observations
+        //String fileName = "data/xml/2.0.6tests/SGC02_01439_2609995652.xml"; // ok, 282 observations
+
+        // local testing
+        //String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -143,13 +156,14 @@ public class ImportControllerTest {
     private static org.apache.http.HttpResponse post(String json) throws Exception {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        //String postUrl="https://production.patientview.org/importer/import";
+        // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
+        // restart with "sudo service nginx restart"
         //String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://production.patientview.org/importer/import";
         String postUrl="http://localhost:8081/importer/import";
-        //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";
+
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
-
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/xml");
         HttpResponse httpResponse = httpClient.execute(post);

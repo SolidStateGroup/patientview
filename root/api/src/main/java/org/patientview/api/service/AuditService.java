@@ -51,6 +51,11 @@ public interface AuditService {
     Page<Audit> findAll(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Set xml column to NULL for older audit entries, configured by properties file
+     */
+    void removeOldAuditXml();
+
+    /**
      * Update an existing Audit object.
      * @param audit Audit object to update
      * @return Updated Audit object

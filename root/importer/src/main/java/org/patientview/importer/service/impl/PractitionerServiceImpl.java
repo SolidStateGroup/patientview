@@ -4,12 +4,12 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Practitioner;
-import org.json.JSONObject;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
-import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +48,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     public UUID add(final Patientview data) throws FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Practitioner Process");
+        //LOG.info(nhsno + ": Starting Practitioner Process");
 
         if (data.getGpdetails() != null) {
             try {
@@ -78,29 +78,25 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                         CommonUtils.cleanSql(data.getGpdetails().getGptelephone()));
 
                 if (!uuids.isEmpty()) {
-                    // update existing FHIR entities (should be a single row), return reference
-                    UUID updatedResourceId = null;
+                    // native update existing FHIR entities (should be a single row), return reference
+                    UUID logicalId = null;
 
                     for (Map<String, UUID> objectData : uuids) {
-                        try {
-                            updatedResourceId = objectData.get("logicalId");
-                            fhirResource.updateFhirObject(
-                                    importPractitioner, objectData.get("logicalId"), objectData.get("versionId"));
-                        } catch (FhirResourceException e) {
-                            LOG.error(nhsno + ": Could not update practitioner, " + e.getMessage(), e);
-                        }
+                        fhirResource.updateEntity(importPractitioner,
+                                ResourceType.Practitioner.name(), "practitioner", objectData.get("logicalId"));
+                        logicalId = objectData.get("logicalId");
                     }
 
-                    LOG.info(nhsno + ": Existing Practitioner, " + updatedResourceId);
-                    return updatedResourceId;
+                    LOG.info(nhsno + ": Existing Practitioner, " + logicalId);
+                    return logicalId;
 
                 } else {
-                    // create new FHIR object
-                    JSONObject jsonObject = create(importPractitioner);
-                    LOG.info(nhsno + ": Processed new Practitioner");
-                    return Util.getResourceId(jsonObject);
+                    // native create new FHIR object
+                    FhirDatabaseEntity entity = fhirResource.createEntity(
+                            importPractitioner, ResourceType.Practitioner.name(), "practitioner");
+                    LOG.info(nhsno + ": New Practitioner, " + entity.getLogicalId());
+                    return entity.getLogicalId();
                 }
-
             } catch (FhirResourceException e) {
                 LOG.error(nhsno + ": Unable to build practitioner");
                 throw e;
@@ -169,8 +165,6 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         } else {
             query.append("AND (content #> '{telecom,0}' ->> 'value') IS NULL ");
         }
-        
-        //LOG.info(query.toString());
 
         // execute and return UUIDs
         try {
@@ -191,15 +185,6 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
-        }
-    }
-
-    private JSONObject create(Practitioner practitioner) throws FhirResourceException {
-        try {
-            return fhirResource.create(practitioner);
-        } catch (Exception e) {
-            LOG.error(nhsno + ": Could not build practitioner resource", e);
-            throw new FhirResourceException(e.getMessage());
         }
     }
 }

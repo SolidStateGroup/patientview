@@ -5,6 +5,7 @@ import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FileData;
 
 import java.util.List;
 
@@ -16,6 +17,11 @@ import java.util.List;
  */
 public interface DiagnosticService {
 
+    // used by migration
+    void addDiagnosticReport(
+            org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink)
+    throws FhirResourceException;
+
     /**
      * Get Diagnostics for a patient from FHIR given a User ID.
      * @param userId ID of User to get Diagnostics for
@@ -26,8 +32,5 @@ public interface DiagnosticService {
     @UserOnly
     List<FhirDiagnosticReport> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
 
-    // used by migration
-    void addDiagnosticReport(
-            org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink)
-            throws FhirResourceException;
+    FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;
 }

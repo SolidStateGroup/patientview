@@ -8,21 +8,23 @@ import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DiagnosticReport;
+import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONObject;
 import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.FhirLinkService;
+import org.patientview.api.service.FileDataService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
@@ -41,6 +43,7 @@ import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
@@ -81,7 +84,6 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -117,6 +119,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private FileDataService fileDataService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -263,7 +268,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             careProvider.setDisplaySimple(practitionerUuid.toString());
         }
 
-        JSONObject createdPatient = fhirResource.create(patient);
+        //JSONObject createdPatient = fhirResource.create(patient);
+        FhirDatabaseEntity createdPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
         if (getFhirLink(fhirPatient.getGroup(), fhirPatient.getIdentifier(), fhirLinks) == null) {
 
@@ -292,8 +298,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             fhirLink.setUser(entityUser);
             fhirLink.setIdentifier(identifier);
             fhirLink.setGroup(fhirPatient.getGroup());
-            fhirLink.setResourceId(FhirResource.getLogicalId(createdPatient));
-            fhirLink.setVersionId(FhirResource.getVersionId(createdPatient));
+            fhirLink.setResourceId(createdPatient.getLogicalId());
+            fhirLink.setVersionId(createdPatient.getVersionId());
             fhirLink.setResourceType(ResourceType.Patient.name());
             fhirLink.setActive(true);
             return fhirLinkService.save(fhirLink);
@@ -329,15 +335,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private FhirLink createPatientAndFhirLink(User user, Group group, Identifier identifier)
             throws ResourceNotFoundException, FhirResourceException {
 
-        JSONObject fhirPatient = fhirResource.create(buildPatient(user, identifier));
+        FhirDatabaseEntity fhirPatient
+                = fhirResource.createEntity(buildPatient(user, identifier), ResourceType.Patient.name(), "patient");
 
         // create new FhirLink and add to list of known fhirlinks
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(user);
         fhirLink.setIdentifier(identifier);
         fhirLink.setGroup(group);
-        fhirLink.setResourceId(FhirResource.getLogicalId(fhirPatient));
-        fhirLink.setVersionId(FhirResource.getVersionId(fhirPatient));
+        fhirLink.setResourceId(fhirPatient.getLogicalId());
+        fhirLink.setVersionId(fhirPatient.getVersionId());
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
         return fhirLinkService.save(fhirLink);
@@ -373,16 +380,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 UUID subjectId = fhirLink.getResourceId();
 
                 // Patient
-                fhirResource.delete(subjectId, ResourceType.Patient);
+                fhirResource.deleteEntity(subjectId, "patient");
 
                 // Conditions
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.Condition);
+                    fhirResource.deleteEntity(uuid, "condition");
                 }
 
                 // Encounters
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.Encounter);
+                    fhirResource.deleteEntity(uuid, "encounter");
                 }
 
                 // MedicationStatements (and associated Medicine)
@@ -391,11 +398,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete medication associated with medication statement
                     MedicationStatement medicationStatement
                             = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
-                    fhirResource.delete(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                            ResourceType.Medication);
+                    if (medicationStatement != null) {
+                        fhirResource.deleteEntity(
+                                UUID.fromString(medicationStatement.getMedication().getDisplaySimple()), "medication");
 
-                    // delete medication statement
-                    fhirResource.delete(uuid, ResourceType.MedicationStatement);
+                        // delete medication statement
+                        fhirResource.deleteEntity(uuid, "medicationstatement");
+                    }
                 }
 
                 // DiagnosticReports (and associated Observation)
@@ -404,16 +413,42 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete observation (result) associated with diagnostic report
                     DiagnosticReport diagnosticReport
                             = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
-                    fhirResource.delete(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
-                            ResourceType.Observation);
+                    if (diagnosticReport != null) {
+                        fhirResource.deleteEntity(
+                                UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()), "observation");
 
-                    // delete diagnostic report
-                    fhirResource.delete(uuid, ResourceType.DiagnosticReport);
+                        // delete diagnostic report
+                        fhirResource.deleteEntity(uuid, "diagnosticreport");
+                    }
                 }
 
-                // DocumentReferences (letters)
+                // DocumentReferences (letters) including associated Media and FileData
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.DocumentReference);
+                    DocumentReference documentReference
+                            = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
+                    if (documentReference != null) {
+                        if (documentReference.getLocation() != null) {
+                            // check if media exists, if so try deleting binary data associated with media url
+                            Media media = (Media) fhirResource.get(
+                                    UUID.fromString(documentReference.getLocationSimple()), ResourceType.Media);
+
+                            if (media != null) {
+                                // delete media
+                                fhirResource.deleteEntity(
+                                        UUID.fromString(documentReference.getLocationSimple()), "media");
+                                if (media.getContent() != null && media.getContent().getUrl() != null) {
+                                    try {
+                                        // delete binary data
+                                        fileDataService.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                    } catch (NumberFormatException nfe) {
+                                        LOG.error("Error deleting FileData, NumberFormatException for Media url");
+                                    }
+                                }
+                            }
+                        }
+                        // delete DocumentReference
+                        fhirResource.deleteEntity(uuid, "documentreference");
+                    }
                 }
 
                 // AllergyIntolerance and Substance (allergy)
@@ -422,16 +457,18 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // delete Substance associated with AllergyIntolerance
                     AllergyIntolerance allergyIntolerance
                             = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
-                    fhirResource.delete(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
-                            ResourceType.Substance);
+                    if (allergyIntolerance != null) {
+                        fhirResource.deleteEntity(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
+                                "substance");
 
-                    // delete AllergyIntolerance
-                    fhirResource.delete(uuid, ResourceType.AllergyIntolerance);
+                        // delete AllergyIntolerance
+                        fhirResource.deleteEntity(uuid, "allergyintolerance");
+                    }
                 }
 
                 // AdverseReaction (allergy)
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
-                    fhirResource.delete(uuid, ResourceType.AdverseReaction);
+                    fhirResource.deleteEntity(uuid, "adversereaction");
                 }
             }
         }
@@ -714,14 +751,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
         Identifier identifier = entityUser.getIdentifiers().iterator().next();
         Patient patient = buildPatient(entityUser, identifier);
-        JSONObject fhirPatient = fhirResource.create(patient);
+        FhirDatabaseEntity fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(entityUser);
         fhirLink.setIdentifier(identifier);
         fhirLink.setGroup(patientEnteredResultsGroup);
-        fhirLink.setResourceId(FhirResource.getLogicalId(fhirPatient));
-        fhirLink.setVersionId(FhirResource.getVersionId(fhirPatient));
+        fhirLink.setResourceId(fhirPatient.getLogicalId());
+        fhirLink.setVersionId(fhirPatient.getVersionId());
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
         fhirLinkService.save(fhirLink);
@@ -1160,14 +1197,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Patient updatedPatient = patientBuilder.build();
 
         // store updated patient in FHIR
-        JSONObject jsonObject
-                = fhirResource.updateFhirObject(
-                    updatedPatient, foundFhirLink.getResourceId(), foundFhirLink.getVersionId());
-        UUID versionId = Util.getVersionId(jsonObject);
+        FhirDatabaseEntity entity
+                = fhirResource.updateEntity(
+                updatedPatient, ResourceType.Patient.name(), "patient", foundFhirLink.getResourceId());
 
         // update FhirLink
-        foundFhirLink.setVersionId(versionId);
-        foundFhirLink.setUpdated(new Date());
+        foundFhirLink.setVersionId(entity.getVersionId());
+        foundFhirLink.setUpdated(entity.getUpdated());
         fhirLinkRepository.save(foundFhirLink);
     }
 }

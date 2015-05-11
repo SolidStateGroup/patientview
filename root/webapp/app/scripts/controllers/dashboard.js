@@ -22,7 +22,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                     for (var i = 0; i < statisticsArray.length; i++) {
                         var statistics = statisticsArray[i];
 
-                        if (i !== statisticsArray.length) {
+                        if (i !== statisticsArray.length -1) {
                             var dateObject = new Date(statistics.startDate);
 
                             xAxisCategories.push(

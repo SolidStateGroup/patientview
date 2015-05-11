@@ -4,12 +4,18 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DocumentReference;
+import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
+import org.patientview.importer.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
@@ -42,19 +48,23 @@ import java.util.UUID;
 public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentReferenceService> implements DocumentReferenceService {
 
     @Inject
-    private FhirResource fhirResource;
-
-    @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
     private AlertRepository alertRepository;
 
     @Inject
     @Named("fhir")
     private BasicDataSource dataSource;
 
+    @Inject
+    private FhirResource fhirResource;
+
+    @Inject
+    private FileDataRepository fileDataRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
+
     private String nhsno;
+    private Alert alert;
 
     /**
      * Creates all of the FHIR DocumentReference records from the Patientview object.
@@ -66,90 +76,236 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
-        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
-        int success = 0;
         boolean verboseLogging = false;
-
-        DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
-
-        // get alert if present
-        List<org.patientview.persistence.model.Identifier> identifiers = identifierRepository.findByValue(this.nhsno);
-
-        if (!CollectionUtils.isEmpty(identifiers)) {
-            List<Alert> alerts
-                    = alertRepository.findByUserAndAlertType(identifiers.get(0).getUser(), AlertTypes.LETTER);
-            if (!CollectionUtils.isEmpty(alerts)) {
-                documentReferenceBuilder.setAlert(alerts.get(0));
-            }
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        if (verboseLogging) {
+            LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
         }
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+        int count = 0;
+        int success = 0;
 
-        List<DocumentReference> documentReferences = documentReferenceBuilder.build();
+        if (data.getPatient().getLetterdetails() != null) {
 
-        // get currently existing DocumentReference by subject Id
-        Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
+            // get currently existing DocumentReference by subject Id, map of <logical Id, applies>
+            Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
 
-        if (!CollectionUtils.isEmpty(documentReferences)) {
-            for (DocumentReference newDocumentReference : documentReferences) {
+            List<org.patientview.persistence.model.Identifier> identifiers
+                    = identifierRepository.findByValue(this.nhsno);
 
-                // delete any existing DocumentReference for this Subject that have same date
-                List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
-                if (!existingUuids.isEmpty()) {
-                    for (UUID existingUuid : existingUuids) {
-                        // logging for testing only
-                        if (verboseLogging) {
-                            if (newDocumentReference.getCreated() != null) {
-                                LOG.info(nhsno + ": Deleting DocumentReference with date "
-                                        + newDocumentReference.getCreated().getValue().toString());
+            // get LETTER alert if exists
+            if (!CollectionUtils.isEmpty(identifiers)) {
+                List<Alert> alerts
+                        = alertRepository.findByUserAndAlertType(identifiers.get(0).getUser(), AlertTypes.LETTER);
+                if (!CollectionUtils.isEmpty(alerts)) {
+                    alert = alerts.get(0);
+                }
+            }
+
+            for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
+                try {
+                    Date now = new Date();
+                    // set up Media and DocumentReference builders and build DocumentReference
+                    DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(letter, patientReference);
+                    MediaBuilder mediaBuilder = null;
+                    DocumentReference documentReference = docBuilder.build();
+
+                    // if binary file then build media
+                    if (letter.getLetterfilebody() != null) {
+
+                        // set filename and type if not set in XML
+                        if (StringUtils.isEmpty(letter.getLetterfilename())) {
+                            letter.setLetterfilename(String.valueOf(now.getTime()));
+                        }
+                        if (StringUtils.isEmpty(letter.getLetterfiletype())) {
+                            letter.setLetterfiletype("application/unknown");
+                        }
+                        mediaBuilder = new MediaBuilder(letter);
+                        mediaBuilder.build();
+
+                        // set title of DocumentReference if possible (overwrites type)
+                        if (StringUtils.isNotEmpty(letter.getLettertitle())) {
+                            documentReference.setDescriptionSimple(letter.getLettertitle());
+                        }
+                    }
+
+                    // delete existing document reference, media and binary data if present
+                    List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
+                    if (!existingUuids.isEmpty()) {
+                        for (UUID existingUuid : existingUuids) {
+                            if (verboseLogging) {
+                                if (documentReference.getCreated() != null) {
+                                    LOG.info(nhsno + ": Deleting DocumentReference with date "
+                                            + documentReference.getCreated().getValue().toString());
+                                } else {
+                                    LOG.info(nhsno + ": Deleting DocumentReference");
+                                }
+                            }
+
+                            String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+
+                            if (locationUuid != null) {
+                                // delete associated media and binary data if present
+                                Media media
+                                        = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+                                if (media != null) {
+                                    // delete media
+                                    fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
+
+                                    // delete binary data
+                                    try {
+                                        if (fileDataRepository.exists(Long.valueOf(
+                                                media.getContent().getUrlSimple()))) {
+                                            fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                        }
+                                    } catch (NumberFormatException nfe) {
+                                        LOG.info("Error deleting existing binary data, " +
+                                                "Media reference to binary data is not Long, ignoring");
+                                    }
+                                }
+                            }
+
+                            fhirResource.deleteEntity(existingUuid, "documentreference");
+                        }
+                    }
+
+                    boolean failed = false;
+                    FileData fileData = null;
+
+                    // create new binary file and Media if letter has file body (base64 binary)
+                    if (letter.getLetterfilebody() != null) {
+                        Media media = mediaBuilder.getMedia();
+
+                        // create binary file
+                        fileData = new FileData();
+                        fileData.setCreated(now);
+                        if (media.getContent().getTitle() != null) {
+                            fileData.setName(media.getContent().getTitleSimple());
+                        } else {
+                            fileData.setName(String.valueOf(now.getTime()));
+                        }
+                        if (media.getContent().getContentType() != null) {
+                            fileData.setType(media.getContent().getContentTypeSimple());
+                        } else {
+                            fileData.setType("application/unknown");
+                        }
+                        // convert base64 string to binary
+                        byte[] content = CommonUtils.base64ToByteArray(letter.getLetterfilebody());
+                        fileData.setContent(content);
+                        fileData.setSize(Long.valueOf(content.length));
+                        fileData = fileDataRepository.save(fileData);
+
+                        media = mediaBuilder.setFileDataId(media, fileData.getId());
+                        media = mediaBuilder.setFileSize(media, content.length);
+
+                        // create Media and set DocumentReference location to newly created Media logicalId
+                        try {
+                            FhirDatabaseEntity createdMedia
+                                    = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+                            documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
+                        } catch (FhirResourceException e) {
+                            LOG.error(nhsno + ": Unable to create Media");
+                            failed = true;
+                        }
+                    }
+
+                    // create new DocumentReference
+                    if (!failed) {
+                        try {
+                            if (verboseLogging) {
+                                if (documentReference.getCreated() != null) {
+                                    LOG.info(nhsno + ": Adding DocumentReference with date "
+                                            + documentReference.getCreated().getValue().toString());
+                                } else {
+                                    LOG.info(nhsno + ": Adding DocumentReference");
+                                }
+                            }
+                            fhirResource.createEntity(
+                                    documentReference, ResourceType.DocumentReference.name(), "documentreference");
+                        } catch (FhirResourceException e) {
+                            LOG.error(nhsno + ": Unable to create DocumentReference");
+                            failed = true;
+                        }
+                    }
+
+                    // if any object creation failed, clean up binary data
+                    if (failed) {
+                        if (fileData != null) {
+                            fileDataRepository.delete(fileData);
+                            LOG.error(nhsno + ": Had to clean up binary data");
+                        }
+                    } else {
+                        success++;
+                        if (alert != null) {
+                            if (alert.getLatestDate() == null) {
+                                alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                                alert.setLatestValue(letter.getLettertype());
+                                alert.setEmailAlertSent(false);
+                                alert.setWebAlertViewed(false);
+                                alert.setUpdated(true);
                             } else {
-                                LOG.info(nhsno + ": Deleting DocumentReference");
+                                if (alert.getLatestDate().getTime()
+                                        < letter.getLetterdate().toGregorianCalendar().getTime().getTime()) {
+                                    alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                                    alert.setLatestValue(letter.getLettertype());
+                                    alert.setEmailAlertSent(false);
+                                    alert.setWebAlertViewed(false);
+                                    alert.setUpdated(true);
+                                }
                             }
                         }
-                        fhirResource.delete(existingUuid, ResourceType.DocumentReference);
                     }
-                }
-
-                // create new DocumentReference
-                try {
-                    // logging for testing only
-                    if (verboseLogging) {
-                        if (newDocumentReference.getCreated() != null) {
-                            LOG.info(nhsno + ": Adding DocumentReference with date "
-                                    + newDocumentReference.getCreated().getValue().toString());
-                        } else {
-                            LOG.info(nhsno + ": Adding DocumentReference");
-                        }
-                    }
-                    fhirResource.create(newDocumentReference);
-                    success++;
                 } catch (FhirResourceException e) {
-                    LOG.error(nhsno + ": Unable to create DocumentReference");
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("DocumentReference Exception: " + e.getMessage());
+                    throw new FhirResourceException(e);
+                }
+                count++;
+            }
+
+            if (alert != null) {
+                Alert entityAlert = alertRepository.findOne(alert.getId());
+                if (entityAlert != null) {
+                    entityAlert.setLatestValue(alert.getLatestValue());
+                    entityAlert.setLatestDate(alert.getLatestDate());
+                    entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                    entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
+                    entityAlert.setLastUpdate(new Date());
+                    alertRepository.save(entityAlert);
                 }
             }
         }
 
-        Alert builderAlert = documentReferenceBuilder.getAlert();
-        if (builderAlert != null) {
-            Alert entityAlert = alertRepository.findOne(builderAlert.getId());
-            if (entityAlert != null) {
-                entityAlert.setLatestValue(builderAlert.getLatestValue());
-                entityAlert.setLatestDate(builderAlert.getLatestDate());
-                entityAlert.setWebAlertViewed(builderAlert.isWebAlertViewed());
-                entityAlert.setEmailAlertSent(builderAlert.isEmailAlertSent());
-                entityAlert.setLastUpdate(new Date());
-                alertRepository.save(entityAlert);
-            }
-        }
-
-        LOG.info(nhsno + ": Finished DocumentReference (letter) Process");
-        LOG.info(nhsno + ": Processed {} of {} letters", success, documentReferenceBuilder.getCount());
+        LOG.trace(nhsno + ": Finished DocumentReference (letter) Process");
+        LOG.info(nhsno + ": Processed {} of {} letters", success, count);
     }
 
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.DocumentReference);
+    private String getLocationUuidFromLogicalUuid(UUID logicalId) throws FhirResourceException {
+        String output = null;
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT content->>'location' ");
+        query.append("FROM documentreference ");
+        query.append("WHERE logical_id = '");
+        query.append(logicalId.toString());
+        query.append("' ");
+
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                output = results.getString(1);
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
         }
+
+        return output;
     }
 
     private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink)

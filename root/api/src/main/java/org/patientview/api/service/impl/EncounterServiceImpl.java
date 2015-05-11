@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Identifier;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.util.Util;
@@ -21,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +45,11 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
     private DataSource dataSource;
 
     @Override
-    public List<UUID> getUuidsByUserIdAndType(final Long userId, final EncounterTypes encounterType)
+    public void deleteByUserAndType(final User user, final EncounterTypes encounterType)
             throws ResourceNotFoundException, FhirResourceException {
 
-        List<UUID> encounterUuids = new ArrayList<>();
-
-        User user = userRepository.findOne(userId);
         if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
+            throw new ResourceNotFoundException("No user");
         }
 
         if (encounterType == null) {
@@ -75,12 +72,11 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
 
         // if no fhirLinks return empty array
         if (StringUtils.isEmpty(fhirLinkString)) {
-            return encounterUuids;
+            return;
         }
 
         StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id ");
-        query.append("FROM encounter ");
+        query.append("DELETE FROM encounter ");
         query.append("WHERE content -> 'subject' ->> 'display' IN (");
         query.append(fhirLinkString);
         query.append(") AND content #> '{identifier,0}' -> 'value' = '\"");
@@ -88,26 +84,19 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         query.append("\"'");
 
         try {
-            if (connection == null) {
-                connection = dataSource.getConnection();
-            }
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                encounterUuids.add(UUID.fromString(results.getString(1)));
-            }
-
+            statement.executeQuery(query.toString());
             connection.close();
         } catch (SQLException e) {
             try {
-                connection.close();
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e1) {
                 throw new FhirResourceException(e);
             }
         }
-
-        return encounterUuids;
     }
 
     @Override
@@ -146,6 +135,6 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         encounter.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
         encounter.setServiceProvider(Util.createFhirResourceReference(organizationUuid));
 
-        fhirResource.create(encounter);
+        fhirResource.createEntity(encounter, ResourceType.Encounter.name(), "encounter");
     }
 }

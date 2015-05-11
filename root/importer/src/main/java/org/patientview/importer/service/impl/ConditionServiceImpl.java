@@ -36,7 +36,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         int count = 0;
-        LOG.info(nhsno + ": Starting Condition Process");
+        LOG.trace(nhsno + ": Starting Condition Process");
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
 
@@ -46,7 +46,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
         for (Condition condition : conditionsBuilder.build()) {
             LOG.trace(nhsno + ": Creating... condition " + count);
             try {
-                fhirResource.create(condition);
+                fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
             } catch (FhirResourceException e) {
                 LOG.error(nhsno + ": Unable to build condition");
             }
@@ -56,11 +56,10 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
                 conditionsBuilder.getSuccess(), conditionsBuilder.getCount());
     }
 
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.Condition);
-        }
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        // native delete
+        fhirResource.executeSQL(
+            "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
     }
 }
-
-

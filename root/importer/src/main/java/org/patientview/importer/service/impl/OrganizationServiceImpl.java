@@ -3,14 +3,12 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.instance.model.Organization;
-import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.OrganizationBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;
-import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
@@ -54,7 +52,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     public UUID add(final Patientview data) throws ResourceNotFoundException, FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
-        LOG.info(nhsno + ": Starting Organization Process");
+        //LOG.info(nhsno + ": Starting Organization Process");
 
         // validate that group exists in patientview using persistence module, otherwise throw exception
         if (!groupWithCodeExists(data.getCentredetails().getCentrecode())) {
@@ -71,32 +69,26 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
             List<Map<String, UUID>> uuids = getUuidsByCode(data.getCentredetails().getCentrecode());
 
             if (!uuids.isEmpty()) {
-                // update existing FHIR entities (should be a single row), return reference
-                UUID updatedResourceId = null;
+                // native update existing FHIR entities (should be a single row)
+                UUID logicalId = null;
 
                 for (Map<String, UUID> objectData : uuids) {
-                    try {
-                        updatedResourceId = objectData.get("logicalId");
-                        fhirResource.updateFhirObject(
-                                importOrganization, objectData.get("logicalId"), objectData.get("versionId"));
-                    } catch (FhirResourceException e) {
-                        // no longer logging organization update errors, due to multiple calls to FHIR stored
-                        // procedures for the same organization causing locking errors
-                        //LOG.error(nhsno + ": Could not update organization: " + e.getMessage(), e);
-                    }
+                    fhirResource.updateEntity(importOrganization,
+                            ResourceType.Organization.name(), "organization", objectData.get("logicalId"));
+                    logicalId = objectData.get("logicalId");
                 }
 
-                LOG.info(nhsno + ": Existing Organization, " + updatedResourceId);
-                return updatedResourceId;
+                LOG.info(nhsno + ": Existing Organization, " + logicalId);
+                return logicalId;
             } else {
-                // create new FHIR organization
-                JSONObject jsonObject = create(importOrganization);
-                LOG.info(nhsno + ": Processed Organization");
-                return Util.getResourceId(jsonObject);
+                // native create new FHIR organization
+                FhirDatabaseEntity entity
+                    = fhirResource.createEntity(importOrganization, ResourceType.Organization.name(), "organization");
+                LOG.info(nhsno + ": New Organization, " + entity.getLogicalId());
+                return entity.getLogicalId();
             }
-
         } catch (FhirResourceException e) {
-            LOG.error(nhsno + ": Unable to build organization: " + e.getMessage());
+            LOG.error(nhsno + ": Unable to save organization: " + e.getMessage());
             throw e;
         }
     }
@@ -108,9 +100,9 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     private List<Map<String, UUID>> getUuidsByCode(final String code) throws FhirResourceException {
         // build query
         StringBuilder query = new StringBuilder();
-        query.append("SELECT  version_id, logical_id ");
+        query.append("SELECT version_id, logical_id ");
         query.append("FROM organization ");
-        query.append("WHERE   content #> '{identifier,0}' -> 'value' = '\"");
+        query.append("WHERE content #> '{identifier,0}' -> 'value' = '\"");
         query.append(code);
         query.append("\"' ");
 
@@ -133,15 +125,6 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
-        }
-    }
-
-    private JSONObject create(Organization organization) throws FhirResourceException {
-        try {
-            return fhirResource.create(organization);
-        } catch (Exception e) {
-            LOG.error(nhsno + ": Could not build organization resource", e);
-            throw new FhirResourceException(e.getMessage());
         }
     }
 }

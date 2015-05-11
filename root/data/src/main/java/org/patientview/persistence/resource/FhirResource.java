@@ -8,6 +8,8 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
@@ -50,8 +52,13 @@ public class FhirResource {
     private DataSource dataSource;
 
     public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-
         JSONObject jsonObject = getBundle(uuid, resourceType);
+
+        // return null if not found
+        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
+            return null;
+        }
+
         JSONArray resultArray = (JSONArray) jsonObject.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
 
@@ -69,6 +76,7 @@ public class FhirResource {
      * @return JSONObject JSON version of saved Resource
      * @throws FhirResourceException
      */
+    @Deprecated
     public JSONObject create(Resource resource) throws FhirResourceException {
         //LOG.info("c1 " + new Date().getTime());
         PGobject result;
@@ -116,6 +124,7 @@ public class FhirResource {
      * @return JSONObject JSON version of saved Resource
      * @throws FhirResourceException
      */
+    @Deprecated
     public void createFast(Resource resource) throws FhirResourceException {
         //LOG.info("c1 " + new Date().getTime());
         Connection connection = null;
@@ -157,6 +166,7 @@ public class FhirResource {
      * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
      *
      */
+    @Deprecated
     public JSONObject updateFhirObject(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
 
         PGobject result;
@@ -213,6 +223,7 @@ public class FhirResource {
      * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
      *
      */
+    @Deprecated
     public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
 
         PGobject result;
@@ -256,6 +267,7 @@ public class FhirResource {
      * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
      *
      */
+    @Deprecated
     public void delete(UUID uuid, ResourceType resourceType) throws FhirResourceException {
 
         //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
@@ -770,5 +782,60 @@ public class FhirResource {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.getString("id"));
+    }
+
+    /**
+     * Natively update FHIR entity, returning newly created Resource logical UUID.
+     * @param resource Resource to create, e.g. Observation, Patient, etc
+     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @return FhirDatabaseEntity, used to create newly created Resource
+     * @throws FhirResourceException
+     */
+    public FhirDatabaseEntity createEntity(Resource resource, String resourceType, String tableName) throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+        entity.setLogicalId(UUID.randomUUID());
+        entity.setPublished(entity.getUpdated());
+
+        executeSQL("INSERT INTO " + tableName +
+                " (logical_id, version_id, resource_type, published, updated, content) VALUES " +
+                "('" + entity.getLogicalId() + "'," +
+                "'" + entity.getVersionId() + "'," +
+                "'" + entity.getResourceType() + "'," +
+                "'" + entity.getPublished() + "'," +
+                "'" + entity.getUpdated() + "'," +
+                "'" + CommonUtils.cleanSql(entity.getContent()) + "')");
+
+        return entity;
+    }
+
+    /**
+     * Simple delete statement to remove entity based on logical id and table name.
+     * @param logicalId Logical UUID of the object to delete, the primary key
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @throws FhirResourceException
+     */
+    public void deleteEntity(UUID logicalId, String tableName) throws FhirResourceException {
+        executeSQL("DELETE FROM " + tableName + " WHERE logical_id = '" + logicalId + "'");
+    }
+
+    /**
+     * Natively update FHIR entity, returning version UUID.
+     * @param resource Resource to update, e.g. Observation, Patient, etc
+     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
+     * @param logicalId Logical UUID of the object to update, the primary key
+     * @return FhirDatabaseEntity that has just been stored, including version, logical ids etc
+     * @throws FhirResourceException
+     */
+    public FhirDatabaseEntity updateEntity(Resource resource, String resourceType, String tableName, UUID logicalId)
+            throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+
+        executeSQL("UPDATE " + tableName + " SET content = '" + CommonUtils.cleanSql(entity.getContent()) +
+                "', version_id = '" + entity.getVersionId() +
+                "', updated = '" + entity.getUpdated() +
+                "' WHERE logical_id = '" + logicalId.toString() + "' ");
+
+        return entity;
     }
 }
