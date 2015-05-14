@@ -43,6 +43,7 @@ public class EmailTaskTest {
     @Test
     public void testSendAlertObservationHeadingEmails() throws Exception {
         emailTask.sendAlertEmails();
-        verify(alertService, Mockito.times(1)).sendAlertEmails();
+        //verify(alertService, Mockito.times(1)).sendAlertEmails();
+        verify(alertService, Mockito.times(1)).sendIndividualAlertEmails();
     }
 }
