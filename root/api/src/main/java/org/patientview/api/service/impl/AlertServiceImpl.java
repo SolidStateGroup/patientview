@@ -219,9 +219,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Override
     public void sendAlertEmails() {
-
         List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
-
+        LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
         Set<String> emailAddresses = new HashSet<>();
 
         for (Alert alert : alerts) {
@@ -232,6 +231,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         }
 
         if (!CollectionUtils.isEmpty(emailAddresses)) {
+            LOG.info("Alerts: Sending new data emails to " + emailAddresses.size() + " patients");
             Email email = new Email();
             email.setBcc(true);
             email.setSenderEmail(properties.getProperty("smtp.sender.email"));
