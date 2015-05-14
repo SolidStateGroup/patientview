@@ -73,6 +73,8 @@ public interface AlertService {
      */
     void sendAlertEmails();
 
+    void sendIndividualAlertEmails();
+
     /**
      * Update a User's preferences for an alert, such as the notification settings.
      * @param userId ID of User to change the Alert preferences for

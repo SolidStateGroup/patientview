@@ -23,6 +23,7 @@ public class EmailTask {
      */
     @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     public void sendAlertEmails() {
-        alertService.sendAlertEmails();
+        //alertService.sendAlertEmails();
+        alertService.sendIndividualAlertEmails();
     }
 }

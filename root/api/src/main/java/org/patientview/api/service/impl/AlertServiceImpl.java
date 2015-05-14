@@ -262,6 +262,54 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    public void sendIndividualAlertEmails() {
+        List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
+        LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
+        Set<String> emailAddresses = new HashSet<>();
+
+        for (Alert alert : alerts) {
+            String email = alertRepository.findOne(alert.getId()).getUser().getEmail();
+            if (StringUtils.isNotEmpty(email)) {
+                emailAddresses.add(email);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(emailAddresses)) {
+            LOG.info("Alerts: Sending new data emails to " + emailAddresses.size() + " patients");
+            for (String emailAddress : emailAddresses) {
+                String[] recipients = {emailAddress};
+                Email email = new Email();
+                email.setBcc(true);
+                email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+                email.setSenderName(properties.getProperty("smtp.sender.name"));
+                email.setRecipients(recipients);
+                email.setSubject("PatientView - You have new data");
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Dear Sir/Madam");
+                sb.append(", <br/><br/>New data has arrived on <a href=\"");
+                sb.append(properties.getProperty("site.url"));
+                sb.append("\">PatientView</a>");
+                sb.append("<br/><br/>Please log in to view.<br/>");
+                email.setBody(sb.toString());
+
+                try {
+                    emailService.sendEmail(email);
+                } catch (MessagingException | MailException me) {
+                    LOG.error("Could not bulk send result alert emails: ", me);
+                }
+            }
+        }
+
+        Date now = new Date();
+        for (Alert alert : alerts) {
+            alert.setEmailAlertSent(true);
+            alert.setLastUpdate(now);
+            alertRepository.save(alert);
+        }
+    }
+
+    @Override
     public void removeAlert(Long userId, Long alertId) throws ResourceNotFoundException, ResourceForbiddenException {
 
         User user = userRepository.findOne(userId);

@@ -94,8 +94,8 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                             + properties.getProperty("email.footer"), true);
 
                     try {
-                        LOG.info("Email: Attempting to send email to " + Arrays.toString(recipientBatch)
-                                + " with subject '" + email.getSubject() + "'");
+                        //LOG.info("Email: Attempting to send email to " + Arrays.toString(recipientBatch)
+                        //        + " with subject '" + email.getSubject() + "'");
                         javaMailSender.send(message);
                         LOG.info("Email: Sent email to " + Arrays.toString(recipientBatch) + " with subject '"
                                 + email.getSubject() + "'");
