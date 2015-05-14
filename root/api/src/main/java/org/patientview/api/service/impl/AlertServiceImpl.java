@@ -249,8 +249,10 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
             try {
                 emailService.sendEmail(email);
+                Date now = new Date();
                 for (Alert alert : alerts) {
                     alert.setEmailAlertSent(true);
+                    alert.setLastUpdate(now);
                     alertRepository.save(alert);
                 }
             } catch (MessagingException | MailException me) {
