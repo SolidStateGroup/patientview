@@ -76,6 +76,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -442,6 +443,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                                         fileDataService.delete(Long.valueOf(media.getContent().getUrlSimple()));
                                     } catch (NumberFormatException nfe) {
                                         LOG.error("Error deleting FileData, NumberFormatException for Media url");
+                                    } catch (EmptyResultDataAccessException e) {
+                                        LOG.error("Error deleting FileData, no entity with id exists");
                                     }
                                 }
                             }

@@ -64,7 +64,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     private IdentifierRepository identifierRepository;
 
     private String nhsno;
-    private Alert alert;
 
     /**
      * Creates all of the FHIR DocumentReference records from the Patientview object.
@@ -75,7 +74,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
      */
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
-
+        Alert alert = null;
         boolean verboseLogging = false;
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         if (verboseLogging) {
