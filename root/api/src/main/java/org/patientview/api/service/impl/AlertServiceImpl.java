@@ -31,6 +31,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -218,6 +219,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    @Async
     public void sendAlertEmails() {
         List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
         LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
@@ -262,6 +264,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    @Async
     public void sendIndividualAlertEmails() {
         List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
         LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");

@@ -24,6 +24,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -122,6 +123,7 @@ import java.util.UUID;
      * @throws UktException
      */
     @Override
+    @Async
     public void exportData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String exportDirectory = properties.getProperty("ukt.export.directory");
         String tempExportFilename = properties.getProperty("ukt.export.filename") + ".temp";
@@ -247,6 +249,7 @@ import java.util.UUID;
      * @throws UktException
      */
     @Override
+    @Async
     public void importData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String importDirectory = properties.getProperty("ukt.import.directory");
         String importFilename = properties.getProperty("ukt.import.filename");

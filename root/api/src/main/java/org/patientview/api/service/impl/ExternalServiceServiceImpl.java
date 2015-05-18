@@ -12,6 +12,7 @@ import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.ExternalServiceTaskQueueItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -52,6 +53,7 @@ import java.util.Properties;
     }
 
     @Override
+    @Async
     public void sendToExternalService() {
         // get unsent or failed
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();

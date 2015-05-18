@@ -34,7 +34,7 @@ public class UktTask {
      * Import UKT data, wiping out existing database contents
      */
     //@Scheduled(cron = "0 */1 * * * ?") // every minute
-    @Scheduled(cron = "0 0 22 * * ?") // every day at 22:00
+    @Scheduled(cron = "0 0 23 * * ?") // every day at 23:00
     public void importUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         Boolean importEnabled = Boolean.parseBoolean(properties.getProperty("ukt.import.enabled"));
 
@@ -55,7 +55,7 @@ public class UktTask {
      */
     //@Scheduled(cron = "0 0 */1 * * ?") // every hour
     //@Scheduled(cron = "0 */1 * * * ?") // every minute
-    @Scheduled(cron = "0 0 23 * * ?") // every day at 23:00
+    @Scheduled(cron = "0 0 22 * * ?") // every day at 22:00
     public void exportUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         Boolean exportEnabled = Boolean.parseBoolean(properties.getProperty("ukt.export.enabled"));
 
