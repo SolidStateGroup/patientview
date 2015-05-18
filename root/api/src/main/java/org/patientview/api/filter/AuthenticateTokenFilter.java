@@ -143,7 +143,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return true;
         } catch (AuthenticationServiceException e) {
-            LOG.info("Authentication failed for " + authenticationToken.getName() + ", " + e.getMessage());
+            //LOG.info("Authentication failed for " + authenticationToken.getName() + ", " + e.getMessage());
             return false;
         }
     }

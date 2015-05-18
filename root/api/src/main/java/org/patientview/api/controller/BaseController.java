@@ -87,7 +87,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleAuthenticationException(Exception e) {
-        LOG.error("Login failed: " + e.getMessage());
+        //LOG.error("Login failed: " + e.getMessage());
         return e.getMessage();
     }
 
