@@ -33,21 +33,11 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
 
         // separate SPECIALTY from UNIT groups
         groups.forEach(function(group) {
-            if ($scope.request.type === 'JOIN_REQUEST') {
-                if (group.visibleToJoin) {
-                    if (group.groupType.value === 'SPECIALTY') {
-                        $scope.specialties.push(group);
-                    } else if (group.groupType.value === 'UNIT') {
-                        $scope.childUnits.push(group);
-                    }
-                }
-            } else {
-                if (group.visible) {
-                    if (group.groupType.value === 'SPECIALTY') {
-                        $scope.specialties.push(group);
-                    } else if (group.groupType.value === 'UNIT') {
-                        $scope.childUnits.push(group);
-                    }
+            if (group.visibleToJoin) {
+                if (group.groupType.value === 'SPECIALTY') {
+                    $scope.specialties.push(group);
+                } else if (group.groupType.value === 'UNIT') {
+                    $scope.childUnits.push(group);
                 }
             }
         });
@@ -63,7 +53,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         var formOk = true;
 
         if (typeof $scope.request.unit === 'undefined') {
-            $scope.errorMessage = 'Please select a unit to join';
+            $scope.errorMessage = 'Please select a unit';
             formOk = false;
         } else {
             groupId = $scope.request.unit;
