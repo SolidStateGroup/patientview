@@ -1,19 +1,19 @@
 package org.patientview.migration.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
-import org.patientview.migration.util.PvUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Specialty;
-import org.patientview.patientview.model.EdtaCode;
 import org.patientview.patientview.model.ResultHeading;
 import org.patientview.patientview.model.SpecialtyResultHeading;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
@@ -25,9 +25,15 @@ import org.patientview.repository.SpecialtyDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -140,7 +146,92 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void createCodes(Lookup codeType, String codeTypeName) {
 
-        int i = 1;
+        Connection connection = null;
+        String sql = "SELECT edtaCode, description, patientLinkText01, patientLink01, patientLinkText02, " +
+                "patientLink02, patientLinkText03, patientLink03, patientLinkText04, patientLink04, " +
+                "patientLinkText05, patientLink05, patientLinkText06, patientLink06 FROM edtacode " +
+                "WHERE linkType = '" + codeTypeName + "'";
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+                Code code = new Code();
+                code.setStandardType(getLookupByName("EDTA"));
+                code.setCode(results.getString(1));
+                code.setDescription(results.getString(2));
+                code.setCodeType(codeType);
+                Set<Link> links = new HashSet<Link>();
+
+                if (StringUtils.isNotEmpty(results.getString(3))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(3));
+                    link.setLink(results.getString(4));
+                    links.add(link);
+                }
+
+                if (StringUtils.isNotEmpty(results.getString(5))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(5));
+                    link.setLink(results.getString(6));
+                    links.add(link);
+                }
+
+                if (StringUtils.isNotEmpty(results.getString(7))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(7));
+                    link.setLink(results.getString(8));
+                    links.add(link);
+                }
+
+                if (StringUtils.isNotEmpty(results.getString(9))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(9));
+                    link.setLink(results.getString(10));
+                    links.add(link);
+                }
+
+                if (StringUtils.isNotEmpty(results.getString(11))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(11));
+                    link.setLink(results.getString(12));
+                    links.add(link);
+                }
+
+                if (StringUtils.isNotEmpty(results.getString(13))) {
+                    Link link = new Link();
+                    link.setDisplayOrder(links.size() + 1);
+                    link.setName(results.getString(13));
+                    link.setLink(results.getString(14));
+                    links.add(link);
+                }
+
+                code.setLinks(links);
+
+                callApiCreateCode(code);
+            }
+
+            connection.close();
+
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    // do nothing
+                }
+            }
+        }
+
+        /*int i = 1;
         for (EdtaCode edtaCode : edtaCodeDao.get(codeTypeName, null)) {
             Code code = new Code();
             code.setDisplayOrder(i++);
@@ -150,7 +241,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             code.setCode(edtaCode.getEdtaCode());
             code.setLinks(PvUtil.getLinks(edtaCode));
             callApiCreateCode(code);
-        }
+        }*/
     }
 
     public void createObservationHeadings() {
