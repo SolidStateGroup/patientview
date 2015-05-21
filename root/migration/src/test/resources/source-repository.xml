@@ -68,7 +68,6 @@
         <property name="location" value="classpath:migration-test.properties"/>
     </bean>
 
-
     <!-- boiler plate jpa stuff -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource"/>

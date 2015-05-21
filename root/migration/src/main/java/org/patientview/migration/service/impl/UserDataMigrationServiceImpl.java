@@ -1,5 +1,6 @@
 package org.patientview.migration.service.impl;
 
+import bsh.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.utils.CommonUtils;
@@ -69,10 +70,15 @@ import org.patientview.service.MedicineManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -157,6 +163,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
 
+    private static final boolean IBD = true;
 
     @Inject
     private DataSource dataSource;
@@ -200,18 +207,20 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         previouslyMigratedPv1Ids.addAll(JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.USER_MIGRATED));
         previouslyMigratedPv1Ids.addAll(JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_MIGRATED));
 
-        // create set of nhs numbers with eye checkup
-        eyeCheckupNhsNos = new HashSet<String>();
-        List<EyeCheckup> allEyeCheckup = eyeCheckupDao.getAll();
-        for (EyeCheckup eyeCheckup : allEyeCheckup) {
-            eyeCheckupNhsNos.add(eyeCheckup.getNhsno());
-        }
+        if (!IBD) {
+            // create set of nhs numbers with eye checkup
+            eyeCheckupNhsNos = new HashSet<String>();
+            List<EyeCheckup> allEyeCheckup = eyeCheckupDao.getAll();
+            for (EyeCheckup eyeCheckup : allEyeCheckup) {
+                eyeCheckupNhsNos.add(eyeCheckup.getNhsno());
+            }
 
-        // create set of nhs numbers with foot checkup
-        footCheckupNhsNos = new HashSet<String>();
-        List<FootCheckup> allFootCheckup = footCheckupDao.getAll();
-        for (FootCheckup footCheckup : allFootCheckup) {
-            footCheckupNhsNos.add(footCheckup.getNhsno());
+            // create set of nhs numbers with foot checkup
+            footCheckupNhsNos = new HashSet<String>();
+            List<FootCheckup> allFootCheckup = footCheckupDao.getAll();
+            for (FootCheckup footCheckup : allFootCheckup) {
+                footCheckupNhsNos.add(footCheckup.getNhsno());
+            }
         }
 
         LOG.info("--- Starting migration ---");
@@ -236,10 +245,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info(groupsToAdd.size() + " Groups");
 
         boolean singleUser = false;
-        boolean replaceExisting = true;
+        boolean replaceExisting = false;
 
         if (!singleUser) {
-
             for (Group group : groupsToAdd) {
                 LOG.info("(Migration) From Group: " + group.getCode());
                 try {
@@ -253,20 +261,27 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 if ((!replaceExisting && !previouslyMigratedPv1Ids.contains(oldUserId))
                                         || replaceExisting) {
                                     try {
-                                        org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                                        org.patientview.patientview.model.User oldUser;
+                                        if (IBD) {
+                                            oldUser = getUserNative(oldUserId);
+                                        } else {
+                                            oldUser = userDao.get(oldUserId);
+                                        }
 
-                                        if (!oldUser.getUsername().endsWith("-GP")) {
-                                            MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+                                        if (oldUser != null) {
+                                            if (!oldUser.getUsername().endsWith("-GP")) {
+                                                MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
-                                            if (migrationUser != null) {
-                                                try {
-                                                    LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
-                                                            + group.getCode() + " submitting to REST");
-                                                    executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                                                if (migrationUser != null) {
+                                                    try {
+                                                        LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
+                                                                + group.getCode() + " submitting to REST");
+                                                        executorService.submit(new AsyncMigrateUserTask(migrationUser));
 
-                                                    migratedPv1IdsThisRun.add(oldUser.getId());
-                                                } catch (Exception e) {
-                                                    LOG.error("REST submit exception: ", e);
+                                                        migratedPv1IdsThisRun.add(oldUser.getId());
+                                                    } catch (Exception e) {
+                                                        LOG.error("REST submit exception: ", e);
+                                                    }
                                                 }
                                             }
                                         }
@@ -317,6 +332,52 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
+    private org.patientview.patientview.model.User getUserNative(Long oldUserId) {
+        Connection connection = null;
+        org.patientview.patientview.model.User user = null;
+        String sql = "SELECT username, password, name, email, emailverified, firstlogon, dummypatient, " +
+                "lastlogon, failedlogons, accountlocked, id FROM user WHERE id = " + oldUserId;
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            if (results.next()) {
+                user = new org.patientview.patientview.model.User();
+                user.setUsername(results.getString(1));
+                user.setPassword(results.getString(2));
+                String firstName = results.getString(3).substring(0, results.getString(3).lastIndexOf(" "));
+                String lastName = results.getString(3).substring(results.getString(3).lastIndexOf(" ") + 1, results.getString(3).length());
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                if (StringUtils.isNotEmpty(results.getString(4))) {
+                    user.setEmail(results.getString(4));
+                }
+                user.setEmailverified(results.getBoolean(5));
+                user.setFirstlogon(results.getBoolean(6));
+                user.setDummypatient(results.getBoolean(7));
+                if (results.getTimestamp(8) != null) {
+                    user.setLastlogon(results.getTimestamp(8));
+                }
+                user.setFailedlogons(results.getInt(9));
+                user.setAccountlocked(results.getBoolean(10));
+                user.setId(results.getLong(11));
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return user;
+    }
+
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser, Role patientRole) {
 
         //LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
@@ -356,31 +417,43 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             newUser.getGroupRoles().add(groupRole);
                         }
                     } else {
-
-                        // is a staff member
-                        Role role = null;
-                        List<SpecialtyUserRole> specialtyUserRoles
-                                = specialtyUserRoleDao.getRolesNative(oldUser.getId());
-
-                        // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
-                        // TODO: required hack from original PatientView
-                        if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
-                            String roleName = specialtyUserRoles.get(0).getRole();
-
-                            if (roleName.equals("unitadmin")) {
-                                role = getRoleByName(RoleName.UNIT_ADMIN);
-                            } else if (roleName.equals("unitstaff")) {
-                                role = getRoleByName(RoleName.STAFF_ADMIN);
-                            }
-
-                            // add group (specialty is added automatically when creating user within a UNIT group)
+                        if (IBD) {
+                            // get role from tenancyuserrole
                             Group group = getGroupByCode(userMapping.getUnitcode());
+                            Role role = getTenancyUserRole(oldUser.getId());
 
                             if (group != null && role != null) {
                                 GroupRole groupRole = new GroupRole();
                                 groupRole.setGroup(group);
                                 groupRole.setRole(role);
                                 newUser.getGroupRoles().add(groupRole);
+                            }
+                        } else {
+                            // is a staff member
+                            Role role = null;
+                            List<SpecialtyUserRole> specialtyUserRoles
+                                    = specialtyUserRoleDao.getRolesNative(oldUser.getId());
+
+                            // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
+                            // TODO: required hack from original PatientView
+                            if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
+                                String roleName = specialtyUserRoles.get(0).getRole();
+
+                                if (roleName.equals("unitadmin")) {
+                                    role = getRoleByName(RoleName.UNIT_ADMIN);
+                                } else if (roleName.equals("unitstaff")) {
+                                    role = getRoleByName(RoleName.STAFF_ADMIN);
+                                }
+
+                                // add group (specialty is added automatically when creating user within a UNIT group)
+                                Group group = getGroupByCode(userMapping.getUnitcode());
+
+                                if (group != null && role != null) {
+                                    GroupRole groupRole = new GroupRole();
+                                    groupRole.setGroup(group);
+                                    groupRole.setRole(role);
+                                    newUser.getGroupRoles().add(groupRole);
+                                }
                             }
                         }
                     }
@@ -478,8 +551,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             if (isPatient) {
 
                 String nhsNo = newUser.getIdentifiers().iterator().next().getIdentifier();
+                List<Patient> pv1PatientRecords;
 
-                List<Patient> pv1PatientRecords = patientDao.getByNhsNo(nhsNo);
+                if (IBD) {
+                    pv1PatientRecords = getPatientNative(nhsNo);
+                } else {
+                    pv1PatientRecords = patientDao.getByNhsNo(nhsNo);
+                }
+
                 UktStatus uktStatus = ukTransplantDao.getNative(nhsNo);
 
                 if (pv1PatientRecords != null) {
@@ -492,9 +571,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
-                            // eye and foot checkups
-                            if (eyeCheckupNhsNos.contains(nhsNo) || footCheckupNhsNos.contains(nhsNo)) {
-                                migrationUser = addCheckupTablesData(migrationUser, unit);
+                            if (!IBD) {
+                                // eye and foot checkups
+                                if (eyeCheckupNhsNos.contains(nhsNo) || footCheckupNhsNos.contains(nhsNo)) {
+                                    migrationUser = addCheckupTablesData(migrationUser, unit);
+                                }
                             }
 
                         } else {
@@ -510,6 +591,158 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         } else {
             return null;
         }
+    }
+
+    private List<Patient> getPatientNative(String nhsNo) {
+        List<Patient> patients = new ArrayList<Patient>();
+        Connection connection = null;
+        String sql = "SELECT id, nhsno, surname, forename, dateofbirth, sex, address1, address2, address3, postcode," +
+                "telephone1, telephone2, mobile, centreCode, diagnosis, treatment, transplantstatus, hospitalnumber," +
+                "gpname, gpaddress1, gpaddress2, gpaddress3, gppostcode, gptelephone, otherConditions, address4," +
+                "bloodgroup, bmdexam, gpemail, diagnosisDate FROM patient " +
+                "WHERE nhsno = '" + nhsNo + "'";
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+                Patient patient = new Patient();
+                patient.setId(results.getLong(1));
+                patient.setNhsno(nhsNo);
+                if (StringUtils.isNotEmpty(results.getString(3))) {
+                    patient.setSurname(results.getString(3));
+                }
+                if (StringUtils.isNotEmpty(results.getString(4))) {
+                    patient.setForename(results.getString(4));
+                }
+                if (StringUtils.isNotEmpty(results.getString(5))) {
+                    patient.setDateofbirth(results.getDate(5));
+                }
+                if (StringUtils.isNotEmpty(results.getString(6))) {
+                    patient.setSex(results.getString(6));
+                }
+                if (StringUtils.isNotEmpty(results.getString(7))) {
+                    patient.setAddress1(results.getString(7));
+                }
+                if (StringUtils.isNotEmpty(results.getString(8))) {
+                    patient.setAddress2(results.getString(8));
+                }
+                if (StringUtils.isNotEmpty(results.getString(9))) {
+                    patient.setAddress3(results.getString(9));
+                }
+                if (StringUtils.isNotEmpty(results.getString(10))) {
+                    patient.setPostcode(results.getString(10));
+                }
+                if (StringUtils.isNotEmpty(results.getString(11))) {
+                    patient.setTelephone1(results.getString(11));
+                }
+                if (StringUtils.isNotEmpty(results.getString(12))) {
+                    patient.setTelephone2(results.getString(12));
+                }
+                if (StringUtils.isNotEmpty(results.getString(13))) {
+                    patient.setMobile(results.getString(13));
+                }
+                if (StringUtils.isNotEmpty(results.getString(14))) {
+                    patient.setUnitcode(results.getString(14));
+                }
+                if (StringUtils.isNotEmpty(results.getString(15))) {
+                    patient.setDiagnosis(results.getString(15));
+                }
+                if (StringUtils.isNotEmpty(results.getString(16))) {
+                    patient.setTreatment(results.getString(16));
+                }
+                if (StringUtils.isNotEmpty(results.getString(17))) {
+                    patient.setTransplantstatus(results.getString(17));
+                }
+                if (StringUtils.isNotEmpty(results.getString(18))) {
+                    patient.setHospitalnumber(results.getString(18));
+                }
+                if (StringUtils.isNotEmpty(results.getString(19))) {
+                    patient.setGpname(results.getString(19));
+                }
+                if (StringUtils.isNotEmpty(results.getString(20))) {
+                    patient.setGpaddress1(results.getString(20));
+                }
+                if (StringUtils.isNotEmpty(results.getString(21))) {
+                    patient.setGpaddress2(results.getString(21));
+                }
+                if (StringUtils.isNotEmpty(results.getString(22))) {
+                    patient.setGpaddress3(results.getString(22));
+                }
+                if (StringUtils.isNotEmpty(results.getString(23))) {
+                    patient.setGppostcode(results.getString(23));
+                }
+                if (StringUtils.isNotEmpty(results.getString(24))) {
+                    patient.setGptelephone(results.getString(24));
+                }
+                if (StringUtils.isNotEmpty(results.getString(25))) {
+                    patient.setOtherConditions(results.getString(25));
+                }
+                if (StringUtils.isNotEmpty(results.getString(26))) {
+                    patient.setAddress4(results.getString(26));
+                }
+                if (StringUtils.isNotEmpty(results.getString(27))) {
+                    patient.setBloodgroup(results.getString(27));
+                }
+                if (results.getTimestamp(28) != null) {
+                    patient.setBmdexam(results.getTimestamp(28));
+                }
+                if (StringUtils.isNotEmpty(results.getString(29))) {
+                    patient.setGpemail(results.getString(29));
+                }
+                if (results.getTimestamp(30) != null) {
+                    patient.setDiagnosisDate(results.getTimestamp(30));
+                }
+
+                patients.add(patient);
+            }
+
+            connection.close();
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+
+        return patients;
+    }
+
+    private Role getTenancyUserRole(Long id) {
+        Connection connection = null;
+        String sql = "SELECT role FROM tenancyuserrole WHERE user_id = " + id;
+        Role role = getRoleByName(RoleName.STAFF_ADMIN);
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+            if (results.next()) {
+                if (results.getString(1).equals("unitadmin") || results.getString(1).equals("superadmin") ) {
+                    role = getRoleByName(RoleName.UNIT_ADMIN);
+                } else if (results.getString(1).equals("unitstaff")) {
+                    role = getRoleByName(RoleName.STAFF_ADMIN);
+                }
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return role;
     }
 
     // to set type of identifier based on numeric range
