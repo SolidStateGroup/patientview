@@ -32,13 +32,35 @@
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <!-- check for annotations -->
-    <context:component-scan base-package="org.patientview.repository, org.patientview.model, org.patientview.utils, org.patientview.migration.service" />
+    <context:component-scan base-package="org.patientview.repository, org.patientview.model, org.patientview.service, org.patientview.utils, org.patientview.migration.service" />
 
     <!-- Beans for DAOs to work -->
     <bean name="securityUserManager" class="org.patientview.service.impl.SecurityUserManagerImpl"/>
     <bean name="userManager" class="org.patientview.service.impl.UserManagerImpl"/>
     <bean name="logEntryManager" class="org.patientview.service.impl.LogEntryManagerImpl"/>
     <bean name="unitManager" class="org.patientview.service.impl.UnitManagerImpl"/>
+
+    <!-- required component scan of services -->
+    <bean name="errorHandler" class="org.patientview.quartz.handler.impl.ErrorHandlerImpl"/>
+    <bean name="xmlImportUtils" class="org.patientview.patientview.XmlImportUtils"/>
+    <bean id="executorService" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor"
+          destroy-method="shutdownNow" />
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value=""/>
+        <property name="protocol" value="smtps"/>
+        <property name="username" value=""/>
+        <property name="password" value=""/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.debug">false</prop>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.ssl.enable">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.port">465</prop>
+            </props>
+        </property>
+    </bean>
     <tx:annotation-driven/>
 
     <!--Properties Placeholder-->
