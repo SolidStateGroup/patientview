@@ -5,9 +5,11 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.PvUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Specialty;
+import org.patientview.patientview.model.EdtaCode;
 import org.patientview.patientview.model.ResultHeading;
 import org.patientview.patientview.model.SpecialtyResultHeading;
 import org.patientview.persistence.model.Code;
@@ -46,6 +48,8 @@ import java.util.Set;
 public class AdminDataMigrationServiceImpl implements AdminDataMigrationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdminDataMigrationServiceImpl.class);
+    private static final boolean IBD = true;
+    private static final String IBD_CODE = "IBD";
 
     @Inject
     private EdtaCodeDao edtaCodeDao;
@@ -145,139 +149,184 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     }
 
     public void createCodes(Lookup codeType, String codeTypeName) {
+        if (IBD) {
+            Connection connection = null;
+            String sql = "SELECT edtaCode, description, patientLinkText01, patientLink01, patientLinkText02, " +
+                    "patientLink02, patientLinkText03, patientLink03, patientLinkText04, patientLink04, " +
+                    "patientLinkText05, patientLink05, patientLinkText06, patientLink06 FROM edtacode " +
+                    "WHERE linkType = '" + codeTypeName + "'";
 
-        Connection connection = null;
-        String sql = "SELECT edtaCode, description, patientLinkText01, patientLink01, patientLinkText02, " +
-                "patientLink02, patientLinkText03, patientLink03, patientLinkText04, patientLink04, " +
-                "patientLinkText05, patientLink05, patientLinkText06, patientLink06 FROM edtacode " +
-                "WHERE linkType = '" + codeTypeName + "'";
+            try {
+                DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+                connection = dataSource.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(sql);
 
-        try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
-            connection = dataSource.getConnection();
-            Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
+                while ((results.next())) {
+                    Code code = new Code();
+                    code.setStandardType(getLookupByName("EDTA"));
+                    code.setCode(results.getString(1));
+                    code.setDescription(results.getString(2));
+                    code.setCodeType(codeType);
+                    Set<Link> links = new HashSet<Link>();
 
-            while ((results.next())) {
+                    if (StringUtils.isNotEmpty(results.getString(3))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(3));
+                        link.setLink(results.getString(4));
+                        links.add(link);
+                    }
+
+                    if (StringUtils.isNotEmpty(results.getString(5))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(5));
+                        link.setLink(results.getString(6));
+                        links.add(link);
+                    }
+
+                    if (StringUtils.isNotEmpty(results.getString(7))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(7));
+                        link.setLink(results.getString(8));
+                        links.add(link);
+                    }
+
+                    if (StringUtils.isNotEmpty(results.getString(9))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(9));
+                        link.setLink(results.getString(10));
+                        links.add(link);
+                    }
+
+                    if (StringUtils.isNotEmpty(results.getString(11))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(11));
+                        link.setLink(results.getString(12));
+                        links.add(link);
+                    }
+
+                    if (StringUtils.isNotEmpty(results.getString(13))) {
+                        Link link = new Link();
+                        link.setDisplayOrder(links.size() + 1);
+                        link.setName(results.getString(13));
+                        link.setLink(results.getString(14));
+                        links.add(link);
+                    }
+
+                    code.setLinks(links);
+                    callApiCreateCode(code);
+                }
+
+                connection.close();
+            } catch (SQLException se) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException se2) {
+                        LOG.error(se2.getMessage());
+                    }
+                }
+            }
+        } else {
+            int i = 1;
+            for (EdtaCode edtaCode : edtaCodeDao.get(codeTypeName, null)) {
                 Code code = new Code();
+                code.setDisplayOrder(i++);
                 code.setStandardType(getLookupByName("EDTA"));
-                code.setCode(results.getString(1));
-                code.setDescription(results.getString(2));
                 code.setCodeType(codeType);
-                Set<Link> links = new HashSet<Link>();
-
-                if (StringUtils.isNotEmpty(results.getString(3))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(3));
-                    link.setLink(results.getString(4));
-                    links.add(link);
-                }
-
-                if (StringUtils.isNotEmpty(results.getString(5))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(5));
-                    link.setLink(results.getString(6));
-                    links.add(link);
-                }
-
-                if (StringUtils.isNotEmpty(results.getString(7))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(7));
-                    link.setLink(results.getString(8));
-                    links.add(link);
-                }
-
-                if (StringUtils.isNotEmpty(results.getString(9))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(9));
-                    link.setLink(results.getString(10));
-                    links.add(link);
-                }
-
-                if (StringUtils.isNotEmpty(results.getString(11))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(11));
-                    link.setLink(results.getString(12));
-                    links.add(link);
-                }
-
-                if (StringUtils.isNotEmpty(results.getString(13))) {
-                    Link link = new Link();
-                    link.setDisplayOrder(links.size() + 1);
-                    link.setName(results.getString(13));
-                    link.setLink(results.getString(14));
-                    links.add(link);
-                }
-
-                code.setLinks(links);
-
+                code.setDescription(edtaCode.getDescription());
+                code.setCode(edtaCode.getEdtaCode());
+                code.setLinks(PvUtil.getLinks(edtaCode));
                 callApiCreateCode(code);
             }
-
-            connection.close();
-
-        } catch (SQLException se) {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException se2) {
-                    // do nothing
-                }
-            }
         }
-
-        /*int i = 1;
-        for (EdtaCode edtaCode : edtaCodeDao.get(codeTypeName, null)) {
-            Code code = new Code();
-            code.setDisplayOrder(i++);
-            code.setStandardType(getLookupByName("EDTA"));
-            code.setCodeType(codeType);
-            code.setDescription(edtaCode.getDescription());
-            code.setCode(edtaCode.getEdtaCode());
-            code.setLinks(PvUtil.getLinks(edtaCode));
-            callApiCreateCode(code);
-        }*/
     }
 
     public void createObservationHeadings() {
+        if (IBD) {
+            Connection connection = null;
+            String sql = "SELECT headingcode, heading, rollover, link, panel, panelorder FROM result_heading";
 
-        // note: gets defaults from first instance of specialty result headings
-        for (ResultHeading resultHeading : resultHeadingDao.getAll(null)) {
-            ObservationHeading observationHeading = new ObservationHeading();
-            observationHeading.setCode(resultHeading.getHeadingcode());
-            observationHeading.setHeading(resultHeading.getHeading());
-            observationHeading.setName(resultHeading.getRollover());
-            observationHeading.setInfoLink(resultHeading.getLink());
-            observationHeading.setDefaultPanel(
-                    (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanel());
-            observationHeading.setDefaultPanelOrder(
-                    (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanelOrder());
-            observationHeading.setMinGraph(resultHeading.getMinRangeValue());
-            observationHeading.setMaxGraph(resultHeading.getMaxRangeValue());
-            observationHeading.setUnits(resultHeading.getUnits());
+            try {
+                DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+                connection = dataSource.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(sql);
 
-            // create specialty specific
-            Set<SpecialtyResultHeading> specialtyResultHeadings = resultHeading.getSpecialtyResultHeadings();
-            observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+                while ((results.next())) {
+                    ObservationHeading observationHeading = new ObservationHeading();
+                    observationHeading.setCode(results.getString(1));
+                    observationHeading.setHeading(results.getString(2));
 
-            for (SpecialtyResultHeading specialtyResultHeading : specialtyResultHeadings) {
-                ObservationHeadingGroup observationHeadingGroup = new ObservationHeadingGroup();
-                observationHeadingGroup.setPanel((long) specialtyResultHeading.getPanel());
-                observationHeadingGroup.setPanelOrder((long) specialtyResultHeading.getPanelOrder());
+                    if (StringUtils.isNotEmpty(results.getString(3))) {
+                        observationHeading.setName(results.getString(3));
+                    }
 
-                Specialty specialty = specialtyDao.get((long) specialtyResultHeading.getSpecialtyId());
-                Group group = getGroupByCode(specialty.getContext());
-                observationHeadingGroup.setGroup(group);
+                    if (StringUtils.isNotEmpty(results.getString(4))) {
+                        observationHeading.setInfoLink(results.getString(4));
+                    }
 
-                observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
+                    observationHeading.setDefaultPanel(results.getLong(5));
+                    observationHeading.setDefaultPanelOrder(results.getLong(6));
+
+                    ObservationHeadingGroup observationHeadingGroup = new ObservationHeadingGroup();
+                    observationHeadingGroup.setPanel(results.getLong(5));
+                    observationHeadingGroup.setPanelOrder(results.getLong(6));
+                    observationHeadingGroup.setGroup(getGroupByCode(IBD_CODE));
+                    observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
+
+                    callApiCreateObservationHeading(observationHeading);
+                }
+
+                connection.close();
+            } catch (SQLException se) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException se2) {
+                        LOG.error(se2.getMessage());
+                    }
+                }
             }
+        } else {
+            // note: gets defaults from first instance of specialty result headings
+            for (ResultHeading resultHeading : resultHeadingDao.getAll(null)) {
+                ObservationHeading observationHeading = new ObservationHeading();
+                observationHeading.setCode(resultHeading.getHeadingcode());
+                observationHeading.setHeading(resultHeading.getHeading());
+                observationHeading.setName(resultHeading.getRollover());
+                observationHeading.setInfoLink(resultHeading.getLink());
+                observationHeading.setDefaultPanel(
+                        (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanel());
+                observationHeading.setDefaultPanelOrder(
+                        (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanelOrder());
+                observationHeading.setMinGraph(resultHeading.getMinRangeValue());
+                observationHeading.setMaxGraph(resultHeading.getMaxRangeValue());
+                observationHeading.setUnits(resultHeading.getUnits());
 
-            callApiCreateObservationHeading(observationHeading);
+                // create specialty specific
+                Set<SpecialtyResultHeading> specialtyResultHeadings = resultHeading.getSpecialtyResultHeadings();
+                observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+
+                for (SpecialtyResultHeading specialtyResultHeading : specialtyResultHeadings) {
+                    ObservationHeadingGroup observationHeadingGroup = new ObservationHeadingGroup();
+                    observationHeadingGroup.setPanel((long) specialtyResultHeading.getPanel());
+                    observationHeadingGroup.setPanelOrder((long) specialtyResultHeading.getPanelOrder());
+
+                    Specialty specialty = specialtyDao.get((long) specialtyResultHeading.getSpecialtyId());
+                    Group group = getGroupByCode(specialty.getContext());
+                    observationHeadingGroup.setGroup(group);
+
+                    observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
+                }
+
+                callApiCreateObservationHeading(observationHeading);
+            }
         }
     }
 
