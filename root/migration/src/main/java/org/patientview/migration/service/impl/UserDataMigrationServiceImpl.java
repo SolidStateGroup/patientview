@@ -348,10 +348,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 user = new org.patientview.patientview.model.User();
                 user.setUsername(results.getString(1));
                 user.setPassword(results.getString(2));
-                String firstName = results.getString(3).substring(0, results.getString(3).lastIndexOf(" "));
-                String lastName = results.getString(3).substring(results.getString(3).lastIndexOf(" ") + 1, results.getString(3).length());
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                if (results.getString(3).contains(" ")) {
+                    String firstName = results.getString(3).substring(0, results.getString(3).lastIndexOf(" "));
+                    String lastName = results.getString(3).substring(results.getString(3).lastIndexOf(" ") + 1, results.getString(3).length());
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                } else {
+                    user.setFirstName(results.getString(3));
+                }
                 if (StringUtils.isNotEmpty(results.getString(4))) {
                     user.setEmail(results.getString(4));
                 }
@@ -619,7 +623,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     patient.setForename(results.getString(4));
                 }
                 if (StringUtils.isNotEmpty(results.getString(5))) {
-                    patient.setDateofbirth(results.getDate(5));
+                    patient.setDateofbirth(results.getTimestamp(5));
                 }
                 if (StringUtils.isNotEmpty(results.getString(6))) {
                     patient.setSex(results.getString(6));

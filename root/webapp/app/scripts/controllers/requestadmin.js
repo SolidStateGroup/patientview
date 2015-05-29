@@ -222,7 +222,9 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
             RequestService.get(openedItem.id).then(function (item) {
                 $scope.successMessage = '';
                 $scope.saved = '';
+                console.log(item);
                 $scope.editItem = _.clone(item);
+                console.log($scope.editItem);
                 $scope.editMode = true;
                 openedItem.editLoading = false;
             });
