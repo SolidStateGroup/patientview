@@ -180,6 +180,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
     };
 
     $scope.save = function(form, request) {
+        console.log(request.id)
         RequestService.save(request).then(function(){
             $scope.saved = true;
             $rootScope.setSubmittedRequestCount();
@@ -223,8 +224,9 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
                 $scope.successMessage = '';
                 $scope.saved = '';
                 console.log(item.id);
+                console.log(item.status);
                 $scope.editItem = _.clone(item);
-                console.log($scope.editItem.id);
+                console.log($scope.editItem.status);
                 $scope.editMode = true;
                 openedItem.editLoading = false;
             });
