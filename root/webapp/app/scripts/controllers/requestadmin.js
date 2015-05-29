@@ -207,7 +207,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
         var i;
 
         if (openedItem.showEdit) {
-            $scope.editItem = '';
+            $scope.editRequest = '';
             openedItem.showEdit = false;
         } else {
             // close others
@@ -215,18 +215,15 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
                 $scope.pagedItems[i].showEdit = false;
             }
 
-            $scope.editItem = '';
+            $scope.editRequest = '';
             openedItem.showEdit = true;
             openedItem.editLoading = true;
 
-            // using lightweight list, do GET on id to get full request and populate editItem
+            // using lightweight list, do GET on id to get full request and populate editRequest
             RequestService.get(openedItem.id).then(function (item) {
                 $scope.successMessage = '';
                 $scope.saved = '';
-                console.log(item.id);
-                console.log(item.status);
-                $scope.editItem = _.clone(item);
-                console.log($scope.editItem.status);
+                $scope.editRequest = _.clone(item);
                 $scope.editMode = true;
                 openedItem.editLoading = false;
             });
