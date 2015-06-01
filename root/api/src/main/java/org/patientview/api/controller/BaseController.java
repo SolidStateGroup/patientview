@@ -134,8 +134,16 @@ public abstract class BaseController<T extends BaseController> {
     @ExceptionHandler(VerificationException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleMailException(VerificationException e) {
+    public String handleVerificationException(VerificationException e) {
         LOG.error("Verification exception {}", e);
         return e.getMessage();
+    }
+
+    @ExceptionHandler(NumberFormatException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleNumberFormatException(NumberFormatException e) {
+        LOG.error("NumberFormatException exception {}", e);
+        return "Number format exception";
     }
 }
