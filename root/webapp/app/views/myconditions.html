@@ -13,7 +13,8 @@
                 <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
                 <div data-ng-include src="'views/partials/myConditionsRenal.html'" data-ng-show="currentSpecialty.code === 'Renal'"></div>
                 <div data-ng-include src="'views/partials/myConditionsDiabetes.html'" data-ng-show="currentSpecialty.code === 'Diabetes'"></div>
-                <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
+                <div data-ng-include src="'views/partials/myConditionsIbd.html'" data-ng-show="currentSpecialty.code === 'IBD'"></div>
+                <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes' && currentSpecialty.code !== 'IBD'">
                     <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
                 </div>
                 <div class="panel panel-default" data-ng-show="currentSpecialty.links">
