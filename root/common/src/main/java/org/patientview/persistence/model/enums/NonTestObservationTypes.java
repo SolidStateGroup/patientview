@@ -9,6 +9,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum NonTestObservationTypes {
     BLOOD_GROUP("Blood Group"),
+    BMD_EXAM("BMD Exam"), // my IBD
     BODY_PARTS_AFFECTED("Body Parts Affected"), // my IBD
     COLONOSCOPY_SURVEILLANCE("Colonoscopy Surveillance"), // my IBD
     DPPULSE("Foot Checkup: dppulse"),

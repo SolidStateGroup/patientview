@@ -239,6 +239,28 @@ public class ObservationsBuilder {
                 observation.setSubject(resourceReference);
                 observations.add(observation);
             }
+
+            // (IBD) bmdexam (date)
+            if (results.getPatient().getClinicaldetails().getBmdexam() != null) {
+                Observation observation = new Observation();
+
+                DateTime applies = new DateTime();
+                DateAndTime dateAndTime = new DateAndTime(
+                        results.getPatient().getClinicaldetails().getBmdexam().toGregorianCalendar());
+                applies.setValue(dateAndTime);
+                observation.setApplies(applies);
+
+                Identifier identifier = new Identifier();
+                identifier.setValueSimple(NonTestObservationTypes.BMD_EXAM.toString());
+                observation.setIdentifier(identifier);
+
+                CodeableConcept name = new CodeableConcept();
+                name.setTextSimple(NonTestObservationTypes.BMD_EXAM.toString());
+                observation.setName(name);
+
+                observation.setSubject(resourceReference);
+                observations.add(observation);
+            }
         }
     }
 
