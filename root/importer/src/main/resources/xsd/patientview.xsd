@@ -267,40 +267,19 @@
                                                 </xs:restriction>
                                             </xs:simpleType>
                                         </xs:element>
-                                        <!-- IBD, all set to maxOccurs="1" to follow myibdportal importer logic -->
-                                        <!-- IBD disease extent restricted to 7 different strings -->
-                                        <!--<xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />-->
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent">
-                                            <xs:simpleType>
-                                                <xs:restriction base="xs:string">
-                                                    <xs:maxLength value="100"/>
-                                                </xs:restriction>
-                                            </xs:simpleType>
-                                        </xs:element>
-
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdeimanifestations" type="ibd_ei_manifestations" />
-                                        <xs:element maxOccurs="1" minOccurs="0" name="bodypartsaffected" type="body_parts_affected"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="familyhistory" type="family_history"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="smoking_history"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="surgicalhistory" type="surgical_history"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="vaccinationrecord" type="vaccination_record"/>
+                                        <!-- IBD, all set to maxOccurs="1" to follow myibdportal importer logic, no string length limit -->
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseasecomplications" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdeimanifestations" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="bodypartsaffected" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="familyhistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="surgicalhistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="vaccinationrecord" type="xs:string"/>
                                         <xs:element maxOccurs="1" minOccurs="0" name="colonoscopysurveillance" type="xs:date"/>
                                         <xs:element maxOccurs="1" minOccurs="0" name="bmdexam" type="xs:date"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="namedconsultant">
-                                            <xs:simpleType>
-                                                <xs:restriction base="xs:string">
-                                                    <xs:maxLength value="100"/>
-                                                </xs:restriction>
-                                            </xs:simpleType>
-                                        </xs:element>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdnurse">
-                                            <xs:simpleType>
-                                                <xs:restriction base="xs:string">
-                                                    <xs:maxLength value="100"/>
-                                                </xs:restriction>
-                                            </xs:simpleType>
-                                        </xs:element>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="namedconsultant" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdnurse" type="xs:string"/>
                                         <!-- end IBD -->
                                     </xs:sequence>
                                 </xs:complexType>
@@ -498,114 +477,6 @@
         </xs:simpleContent>
     </xs:complexType>
     <xs:simpleType name="pv_diagnosis_name">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <!-- now correct matching XML -->
-    <!--<xs:simpleType name="ibd_disease_extent">
-        <xs:annotation>
-            <xs:documentation>IBD Disease Extent</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="Proctitis"/>
-            <xs:enumeration value="Left-sided Colitis"/>
-            <xs:enumeration value="Extensive Colitis"/>
-            <xs:enumeration value="Ileal Crohn's"/>
-            <xs:enumeration value="Ileal-colonic Crohn's"/>
-            <xs:enumeration value="Crohn's Colitis"/>
-            <xs:enumeration value="Isolated upper GI disease"/>
-        </xs:restriction>
-    </xs:simpleType>-->
-
-    <xs:complexType name="ibd_disease_complications">
-        <xs:simpleContent>
-            <xs:extension base="ibd_disease_complication">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="ibd_disease_complication">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="ibd_ei_manifestations">
-        <xs:simpleContent>
-            <xs:extension base="ibd_ei_manifestation">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="ibd_ei_manifestation">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="body_parts_affected">
-        <xs:simpleContent>
-            <xs:extension base="body_part">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="body_part">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-
-    <xs:complexType name="family_history">
-        <xs:simpleContent>
-            <xs:extension base="family_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="family_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="smoking_history">
-        <xs:simpleContent>
-            <xs:extension base="smoking_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="smoking_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="surgical_history">
-        <xs:simpleContent>
-            <xs:extension base="surgical_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="surgical_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="vaccination_record">
-        <xs:simpleContent>
-            <xs:extension base="vaccination_record_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="vaccination_record_description">
         <xs:restriction base="xs:string">
             <xs:maxLength value="60"/>
         </xs:restriction>

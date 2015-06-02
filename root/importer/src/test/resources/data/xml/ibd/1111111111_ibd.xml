@@ -50,7 +50,7 @@
             <surgicalhistory>No Previous operations</surgicalhistory>
             <vaccinationrecord>Previous TB (BCG) vaccination</vaccinationrecord>
             <colonoscopysurveillance>2016-01-01</colonoscopysurveillance>
-            <bmdexam></bmdexam>
+            <bmdexam>2005-01-01</bmdexam>
             <namedconsultant>Dr Paine</namedconsultant>
             <ibdnurse>Cath Stansfield</ibdnurse>
         </clinicaldetails>

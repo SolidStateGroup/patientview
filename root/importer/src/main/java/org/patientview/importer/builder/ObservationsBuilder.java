@@ -105,17 +105,6 @@ public class ObservationsBuilder {
             }
         }
 
-        // build from specific non-test fields e.g. blood group
-        if (results.getPatient().getClinicaldetails() != null
-                && results.getPatient().getClinicaldetails().getBloodgroup() != null) {
-            try {
-                observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
-                        results.getPatient().getClinicaldetails().getBloodgroup()));
-            } catch (FhirResourceException e) {
-                LOG.error("Invalid data in XML: " + e.getMessage());
-            }
-        }
-
         // build from foot checkup
         if (!CollectionUtils.isEmpty(results.getPatient().getFootcheckup())) {
             for (Patientview.Patient.Footcheckup footcheckup : results.getPatient().getFootcheckup()) {
@@ -136,14 +125,119 @@ public class ObservationsBuilder {
             }
         }
 
-        // build from IBD disease extent
-        if (results.getPatient().getClinicaldetails() != null
-                && StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getIbddiseaseextent())) {
-            try {
-                observations.add(createIbdDiseaseExtentObservation(
-                        results.getPatient().getClinicaldetails().getIbddiseaseextent()));
-            } catch (FhirResourceException e) {
-                LOG.error("Invalid data in XML: " + e.getMessage());
+        // build from specific non-test fields
+        if (results.getPatient().getClinicaldetails() != null) {
+            // blood group
+            if (results.getPatient().getClinicaldetails().getBloodgroup() != null) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
+                            results.getPatient().getClinicaldetails().getBloodgroup()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // IBD disease complication
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getIbddiseasecomplications())) {
+                try {
+                    observations.add(
+                            createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_COMPLICATIONS.toString(),
+                                    results.getPatient().getClinicaldetails().getIbddiseasecomplications()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // IBD disease extent
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getIbddiseaseextent())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(),
+                            results.getPatient().getClinicaldetails().getIbddiseaseextent()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // IBD EI manifestation
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getIbdeimanifestations())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.IBD_EI_MANIFESTATIONS.toString(),
+                            results.getPatient().getClinicaldetails().getIbdeimanifestations()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) body parts affected
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getBodypartsaffected())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.BODY_PARTS_AFFECTED.toString(),
+                            results.getPatient().getClinicaldetails().getBodypartsaffected()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) family history
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getFamilyhistory())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.FAMILY_HISTORY.toString(),
+                            results.getPatient().getClinicaldetails().getFamilyhistory()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) smoking history
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getSmokinghistory())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.SMOKING_HISTORY.toString(),
+                            results.getPatient().getClinicaldetails().getSmokinghistory()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) surgical history
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getSurgicalhistory())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.SURGICAL_HISTORY.toString(),
+                            results.getPatient().getClinicaldetails().getSurgicalhistory()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) vaccination record
+            if (StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getVaccinationrecord())) {
+                try {
+                    observations.add(createObservationNonTest(NonTestObservationTypes.VACCINATION_RECORD.toString(),
+                            results.getPatient().getClinicaldetails().getVaccinationrecord()));
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+            }
+
+            // (IBD) colonoscopy surveillance (date)
+            if (results.getPatient().getClinicaldetails().getColonoscopysurveillance() != null) {
+                Observation observation = new Observation();
+
+                DateTime applies = new DateTime();
+                DateAndTime dateAndTime = new DateAndTime(
+                        results.getPatient().getClinicaldetails().getColonoscopysurveillance().toGregorianCalendar());
+                applies.setValue(dateAndTime);
+                observation.setApplies(applies);
+
+                Identifier identifier = new Identifier();
+                identifier.setValueSimple(NonTestObservationTypes.COLONOSCOPY_SURVEILLANCE.toString());
+                observation.setIdentifier(identifier);
+
+                CodeableConcept name = new CodeableConcept();
+                name.setTextSimple(NonTestObservationTypes.COLONOSCOPY_SURVEILLANCE.toString());
+                observation.setName(name);
+
+                observation.setSubject(resourceReference);
+                observations.add(observation);
             }
         }
     }
@@ -331,10 +425,6 @@ public class ObservationsBuilder {
         } else {
             return null;
         }
-    }
-
-    private Observation createIbdDiseaseExtentObservation(String ibdDiseaseExtent) throws FhirResourceException {
-        return createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(), ibdDiseaseExtent);
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test,
