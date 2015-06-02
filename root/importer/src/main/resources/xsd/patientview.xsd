@@ -269,7 +269,15 @@
                                         </xs:element>
                                         <!-- IBD, all set to maxOccurs="1" to follow myibdportal importer logic -->
                                         <!-- IBD disease extent restricted to 7 different strings -->
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />
+                                        <!--<xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />-->
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                    <xs:maxLength value="100"/>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+
                                         <xs:element maxOccurs="1" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />
                                         <xs:element maxOccurs="1" minOccurs="0" name="ibdeimanifestations" type="ibd_ei_manifestations" />
                                         <xs:element maxOccurs="1" minOccurs="0" name="bodypartsaffected" type="body_parts_affected"/>
@@ -495,12 +503,12 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="ibd_disease_extent">
+    <!-- now correct matching XML -->
+    <!--<xs:simpleType name="ibd_disease_extent">
         <xs:annotation>
             <xs:documentation>IBD Disease Extent</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <!-- now correct matching XML -->
             <xs:enumeration value="Proctitis"/>
             <xs:enumeration value="Left-sided Colitis"/>
             <xs:enumeration value="Extensive Colitis"/>
@@ -509,7 +517,7 @@
             <xs:enumeration value="Crohn's Colitis"/>
             <xs:enumeration value="Isolated upper GI disease"/>
         </xs:restriction>
-    </xs:simpleType>
+    </xs:simpleType>-->
 
     <xs:complexType name="ibd_disease_complications">
         <xs:simpleContent>

@@ -7,7 +7,6 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Decimal;
-import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
@@ -139,10 +138,10 @@ public class ObservationsBuilder {
 
         // build from IBD disease extent
         if (results.getPatient().getClinicaldetails() != null
-                && results.getPatient().getClinicaldetails().getIbddiseaseextent() != null) {
+                && StringUtils.isNotEmpty(results.getPatient().getClinicaldetails().getIbddiseaseextent())) {
             try {
-                observations.add(createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(),
-                        results.getPatient().getClinicaldetails().getIbddiseaseextent().name()));
+                observations.add(createIbdDiseaseExtentObservation(
+                        results.getPatient().getClinicaldetails().getIbddiseaseextent()));
             } catch (FhirResourceException e) {
                 LOG.error("Invalid data in XML: " + e.getMessage());
             }
@@ -334,6 +333,10 @@ public class ObservationsBuilder {
         }
     }
 
+    private Observation createIbdDiseaseExtentObservation(String ibdDiseaseExtent) throws FhirResourceException {
+        return createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(), ibdDiseaseExtent);
+    }
+
     private Observation createObservation(Patientview.Patient.Testdetails.Test test,
                                           Patientview.Patient.Testdetails.Test.Result result)
             throws FhirResourceException {
@@ -361,7 +364,7 @@ public class ObservationsBuilder {
     }
 
     // store type in name and identifier, store value in comments
-    private Observation createObservationNonTest(String type, String value) throws FhirResourceException{
+    private Observation createObservationNonTest(String type, String value) throws FhirResourceException {
         Observation observation = new Observation();
 
         // text based value
