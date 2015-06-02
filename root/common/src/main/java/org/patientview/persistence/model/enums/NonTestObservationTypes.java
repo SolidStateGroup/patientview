@@ -13,7 +13,8 @@ public enum NonTestObservationTypes {
     DPPULSE("Foot Checkup: dppulse"),
     MGRADE("Eye Checkup: mgrade"),
     RGRADE("Eye Checkup: rgrade"),
-    VA("Eye Checkup: va");
+    VA("Eye Checkup: va"),
+    IBD_DISEASE_EXTENT("IBD Disease Extent");
 
     private String name;
     NonTestObservationTypes(String name) { this.name = name; }

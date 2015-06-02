@@ -136,6 +136,17 @@ public class ObservationsBuilder {
                 }
             }
         }
+
+        // build from IBD disease extent
+        if (results.getPatient().getClinicaldetails() != null
+                && results.getPatient().getClinicaldetails().getIbddiseaseextent() != null) {
+            try {
+                observations.add(createObservationNonTest(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(),
+                        results.getPatient().getClinicaldetails().getIbddiseaseextent().name()));
+            } catch (FhirResourceException e) {
+                LOG.error("Invalid data in XML: " + e.getMessage());
+            }
+        }
     }
 
     private class BodyData {

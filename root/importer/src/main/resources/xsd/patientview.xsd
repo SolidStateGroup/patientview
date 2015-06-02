@@ -260,13 +260,6 @@
                                         </xs:element>
                                         <xs:element maxOccurs="1" minOccurs="0" name="diagnosisdate" type="xs:date"/>
                                         <xs:element maxOccurs="unbounded" minOccurs="0" name="diagnosis" type="pv_diagnosis"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />
-                                        <xs:element maxOccurs="0" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="bodypartsaffected" type="body_parts_affected"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="familyhistory" type="family_history"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="smoking_history"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="surgicalhistory" type="surgical_history"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="vaccinationrecord" type="vaccination_record"/>
                                         <xs:element minOccurs="0" name="bloodgroup">
                                             <xs:simpleType>
                                                 <xs:restriction base="xs:string">
@@ -274,6 +267,33 @@
                                                 </xs:restriction>
                                             </xs:simpleType>
                                         </xs:element>
+                                        <!-- IBD, all set to maxOccurs="1" to follow myibdportal importer logic -->
+                                        <!-- IBD disease extent restricted to 7 different strings -->
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdeimanifestations" type="ibd_ei_manifestations" />
+                                        <xs:element maxOccurs="1" minOccurs="0" name="bodypartsaffected" type="body_parts_affected"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="familyhistory" type="family_history"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="smoking_history"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="surgicalhistory" type="surgical_history"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="vaccinationrecord" type="vaccination_record"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="colonoscopysurveillance" type="xs:date"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="bmdexam" type="xs:date"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="namedconsultant">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                    <xs:maxLength value="100"/>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdnurse">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                    <xs:maxLength value="100"/>
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+                                        <!-- end IBD -->
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -480,13 +500,14 @@
             <xs:documentation>IBD Disease Extent</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
+            <!-- now correct matching XML -->
             <xs:enumeration value="Proctitis"/>
-            <xs:enumeration value="Left Sided Colitis"/>
+            <xs:enumeration value="Left-sided Colitis"/>
             <xs:enumeration value="Extensive Colitis"/>
-            <xs:enumeration value="Ileal Crohns"/>
-            <xs:enumeration value="Ileo-Colonic Disease"/>
-            <xs:enumeration value="Crohns Colitis"/>
-            <xs:enumeration value="Isolated Upper GI Disease"/>
+            <xs:enumeration value="Ileal Crohn's"/>
+            <xs:enumeration value="Ileal-colonic Crohn's"/>
+            <xs:enumeration value="Crohn's Colitis"/>
+            <xs:enumeration value="Isolated upper GI disease"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -498,6 +519,19 @@
         </xs:simpleContent>
     </xs:complexType>
     <xs:simpleType name="ibd_disease_complication">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="60"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ibd_ei_manifestations">
+        <xs:simpleContent>
+            <xs:extension base="ibd_ei_manifestation">
+                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="ibd_ei_manifestation">
         <xs:restriction base="xs:string">
             <xs:maxLength value="60"/>
         </xs:restriction>

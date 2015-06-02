@@ -656,7 +656,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     patient.setDiagnosis(results.getString(15));
                 }
                 if (StringUtils.isNotEmpty(results.getString(16))) {
-                    patient.setTreatment(results.getString(16));
+                    // handle GEN (general nephrology), incorrect data in IBD db
+                    if (!results.getString(16).equals("GEN")) {
+                        patient.setTreatment(results.getString(16));
+                    }
                 }
                 if (StringUtils.isNotEmpty(results.getString(17))) {
                     patient.setTransplantstatus(results.getString(17));
