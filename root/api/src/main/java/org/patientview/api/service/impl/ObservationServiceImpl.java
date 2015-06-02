@@ -41,6 +41,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.IbdDiseaseExtent;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.UserRepository;
@@ -639,6 +640,13 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             if (fhirGroup != null) {
                 fhirObservation.setGroup(fhirGroup);
             }
+
+            // handle my IBD IBD_DISEASE_EXTENT observations with a diagram
+            if (fhirObservation.getValue() != null
+                    && fhirObservation.getName().equals(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString())) {
+                fhirObservation.setDiagram(IbdDiseaseExtent.getDiagramByName(fhirObservation.getValue()));
+            }
+
             fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
         }
         return fhirObservations;

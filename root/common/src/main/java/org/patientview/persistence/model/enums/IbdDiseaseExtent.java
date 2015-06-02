@@ -23,6 +23,16 @@ public enum IbdDiseaseExtent {
         this.diagram = diagram;
     }
 
+    public static String getDiagramByName(String name) {
+        for (IbdDiseaseExtent diseaseExtent : IbdDiseaseExtent.values()) {
+            if (diseaseExtent.getName().equalsIgnoreCase(name)) {
+                return diseaseExtent.getDiagram();
+            }
+        }
+
+        return null;
+    }
+
     public String getName() {
         return name;
     }

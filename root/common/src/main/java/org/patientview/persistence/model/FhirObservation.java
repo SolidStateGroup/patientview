@@ -39,6 +39,9 @@ public class FhirObservation extends BaseModel {
     // stored during import if value can be stored as Quantity
     private String units;
 
+    // only used by my IBD
+    private String diagram;
+
     public FhirObservation() {
     }
 
@@ -185,5 +188,13 @@ public class FhirObservation extends BaseModel {
 
     public void setUnits(String units) {
         this.units = units;
+    }
+
+    public String getDiagram() {
+        return diagram;
+    }
+
+    public void setDiagram(String diagram) {
+        this.diagram = diagram;
     }
 }
