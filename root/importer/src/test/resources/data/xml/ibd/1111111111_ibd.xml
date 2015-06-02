@@ -99,7 +99,7 @@
                 <daterange start="2000-01-01" stop="2013-11-13"/>
                 <result>
                     <datestamp>2013-11-07T09:00:00</datestamp>
-                    <value>113</value>
+                    <value>554</value>
                 </result>
             </test>
             <test>
