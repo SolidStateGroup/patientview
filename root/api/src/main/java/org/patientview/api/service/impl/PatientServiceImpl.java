@@ -19,6 +19,7 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.builder.PatientBuilder;
+import org.patientview.api.service.AllergyService;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
@@ -100,6 +101,9 @@ import java.util.UUID;
  */
 @Service
 public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> implements PatientService {
+
+    @Inject
+    private AllergyService allergyService;
 
     @Inject
     private CodeService codeService;
@@ -616,6 +620,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         // set non test observations
                         patient = setNonTestObservations(patient, fhirLink);
 
+                        // set allergies
+                        patient = setAllergies(patient, fhirLink);
+
                         patients.add(patient);
                     }
                 }
@@ -1060,6 +1067,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
         // native sql statement method, much faster but doesn't use stored procedure
         migrateFhirTestObservations(migrationUser, entityUser, fhirLinks, identifierMap);
+    }
+
+    private org.patientview.api.model.Patient setAllergies(
+            org.patientview.api.model.Patient patient, FhirLink fhirLink) throws FhirResourceException {
+        patient.setFhirAllergies(allergyService.getBySubject(fhirLink.getResourceId()));
+        return patient;
     }
 
     private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,

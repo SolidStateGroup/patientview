@@ -2,6 +2,7 @@ package org.patientview.api.model;
 
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirAllergy;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirPatient;
@@ -24,6 +25,7 @@ public class Patient extends BaseModel {
     private List<Code> diagnosisCodes = new ArrayList<>();
     private List<FhirEncounter> fhirEncounters = new ArrayList<>();
     private List<FhirObservation> fhirObservations = new ArrayList<>();
+    private List<FhirAllergy> fhirAllergies = new ArrayList<>();
 
     public Patient() {
     }
@@ -87,5 +89,13 @@ public class Patient extends BaseModel {
 
     public void setFhirObservations(List<FhirObservation> fhirObservations) {
         this.fhirObservations = fhirObservations;
+    }
+
+    public List<FhirAllergy> getFhirAllergies() {
+        return fhirAllergies;
+    }
+
+    public void setFhirAllergies(List<FhirAllergy> fhirAllergies) {
+        this.fhirAllergies = fhirAllergies;
     }
 }
