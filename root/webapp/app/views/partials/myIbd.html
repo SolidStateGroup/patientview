@@ -10,6 +10,13 @@
                 <td data-ng-if="!patient.myIbd.primaryDiagnosis.length">Unknown</td>
             </tr>
             <tr>
+                <td class="forced-width">Diagnosis Date</td>
+                <td data-ng-if="patient.myIbd.primaryDiagnosisDate">
+                    {{patient.myIbd.primaryDiagnosisDate | date:'dd-MMM-yyyy'}}
+                </td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate">Unknown</td>
+            </tr>
+            <tr>
                 <td class="forced-width">Disease Extent</td>
                 <td data-ng-if="patient.myIbd.ibdDiseaseExtent.length">
                     {{patient.myIbd.ibdDiseaseExtent}}
@@ -100,11 +107,9 @@
             <tr data-ng-if="patient.myIbd.links">
                 <td class="forced-width">Related Links</td>
                 <td>
-                    <ul>
-                        <li data-ng-repeat="link in patient.myIbd.links">
-                            <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
-                        </li>
-                    </ul>
+                    <span data-ng-repeat="link in patient.myIbd.links" >
+                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                    </span>
                 </td>
             </tr>
         </tbody>

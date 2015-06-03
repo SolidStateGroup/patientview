@@ -151,6 +151,7 @@ function ($scope, PatientService, GroupService) {
         // set primary diagnosis to first condition of patient (as sent in <diagnosis>)
         if (patient.fhirConditions.length) {
             myIbd.primaryDiagnosis = patient.fhirConditions[0].notes;
+            myIbd.primaryDiagnosisDate = patient.fhirConditions[0].date;
         }
 
         // set named consultant and IBD nurse

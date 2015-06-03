@@ -47,7 +47,8 @@ public class ConditionsBuilder {
                 for (PvDiagnosis diagnosis : data.getPatient().getClinicaldetails().getDiagnosis()) {
                     if (StringUtils.isNotEmpty(diagnosis.getValue())) {
                         try {
-                            conditions.add(createCondition(diagnosis));
+                            conditions.add(createCondition(diagnosis,
+                                    data.getPatient().getClinicaldetails().getDiagnosisdate()));
                             success++;
                         } catch (FhirResourceException e) {
                             LOG.error("Invalid data in XML: " + e.getMessage());
@@ -73,7 +74,7 @@ public class ConditionsBuilder {
         return conditions;
     }
 
-    private Condition createCondition(PvDiagnosis diagnosis) throws FhirResourceException{
+    private Condition createCondition(PvDiagnosis diagnosis, XMLGregorianCalendar date) throws FhirResourceException{
         Condition condition = new Condition();
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         condition.setSubject(resourceReference);
@@ -86,6 +87,12 @@ public class ConditionsBuilder {
         CodeableConcept category = new CodeableConcept();
         category.setTextSimple(DiagnosisTypes.DIAGNOSIS.toString());
         condition.setCategory(category);
+
+        // date required for IBD
+        if (date != null) {
+            DateAndTime dateAndTime = new DateAndTime(new Date(date.toGregorianCalendar().getTimeInMillis()));
+            condition.setDateAssertedSimple(dateAndTime);
+        }
 
         return condition;
     }
