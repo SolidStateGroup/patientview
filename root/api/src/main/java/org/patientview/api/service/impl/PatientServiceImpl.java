@@ -52,6 +52,7 @@ import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -594,15 +595,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     foundFhirLinkGroupIds.add(fhirLink.getGroup().getId());
 
                     if (fhirPatient != null) {
-                        Practitioner fhirPractitioner = null;
-                        if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
-                            fhirPractitioner
-                                = getPractitioner(
-                                    UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
-                        }
 
-                        org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
-                                fhirPractitioner, fhirLink.getGroup());
+                        // create basic patient with group
+                        org.patientview.api.model.Patient patient
+                                = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
+
+                        // set practitioners
+                        patient = setPractitioners(patient, fhirPatient);
 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
@@ -1156,6 +1155,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         } catch (ResourceNotFoundException | FhirResourceException e) {
             LOG.error("Error setting non test observations: " + e.getMessage());
+        }
+
+        return patient;
+    }
+
+    private org.patientview.api.model.Patient setPractitioners(
+            org.patientview.api.model.Patient patient, Patient fhirPatient) throws FhirResourceException {
+
+        if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
+            for (ResourceReference practitionerReference : fhirPatient.getCareProvider()) {
+                patient.getFhirPractitioners().add(new FhirPractitioner(getPractitioner(
+                        UUID.fromString(practitionerReference.getDisplaySimple()))));
+            }
         }
 
         return patient;

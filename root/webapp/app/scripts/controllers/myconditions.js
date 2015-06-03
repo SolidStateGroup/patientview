@@ -114,9 +114,10 @@ function ($scope, PatientService, GroupService) {
 
     var createMyIbd = function(patient) {
         var myIbd = {};
+        var i;
 
-        for (var j = 0; j < patient.fhirObservations.length; j++) {
-            var observation = patient.fhirObservations[j];
+        for (i = 0; i < patient.fhirObservations.length; i++) {
+            var observation = patient.fhirObservations[i];
             // NonTestObservationTypes
             if (observation.name === "BODY_SITE_AFFECTED") {
                 myIbd.bodySiteAffected = observation.value;
@@ -150,6 +151,17 @@ function ($scope, PatientService, GroupService) {
         // set primary diagnosis to first condition of patient (as sent in <diagnosis>)
         if (patient.fhirConditions.length) {
             myIbd.primaryDiagnosis = patient.fhirConditions[0].notes;
+        }
+
+        // set named consultant and IBD nurse
+        for (i = 0; i < patient.fhirPractitioners.length; i++) {
+            var practitioner = patient.fhirPractitioners[i];
+            if (practitioner.role === "NAMED_CONSULTANT") {
+                myIbd.namedConsultant = practitioner.name;
+            }
+            if (practitioner.role === "IBD_NURSE") {
+                myIbd.ibdNurse = practitioner.name;
+            }
         }
 
         return myIbd;

@@ -2,6 +2,7 @@ package org.patientview.importer.service;
 
 import generated.Patientview;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,4 +16,6 @@ import java.util.UUID;
 public interface PractitionerService {
 
     public UUID add(Patientview data) throws FhirResourceException;
+
+    void addOtherPractitionersToPatient(Patientview data, FhirLink fhirLink) throws FhirResourceException;
 }

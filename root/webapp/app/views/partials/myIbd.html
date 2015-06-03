@@ -74,6 +74,20 @@
                 </td>
                 <td data-ng-show="!patient.myIbd.colonoscopySurveillance">Unknown</td>
             </tr>
+            <tr>
+                <td class="forced-width">Named Consultant</td>
+                <td data-ng-show="patient.myIbd.namedConsultant">
+                    {{patient.myIbd.namedConsultant}}
+                </td>
+                <td data-ng-show="!patient.myIbd.namedConsultant">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">IBD Nurse</td>
+                <td data-ng-show="patient.myIbd.ibdNurse">
+                    {{patient.myIbd.ibdNurse}}
+                </td>
+                <td data-ng-show="!patient.myIbd.ibdNurse">Unknown</td>
+            </tr>
         </tbody>
     </table>
 </div>
