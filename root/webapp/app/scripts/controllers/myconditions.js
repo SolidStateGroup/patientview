@@ -184,7 +184,7 @@ function ($scope, PatientService, GroupService, ObservationService) {
 
         for (i = 0; i < patient.fhirConditions.length; i++) {
             var condition = patient.fhirConditions[i];
-            if (condition.links.length) {
+            if (condition.links) {
                 for (j = 0; j < condition.links.length; j++) {
                     myIbd.links.push(condition.links[j]);
                 }
