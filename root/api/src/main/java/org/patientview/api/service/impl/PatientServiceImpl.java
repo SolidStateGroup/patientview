@@ -1078,7 +1078,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,
                                                             List<Condition> conditions) {
         for (Condition condition : conditions) {
-            patient.getFhirConditions().add(new FhirCondition(condition));
+            FhirCondition fhirCondition = new FhirCondition(condition);
+
+            // try and set links based on diagnosis code (used by my IBD)
+            List<Code> codes = codeService.findAllByCodeAndType(fhirCondition.getCode(),
+                    lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+            if (!codes.isEmpty() && !CollectionUtils.isEmpty(codes.get(0).getLinks())) {
+                fhirCondition.setLinks(codes.get(0).getLinks());
+            }
+            patient.getFhirConditions().add(fhirCondition);
         }
 
         return patient;

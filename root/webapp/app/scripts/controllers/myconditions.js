@@ -114,7 +114,7 @@ function ($scope, PatientService, GroupService) {
 
     var createMyIbd = function(patient) {
         var myIbd = {};
-        var i;
+        var i, j;
 
         for (i = 0; i < patient.fhirObservations.length; i++) {
             var observation = patient.fhirObservations[i];
@@ -163,6 +163,19 @@ function ($scope, PatientService, GroupService) {
                 myIbd.ibdNurse = practitioner.name;
             }
         }
+
+        // set links based on diagnosis (fhirConditions)
+        myIbd.links = [];
+
+        for (i = 0; i < patient.fhirConditions.length; i++) {
+            var condition = patient.fhirConditions[i];
+            if (condition.links.length) {
+                for (j = 0; j < condition.links.length; j++) {
+                    myIbd.links.push(condition.links[j]);
+                }
+            }
+        }
+
 
         return myIbd;
     };

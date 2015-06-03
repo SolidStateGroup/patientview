@@ -97,10 +97,14 @@
                 </td>
                 <td data-ng-if="!patient.myIbd.ibdNurse">Unknown</td>
             </tr>
-            <tr>
+            <tr data-ng-if="patient.myIbd.links">
                 <td class="forced-width">Related Links</td>
                 <td>
-                    [links go here]
+                    <ul>
+                        <li data-ng-repeat="link in patient.myIbd.links">
+                            <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                        </li>
+                    </ul>
                 </td>
             </tr>
         </tbody>
