@@ -9,11 +9,21 @@ package org.patientview.persistence.model.enums;
  */
 public enum NonTestObservationTypes {
     BLOOD_GROUP("Blood Group"),
-    PTPULSE("Foot Checkup: ptpulse"),
+    BMD_EXAM("BMD Exam"), // my IBD
+    BODY_PARTS_AFFECTED("Body Parts Affected"), // my IBD
+    COLONOSCOPY_SURVEILLANCE("Colonoscopy Surveillance"), // my IBD
     DPPULSE("Foot Checkup: dppulse"),
+    FAMILY_HISTORY("Family History"), // my IBD
+    IBD_DISEASE_COMPLICATIONS("IBD Disease Complications"), // my IBD
+    IBD_DISEASE_EXTENT("IBD Disease Extent"), // my IBD
+    IBD_EI_MANIFESTATIONS("IBD EI Manifestations"), // my IBD
     MGRADE("Eye Checkup: mgrade"),
+    PTPULSE("Foot Checkup: ptpulse"),
     RGRADE("Eye Checkup: rgrade"),
-    VA("Eye Checkup: va");
+    SMOKING_HISTORY("Smoking History"), // my IBD
+    SURGICAL_HISTORY("Surgical History"), // my IBD
+    VA("Eye Checkup: va"),
+    VACCINATION_RECORD("Vaccination Record"); // my IBD
 
     private String name;
     NonTestObservationTypes(String name) { this.name = name; }

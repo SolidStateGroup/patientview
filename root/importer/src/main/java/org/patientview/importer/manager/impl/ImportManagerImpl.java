@@ -2,7 +2,6 @@ package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
-import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.exception.ImportResourceException;
@@ -26,7 +25,6 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -118,6 +116,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // update core Patient object based on <nhsno>
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);
+
+            // add other practitioners, only used by IBD for named consultant and nurse
+            practitionerService.addOtherPractitionersToPatient(patientview, fhirLink);
 
             // add Observation, deleting existing Observation within <test><daterange> (tests) and existing
             // Observation of type NonTestObservationTypes.BLOOD_GROUP, PTPULSE, DPPULSE

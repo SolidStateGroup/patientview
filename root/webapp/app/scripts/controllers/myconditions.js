@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-function ($scope, PatientService, GroupService) {
+angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService', 'ObservationService',
+function ($scope, PatientService, GroupService, ObservationService) {
 
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
@@ -112,6 +112,90 @@ function ($scope, PatientService, GroupService) {
         return eyeCheckup;
     };
 
+    var getWeight = function () {
+        $scope.weightLoading = true;
+        ObservationService.getByCode($scope.loggedInUser.id, 'weight').then(function(observations) {
+            if (observations.length) {
+                var observations = _.sortBy(observations, 'applies').reverse();
+                $scope.weight = observations[0];
+            }
+            $scope.weightLoading = false;
+        }, function() {
+            alert('Error retrieving weight');
+            $scope.weightLoading = false;
+        });
+    };
+
+    var createMyIbd = function(patient) {
+        var myIbd = {};
+        var i, j;
+
+        for (i = 0; i < patient.fhirObservations.length; i++) {
+            var observation = patient.fhirObservations[i];
+            // NonTestObservationTypes
+            if (observation.name === "BODY_SITE_AFFECTED") {
+                myIbd.bodySiteAffected = observation.value;
+            }
+            if (observation.name === "COLONOSCOPY_SURVEILLANCE") {
+                myIbd.colonoscopySurveillance = observation.applies;
+            }
+            if (observation.name === "FAMILY_HISTORY") {
+                myIbd.familyHistory = observation.value;
+            }
+            if (observation.name === "IBD_DISEASE_COMPLICATIONS") {
+                myIbd.ibdDiseaseComplications = observation.value;
+            }
+            if (observation.name === "IBD_DISEASE_EXTENT") {
+                myIbd.ibdDiseaseExtent = observation.value;
+                if (observation.diagram.length > 2) {
+                    myIbd.ibdDiseaseExtentDiagram = 'images/ibd/' + observation.diagram;
+                }
+            }
+            if (observation.name === "SURGICAL_HISTORY") {
+                myIbd.surgicalHistory = observation.value;
+            }
+            if (observation.name === "SMOKING_HISTORY") {
+                myIbd.smokingHistory = observation.value;
+            }
+            if (observation.name === "VACCINATION_RECORD") {
+                myIbd.vaccinationRecord = observation.value;
+            }
+        }
+
+        // set primary diagnosis to first condition of patient (as sent in <diagnosis>)
+        if (patient.fhirConditions.length) {
+            myIbd.primaryDiagnosis = patient.fhirConditions[0].notes;
+            myIbd.primaryDiagnosisDate = patient.fhirConditions[0].date;
+        }
+
+        // set named consultant and IBD nurse
+        for (i = 0; i < patient.fhirPractitioners.length; i++) {
+            var practitioner = patient.fhirPractitioners[i];
+            if (practitioner.role === "NAMED_CONSULTANT") {
+                myIbd.namedConsultant = practitioner.name;
+            }
+            if (practitioner.role === "IBD_NURSE") {
+                myIbd.ibdNurse = practitioner.name;
+            }
+        }
+
+        // set links based on diagnosis (fhirConditions)
+        myIbd.links = [];
+
+        for (i = 0; i < patient.fhirConditions.length; i++) {
+            var condition = patient.fhirConditions[i];
+            if (condition.links.length) {
+                for (j = 0; j < condition.links.length; j++) {
+                    myIbd.links.push(condition.links[j]);
+                }
+            }
+        }
+
+        getWeight();
+
+        return myIbd;
+    };
+
     // get conditions (diagnosis etc) from groups under current specialty
     var getMyConditions = function() {
         var childGroupIds = [];
@@ -137,6 +221,10 @@ function ($scope, PatientService, GroupService) {
                     // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
                     $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
+                    if ($scope.currentSpecialty.code === "IBD") {
+                        // create myIBD object if present
+                        $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
+                    }
                 }
 
                 $scope.loading = false;

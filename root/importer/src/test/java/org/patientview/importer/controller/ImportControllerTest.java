@@ -140,7 +140,11 @@ public class ImportControllerTest {
 
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
-        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+
+        // IBD
+        String fileName = "data/xml/ibd/1111111111_ibd.xml";
+
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());

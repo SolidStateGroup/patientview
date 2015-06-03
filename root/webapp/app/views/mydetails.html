@@ -88,27 +88,30 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <table data-ng-show="patient.fhirPractitioner" class="table table-bordered">
+                        <table data-ng-show="patient.fhirPractitioners"
+                               data-ng-repeat="practitioner in patient.fhirPractitioners"
+                               data-ng-if="practitioner.role === 'GP'"
+                               class="table table-bordered">
                             <tbody>
                                 <tr><td colspan="2"><h4>GP Details</h4></td></tr>
                                 <tr>
                                     <td class="forced-width">Name</td>
-                                    <td>{{patient.fhirPractitioner.name}}</td>
+                                    <td>{{practitioner.name}}</td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>
                                     <td>
-                                        <span data-ng-show="patient.fhirPractitioner.address1">{{patient.fhirPractitioner.address1}}<br/></span>
-                                        <span data-ng-show="patient.fhirPractitioner.address2">{{patient.fhirPractitioner.address2}}<br/></span>
-                                        <span data-ng-show="patient.fhirPractitioner.address3">{{patient.fhirPractitioner.address3}}<br/></span>
-                                        <span data-ng-show="patient.fhirPractitioner.address4">{{patient.fhirPractitioner.address4}}<br/></span>
-                                        <span data-ng-show="patient.fhirPractitioner.postcode">{{patient.fhirPractitioner.postcode}}</span>
+                                        <span data-ng-show="practitioner.address1">{{practitioner.address1}}<br/></span>
+                                        <span data-ng-show="practitioner.address2">{{practitioner.address2}}<br/></span>
+                                        <span data-ng-show="practitioner.address3">{{practitioner.address3}}<br/></span>
+                                        <span data-ng-show="practitioner.address4">{{practitioner.address4}}<br/></span>
+                                        <span data-ng-show="practitioner.postcode">{{practitioner.postcode}}</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="forced-width">Phone Number(s)</td>
                                     <td>
-                                        <span data-ng-repeat="contact in patient.fhirPractitioner.contacts">
+                                        <span data-ng-repeat="contact in practitioner.contacts">
                                             {{contact.value}}<br/>
                                         </span>
                                     </td>

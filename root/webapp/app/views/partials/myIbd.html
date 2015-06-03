@@ -1,0 +1,126 @@
+<div class="panel panel-default" data-ng-show="patient.myIbd">
+    <div class="panel-heading"><h3>My IBD</h3></div>
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <td class="forced-width">Primary Diagnosis</td>
+                <td data-ng-if="patient.myIbd.primaryDiagnosis.length">
+                    {{patient.myIbd.primaryDiagnosis}}
+                </td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosis.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Diagnosis Date</td>
+                <td data-ng-if="patient.myIbd.primaryDiagnosisDate">
+                    {{patient.myIbd.primaryDiagnosisDate | date:'dd-MMM-yyyy'}}
+                </td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Disease Extent</td>
+                <td data-ng-if="patient.myIbd.ibdDiseaseExtent.length">
+                    {{patient.myIbd.ibdDiseaseExtent}}
+                </td>
+                <td data-ng-if="!patient.myIbd.ibdDiseaseExtent.length">Unknown</td>
+            </tr>
+            <tr data-ng-if="patient.myIbd.ibdDiseaseExtentDiagram.length">
+                <td class="forced-width">Diagram</td>
+                <td>
+                    <img data-ng-src={{patient.myIbd.ibdDiseaseExtentDiagram}} alt="{{patient.myIbd.ibdDiseaseExtent}}"/>
+                    <br/><br/>
+                    <div style="width:15px;height:15px;border:none; background-color: red; float: left; margin-right: 7px; position: relative; top: 2px;"></div>
+                    Represents the part of the bowel affected by your condition.
+                </td>
+            </tr>
+            <tr>
+                <td class="forced-width">Complications</td>
+                <td data-ng-if="patient.myIbd.ibdDiseaseComplications.length">
+                    {{patient.myIbd.ibdDiseaseComplications}}
+                </td>
+                <td data-ng-if="!patient.myIbd.ibdDiseaseComplications.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Other Parts of the Body Affected</td>
+                <td data-ng-if="patient.myIbd.bodySiteAffected.length">
+                    {{patient.myIbd.bodySiteAffected}}
+                </td>
+                <td data-ng-if="!patient.myIbd.bodySiteAffected.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Weight</td>
+                <td data-ng-if="weight">
+                    {{weight.value}}
+                    <span data-ng-if="weight.units">{{weight.units}}</span>
+                </td>
+                <td data-ng-if="!weight && !weightLoading">Unknown</td>
+                <td data-ng-if="!weight && weightLoading">Loading...</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Family History</td>
+                <td data-ng-if="patient.myIbd.familyHistory.length">
+                    {{patient.myIbd.familyHistory}}
+                </td>
+                <td data-ng-if="!patient.myIbd.familyHistory.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Surgical History</td>
+                <td data-ng-if="patient.myIbd.surgicalHistory.length">
+                    {{patient.myIbd.surgicalHistory}}
+                </td>
+                <td data-ng-if="!patient.myIbd.surgicalHistory.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Smoking History</td>
+                <td data-ng-if="patient.myIbd.smokingHistory.length">
+                    {{patient.myIbd.smokingHistory}}
+                </td>
+                <td data-ng-if="!patient.myIbd.smokingHistory.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Allergies</td>
+                <td data-ng-if="patient.fhirAllergies.length">
+                    <span data-ng-repeat="allergy in patient.fhirAllergies" data-ng-if="allergy.substance">
+                        {{allergy.substance}}<br/>
+                    </span>
+                </td>
+                <td data-ng-if="!patient.fhirAllergies.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Vaccination Record</td>
+                <td data-ng-if="patient.myIbd.vaccinationRecord.length">
+                    {{patient.myIbd.vaccinationRecord}}
+                </td>
+                <td data-ng-if="!patient.myIbd.vaccinationRecord.length">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Year for Surveillance Colonoscopy</td>
+                <td data-ng-if="patient.myIbd.colonoscopySurveillance">
+                    {{patient.myIbd.colonoscopySurveillance | date:'dd-MMM-yyyy'}}
+                </td>
+                <td data-ng-if="!patient.myIbd.colonoscopySurveillance">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">Named Consultant</td>
+                <td data-ng-if="patient.myIbd.namedConsultant">
+                    {{patient.myIbd.namedConsultant}}
+                </td>
+                <td data-ng-if="!patient.myIbd.namedConsultant">Unknown</td>
+            </tr>
+            <tr>
+                <td class="forced-width">IBD Nurse</td>
+                <td data-ng-if="patient.myIbd.ibdNurse">
+                    {{patient.myIbd.ibdNurse}}
+                </td>
+                <td data-ng-if="!patient.myIbd.ibdNurse">Unknown</td>
+            </tr>
+            <tr data-ng-if="patient.myIbd.links">
+                <td class="forced-width">Related Links</td>
+                <td>
+                    <span data-ng-repeat="link in patient.myIbd.links" >
+                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

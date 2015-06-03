@@ -19,6 +19,7 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.builder.PatientBuilder;
+import org.patientview.api.service.AllergyService;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
@@ -52,6 +53,7 @@ import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -99,6 +101,9 @@ import java.util.UUID;
  */
 @Service
 public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> implements PatientService {
+
+    @Inject
+    private AllergyService allergyService;
 
     @Inject
     private CodeService codeService;
@@ -594,15 +599,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     foundFhirLinkGroupIds.add(fhirLink.getGroup().getId());
 
                     if (fhirPatient != null) {
-                        Practitioner fhirPractitioner = null;
-                        if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
-                            fhirPractitioner
-                                = getPractitioner(
-                                    UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
-                        }
 
-                        org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
-                                fhirPractitioner, fhirLink.getGroup());
+                        // create basic patient with group
+                        org.patientview.api.model.Patient patient
+                                = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
+
+                        // set practitioners
+                        patient = setPractitioners(patient, fhirPatient);
 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
@@ -616,6 +619,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                         // set non test observations
                         patient = setNonTestObservations(patient, fhirLink);
+
+                        // set allergies
+                        patient = setAllergies(patient, fhirLink);
 
                         patients.add(patient);
                     }
@@ -1063,10 +1069,24 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         migrateFhirTestObservations(migrationUser, entityUser, fhirLinks, identifierMap);
     }
 
+    private org.patientview.api.model.Patient setAllergies(
+            org.patientview.api.model.Patient patient, FhirLink fhirLink) throws FhirResourceException {
+        patient.setFhirAllergies(allergyService.getBySubject(fhirLink.getResourceId()));
+        return patient;
+    }
+
     private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,
                                                             List<Condition> conditions) {
         for (Condition condition : conditions) {
-            patient.getFhirConditions().add(new FhirCondition(condition));
+            FhirCondition fhirCondition = new FhirCondition(condition);
+
+            // try and set links based on diagnosis code (used by my IBD)
+            List<Code> codes = codeService.findAllByCodeAndType(fhirCondition.getCode(),
+                    lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+            if (!codes.isEmpty() && !CollectionUtils.isEmpty(codes.get(0).getLinks())) {
+                fhirCondition.setLinks(codes.get(0).getLinks());
+            }
+            patient.getFhirConditions().add(fhirCondition);
         }
 
         return patient;
@@ -1156,6 +1176,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         } catch (ResourceNotFoundException | FhirResourceException e) {
             LOG.error("Error setting non test observations: " + e.getMessage());
+        }
+
+        return patient;
+    }
+
+    private org.patientview.api.model.Patient setPractitioners(
+            org.patientview.api.model.Patient patient, Patient fhirPatient) throws FhirResourceException {
+
+        if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
+            for (ResourceReference practitionerReference : fhirPatient.getCareProvider()) {
+                patient.getFhirPractitioners().add(new FhirPractitioner(getPractitioner(
+                        UUID.fromString(practitionerReference.getDisplaySimple()))));
+            }
         }
 
         return patient;
