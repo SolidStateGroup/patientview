@@ -7,13 +7,13 @@ package org.patientview.persistence.model.enums;
  */
 public enum IbdDiseaseExtent {
 
-    PROCTITIS("Proctitis", "x.jpg"),
-    LEFT_SIDED_COLITIS("Left-sided Colitis", "x.jpg"),
-    EXTENSIVE_COLITIS("Extensive Colitis", "x.jpg"),
-    ILEAL_CROHNS("Ileal Crohn's", "x.jpg"),
-    ILEO_COLONIC_DISEASE("Ileal-colonic Crohn's", "x.jpg"),
-    CROHNS_COLITIS("Crohn's Colitis", "x.jpg"),
-    ISOLATED_UPPER_GI_DISEASE("Isolated upper GI disease", "x.jpg");
+    PROCTITIS("Proctitis", "proctitis.png"),
+    LEFT_SIDED_COLITIS("Left-sided Colitis", "left-sided-colitis.png"),
+    EXTENSIVE_COLITIS("Extensive Colitis", "extensive-colitis.png"),
+    ILEAL_CROHNS("Ileal Crohn's", "ileal-crohns.png"),
+    ILEO_COLONIC_DISEASE("Ileal-colonic Crohn's", "ileo-colonic-disease.png"),
+    CROHNS_COLITIS("Crohn's Colitis", "crohns-colitis.png"),
+    ISOLATED_UPPER_GI_DISEASE("Isolated upper GI disease", "isolated-upper-gi-disease.png");
 
     private String name;
     private String diagram;

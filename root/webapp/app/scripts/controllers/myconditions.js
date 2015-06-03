@@ -112,6 +112,49 @@ function ($scope, PatientService, GroupService) {
         return eyeCheckup;
     };
 
+    var createMyIbd = function(patient) {
+        var myIbd = {};
+
+        for (var j = 0; j < patient.fhirObservations.length; j++) {
+            var observation = patient.fhirObservations[j];
+            // NonTestObservationTypes
+            if (observation.name === "BODY_SITE_AFFECTED") {
+                myIbd.bodySiteAffected = observation.value;
+            }
+            if (observation.name === "COLONOSCOPY_SURVEILLANCE") {
+                myIbd.colonoscopySurveillance = observation.applies;
+            }
+            if (observation.name === "FAMILY_HISTORY") {
+                myIbd.familyHistory = observation.value;
+            }
+            if (observation.name === "IBD_DISEASE_COMPLICATIONS") {
+                myIbd.ibdDiseaseComplications = observation.value;
+            }
+            if (observation.name === "IBD_DISEASE_EXTENT") {
+                myIbd.ibdDiseaseExtent = observation.value;
+                if (observation.diagram.length > 2) {
+                    myIbd.ibdDiseaseExtentDiagram = 'images/ibd/' + observation.diagram;
+                }
+            }
+            if (observation.name === "SURGICAL_HISTORY") {
+                myIbd.surgicalHistory = observation.value;
+            }
+            if (observation.name === "SMOKING_HISTORY") {
+                myIbd.smokingHistory = observation.value;
+            }
+            if (observation.name === "VACCINATION_RECORD") {
+                myIbd.vaccinationRecord = observation.value;
+            }
+        }
+
+        // set primary diagnosis to first condition of patient (as sent in <diagnosis>)
+        if (patient.fhirConditions.length) {
+            myIbd.primaryDiagnosis = patient.fhirConditions[0].notes;
+        }
+
+        return myIbd;
+    };
+
     // get conditions (diagnosis etc) from groups under current specialty
     var getMyConditions = function() {
         var childGroupIds = [];
@@ -137,6 +180,8 @@ function ($scope, PatientService, GroupService) {
                     // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
                     $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
+                    // create myIBD object if present
+                    $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
                 }
 
                 $scope.loading = false;
