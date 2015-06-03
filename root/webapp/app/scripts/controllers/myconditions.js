@@ -221,8 +221,10 @@ function ($scope, PatientService, GroupService, ObservationService) {
                     // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
                     $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
-                    // create myIBD object if present
-                    $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
+                    if ($scope.currentSpecialty.code === "IBD") {
+                        // create myIBD object if present
+                        $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
+                    }
                 }
 
                 $scope.loading = false;
