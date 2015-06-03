@@ -15,7 +15,6 @@
 
 <div data-ng-show="patientDetails.length">
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-    <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd"></div>
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
             <div class="panel-body">

@@ -12,9 +12,9 @@
         </span>
     </div>
 </div>
-
 <div data-ng-show="patientDetails.length">
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+        <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd"></div>
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
             <div class="panel-body">
@@ -67,16 +67,6 @@
                                 <span data-ng-repeat="link in encounter.links | orderBy:'displayOrder'">
                                     <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                 </span>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="forced-width">Transplant Status</td>
-                        <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters"
-                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
-                                Kidney: {{encounter.status}} &nbsp;
-                                <a href="http://www.rixg.org/rpv/transplant.html" target="_blank">(Explain This)</a>
                             </span>
                         </td>
                     </tr>
