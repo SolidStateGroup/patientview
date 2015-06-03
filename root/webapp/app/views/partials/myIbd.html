@@ -47,6 +47,15 @@
                 <td data-ng-if="!patient.myIbd.bodySiteAffected.length">Unknown</td>
             </tr>
             <tr>
+                <td class="forced-width">Weight</td>
+                <td data-ng-if="weight">
+                    {{weight.value}}
+                    <span data-ng-if="weight.units">{{weight.units}}</span>
+                </td>
+                <td data-ng-if="!weight && !weightLoading">Unknown</td>
+                <td data-ng-if="!weight && weightLoading">Loading...</td>
+            </tr>
+            <tr>
                 <td class="forced-width">Family History</td>
                 <td data-ng-if="patient.myIbd.familyHistory.length">
                     {{patient.myIbd.familyHistory}}
@@ -71,7 +80,7 @@
                 <td class="forced-width">Allergies</td>
                 <td data-ng-if="patient.fhirAllergies.length">
                     <span data-ng-repeat="allergy in patient.fhirAllergies" data-ng-if="allergy.substance">
-                        {{allergy.substance}}
+                        {{allergy.substance}}<br/>
                     </span>
                 </td>
                 <td data-ng-if="!patient.fhirAllergies.length">Unknown</td>

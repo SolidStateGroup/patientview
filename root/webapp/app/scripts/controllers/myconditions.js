@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-function ($scope, PatientService, GroupService) {
+angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService', 'ObservationService',
+function ($scope, PatientService, GroupService, ObservationService) {
 
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
@@ -112,6 +112,20 @@ function ($scope, PatientService, GroupService) {
         return eyeCheckup;
     };
 
+    var getWeight = function () {
+        $scope.weightLoading = true;
+        ObservationService.getByCode($scope.loggedInUser.id, 'weight').then(function(observations) {
+            if (observations.length) {
+                var observations = _.sortBy(observations, 'applies').reverse();
+                $scope.weight = observations[0];
+            }
+            $scope.weightLoading = false;
+        }, function() {
+            alert('Error retrieving weight');
+            $scope.weightLoading = false;
+        });
+    };
+
     var createMyIbd = function(patient) {
         var myIbd = {};
         var i, j;
@@ -177,6 +191,7 @@ function ($scope, PatientService, GroupService) {
             }
         }
 
+        getWeight();
 
         return myIbd;
     };

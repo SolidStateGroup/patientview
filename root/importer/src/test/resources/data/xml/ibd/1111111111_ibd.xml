@@ -83,6 +83,16 @@
                 </result>
             </test>
             <test>
+                <testname>weight</testname>
+                <testcode>weight</testcode>
+                <units>kg</units>
+                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2013-11-06T13:01:47</datestamp>
+                    <value>120</value>
+                </result>
+            </test>
+            <test>
                 <testname>creatinine</testname>
                 <testcode>creatinine</testcode>
                 <units></units>
