@@ -162,10 +162,14 @@ function ($scope, PatientService, GroupService, ObservationService) {
             }
         }
 
-        // set primary diagnosis to first condition of patient (as sent in <diagnosis>)
+        // set primary diagnosis to first condition of patient (as sent in <diagnosis>), DIAGNOSIS, not EDTA_DIAGNOSIS
         if (patient.fhirConditions.length) {
-            myIbd.primaryDiagnosis = patient.fhirConditions[0].notes;
-            myIbd.primaryDiagnosisDate = patient.fhirConditions[0].date;
+            for (i = 0; i < patient.fhirConditions.length; i++) {
+                if (patient.fhirConditions[i].category === 'DIAGNOSIS') {
+                    myIbd.primaryDiagnosis = patient.fhirConditions[i].notes;
+                    myIbd.primaryDiagnosisDate = patient.fhirConditions[i].date;
+                }
+            }
         }
 
         // set named consultant and IBD nurse (allow multiple)
@@ -187,14 +191,16 @@ function ($scope, PatientService, GroupService, ObservationService) {
             }
         }
 
-        // set links based on diagnosis (fhirConditions)
+        // set links based on diagnosis (fhirConditions) only for DIAGNOSIS, not EDTA_DIAGNOSIS
         myIbd.links = [];
 
-        for (i = 0; i < patient.fhirConditions.length; i++) {
-            var condition = patient.fhirConditions[i];
-            if (condition.links) {
-                for (j = 0; j < condition.links.length; j++) {
-                    myIbd.links.push(condition.links[j]);
+        if (patient.fhirConditions.length) {
+            for (i = 0; i < patient.fhirConditions.length; i++) {
+                var condition = patient.fhirConditions[i];
+                if (condition.links && condition.category === 'DIAGNOSIS') {
+                    for (j = 0; j < condition.links.length; j++) {
+                        myIbd.links.push(condition.links[j]);
+                    }
                 }
             }
         }

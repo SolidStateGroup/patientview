@@ -1,6 +1,5 @@
 package org.patientview.migration.service.impl;
 
-import bsh.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.utils.CommonUtils;
@@ -46,10 +45,12 @@ import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.IbdDiseaseExtent;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
+import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
@@ -244,8 +245,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         LOG.info(groupsToAdd.size() + " Groups");
 
-        boolean singleUser = false;
-        boolean replaceExisting = false;
+        boolean singleUser = true;
+        boolean replaceExisting = true;
 
         if (!singleUser) {
             for (Group group : groupsToAdd) {
@@ -298,10 +299,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 58977L;
+            Long oldUserId = 767L;
 
             try {
-                org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                org.patientview.patientview.model.User oldUser;
+                if (IBD) {
+                    oldUser = getUserNative(oldUserId);
+                } else {
+                    oldUser = userDao.get(oldUserId);
+                }
                 String username = oldUser.getUsername();
 
                 if (!username.endsWith("-GP")) {
@@ -351,8 +357,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (results.getString(3).contains(" ")) {
                     String firstName = results.getString(3).substring(0, results.getString(3).lastIndexOf(" "));
                     String lastName = results.getString(3).substring(results.getString(3).lastIndexOf(" ") + 1, results.getString(3).length());
-                    user.setFirstName(firstName);
-                    user.setLastName(lastName);
+                    if (StringUtils.isNotEmpty(firstName)) {
+                        user.setFirstName(firstName);
+                    }
+                    if (StringUtils.isNotEmpty(lastName)) {
+                        user.setLastName(lastName);
+                    }
                 } else {
                     user.setFirstName(results.getString(3));
                 }
@@ -571,15 +581,21 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                         if (unit != null) {
                             migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit, uktStatus);
-                            migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
                             if (!IBD) {
+                                // diagnosis for IBD comes from ibd_myibd table
+                                migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+
                                 // eye and foot checkups
                                 if (eyeCheckupNhsNos.contains(nhsNo) || footCheckupNhsNos.contains(nhsNo)) {
                                     migrationUser = addCheckupTablesData(migrationUser, unit);
                                 }
+                            }
+
+                            if (IBD) {
+                                migrationUser = addIbdData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             }
 
                         } else {
@@ -931,7 +947,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 practitioner.getContacts().add(practitionerContact);
             }
 
-            patient.setPractitioner(practitioner);
+            patient.getPractitioners().add(practitioner);
         }
 
         // blood group
@@ -949,6 +965,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 bloodGroup.setApplies(new Date());
             }
             migrationUser.getObservations().add(bloodGroup);
+        }
+
+        // IBD practitioners
+        if (IBD) {
+            patient = addIbdPractitioners(patient, pv1PatientRecord.getNhsno());
         }
 
         migrationUser.getPatients().add(patient);
@@ -1161,6 +1182,148 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         return migrationUser;
+    }
+
+    private FhirPatient addIbdPractitioners(FhirPatient patient, String nhsNo) {
+        Connection connection = null;
+        String sql = "SELECT namedConsultant, nurses FROM ibd_myibd WHERE nhsno = " + nhsNo;
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            if (results.next()) {
+                if (StringUtils.isNotEmpty(results.getString(1))) {
+                    FhirPractitioner practitioner = new FhirPractitioner();
+                    practitioner.setName(CommonUtils.cleanSql(results.getString(1)));
+                    practitioner.setRole(PractitionerRoles.NAMED_CONSULTANT.toString());
+                    patient.getPractitioners().add(practitioner);
+                }
+                if (StringUtils.isNotEmpty(results.getString(2))) {
+                    FhirPractitioner practitioner = new FhirPractitioner();
+                    practitioner.setName(CommonUtils.cleanSql(results.getString(2)));
+                    practitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
+                    patient.getPractitioners().add(practitioner);
+                }
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return patient;
+    }
+
+    private MigrationUser addIbdData(MigrationUser migrationUser, String nhsNo, Group unit) {
+
+        // allow setting of known diagnosis and disease extent
+        Map<Long, String> diagnoses = new HashMap<Long, String>();
+        diagnoses.put(1L, "Ulcerative Colitis");
+        diagnoses.put(2L, "IBD - Unclassified (IBDU)");
+        diagnoses.put(3L, "Crohn's Disease");
+
+        Map<Long, String> diseaseExtents = new HashMap<Long, String>();
+        diseaseExtents.put(1L, IbdDiseaseExtent.PROCTITIS.getName());
+        diseaseExtents.put(2L, IbdDiseaseExtent.LEFT_SIDED_COLITIS.getName());
+        diseaseExtents.put(3L, IbdDiseaseExtent.EXTENSIVE_COLITIS.getName());
+        diseaseExtents.put(4L, IbdDiseaseExtent.ILEAL_CROHNS.getName());
+        diseaseExtents.put(5L, IbdDiseaseExtent.ILEO_COLONIC_DISEASE.getName());
+        diseaseExtents.put(6L, IbdDiseaseExtent.CROHNS_COLITIS.getName());
+        diseaseExtents.put(7L, IbdDiseaseExtent.ISOLATED_UPPER_GI_DISEASE.getName());
+
+        Connection connection = null;
+        String sql = "SELECT bodyPartAffected, diagnosis_id, disease_extent_id, " +
+                "yearForSurveillanceColonoscopy, yearOfDiagnosis, familyHistory, smoking, surgery, vaccinationRecord," +
+                "eiManifestations, complications FROM ibd_myibd WHERE nhsno = " + nhsNo;
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            if (results.next()) {
+                if (StringUtils.isNotEmpty(results.getString(1))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.BODY_PARTS_AFFECTED.toString(), results.getString(1), null, unit));
+                }
+                if (results.getLong(2) != -1L) {
+                    // add condition with year of diagnosis, used instead of diagnosis table
+                    FhirCondition condition = new FhirCondition();
+                    condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                    condition.setCode(diagnoses.get(results.getLong(2)));
+                    condition.setNotes(diagnoses.get(results.getLong(2)));
+                    condition.setGroup(unit);
+                    condition.setIdentifier(nhsNo);
+                    if (results.getTimestamp(5) != null) {
+                        condition.setDate(results.getTimestamp(5));
+                    }
+                    migrationUser.getConditions().add(condition);
+                }
+                if (results.getLong(3) != -1) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                            NonTestObservationTypes.IBD_DISEASE_EXTENT.toString(), diseaseExtents.get(results.getLong(3)),
+                            null, unit));
+                }
+                if (results.getTimestamp(4) != null) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.COLONOSCOPY_SURVEILLANCE.toString(), null,
+                            results.getTimestamp(4), unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(6))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.FAMILY_HISTORY.toString(), results.getString(6), null, unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(7))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.SMOKING_HISTORY.toString(), results.getString(7), null, unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(8))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.SURGICAL_HISTORY.toString(), results.getString(8), null, unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(9))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.VACCINATION_RECORD.toString(), results.getString(9), null, unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(10))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.IBD_EI_MANIFESTATIONS.toString(), results.getString(10), null, unit));
+                }
+                if (StringUtils.isNotEmpty(results.getString(11))) {
+                    migrationUser.getObservations().add(createFhirObservation(nhsNo,
+                        NonTestObservationTypes.IBD_DISEASE_COMPLICATIONS.toString(), results.getString(11), null,
+                            unit));
+                }
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private FhirObservation createFhirObservation(String nhsno, String name, String value, Date applies, Group unit) {
+        FhirObservation observation = new FhirObservation();
+        observation.setIdentifier(nhsno);
+        observation.setName(name);
+        observation.setValue(value);
+        observation.setGroup(unit);
+        observation.setApplies(applies);
+        return observation;
     }
 
     private MigrationUser addMedicineTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
@@ -1470,7 +1633,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     practitionerContact.setSystem("phone");
                     practitionerContact.setValue("09876 54321098");
                     practitioner.getContacts().add(practitionerContact);
-                    patient.setPractitioner(practitioner);
+                    patient.getPractitioners().add(practitioner);
 
                     migrationUser.getPatients().add(patient);
 

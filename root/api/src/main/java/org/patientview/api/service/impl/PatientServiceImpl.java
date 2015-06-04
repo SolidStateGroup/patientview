@@ -179,7 +179,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     // add FHIR Patient with optional practitioner reference, used during migration
-    private FhirLink addPatient(FhirPatient fhirPatient, User entityUser, UUID practitionerUuid,
+    private FhirLink addPatient(FhirPatient fhirPatient, User entityUser, List<UUID> practitionerUuids,
                                 Set<FhirLink> fhirLinks)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
@@ -267,11 +267,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         }
 
-        // care provider (practitioner)
-        if (practitionerUuid != null) {
-            ResourceReference careProvider = patient.addCareProvider();
-            careProvider.setReferenceSimple("uuid");
-            careProvider.setDisplaySimple(practitionerUuid.toString());
+        // care providers (practitioner)
+        if (!practitionerUuids.isEmpty()) {
+            for (UUID practitionerUuid : practitionerUuids) {
+                ResourceReference careProvider = patient.addCareProvider();
+                careProvider.setReferenceSimple("uuid");
+                careProvider.setDisplaySimple(practitionerUuid.toString());
+            }
         }
 
         //JSONObject createdPatient = fhirResource.create(patient);
@@ -330,8 +332,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     private Patient createHumanName(Patient patient, User user) {
         HumanName humanName = patient.addName();
-        humanName.addFamilySimple(user.getSurname());
-        humanName.addGivenSimple(user.getForename());
+        if (StringUtils.isNotEmpty(user.getSurname())) {
+            humanName.addFamilySimple(user.getSurname());
+        }
+        if (StringUtils.isNotEmpty(user.getForename())) {
+            humanName.addGivenSimple(user.getForename());
+        }
         Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
         humanName.setUse(nameUse);
         return patient;
@@ -709,7 +715,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 sb.append(obs.getResourceType()).append("','");
                 sb.append(obs.getPublished().toString()).append("','");
                 sb.append(obs.getUpdated().toString()).append("','");
-                sb.append(obs.getContent());
+                sb.append(CommonUtils.cleanSql(obs.getContent()));
                 sb.append("')");
                 if (i != (fhirDatabaseObservations.size() - 1)) {
                     sb.append(",");
@@ -725,31 +731,50 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // Patient, Practitioner (taken from pv1 patient table)
         for (FhirPatient fhirPatient : migrationUser.getPatients()) {
-            // create practitioner in FHIR for this patient's practitioner if it doesn't exist
-            if (fhirPatient.getPractitioner() != null
-                    && StringUtils.isNotEmpty(fhirPatient.getPractitioner().getName())) {
+            FhirPractitioner gp = null;
+            List<FhirPractitioner> otherPractitioners = new ArrayList<>();
 
-                UUID practitionerUuid;
-                List<UUID> practitionerUuids
-                    = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
+            if (!fhirPatient.getPractitioners().isEmpty()) {
+                // set GP and other (IBD) practitioners
+                for (FhirPractitioner fhirPractitioner : fhirPatient.getPractitioners()) {
+                    if (StringUtils.isEmpty(fhirPractitioner.getRole())) {
+                        gp = fhirPractitioner;
+                    } else {
+                        otherPractitioners.add(fhirPractitioner);
+                    }
+                }
+            }
 
-                if (CollectionUtils.isEmpty(practitionerUuids)) {
-                    practitionerUuid = practitionerService.addPractitioner(fhirPatient.getPractitioner());
+            List<UUID> practitionerUuids = new ArrayList<>();
+            if (gp != null && StringUtils.isNotEmpty(gp.getName())) {
+                List<UUID> existingPractitionerUuids =
+                        practitionerService.getPractitionerLogicalUuidsByName(gp.getName());
+
+                if (CollectionUtils.isEmpty(existingPractitionerUuids)) {
+                    practitionerUuids.add(practitionerService.addPractitioner(gp));
                 } else {
-                    practitionerUuid = practitionerUuids.get(0);
+                    practitionerUuids.add(existingPractitionerUuids.get(0));
                 }
+            }
 
-                // add patient
-                FhirLink newFhirLink = addPatient(fhirPatient, entityUser, practitionerUuid, fhirLinks);
-                if (newFhirLink != null) {
-                    fhirLinks.add(newFhirLink);
+            // add other practitioners (IBD)
+            if (!otherPractitioners.isEmpty()) {
+                for (FhirPractitioner fhirPractitioner : otherPractitioners) {
+                    List<UUID> existingPractitionerUuids =
+                            practitionerService.getPractitionerLogicalUuidsByName(fhirPractitioner.getName());
+
+                    if (CollectionUtils.isEmpty(existingPractitionerUuids)) {
+                        practitionerUuids.add(practitionerService.addPractitioner(fhirPractitioner));
+                    } else {
+                        practitionerUuids.add(existingPractitionerUuids.get(0));
+                    }
                 }
-            } else {
-                // add patient, with no practitioner
-                FhirLink newFhirLink = addPatient(fhirPatient, entityUser, null, fhirLinks);
-                if (newFhirLink != null) {
-                    fhirLinks.add(newFhirLink);
-                }
+            }
+
+            FhirLink newFhirLink = addPatient(fhirPatient, entityUser, practitionerUuids, fhirLinks);
+
+            if (newFhirLink != null) {
+                fhirLinks.add(newFhirLink);
             }
         }
 
