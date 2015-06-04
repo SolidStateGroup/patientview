@@ -7,14 +7,14 @@
                 <td data-ng-if="patient.myIbd.primaryDiagnosis.length">
                     {{patient.myIbd.primaryDiagnosis}}
                 </td>
-                <td data-ng-if="!patient.myIbd.primaryDiagnosis.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosis.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Diagnosis Date</td>
                 <td data-ng-if="patient.myIbd.primaryDiagnosisDate">
-                    {{patient.myIbd.primaryDiagnosisDate | date:'dd-MMM-yyyy'}}
+                    {{patient.myIbd.primaryDiagnosisDate | date:'yyyy'}}
                 </td>
-                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate">Unknown</td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate"></td>
             </tr>
             <tr>
                 <td class="forced-width">Disease Extent</td>
@@ -27,21 +27,21 @@
                         Represents the part of the bowel affected by your condition.
                     </div>
                 </td>
-                <td data-ng-if="!patient.myIbd.ibdDiseaseExtent.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.ibdDiseaseExtent.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Complications</td>
                 <td data-ng-if="patient.myIbd.ibdDiseaseComplications.length">
                     {{patient.myIbd.ibdDiseaseComplications}}
                 </td>
-                <td data-ng-if="!patient.myIbd.ibdDiseaseComplications.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.ibdDiseaseComplications.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Other Parts of the Body Affected</td>
                 <td data-ng-if="patient.myIbd.bodySiteAffected.length">
                     {{patient.myIbd.bodySiteAffected}}
                 </td>
-                <td data-ng-if="!patient.myIbd.bodySiteAffected.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.bodySiteAffected.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Weight</td>
@@ -49,7 +49,7 @@
                     {{weight.value}}
                     <span data-ng-if="weight.units">{{weight.units}}</span>
                 </td>
-                <td data-ng-if="!weight && !weightLoading">Unknown</td>
+                <td data-ng-if="!weight && !weightLoading"></td>
                 <td data-ng-if="!weight && weightLoading">Loading...</td>
             </tr>
             <tr>
@@ -57,21 +57,21 @@
                 <td data-ng-if="patient.myIbd.familyHistory.length">
                     {{patient.myIbd.familyHistory}}
                 </td>
-                <td data-ng-if="!patient.myIbd.familyHistory.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.familyHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Surgical History</td>
                 <td data-ng-if="patient.myIbd.surgicalHistory.length">
                     {{patient.myIbd.surgicalHistory}}
                 </td>
-                <td data-ng-if="!patient.myIbd.surgicalHistory.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.surgicalHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Smoking History</td>
                 <td data-ng-if="patient.myIbd.smokingHistory.length">
                     {{patient.myIbd.smokingHistory}}
                 </td>
-                <td data-ng-if="!patient.myIbd.smokingHistory.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.smokingHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Allergies</td>
@@ -80,21 +80,21 @@
                         {{allergy.substance}}<br/>
                     </span>
                 </td>
-                <td data-ng-if="!patient.fhirAllergies.length">Unknown</td>
+                <td data-ng-if="!patient.fhirAllergies.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Vaccination Record</td>
                 <td data-ng-if="patient.myIbd.vaccinationRecord.length">
                     {{patient.myIbd.vaccinationRecord}}
                 </td>
-                <td data-ng-if="!patient.myIbd.vaccinationRecord.length">Unknown</td>
+                <td data-ng-if="!patient.myIbd.vaccinationRecord.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Year for Surveillance Colonoscopy</td>
                 <td data-ng-if="patient.myIbd.colonoscopySurveillance">
                     {{patient.myIbd.colonoscopySurveillance | date:'dd-MMM-yyyy'}}
                 </td>
-                <td data-ng-if="!patient.myIbd.colonoscopySurveillance">Unknown</td>
+                <td data-ng-if="!patient.myIbd.colonoscopySurveillance"></td>
             </tr>
             <tr>
                 <td class="forced-width">Named Consultant</td>
@@ -103,7 +103,7 @@
                         {{namedConsultant}}<br/>
                     </span>
                 </td>
-                <td data-ng-if="!patient.myIbd.namedConsultant">Unknown</td>
+                <td data-ng-if="!patient.myIbd.namedConsultant"></td>
             </tr>
             <tr>
                 <td class="forced-width">IBD Nurse</td>
@@ -112,7 +112,7 @@
                         {{ibdNurse}}<br/>
                     </span>
                 </td>
-                <td data-ng-if="!patient.myIbd.ibdNurse">Unknown</td>
+                <td data-ng-if="!patient.myIbd.ibdNurse"></td>
             </tr>
             <tr data-ng-if="patient.myIbd.links">
                 <td class="forced-width">Related Links</td>
