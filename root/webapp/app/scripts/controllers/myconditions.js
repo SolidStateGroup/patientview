@@ -128,7 +128,7 @@ function ($scope, PatientService, GroupService, ObservationService) {
 
     var createMyIbd = function(patient) {
         var myIbd = {};
-        var i, j;
+        var i, j, split;
 
         for (i = 0; i < patient.fhirObservations.length; i++) {
             var observation = patient.fhirObservations[i];
@@ -168,14 +168,22 @@ function ($scope, PatientService, GroupService, ObservationService) {
             myIbd.primaryDiagnosisDate = patient.fhirConditions[0].date;
         }
 
-        // set named consultant and IBD nurse
+        // set named consultant and IBD nurse (allow multiple)
         for (i = 0; i < patient.fhirPractitioners.length; i++) {
             var practitioner = patient.fhirPractitioners[i];
             if (practitioner.role === "NAMED_CONSULTANT") {
-                myIbd.namedConsultant = practitioner.name;
+                myIbd.namedConsultant = [];
+                split = practitioner.name.split(';');
+                for (j = 0; j < split.length; j++) {
+                    myIbd.namedConsultant.push(split[j]);
+                }
             }
             if (practitioner.role === "IBD_NURSE") {
-                myIbd.ibdNurse = practitioner.name;
+                myIbd.ibdNurse = [];
+                split = practitioner.name.split(';');
+                for (j = 0; j < split.length; j++) {
+                    myIbd.ibdNurse.push(split[j]);
+                }
             }
         }
 

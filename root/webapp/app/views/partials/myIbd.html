@@ -20,17 +20,14 @@
                 <td class="forced-width">Disease Extent</td>
                 <td data-ng-if="patient.myIbd.ibdDiseaseExtent.length">
                     {{patient.myIbd.ibdDiseaseExtent}}
+                    <div class="pull-right" style="padding-right: 10px;">
+                        <img data-ng-src={{patient.myIbd.ibdDiseaseExtentDiagram}} alt="{{patient.myIbd.ibdDiseaseExtent}}"/>
+                        <br/><br/>
+                        <div style="width:15px;height:15px;border:none; background-color: red; float: left; margin-right: 7px; position: relative; top: 2px;"></div>
+                        Represents the part of the bowel affected by your condition.
+                    </div>
                 </td>
                 <td data-ng-if="!patient.myIbd.ibdDiseaseExtent.length">Unknown</td>
-            </tr>
-            <tr data-ng-if="patient.myIbd.ibdDiseaseExtentDiagram.length">
-                <td class="forced-width">Diagram</td>
-                <td>
-                    <img data-ng-src={{patient.myIbd.ibdDiseaseExtentDiagram}} alt="{{patient.myIbd.ibdDiseaseExtent}}"/>
-                    <br/><br/>
-                    <div style="width:15px;height:15px;border:none; background-color: red; float: left; margin-right: 7px; position: relative; top: 2px;"></div>
-                    Represents the part of the bowel affected by your condition.
-                </td>
             </tr>
             <tr>
                 <td class="forced-width">Complications</td>
@@ -101,15 +98,19 @@
             </tr>
             <tr>
                 <td class="forced-width">Named Consultant</td>
-                <td data-ng-if="patient.myIbd.namedConsultant">
-                    {{patient.myIbd.namedConsultant}}
+                <td data-ng-if="patient.myIbd.namedConsultant.length">
+                    <span data-ng-repeat="namedConsultant in patient.myIbd.namedConsultant track by $index">
+                        {{namedConsultant}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.namedConsultant">Unknown</td>
             </tr>
             <tr>
                 <td class="forced-width">IBD Nurse</td>
-                <td data-ng-if="patient.myIbd.ibdNurse">
-                    {{patient.myIbd.ibdNurse}}
+                <td data-ng-if="patient.myIbd.ibdNurse.length">
+                    <span data-ng-repeat="ibdNurse in patient.myIbd.ibdNurse track by $index">
+                        {{ibdNurse}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.ibdNurse">Unknown</td>
             </tr>

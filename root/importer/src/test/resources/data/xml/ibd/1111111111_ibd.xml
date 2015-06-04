@@ -49,10 +49,10 @@
             <smokinghistory>Previous smoker</smokinghistory>
             <surgicalhistory>No Previous operations</surgicalhistory>
             <vaccinationrecord>Previous TB (BCG) vaccination</vaccinationrecord>
-            <colonoscopysurveillance>2016-01-01</colonoscopysurveillance>
-            <bmdexam>2005-01-01</bmdexam>
-            <namedconsultant>Dr Paine</namedconsultant>
-            <ibdnurse>Cath Stansfield</ibdnurse>
+            <colonoscopysurveillance>2016-01-02</colonoscopysurveillance>
+            <bmdexam>2005-01-03T23:31:13</bmdexam>
+            <namedconsultant>Dr Paine; Someone Else</namedconsultant>
+            <ibdnurse>Cath Stansfield; Someone Else</ibdnurse>
         </clinicaldetails>
         <timelinedetails>
             <test>
