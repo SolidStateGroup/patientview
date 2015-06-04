@@ -11,6 +11,7 @@ import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.joda.time.format.DateTimeFormat;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Alert;
@@ -25,6 +26,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +80,7 @@ public class ObservationsBuilder {
                         if (alertMap.containsKey(testCode) && alert != null) {
                             if (alert.getLatestDate() == null) {
                                 // is the first time a result has come in for this alert
-                                alert.setLatestDate(result.getDatestamp().toGregorianCalendar().getTime());
+                                alert.setLatestDate(getDateFromString(result.getDatestamp()));
                                 alert.setLatestValue(result.getValue());
                                 alert.setEmailAlertSent(false);
                                 alert.setWebAlertViewed(false);
@@ -86,8 +88,8 @@ public class ObservationsBuilder {
                             } else {
                                 // previous result has been alerted, check if this one is newer
                                 if (alert.getLatestDate().getTime()
-                                        < result.getDatestamp().toGregorianCalendar().getTime().getTime()) {
-                                    alert.setLatestDate(result.getDatestamp().toGregorianCalendar().getTime());
+                                        < getDateFromString(result.getDatestamp()).getTime()) {
+                                    alert.setLatestDate(getDateFromString(result.getDatestamp()));
                                     alert.setLatestValue(result.getValue());
                                     alert.setEmailAlertSent(false);
                                     alert.setWebAlertViewed(false);
@@ -582,10 +584,10 @@ public class ObservationsBuilder {
     private DateTime createDateTime(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
         try {
             DateTime dateTime = new DateTime();
-            DateAndTime dateAndTime = new DateAndTime(result.getDatestamp().toGregorianCalendar().getTime());
+            DateAndTime dateAndTime = new DateAndTime(getDateFromString(result.getDatestamp()));
             dateTime.setValue(dateAndTime);
             return dateTime;
-        } catch (NullPointerException npe) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             throw new FhirResourceException("Result timestamp is incorrectly formatted");
         }
     }
@@ -612,5 +614,28 @@ public class ObservationsBuilder {
 
     public Map<String, Patientview.Patient.Testdetails.Test.Daterange> getDateRanges() {
         return dateRanges;
+    }
+
+    private Date getDateFromString(String text) {
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        throw new IllegalArgumentException();
     }
 }

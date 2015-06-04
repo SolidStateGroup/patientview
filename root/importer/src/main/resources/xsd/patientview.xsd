@@ -314,7 +314,7 @@
                                                     <xs:element maxOccurs="unbounded" minOccurs="1" name="result">
                                                         <xs:complexType>
                                                             <xs:sequence>
-                                                                <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:dateTime"/>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:string"/>
                                                                 <xs:element maxOccurs="1" minOccurs="0" name="prepost" type="prepost"/>
                                                                 <xs:element maxOccurs="1" minOccurs="1" name="value">
                                                                     <xs:simpleType>
