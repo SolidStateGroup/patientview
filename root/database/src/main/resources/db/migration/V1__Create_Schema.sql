@@ -637,6 +637,15 @@ CREATE TABLE PV_File_Data
   PRIMARY KEY (Id)
 )
 
+CREATE TABLE PV_Symptom_Score
+(
+  Id              BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL,
+  Score           NUMERIC(10, 4) NOT NULL,
+  Date            TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

@@ -28,7 +28,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
             var symptomScore = $scope.symptomScores[i];
 
             var row = [];
-            row[0] = symptomScore.dateTaken;
+            row[0] = symptomScore.date;
             row[1] = parseFloat(symptomScore.score);
 
             // don't display textual results on graph
@@ -143,7 +143,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
         $scope.chartLoading = true;
         SymptomScoreService.getByUser($scope.loggedInUser.id).then(function(symptomScores) {
             if (symptomScores.length) {
-                $scope.symptomScores = _.sortBy(symptomScores, 'dateTaken').reverse();
+                $scope.symptomScores = _.sortBy(symptomScores, 'date').reverse();
                 $scope.initialiseChart();
             } else {
                 delete $scope.symptomScores;
@@ -160,7 +160,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
         var now = new Date();
         now = new Date(now.getTime() + 86400000);
         var start = new Date(now.getTime() - days * 86400000);
-        $scope.showHideObservationsInTable(start, now);
+        $scope.showHideInTable(start, now);
     };
 
     $scope.showHideInTable = function(start, end) {
@@ -169,11 +169,11 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
 
         for (var i=0;i<$scope.symptomScores.length;i++) {
             var symptomScore = $scope.symptomScores[i];
-            if (start <= symptomScore.dateTaken && end >= symptomScore.dateTaken) {
-                symptomScore.dateTakenFormatted = $filter('date')(symptomScore.dateTaken, 'dd-MMM-yyyy HH:mm');
-                symptomScore.dateTakenFormatted = symptomScore.dateTakenFormatted.replace(' 00:00', '');
+            if (start <= symptomScore.date && end >= symptomScore.date) {
+                symptomScore.dateFormatted = $filter('date')(symptomScore.date, 'dd-MMM-yyyy HH:mm');
+                symptomScore.dateFormatted = symptomScore.dateFormatted.replace(' 00:00', '');
                 $scope.tableSymptomScores.push(symptomScore);
-                $scope.tableSymptomScoresKey[symptomScore.dateTaken] = $scope.tableSymptomScores.length - 1;
+                $scope.tableSymptomScoresKey[symptomScore.date] = $scope.tableSymptomScores.length - 1;
             }
         }
 

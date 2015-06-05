@@ -1,6 +1,6 @@
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading"><h3>Symptom Scores</h3></div>
-        <div class="row result-detail-panel">
+        <div class="row result-detail-panel" data-ng-show="!loading && symptomScores">
             <div class="col-md-7 result-container clearfix">
                 <div class="content-panel chart-content-panel">
                     <div class="content-inner">
@@ -8,19 +8,14 @@
                     </div>
                 </div>
             </div>
-            <aside class="col-md-5 historical-data" data-ng-show="!loading && symptomScores">
-                <div class="info-header blue">
-                    <p>Click <i class="icon-graph-tiny"></i> to select result</p>
-                </div>
+            <aside class="col-md-5 historical-data">
                 <div class="faux-table three-col">
                     <div class="table-head accordion-title-row">
                         <div class="hidden">ID</div>
-                        <div class="head-item accordion-title-text plot-this"></div>
                         <div class="head-item accordion-title-text "><span>Date Taken</span></div>
                         <div class="head-item accordion-title-text "><span>Score (severity)</span></div>
                         <div class="head-item accordion-title-text "></div>
                     </div>
-                    <!--Table Body-->
                     <div class="item-header">
                         <div class="faux-row" data-ng-show="!tableSymptomScores.length">
                             <div class="row-item">
@@ -29,14 +24,17 @@
                         </div>
                         <div class="faux-row" data-ng-repeat="symptomScore in symptomScores">
                             <div class="row-item hidden">{{observation.id}}</div>
-                            <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                            <div class="row-item accordion-heading-text">{{symptomScore.date}}</div>
+                            <div class="row-item accordion-heading-text">{{symptomScore.date | date:'yyyy-MMM-dd hh:mm'}}</div>
                             <div class="row-item accordion-heading-text">{{symptomScore.score}} ({{symptomScore.severity}})</div>
                             <div class="row-item accordion-heading-text">View</div>
                         </div>
                     </div>
                 </div>
             </aside>
+        </div>
+
+        <div class="alert-block" data-ng-show="!loading && !symptomScores">
+            <h3>No Symptom Scores Found</h3>
         </div>
         <div data-ng-show="loading" class="container"><br/><br/>
             <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
