@@ -126,6 +126,17 @@ function ($scope, PatientService, GroupService, ObservationService) {
         });
     };
 
+    var createSplitArray = function(text) {
+        var arr = [];
+
+        var split = text.split(';');
+        for (var j = 0; j < split.length; j++) {
+            arr.push(split[j]);
+        }
+
+        return arr;
+    };
+
     var createMyIbd = function(patient) {
         var myIbd = {};
         var i, j, split;
@@ -134,16 +145,16 @@ function ($scope, PatientService, GroupService, ObservationService) {
             var observation = patient.fhirObservations[i];
             // NonTestObservationTypes
             if (observation.name === "BODY_SITE_AFFECTED") {
-                myIbd.bodySiteAffected = observation.value;
+                myIbd.bodySiteAffected = createSplitArray(observation.value);
             }
             if (observation.name === "COLONOSCOPY_SURVEILLANCE") {
                 myIbd.colonoscopySurveillance = observation.applies;
             }
             if (observation.name === "FAMILY_HISTORY") {
-                myIbd.familyHistory = observation.value;
+                myIbd.familyHistory = createSplitArray(observation.value);
             }
             if (observation.name === "IBD_DISEASE_COMPLICATIONS") {
-                myIbd.ibdDiseaseComplications = observation.value;
+                myIbd.ibdDiseaseComplications = createSplitArray(observation.value);
             }
             if (observation.name === "IBD_DISEASE_EXTENT") {
                 myIbd.ibdDiseaseExtent = observation.value;
@@ -152,13 +163,13 @@ function ($scope, PatientService, GroupService, ObservationService) {
                 }
             }
             if (observation.name === "SURGICAL_HISTORY") {
-                myIbd.surgicalHistory = observation.value;
+                myIbd.surgicalHistory = createSplitArray(observation.value);
             }
             if (observation.name === "SMOKING_HISTORY") {
-                myIbd.smokingHistory = observation.value;
+                myIbd.smokingHistory = createSplitArray(observation.value);
             }
             if (observation.name === "VACCINATION_RECORD") {
-                myIbd.vaccinationRecord = observation.value;
+                myIbd.vaccinationRecord = createSplitArray(observation.value);
             }
         }
 
@@ -176,18 +187,10 @@ function ($scope, PatientService, GroupService, ObservationService) {
         for (i = 0; i < patient.fhirPractitioners.length; i++) {
             var practitioner = patient.fhirPractitioners[i];
             if (practitioner.role === "NAMED_CONSULTANT") {
-                myIbd.namedConsultant = [];
-                split = practitioner.name.split(';');
-                for (j = 0; j < split.length; j++) {
-                    myIbd.namedConsultant.push(split[j]);
-                }
+                myIbd.namedConsultant = createSplitArray(practitioner.name);
             }
             if (practitioner.role === "IBD_NURSE") {
-                myIbd.ibdNurse = [];
-                split = practitioner.name.split(';');
-                for (j = 0; j < split.length; j++) {
-                    myIbd.ibdNurse.push(split[j]);
-                }
+                myIbd.ibdNurse = createSplitArray(practitioner.name);
             }
         }
 

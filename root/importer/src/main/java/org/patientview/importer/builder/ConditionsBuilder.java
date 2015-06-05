@@ -81,7 +81,7 @@ public class ConditionsBuilder {
         condition.setNotesSimple(diagnosis.getValue());
 
         CodeableConcept code = new CodeableConcept();
-        code.setTextSimple(CommonUtils.cleanSql(diagnosis.getValue()));
+        code.setTextSimple(diagnosis.getValue());
         condition.setCode(code);
 
         CodeableConcept category = new CodeableConcept();

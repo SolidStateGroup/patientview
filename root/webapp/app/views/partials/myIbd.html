@@ -10,13 +10,6 @@
                 <td data-ng-if="!patient.myIbd.primaryDiagnosis.length"></td>
             </tr>
             <tr>
-                <td class="forced-width">Diagnosis Date</td>
-                <td data-ng-if="patient.myIbd.primaryDiagnosisDate">
-                    {{patient.myIbd.primaryDiagnosisDate | date:'yyyy'}}
-                </td>
-                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate"></td>
-            </tr>
-            <tr>
                 <td class="forced-width">Disease Extent</td>
                 <td data-ng-if="patient.myIbd.ibdDiseaseExtent.length">
                     {{patient.myIbd.ibdDiseaseExtent}}
@@ -30,9 +23,18 @@
                 <td data-ng-if="!patient.myIbd.ibdDiseaseExtent.length"></td>
             </tr>
             <tr>
+                <td class="forced-width">Diagnosis Date</td>
+                <td data-ng-if="patient.myIbd.primaryDiagnosisDate">
+                    {{patient.myIbd.primaryDiagnosisDate | date:'yyyy'}}
+                </td>
+                <td data-ng-if="!patient.myIbd.primaryDiagnosisDate"></td>
+            </tr>
+            <tr>
                 <td class="forced-width">Complications</td>
                 <td data-ng-if="patient.myIbd.ibdDiseaseComplications.length">
-                    {{patient.myIbd.ibdDiseaseComplications}}
+                    <span data-ng-repeat="ibdDiseaseComplications in patient.myIbd.ibdDiseaseComplications track by $index">
+                        {{ibdDiseaseComplications}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.ibdDiseaseComplications.length"></td>
             </tr>
@@ -55,21 +57,27 @@
             <tr>
                 <td class="forced-width">Family History</td>
                 <td data-ng-if="patient.myIbd.familyHistory.length">
-                    {{patient.myIbd.familyHistory}}
+                    <span data-ng-repeat="familyHistory in patient.myIbd.familyHistory track by $index">
+                        {{familyHistory}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.familyHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Surgical History</td>
                 <td data-ng-if="patient.myIbd.surgicalHistory.length">
-                    {{patient.myIbd.surgicalHistory}}
+                    <span data-ng-repeat="surgicalHistory in patient.myIbd.surgicalHistory track by $index">
+                        {{surgicalHistory}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.surgicalHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Smoking History</td>
                 <td data-ng-if="patient.myIbd.smokingHistory.length">
-                    {{patient.myIbd.smokingHistory}}
+                    <span data-ng-repeat="smokingHistory in patient.myIbd.smokingHistory track by $index">
+                        {{smokingHistory}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.smokingHistory.length"></td>
             </tr>
@@ -85,7 +93,9 @@
             <tr>
                 <td class="forced-width">Vaccination Record</td>
                 <td data-ng-if="patient.myIbd.vaccinationRecord.length">
-                    {{patient.myIbd.vaccinationRecord}}
+                    <span data-ng-repeat="vaccinationRecord in patient.myIbd.vaccinationRecord track by $index">
+                        {{vaccinationRecord}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patient.myIbd.vaccinationRecord.length"></td>
             </tr>
@@ -97,6 +107,15 @@
                 <td data-ng-if="!patient.myIbd.colonoscopySurveillance"></td>
             </tr>
             <tr>
+                <td class="forced-width">Nurse</td>
+                <td data-ng-if="patient.myIbd.ibdNurse.length">
+                    <span data-ng-repeat="ibdNurse in patient.myIbd.ibdNurse track by $index">
+                        {{ibdNurse}}<br/>
+                    </span>
+                </td>
+                <td data-ng-if="!patient.myIbd.ibdNurse"></td>
+            </tr>
+            <tr>
                 <td class="forced-width">Named Consultant</td>
                 <td data-ng-if="patient.myIbd.namedConsultant.length">
                     <span data-ng-repeat="namedConsultant in patient.myIbd.namedConsultant track by $index">
@@ -105,19 +124,18 @@
                 </td>
                 <td data-ng-if="!patient.myIbd.namedConsultant"></td>
             </tr>
-            <tr>
-                <td class="forced-width">IBD Nurse</td>
-                <td data-ng-if="patient.myIbd.ibdNurse.length">
-                    <span data-ng-repeat="ibdNurse in patient.myIbd.ibdNurse track by $index">
-                        {{ibdNurse}}<br/>
-                    </span>
-                </td>
-                <td data-ng-if="!patient.myIbd.ibdNurse"></td>
-            </tr>
             <tr data-ng-if="patient.myIbd.links">
                 <td class="forced-width">Related Links</td>
                 <td>
-                    <span data-ng-repeat="link in patient.myIbd.links" >
+                    <span data-ng-repeat="link in patient.myIbd.links | orderBy:'displayOrder'" >
+                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                    </span>
+                </td>
+            </tr>
+            <tr data-ng-if="patient.group.links">
+                <td class="forced-width">Links specific to your IBD unit</td>
+                <td>
+                    <span data-ng-repeat="link in patient.group.links | orderBy:'displayOrder'" >
                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                     </span>
                 </td>
