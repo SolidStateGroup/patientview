@@ -14,6 +14,7 @@
 </div>
 <div data-ng-show="patientDetails.length">
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+        <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-if="patient.myIbd" data-ng-controller="SymptomScoresCtrl"></div>
         <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd"></div>
     </div>
 </div>
