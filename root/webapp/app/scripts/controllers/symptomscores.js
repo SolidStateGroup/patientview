@@ -30,6 +30,24 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreI
     init();
 }];
 
+var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService',
+function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
+
+    var init = function() {
+        $scope.symptomScore = {};
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    $scope.save = function () {
+        alert('saved');
+    };
+
+    init();
+}];
+
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
     'SymptomScoreService', '$modal', '$timeout', '$filter',
 function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout, $filter) {
@@ -210,6 +228,28 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
 
         $timeout(function() {
             $scope.$apply();
+        });
+    };
+
+    $scope.openModalEnterSymptoms = function () {
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/symptomScoreDetailsNew.html',
+            controller: SymptomScoreDetailsNewModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                SymptomScoreService: function(){
+                    return SymptomScoreService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function () {
+            $scope.getSymptomScores();
+        }, function () {
+            // close button, do nothing
         });
     };
 

@@ -1,0 +1,27 @@
+
+<form name="userFormNew" data-ng-show="!existingUser">
+    <div class="modal-header">
+        <h3 class="modal-title">Enter Symptoms</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <label class="control-label">Date</label>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="score" class="control-label">Score
+                    <span class="error" data-ng-show="symptomScoreForm.score.$error.required && !symptomScoreForm.$pristine">required</span>
+                </label>
+                <div>
+                    <input type="text" class="form-control" id="score" placeholder="Score" name="score"
+                            data-ng-model="symptomScore.score" only-num-decimal>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()">Enter New Symptoms</button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+    </div>
+</form>
