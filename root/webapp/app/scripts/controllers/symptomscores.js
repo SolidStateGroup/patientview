@@ -1,22 +1,20 @@
 'use strict';
 
-var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService',
-function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
+var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService', 'symptomScoreId',
+function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreId) {
 
     var init = function() {
         $scope.loading = true;
         delete $scope.symptomScore;
         $scope.errorMessage = '';
 
-        // testing
-        $scope.symptomScoreId = 2;
-
-        if ($scope.symptomScoreId == null) {
+        if (symptomScoreId == null) {
             $scope.errorMessage = 'Error retrieving symptom score';
+            $scope.loading = false;
             return;
         }
 
-        SymptomScoreService.getSymptomScore($scope.loggedInUser.id, $scope.symptomScoreId).then(function(result) {
+        SymptomScoreService.getSymptomScore($scope.loggedInUser.id, symptomScoreId).then(function(result) {
             $scope.symptomScore = result;
             $scope.loading = false;
         }, function () {
@@ -199,7 +197,6 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
         $scope.tableSymptomScores = false;
         $scope.tableSymptomScores = [];
         $scope.tableSymptomScoresKey = [];
-        console.log(start);
 
         for (var i=0;i<$scope.symptomScores.length;i++) {
             var symptomScore = $scope.symptomScores[i];
@@ -217,8 +214,6 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
     };
 
     $scope.openModalSymptomScoreDetail = function (symptomScoreId) {
-        $scope.symptomScoreId = symptomScoreId;
-
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/symptomScoreDetailModal.html',
@@ -228,6 +223,9 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
             resolve: {
                 SymptomScoreService: function(){
                     return SymptomScoreService;
+                },
+                symptomScoreId: function(){
+                    return symptomScoreId;
                 }
             }
         });

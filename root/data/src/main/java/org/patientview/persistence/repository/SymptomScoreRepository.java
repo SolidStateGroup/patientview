@@ -12,13 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * This gets all the symptom scores associated with a user.
- *
  * Created by james@solidstategroup.com
  * Created on 05/06/2015
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRED)
 public interface SymptomScoreRepository extends CrudRepository<SymptomScore, Long> {
 
     @Query("SELECT s FROM SymptomScore s WHERE s.user = :user")

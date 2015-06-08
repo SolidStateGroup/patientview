@@ -66,7 +66,6 @@ public class SymptomScoreServiceTest {
     }
 
     @Test
-    @Ignore("testing")
     public void testGetByUserId() throws ResourceNotFoundException {
 
         User user = TestUtils.createUser("testUser");
