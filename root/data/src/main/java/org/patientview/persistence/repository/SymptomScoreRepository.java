@@ -18,7 +18,7 @@ import java.util.List;
  * Created on 05/06/2015
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.MANDATORY)
 public interface SymptomScoreRepository extends CrudRepository<SymptomScore, Long> {
 
     @Query("SELECT s FROM SymptomScore s WHERE s.user = :user")

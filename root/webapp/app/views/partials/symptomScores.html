@@ -22,11 +22,11 @@
                                 <p><br/><br/>No results available for this date range<br/><br/><br/><p>
                             </div>
                         </div>
-                        <div class="faux-row" data-ng-repeat="symptomScore in symptomScores">
+                        <div class="faux-row" data-ng-repeat="symptomScore in tableSymptomScores">
                             <div class="row-item hidden">{{observation.id}}</div>
-                            <div class="row-item accordion-heading-text">{{symptomScore.date | date:'yyyy-MMM-dd hh:mm'}}</div>
+                            <div class="row-item accordion-heading-text">{{symptomScore.date | date:'dd-MMM-yyyy hh:mm'}}</div>
                             <div class="row-item accordion-heading-text">{{symptomScore.score}} ({{symptomScore.severity}})</div>
-                            <div class="row-item accordion-heading-text">View</div>
+                            <div class="row-item accordion-heading-text" data-ng-click="openModalSymptomScoreDetail(symptomScore.id)">View</div>
                         </div>
                     </div>
                 </div>

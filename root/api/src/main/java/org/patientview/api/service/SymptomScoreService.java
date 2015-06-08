@@ -16,4 +16,7 @@ public interface SymptomScoreService {
 
     @UserOnly
     List<SymptomScore> getByUserId(Long userId) throws ResourceNotFoundException;
+
+    @UserOnly
+    SymptomScore getSymptomScore(Long userId, Long symptomScoreId) throws ResourceNotFoundException;
 }

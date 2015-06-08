@@ -1,5 +1,37 @@
 'use strict';
 
+var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService',
+function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
+
+    var init = function() {
+        $scope.loading = true;
+        delete $scope.symptomScore;
+        $scope.errorMessage = '';
+
+        // testing
+        $scope.symptomScoreId = 2;
+
+        if ($scope.symptomScoreId == null) {
+            $scope.errorMessage = 'Error retrieving symptom score';
+            return;
+        }
+
+        SymptomScoreService.getSymptomScore($scope.loggedInUser.id, $scope.symptomScoreId).then(function(result) {
+            $scope.symptomScore = result;
+            $scope.loading = false;
+        }, function () {
+            $scope.errorMessage = 'Error retrieving symptom score';
+            $scope.loading = false;
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    init();
+}];
+
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
     'SymptomScoreService', '$modal', '$timeout', '$filter',
 function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout, $filter) {
@@ -85,7 +117,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
             },
 
             series : [{
-                name : null,
+                name : 'Score',
                 data : data,
                 tooltip: {
                     valueDecimals: 1
@@ -164,8 +196,10 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
     };
 
     $scope.showHideInTable = function(start, end) {
+        $scope.tableSymptomScores = false;
         $scope.tableSymptomScores = [];
         $scope.tableSymptomScoresKey = [];
+        console.log(start);
 
         for (var i=0;i<$scope.symptomScores.length;i++) {
             var symptomScore = $scope.symptomScores[i];
@@ -179,6 +213,30 @@ function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout
 
         $timeout(function() {
             $scope.$apply();
+        });
+    };
+
+    $scope.openModalSymptomScoreDetail = function (symptomScoreId) {
+        $scope.symptomScoreId = symptomScoreId;
+
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/symptomScoreDetailModal.html',
+            controller: SymptomScoreDetailModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                SymptomScoreService: function(){
+                    return SymptomScoreService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function () {
+            // no ok button, do nothing
+        }, function () {
+            // close button, do nothing
         });
     };
 

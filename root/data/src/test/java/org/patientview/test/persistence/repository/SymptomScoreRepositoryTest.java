@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.SymptomScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.repository.SymptomScoreRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -41,19 +42,13 @@ public class SymptomScoreRepositoryTest {
 
     @Test
     public void testFindByUser() {
-        Date now = new Date();
-
         User user = dataTestUtils.createUser("TestUser");
 
-        SymptomScore symptomScore = new SymptomScore();
-        symptomScore.setUser(user);
-        symptomScore.setScore(1.1);
-        symptomScore.setDate(now);
+        SymptomScore symptomScore = new SymptomScore(user, 1.1, ScoreSeverity.LOW, new Date());
         symptomScoreRepository.save(symptomScore);
 
         List<SymptomScore> symptomScores = symptomScoreRepository.findByUser(user);
         Assert.assertEquals("There should be 1 symptom score", 1, symptomScores.size());
         Assert.assertTrue("The symptom score should be the one created", symptomScores.get(0).equals(symptomScore));
     }
-
 }

@@ -33,4 +33,12 @@ public class SymptomScoreController extends BaseController<SymptomScoreControlle
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(symptomScoreService.getByUserId(userId), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/user/{userId}/symptomscores/{symptomScoreId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<SymptomScore> get(@PathVariable("userId") Long userId,
+                                            @PathVariable("symptomScoreId") Long symptomScoreId)
+            throws FhirResourceException, ResourceNotFoundException {
+        return new ResponseEntity<>(symptomScoreService.getSymptomScore(userId, symptomScoreId), HttpStatus.OK);
+    }
 }
