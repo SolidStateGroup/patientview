@@ -136,9 +136,9 @@ public class ImportControllerTest {
         List<String> files = new ArrayList<>();
         // contain real data, must be added to folder manually
         //files.add("data/xml/ibd/SALIBD_3466151139.xml");
-        //files.add("data/xml/ibd/SALIBD_4426012465.xml");
+        files.add("data/xml/ibd/SALIBD_4426012465.xml");
         //files.add("data/xml/ibd/SALIBD_4500666672.xml");
-        files.add("data/xml/ibd/SALIBD_6186660419.xml");
+        //files.add("data/xml/ibd/SALIBD_6186660419.xml");
         //files.add("data/xml/ibd/SALIBD_6304291914.xml");
 
         for (String file : files) {
