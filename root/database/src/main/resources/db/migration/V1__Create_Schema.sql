@@ -646,6 +646,47 @@ CREATE TABLE PV_Symptom_Score
   PRIMARY KEY (Id)
 )
 
+CREATE TABLE PV_Survey
+(
+  Id              BIGINT NOT NULL,
+  Type            TEXT NOT NULL,
+  Description     TEXT,
+  PRIMARY KEY (Id)
+)
+
+CREATE TABLE PV_Question_Group
+(
+  Id              BIGINT NOT NULL,
+  Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
+  Text            TEXT NOT NULL,
+  Description     TEXT,
+  Number          TEXT,
+  Display_Order   INT,
+  PRIMARY KEY (Id)
+)
+
+CREATE TABLE PV_Question
+(
+  Id              BIGINT NOT NULL,
+  Question_Group_Id     BIGINT NOT NULL REFERENCES PV_Question_Group (Id),
+  Type            TEXT NOT NULL,
+  Html_Type       TEXT NOT NULL,
+  Text            TEXT NOT NULL,
+  Description     TEXT,
+  Number          TEXT,
+  Display_Order   INT,
+  PRIMARY KEY (Id)
+)
+
+CREATE TABLE PV_Question_Option
+(
+  Id              BIGINT NOT NULL,
+  Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
+  Text            TEXT NOT NULL,
+  Description     TEXT,
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
