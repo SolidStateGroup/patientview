@@ -40,7 +40,7 @@ public class DocumentReferenceBuilder {
 
         if (letter.getLetterdate() != null) {
             try {
-                DateAndTime dateAndTime = new DateAndTime(letter.getLetterdate().toGregorianCalendar().getTime());
+                DateAndTime dateAndTime = new DateAndTime(CommonUtils.getDateFromString(letter.getLetterdate()));
                 DateTime date = new DateTime();
                 date.setValue(dateAndTime);
                 documentReference.setCreated(date);
