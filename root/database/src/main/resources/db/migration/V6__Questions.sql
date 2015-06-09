@@ -1,6 +1,6 @@
 /* Survey */
 INSERT INTO "pv_survey" ("id", "type", "description")
-VALUES (1, 'CROHNS', 'Crohns Survey');
+VALUES (1, 'CROHNS_SYMPTOM_SCORE', 'Crohns Symptom Score');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")

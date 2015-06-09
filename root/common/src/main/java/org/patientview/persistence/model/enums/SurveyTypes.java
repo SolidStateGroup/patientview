@@ -5,7 +5,7 @@ package org.patientview.persistence.model.enums;
  * Created on 09/06/2015
  */
 public enum SurveyTypes {
-    CROHNS("Crohns");
+    CROHNS_SYMPTOM_SCORE("Crohns Symptom Score");
 
     private String name;
     SurveyTypes(String name) { this.name = name; }
