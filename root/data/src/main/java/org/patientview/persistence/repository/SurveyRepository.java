@@ -16,7 +16,7 @@ import java.util.List;
  * Created on 09/06/2015
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRED)
 public interface SurveyRepository extends CrudRepository<Survey, Long> {
 
     @Query("SELECT s " +

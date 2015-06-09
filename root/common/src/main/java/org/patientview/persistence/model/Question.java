@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 
@@ -23,6 +24,7 @@ import java.util.List;
 @Table(name = "pv_question")
 public class Question extends BaseModel {
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_group_id", nullable = false)
     private QuestionGroup questionGroup;

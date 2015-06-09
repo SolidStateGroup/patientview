@@ -49,12 +49,20 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
 }];
 
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
-    'SymptomScoreService', '$modal', '$timeout', '$filter',
-function ($scope, $routeParams, $location, SymptomScoreService, $modal, $timeout, $filter) {
+    'SymptomScoreService', 'SurveyService', '$modal', '$timeout', '$filter',
+function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $modal, $timeout, $filter) {
+
+    SurveyService.getByType('CROHNS_SYMPTOM_SCORE').then(function(result) {
+        console.log(result);
+    }, function () {
+        alert('error getting survey')
+    });
 
     $scope.init = function() {
         $scope.loading = true;
         $scope.getSymptomScores();
+
+
     };
 
     $scope.initialiseChart = function() {
