@@ -49,6 +49,12 @@ public class Question extends BaseModel {
     @Column(name = "display_order")
     private Integer displayOrder;
 
+    @Column(name = "range_start")
+    private Integer rangeStart;
+
+    @Column(name = "range_end")
+    private Integer rangeEnd;
+
     @OneToMany(mappedBy = "question")
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
@@ -108,6 +114,22 @@ public class Question extends BaseModel {
 
     public void setDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public Integer getRangeStart() {
+        return rangeStart;
+    }
+
+    public void setRangeStart(Integer rangeStart) {
+        this.rangeStart = rangeStart;
+    }
+
+    public Integer getRangeEnd() {
+        return rangeEnd;
+    }
+
+    public void setRangeEnd(Integer rangeEnd) {
+        this.rangeEnd = rangeEnd;
     }
 
     public List<QuestionOption> getQuestionOptions() {

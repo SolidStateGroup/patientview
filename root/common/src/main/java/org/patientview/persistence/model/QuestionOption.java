@@ -28,6 +28,9 @@ public class QuestionOption extends BaseModel {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     public QuestionOption() {}
 
     public Question getQuestion() {
@@ -52,5 +55,13 @@ public class QuestionOption extends BaseModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }

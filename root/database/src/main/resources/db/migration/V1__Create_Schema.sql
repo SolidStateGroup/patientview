@@ -675,6 +675,8 @@ CREATE TABLE PV_Question
   Description     TEXT,
   Number          TEXT,
   Display_Order   INT,
+  Range_Start     INT,
+  Range_End       INT,
   PRIMARY KEY (Id)
 )
 
@@ -684,6 +686,7 @@ CREATE TABLE PV_Question_Option
   Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
   Text            TEXT NOT NULL,
   Description     TEXT,
+  Display_Order   INT,
   PRIMARY KEY (Id)
 )
 

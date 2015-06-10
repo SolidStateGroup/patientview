@@ -159,7 +159,7 @@ function ($scope, $timeout, $modal, AuditService) {
     };
 
     $scope.clearStart = function () {
-        $scope.dateEnd = null;
+        $scope.dateStart = null;
     };
     $scope.clearEnd = function () {
         $scope.dateEnd = null;

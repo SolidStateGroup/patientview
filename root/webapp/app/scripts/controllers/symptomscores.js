@@ -30,11 +30,40 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreI
     init();
 }];
 
-var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService',
-function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
+var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService', 'surveyType', 'UtilService',
+function ($scope, $rootScope, $modalInstance, SurveyService, surveyType, UtilService) {
 
     var init = function() {
         $scope.symptomScore = {};
+        $scope.responses = [];
+        $scope.days = UtilService.generateDays();
+        $scope.months = UtilService.generateMonths();
+        $scope.years = UtilService.generateYears2000();
+        $scope.date = {};
+        var i;
+
+        var currentDate = new Date();
+        for (i=0;i<$scope.days.length;i++) {
+            if (parseInt($scope.days[i]) === currentDate.getDate()) {
+                $scope.date.day = $scope.days[i];
+            }
+        }
+        for (i=0;i<$scope.months.length;i++) {
+            if (parseInt($scope.months[i]) === currentDate.getMonth() + 1) {
+                $scope.date.month = $scope.months[i];
+            }
+        }
+        for (i=0;i<$scope.years.length;i++) {
+            if (parseInt($scope.years[i]) === currentDate.getFullYear()) {
+                $scope.date.year = $scope.years[i];
+            }
+        }
+
+        SurveyService.getByType(surveyType).then(function(result) {
+            $scope.survey = result;
+        }, function () {
+            alert('error getting survey')
+        });
     };
 
     $scope.cancel = function () {
@@ -45,24 +74,25 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService) {
         alert('saved');
     };
 
+    $scope.range = function(min, max) {
+        var input = [];
+        for (var i = min; i <= max; i += 1) {
+            input.push(i);
+        }
+        return input;
+    };
+
     init();
 }];
 
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
-    'SymptomScoreService', 'SurveyService', '$modal', '$timeout', '$filter',
-function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $modal, $timeout, $filter) {
-
-    SurveyService.getByType('CROHNS_SYMPTOM_SCORE').then(function(result) {
-        console.log(result);
-    }, function () {
-        alert('error getting survey')
-    });
+    'SymptomScoreService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
+function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $modal, $timeout, $filter, UtilService) {
 
     $scope.init = function() {
         $scope.loading = true;
-        $scope.getSymptomScores();
-
-
+        $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
+        getSymptomScores();
     };
 
     $scope.initialiseChart = function() {
@@ -194,7 +224,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
         $scope.chartLoading = false;
     };
 
-    $scope.getSymptomScores = function() {
+    var getSymptomScores = function() {
         $scope.loading = true;
         $scope.chartLoading = true;
         SymptomScoreService.getByUser($scope.loggedInUser.id).then(function(symptomScores) {
@@ -247,8 +277,14 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
             size: 'lg',
             backdrop: 'static',
             resolve: {
-                SymptomScoreService: function(){
-                    return SymptomScoreService;
+                SurveyService: function(){
+                    return SurveyService;
+                },
+                surveyType: function(){
+                    return $scope.surveyType;
+                },
+                UtilService: function(){
+                    return UtilService;
                 }
             }
         });
