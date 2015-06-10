@@ -15,6 +15,9 @@ import java.util.List;
 public interface SymptomScoreService {
 
     @UserOnly
+    void add(Long userId, SymptomScore symptomScore) throws ResourceNotFoundException;
+
+    @UserOnly
     List<SymptomScore> getByUserId(Long userId) throws ResourceNotFoundException;
 
     @UserOnly

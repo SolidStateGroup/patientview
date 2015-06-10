@@ -26,7 +26,17 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
     private UserRepository userRepository;
 
     @Override
-    public List<SymptomScore> getByUserId(final Long userId) throws ResourceNotFoundException {
+    public void add(Long userId, SymptomScore symptomScore) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+
+    }
+
+    @Override
+    public List<SymptomScore> getByUserId(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");

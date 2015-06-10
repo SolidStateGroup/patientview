@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 
 import javax.persistence.Column;
@@ -10,10 +9,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -23,10 +25,13 @@ import java.util.Date;
 @Table(name = "pv_symptom_score")
 public class SymptomScore extends BaseModel {
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "survey_id", nullable = false)
+    private Survey survey;
 
     @Column(name = "score", columnDefinition="numeric", precision=10, scale=4)
     private Double score;
@@ -38,6 +43,9 @@ public class SymptomScore extends BaseModel {
     @Column(name = "date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
+
+    @OneToMany(mappedBy = "symptomScore")
+    private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
     public SymptomScore() {}
 
@@ -78,5 +86,21 @@ public class SymptomScore extends BaseModel {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Survey getSurvey() {
+        return survey;
+    }
+
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
+    }
+
+    public List<QuestionAnswer> getQuestionAnswers() {
+        return questionAnswers;
+    }
+
+    public void setQuestionAnswers(List<QuestionAnswer> questionAnswers) {
+        this.questionAnswers = questionAnswers;
     }
 }

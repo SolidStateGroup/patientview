@@ -23,19 +23,20 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreI
         });
     };
 
-    $scope.cancel = function () {
+    $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
 
     init();
 }];
 
-var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService', 'surveyType', 'UtilService',
-function ($scope, $rootScope, $modalInstance, SurveyService, surveyType, UtilService) {
+var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService',
+    'SymptomScoreService', 'surveyType', 'UtilService',
+function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService, surveyType, UtilService) {
 
     var init = function() {
         $scope.symptomScore = {};
-        $scope.responses = [];
+        $scope.answers = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears2000();
@@ -71,7 +72,30 @@ function ($scope, $rootScope, $modalInstance, SurveyService, surveyType, UtilSer
     };
 
     $scope.save = function () {
-        alert('saved');
+        // build object to send to back end
+        var symptomScore = {};
+        symptomScore.user = {};
+        symptomScore.user.id = $scope.loggedInUser.id;
+        symptomScore.survey = {};
+        symptomScore.survey.id = $scope.survey.id;
+        symptomScore.questionAnswers = [];
+
+        for (var i = 0; i < $scope.answers.length; i++) {
+            var answer = $scope.answers[i];
+            if (answer !== null) {
+                var questionAnswer = {};
+                questionAnswer.questionOption = {};
+                questionAnswer.questionOption.id = i;
+                questionAnswer.value = answer;
+                symptomScore.questionAnswers.push(questionAnswer);
+            }
+        }
+
+        SymptomScoreService.add(symptomScore.user.id, symptomScore).then(function() {
+            $modalInstance.dismiss('ok');
+        }, function () {
+            alert('error getting survey')
+        });
     };
 
     $scope.range = function(min, max) {
@@ -280,6 +304,9 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
                 SurveyService: function(){
                     return SurveyService;
                 },
+                SymptomScoreService: function(){
+                    return SymptomScoreService;
+                },
                 surveyType: function(){
                     return $scope.surveyType;
                 },
@@ -291,7 +318,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
 
         // handle modal close (via button click)
         modalInstance.result.then(function () {
-            $scope.getSymptomScores();
+            getSymptomScores();
         }, function () {
             // close button, do nothing
         });

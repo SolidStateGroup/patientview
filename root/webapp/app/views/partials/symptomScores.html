@@ -2,6 +2,9 @@
     ul.symptom-info-list {
         margin: 10px 0 10px 10px;
     }
+    .alert-block h5 {
+         color: #c09853;
+    }
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
@@ -54,7 +57,7 @@
         </div>
 
         <div class="alert-block" data-ng-show="!loading && !symptomScores">
-            <h3>No Symptom Scores Found</h3>
+            <h5>No Symptom Scores Found, you can enter your symptoms by clicking "Enter Symptoms"</h5>
         </div>
         <div data-ng-show="loading" class="container"><br/><br/>
             <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>

@@ -22,6 +22,16 @@ function ($q, Restangular) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        add: function (userId, symptomScore) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/symptomscores
+            Restangular.one('user', userId).all('symptomscores').post(symptomScore).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
