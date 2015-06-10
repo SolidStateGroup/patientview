@@ -1,7 +1,9 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,7 +31,7 @@ public class SymptomScore extends BaseModel {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "survey_id", nullable = false)
     private Survey survey;
 
@@ -44,7 +46,7 @@ public class SymptomScore extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @OneToMany(mappedBy = "symptomScore")
+    @OneToMany(mappedBy = "symptomScore", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
     public SymptomScore() {}
@@ -80,6 +82,7 @@ public class SymptomScore extends BaseModel {
         this.date = date;
     }
 
+    @JsonIgnore
     public User getUser() {
         return user;
     }

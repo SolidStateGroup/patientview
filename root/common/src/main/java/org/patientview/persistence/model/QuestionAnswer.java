@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -47,6 +49,7 @@ public class QuestionAnswer extends BaseModel {
         this.questionOption = questionOption;
     }
 
+    @JsonIgnore
     public SymptomScore getSymptomScore() {
         return symptomScore;
     }

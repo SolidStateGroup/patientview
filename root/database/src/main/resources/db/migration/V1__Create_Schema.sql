@@ -696,7 +696,7 @@ CREATE TABLE PV_Question_Answer
 (
   Id              BIGINT NOT NULL,
   Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
-  Question_Option_Id     BIGINT NOT NULL REFERENCES PV_Question_Option (Id),
+  Question_Option_Id     BIGINT REFERENCES PV_Question_Option (Id),
   Symptom_Score_Id     BIGINT NOT NULL REFERENCES PV_Symptom_Score (Id),
   Value            TEXT,
   PRIMARY KEY (Id)

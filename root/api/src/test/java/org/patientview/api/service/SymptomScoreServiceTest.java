@@ -3,7 +3,6 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -16,13 +15,19 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SymptomScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.QuestionOptionRepository;
+import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SymptomScoreRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -33,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +50,12 @@ import static org.mockito.Mockito.when;
 public class SymptomScoreServiceTest {
 
     User creator;
+
+    @Mock
+    QuestionOptionRepository questionOptionRepository;
+
+    @Mock
+    SurveyRepository surveyRepository;
 
     @Mock
     SymptomScoreRepository symptomScoreRepository;
@@ -63,6 +75,52 @@ public class SymptomScoreServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testAdd() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setId(1L);
+
+        SymptomScore symptomScore = new SymptomScore();
+        symptomScore.setUser(user);
+        symptomScore.setDate(new Date());
+        symptomScore.setSurvey(survey);
+
+        QuestionOption questionOption = new QuestionOption();
+        questionOption.setId(1L);
+
+        QuestionAnswer questionAnswer1 = new QuestionAnswer();
+        questionAnswer1.setQuestionOption(questionOption);
+        symptomScore.getQuestionAnswers().add(questionAnswer1);
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(questionOptionRepository.findOne(Matchers.eq(questionOption.getId()))).thenReturn(questionOption);
+        when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
+
+        symptomScoreService.add(user.getId(), symptomScore);
+
+        verify(symptomScoreRepository, Mockito.times(1)).save(any(SymptomScore.class));
     }
 
     @Test

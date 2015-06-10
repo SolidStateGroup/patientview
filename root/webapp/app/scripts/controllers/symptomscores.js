@@ -41,7 +41,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears2000();
         $scope.date = {};
-        var i;
+        var i, j;
 
         var currentDate = new Date();
         for (i=0;i<$scope.days.length;i++) {
@@ -60,8 +60,18 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
             }
         }
 
-        SurveyService.getByType(surveyType).then(function(result) {
-            $scope.survey = result;
+        SurveyService.getByType(surveyType).then(function(survey) {
+            $scope.survey = survey;
+            $scope.questionTypeMap = [];
+
+            // create map of question id to question type, used when creating object to send to backend
+            for (i = 0; i < survey.questionGroups.length; i++) {
+                for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
+                    var question = survey.questionGroups[i].questions[j];
+                    $scope.questionTypeMap[question.id] = question.type;
+                }
+            }
+
         }, function () {
             alert('error getting survey')
         });
@@ -79,22 +89,29 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
         symptomScore.survey = {};
         symptomScore.survey.id = $scope.survey.id;
         symptomScore.questionAnswers = [];
+        symptomScore.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
 
         for (var i = 0; i < $scope.answers.length; i++) {
             var answer = $scope.answers[i];
-            if (answer !== null) {
+            if (answer !== null && answer !== undefined) {
                 var questionAnswer = {};
-                questionAnswer.questionOption = {};
-                questionAnswer.questionOption.id = i;
-                questionAnswer.value = answer;
+                if ($scope.questionTypeMap[i] === 'SINGLE_SELECT') {
+                    questionAnswer.questionOption = {};
+                    questionAnswer.questionOption.id = answer;
+                }
+                if ($scope.questionTypeMap[i] === 'SINGLE_SELECT_RANGE') {
+                    questionAnswer.value = answer;
+                }
+                questionAnswer.question = {};
+                questionAnswer.question.id = i;
                 symptomScore.questionAnswers.push(questionAnswer);
             }
         }
 
         SymptomScoreService.add(symptomScore.user.id, symptomScore).then(function() {
-            $modalInstance.dismiss('ok');
-        }, function () {
-            alert('error getting survey')
+            $modalInstance.close();
+        }, function (error) {
+            $scope.errorMessage = error.data;
         });
     };
 
