@@ -3,8 +3,8 @@ package org.patientview.api.controller;
 import org.patientview.api.service.SymptomScoreService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +42,15 @@ public class SymptomScoreController extends BaseController<SymptomScoreControlle
         return new ResponseEntity<>(symptomScoreService.getByUserId(userId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/symptomscores/{symptomScoreId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/symptomscores/{surveyType}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<SymptomScore>> getByUserAndSurveyType(
+            @PathVariable("userId") Long userId, @PathVariable("surveyType") SurveyTypes surveyType)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(symptomScoreService.getByUserIdAndSurveyType(userId, surveyType), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/symptomscore/{symptomScoreId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<SymptomScore> get(@PathVariable("userId") Long userId,
                                             @PathVariable("symptomScoreId") Long symptomScoreId)

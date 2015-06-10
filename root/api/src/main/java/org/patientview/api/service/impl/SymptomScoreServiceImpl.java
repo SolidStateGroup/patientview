@@ -197,6 +197,20 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
     }
 
     @Override
+    public List<SymptomScore> getByUserIdAndSurveyType(Long userId, SurveyTypes surveyType)
+            throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+        if (surveyType == null) {
+            throw new ResourceNotFoundException("Must set survey type");
+        }
+
+        return symptomScoreRepository.findByUserAndSurveyType(user, surveyType);
+    }
+
+    @Override
     public SymptomScore getSymptomScore(Long userId, Long symptomScoreId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {

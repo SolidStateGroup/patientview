@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.SymptomScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,7 @@ public interface SymptomScoreRepository extends CrudRepository<SymptomScore, Lon
 
     @Query("SELECT s FROM SymptomScore s WHERE s.user = :user")
     public List<SymptomScore> findByUser(@Param("user") User user);
+
+    @Query("SELECT s FROM SymptomScore s WHERE s.user = :user AND s.survey.type = :surveyType")
+    List<SymptomScore> findByUserAndSurveyType(@Param("user") User user, @Param("surveyType") SurveyTypes surveyType);
 }

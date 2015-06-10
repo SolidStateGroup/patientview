@@ -132,8 +132,15 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
 
     $scope.init = function() {
         $scope.loading = true;
-        $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
-        getSymptomScores();
+        if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
+            if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Crohn\'s Disease') {
+                $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
+                getSymptomScores();
+            } else if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Ulcerative Colitis') {
+                $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
+                getSymptomScores();
+            }
+        }
     };
 
     $scope.initialiseChart = function() {
@@ -268,7 +275,8 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
     var getSymptomScores = function() {
         $scope.loading = true;
         $scope.chartLoading = true;
-        SymptomScoreService.getByUser($scope.loggedInUser.id).then(function(symptomScores) {
+        SymptomScoreService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
+        .then(function(symptomScores) {
             if (symptomScores.length) {
                 $scope.symptomScores = _.sortBy(symptomScores, 'date').reverse();
                 $scope.initialiseChart();
