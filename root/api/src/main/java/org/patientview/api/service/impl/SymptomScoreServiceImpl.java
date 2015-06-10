@@ -162,6 +162,34 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
             }
 
             return score;
+        } else if (symptomScore.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+            Integer score = 0;
+
+            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.FEELING);
+            }
+
+            return score;
         }
 
         return 0;
@@ -172,6 +200,18 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
         if (symptomScore.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
             if (symptomScore.getScore() != null) {
                 if (symptomScore.getScore() >= 16) {
+                    return ScoreSeverity.HIGH;
+                }
+                if (symptomScore.getScore() >= 4) {
+                    return ScoreSeverity.MEDIUM;
+                }
+                if (symptomScore.getScore() < 4) {
+                    return ScoreSeverity.LOW;
+                }
+            }
+        } else if (symptomScore.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+            if (symptomScore.getScore() != null) {
+                if (symptomScore.getScore() >= 10) {
                     return ScoreSeverity.HIGH;
                 }
                 if (symptomScore.getScore() >= 4) {
