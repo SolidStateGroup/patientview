@@ -5,11 +5,14 @@
     .alert-block h5 {
          color: #c09853;
     }
+    .enter-symptoms {
+        margin-left: 10px;
+    }
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
-        <h3>Symptom Scores
-            <button class="btn blue" data-ng-click="openModalEnterSymptoms()">Enter Symptoms</button>
+        <h3>Symptom Checker - {{$parent.patient.myIbd.primaryDiagnosis}}
+            <button class="btn blue enter-symptoms" data-ng-click="openModalEnterSymptoms()">Enter Symptoms</button>
         </h3>
     </div>
         <div class="row">
