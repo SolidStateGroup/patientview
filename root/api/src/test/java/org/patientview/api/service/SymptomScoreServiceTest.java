@@ -144,7 +144,7 @@ public class SymptomScoreServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        SymptomScore symptomScore = new SymptomScore(user, 1.1, ScoreSeverity.LOW, new Date());
+        SymptomScore symptomScore = new SymptomScore(user, 1, ScoreSeverity.LOW, new Date());
         List<SymptomScore> symptomScores = new ArrayList<>();
         symptomScores.add(symptomScore);
 

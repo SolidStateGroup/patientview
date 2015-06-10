@@ -8,8 +8,8 @@ import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
-import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.repository.QuestionGroupRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -53,7 +53,7 @@ public class QuestionGroupRepositoryTest {
 
         Question question = new Question();
         question.setQuestionGroup(questionGroup);
-        question.setType(QuestionTypes.SINGLE_SELECT);
+        question.setElementType(QuestionElementTypes.SINGLE_SELECT);
         question.setHtmlType(QuestionHtmlTypes.SELECT);
         question.setText("Number of Stools (Day)");
         question.setNumber("a");

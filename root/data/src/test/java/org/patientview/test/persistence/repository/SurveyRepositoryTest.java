@@ -9,8 +9,8 @@ import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
-import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -60,7 +60,7 @@ public class SurveyRepositoryTest {
 
         Question question = new Question();
         question.setQuestionGroup(questionGroup);
-        question.setType(QuestionTypes.SINGLE_SELECT);
+        question.setElementType(QuestionElementTypes.SINGLE_SELECT);
         question.setHtmlType(QuestionHtmlTypes.SELECT);
         question.setText("Number of Stools (Day)");
         question.setNumber("a");
@@ -109,7 +109,7 @@ public class SurveyRepositoryTest {
 
         Question question = new Question();
         question.setQuestionGroup(questionGroup);
-        question.setType(QuestionTypes.SINGLE_SELECT);
+        question.setElementType(QuestionElementTypes.SINGLE_SELECT);
         question.setHtmlType(QuestionHtmlTypes.SELECT);
         question.setText("Number of Stools (Day)");
         question.setNumber("a");

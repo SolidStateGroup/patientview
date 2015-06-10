@@ -68,7 +68,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
                     var question = survey.questionGroups[i].questions[j];
-                    $scope.questionTypeMap[question.id] = question.type;
+                    $scope.questionTypeMap[question.id] = question.elementType;
                 }
             }
 

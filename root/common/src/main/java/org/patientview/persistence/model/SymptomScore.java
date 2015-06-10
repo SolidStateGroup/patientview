@@ -35,8 +35,8 @@ public class SymptomScore extends BaseModel {
     @JoinColumn(name = "survey_id", nullable = false)
     private Survey survey;
 
-    @Column(name = "score", columnDefinition="numeric", precision=10, scale=4)
-    private Double score;
+    @Column(name = "score")
+    private Integer score;
 
     @Column(name = "severity")
     @Enumerated(EnumType.STRING)
@@ -51,15 +51,11 @@ public class SymptomScore extends BaseModel {
 
     public SymptomScore() {}
 
-    public SymptomScore(User user, Double score, ScoreSeverity severity, Date date) {
+    public SymptomScore(User user, Integer score, ScoreSeverity severity, Date date) {
         this.user = user;
         this.score = score;
         this.severity = severity;
         this.date = date;
-    }
-
-    public Double getScore() {
-        return score;
     }
 
     public ScoreSeverity getSeverity() {
@@ -70,7 +66,11 @@ public class SymptomScore extends BaseModel {
         this.severity = severity;
     }
 
-    public void setScore(Double score) {
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
         this.score = score;
     }
 

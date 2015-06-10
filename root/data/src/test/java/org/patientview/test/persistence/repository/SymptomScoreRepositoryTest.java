@@ -44,7 +44,7 @@ public class SymptomScoreRepositoryTest {
     public void testFindByUser() {
         User user = dataTestUtils.createUser("TestUser");
 
-        SymptomScore symptomScore = new SymptomScore(user, 1.1, ScoreSeverity.LOW, new Date());
+        SymptomScore symptomScore = new SymptomScore(user, 1, ScoreSeverity.LOW, new Date());
         symptomScoreRepository.save(symptomScore);
 
         List<SymptomScore> symptomScores = symptomScoreRepository.findByUser(user);

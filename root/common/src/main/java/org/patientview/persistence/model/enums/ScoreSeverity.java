@@ -8,7 +8,8 @@ package org.patientview.persistence.model.enums;
 public enum ScoreSeverity {
     HIGH("High"),
     MEDIUM("Medium"),
-    LOW("Low");
+    LOW("Low"),
+    UNKNOWN("Unknown");
 
     private String name;
     ScoreSeverity(String name) { this.name = name; }

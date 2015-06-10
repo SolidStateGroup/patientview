@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 
@@ -29,13 +30,17 @@ public class Question extends BaseModel {
     @JoinColumn(name = "question_group_id", nullable = false)
     private QuestionGroup questionGroup;
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "element_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private QuestionTypes type;
+    private QuestionElementTypes elementType;
 
     @Column(name = "html_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private QuestionHtmlTypes htmlType;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private QuestionTypes type;
 
     @Column(name = "text", nullable = false)
     private String text;
@@ -68,12 +73,12 @@ public class Question extends BaseModel {
         this.questionGroup = questionGroup;
     }
 
-    public QuestionTypes getType() {
-        return type;
+    public QuestionElementTypes getElementType() {
+        return elementType;
     }
 
-    public void setType(QuestionTypes type) {
-        this.type = type;
+    public void setElementType(QuestionElementTypes elementType) {
+        this.elementType = elementType;
     }
 
     public QuestionHtmlTypes getHtmlType() {
@@ -82,6 +87,14 @@ public class Question extends BaseModel {
 
     public void setHtmlType(QuestionHtmlTypes htmlType) {
         this.htmlType = htmlType;
+    }
+
+    public QuestionTypes getType() {
+        return type;
+    }
+
+    public void setType(QuestionTypes type) {
+        this.type = type;
     }
 
     public String getText() {

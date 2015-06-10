@@ -1,9 +1,12 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.patientview.persistence.model.enums.QuestionOptionTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,6 +33,13 @@ public class QuestionOption extends BaseModel {
 
     @Column(name = "display_order")
     private Integer displayOrder;
+
+    @Column(name = "score")
+    private Integer score;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private QuestionOptionTypes type;
 
     public QuestionOption() {}
 
@@ -63,5 +73,21 @@ public class QuestionOption extends BaseModel {
 
     public void setDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public QuestionOptionTypes getType() {
+        return type;
+    }
+
+    public void setType(QuestionOptionTypes type) {
+        this.type = type;
     }
 }

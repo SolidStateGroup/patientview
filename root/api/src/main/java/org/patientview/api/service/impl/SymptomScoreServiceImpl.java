@@ -9,7 +9,10 @@ import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SymptomScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
+import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
@@ -18,7 +21,9 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -107,12 +112,78 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
         symptomScoreRepository.save(newSymptomScore);
     }
 
-    private Double calculateScore(SymptomScore newSymptomScore) {
-        return Math.random();
+    private Integer calculateScore(SymptomScore symptomScore) {
+        Map<QuestionTypes, Integer> questionTypeScoreMap = new HashMap<>();
+        for (QuestionAnswer questionAnswer : symptomScore.getQuestionAnswers()) {
+            if (questionAnswer.getQuestionOption() != null
+                    && questionAnswer.getQuestionOption().getScore() != null
+                    && questionAnswer.getQuestion() != null
+                    && questionAnswer.getQuestion().getType() != null) {
+                questionTypeScoreMap.put(
+                    questionAnswer.getQuestion().getType(), questionAnswer.getQuestionOption().getScore());
+            }
+
+            // add scoring for ranged values
+            if (questionAnswer.getQuestion() != null
+                    && questionAnswer.getQuestion().getType() != null
+                    && questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT_RANGE)
+                    && questionAnswer.getValue() != null) {
+                try {
+                    questionTypeScoreMap.put(
+                            questionAnswer.getQuestion().getType(), Integer.valueOf(questionAnswer.getValue()));
+                } catch (NumberFormatException e) {
+                    questionTypeScoreMap.put(
+                            questionAnswer.getQuestion().getType(), 0);
+                }
+            }
+        }
+
+        if (symptomScore.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+            Integer score = 0;
+
+            if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
+            }
+
+            if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.FEELING);
+            }
+
+            return score;
+        }
+
+        return 0;
     }
 
-    private ScoreSeverity calculateSeverity(SymptomScore newSymptomScore) {
-        return ScoreSeverity.HIGH;
+    // note: these are hardcoded
+    private ScoreSeverity calculateSeverity(SymptomScore symptomScore) {
+        if (symptomScore.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+            if (symptomScore.getScore() != null) {
+                if (symptomScore.getScore() >= 16) {
+                    return ScoreSeverity.HIGH;
+                }
+                if (symptomScore.getScore() >= 4) {
+                    return ScoreSeverity.MEDIUM;
+                }
+                if (symptomScore.getScore() < 4) {
+                    return ScoreSeverity.LOW;
+                }
+            }
+        }
+
+        return ScoreSeverity.UNKNOWN;
     }
 
     @Override

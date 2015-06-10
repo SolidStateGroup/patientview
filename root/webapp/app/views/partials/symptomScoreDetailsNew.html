@@ -42,11 +42,11 @@
                     </span>
                 </div>
                 <div class="col-md-6">
-                    <select data-ng-if="question.type === 'SINGLE_SELECT'" data-ng-model="answers[question.id]"
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT'" data-ng-model="answers[question.id]"
                             data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
                             class="form-control">
                     </select>
-                    <select data-ng-if="question.type === 'SINGLE_SELECT_RANGE'" data-ng-model="answers[question.id]"
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'" data-ng-model="answers[question.id]"
                             class="form-control">
                         <option data-ng-repeat="n in range(question.rangeStart, question.rangeEnd)">{{n}}</option>
                     </select>

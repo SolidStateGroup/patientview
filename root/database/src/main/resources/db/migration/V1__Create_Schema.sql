@@ -650,7 +650,7 @@ CREATE TABLE PV_Symptom_Score
   Id              BIGINT NOT NULL,
   User_Id         BIGINT NOT NULL,
   Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
-  Score           NUMERIC(10, 4) NOT NULL,
+  Score           INT NOT NULL,
   Severity        TEXT,
   Date            TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
@@ -671,9 +671,10 @@ CREATE TABLE PV_Question
 (
   Id              BIGINT NOT NULL,
   Question_Group_Id     BIGINT NOT NULL REFERENCES PV_Question_Group (Id),
-  Type            TEXT NOT NULL,
+  Element_Type    TEXT NOT NULL,
   Html_Type       TEXT NOT NULL,
   Text            TEXT NOT NULL,
+  Type            TEXT,
   Description     TEXT,
   Number          TEXT,
   Display_Order   INT,
@@ -687,8 +688,10 @@ CREATE TABLE PV_Question_Option
   Id              BIGINT NOT NULL,
   Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
   Text            TEXT NOT NULL,
+  Type            TEXT,
   Description     TEXT,
   Display_Order   INT,
+  Score           INT,
   PRIMARY KEY (Id)
 );
 

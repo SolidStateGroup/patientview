@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h3 class="modal-title">Symptom Score</h3>
+    <h3 class="modal-title">{{symptomScore.survey.description}}</h3>
 </div>
 <div class="modal-body">
     <table class="table table-bordered" data-ng-if="symptomScore">
@@ -21,8 +21,8 @@
 
     <div data-ng-repeat="questionAnswer in symptomScore.questionAnswers">
         <h5>{{questionAnswer.question.text}}</h5>
-        <p data-ng-if="questionAnswer.question.type === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
-        <p data-ng-if="questionAnswer.question.type === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>
+        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
+        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>
     </div>
 
     <div data-ng-show="loading" class="loading">
