@@ -83,7 +83,7 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
                     throw new ResourceNotFoundException("Question option not found");
                 }
 
-                newQuestionAnswer.setQuestionOption(questionAnswer.getQuestionOption());
+                newQuestionAnswer.setQuestionOption(questionOption);
                 answer = true;
             } else if (StringUtils.isNotEmpty(questionAnswer.getValue())) {
                 // if QuestionTypes.SINGLE_SELECT_RANGE, will have value
