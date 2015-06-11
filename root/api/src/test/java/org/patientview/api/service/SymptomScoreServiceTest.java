@@ -15,6 +15,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
@@ -27,6 +28,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
+import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SymptomScoreRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -50,6 +52,9 @@ import static org.mockito.Mockito.when;
 public class SymptomScoreServiceTest {
 
     User creator;
+
+    @Mock
+    QuestionRepository questionRepository;
 
     @Mock
     QuestionOptionRepository questionOptionRepository;
@@ -107,15 +112,20 @@ public class SymptomScoreServiceTest {
         symptomScore.setDate(new Date());
         symptomScore.setSurvey(survey);
 
+        Question question = new Question();
+        question.setId(1L);
+
         QuestionOption questionOption = new QuestionOption();
         questionOption.setId(1L);
 
-        QuestionAnswer questionAnswer1 = new QuestionAnswer();
-        questionAnswer1.setQuestionOption(questionOption);
-        symptomScore.getQuestionAnswers().add(questionAnswer1);
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+        questionAnswer.setQuestionOption(questionOption);
+        questionAnswer.setQuestion(question);
+        symptomScore.getQuestionAnswers().add(questionAnswer);
 
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(questionOptionRepository.findOne(Matchers.eq(questionOption.getId()))).thenReturn(questionOption);
+        when(questionRepository.findOne(Matchers.eq(question.getId()))).thenReturn(question);
         when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
 
         symptomScoreService.add(user.getId(), symptomScore);

@@ -4,9 +4,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SymptomScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SymptomScoreRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -28,6 +31,9 @@ import java.util.List;
 public class SymptomScoreRepositoryTest {
 
     @Inject
+    SurveyRepository surveyRepository;
+
+    @Inject
     SymptomScoreRepository symptomScoreRepository;
 
     @Inject
@@ -44,7 +50,12 @@ public class SymptomScoreRepositoryTest {
     public void testFindByUser() {
         User user = dataTestUtils.createUser("TestUser");
 
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        surveyRepository.save(survey);
+
         SymptomScore symptomScore = new SymptomScore(user, 1, ScoreSeverity.LOW, new Date());
+        symptomScore.setSurvey(survey);
         symptomScoreRepository.save(symptomScore);
 
         List<SymptomScore> symptomScores = symptomScoreRepository.findByUser(user);

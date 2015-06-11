@@ -7,10 +7,13 @@ import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
+import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionGroupRepository;
+import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +36,9 @@ import java.util.List;
 public class QuestionGroupRepositoryTest {
 
     @Inject
+    SurveyRepository surveyRepository;
+
+    @Inject
     QuestionGroupRepository questionGroupRepository;
 
     @Inject
@@ -47,9 +53,14 @@ public class QuestionGroupRepositoryTest {
 
     @Test
     public void testFindAll() {
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        surveyRepository.save(survey);
+
         QuestionGroup questionGroup = new QuestionGroup();
         questionGroup.setText("Stools");
         questionGroup.setDescription("Stool Questions");
+        questionGroup.setSurvey(survey);
 
         Question question = new Question();
         question.setQuestionGroup(questionGroup);
