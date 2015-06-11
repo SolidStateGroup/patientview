@@ -26,12 +26,12 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
             $scope.warningMessage = 'No staff member exists with this email';
         });
     };
-    
+
     var showUserOnScreen = function (result, searchType) {
         $scope.editUser = result;
         $scope.existingUser = true;
         $scope.editMode = true;
-        $scope.warningMessage = 'A user with this ' 
+        $scope.warningMessage = 'A user with this '
             + searchType
             + ' already exists. Add them to your group if required, then close this window. '
             + 'You can then edit their details normally as they will appear in the refreshed list.';
@@ -49,7 +49,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
                     groupRole.group.visible = true;
                 }
             }
-            
+
             var group = groupRole.group;
             group.role = groupRole.role;
             $scope.editUser.groups.push(group);
@@ -67,12 +67,12 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         // set available groups so user can add another group/role to the users existing group roles if required
         $scope.editUser.availableGroups = $scope.allGroups;
         for (i = 0; i < $scope.editUser.groups.length; i++) {
-            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, 
+            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups,
                 _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
         }
 
         // set available user roles
-        $scope.editUser.roles = $scope.allowedRoles;   
+        $scope.editUser.roles = $scope.allowedRoles;
     };
 
     $scope.cancel = function () {

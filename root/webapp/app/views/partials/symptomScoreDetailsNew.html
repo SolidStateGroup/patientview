@@ -1,0 +1,62 @@
+<style>
+    .row-question {
+        margin: 2px 0px 2px 0px;
+    }
+</style>
+
+<form name="userFormNew" data-ng-show="!existingUser">
+    <div class="modal-header">
+        <h3 class="modal-title">Enter Symptoms - {{survey.description}}</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row row-question">
+            <div class="col-md-6">
+                <span>Date</span>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.day"
+                                data-ng-options="day as day for day in days">
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.month"
+                                data-ng-options="month as month for month in months">
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.year"
+                                data-ng-options="year as year for year in years">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'">
+            <!--<h5>{{questionGroup.description}}</h5>-->
+            <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
+                <div class="col-md-6">
+                    <span class="question-text">
+                        {{question.text}}
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT'" data-ng-model="answers[question.id]"
+                            data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
+                            class="form-control">
+                    </select>
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'" data-ng-model="answers[question.id]"
+                            class="form-control">
+                        <option data-ng-repeat="n in range(question.rangeStart, question.rangeEnd)">{{n}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()">Save</button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+    </div>
+</form>

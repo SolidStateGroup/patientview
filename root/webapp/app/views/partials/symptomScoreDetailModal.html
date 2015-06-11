@@ -1,0 +1,35 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{symptomScore.survey.description}}</h3>
+</div>
+<div class="modal-body">
+    <table class="table table-bordered" data-ng-if="symptomScore">
+        <tbody>
+            <tr>
+                <td>Date</td>
+                <td>{{symptomScore.date | date:'dd-MMM-yyyy'}}</td>
+            </tr>
+            <tr>
+                <td>Score</td>
+                <td>{{symptomScore.score}}</td>
+            </tr>
+            <tr>
+                <td>Severity</td>
+                <td>{{symptomScore.severity}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div data-ng-repeat="questionAnswer in symptomScore.questionAnswers">
+        <h5>{{questionAnswer.question.text}}</h5>
+        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
+        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>
+    </div>
+
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+</div>
