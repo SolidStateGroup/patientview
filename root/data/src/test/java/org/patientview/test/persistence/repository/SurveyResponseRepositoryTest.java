@@ -8,6 +8,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
@@ -54,7 +55,8 @@ public class SurveyResponseRepositoryTest {
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
         surveyRepository.save(survey);
 
-        SurveyResponse surveyResponse = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date());
+        SurveyResponse surveyResponse
+                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);
 

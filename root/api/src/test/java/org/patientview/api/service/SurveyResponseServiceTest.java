@@ -26,6 +26,7 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
@@ -157,7 +158,8 @@ public class SurveyResponseServiceTest {
         Survey survey = new Survey();
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
 
-        SurveyResponse surveyResponse = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date());
+        SurveyResponse surveyResponse
+                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
         surveyResponse.setSurvey(survey);

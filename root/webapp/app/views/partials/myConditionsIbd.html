@@ -5,6 +5,14 @@
     p.no-data {
         margin: 10px;
     }
+    .nav-tabs li a {
+        border-width: 1px 1px 0 1px;
+        border-color: #DDDDDD;
+        background-color: #F5F5F5;
+    }
+    .nav-tabs li a:active {
+        font-weight: bold;
+    }
 </style>
 
 <div data-ng-show="!patientDetails.length">
@@ -22,7 +30,7 @@
 </div>
 <div>
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-        <tabset>{{patient.myIbd.primaryDiagnosis}}
+        <tabset>
             <tab heading="My IBD" class="tab-heading">
                 <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">

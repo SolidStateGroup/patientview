@@ -15,17 +15,17 @@
             </tr>
             <tr>
                 <td class="td-strong">Score</td>
-                <td>{{symptomScore.score}}</td>
+                <td>{{symptomScore.surveyResponseScores[0].score}}</td>
             </tr>
             <tr>
                 <td class="td-strong">Severity</td>
-                <td>{{symptomScore.severity}}</td>
+                <td>{{symptomScore.surveyResponseScores[0].severity}}</td>
             </tr>
         </tbody>
     </table>
 
     <div data-ng-repeat="questionAnswer in symptomScore.questionAnswers">
-        <h5>{{questionAnswer.question.text}}</h5>
+        <strong>{{questionAnswer.question.text}}</strong>
         <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
         <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>
     </div>

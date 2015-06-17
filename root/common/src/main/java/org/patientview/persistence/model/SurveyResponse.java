@@ -2,12 +2,11 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -35,13 +34,6 @@ public class SurveyResponse extends BaseModel {
     @JoinColumn(name = "survey_id", nullable = false)
     private Survey survey;
 
-    @Column(name = "score")
-    private Integer score;
-
-    @Column(name = "severity")
-    @Enumerated(EnumType.STRING)
-    private ScoreSeverity severity;
-
     @Column(name = "date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
@@ -49,29 +41,18 @@ public class SurveyResponse extends BaseModel {
     @OneToMany(mappedBy = "surveyResponse", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "surveyResponse", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    private List<SurveyResponseScore> surveyResponseScores = new ArrayList<>();
+
     public SurveyResponse() {}
 
-    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date) {
+    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date, SurveyResponseScoreTypes type) {
         this.user = user;
-        this.score = score;
-        this.severity = severity;
         this.date = date;
-    }
 
-    public ScoreSeverity getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(ScoreSeverity severity) {
-        this.severity = severity;
-    }
-
-    public Integer getScore() {
-        return score;
-    }
-
-    public void setScore(Integer score) {
-        this.score = score;
+        if (score != null || severity != null) {
+            surveyResponseScores.add(new SurveyResponseScore(this, type, score, severity));
+        }
     }
 
     public Date getDate() {
@@ -105,5 +86,13 @@ public class SurveyResponse extends BaseModel {
 
     public void setQuestionAnswers(List<QuestionAnswer> questionAnswers) {
         this.questionAnswers = questionAnswers;
+    }
+
+    public List<SurveyResponseScore> getSurveyResponseScores() {
+        return surveyResponseScores;
+    }
+
+    public void setSurveyResponseScores(List<SurveyResponseScore> surveyResponseScores) {
+        this.surveyResponseScores = surveyResponseScores;
     }
 }

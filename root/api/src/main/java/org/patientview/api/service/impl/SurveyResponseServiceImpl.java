@@ -8,10 +8,12 @@ import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
@@ -106,8 +108,15 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("No valid answers");
         }
 
-        newSurveyResponse.setScore(calculateScore(newSurveyResponse));
-        newSurveyResponse.setSeverity(calculateSeverity(newSurveyResponse));
+        Integer score = calculateScore(newSurveyResponse);
+        SurveyResponseScoreTypes type = SurveyResponseScoreTypes.UNKNOWN;
+
+        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+            type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
+        }
+        newSurveyResponse.getSurveyResponseScores().add(
+                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
 
         surveyResponseRepository.save(newSurveyResponse);
     }
@@ -196,28 +205,28 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     // note: these are hardcoded
-    private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse) {
+    private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse, Integer score) {
         if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
-            if (surveyResponse.getScore() != null) {
-                if (surveyResponse.getScore() >= 16) {
+            if (score != null) {
+                if (score >= 16) {
                     return ScoreSeverity.HIGH;
                 }
-                if (surveyResponse.getScore() >= 4) {
+                if (score >= 4) {
                     return ScoreSeverity.MEDIUM;
                 }
-                if (surveyResponse.getScore() < 4) {
+                if (score < 4) {
                     return ScoreSeverity.LOW;
                 }
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
-            if (surveyResponse.getScore() != null) {
-                if (surveyResponse.getScore() >= 10) {
+            if (score != null) {
+                if (score >= 10) {
                     return ScoreSeverity.HIGH;
                 }
-                if (surveyResponse.getScore() >= 4) {
+                if (score >= 4) {
                     return ScoreSeverity.MEDIUM;
                 }
-                if (surveyResponse.getScore() < 4) {
+                if (score < 4) {
                     return ScoreSeverity.LOW;
                 }
             }

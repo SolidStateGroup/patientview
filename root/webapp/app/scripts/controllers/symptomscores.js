@@ -188,29 +188,18 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
         var data = [];
 
-        var minValue = Number.MAX_VALUE;
-        var maxValue = Number.MIN_VALUE;
-
         for (var i = $scope.symptomScores.length -1; i >= 0; i--) {
 
             var symptomScore = $scope.symptomScores[i];
+            var score = symptomScore.surveyResponseScores[0].score;
 
             var row = [];
             row[0] = symptomScore.date;
-            row[1] = parseFloat(symptomScore.score);
+            row[1] = parseFloat(score);
 
             // don't display textual results on graph
             if (!isNaN(row[1])) {
                 data.push(row);
-
-                // get min/max values for y-axis
-                if (symptomScore.score > maxValue) {
-                    maxValue = symptomScore.score;
-                }
-
-                if (symptomScore.score < minValue) {
-                    minValue = symptomScore.score;
-                }
             }
         }
 
@@ -243,24 +232,24 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             credits : {
                 enabled: false
             },
-
             title : {
                 text: ''
             },
-
             navigator: {
                 enabled: true
             },
-
             series : [{
                 name : 'Score',
                 data : data,
                 color: '#585858',
                 tooltip: {
                     valueDecimals: 1
+                },
+                marker : {
+                    enabled : true,
+                    radius : 2
                 }
             }],
-
             chart: {
                 events: {
                     zoomType: 'x',
@@ -371,8 +360,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 SurveyService: function(){
                     return SurveyService;
                 },
-                SymptomScoreService: function(){
-                    return SymptomScoreService;
+                SurveyResponseService: function(){
+                    return SurveyResponseService;
                 },
                 surveyType: function(){
                     return $scope.surveyType;
@@ -399,8 +388,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             size: 'lg',
             backdrop: 'static',
             resolve: {
-                SymptomScoreService: function(){
-                    return SymptomScoreService;
+                SurveyResponseService: function(){
+                    return SurveyResponseService;
                 },
                 symptomScoreId: function(){
                     return symptomScoreId;

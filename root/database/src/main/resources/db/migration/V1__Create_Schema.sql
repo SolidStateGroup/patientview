@@ -651,9 +651,17 @@ CREATE TABLE PV_Survey_Response
   Id              BIGINT NOT NULL,
   User_Id         BIGINT NOT NULL,
   Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
+  Date            TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Survey_Response_Score
+(
+  Id              BIGINT NOT NULL,
+  Type            TEXT NOT NULL,
+  Survey_Response_Id       BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
   Score           INT NOT NULL,
   Severity        TEXT,
-  Date            TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );
 
