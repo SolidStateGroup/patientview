@@ -135,8 +135,8 @@ public class ImportControllerTest {
     public void importIntegrationTestIbd() throws Exception {
         List<String> files = new ArrayList<>();
         // contain real data, must be added to folder manually
-        //files.add("data/xml/ibd/SALIBD_3466151139.xml");
-        files.add("data/xml/ibd/SALIBD_4426012465.xml");
+        files.add("data/xml/ibd/SALIBD_3466151139.xml");
+        //files.add("data/xml/ibd/SALIBD_4426012465.xml");
         //files.add("data/xml/ibd/SALIBD_4500666672.xml");
         //files.add("data/xml/ibd/SALIBD_6186660419.xml");
         //files.add("data/xml/ibd/SALIBD_6304291914.xml");
@@ -179,9 +179,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
