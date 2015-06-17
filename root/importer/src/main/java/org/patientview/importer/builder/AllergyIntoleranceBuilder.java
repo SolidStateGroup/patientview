@@ -16,10 +16,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class AllergyIntoleranceBuilder {
 
-    private Patientview.Patient.Allergy allergyData;
+    private Patientview.Patient.Allergydetails.Allergy allergyData;
     private ResourceReference patientReference;
 
-    public AllergyIntoleranceBuilder(Patientview.Patient.Allergy allergyData, ResourceReference patientReference) {
+    public AllergyIntoleranceBuilder(Patientview.Patient.Allergydetails.Allergy allergyData,
+                                     ResourceReference patientReference) {
         this.allergyData = allergyData;
         this.patientReference = patientReference;
     }
