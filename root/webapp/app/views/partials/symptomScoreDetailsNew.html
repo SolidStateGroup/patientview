@@ -2,6 +2,9 @@
     .row-question {
         margin: 2px 0px 2px 0px;
     }
+    .question-text {
+        font-weight: bold;
+    }
 </style>
 
 <form name="userFormNew" data-ng-show="!existingUser">
@@ -11,7 +14,7 @@
     <div class="modal-body">
         <div class="row row-question">
             <div class="col-md-6">
-                <span>Date</span>
+                <span class="question-text">Date</span>
             </div>
             <div class="col-md-6">
                 <div class="row">
@@ -34,7 +37,6 @@
             </div>
         </div>
         <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'">
-            <!--<h5>{{questionGroup.description}}</h5>-->
             <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
                 <div class="col-md-6">
                     <span class="question-text">
@@ -56,7 +58,7 @@
     </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
     </div>
 </form>
