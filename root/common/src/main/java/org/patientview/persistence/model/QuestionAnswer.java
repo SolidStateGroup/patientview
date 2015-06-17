@@ -25,8 +25,8 @@ public class QuestionAnswer extends BaseModel {
     private QuestionOption questionOption;
 
     @ManyToOne
-    @JoinColumn(name = "symptom_score_id")
-    private SymptomScore symptomScore;
+    @JoinColumn(name = "survey_response_id")
+    private SurveyResponse surveyResponse;
 
     @Column(name = "value")
     private String value;
@@ -50,12 +50,12 @@ public class QuestionAnswer extends BaseModel {
     }
 
     @JsonIgnore
-    public SymptomScore getSymptomScore() {
-        return symptomScore;
+    public SurveyResponse getSurveyResponse() {
+        return surveyResponse;
     }
 
-    public void setSymptomScore(SymptomScore symptomScore) {
-        this.symptomScore = symptomScore;
+    public void setSurveyResponse(SurveyResponse surveyResponse) {
+        this.surveyResponse = surveyResponse;
     }
 
     public String getValue() {

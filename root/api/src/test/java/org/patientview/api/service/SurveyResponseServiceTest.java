@@ -9,7 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.impl.SymptomScoreServiceImpl;
+import org.patientview.api.service.impl.SurveyResponseServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -20,7 +20,7 @@ import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -30,7 +30,7 @@ import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
-import org.patientview.persistence.repository.SymptomScoreRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
  */
-public class SymptomScoreServiceTest {
+public class SurveyResponseServiceTest {
 
     User creator;
 
@@ -63,13 +63,13 @@ public class SymptomScoreServiceTest {
     SurveyRepository surveyRepository;
 
     @Mock
-    SymptomScoreRepository symptomScoreRepository;
+    SurveyResponseRepository surveyResponseRepository;
 
     @Mock
     UserRepository userRepository;
 
     @InjectMocks
-    SymptomScoreService symptomScoreService = new SymptomScoreServiceImpl();
+    SurveyResponseService surveyResponseService = new SurveyResponseServiceImpl();
 
     @Before
     public void setup() {
@@ -107,10 +107,10 @@ public class SymptomScoreServiceTest {
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
         survey.setId(1L);
 
-        SymptomScore symptomScore = new SymptomScore();
-        symptomScore.setUser(user);
-        symptomScore.setDate(new Date());
-        symptomScore.setSurvey(survey);
+        SurveyResponse surveyResponse = new SurveyResponse();
+        surveyResponse.setUser(user);
+        surveyResponse.setDate(new Date());
+        surveyResponse.setSurvey(survey);
 
         Question question = new Question();
         question.setId(1L);
@@ -121,20 +121,20 @@ public class SymptomScoreServiceTest {
         QuestionAnswer questionAnswer = new QuestionAnswer();
         questionAnswer.setQuestionOption(questionOption);
         questionAnswer.setQuestion(question);
-        symptomScore.getQuestionAnswers().add(questionAnswer);
+        surveyResponse.getQuestionAnswers().add(questionAnswer);
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(questionOptionRepository.findOne(Matchers.eq(questionOption.getId()))).thenReturn(questionOption);
-        when(questionRepository.findOne(Matchers.eq(question.getId()))).thenReturn(question);
-        when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(questionOptionRepository.findOne(eq(questionOption.getId()))).thenReturn(questionOption);
+        when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
+        when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
 
-        symptomScoreService.add(user.getId(), symptomScore);
+        surveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(symptomScoreRepository, Mockito.times(1)).save(any(SymptomScore.class));
+        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
     }
 
     @Test
-    public void testGetByUserId() throws ResourceNotFoundException {
+    public void testGetByUserIdAndType() throws ResourceNotFoundException {
 
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -154,15 +154,20 @@ public class SymptomScoreServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        SymptomScore symptomScore = new SymptomScore(user, 1, ScoreSeverity.LOW, new Date());
-        List<SymptomScore> symptomScores = new ArrayList<>();
-        symptomScores.add(symptomScore);
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+
+        SurveyResponse surveyResponse = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date());
+        List<SurveyResponse> surveyResponses = new ArrayList<>();
+        surveyResponses.add(surveyResponse);
+        surveyResponse.setSurvey(survey);
 
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(symptomScoreRepository.findByUser(Matchers.eq(user))).thenReturn(symptomScores);
-        List<SymptomScore> returned = symptomScoreService.getByUserId(user.getId());
+        when(surveyResponseRepository.findByUserAndSurveyType(eq(user), eq(survey.getType())))
+                .thenReturn(surveyResponses);
+        List<SurveyResponse> returned = surveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
 
-        verify(symptomScoreRepository, Mockito.times(1)).findByUser(eq(user));
+        verify(surveyResponseRepository, Mockito.times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
     }
 }

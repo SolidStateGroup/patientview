@@ -5,12 +5,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.SurveyRepository;
-import org.patientview.persistence.repository.SymptomScoreRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,13 +28,13 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
-public class SymptomScoreRepositoryTest {
+public class SurveyResponseRepositoryTest {
 
     @Inject
     SurveyRepository surveyRepository;
 
     @Inject
-    SymptomScoreRepository symptomScoreRepository;
+    SurveyResponseRepository surveyResponseRepository;
 
     @Inject
     DataTestUtils dataTestUtils;
@@ -47,19 +47,19 @@ public class SymptomScoreRepositoryTest {
     }
 
     @Test
-    public void testFindByUser() {
+    public void testFindByUserAndType() {
         User user = dataTestUtils.createUser("TestUser");
 
         Survey survey = new Survey();
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
         surveyRepository.save(survey);
 
-        SymptomScore symptomScore = new SymptomScore(user, 1, ScoreSeverity.LOW, new Date());
-        symptomScore.setSurvey(survey);
-        symptomScoreRepository.save(symptomScore);
+        SurveyResponse surveyResponse = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date());
+        surveyResponse.setSurvey(survey);
+        surveyResponseRepository.save(surveyResponse);
 
-        List<SymptomScore> symptomScores = symptomScoreRepository.findByUser(user);
-        Assert.assertEquals("There should be 1 symptom score", 1, symptomScores.size());
-        Assert.assertTrue("The symptom score should be the one created", symptomScores.get(0).equals(symptomScore));
+        List<SurveyResponse> surveyResponses = surveyResponseRepository.findByUserAndSurveyType(user, survey.getType());
+        Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.size());
+        Assert.assertTrue("The symptom score should be the one created", surveyResponses.get(0).equals(surveyResponse));
     }
 }

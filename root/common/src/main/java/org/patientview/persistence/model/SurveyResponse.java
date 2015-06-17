@@ -24,8 +24,8 @@ import java.util.List;
  * Created on 05/06/2015
  */
 @Entity
-@Table(name = "pv_symptom_score")
-public class SymptomScore extends BaseModel {
+@Table(name = "pv_survey_response")
+public class SurveyResponse extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -46,12 +46,12 @@ public class SymptomScore extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @OneToMany(mappedBy = "symptomScore", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "surveyResponse", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<QuestionAnswer> questionAnswers = new ArrayList<>();
 
-    public SymptomScore() {}
+    public SurveyResponse() {}
 
-    public SymptomScore(User user, Integer score, ScoreSeverity severity, Date date) {
+    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date) {
         this.user = user;
         this.score = score;
         this.severity = severity;

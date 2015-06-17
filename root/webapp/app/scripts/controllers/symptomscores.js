@@ -1,7 +1,7 @@
 'use strict';
 
-var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SymptomScoreService', 'symptomScoreId',
-function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreId) {
+var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyResponseService', 'symptomScoreId',
+function ($scope, $rootScope, $modalInstance, SurveyResponseService, symptomScoreId) {
 
     var init = function() {
         $scope.loading = true;
@@ -14,7 +14,7 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreI
             return;
         }
 
-        SymptomScoreService.getSymptomScore($scope.loggedInUser.id, symptomScoreId).then(function(result) {
+        SurveyResponseService.getSurveyResponse($scope.loggedInUser.id, symptomScoreId).then(function(result) {
             $scope.symptomScore = result;
             $scope.loading = false;
         }, function () {
@@ -31,8 +31,8 @@ function ($scope, $rootScope, $modalInstance, SymptomScoreService, symptomScoreI
 }];
 
 var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService',
-    'SymptomScoreService', 'surveyType', 'UtilService',
-function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService, surveyType, UtilService) {
+    'SurveyResponseService', 'surveyType', 'UtilService',
+function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseService, surveyType, UtilService) {
 
     var init = function() {
         $scope.symptomScore = {};
@@ -108,7 +108,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
             }
         }
 
-        SymptomScoreService.add(symptomScore.user.id, symptomScore).then(function() {
+        SurveyResponseService.add(symptomScore.user.id, symptomScore).then(function() {
             $modalInstance.close();
         }, function (error) {
             $scope.errorMessage = error.data;
@@ -127,8 +127,8 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SymptomScoreService
 }];
 
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
-    'SymptomScoreService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
-function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $modal, $timeout, $filter, UtilService) {
+    'SurveyResponseService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
+function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, $modal, $timeout, $filter, UtilService) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -317,7 +317,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
     var getSymptomScores = function() {
         $scope.loading = true;
         $scope.chartLoading = true;
-        SymptomScoreService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
+        SurveyResponseService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
         .then(function(symptomScores) {
             if (symptomScores.length) {
                 $scope.symptomScores = _.sortBy(symptomScores, 'date').reverse();

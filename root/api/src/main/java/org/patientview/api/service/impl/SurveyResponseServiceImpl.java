@@ -1,13 +1,13 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.service.SymptomScoreService;
+import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
@@ -16,7 +16,7 @@ import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
-import org.patientview.persistence.repository.SymptomScoreRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +30,8 @@ import java.util.Map;
  * Created on 05/06/2015
  */
 @Service
-public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreServiceImpl>
-        implements SymptomScoreService {
+public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyResponseServiceImpl>
+        implements SurveyResponseService {
 
     @Inject
     private QuestionRepository questionRepository;
@@ -43,35 +43,35 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
     private SurveyRepository surveyRepository;
 
     @Inject
-    private SymptomScoreRepository symptomScoreRepository;
+    private SurveyResponseRepository surveyResponseRepository;
 
     @Inject
     private UserRepository userRepository;
 
     @Override
-    public void add(Long userId, SymptomScore symptomScore) throws ResourceNotFoundException {
+    public void add(Long userId, SurveyResponse surveyResponse) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Survey survey = surveyRepository.findOne(symptomScore.getSurvey().getId());
+        Survey survey = surveyRepository.findOne(surveyResponse.getSurvey().getId());
         if (survey == null) {
             throw new ResourceNotFoundException("Could not find survey");
         }
 
-        if (symptomScore.getDate() == null) {
+        if (surveyResponse.getDate() == null) {
             throw new ResourceNotFoundException("Must include symptom score date");
         }
 
-        SymptomScore newSymptomScore = new SymptomScore();
-        newSymptomScore.setSurvey(survey);
-        newSymptomScore.setUser(user);
-        newSymptomScore.setDate(symptomScore.getDate());
+        SurveyResponse newSurveyResponse = new SurveyResponse();
+        newSurveyResponse.setSurvey(survey);
+        newSurveyResponse.setUser(user);
+        newSurveyResponse.setDate(surveyResponse.getDate());
 
-        for (QuestionAnswer questionAnswer : symptomScore.getQuestionAnswers()) {
+        for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             QuestionAnswer newQuestionAnswer = new QuestionAnswer();
-            newQuestionAnswer.setSymptomScore(newSymptomScore);
+            newQuestionAnswer.setSurveyResponse(newSurveyResponse);
             boolean answer = false;
 
             if (questionAnswer.getQuestionOption() != null) {
@@ -98,23 +98,23 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
                 }
 
                 newQuestionAnswer.setQuestion(question);
-                newSymptomScore.getQuestionAnswers().add(newQuestionAnswer);
+                newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
             }
         }
 
-        if (newSymptomScore.getQuestionAnswers().isEmpty()) {
+        if (newSurveyResponse.getQuestionAnswers().isEmpty()) {
             throw new ResourceNotFoundException("No valid answers");
         }
 
-        newSymptomScore.setScore(calculateScore(newSymptomScore));
-        newSymptomScore.setSeverity(calculateSeverity(newSymptomScore));
+        newSurveyResponse.setScore(calculateScore(newSurveyResponse));
+        newSurveyResponse.setSeverity(calculateSeverity(newSurveyResponse));
 
-        symptomScoreRepository.save(newSymptomScore);
+        surveyResponseRepository.save(newSurveyResponse);
     }
 
-    private Integer calculateScore(SymptomScore symptomScore) {
+    private Integer calculateScore(SurveyResponse surveyResponse) {
         Map<QuestionTypes, Integer> questionTypeScoreMap = new HashMap<>();
-        for (QuestionAnswer questionAnswer : symptomScore.getQuestionAnswers()) {
+        for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             if (questionAnswer.getQuestionOption() != null
                     && questionAnswer.getQuestionOption().getScore() != null
                     && questionAnswer.getQuestion() != null
@@ -138,7 +138,7 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
             }
         }
 
-        if (symptomScore.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
             Integer score = 0;
 
             if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS) != null) {
@@ -162,7 +162,7 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
             }
 
             return score;
-        } else if (symptomScore.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
             Integer score = 0;
 
             if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME) != null) {
@@ -196,28 +196,28 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
     }
 
     // note: these are hardcoded
-    private ScoreSeverity calculateSeverity(SymptomScore symptomScore) {
-        if (symptomScore.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
-            if (symptomScore.getScore() != null) {
-                if (symptomScore.getScore() >= 16) {
+    private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse) {
+        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+            if (surveyResponse.getScore() != null) {
+                if (surveyResponse.getScore() >= 16) {
                     return ScoreSeverity.HIGH;
                 }
-                if (symptomScore.getScore() >= 4) {
+                if (surveyResponse.getScore() >= 4) {
                     return ScoreSeverity.MEDIUM;
                 }
-                if (symptomScore.getScore() < 4) {
+                if (surveyResponse.getScore() < 4) {
                     return ScoreSeverity.LOW;
                 }
             }
-        } else if (symptomScore.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
-            if (symptomScore.getScore() != null) {
-                if (symptomScore.getScore() >= 10) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+            if (surveyResponse.getScore() != null) {
+                if (surveyResponse.getScore() >= 10) {
                     return ScoreSeverity.HIGH;
                 }
-                if (symptomScore.getScore() >= 4) {
+                if (surveyResponse.getScore() >= 4) {
                     return ScoreSeverity.MEDIUM;
                 }
-                if (symptomScore.getScore() < 4) {
+                if (surveyResponse.getScore() < 4) {
                     return ScoreSeverity.LOW;
                 }
             }
@@ -227,17 +227,7 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
     }
 
     @Override
-    public List<SymptomScore> getByUserId(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        return symptomScoreRepository.findByUser(user);
-    }
-
-    @Override
-    public List<SymptomScore> getByUserIdAndSurveyType(Long userId, SurveyTypes surveyType)
+    public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, SurveyTypes surveyType)
             throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -247,16 +237,16 @@ public class SymptomScoreServiceImpl extends AbstractServiceImpl<SymptomScoreSer
             throw new ResourceNotFoundException("Must set survey type");
         }
 
-        return symptomScoreRepository.findByUserAndSurveyType(user, surveyType);
+        return surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
     }
 
     @Override
-    public SymptomScore getSymptomScore(Long userId, Long symptomScoreId) throws ResourceNotFoundException {
+    public SurveyResponse getSurveyResponse(Long userId, Long surveyResponseId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        return symptomScoreRepository.findOne(symptomScoreId);
+        return surveyResponseRepository.findOne(surveyResponseId);
     }
 }

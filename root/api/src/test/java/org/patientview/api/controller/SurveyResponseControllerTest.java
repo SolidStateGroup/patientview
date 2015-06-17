@@ -7,13 +7,14 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.SymptomScoreService;
+import org.patientview.api.service.SurveyResponseService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,22 +31,22 @@ import static org.junit.Assert.fail;
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
  */
-public class SymptomScoreControllerTest {
+public class SurveyResponseControllerTest {
 
     private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
-    private SymptomScoreService symptomScoreService;
+    private SurveyResponseService surveyResponseService;
 
     @InjectMocks
-    private SymptomScoreController symptomScoreController;
+    private SurveyResponseController surveyResponseController;
 
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(symptomScoreController).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(surveyResponseController).build();
     }
 
     @After
@@ -67,8 +68,8 @@ public class SymptomScoreControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/symptomscores")
-                    .content(mapper.writeValueAsString(new SymptomScore())).contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/surveyresponses")
+                    .content(mapper.writeValueAsString(new SurveyResponse())).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
@@ -76,7 +77,7 @@ public class SymptomScoreControllerTest {
     }
 
     @Test
-    public void testGetSymptomScoresByUserId() {
+    public void testGetSurveyResponsesByUserIdAndType() throws Exception {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -88,12 +89,9 @@ public class SymptomScoreControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/symptomscores"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/user/" + user.getId() + "/surveyresponses/type/" + SurveyTypes.CROHNS_SYMPTOM_SCORE))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
 

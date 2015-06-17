@@ -637,6 +637,7 @@ CREATE TABLE PV_File_Data
   PRIMARY KEY (Id)
 );
 
+/* new for 2.1.0 */
 CREATE TABLE PV_Survey
 (
   Id              BIGINT NOT NULL,
@@ -645,7 +646,7 @@ CREATE TABLE PV_Survey
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Symptom_Score
+CREATE TABLE PV_Survey_Response
 (
   Id              BIGINT NOT NULL,
   User_Id         BIGINT NOT NULL,
@@ -700,7 +701,7 @@ CREATE TABLE PV_Question_Answer
   Id              BIGINT NOT NULL,
   Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
   Question_Option_Id     BIGINT REFERENCES PV_Question_Option (Id),
-  Symptom_Score_Id     BIGINT NOT NULL REFERENCES PV_Symptom_Score (Id),
+  Survey_Response_Id     BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
   Value            TEXT,
   PRIMARY KEY (Id)
 );

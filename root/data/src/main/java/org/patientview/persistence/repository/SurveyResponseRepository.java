@@ -1,6 +1,6 @@
 package org.patientview.persistence.repository;
 
-import org.patientview.persistence.model.SymptomScore;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.springframework.data.jpa.repository.Query;
@@ -18,11 +18,8 @@ import java.util.List;
  */
 @Repository
 @Transactional(propagation = Propagation.REQUIRED)
-public interface SymptomScoreRepository extends CrudRepository<SymptomScore, Long> {
+public interface SurveyResponseRepository extends CrudRepository<SurveyResponse, Long> {
 
-    @Query("SELECT s FROM SymptomScore s WHERE s.user = :user")
-    public List<SymptomScore> findByUser(@Param("user") User user);
-
-    @Query("SELECT s FROM SymptomScore s WHERE s.user = :user AND s.survey.type = :surveyType")
-    List<SymptomScore> findByUserAndSurveyType(@Param("user") User user, @Param("surveyType") SurveyTypes surveyType);
+    @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType")
+    List<SurveyResponse> findByUserAndSurveyType(@Param("user") User user, @Param("surveyType") SurveyTypes surveyType);
 }

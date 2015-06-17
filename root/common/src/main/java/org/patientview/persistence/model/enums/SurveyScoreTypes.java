@@ -1,18 +1,14 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * For SurveyScore severity (calculated)
  * Created by jamesr@solidstategroup.com
- * Created on 08/06/2015
+ * Created on 17/06/2015
  */
-public enum ScoreSeverity {
-    HIGH("High"),
-    MEDIUM("Medium"),
-    LOW("Low"),
-    UNKNOWN("Unknown");
+public enum SurveyScoreTypes {
+    SYMPTOM_SCORE("Symptom Score");
 
     private String name;
-    ScoreSeverity(String name) { this.name = name; }
+    SurveyScoreTypes(String name) { this.name = name; }
     public String getName() { return this.name; }
     public String getId() { return this.name(); }
 }
