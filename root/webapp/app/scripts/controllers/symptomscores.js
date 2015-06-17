@@ -135,9 +135,43 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
         if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
             if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Crohn\'s Disease') {
                 $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
+
+                $scope.plotLines = [{
+                    color: '#FF8A8A',
+                    width: 160,
+                    value: 20
+                }, {
+                    color: '#FFB347',
+                    width: 48,
+                    value: 7
+                }, {
+                    color: '#77DD77',
+                    width: 35,
+                    value: 2
+                }];
+
+                $scope.max = 30;
+
                 getSymptomScores();
             } else if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Ulcerative Colitis') {
                 $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
+
+                $scope.plotLines = [{
+                    color: '#FF8A8A',
+                    width: 90,
+                    value: 13
+                },{
+                    color: '#FFB347',
+                    width: 90,
+                    value: 7
+                }, {
+                    color: '#77DD77',
+                    width: 60,
+                    value: 2
+                }];
+
+                $scope.max = 16;
+
                 getSymptomScores();
             }
         }
@@ -221,6 +255,7 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
             series : [{
                 name : 'Score',
                 data : data,
+                color: '#585858',
                 tooltip: {
                     valueDecimals: 1
                 }
@@ -250,6 +285,13 @@ function ($scope, $routeParams, $location, SymptomScoreService, SurveyService, $
                     year: '%e. %b. %Y'
                 },
                 text: 'ESEMPIO'
+            },
+            yAxis: {
+                plotLines: $scope.plotLines,
+                min: 0,
+                max: $scope.max,
+                floor: 0,
+                endOnTick: false
             },
             tooltip: {
                 minTickInterval: 864000000,
