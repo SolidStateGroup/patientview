@@ -4,27 +4,27 @@
     }
 </style>
 <div class="modal-header">
-    <h3 class="modal-title">{{symptomScore.survey.description}}</h3>
+    <h3 class="modal-title">{{surveyResponse.survey.description}}</h3>
 </div>
 <div class="modal-body">
-    <table class="table table-bordered" data-ng-if="symptomScore">
+    <table class="table table-bordered" data-ng-if="surveyResponse">
         <tbody>
             <tr>
                 <td class="td-strong">Date</td>
-                <td>{{symptomScore.date | date:'dd-MMM-yyyy'}}</td>
+                <td>{{surveyResponse.date | date:'dd-MMM-yyyy'}}</td>
             </tr>
             <tr>
                 <td class="td-strong">Score</td>
-                <td>{{symptomScore.surveyResponseScores[0].score}}</td>
+                <td>{{surveyResponse.surveyResponseScores[0].score}}</td>
             </tr>
             <tr>
                 <td class="td-strong">Severity</td>
-                <td>{{symptomScore.surveyResponseScores[0].severity}}</td>
+                <td>{{surveyResponse.surveyResponseScores[0].severity}}</td>
             </tr>
         </tbody>
     </table>
 
-    <div data-ng-repeat="questionAnswer in symptomScore.questionAnswers">
+    <div data-ng-repeat="questionAnswer in surveyResponse.questionAnswers">
         <strong>{{questionAnswer.question.text}}</strong>
         <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
         <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>

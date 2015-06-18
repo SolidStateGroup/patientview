@@ -31,11 +31,19 @@
 <div>
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
         <ul class="nav nav-tabs">
-            <li data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
+            <li data-ng-class="{active:(activeTab === 'IBD_CONTROL' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'IBD_CONTROL'">IBD Control</a></li>
+            <li data-ng-class="{active:activeTab === 'MY_IBD'}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'IBD_CONTROL' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                    <div class="panel-heading"><h3>IBD Control</h3></div>
+                    <p class="no-data">Your details, required for use in the IBD Control Questionnaire have not yet been added to PatientView.</p>
+                </div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_IBD'}">
                 <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>

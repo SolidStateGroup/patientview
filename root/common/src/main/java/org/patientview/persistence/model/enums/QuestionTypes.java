@@ -13,5 +13,8 @@ public enum QuestionTypes {
     NUMBER_OF_STOOLS_NIGHTTIME,
     OPEN_BOWELS,
     PRESENT_BLOOD,
-    TOILET_TIMING
+    TOILET_TIMING,
+
+    // IBD Control Questionnaire
+    IBD_CONTROLLED_TWO_WEEKS
 }

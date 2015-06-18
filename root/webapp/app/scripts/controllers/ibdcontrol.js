@@ -1,54 +1,28 @@
 'use strict';
 
-angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
+angular.module('patientviewApp').controller('IbdControlCtrl',['$scope', '$routeParams', '$location',
     'SurveyResponseService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
 function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, $modal, $timeout, $filter, UtilService) {
 
     $scope.init = function() {
         $scope.loading = true;
-        if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
-            if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Crohn\'s Disease') {
-                $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
+        $scope.surveyType = 'IBD_CONTROL';
 
-                $scope.plotLines = [{
-                    color: '#FF8A8A',
-                    width: 160,
-                    value: 20
-                }, {
-                    color: '#FFB347',
-                    width: 48,
-                    value: 7
-                }, {
-                    color: '#77DD77',
-                    width: 35,
-                    value: 2
-                }];
+        $scope.plotLines = [{
+            color: '#FF8A8A',
+            width: 160,
+            value: 20
+        }, {
+            color: '#FFB347',
+            width: 48,
+            value: 7
+        }, {
+            color: '#77DD77',
+            width: 35,
+            value: 2
+        }];
 
-                $scope.max = 30;
-
-                getSurveyResponses();
-            } else if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Ulcerative Colitis') {
-                $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
-
-                $scope.plotLines = [{
-                    color: '#FF8A8A',
-                    width: 90,
-                    value: 13
-                },{
-                    color: '#FFB347',
-                    width: 90,
-                    value: 7
-                }, {
-                    color: '#77DD77',
-                    width: 60,
-                    value: 2
-                }];
-
-                $scope.max = 16;
-
-                getSurveyResponses();
-            }
-        }
+        getSurveyResponses();
     };
 
     $scope.initialiseChart = function() {

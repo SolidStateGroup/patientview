@@ -43,5 +43,8 @@ public enum QuestionOptionTypes {
     ALWAYS_PRESENT,
     JOINT_PROBLEMS,
     SKIN_PROBLEMS,
-    EYE_PROBLEMS
+    EYE_PROBLEMS,
+
+    // IBD Control Questionnaire
+    YES_NO_NOT_SURE
 }

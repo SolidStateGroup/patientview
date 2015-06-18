@@ -3,12 +3,16 @@ INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (1, 'CROHNS_SYMPTOM_SCORE', 'Crohns Symptom Score');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (2, 'COLITIS_SYMPTOM_SCORE', 'Colitis Symptom Score');
+INSERT INTO "pv_survey" ("id", "type", "description")
+VALUES (3, 'IBD_CONTROL', 'IBD Control Questionnaire');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (1, 1, 'Crohn''s Questions', 'Crohn''s Questions', null, 1);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (2, 2, 'Colitis Questions', 'Colitis Questions', null, 1);
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (3, 3, 'Do you believe that', 'Do you believe that', null, 1);
 
 /* Questions */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
@@ -34,6 +38,9 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (10, 2, 'SINGLE_SELECT', 'SELECT', 'How do I feel?', null, null, 5, null, null, 'FEELING');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (11, 2, 'SINGLE_SELECT', 'SELECT', 'Do I have any further complications?', null, null, 5, null, null, 'COMPLICATION');
+
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (12, 3, 'SINGLE_SELECT', 'SELECT', 'a. Your IBD has been well controlled in the past two weeks?', null, null, 1, null, null, 'IBD_CONTROLLED_TWO_WEEKS');
 
 /* Question Options */
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
@@ -127,3 +134,10 @@ INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "d
 VALUES (44, 11, 'Skin Problems (erythema nodusum, pyoderma gangrenosum)', null, 3, 'SKIN_PROBLEMS', 1);
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
 VALUES (45, 11, 'Eye Problems (uveitis, scleritis)', null, 4, 'EYE_PROBLEMS', 1);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (46, 12, 'Yes', null, 1, 'YES_NO_NOT_SURE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (47, 12, 'No', null, 2, 'YES_NO_NOT_SURE', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (48, 12, 'Not Sure', null, 3, 'YES_NO_NOT_SURE', 3);
