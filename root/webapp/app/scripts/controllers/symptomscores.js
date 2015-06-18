@@ -1,21 +1,21 @@
 'use strict';
 
-var SymptomScoreDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyResponseService', 'symptomScoreId',
-function ($scope, $rootScope, $modalInstance, SurveyResponseService, symptomScoreId) {
+var SurveyResponseDetailModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyResponseService', 'surveyResponseId',
+function ($scope, $rootScope, $modalInstance, SurveyResponseService, surveyResponseId) {
 
     var init = function() {
         $scope.loading = true;
-        delete $scope.symptomScore;
+        delete $scope.surveyResponse;
         $scope.errorMessage = '';
 
-        if (symptomScoreId == null) {
+        if (surveyResponseId == null) {
             $scope.errorMessage = 'Error retrieving symptom score';
             $scope.loading = false;
             return;
         }
 
-        SurveyResponseService.getSurveyResponse($scope.loggedInUser.id, symptomScoreId).then(function(result) {
-            $scope.symptomScore = result;
+        SurveyResponseService.getSurveyResponse($scope.loggedInUser.id, surveyResponseId).then(function(result) {
+            $scope.surveyResponse = result;
             $scope.loading = false;
         }, function () {
             $scope.errorMessage = 'Error retrieving symptom score';
@@ -30,12 +30,12 @@ function ($scope, $rootScope, $modalInstance, SurveyResponseService, symptomScor
     init();
 }];
 
-var SymptomScoreDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService',
+var SurveyResponseDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService',
     'SurveyResponseService', 'surveyType', 'UtilService',
 function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseService, surveyType, UtilService) {
 
     var init = function() {
-        $scope.symptomScore = {};
+        $scope.surveyResponse = {};
         $scope.answers = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
@@ -83,13 +83,13 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
 
     $scope.save = function () {
         // build object to send to back end
-        var symptomScore = {};
-        symptomScore.user = {};
-        symptomScore.user.id = $scope.loggedInUser.id;
-        symptomScore.survey = {};
-        symptomScore.survey.id = $scope.survey.id;
-        symptomScore.questionAnswers = [];
-        symptomScore.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
+        var surveyResponse = {};
+        surveyResponse.user = {};
+        surveyResponse.user.id = $scope.loggedInUser.id;
+        surveyResponse.survey = {};
+        surveyResponse.survey.id = $scope.survey.id;
+        surveyResponse.questionAnswers = [];
+        surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
 
         for (var i = 0; i < $scope.answers.length; i++) {
             var answer = $scope.answers[i];
@@ -104,11 +104,11 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 }
                 questionAnswer.question = {};
                 questionAnswer.question.id = i;
-                symptomScore.questionAnswers.push(questionAnswer);
+                surveyResponse.questionAnswers.push(questionAnswer);
             }
         }
 
-        SurveyResponseService.add(symptomScore.user.id, symptomScore).then(function() {
+        SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function() {
             $modalInstance.close();
         }, function (error) {
             $scope.errorMessage = error.data;
@@ -153,7 +153,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
                 $scope.max = 30;
 
-                getSymptomScores();
+                getSurveyResponses();
             } else if (primaryDiagnosis === 'Ulcerative Colitis'
                     || primaryDiagnosis === 'IBD - Unclassified (IBDU)') {
                 $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
@@ -174,7 +174,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
                 $scope.max = 16;
 
-                getSymptomScores();
+                getSurveyResponses();
             } else {
                 $scope.unknownPrimaryDiagnosis = true;
                 $scope.loading = false;
