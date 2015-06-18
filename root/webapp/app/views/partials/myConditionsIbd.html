@@ -1,5 +1,5 @@
 <style>
-    .tab-heading{
+    .nav-tabs li {
         cursor: pointer;
     }
     p.no-data {
@@ -10,7 +10,7 @@
         border-color: #DDDDDD;
         background-color: #F5F5F5;
     }
-    .nav-tabs li a:active {
+    .nav-tabs li.active a {
         font-weight: bold;
     }
 </style>
@@ -30,21 +30,25 @@
 </div>
 <div>
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-        <tabset>
-            <tab heading="My IBD" class="tab-heading">
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
+            <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
                 <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>
                     <p class="no-data">Your details for my IBD have not yet been added to PatientView.</p>
                 </div>
-            </tab>
-            <tab heading="Symptom Checker" class="tab-heading">
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}">
                 <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>Symptom Checker</h3></div>
                     <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
                 </div>
-            </tab>
-        </tabset>
+            </div>
+        </div>
     </div>
 </div>

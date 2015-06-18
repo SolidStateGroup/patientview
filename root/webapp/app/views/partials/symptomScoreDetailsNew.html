@@ -49,8 +49,8 @@
                             class="form-control">
                     </select>
                     <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'" data-ng-model="answers[question.id]"
+                            data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
                             class="form-control">
-                        <option data-ng-repeat="n in range(question.rangeStart, question.rangeEnd)">{{n}}</option>
                     </select>
                 </div>
             </div>
