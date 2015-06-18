@@ -132,7 +132,6 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
     $scope.init = function() {
         $scope.loading = true;
-
         if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
             var primaryDiagnosis = $scope.$parent.patient.myIbd.primaryDiagnosis;
             if (primaryDiagnosis === 'Crohn\'s Disease') {
@@ -176,6 +175,9 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 16;
 
                 getSymptomScores();
+            } else {
+                $scope.unknownPrimaryDiagnosis = true;
+                $scope.loading = false;
             }
         }
     };
