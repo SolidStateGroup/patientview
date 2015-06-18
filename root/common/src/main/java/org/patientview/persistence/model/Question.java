@@ -60,6 +60,12 @@ public class Question extends BaseModel {
     @Column(name = "range_end")
     private Integer rangeEnd;
 
+    @Column(name = "range_start_description")
+    private String rangeStartDescription;
+
+    @Column(name = "range_end_description")
+    private String rangeEndDescription;
+
     @OneToMany(mappedBy = "question")
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
@@ -143,6 +149,22 @@ public class Question extends BaseModel {
 
     public void setRangeEnd(Integer rangeEnd) {
         this.rangeEnd = rangeEnd;
+    }
+
+    public String getRangeStartDescription() {
+        return rangeStartDescription;
+    }
+
+    public void setRangeStartDescription(String rangeStartDescription) {
+        this.rangeStartDescription = rangeStartDescription;
+    }
+
+    public String getRangeEndDescription() {
+        return rangeEndDescription;
+    }
+
+    public void setRangeEndDescription(String rangeEndDescription) {
+        this.rangeEndDescription = rangeEndDescription;
     }
 
     public List<QuestionOption> getQuestionOptions() {

@@ -2,6 +2,14 @@
     .td-strong {
         font-weight: bold;
     }
+    .row-question {
+        margin: 10px 0 0 15px;
+    }
+    .question-description {
+        font-weight: normal;
+        color: #368DE8;
+        font-size: 14px;
+    }
 </style>
 <div class="modal-header">
     <h3 class="modal-title">{{surveyResponse.survey.description}}</h3>
@@ -24,10 +32,18 @@
         </tbody>
     </table>
 
-    <div data-ng-repeat="questionAnswer in surveyResponse.questionAnswers">
-        <strong>{{questionAnswer.question.text}}</strong>
-        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT_RANGE'">{{questionAnswer.value}}</p>
-        <p data-ng-if="questionAnswer.question.elementType === 'SINGLE_SELECT'">{{questionAnswer.questionOption.text}}</p>
+    <div data-ng-repeat="questionGroup in surveyResponse.survey.questionGroups | orderBy:'displayOrder'">
+        <h4>
+            <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
+            {{questionGroup.text}}
+            <div class="question-description">{{questionGroup.description}}</div>
+        </h4>
+        <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
+            <strong>{{question.text}}</strong>
+            <div class="question-description">{{question.description}}</div>
+            <p data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'">{{responseMap[question.id].value}}</p>
+            <p data-ng-if="question.elementType === 'SINGLE_SELECT'">{{responseMap[question.id].questionOption.text}}</p>
+        </div>
     </div>
 
     <div data-ng-show="loading" class="loading">

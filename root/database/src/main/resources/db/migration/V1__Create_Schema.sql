@@ -689,6 +689,8 @@ CREATE TABLE PV_Question
   Display_Order   INT,
   Range_Start     INT,
   Range_End       INT,
+  Range_Start_Description          TEXT,
+  Range_End_Description          TEXT,
   PRIMARY KEY (Id)
 );
 

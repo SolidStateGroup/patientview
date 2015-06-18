@@ -22,6 +22,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             value: 2
         }];
 
+        $scope.max = 30;
         getSurveyResponses();
     };
 
@@ -51,7 +52,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             }
         }
 
-        $('#chart_'.concat($scope.surveyType)).highcharts('StockChart', {
+        $('#chart_IBD').highcharts('StockChart', {
             rangeSelector : {
                 buttons: [{
                     type: 'month',
@@ -164,7 +165,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             }
             $scope.loading = false;
         }, function() {
-            alert('Error retrieving symptom scores');
+            alert('Error retrieving responses');
             $scope.loading = false;
         });
     };

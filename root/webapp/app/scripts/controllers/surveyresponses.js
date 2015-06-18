@@ -14,8 +14,19 @@ function ($scope, $rootScope, $modalInstance, SurveyResponseService, surveyRespo
             return;
         }
 
-        SurveyResponseService.getSurveyResponse($scope.loggedInUser.id, surveyResponseId).then(function(result) {
-            $scope.surveyResponse = result;
+        SurveyResponseService.getSurveyResponse($scope.loggedInUser.id, surveyResponseId).then(function(surveyResponse) {
+            $scope.surveyResponse = surveyResponse;
+
+            // create map of question answers to question ids
+            var responseMap = [];
+
+            for (var i = 0; i < surveyResponse.questionAnswers.length; i++) {
+                var questionAnswer = surveyResponse.questionAnswers[i];
+                responseMap[questionAnswer.question.id] = questionAnswer;
+            }
+
+            $scope.responseMap = responseMap;
+
             $scope.loading = false;
         }, function () {
             $scope.errorMessage = 'Error retrieving survey response';

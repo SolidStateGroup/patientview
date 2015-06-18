@@ -46,5 +46,9 @@ public enum QuestionOptionTypes {
     EYE_PROBLEMS,
 
     // IBD Control Questionnaire
-    YES_NO_NOT_SURE
+    YES,
+    NOT_SURE,
+    BETTER,
+    NO_CHANGE,
+    WORSE
 }

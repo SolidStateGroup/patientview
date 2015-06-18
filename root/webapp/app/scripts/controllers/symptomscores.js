@@ -321,7 +321,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             }
             $scope.loading = false;
         }, function() {
-            alert('Error retrieving symptom scores');
+            alert('Error retrieving responses');
             $scope.loading = false;
         });
     };
