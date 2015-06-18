@@ -139,12 +139,12 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
                 $scope.plotLines = [{
                     color: '#FF8A8A',
-                    width: 160,
-                    value: 20
+                    width: 112,
+                    value: 23
                 }, {
                     color: '#FFB347',
-                    width: 48,
-                    value: 7
+                    width: 96,
+                    value: 10
                 }, {
                     color: '#77DD77',
                     width: 35,
