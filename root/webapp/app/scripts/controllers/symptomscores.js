@@ -132,8 +132,10 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
     $scope.init = function() {
         $scope.loading = true;
+
         if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
-            if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Crohn\'s Disease') {
+            var primaryDiagnosis = $scope.$parent.patient.myIbd.primaryDiagnosis;
+            if (primaryDiagnosis === 'Crohn\'s Disease') {
                 $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
@@ -153,7 +155,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 30;
 
                 getSymptomScores();
-            } else if ($scope.$parent.patient.myIbd.primaryDiagnosis === 'Ulcerative Colitis') {
+            } else if (primaryDiagnosis === 'Ulcerative Colitis'
+                    || primaryDiagnosis === 'IBD - Unclassified (IBDU)') {
                 $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
