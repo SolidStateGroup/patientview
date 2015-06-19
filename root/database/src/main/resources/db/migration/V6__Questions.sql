@@ -29,8 +29,8 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (2, 1, 'SINGLE_SELECT_RANGE', 'SELECT', 'How many times are your bowels open a day?', null, null, 2, 0, 20, 'OPEN_BOWELS');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (3, 1, 'SINGLE_SELECT', 'SELECT', 'How are you feeling?', null, null, 3, null, null, 'FEELING');
-INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
-VALUES (4, 1, 'SINGLE_SELECT', 'SELECT', 'Do you have any complications from your IBD?', null, null, 4, null, null, 'COMPLICATION');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "help_link")
+VALUES (4, 1, 'SINGLE_SELECT', 'SELECT', 'Do you have any complications from your IBD?', null, null, 4, null, null, 'COMPLICATION', 'http://www.myibdportal.org/crohns-disease#what-are-the-possible-complications-of-crohns');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (5, 1, 'SINGLE_SELECT', 'SELECT', 'Has the Doctor informed you about any mass (lump) in your abdomen?', null, null, 5, null, null, 'MASS_IN_TUMMY');
 
@@ -44,8 +44,8 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (9, 2, 'SINGLE_SELECT', 'SELECT', 'Is there blood present mixed in the stool?', null, null, 4, null, null, 'PRESENT_BLOOD');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (10, 2, 'SINGLE_SELECT', 'SELECT', 'How do I feel?', null, null, 5, null, null, 'FEELING');
-INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
-VALUES (11, 2, 'SINGLE_SELECT', 'SELECT', 'Do I have any further complications?', null, null, 5, null, null, 'COMPLICATION');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "help_link")
+VALUES (11, 2, 'SINGLE_SELECT', 'SELECT', 'Do I have any further complications?', null, null, 5, null, null, 'COMPLICATION', 'http://www.myibdportal.org/ulcerative-colitis#can-uc-affect-other-parts-of-the-body');
 
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (12, 3, 'SINGLE_SELECT', 'RADIO', 'a. Your IBD has been well controlled in the past two weeks?', null, null, 1, null, null, 'IBD_CONTROLLED_TWO_WEEKS');

@@ -691,6 +691,7 @@ CREATE TABLE PV_Question
   Range_End       INT,
   Range_Start_Description          TEXT,
   Range_End_Description          TEXT,
+  Help_Link       TEXT,
   PRIMARY KEY (Id)
 );
 
