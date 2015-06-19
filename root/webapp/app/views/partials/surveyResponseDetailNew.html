@@ -129,7 +129,7 @@
                 <div class="col-md-7">
                     <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
                             data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
-                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id">
+                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button">
                         {{questionOption.text}}
                     </span>
                     <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
