@@ -108,20 +108,32 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("No valid answers");
         }
 
-        Integer score = calculateScore(newSurveyResponse);
-        SurveyResponseScoreTypes type = SurveyResponseScoreTypes.UNKNOWN;
-
         if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
                 || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
-            type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
-        }
-        newSurveyResponse.getSurveyResponseScores().add(
+            SurveyResponseScoreTypes type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
+            Integer score = calculateScore(newSurveyResponse, type);
+
+            newSurveyResponse.getSurveyResponseScores().add(
                 new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+        } else if (survey.getType().equals(SurveyTypes.IBD_CONTROL)) {
+            SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_CONTROL_EIGHT;
+            Integer score = calculateScore(newSurveyResponse, type);
+            newSurveyResponse.getSurveyResponseScores().add(
+                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+
+            type = SurveyResponseScoreTypes.IBD_CONTROL_VAS;
+            score = calculateScore(newSurveyResponse, type);
+            newSurveyResponse.getSurveyResponseScores().add(
+                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+        } else {
+            newSurveyResponse.getSurveyResponseScores().add(
+                new SurveyResponseScore(newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN, 0, ScoreSeverity.UNKNOWN));
+        }
 
         surveyResponseRepository.save(newSurveyResponse);
     }
 
-    private Integer calculateScore(SurveyResponse surveyResponse) {
+    private Integer calculateScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type) {
         Map<QuestionTypes, Integer> questionTypeScoreMap = new HashMap<>();
         for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             if (questionAnswer.getQuestionOption() != null
@@ -141,67 +153,86 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     questionTypeScoreMap.put(
                             questionAnswer.getQuestion().getType(), Integer.valueOf(questionAnswer.getValue()));
                 } catch (NumberFormatException e) {
-                    questionTypeScoreMap.put(
-                            questionAnswer.getQuestion().getType(), 0);
+                    questionTypeScoreMap.put(questionAnswer.getQuestion().getType(), 0);
                 }
             }
         }
 
-        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
-            Integer score = 0;
+        Integer score = 0;
 
+        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
             if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.FEELING);
             }
-
-            return score;
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
-            Integer score = 0;
-
             if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
             }
-
             if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.FEELING);
             }
-
-            return score;
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_CONTROL)) {
+            if (type.equals(SurveyResponseScoreTypes.IBD_CONTROL_EIGHT)) {
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT);
+                } else {
+                    if (questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT) != null) {
+                        score += questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT);
+                    }
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS);
+                }
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE);
+                }
+            } else if (type.equals(SurveyResponseScoreTypes.IBD_CONTROL_VAS)) {
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL);
+                }
+            }
         }
 
-        return 0;
+        return score;
     }
 
     // note: these are hardcoded

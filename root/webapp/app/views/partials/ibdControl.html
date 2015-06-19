@@ -13,7 +13,15 @@
             display:none;
         }
     }
-
+    .patient-details .content-panel {
+        margin-bottom: 0;
+    }
+    .chart-content-panel {
+        box-shadow: none;
+    }
+    .content-panel .content-inner {
+        padding: 0 10px 10px 10px;
+    }
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
@@ -21,9 +29,12 @@
             <button class="btn blue enter-symptoms" data-ng-click="openModalEnterSurveyResponses()">Answer Questions</button>
         </h3>
     </div>
-    <!--<div class="row info">
-        <p>Inflammatory Bowel Disease Control Questionnaire</p>
-    </div>-->
+    <div class="row info">
+        <p>We would like to ask you some basic questions to find out whether your IBD has been well controlled over
+           the last two weeks. These questions are general in nature. They were chosen with the help of IBD
+           patients and can apply to anyone with ulcerative colitis or Crohn's disease. Your answers are intended
+           to help the IBD Team to monitor your condition.</p>
+    </div>
     <div class="row result-detail-panel" data-ng-show="!loading && surveyResponses">
         <div class="col-md-7 result-container clearfix">
             <div class="content-panel chart-content-panel">
@@ -37,7 +48,8 @@
                 <div class="table-head accordion-title-row">
                     <div class="hidden">ID</div>
                     <div class="head-item accordion-title-text "><span>Date Taken</span></div>
-                    <div class="head-item accordion-title-text "><span>Score (severity)</span></div>
+                    <div class="head-item accordion-title-text "><span>IBD-8</span></div>
+                    <div class="head-item accordion-title-text "><span>IBD-VAS</span></div>
                     <div class="head-item accordion-title-text "></div>
                 </div>
                 <div class="item-header">
@@ -49,7 +61,8 @@
                     <div class="faux-row" data-ng-repeat="surveyResponse in tableSurveyResponses">
                         <div class="row-item hidden">{{observation.id}}</div>
                         <div class="row-item accordion-heading-text">{{surveyResponse.date | date:'dd-MMM-yyyy'}}</div>
-                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[0].score}} ({{surveyResponse.surveyResponseScores[0].severity}})</div>
+                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[0].score}}</div>
+                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[1].score}}</div>
                         <div class="row-item accordion-heading-text" style="color: #428bca;" data-ng-click="openModalSurveyResponseDetail(surveyResponse.id)">View</div>
                     </div>
                 </div>

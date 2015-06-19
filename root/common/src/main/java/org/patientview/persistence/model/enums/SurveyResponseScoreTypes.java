@@ -6,6 +6,8 @@ package org.patientview.persistence.model.enums;
  */
 public enum SurveyResponseScoreTypes {
     SYMPTOM_SCORE("Symptom Score"),
+    IBD_CONTROL_EIGHT("IBD-Control-8"),
+    IBD_CONTROL_VAS("IBD-Control-VAS"),
     UNKNOWN("Unknown");
 
     private String name;
