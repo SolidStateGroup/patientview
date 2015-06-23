@@ -8,18 +8,16 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         $scope.loading = true;
         $scope.surveyType = 'IBD_CONTROL';
 
-        $scope.plotLines = [{
-            color: '#FF8A8A',
-            width: 160,
-            value: 20
-        }, {
-            color: '#FFB347',
-            width: 48,
-            value: 7
-        }, {
+        $scope.plotLines1 = [{
             color: '#77DD77',
-            width: 35,
-            value: 2
+            width: 2,
+            value: 13
+        }];
+
+        $scope.plotLines2 = [{
+            color: '#77DD77',
+            width: 2,
+            value: 85
         }];
 
         $scope.max = 30;
@@ -35,20 +33,27 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         // using highstocks
         $('.chart-content-panel').show();
 
-        var data = [];
+        var data1 = [];
+        var data2 = [];
 
         for (var i = $scope.surveyResponses.length -1; i >= 0; i--) {
 
             var surveyResponse = $scope.surveyResponses[i];
-            var score = surveyResponse.surveyResponseScores[0].score;
-            //console.log(score);
+            var score1 = surveyResponse.surveyResponseScores[0].score;
+            var score2 = surveyResponse.surveyResponseScores[1].score;
+
             var row = [];
-            row[0] = surveyResponse.date;
-            row[1] = parseFloat(score);
+            var row2 = [];
+            row[0] = row2[0] = surveyResponse.date;
+            row[1] = parseFloat(score1);
+            row2[1] = parseFloat(score2);
 
             // don't display textual results on graph
             if (!isNaN(row[1])) {
-                data.push(row);
+                data1.push(row);
+            }
+            if (!isNaN(row2[1])) {
+                data2.push(row2);
             }
         }
 
@@ -88,8 +93,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 enabled: true
             },
             series : [{
-                name : 'Score',
-                data : data,
+                name : 'Control Questions',
+                data : data1,
                 color: '#585858',
                 tooltip: {
                     valueDecimals: 1
@@ -97,7 +102,20 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 marker : {
                     enabled : true,
                     radius : 2
-                }
+                },
+                yAxis: 0
+            },{
+                name : 'Self Rating Scale',
+                data : data2,
+                color: '#aeaeae',
+                tooltip: {
+                    valueDecimals: 1
+                },
+                marker : {
+                    enabled : true,
+                    radius : 2
+                },
+                yAxis: 1
             }],
             chart: {
                 events: {
@@ -124,13 +142,33 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 },
                 text: 'ESEMPIO'
             },
-            yAxis: {
-                plotLines: $scope.plotLines,
+            yAxis: [{
+                offset: 20,
+                plotLines: $scope.plotLines1,
                 min: 0,
                 max: $scope.max,
                 floor: 0,
-                endOnTick: false
-            },
+                endOnTick: false,
+                title : {
+                    text: 'Control Questions',
+                    style: {
+                        color: '#585858'
+                    }
+                }
+            },{
+                offset: 40,
+                plotLines: $scope.plotLines2,
+                min: 0,
+                max: 100,
+                floor: 0,
+                endOnTick: false,
+                title : {
+                    text: 'Self Rating Scale',
+                    style: {
+                        color: '#aeaeae'
+                    }
+                }
+            }],
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',

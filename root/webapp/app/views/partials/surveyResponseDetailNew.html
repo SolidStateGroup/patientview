@@ -23,6 +23,15 @@
         margin-left: 5px;
     }
 
+    input[type="radio"], input[type="range"], .radio-label {
+        cursor: pointer;
+    }
+
+    .modal-dialog label {
+        font-weight: normal;
+        font-size: 1em;
+    }
+
     .slider {
         display:     block;
         position:    relative;
@@ -60,7 +69,7 @@
     .slider span.pointer.active {
     }
     .slider span.bubble {
-        font-size:   0.7em;
+        font-size:   1em;
         line-height: 1.4em;
         font-family: sans-serif;
         text-align:  center;
@@ -129,8 +138,8 @@
                 <div class="col-md-7">
                     <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
                             data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
-                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button">
-                        {{questionOption.text}}
+                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                        <label for="{{questionOption.id}}" class="radio-label">{{questionOption.text}}</label>
                     </span>
                     <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
                             data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"

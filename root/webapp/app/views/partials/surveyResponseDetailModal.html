@@ -26,9 +26,14 @@
             </tr>
             <tr data-ng-repeat="score in surveyResponse.surveyResponseScores">
                 <td class="td-strong">
-                    Score
+                    Score:
                     <span data-ng-if="surveyResponse.surveyResponseScores.length > 1" class="capitalize">
-                        - {{score.type.split('_').join(' ').toLowerCase().replace('ibd','IBD')}}
+                        {{
+                            score.type
+                                .replace('SYMPTOM_SCORE','Symptom Score')
+                                .replace('IBD_CONTROL_EIGHT','Control Questions')
+                                .replace('IBD_CONTROL_VAS','Self Rating Scale')
+                        }}
                     </span>
                     <span data-ng-if="score.severity !== 'UNKNOWN'">(severity)</span>
                 </td>
