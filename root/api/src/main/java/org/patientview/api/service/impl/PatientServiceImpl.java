@@ -60,6 +60,8 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
@@ -75,6 +77,10 @@ import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.QuestionOptionRepository;
+import org.patientview.persistence.repository.QuestionRepository;
+import org.patientview.persistence.repository.SurveyRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -158,6 +164,18 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private PractitionerService practitionerService;
+
+    @Inject
+    private QuestionOptionRepository questionOptionRepository;
+
+    @Inject
+    private QuestionRepository questionRepository;
+
+    @Inject
+    private SurveyRepository surveyRepository;
+
+    @Inject
+    private SurveyResponseRepository surveyResponseRepository;
 
     @Inject
     private UserService userService;
@@ -1057,6 +1075,37 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // non test observation types (delete first)
         deleteExistingNonTestObservationData(fhirLinks);
         migrateFhirNonTestObservations(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // survey responses
+        migrateSurveyResponses(migrationUser, entityUser);
+    }
+
+    private void migrateSurveyResponses(MigrationUser migrationUser, User entityUser) {
+        for (SurveyResponse surveyResponse : migrationUser.getSurveyResponses()) {
+            SurveyResponse newSurveyResponse = new SurveyResponse(
+                    entityUser, surveyResponse.getSurveyResponseScores().get(0).getScore(),
+                    surveyResponse.getSurveyResponseScores().get(0).getSeverity(),
+                    surveyResponse.getDate(), surveyResponse.getSurveyResponseScores().get(0).getType());
+
+            newSurveyResponse.setSurvey(surveyRepository.findOne(surveyResponse.getSurvey().getId()));
+
+            for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
+                QuestionAnswer newQuestionAnswer = new QuestionAnswer();
+                newQuestionAnswer.setSurveyResponse(newSurveyResponse);
+                if (StringUtils.isNotEmpty(questionAnswer.getValue())) {
+                    newQuestionAnswer.setValue(questionAnswer.getValue());
+                }
+                if (questionAnswer.getQuestionOption() != null) {
+                    newQuestionAnswer.setQuestionOption(
+                            questionOptionRepository.findOne(questionAnswer.getQuestionOption().getId()));
+                }
+                newQuestionAnswer.setQuestion(questionRepository.findOne(questionAnswer.getQuestion().getId()));
+
+                newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
+            }
+
+            surveyResponseRepository.save(newSurveyResponse);
+        }
     }
 
     // migration only, migrate test observations

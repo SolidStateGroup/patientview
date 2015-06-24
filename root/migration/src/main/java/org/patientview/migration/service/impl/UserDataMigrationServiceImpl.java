@@ -35,7 +35,13 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Survey;
+import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
@@ -53,6 +59,9 @@ import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
+import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.repository.AboutmeDao;
 import org.patientview.repository.EmailVerificationDao;
@@ -299,7 +308,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 767L;
+            Long oldUserId = 866L;
 
             try {
                 org.patientview.patientview.model.User oldUser;
@@ -596,6 +605,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                             if (IBD) {
                                 migrationUser = addIbdData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                                migrationUser = addCrohnsSymptoms(migrationUser, pv1PatientRecord.getNhsno());
                             }
 
                         } else {
@@ -1219,6 +1229,141 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         return patient;
+    }
+
+    private MigrationUser addCrohnsSymptoms(MigrationUser migrationUser, String nhsNo) {
+        Connection connection = null;
+        String sql = "SELECT feeling_id, score, symptomDate, " +
+                "abdominal_pain_id, complication_id, mass_in_tummy_id, " +
+                "openBowels FROM ibd_crohns_symptoms WHERE nhsno = "  + nhsNo;
+
+
+        // note these survey responses are hardcoded (see V6__Questions.sql), between ibd id and question options
+        Map<Long, Long> abdominalMap = new HashMap<Long, Long>();
+        abdominalMap.put(0L, 1L);
+        abdominalMap.put(1L, 2L);
+        abdominalMap.put(2L, 3L);
+        abdominalMap.put(3L, 4L);
+
+        Map<Long, Long> feelingMap = new HashMap<Long, Long>();
+        feelingMap.put(0L, 5L);
+        feelingMap.put(1L, 6L);
+        feelingMap.put(2L, 7L);
+        feelingMap.put(3L, 8L);
+        feelingMap.put(4L, 9L);
+
+        Map<Long, Long> complicationMap = new HashMap<Long, Long>();
+        complicationMap.put(0L, 10L);
+        complicationMap.put(1L, 11L);
+        complicationMap.put(2L, 12L);
+        complicationMap.put(3L, 13L);
+        complicationMap.put(4L, 14L);
+        complicationMap.put(5L, 15L);
+        complicationMap.put(6L, 16L);
+        complicationMap.put(7L, 17L);
+
+        Map<Long, Long> massTummyMap = new HashMap<Long, Long>();
+        massTummyMap.put(0L, 18L);
+        massTummyMap.put(1L, 19L);
+        massTummyMap.put(2L, 20L);
+        massTummyMap.put(3L, 21L);
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+
+                Survey survey = new Survey();
+                survey.setId(1L);
+
+                SurveyResponse surveyResponse = new SurveyResponse();
+                surveyResponse.setSurvey(survey);
+
+                // feeling_id
+                QuestionOption questionOption1 = new QuestionOption();
+                questionOption1.setId(feelingMap.get(results.getLong(1)));
+                QuestionAnswer questionAnswer1 = new QuestionAnswer();
+                questionAnswer1.setQuestionOption(questionOption1);
+                Question question1 = new Question();
+                question1.setId(3L);
+                questionAnswer1.setQuestion(question1);
+                surveyResponse.getQuestionAnswers().add(questionAnswer1);
+
+                // abdominal_pain_id
+                QuestionOption questionOption2 = new QuestionOption();
+                questionOption2.setId(abdominalMap.get(results.getLong(4)));
+                QuestionAnswer questionAnswer2 = new QuestionAnswer();
+                questionAnswer2.setQuestionOption(questionOption2);
+                Question question2 = new Question();
+                question2.setId(1L);
+                questionAnswer2.setQuestion(question2);
+                surveyResponse.getQuestionAnswers().add(questionAnswer2);
+
+                // complication_id
+                QuestionOption questionOption3 = new QuestionOption();
+                questionOption3.setId(complicationMap.get(results.getLong(5)));
+                QuestionAnswer questionAnswer3 = new QuestionAnswer();
+                questionAnswer3.setQuestionOption(questionOption3);
+                Question question3 = new Question();
+                question3.setId(4L);
+                questionAnswer3.setQuestion(question3);
+                surveyResponse.getQuestionAnswers().add(questionAnswer3);
+
+                // mass_in_tummy_id
+                QuestionOption questionOption4 = new QuestionOption();
+                questionOption4.setId(massTummyMap.get(results.getLong(6)));
+                QuestionAnswer questionAnswer4 = new QuestionAnswer();
+                questionAnswer4.setQuestionOption(questionOption4);
+                Question question4 = new Question();
+                question4.setId(5L);
+                questionAnswer4.setQuestion(question4);
+                surveyResponse.getQuestionAnswers().add(questionAnswer4);
+
+                // openBowels
+                QuestionAnswer questionAnswer5 = new QuestionAnswer();
+                questionAnswer5.setValue(results.getString(7));
+                Question question5 = new Question();
+                question5.setId(2L);
+                questionAnswer5.setQuestion(question5);
+                surveyResponse.getQuestionAnswers().add(questionAnswer5);
+
+                // symptomDate
+                surveyResponse.setDate(results.getTimestamp(3));
+
+                // score
+                Integer score = results.getInt(2);
+                ScoreSeverity severity = ScoreSeverity.UNKNOWN;
+
+                if (score >= 16) {
+                    severity = ScoreSeverity.HIGH;
+                }
+                if (score >= 4) {
+                    severity = ScoreSeverity.MEDIUM;
+                }
+                if (score < 4) {
+                    severity = ScoreSeverity.LOW;
+                }
+
+                surveyResponse.getSurveyResponseScores().add(
+                    new SurveyResponseScore(null, SurveyResponseScoreTypes.SYMPTOM_SCORE, score, severity));
+
+                // add to transport object
+                migrationUser.getSurveyResponses().add(surveyResponse);
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return migrationUser;
     }
 
     private MigrationUser addIbdData(MigrationUser migrationUser, String nhsNo, Group unit) {

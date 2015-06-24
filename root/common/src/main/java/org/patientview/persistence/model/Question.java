@@ -74,6 +74,10 @@ public class Question extends BaseModel {
 
     public Question() {}
 
+    public Question(QuestionTypes type) {
+        this.type = type;
+    }
+
     public QuestionGroup getQuestionGroup() {
         return questionGroup;
     }
