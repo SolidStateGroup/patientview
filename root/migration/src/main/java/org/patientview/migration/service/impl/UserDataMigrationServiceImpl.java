@@ -61,7 +61,6 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
-import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.repository.AboutmeDao;
 import org.patientview.repository.EmailVerificationDao;
@@ -308,7 +307,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 866L;
+            Long oldUserId = 412L;
 
             try {
                 org.patientview.patientview.model.User oldUser;
@@ -409,6 +408,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // basic user information
         User newUser = createUser(oldUser);
         boolean isPatient = false;
+        boolean error = false;
 
         List<UserMapping> userMappings = null;
 
@@ -606,18 +606,24 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             if (IBD) {
                                 migrationUser = addIbdData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                                 migrationUser = addCrohnsSymptoms(migrationUser, pv1PatientRecord.getNhsno());
+                                migrationUser = addColitisSymptoms(migrationUser, pv1PatientRecord.getNhsno());
                             }
 
                         } else {
                             LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode()
                                     + " for pv1 id: " + pv1PatientRecord.getId());
+                            error = true;
                         }
                     }
                 }
                 //LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
             }
 
-            return migrationUser;
+            if (!error) {
+                return migrationUser;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -1229,6 +1235,166 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         return patient;
+    }
+
+    private MigrationUser addColitisSymptoms(MigrationUser migrationUser, String nhsNo) {
+        Connection connection = null;
+        String sql = "SELECT feeling_id, score, symptomDate, " +
+                "complication_id, number_of_stools_daytime_id, number_of_stools_nighttime_id, " +
+                "present_blood_id, toilet_timing_id FROM ibd_colitis_symptoms WHERE nhsno = "  + nhsNo;
+
+        // note these survey responses are hardcoded (see V6__Questions.sql), between ibd id and question options
+        Map<Long, Long> feelingMap = new HashMap<Long, Long>();
+        feelingMap.put(0L, 5L);
+        feelingMap.put(1L, 6L);
+        feelingMap.put(2L, 7L);
+        feelingMap.put(3L, 8L);
+        feelingMap.put(4L, 9L);
+
+        Map<Long, Long> complicationMap = new HashMap<Long, Long>();
+        complicationMap.put(0L, 10L);
+        complicationMap.put(1L, 11L);
+        complicationMap.put(2L, 12L);
+        complicationMap.put(3L, 13L);
+        complicationMap.put(4L, 14L);
+        complicationMap.put(5L, 15L);
+        complicationMap.put(6L, 16L);
+        complicationMap.put(7L, 17L);
+
+        Map<Long, Long> stoolDaytimeMap = new HashMap<Long, Long>();
+        stoolDaytimeMap.put(0L, 22L);
+        stoolDaytimeMap.put(1L, 23L);
+        stoolDaytimeMap.put(2L, 24L);
+        stoolDaytimeMap.put(3L, 25L);
+
+        Map<Long, Long> stoolNighttimeMap = new HashMap<Long, Long>();
+        stoolNighttimeMap.put(-1L, null);
+        stoolNighttimeMap.put(1L, 26L);
+        stoolNighttimeMap.put(2L, 27L);
+        stoolNighttimeMap.put(3L, 28L);
+
+        Map<Long, Long> presentBloodMap = new HashMap<Long, Long>();
+        presentBloodMap.put(0L, 33L);
+        presentBloodMap.put(1L, 34L);
+        presentBloodMap.put(2L, 35L);
+        presentBloodMap.put(3L, 36L);
+
+        Map<Long, Long> toiletTimingMap = new HashMap<Long, Long>();
+        toiletTimingMap.put(0L, 29L);
+        toiletTimingMap.put(1L, 30L);
+        toiletTimingMap.put(2L, 31L);
+        toiletTimingMap.put(3L, 32L);
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+
+                Survey survey = new Survey();
+                survey.setId(2L);
+
+                SurveyResponse surveyResponse = new SurveyResponse();
+                surveyResponse.setSurvey(survey);
+
+                // feeling_id
+                QuestionOption questionOption1 = new QuestionOption();
+                questionOption1.setId(feelingMap.get(results.getLong(1)));
+                QuestionAnswer questionAnswer1 = new QuestionAnswer();
+                questionAnswer1.setQuestionOption(questionOption1);
+                Question question1 = new Question();
+                question1.setId(10L);
+                questionAnswer1.setQuestion(question1);
+                surveyResponse.getQuestionAnswers().add(questionAnswer1);
+
+                // complication_id
+                QuestionOption questionOption2 = new QuestionOption();
+                questionOption2.setId(complicationMap.get(results.getLong(4)));
+                QuestionAnswer questionAnswer2 = new QuestionAnswer();
+                questionAnswer2.setQuestionOption(questionOption2);
+                Question question2 = new Question();
+                question2.setId(11L);
+                questionAnswer2.setQuestion(question2);
+                surveyResponse.getQuestionAnswers().add(questionAnswer2);
+
+                // number_of_stools_daytime_id
+                QuestionOption questionOption3 = new QuestionOption();
+                questionOption3.setId(stoolDaytimeMap.get(results.getLong(5)));
+                QuestionAnswer questionAnswer3 = new QuestionAnswer();
+                questionAnswer3.setQuestionOption(questionOption3);
+                Question question3 = new Question();
+                question3.setId(6L);
+                questionAnswer3.setQuestion(question3);
+                surveyResponse.getQuestionAnswers().add(questionAnswer3);
+
+                // number_of_stools_nighttime_id
+                if (results.getLong(6) != -1L) {
+                    QuestionOption questionOption4 = new QuestionOption();
+                    questionOption4.setId(stoolNighttimeMap.get(results.getLong(6)));
+                    QuestionAnswer questionAnswer4 = new QuestionAnswer();
+                    questionAnswer4.setQuestionOption(questionOption4);
+                    Question question4 = new Question();
+                    question4.setId(7L);
+                    questionAnswer4.setQuestion(question4);
+                    surveyResponse.getQuestionAnswers().add(questionAnswer4);
+                }
+
+                // present_blood_id
+                QuestionOption questionOption5 = new QuestionOption();
+                questionOption5.setId(presentBloodMap.get(results.getLong(7)));
+                QuestionAnswer questionAnswer5 = new QuestionAnswer();
+                questionAnswer5.setQuestionOption(questionOption5);
+                Question question5 = new Question();
+                question5.setId(9L);
+                questionAnswer5.setQuestion(question5);
+                surveyResponse.getQuestionAnswers().add(questionAnswer5);
+
+                // toilet_timing_id
+                QuestionOption questionOption6 = new QuestionOption();
+                questionOption6.setId(toiletTimingMap.get(results.getLong(8)));
+                QuestionAnswer questionAnswer6 = new QuestionAnswer();
+                questionAnswer6.setQuestionOption(questionOption6);
+                Question question6 = new Question();
+                question6.setId(8L);
+                questionAnswer6.setQuestion(question6);
+                surveyResponse.getQuestionAnswers().add(questionAnswer6);
+
+                // symptomDate
+                surveyResponse.setDate(results.getTimestamp(3));
+
+                // score
+                Integer score = results.getInt(2);
+                ScoreSeverity severity = ScoreSeverity.UNKNOWN;
+
+                if (score >= 10) {
+                    severity = ScoreSeverity.HIGH;
+                }
+                if (score >= 4) {
+                    severity = ScoreSeverity.MEDIUM;
+                }
+                if (score < 4) {
+                    severity = ScoreSeverity.LOW;
+                }
+
+                surveyResponse.getSurveyResponseScores().add(
+                    new SurveyResponseScore(null, SurveyResponseScoreTypes.SYMPTOM_SCORE, score, severity));
+
+                // add to transport object
+                migrationUser.getSurveyResponses().add(surveyResponse);
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
+            }
+        }
+
+        return migrationUser;
     }
 
     private MigrationUser addCrohnsSymptoms(MigrationUser migrationUser, String nhsNo) {
