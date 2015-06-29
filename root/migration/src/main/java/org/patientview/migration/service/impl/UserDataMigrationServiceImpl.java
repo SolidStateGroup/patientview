@@ -171,6 +171,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
+    private @Value("${jdbc.url}") String jdbcUrl;
+    private @Value("${jdbc.username}") String jdbcUsername;
+    private @Value("${jdbc.password}") String jdbcPassword;
 
     private static final boolean IBD = true;
 
@@ -353,7 +356,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 "lastlogon, failedlogons, accountlocked, id FROM user WHERE id = " + oldUserId;
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -639,7 +642,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 "WHERE nhsno = '" + nhsNo + "'";
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -760,7 +763,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Role role = getRoleByName(RoleName.STAFF_ADMIN);
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -1205,7 +1208,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         String sql = "SELECT namedConsultant, nurses FROM ibd_myibd WHERE nhsno = " + nhsNo;
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -1286,7 +1289,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         toiletTimingMap.put(3L, 32L);
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -1435,7 +1438,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         massTummyMap.put(3L, 21L);
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
@@ -1555,7 +1558,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 "eiManifestations, complications FROM ibd_myibd WHERE nhsno = " + nhsNo;
 
         try {
-            DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
             connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
