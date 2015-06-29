@@ -2079,7 +2079,24 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         LOG.info(groupsToAdd.size() + " Groups");
 
-        boolean singleUser = true;
+        // do not migrate these pv1 ids (avoid data clashes etc with ibd migration)
+        List<Long> ignoredIds = new ArrayList<Long>();
+
+        // matching users to be manually deleted from pv2 before migrating
+        ignoredIds.add(33L);
+        ignoredIds.add(110L);
+        ignoredIds.add(1004L);
+        ignoredIds.add(1010L);
+        ignoredIds.add(1046L);
+        ignoredIds.add(1058L);
+
+        // usernames must be changed in ibd to avoid data clashes with different people in pv2
+        ignoredIds.add(89L);
+        ignoredIds.add(128L);
+        ignoredIds.add(1066L);
+        ignoredIds.add(1084L);
+
+        boolean singleUser = false;
         boolean replaceExisting = true;
 
         if (!singleUser) {
@@ -2092,7 +2109,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                     if (CollectionUtils.isNotEmpty(groupUserIds)) {
                         for (Long oldUserId : groupUserIds) {
-                            if (!migratedPv1IdsThisRun.contains(oldUserId)) {
+                            if (!migratedPv1IdsThisRun.contains(oldUserId) && !ignoredIds.contains(oldUserId)) {
                                 if ((!replaceExisting && !previouslyMigratedPv1Ids.contains(oldUserId))
                                         || replaceExisting) {
                                     try {
