@@ -16,11 +16,17 @@ import java.util.GregorianCalendar;
  */
 public class FhirAllergy extends BaseModel {
 
+    private String confidenceLevel;
+    private String infoSource;
     private String reaction;
     private Date recordedDate;
     private String status;
     private String substance;
     private String type;
+
+    // only used by migration
+    private Group group;
+    private String identifier;
 
     public FhirAllergy() {
     }
@@ -58,6 +64,22 @@ public class FhirAllergy extends BaseModel {
                 setReaction(symptom.getCode().getTextSimple());
             }
         }
+    }
+
+    public String getConfidenceLevel() {
+        return confidenceLevel;
+    }
+
+    public void setConfidenceLevel(String confidenceLevel) {
+        this.confidenceLevel = confidenceLevel;
+    }
+
+    public String getInfoSource() {
+        return infoSource;
+    }
+
+    public void setInfoSource(String infoSource) {
+        this.infoSource = infoSource;
     }
 
     public String getReaction() {
@@ -98,5 +120,21 @@ public class FhirAllergy extends BaseModel {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

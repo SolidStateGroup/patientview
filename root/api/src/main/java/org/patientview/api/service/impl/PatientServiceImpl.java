@@ -42,6 +42,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirAllergy;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirDatabaseEntity;
@@ -1078,6 +1079,27 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // survey responses
         migrateSurveyResponses(migrationUser, entityUser);
+
+        // allergies
+        migrateAllergies(migrationUser, entityUser, fhirLinks, identifierMap);
+    }
+
+    // AllergyIntolerance and Substance (allergy)
+    private void migrateAllergies(MigrationUser migrationUser, User entityUser, Set<FhirLink> fhirLinks,
+                  HashMap<String, Identifier> identifierMap) throws ResourceNotFoundException, FhirResourceException {
+        // DiagnosticReports (and associated Observation)
+        for (FhirAllergy fhirAllergy : migrationUser.getAllergies()) {
+            Identifier identifier = identifierMap.get(fhirAllergy.getIdentifier());
+            FhirLink fhirLink
+                    = getFhirLink(fhirAllergy.getGroup(), fhirAllergy.getIdentifier(), fhirLinks);
+
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, fhirAllergy.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            allergyService.addAllergy(fhirAllergy, fhirLink);
+        }
     }
 
     private void migrateSurveyResponses(MigrationUser migrationUser, User entityUser) {

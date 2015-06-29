@@ -44,6 +44,9 @@ public class MigrationUser {
     // for crohns, colitis symptom scores
     private List<SurveyResponse> surveyResponses = new ArrayList<>();
 
+    // allergies
+    private List<FhirAllergy> allergies = new ArrayList<>();
+
     public MigrationUser () {
     }
 
@@ -161,5 +164,13 @@ public class MigrationUser {
 
     public void setSurveyResponses(List<SurveyResponse> surveyResponses) {
         this.surveyResponses = surveyResponses;
+    }
+
+    public List<FhirAllergy> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(List<FhirAllergy> allergies) {
+        this.allergies = allergies;
     }
 }
