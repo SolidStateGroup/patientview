@@ -669,6 +669,14 @@ ul .news-item {
 .negative {
   background-color: #f20d2e;
 }
+.white, .btn.white:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+.white:active, .white:focus {
+  color: black;
+  outline: 0;
+}
 
 /* text classes */
 /* line 498, ../sass/_base.scss */
@@ -695,7 +703,9 @@ ul .news-item {
 .stats-modal .modal-dialog {
   margin: 165px auto;
 }
-
+.modal-export-footer{
+  margin-top: 80px;
+}
 /** TODO add this in more appropriate place **/
 /* line 524, ../sass/_base.scss */
 .showHideText {
@@ -1187,6 +1197,10 @@ html .clearFooter, body .clearFooter {
 /* line 249, ../sass/_nav.scss */
 .subnav-row .content-panel {
   overflow: visible;
+}
+
+.left{
+  float:left;
 }
 
 @media only screen and (max-width: 1023px) {

@@ -59,7 +59,12 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
     private UserRepository userRepository;
 
     @Override
-    public List<FhirDocumentReference> getByUserId(final Long userId)
+    public List<FhirDocumentReference> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException{
+        return getByUserId(userId, null, null);
+    }
+
+    @Override
+    public List<FhirDocumentReference> getByUserId(final Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -78,6 +83,11 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                 query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
                 query.append("' ");
+
+                if(fromDate!= null && toDate != null){
+                    query.append(" AND CONTENT ->> 'created' >= '" + fromDate + "'");
+                    query.append(" AND CONTENT ->> 'created' <= '" + toDate + "'");
+                }
 
                 // get list of DocumentReference
                 List<DocumentReference> documentReferences
