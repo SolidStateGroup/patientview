@@ -19,7 +19,7 @@
     <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/>{{loadingMessage}}</div>
     <div data-ng-show="!loading">
         <span class="error">{{errorMessage}}</span>
-        <p>Select the date range to download (last 3 years by default)</p>
+        <p>Select the date range to download</p>
 
         <label class="control-label">From</label>
 
@@ -59,7 +59,7 @@
                              class="form-control"></select>
             </div>
         </div>
-        <label class="control-label" ng-show="showResults">Search By Result Type</label>
+        <label class="control-label" ng-show="showResults">Search By Result Type<br /><i>(Selecting no results will export all)</i></label>
 
         <div class="modal-export-filter-selector" ng-show="showResults">
             <div class="select-container pull-left">
@@ -104,9 +104,6 @@
 </div>
 <div class="modal-footer modal-export-footer">
     <a href="../api/user/{{loggedInUser.id}}/export{{referrer}}/{{from.year}}-{{from.month}}-{{from.day}}/{{to.year}}-{{to.month}}-{{to.day}}/download?token={{authToken}}&resultCodes={{filterString}}"
-       class="btn blue">Download</a>
-    <!--    <button class="btn blue left glyphicon glyphicon-download-alt" data-ng-click="exportToCSV(to, from)">&nbsp;Export</button>
-
+       class="btn blue left">Download</a>
     <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
-    -->
 </div>
