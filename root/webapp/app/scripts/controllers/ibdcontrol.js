@@ -14,11 +14,11 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             value: 13
         }];
 
-        $scope.plotLines2 = [{
+        /*$scope.plotLines2 = [{
             color: '#77DD77',
             width: 2,
             value: 85
-        }];
+        }];*/
 
         $scope.max = 30;
         getSurveyResponses();
@@ -104,7 +104,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                     radius : 2
                 },
                 yAxis: 0
-            },{
+            }/*,{
                 name : 'Self Rating Scale',
                 data : data2,
                 color: '#aeaeae',
@@ -116,7 +116,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                     radius : 2
                 },
                 yAxis: 1
-            }],
+            }*/],
             chart: {
                 events: {
                     zoomType: 'x',
@@ -155,7 +155,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                         color: '#585858'
                     }
                 }
-            },{
+            }/*,{
                 offset: 40,
                 plotLines: $scope.plotLines2,
                 min: 0,
@@ -168,7 +168,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                         color: '#aeaeae'
                     }
                 }
-            }],
+            }*/],
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',
