@@ -703,9 +703,7 @@ ul .news-item {
 .stats-modal .modal-dialog {
   margin: 165px auto;
 }
-.modal-export-footer{
-  margin-top: 80px;
-}
+
 /** TODO add this in more appropriate place **/
 /* line 524, ../sass/_base.scss */
 .showHideText {

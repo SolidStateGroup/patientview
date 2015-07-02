@@ -806,7 +806,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
         }
 
-        if (!(orderDirection.equals("ASC") || orderDirection.equals("filterText"))) {
+        if (!(orderDirection.equals("ASC") || orderDirection.equals("DESC"))) {
             orderDirection = "DESC";
         }
 
@@ -991,8 +991,10 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
         query.append(codeString);
         query.append(") ");
-        query.append("AND CONTENT ->> 'appliesDateTime' >= '" + fromDate + "' ");
-        query.append("AND CONTENT ->> 'appliesDateTime' <= '" + toDate + "' ");
+        if(fromDate != null && toDate != null) {
+            query.append("AND CONTENT ->> 'appliesDateTime' >= '" + fromDate + "' ");
+            query.append("AND CONTENT ->> 'appliesDateTime' <= '" + toDate + "' ");
+        }
         query.append("ORDER BY content-> 'appliesDateTime' ");
         query.append(orderDirection);
 
@@ -1000,12 +1002,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
 
-        Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> tempMap;
-        if(orderDirection.equals("DESC")) {
-            tempMap   = new TreeMap<>(Collections.reverseOrder());
-        }else{
-            tempMap = new TreeMap<>();
-        }
+        Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> tempMap = new TreeMap<>();
 
         // convert to transport object
         for (Observation observation : observations) {
@@ -1052,7 +1049,14 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             tempMap.get(applies).get(fhirObservation.getName()).add(
                     new org.patientview.api.model.FhirObservation(fhirObservation));
         }
-        return tempMap;
+
+        if(orderDirection.equals("DESC")) {
+            Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> reverseMap = new TreeMap<>(Collections.reverseOrder());
+            reverseMap.putAll(tempMap);
+            return reverseMap;
+        }else {
+            return tempMap;
+        }
 
     }
 

@@ -114,6 +114,8 @@ public interface ObservationService {
      * @param userId ID of User to retrieve observations for
      * @param codes List of Codes defining the types of observations to retrieve
      * @param orderDirection Ordering of observations e.g. date received descending
+     * @param fromDate  yyyy-mm-dd date to search from
+     * @param toDate  yyyy-mm-dd date to search to
      * @return FhirObservation representing observation data for a User
      * @throws FhirResourceException
      * @throws ResourceNotFoundException

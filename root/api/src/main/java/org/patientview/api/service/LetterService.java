@@ -46,6 +46,8 @@ public interface LetterService {
     /**
      * Get a List of all a User's letters, retrieved from FHIR.
      * @param userId ID of User to retrieve letters for
+     * @param fromDate yyyy-mm-dd date to search from
+     * @param toDate  yyyy-mm-dd date to search to
      * @return List of letters in FhirDocumentReference format
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
