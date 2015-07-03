@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Class to control the crud operations of the Observation Headings.
@@ -121,7 +122,13 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.add(row);
 
         List<FhirMedicationStatement> medicationStatements = medicationService.getByUserId(userId, fromDate, toDate);
-        for (FhirMedicationStatement medicationStatement : medicationStatements) {
+        TreeMap<String, FhirMedicationStatement> orderedMedicationStatement = new TreeMap<>(Collections.reverseOrder());
+        for(FhirMedicationStatement fhirMedicationStatement : medicationStatements){
+            //Add current size in case multiple for that day
+            orderedMedicationStatement.put(fhirMedicationStatement.getStartDate().getTime()+""+orderedMedicationStatement.size(), fhirMedicationStatement);
+        }
+
+        for (FhirMedicationStatement medicationStatement : orderedMedicationStatement.values()) {
             row = new ArrayList<>();
             row.add(new SimpleDateFormat("dd-MMM-yyyy").format(medicationStatement.getStartDate()));
             row.add(medicationStatement.getName());
@@ -135,13 +142,20 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     @Override
     public HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
-        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
         ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
         ArrayList<String> row = new ArrayList<>();
         row.add("Start Date");
         row.add("Source");
         row.add("Type");
         document.add(row);
+
+        //Order letters based on date
+        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
+        TreeMap<String, FhirDocumentReference>  orderedfhirDocuments = new TreeMap<>(Collections.reverseOrder());
+        for(FhirDocumentReference fhirDocumentReference : orderedfhirDocuments.values()){
+            //Add current size to stop any issues with multiple letters on same date
+            orderedfhirDocuments.put(fhirDocumentReference.getDate().getTime()+""+orderedfhirDocuments.size(), fhirDocumentReference);
+        }
 
         for (FhirDocumentReference fhirDoc : fhirDocuments) {
             row = new ArrayList<>();
