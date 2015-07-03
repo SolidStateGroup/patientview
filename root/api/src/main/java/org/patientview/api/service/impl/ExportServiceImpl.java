@@ -59,22 +59,15 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         row.add("Date");
 
         //If there are no codes sent with the request, get all codes applicable for this user
-        if (resultCodes.size() == 0) {
-            for (ObservationHeading heading : observationHeadingService.getAvailableObservationHeadings(userId)) {
-                headings.add(heading.getHeading());
+        for (ObservationHeading heading : observationHeadingService.getAvailableObservationHeadings(userId)) {
+            if(resultCodes.contains(heading.getHeading()) || resultCodes.size() == 0) {
+                headings.add(heading.getCode().toUpperCase());
                 row.add(heading.getHeading());
-            }
-        }else {
-            //Sort the result codes into alphabetical order and add as a heading
-            Collections.sort(resultCodes);
-            for (String heading : resultCodes) {
-                headings.add(heading);
-                row.add(heading);
             }
         }
         document.add(row);
         //Get all results for a specified period of time
-        Map<Long, Map<String, List<FhirObservation>>> resultsMap = observationService.getObservationsByMultipleCodeAndDate(userId, resultCodes, "DESC", fromDate, toDate);
+        Map<Long, Map<String, List<FhirObservation>>> resultsMap = observationService.getObservationsByMultipleCodeAndDate(userId, headings, "DESC", fromDate, toDate);
         for (Map.Entry<Long, Map<String, List<FhirObservation>>> entry : resultsMap.entrySet()) {
             row = new ArrayList<>();
             row.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(entry.getKey()));
