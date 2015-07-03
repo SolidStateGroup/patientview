@@ -10,6 +10,15 @@
     .feature-list {
         margin-top: 10px;
     }
+    .control-label{
+        margin-top: 10px;
+    }
+    .export-title{
+        font-family: 'Lato', sans-serif;
+        font-size: 15px;
+        font-weight: bold;
+
+    }
 </style>
 <div class="modal-header">
     <h3 class="modal-title">Export Your {{pgtitle}}</h3>
@@ -19,7 +28,7 @@
     <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/>{{loadingMessage}}</div>
     <div data-ng-show="!loading">
         <span class="error">{{errorMessage}}</span>
-        <p>Select the date range to download</p>
+        <p class="export-title">Select the date range to download. The past three years are selected by default.</p>
 
         <label class="control-label">From</label>
 
@@ -59,8 +68,8 @@
                              class="form-control"></select>
             </div>
         </div>
-        <label class="control-label" ng-show="showResults">Search By Result Type<br /><i>(Selecting no results will export all)</i></label>
-
+        <label class="control-label" ng-show="showResults">Select all the results you wish to export<br /><i>(Selecting no results will export all)</i></label>
+        <br />
         <div class="modal-export-filter-selector" ng-show="showResults">
             <div class="select-container pull-left">
                 <div class="btn-group filter-select" id="filter-group" dropdown>
@@ -103,7 +112,7 @@
     </div>
 </div>
 <div class="modal-footer modal-export-footer">
+    <button class="btn btn-grey left" data-ng-click="cancel()">Close</button>
     <a href="../api/user/{{loggedInUser.id}}/export{{referrer}}/{{from.year}}-{{from.month}}-{{from.day}}/{{to.year}}-{{to.month}}-{{to.day}}/download?token={{authToken}}&resultCodes={{filterString}}"
-       class="btn blue left">Download</a>
-    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+       class="btn blue ">Download</a>
 </div>
