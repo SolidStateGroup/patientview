@@ -126,6 +126,7 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                     query.append("AND   content -> 'whenGiven' ->> 'start' >= '" + fromDate +"' ");
                     query.append("AND   content -> 'whenGiven' ->> 'end' <= '" + toDate +"' ");
                 }
+                query.append(" ORDER BY  content -> 'whenGiven' ->> 'start' DESC ");
 
                 // get list of medication statements
                 List<MedicationStatement> medicationStatements

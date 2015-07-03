@@ -88,6 +88,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                     query.append(" AND CONTENT ->> 'created' >= '" + fromDate + "'");
                     query.append(" AND CONTENT ->> 'created' <= '" + toDate + "'");
                 }
+                query.append(" ORDER BY CONTENT ->> 'created' ");
 
                 // get list of DocumentReference
                 List<DocumentReference> documentReferences
