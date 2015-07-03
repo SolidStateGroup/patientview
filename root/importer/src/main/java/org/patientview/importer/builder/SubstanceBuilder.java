@@ -14,9 +14,9 @@ import org.patientview.config.utils.CommonUtils;
  */
 public class SubstanceBuilder {
 
-    private Patientview.Patient.Allergy allergyData;
+    private Patientview.Patient.Allergydetails.Allergy allergyData;
 
-    public SubstanceBuilder(Patientview.Patient.Allergy allergyData) {
+    public SubstanceBuilder(Patientview.Patient.Allergydetails.Allergy allergyData) {
         this.allergyData = allergyData;
     }
 

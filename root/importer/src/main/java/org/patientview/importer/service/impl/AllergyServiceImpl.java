@@ -55,53 +55,56 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
         // delete existing records
         deleteBySubjectId(fhirLink.getResourceId());
 
-        for (Patientview.Patient.Allergy allergy : data.getPatient().getAllergy()) {
+        if (data.getPatient().getAllergydetails() != null) {
+            for (Patientview.Patient.Allergydetails.Allergy allergy :
+                    data.getPatient().getAllergydetails().getAllergy()) {
 
-            // build Substance
-            SubstanceBuilder substanceBuilder = new SubstanceBuilder(allergy);
-            Substance substance = substanceBuilder.build();
+                // build Substance
+                SubstanceBuilder substanceBuilder = new SubstanceBuilder(allergy);
+                Substance substance = substanceBuilder.build();
 
-            // build AdverseReaction
-            AdverseReaction adverseReaction = new AdverseReaction();
-            adverseReaction.setSubject(patientReference);
+                // build AdverseReaction
+                AdverseReaction adverseReaction = new AdverseReaction();
+                adverseReaction.setSubject(patientReference);
 
-            if (StringUtils.isNotEmpty(allergy.getAllergyreaction())) {
-                AdverseReaction.AdverseReactionSymptomComponent symptomComponent = adverseReaction.addSymptom();
-                CodeableConcept code = new CodeableConcept();
-                code.setTextSimple(CommonUtils.cleanSql(allergy.getAllergyreaction()));
-                symptomComponent.setCode(code);
+                if (StringUtils.isNotEmpty(allergy.getAllergyreaction())) {
+                    AdverseReaction.AdverseReactionSymptomComponent symptomComponent = adverseReaction.addSymptom();
+                    CodeableConcept code = new CodeableConcept();
+                    code.setTextSimple(CommonUtils.cleanSql(allergy.getAllergyreaction()));
+                    symptomComponent.setCode(code);
+                }
+
+                // build AllergyIntolerance
+                AllergyIntoleranceBuilder allergyIntoleranceBuilder
+                        = new AllergyIntoleranceBuilder(allergy, patientReference);
+                AllergyIntolerance allergyIntolerance = allergyIntoleranceBuilder.build();
+
+                try {
+                    // create Substance in FHIR
+                    FhirDatabaseEntity storedSubstance
+                            = fhirResource.createEntity(substance, ResourceType.Substance.name(), "substance");
+
+                    // create AdverseReaction in FHIR
+                    FhirDatabaseEntity storedAdverseReaction = fhirResource.createEntity(
+                            adverseReaction, ResourceType.AdverseReaction.name(), "adversereaction");
+
+                    // set references to Substance and AdverseReaction in AllergyIntolerance
+                    allergyIntolerance.setSubstance(Util.createResourceReference(storedSubstance.getLogicalId()));
+                    ResourceReference reaction = allergyIntolerance.addReaction();
+                    reaction.setDisplaySimple(storedAdverseReaction.getLogicalId().toString());
+
+                    // create AllergyIntolerance in FHIR
+                    fhirResource.createEntity(
+                            allergyIntolerance, ResourceType.AllergyIntolerance.name(), "allergyintolerance");
+
+                    success += 1;
+
+                } catch (FhirResourceException e) {
+                    LOG.error(nhsno + ": Unable to save AllergyIntolerance, Substance or AdverseReaction");
+                }
+
+                LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
             }
-
-            // build AllergyIntolerance
-            AllergyIntoleranceBuilder allergyIntoleranceBuilder
-                    = new AllergyIntoleranceBuilder(allergy, patientReference);
-            AllergyIntolerance allergyIntolerance = allergyIntoleranceBuilder.build();
-
-            try {
-                // create Substance in FHIR
-                FhirDatabaseEntity storedSubstance
-                        = fhirResource.createEntity(substance, ResourceType.Substance.name(), "substance");
-
-                // create AdverseReaction in FHIR
-                FhirDatabaseEntity storedAdverseReaction = fhirResource.createEntity(
-                        adverseReaction, ResourceType.AdverseReaction.name(), "adversereaction");
-
-                // set references to Substance and AdverseReaction in AllergyIntolerance
-                allergyIntolerance.setSubstance(Util.createResourceReference(storedSubstance.getLogicalId()));
-                ResourceReference reaction = allergyIntolerance.addReaction();
-                reaction.setDisplaySimple(storedAdverseReaction.getLogicalId().toString());
-
-                // create AllergyIntolerance in FHIR
-                fhirResource.createEntity(
-                        allergyIntolerance, ResourceType.AllergyIntolerance.name(), "allergyintolerance");
-
-                success += 1;
-
-            } catch (FhirResourceException e) {
-                LOG.error(nhsno + ": Unable to save AllergyIntolerance, Substance or AdverseReaction");
-            }
-
-            LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
         }
 
         LOG.trace(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");

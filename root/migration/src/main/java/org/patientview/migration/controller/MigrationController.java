@@ -90,7 +90,7 @@ public class MigrationController {
             public void run() {
                 try {
                     Date start = new Date();
-                    userDataMigrationService.migrate(null);
+                    userDataMigrationService.migrate("SALIBD");
                     LOG.info("Migration of Users took "
                             + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
                 } catch (JsonMigrationException jme) {

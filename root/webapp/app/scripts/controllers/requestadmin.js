@@ -180,7 +180,6 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope) {
     };
 
     $scope.save = function(form, request) {
-        console.log(request.id)
         RequestService.save(request).then(function(){
             $scope.saved = true;
             $rootScope.setSubmittedRequestCount();

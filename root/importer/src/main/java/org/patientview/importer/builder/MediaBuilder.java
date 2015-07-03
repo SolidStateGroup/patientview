@@ -8,6 +8,7 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Media;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 
 /**
  * This maps between parameters from old PatientView and the new PatientView fhir record
@@ -38,7 +39,7 @@ public class MediaBuilder {
             // date
             if (letter.getLetterdate() != null) {
                 try {
-                    DateAndTime dateAndTime = new DateAndTime(letter.getLetterdate().toGregorianCalendar().getTime());
+                    DateAndTime dateAndTime = new DateAndTime(CommonUtils.getDateFromString(letter.getLetterdate()));
                     DateTime date = new DateTime();
                     date.setValue(dateAndTime);
                     media.setDateTime(date);

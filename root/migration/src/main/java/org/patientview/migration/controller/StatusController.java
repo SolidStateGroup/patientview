@@ -18,7 +18,7 @@ public class StatusController {
 	public String getStatus(ModelMap model) {
 
         try {
-            int groupCount = groupDataMigrationService.getGroupCount();
+            int groupCount = groupDataMigrationService.getGroupCount(true);
             model.addAttribute("statusMessage", "migration server online, " + groupCount + " pv1 groups");
         } catch (Exception e) {
             model.addAttribute("statusMessage", "cannot connect to MySql");

@@ -15,5 +15,5 @@ public interface GroupDataMigrationService {
 
     void createStatistics() throws JsonMigrationException;
 
-    int getGroupCount();
+    int getGroupCount(boolean nativeQuery);
 }

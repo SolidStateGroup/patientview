@@ -35,10 +35,16 @@ import org.patientview.service.UnitManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -75,6 +81,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
+    private @Value("${jdbc.url}") String jdbcUrl;
+    private @Value("${jdbc.username}") String jdbcUsername;
+    private @Value("${jdbc.password}") String jdbcPassword;
 
     private void init() throws JsonMigrationException {
         try {
@@ -299,8 +308,34 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
     }
 
     @Override
-    public int getGroupCount() {
-        return unitDao.getAll(false).size();
+    public int getGroupCount(boolean nativeQuery) {
+        if (!nativeQuery) {
+            return unitDao.getAll(false).size();
+        } else {
+            Connection connection = null;
+            String sql = "SELECT count(1) FROM unit";
+
+            try {
+                DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
+                connection = dataSource.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(sql);
+
+                if (results.next()) {
+                    return results.getInt(1);
+                }
+            } catch (SQLException se) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException se2) {
+                        LOG.error(se2.getMessage());
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 
     private void callApiCreateGroupStatistics(Group group, List<GroupStatistic> statistics) {

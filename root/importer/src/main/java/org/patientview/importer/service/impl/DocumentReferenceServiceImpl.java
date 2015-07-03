@@ -237,15 +237,15 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                         success++;
                         if (alert != null) {
                             if (alert.getLatestDate() == null) {
-                                alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                                alert.setLatestDate(CommonUtils.getDateFromString(letter.getLetterdate()));
                                 alert.setLatestValue(letter.getLettertype());
                                 alert.setEmailAlertSent(false);
                                 alert.setWebAlertViewed(false);
                                 alert.setUpdated(true);
                             } else {
                                 if (alert.getLatestDate().getTime()
-                                        < letter.getLetterdate().toGregorianCalendar().getTime().getTime()) {
-                                    alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                                        < CommonUtils.getDateFromString(letter.getLetterdate()).getTime()) {
+                                    alert.setLatestDate(CommonUtils.getDateFromString(letter.getLetterdate()));
                                     alert.setLatestValue(letter.getLettertype());
                                     alert.setEmailAlertSent(false);
                                     alert.setWebAlertViewed(false);

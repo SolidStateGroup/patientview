@@ -1,0 +1,61 @@
+<style>
+    .nav-tabs li {
+        cursor: pointer;
+    }
+    p.no-data {
+        margin: 10px;
+    }
+    .nav-tabs li a {
+        border-width: 1px 1px 0 1px;
+        border-color: #DDDDDD;
+        background-color: #F5F5F5;
+    }
+    .nav-tabs li.active a {
+        font-weight: bold;
+    }
+</style>
+<div data-ng-show="!patientDetails.length">
+    <br/>
+    <p>Your conditions have not yet been added to PatientView.</p><br/>
+</div>
+
+<div class="details-filter clearfix">
+    <div class="pull-right">Information provided by: &nbsp;&nbsp;
+        <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
+            <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
+            <span class="checkbox-label">{{patient.group.shortName}}</span>
+        </span>
+    </div>
+</div>
+<div>
+    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
+            <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
+            <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                    <div class="panel-heading"><h3>My IBD</h3></div>
+                    <p class="no-data">Your details for my IBD have not yet been added to PatientView.</p>
+                </div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_CONTROL'}">
+                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                    <div class="panel-heading"><h3>IBD Control</h3></div>
+                    <p class="no-data">Your details, required for use in the IBD Control Questionnaire have not yet been added to PatientView.</p>
+                </div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}">
+                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                    <div class="panel-heading"><h3>Symptom Checker</h3></div>
+                    <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

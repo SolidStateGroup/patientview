@@ -260,13 +260,6 @@
                                         </xs:element>
                                         <xs:element maxOccurs="1" minOccurs="0" name="diagnosisdate" type="xs:date"/>
                                         <xs:element maxOccurs="unbounded" minOccurs="0" name="diagnosis" type="pv_diagnosis"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />
-                                        <xs:element maxOccurs="0" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="bodypartsaffected" type="body_parts_affected"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="familyhistory" type="family_history"/>
-                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="smoking_history"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="surgicalhistory" type="surgical_history"/>
-                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="vaccinationrecord" type="vaccination_record"/>
                                         <xs:element minOccurs="0" name="bloodgroup">
                                             <xs:simpleType>
                                                 <xs:restriction base="xs:string">
@@ -274,6 +267,20 @@
                                                 </xs:restriction>
                                             </xs:simpleType>
                                         </xs:element>
+                                        <!-- IBD, all set to maxOccurs="1" to follow myibdportal importer logic, no string length limit -->
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibddiseasecomplications" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdeimanifestations" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="bodypartsaffected" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="familyhistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="smokinghistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="surgicalhistory" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="vaccinationrecord" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="colonoscopysurveillance" type="xs:date"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="bmdexam" type="xs:date"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="namedconsultant" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="ibdnurse" type="xs:string"/>
+                                        <!-- end IBD -->
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -307,7 +314,7 @@
                                                     <xs:element maxOccurs="unbounded" minOccurs="1" name="result">
                                                         <xs:complexType>
                                                             <xs:sequence>
-                                                                <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:dateTime"/>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:string"/>
                                                                 <xs:element maxOccurs="1" minOccurs="0" name="prepost" type="prepost"/>
                                                                 <xs:element maxOccurs="1" minOccurs="1" name="value">
                                                                     <xs:simpleType>
@@ -360,7 +367,7 @@
                                         <xs:element maxOccurs="unbounded" minOccurs="1" name="letter">
                                             <xs:complexType>
                                                 <xs:sequence>
-                                                    <xs:element maxOccurs="1" minOccurs="1" name="letterdate" type="xs:dateTime"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="letterdate" type="xs:string"/>
                                                     <xs:element maxOccurs="1" minOccurs="1" name="lettertype">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
@@ -441,17 +448,23 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="allergy">
+                            <xs:element maxOccurs="1" minOccurs="0" name="allergydetails">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergysubstance" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergytypecode" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyreaction" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyconfidencelevel" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyinfosource" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergystatus" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergydescription" type="xs:string"/>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyrecordeddate" type="xs:date"/>
+                                        <xs:element maxOccurs="unbounded" minOccurs="0" name="allergy">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergysubstance" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergytypecode" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergyreaction" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergyconfidencelevel" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergyinfosource" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergystatus" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergydescription" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="allergyrecordeddate" type="xs:date"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -470,100 +483,6 @@
         </xs:simpleContent>
     </xs:complexType>
     <xs:simpleType name="pv_diagnosis_name">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="ibd_disease_extent">
-        <xs:annotation>
-            <xs:documentation>IBD Disease Extent</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="Proctitis"/>
-            <xs:enumeration value="Left Sided Colitis"/>
-            <xs:enumeration value="Extensive Colitis"/>
-            <xs:enumeration value="Ileal Crohns"/>
-            <xs:enumeration value="Ileo-Colonic Disease"/>
-            <xs:enumeration value="Crohns Colitis"/>
-            <xs:enumeration value="Isolated Upper GI Disease"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="ibd_disease_complications">
-        <xs:simpleContent>
-            <xs:extension base="ibd_disease_complication">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="ibd_disease_complication">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="body_parts_affected">
-        <xs:simpleContent>
-            <xs:extension base="body_part">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="body_part">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-
-    <xs:complexType name="family_history">
-        <xs:simpleContent>
-            <xs:extension base="family_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="family_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="smoking_history">
-        <xs:simpleContent>
-            <xs:extension base="smoking_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="smoking_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="surgical_history">
-        <xs:simpleContent>
-            <xs:extension base="surgical_history_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="surgical_history_description">
-        <xs:restriction base="xs:string">
-            <xs:maxLength value="60"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="vaccination_record">
-        <xs:simpleContent>
-            <xs:extension base="vaccination_record_description">
-                <xs:attribute default="false" name="primary" type="xs:boolean" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:simpleType name="vaccination_record_description">
         <xs:restriction base="xs:string">
             <xs:maxLength value="60"/>
         </xs:restriction>

@@ -1,0 +1,168 @@
+<style>
+    .row-question {
+        margin: 2px 0 2px 0;
+    }
+    .question-text {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .question-description {
+        font-weight: normal;
+        color: #368DE8;
+    }
+    .pull-right {
+        padding: 0;
+    }
+    .span-radio {
+        margin-right: 10px;
+    }
+    .div-question-group {
+        margin-bottom: 20px;
+    }
+    .help-link {
+        margin-left: 5px;
+    }
+
+    input[type="radio"], input[type="range"], .radio-label {
+        cursor: pointer;
+    }
+
+    .modal-dialog label {
+        font-weight: normal;
+        font-size: 1em;
+    }
+
+    .slider {
+        display:     block;
+        position:    relative;
+        height:      30px;
+        width:       100%;
+    }
+    .slider span.bar {
+        height:     50%;
+        z-index:    0;
+        background: #eee;
+        left:       0;
+        top:        25%;
+        cursor:     pointer;
+    }
+    .slider span.bar.selection, .slider span.bar.unselected {
+    }
+    .slider span.bar.selection {
+        background: #0a0;
+        opacity:    0.5;
+    }
+    .slider span.bar.unselected {
+        width:      auto;
+        background: #a00;
+        opacity:    0.5;
+    }
+    .slider span.pointer {
+        cursor:           pointer;
+        width:            15px;
+        top:              0;
+        bottom:           0;
+        background-color: #368DE8;
+    }
+    .slider span.pointer:hover {
+    }
+    .slider span.pointer.active {
+    }
+    .slider span.bubble {
+        font-size:   1em;
+        line-height: 1.4em;
+        font-family: sans-serif;
+        text-align:  center;
+        text-shadow: none;
+        top:         -1.3em;
+        cursor:      pointer;
+    }
+    .slider span.bubble.selection, .slider span.bubble.limit {
+        top: 25%;
+    }
+    .slider span.bubble.selection {
+    }
+    .slider span.bubble.limit {
+    }
+    .slider span.bubble.low, .slider span.bubble.high {
+    }
+
+    ::-ms-tooltip {
+        display: none;
+    }
+</style>
+
+<form name="userFormNew" data-ng-show="!existingUser">
+    <div class="modal-header">
+        <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row row-question">
+            <div class="col-md-5">
+                <span class="question-text">Date</span>
+            </div>
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.day"
+                                data-ng-options="day as day for day in days">
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.month"
+                                data-ng-options="month as month for month in months">
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control date-input" data-ng-model="date.year"
+                                data-ng-options="year as year for year in years">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
+            <h4>
+                <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
+                {{questionGroup.text}}
+            </h4>
+            <div class="question-description">{{questionGroup.description}}</div>
+            <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
+                <div class="col-md-5 question-text">
+                    <span>{{question.text}}</span>
+                    <span data-ng-if="question.helpLink" class="help-link">
+                        <a href="{{question.helpLink}}" target="_blank">what is this?</a>
+                    </span>
+                    <div class="question-description">{{question.description}}</div>
+                </div>
+                <div class="col-md-7">
+                    <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
+                            data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                        <label for="{{questionOption.id}}" class="radio-label">{{questionOption.text}}</label>
+                    </span>
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
+                            data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
+                            class="form-control">
+                    </select>
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
+                            data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
+                            class="form-control">
+                    </select>
+
+                    <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
+                        <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
+                                ng-model='answers[question.id]'></div>
+                        <span>{{question.rangeStartDescription}}</span>
+                        <span class="pull-right">{{question.rangeEndDescription}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+    </div>
+</form>

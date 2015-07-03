@@ -129,6 +129,23 @@ public class ImportControllerTest {
         }
     }
 
+    // used to test the service once running (IBD files)
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestIbd() throws Exception {
+        List<String> files = new ArrayList<>();
+        // contain real data, must be added to folder manually
+        files.add("data/xml/ibd/SALIBD_3466151139.xml");
+        //files.add("data/xml/ibd/SALIBD_4426012465.xml");
+        //files.add("data/xml/ibd/SALIBD_4500666672.xml");
+        //files.add("data/xml/ibd/SALIBD_6186660419.xml");
+        //files.add("data/xml/ibd/SALIBD_6304291914.xml");
+
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
 
         // 2.0.6 testing
@@ -140,7 +157,11 @@ public class ImportControllerTest {
 
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
-        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+
+        // IBD
+        String fileName = "data/xml/ibd/1111111111_ibd.xml";
+
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -158,9 +179,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.DateAndTime;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -20,6 +21,9 @@ public class FhirCondition extends BaseModel {
     // only used by migration
     private Group group;
     private String identifier;
+
+    // used by my IBD to insert links
+    private Set<Link> links;
 
     public FhirCondition() {
     }
@@ -86,5 +90,13 @@ public class FhirCondition extends BaseModel {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Set<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Set<Link> links) {
+        this.links = links;
     }
 }
