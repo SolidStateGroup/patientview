@@ -37,8 +37,8 @@ angular.module('patientviewApp').filter('sourceGroupFilter', [function () {
     };
 }]);
 
-angular.module('patientviewApp').controller('MedicinesCtrl', ['$scope', '$timeout', 'MedicationService',
-function ($scope, $timeout, MedicationService) {
+angular.module('patientviewApp').controller('MedicinesCtrl', ['$scope', '$modal', '$timeout', 'MedicationService',
+function ($scope, $modal, $timeout, MedicationService) {
 
     var getNonGpMedication = function(medicationStatements) {
         var medications = [];
@@ -103,6 +103,26 @@ function ($scope, $timeout, MedicationService) {
         });
     };
 
+    $scope.openExportToCSVModal = function () {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/exportToCSVModal.html',
+            controller: "ExportInfoModalInstanceCtrl",
+            size: 'sm',
+            windowClass: 'results-modal',
+            resolve: {
+                result: function(){
+                    return true;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
     // client side sorting, pagination
     $scope.sortBy = function(predicate) {
         $scope.predicate = predicate;

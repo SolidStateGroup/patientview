@@ -9,7 +9,8 @@ var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result
         };
     }];
 
-angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService',
+
+angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', 'ObservationHeadingService', 'UtilService',
 function ($scope, $modal, ObservationService) {
 
     $scope.init = function() {
@@ -17,7 +18,6 @@ function ($scope, $modal, ObservationService) {
         var i;
         $scope.initFinished = false;
         $scope.loading = true;
-
         ObservationService.getSummary($scope.loggedInUser.id).then(function(summary) {
 
             if (summary.length) {
@@ -102,7 +102,26 @@ function ($scope, $modal, ObservationService) {
             // closed
         });
     };
+    $scope.openExportToCSVModal = function () {
 
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/exportToCSVModal.html',
+            controller: "ExportInfoModalInstanceCtrl",
+            size: 'sm',
+            windowClass: 'results-modal',
+            resolve: {
+                result: function(){
+                    return true;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
     $scope.getPanelResultTitles = function(panel) {
         var text = '', i;
         var sortedResultSummaries = _.sortBy(panel, 'panelOrder');

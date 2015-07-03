@@ -1,147 +1,467 @@
-<!-- TODO: put in main styles -->
+<!-- todo: move to main css -->
 <style>
-    .clamped {
-        line-height: 1.5;
-        overflow: hidden;
-        position: relative;
+    input.alert-checkbox {
+        margin-right:7px;
     }
-
-    .clamped-2 {
-        /* Clamp to 2 lines, ie line-height x 2: */
-        max-height: 3em;
+    a.new-result-notification {
+        color: #fff;
+        cursor: pointer;
     }
-
-    .ellipsis {
-        background: #fff;
-        bottom: 0;
-        position: absolute;
-        right: 10px;
+    .user-picture {
+        max-width: 150px;
     }
-
-    .fill {
-        background: #fff;
-        height: 100%;
-        position: absolute;
-        width: 100%;
+    .news-actions {
+        text-align: left;
+    }
+    .panel-intro-statistics p {
+        margin: 0;
+    }
+    .panel-help-link {
+        font-size: 14px;
+        font-family: Lato, sans-serif;
     }
 </style>
-<div class="hider" ng-show="status.open"></div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
-    <div class="" ng-show="!loading" ng-cloak>
-    <h1></h1>
+<div data-ng-show="!loading" data-ng-cloak>
+    <br/>
     <div class="row">
         <div class="col-md-8">
             <div class="tab-panel-item">
                 <div class="content-panel">
-                    <ul class="pull-right aside-actions unstyled">
-                        <li><a href="#/messages" class="aside-link active">Unread Messages<span class="message-count">{{unreadConversationCount}}</span></a></li>
-                        <li><a href="#/joinrequestadmin" class="aside-link reply">Join Requests<span class="message-count">{{submittedJoinRequestCount}}</span></a></li>
+                    <ul class="pull-right aside-actions dashboard unstyled">
+                        <li data-ng-show="loggedInUser.userInformation.groupMessagingEnabled">
+                            <a href="#/conversations" class="aside-link active">
+                                Unread Messages<span class="message-count">{{unreadConversationCount}}</span>
+                            </a>
+                        </li>
+                        <li data-ng-show="permissions.showRequestButton">
+                            <a href="#/requestadmin" class="aside-link reply">Requests
+                                <span class="message-count">{{submittedRequestCount}}</span>
+                            </a>
+                        </li>
                     </ul>
                     <div class="item-detail row">
-                        <dl class="col-md-4">
+                        <dl class="col-md-6">
                             <dt>{{loggedInUser.forename}} {{loggedInUser.surname}}</dt>
                             <dd>Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}</dd>
                         </dl>
-                        <dl class="col-md-4">
+                        <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
-                            <dd>{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
-                                <span class="sub-text">from {{loggedInUser.lastLoginIpAddress}}</span>
+                            <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
+                                <span class="sub-text" data-ng-show="loggedInUser.lastLoginIpAddress">from {{loggedInUser.lastLoginIpAddress}}</span>
+                            </dd>
+                            <dd data-ng-show="!loggedInUser.lastLogin">
+                                Never logged in
                             </dd>
                         </dl>
-                        <dl class="col-md-8">
-                            <dt>Groups (role)</dt>
+                    </div>
+                    <div class="item-detail row">
+                        <dl class="col-md-6">
+                            <dt>You are a member of:</dt>
                             <dd>
                                 <ul class="unstyled groups-list">
-                                    <li ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']" ng-if="groupRole.role.name !== 'MEMBER'">
+                                    <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']" data-ng-if="groupRole.role.name !== 'MEMBER'">
                                         <span>
-                                            {{groupRole.group.name}}
+                                            {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
                                     </li>
                                 </ul>
                             </dd>
                         </dl>
+                        <dl class="col-md-6 last-login" data-ng-show="permissions.isPatient">
+                            <dt>Data last received:</dt>
+                            <dd data-ng-show="loggedInUser.latestDataReceivedDate && loggedInUser.latestDataReceivedBy">
+                                <a href="#/results">{{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}</a>
+                                <span class="sub-text">from {{loggedInUser.latestDataReceivedBy.name}}</span>
+                            </dd>
+                            <dd data-ng-show="!loggedInUser.latestDataReceivedDate || !loggedInUser.latestDataReceivedBy">
+                                Not Available
+                            </dd>
+                        </dl>
                     </div>
                 </div>
             </div>
-            <h3 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
-            <div class="graph-selector clearfix">
-                <div class="col-md-2" ng-show="graphGroups.length > 2">
-                    <h3 class="" for="graph-select">Activity</h3>
+            <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts">
+                <div class="content-panel chart-container">
+                    <div class="panel-intro">
+                        <h3>Notifications<a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard" target="_blank"
+                                            class="pull-right panel-help-link">Help</a></h3>
+
+
+                    </div>
+                    <div class="content-inner">
+                        <ul>
+                            <li data-ng-show="unreadConversationCount">
+                                <a href="#/conversations">You have {{unreadConversationCount}} unread message(s)
+                                </a>
+                            </li>
+                            <li data-ng-show="submittedRequestCount">
+                                <a href="#/requestadmin">There are {{submittedRequestCount}} submitted request(s)
+                                </a>
+                            </li>
+                        </ul>
+
+                        <p><a href="" data-ng-click="getContactAlertsAndOldSubmissionDateGroups()"
+                           data-ng-show="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
+
+                        <div data-ng-show="showStaffGroupAlerts">
+                            <a href="" data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
+                                    data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
+                            <br/>
+                            <strong>Missing Contact Alerts</strong>
+                            <ul>
+                                <li data-ng-show="contactAlertsLoading">
+                                    Checking Group contact information
+                                </li>
+                                <li data-ng-repeat="contactAlert in contactAlerts | orderBy:'group.shortName'"
+                                    data-ng-show="!contactAlertsLoading">
+                                    {{contactAlert.group.shortName}} is missing a {{contactAlert.featureName}}
+                                </li>
+                                <li data-ng-show="!contactAlertsLoading && !contactAlerts.length > 0">
+                                    All of your Groups have the required contact information
+                                </li>
+                            </ul>
+                            <strong>Data Submission Alerts</strong>
+                            <ul>
+                                <li data-ng-show="oldSubmissionDateGroupsLoading">
+                                    Checking Group last submission date
+                                </li>
+                                <li data-ng-repeat="group in oldSubmissionDateGroups | orderBy:'shortName'"
+                                    data-ng-show="!oldSubmissionDateGroupsLoading">
+                                    {{group.shortName}} last submitted data over 48 hours ago
+                                    <span data-ng-show="group.lastImportDate">({{group.lastImportDate | date:'dd-MMM-yyyy HH:mm'}})</span>
+                                    <span data-ng-show="!group.lastImportDate">(never)</span>
+                                </li>
+                                <li data-ng-show="!oldSubmissionDateGroupsLoading && !oldSubmissionDateGroups.length > 0">
+                                    All of your Groups have submitted data in the last 48 hours
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <select class="form-control" id="graph-select" ng-model="graphGroupId"
-                            ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
-                            ng-show="graphGroups.length > 2" ng-cloak>
-                    </select>
+            </div>
+
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient">
+                <div class="panel-intro">
+                    <h3 data-ng-hide="graphGroups.length > 1 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
+                        <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
+                    <div class="graph-selector clearfix">
+                        <div class="col-md-2" data-ng-show="graphGroups.length > 1 && !permissions.isPatient">
+                            <h3>Activity</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" id="graph-select" data-ng-model="graphGroupId"
+                                    data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
+                                    data-ng-show="graphGroups.length > 1 && !permissions.isPatient" data-ng-cloak>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div data-ng-hide="permissions.isPatient">
+                    <div class="content-inner">
+                        <div id="chart_div"></div>
+                    </div>
                 </div>
             </div>
-            <div class="content-panel" ng-show="!chartLoading">
-                <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
+
+            <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
+                <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
-            <div class="content-panel" ng-show="chartLoading">
-                <div class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-            </div>
-            <div class="chart-container" ng-show="!chartLoading">
-                <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate}}</span></h3>
-                <div class="tab-panel-item">
-                    <div class="content-panel user-details">
+
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+                <div class="panel-intro panel-intro-statistics">
+                    <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
+                    <p>Values are calculated daily, please click to see more, numbers are Total (Staff/Patient) counts</p>
+                </div>
+                <div class="user-details-container">
+                    <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
-                                <dt>Locked Users</dt>
-                                <dd>{{lockedUsers}}</dd>
+                                <dt>Total Users</dt>
+                                <dd>
+                                    {{totalUsers}} 
+                                    (<a href="#/staff?groupId={{graphGroupId}}">{{totalStaff}}</a> /
+                                    <a href="#/patients?groupId={{graphGroupId}}">{{totalPatients}}</a>)
+                                </dd>
                             </dl>
                             <dl class="col-md-6">
-                                <dt>Inactive Users (no login in 1 month)</dt>
-                                <dd>{{inactiveUsers}}</dd>
+                                <dt>Locked Users</dt>
+                                <dd>
+                                    {{lockedUsers}}
+                                    <span data-ng-show="lockedStaff !== null && lockedStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="lockedStaff === null || lockedStaff === undefined">
+                                        (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                     /
+                                    <span data-ng-show="lockedPatients !== null && lockedPatients !== undefined">
+                                        <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedPatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="lockedPatients === null || lockedPatients === undefined">
+                                        <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="row">
+                            <dl class="col-md-4">
+                                <dt>Active Users</dt>
+                                <dd>
+                                    {{activeUsers}}
+                                    <span data-ng-show="activeStaff !== null && activeStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activeStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="activeStaff === null || activeStaff === undefined">
+                                        (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                        /
+                                    <span data-ng-show="activePatients !== null && activePatients !== undefined">
+                                        <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activePatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="activePatients === null || activePatients === undefined">
+                                        <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
+                                </dd>
+                            </dl>
+                            <dl class="col-md-6">
+                                <dt>Inactive Users (no login in 3 months)</dt>
+                                <dd>
+                                    {{inactiveUsers}}
+                                    <span data-ng-show="inactiveStaff !== null && inactiveStaff !== undefined">
+                                        (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactiveStaff}}</a>
+                                    </span>
+                                    <span data-ng-show="inactiveStaff === null || inactiveStaff === undefined">
+                                        (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">unknown</a>
+                                    </span>
+                                        /
+                                    <span data-ng-show="inactivePatients !== null && inactivePatients !== undefined">
+                                        <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactivePatients}}</a>)
+                                    </span>
+                                    <span data-ng-show="inactivePatients === null || inactivePatients === undefined">
+                                        <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">unknown</a>)
+                                    </span>
+                                </dd>
                             </dl>
                         </div>
                     </div>
                 </div>
             </div>
+
+
+            <div class="tab-panel-item" data-ng-show="observationHeadings.length">
+                <div class="content-panel">
+                    <div class="panel-intro">
+                        <h3>Alerts</h3>
+                    </div>
+                    <div class="content-inner">
+                        <div data-ng-show="alertObservationHeadings.length" class="alert-list">
+                            <h4>Result Alerts</h4>
+                            <table class="table">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Latest Value</th>
+                                    <th>Date</th>
+                                    <th>New Result? <br/>(click to hide notification)</th>
+                                </tr>
+                                <tr data-ng-repeat="alert in alertObservationHeadings | orderBy:'observationHeading.heading'">
+                                    <td>
+                                        <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="alert.latestValue">{{alert.latestValue}}</span>
+                                        <span data-ng-show="!alert.latestValue">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="alert.latestDate">
+                                            {{alert.latestDate | date:'dd-MMM-yyyy'}}
+                                        </span>
+                                        <span data-ng-show="!alert.latestDate">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert">
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertNotification(alert)">New</a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div data-ng-show="letterAlert">
+                            <h4>Letter Alerts</h4>
+                            <table class="table">
+                                <tr>
+                                    <th>Latest Letter</th>
+                                    <th>Letter Type</th>
+                                    <th>New Letter? <br/>(click to hide notification)</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span data-ng-show="letterAlert.latestDate">
+                                            {{letterAlert.latestDate | date:'dd-MMM-yyyy'}}
+                                        </span>
+                                        <span data-ng-show="!letterAlert.latestDate">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="letterAlert.latestValue">
+                                            {{letterAlert.latestValue}}
+                                        </span>
+                                        <span data-ng-show="!letterAlert.latestValue">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span class="label label-success" data-ng-show="!letterAlert.webAlertViewed && letterAlert.webAlert">
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertNotification(letterAlert)">New</a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div>
+                            <p>When a new result or letter arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
+                                select the ones you are interested in.</p>
+                        </div>
+                        <div data-ng-show="!alertObservationHeadings.length && !letterAlert" class="alert-list">
+                            <p>You have not registered for any alerts, would you like to do so now?</p>
+                        </div>
+                        <div>
+                            <a href="" data-ng-click="showAlertSettings = !showAlertSettings" class="pull-right"
+                               data-ng-hide="showAlertSettings">Show Alert Settings</a>
+                            <br/>
+                        </div>
+
+                        <div data-ng-show="showAlertSettings">
+                            <p><a href="" class="pull-right" data-ng-click="showAlertSettings = !showAlertSettings">Hide Alert Settings</a></p>
+                            <h3>Alert Settings</h3>
+                            <p>If you would like to be notified when a new letter arrives, please select from the following options:</p>
+                            <div>
+                                <input type="checkbox" data-ng-model="letterAlert.webAlert" class="alert-checkbox"
+                                    data-ng-change="updateLetterAlert(letterAlert)">Letter notification on PatientView homepage</input>
+                            </div>
+                            <div>
+                                <input type="checkbox" data-ng-model="letterAlert.emailAlert" class="alert-checkbox"
+                                    data-ng-change="updateLetterAlert(letterAlert)">Letter notifications via Email</input>
+                            </div>
+                            <br/>
+                            <p>If you would like to be notified when a new result arrives, please select it from the dropdown:</p>
+                            <select class="form-control pull-right" data-ng-model="selectedObservationHeadingId"
+                                    data-ng-options="observationHeading.id as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                                    data-ng-change="addAlertObservationHeading(selectedObservationHeadingId)">
+                            </select>
+                            <br/><br/>
+                            <table class="table" data-ng-show="alertObservationHeadings.length">
+                                <tr>
+                                    <th></th>
+                                    <th colspan="2">How would you like to be notified?</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                                <tr data-ng-repeat="alert in alertObservationHeadings | orderBy:'observationHeading.heading'">
+                                    <td>
+                                        <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" data-ng-model="alert.webAlert" class="alert-checkbox"
+                                               data-ng-change="updateAlert(alert)">PatientView homepage</input>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" data-ng-model="alert.emailAlert" class="alert-checkbox"
+                                               data-ng-change="updateAlert(alert)">Email</input>
+                                    </td>
+                                    <td>
+                                        <a href="" class="btn btn-danger" data-ng-click="removeAlert(alert.id)">Remove Alert</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div data-ng-show="permissions.isPatient && gpMedicationStatus.available
+                && gpMedicationStatus.optInStatus !== true && gpMedicationStatus.optInHidden !== true">
+                <!-- GP Medicines opt in/out -->
+                <div class="content-panel">
+                    <div class="content-inner alert-warning">
+                        <div><!-- not opted in -->
+                            <h4>Medicines from your GP's records</h4>
+                            <p>
+                                Please click the Opt In button if you would like PatientView to display the prescription from your GP.
+                                This is useful as its usually the most up to date prescription. PatientView can now obtain it for you,
+                                with your permission, from your GP's records.
+                                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+                            </p>
+                            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptIn()">Opt In</button> &nbsp;&nbsp;&nbsp;
+                            <a href="" data-ng-click="gpMedicinesHideOptIn()">Hide This Notification</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div data-ng-show="justOptedIn">
+                <div class="content-panel">
+                    <div class="content-inner alert-success">
+                        <div>
+                            <h4>You are now opted in to receive medicines from your GP's records</h4>
+                            <p>
+                                Thank you for opting in. Please allow up to 48 hours for your GP medications to show on the Medicines page.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <aside class="col-md-4">
-            <div class="panel-header content-panel lowlight">
-                <h3><span class="badge aqua pull-left"></span>Your Settings</h3>
+            <div class="panel-header user-details-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-settings"></i></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">
-                <a href="/#/settings" class="btn blue pull-right">Edit</a>
+                <div data-ng-show="loggedInUser.picture.length">
+                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+                </div>
+                <div data-ng-show="!loggedInUser.picture">
+                    <h4>No Photo Uploaded</h4>
+                    <p><a href="/#/settings">Upload a photo of yourself</a></p>
+                    <br/>
+                </div>
                 <ul class="unstyled">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
-                    <li ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
-                    <li ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
-                    <li ng-show="!loggedInUser.contactNumber">Phone: Not Set</li>
+                    <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
+                    <li data-ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
                 </ul>
+                <br/>
+                <div class="news-actions">
+                    <a href="/#/settings" class="btn blue">Change Your Settings/Password</a>
+                </div>
             </div>
             <div class="news-container">
                 <div class="panel-header content-panel lowlight">
                     <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
                 </div>
                 <ul class="unstyled">
-                    <li class="news-item content-panel" ng-repeat="news in newsItems">
+                    <li class="news-item content-panel" data-ng-repeat="news in newsItems">
                         <div class="content-inner">
                             <ul class="unstyled pull-right hidden">
-                                <li ng-repeat="newsLink in news.newsLinks" class="news-link-labels">
-                                    <span class="label label-primary" ng-show="newsLink.group != null">{{newsLink.group.name}} <span>({{newsLink.role.description}})</span></span>
-                                    <span class="label label-success" ng-show="newsLink.role != null && newsLink.group == null && newsLink.role.name != 'GLOBAL_ADMIN'">{{newsLink.role.description}}</span>
+                                <li data-ng-repeat="newsLink in news.newsLinks" class="news-link-labels">
+                                    <span class="label label-primary" data-ng-show="newsLink.group != null">{{newsLink.group.name}} <span>({{newsLink.role.description}})</span></span>
+                                    <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.group == null && newsLink.role.name != 'GLOBAL_ADMIN'">{{newsLink.role.description}}</span>
                                 </li>
                             </ul>
-                            <h4>{{news.heading}}</h4>
-                            <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-                            <div>
-                                <p ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
-                                    <span class="text">
-                                        <span ng-bind-html="parseHTMLText(news.story)"></span>
-                                        <span class="ellipsis" ng-hide="news.showMore">
-                                            &nbsp;&nbsp;&nbsp;<a href="" ng-click="news.showMore = true">Show More</a>
-                                        </span>
-                                        <span class="fill" ng-hide="news.showMore"></span>
-                                    </span>
-                                </p>
+                            <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
+                            <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                            <div class="message-content">
+                                <p data-ng-bind-html="parseHTMLText(news.story)"></p>
+                                <div class="news-actions">
+                                    <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read Story</button>
+                                </div>
                             </div>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="unstyled" data-ng-hide="newsItems">
+                    <li class="news-item content-panel">
+                        <div class="content-inner">
+                            <h4>No Current News</h4>
                         </div>
                     </li>
                 </ul>
@@ -149,4 +469,14 @@
         </aside>
     </div>
 </div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Home</h3>
+    </div>
+</div>
 <br/>
+
+<!-- Migration only -->
+<div data-ng-show="permissions.isSuperAdmin" class="hidden">
+    <a href="" class="btn blue" data-ng-click="startObservationMigration()">Start Observation Migration</a>
+</div>

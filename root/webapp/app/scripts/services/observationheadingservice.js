@@ -97,7 +97,7 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
         },
         get: function (observationheadingId) {
             var deferred = $q.defer();
-            Restangular.one('observationheading', observationheadingId).get().then(function(successResult) {
+            Restangular.one('/user/{userId}/observations/{code}', observationheadingId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

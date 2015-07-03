@@ -5,7 +5,10 @@
 </style>
 <div data-ng-show="!loading">
     <h1>Letters</h1>
-
+    <h1 class="clearfix">
+        <span>Letters</span>
+        <a data-ng-click="openExportToCSVModal()" class="btn white"><i class="glyphicon glyphicon-download-alt"></i> &nbsp; Export</a>
+    </h1>
     <div class="content-panel">
         <div class="content-inner">
             <p>Letters are only shown when they have been sent by your unit's computer system.</p>

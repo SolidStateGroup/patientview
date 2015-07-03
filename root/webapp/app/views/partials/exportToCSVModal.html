@@ -1,0 +1,109 @@
+<style>
+    .feature-list-delete {
+        margin-right: 10px;
+    }
+
+    .name-action-list li {
+        height: auto;
+    }
+
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
+<div class="modal-header">
+    <h3 class="modal-title">Export Your {{pgtitle}}</h3>
+</div>
+
+<div class="modal-body">
+    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/>{{loadingMessage}}</div>
+    <div data-ng-show="!loading">
+        <span class="error">{{errorMessage}}</span>
+        <p>Select the date range to download</p>
+
+        <label class="control-label">From</label>
+
+        <div>
+            <div class="col-md-4 day">
+                Day:<select data-ng-model="from.day"
+                            data-ng-options="option.toString() as option for option in days"
+                            class="form-control"></select>
+            </div>
+            <div class="col-md-4">
+                Month:<select data-ng-model="from.month"
+                              data-ng-options="option.toString() as option for option in months"
+                              class="form-control"></select>
+            </div>
+            <div class="col-md-4 year">
+                Year:<select data-ng-model="from.year"
+                             data-ng-options="option.toString() as option for option in years"
+                             class="form-control"></select>
+            </div>
+        </div>
+        <label class="control-label">To</label>
+
+        <div>
+            <div class="col-md-4 day">
+                Day:<select data-ng-model="to.day"
+                            data-ng-options="option.toString() as option for option in days"
+                            class="form-control"></select>
+            </div>
+            <div class="col-md-4">
+                Month:<select data-ng-model="to.month"
+                              data-ng-options="option.toString() as option for option in months"
+                              class="form-control"></select>
+            </div>
+            <div class="col-md-4 year">
+                Year:<select data-ng-model="to.year"
+                             data-ng-options="option.toString() as option for option in years"
+                             class="form-control"></select>
+            </div>
+        </div>
+        <label class="control-label" ng-show="showResults">Search By Result Type<br /><i>(Selecting no results will export all)</i></label>
+
+        <div class="modal-export-filter-selector" ng-show="showResults">
+            <div class="select-container pull-left">
+                <div class="btn-group filter-select" id="filter-group" dropdown>
+                    <button class="btn dropdown-toggle">
+                        Filter By Result <span class="caret-container"><span class="caret"></span></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                        <li>
+                            <a data-ng-click="removeAllSelectedGroup('observations')" class="a-filter-group">
+                                <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li data-ng-repeat="observationHeading in observationHeadings | orderBy:['heading']">
+                            <a data-ng-click="setSelected(observationHeading.heading)" class="a-filter-group clearfix">
+                                <span class="pull-left">{{observationHeading.heading}}</span>
+                                <span data-ng-class="isResultTypeChecked(observationHeading.heading)"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="width:110%">
+                <ul class="feature-list unstyled name-action-list">
+                    <li class="feature-list-item" data-ng-repeat="group in selectedGroup">
+                        <div class="feature-list-name pull-left">
+                            <span class="feature-list-name">{{group}}</span>
+                        </div>
+                        <div class="feature-list-delete pull-left">
+                            <a href="" data-ng-click="setSelected(group)">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer modal-export-footer">
+    <a href="../api/user/{{loggedInUser.id}}/export{{referrer}}/{{from.year}}-{{from.month}}-{{from.day}}/{{to.year}}-{{to.month}}-{{to.day}}/download?token={{authToken}}&resultCodes={{filterString}}"
+       class="btn blue left">Download</a>
+    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+</div>

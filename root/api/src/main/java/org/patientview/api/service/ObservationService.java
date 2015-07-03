@@ -16,6 +16,7 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Observation service, for management and retrieval of observations (test results), stored in FHIR.
@@ -107,6 +108,22 @@ public interface ObservationService {
                                           Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException;
 
+
+    /**
+     * Get FhirObservationPage representing multiple different observations by Code for a User.
+     * @param userId ID of User to retrieve observations for
+     * @param codes List of Codes defining the types of observations to retrieve
+     * @param orderDirection Ordering of observations e.g. date received descending
+     * @param fromDate  yyyy-mm-dd date to search from
+     * @param toDate  yyyy-mm-dd date to search to
+     * @return FhirObservation representing observation data for a User
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
+    Map<Long, Map<String, List<FhirObservation>>> getObservationsByMultipleCodeAndDate(Long userId, List<String> codes, String orderDirection, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException;
     /**
      * Get a summary of observation data for a User, used on the default Results page.
      * @param userId ID of User to retrieve observation summary for

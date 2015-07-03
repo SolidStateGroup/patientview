@@ -65,6 +65,26 @@ function ($scope, $modal, LetterService) {
         });
     };
 
+    $scope.openExportToCSVModal = function () {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/exportToCSVModal.html',
+            controller: "ExportInfoModalInstanceCtrl",
+            size: 'sm',
+            windowClass: 'results-modal',
+            resolve: {
+                result: function(){
+                    return true;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
     // open modal (view)
     $scope.viewLetter = function(letter) {
         $scope.successMessage = '';

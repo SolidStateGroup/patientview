@@ -87,7 +87,11 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
     }
 
     @Override
-    public List<FhirMedicationStatement> getByUserId(final Long userId)
+    public List<FhirMedicationStatement> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
+        return getByUserId(userId, null, null);
+    }
+    @Override
+    public List<FhirMedicationStatement> getByUserId(final Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -117,6 +121,11 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                 query.append("WHERE   content -> 'patient' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
                 query.append("' ");
+
+                if(fromDate != null && toDate != null){
+                    query.append("AND   content -> 'whenGiven' ->> 'start' >= '" + fromDate +"' ");
+                    query.append("AND   content -> 'whenGiven' ->> 'end' <= '" + toDate +"' ");
+                }
 
                 // get list of medication statements
                 List<MedicationStatement> medicationStatements

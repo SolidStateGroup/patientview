@@ -17,6 +17,10 @@ hr{
     width:100%;
 }
 
+.left{
+    float:left;
+}
+
 .back-to-admin{
     margin-bottom:20px;
     background:#fff;
@@ -491,6 +495,15 @@ ul {
 }
 .negative {
     background-color: $error;
+}
+.white {
+    background-color: $white;
+    color:$black;
+
+    &:active, &:focus {
+        color: $black;
+        outline:0;
+    }
 }
 
 /* text classes */
