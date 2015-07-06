@@ -2150,7 +2150,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 311L;
+            Long oldUserId = 1058L;
 
             try {
                 org.patientview.patientview.model.User oldUser;
