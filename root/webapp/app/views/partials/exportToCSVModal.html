@@ -25,8 +25,10 @@
 </div>
 
 <div class="modal-body">
-    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/>{{loadingMessage}}</div>
-    <div data-ng-show="!loading">
+        <div data-ng-show="loading" class="loading">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+        </div>
+        <div data-ng-show="!loading">
         <span class="error">{{errorMessage}}</span>
         <p class="export-title">Select the date range to download. The past three years are selected by default.</p>
 

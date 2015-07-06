@@ -37,7 +37,7 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
             $scope.pgtitle = "Medicines";
         }
         $scope.loading = true;
-        $scope.loadingMessage = "Loading Export to " + $scope.pgtitle;
+        $scope.loadingMessage = "Loading";
 
         $scope.init = function(){
             $scope.loading = true;
