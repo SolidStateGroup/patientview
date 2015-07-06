@@ -2195,36 +2195,40 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 1058L;
 
-            try {
-                org.patientview.patientview.model.User oldUser;
-                if (IBD) {
-                    oldUser = getUserNative(oldUserId);
-                } else {
-                    oldUser = userDao.get(oldUserId);
-                }
-                String username = oldUser.getUsername();
+            List<Long> userIds = new ArrayList<Long>();
+            userIds.add(1058L);
 
-                if (!username.endsWith("-GP")) {
-                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+            for (Long userId : userIds) {
+                try {
+                    org.patientview.patientview.model.User oldUser;
+                    if (IBD) {
+                        oldUser = getUserNative(userId);
+                    } else {
+                        oldUser = userDao.get(userId);
+                    }
+                    String username = oldUser.getUsername();
 
-                    // for partial migration
-                    migrationUser.setPartialMigration(true);
+                    if (!username.endsWith("-GP")) {
+                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
-                    if (migrationUser != null) {
-                        try {
-                            LOG.info("(Migration) User: " + oldUser.getUsername() + " submitting to REST");
-                            executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                        // for partial migration
+                        migrationUser.setPartialMigration(true);
 
-                            migratedPv1IdsThisRun.add(oldUser.getId());
-                        } catch (Exception e) {
-                            LOG.error("REST submit exception: ", e);
+                        if (migrationUser != null) {
+                            try {
+                                LOG.info("(Migration) User: " + oldUser.getUsername() + " submitting to REST");
+                                executorService.submit(new AsyncMigrateUserTask(migrationUser));
+
+                                migratedPv1IdsThisRun.add(oldUser.getId());
+                            } catch (Exception e) {
+                                LOG.error("REST submit exception: ", e);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.error("Exception: ", e);
                 }
-            } catch (Exception e) {
-                LOG.error("Exception: ", e);
             }
         }
 
