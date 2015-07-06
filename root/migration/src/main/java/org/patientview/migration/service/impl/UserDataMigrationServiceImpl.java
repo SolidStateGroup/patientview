@@ -2096,8 +2096,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ignoredIds.add(1066L);
         ignoredIds.add(1084L);
 
-        boolean singleUser = false;
-        boolean replaceExisting = true;
+        boolean singleUser = true;
+        boolean replaceExisting = false;
 
         if (!singleUser) {
             for (Group group : groupsToAdd) {
@@ -2150,7 +2150,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 315L;
+            Long oldUserId = 311L;
 
             try {
                 org.patientview.patientview.model.User oldUser;
@@ -2163,6 +2163,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 if (!username.endsWith("-GP")) {
                     MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+
+                    // for partial migration
+                    migrationUser.setPartialMigration(true);
 
                     if (migrationUser != null) {
                         try {

@@ -17,6 +17,9 @@ public class MigrationUser {
     private Long observationEndDate;
     private boolean deleteExistingTestObservations = false;
 
+    // used for partial migrations
+    private boolean partialMigration = false;
+
     // User
     private User user;
 
@@ -84,6 +87,14 @@ public class MigrationUser {
 
     public void setObservationEndDate(Long observationEndDate) {
         this.observationEndDate = observationEndDate;
+    }
+
+    public boolean isPartialMigration() {
+        return partialMigration;
+    }
+
+    public void setPartialMigration(boolean partialMigration) {
+        this.partialMigration = partialMigration;
     }
 
     public User getUser() {

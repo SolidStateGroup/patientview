@@ -160,8 +160,10 @@ public class ImportControllerTest {
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
 
         // IBD
-        String fileName = "data/xml/ibd/1111111111_ibd.xml";
+        //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
+        // partial migration
+        String fileName = "data/xml/partialmigration/test1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -179,9 +181,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="http://localhost:8081/importer/import";
+        String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
