@@ -28,6 +28,6 @@ public interface ObservationHeadingRepository extends CrudRepository<Observation
             "oh.infoLink as infoLink) FROM ObservationHeading oh")
     public Page<ObservationHeading> findAllMinimal(Pageable pageable);
 
-    @Query("SELECT oh FROM ObservationHeading oh WHERE oh.code = :code")
+    @Query("SELECT oh FROM ObservationHeading oh WHERE lower(oh.code) = lower(:code)")
     public List<ObservationHeading> findByCode(@Param("code") String code);
 }

@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * RESTful interface for patient letters, stored in FHIR and imported by multiple Groups.
- *
+ * <p/>
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
@@ -29,7 +29,7 @@ public class ExportController extends BaseController<ExportController> {
     /**
      * Download a letter, given User ID and FileData ID.
      *
-     * @param userId     ID of User to download letter for
+     * @param userId ID of User to download letter for
      * @return HttpEntity to allow client to download in browser
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
@@ -37,7 +37,8 @@ public class ExportController extends BaseController<ExportController> {
     @RequestMapping(value = "/user/{userId}/export/results/{fromDate}/{toDate}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> downloadResults(@PathVariable("userId") Long userId,
-                                              @PathVariable("fromDate") String fromDate, @PathVariable("toDate") String toDate,
+                                              @PathVariable("fromDate") String fromDate,
+                                              @PathVariable("toDate") String toDate,
                                               @RequestParam List<String> resultCodes)
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadResults(userId, fromDate, toDate, resultCodes);
@@ -46,7 +47,7 @@ public class ExportController extends BaseController<ExportController> {
     /**
      * Download a letter, given User ID and FileData ID.
      *
-     * @param userId     ID of User to download letter for
+     * @param userId ID of User to download letter for
      * @return HttpEntity to allow client to download in browser
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
@@ -54,8 +55,9 @@ public class ExportController extends BaseController<ExportController> {
     @RequestMapping(value = "/user/{userId}/export/letters/{fromDate}/{toDate}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> downloadLetters(@PathVariable("userId") Long userId,
-                                              @PathVariable("fromDate") String fromDate, @PathVariable("toDate") String toDate
-                                              )
+                                              @PathVariable("fromDate") String fromDate,
+                                              @PathVariable("toDate") String toDate
+    )
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadLetters(userId, fromDate, toDate);
     }
@@ -63,7 +65,7 @@ public class ExportController extends BaseController<ExportController> {
     /**
      * Download an export of all medicines, given User ID and FileData ID.
      *
-     * @param userId     ID of User to download letter for
+     * @param userId ID of User to download letter for
      * @return HttpEntity to allow client to download in browser
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
@@ -71,7 +73,8 @@ public class ExportController extends BaseController<ExportController> {
     @RequestMapping(value = "/user/{userId}/export/medicines/{fromDate}/{toDate}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> downloadMedicines(@PathVariable("userId") Long userId,
-                                              @PathVariable("fromDate") String fromDate, @PathVariable("toDate") String toDate
+                                                @PathVariable("fromDate") String fromDate,
+                                                @PathVariable("toDate") String toDate
     )
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadMedicines(userId, fromDate, toDate);
