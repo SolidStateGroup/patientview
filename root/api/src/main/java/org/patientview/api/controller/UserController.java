@@ -368,7 +368,11 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        return new ResponseEntity<>(migrationService.migrateUser(migrationUser), HttpStatus.CREATED);
+        if (migrationUser.isPartialMigration()) {
+            return new ResponseEntity<>(migrationService.migrateUserExisting(migrationUser), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(migrationService.migrateUser(migrationUser), HttpStatus.CREATED);
+        }
     }
 
     /**

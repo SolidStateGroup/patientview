@@ -19,6 +19,7 @@ import org.patientview.patientview.model.Medicine;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UktStatus;
 import org.patientview.patientview.model.UserMapping;
+import org.patientview.patientview.model.enums.DiagnosticType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirAllergy;
 import org.patientview.persistence.model.FhirCondition;
@@ -704,6 +705,49 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 condition.setGroup(unit);
                 condition.setIdentifier(nhsNo);
                 migrationUser.getConditions().add(condition);
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private MigrationUser addDiagnosticTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
+        Connection connection = null;
+        String sql = "SELECT datestamp, description, diagnostic_type_id FROM diagnostic WHERE nhsno = "
+                + nhsNo;
+
+        Map<Long, DiagnosticType> typeMap = new HashMap<Long, DiagnosticType>();
+        typeMap.put(1L, DiagnosticType.IMAGING);
+        typeMap.put(2L, DiagnosticType.ENDOSCOPY);
+
+        try {
+            DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
+            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+                FhirObservation observation = new FhirObservation();
+                observation.setValue(results.getString(2));
+                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
+
+                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
+                diagnosticReport.setGroup(unit);
+                diagnosticReport.setDate(results.getTimestamp(1));
+                diagnosticReport.setType(typeMap.get(results.getLong(3)).toString());
+                diagnosticReport.setName("Photo of patient");
+                diagnosticReport.setResult(observation);
+                diagnosticReport.setIdentifier(nhsNo);
+
+                migrationUser.getDiagnosticReports().add(diagnosticReport);
+            }
+        } catch (SQLException se) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException se2) {
+                    LOG.error(se2.getMessage());
+                }
             }
         }
 
@@ -1681,6 +1725,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addAllergyTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                            migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
                             if (!IBD) {
                                 // diagnosis for IBD comes from ibd_myibd table
@@ -2096,8 +2141,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ignoredIds.add(1066L);
         ignoredIds.add(1084L);
 
-        boolean singleUser = false;
-        boolean replaceExisting = true;
+        boolean singleUser = true;
+        boolean replaceExisting = false;
 
         if (!singleUser) {
             for (Group group : groupsToAdd) {
@@ -2150,33 +2195,40 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 315L;
 
-            try {
-                org.patientview.patientview.model.User oldUser;
-                if (IBD) {
-                    oldUser = getUserNative(oldUserId);
-                } else {
-                    oldUser = userDao.get(oldUserId);
-                }
-                String username = oldUser.getUsername();
+            List<Long> userIds = new ArrayList<Long>();
+            userIds.add(1058L);
 
-                if (!username.endsWith("-GP")) {
-                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+            for (Long userId : userIds) {
+                try {
+                    org.patientview.patientview.model.User oldUser;
+                    if (IBD) {
+                        oldUser = getUserNative(userId);
+                    } else {
+                        oldUser = userDao.get(userId);
+                    }
+                    String username = oldUser.getUsername();
 
-                    if (migrationUser != null) {
-                        try {
-                            LOG.info("(Migration) User: " + oldUser.getUsername() + " submitting to REST");
-                            executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                    if (!username.endsWith("-GP")) {
+                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
-                            migratedPv1IdsThisRun.add(oldUser.getId());
-                        } catch (Exception e) {
-                            LOG.error("REST submit exception: ", e);
+                        // for partial migration
+                        migrationUser.setPartialMigration(true);
+
+                        if (migrationUser != null) {
+                            try {
+                                LOG.info("(Migration) User: " + oldUser.getUsername() + " submitting to REST");
+                                executorService.submit(new AsyncMigrateUserTask(migrationUser));
+
+                                migratedPv1IdsThisRun.add(oldUser.getId());
+                            } catch (Exception e) {
+                                LOG.error("REST submit exception: ", e);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.error("Exception: ", e);
                 }
-            } catch (Exception e) {
-                LOG.error("Exception: ", e);
             }
         }
 

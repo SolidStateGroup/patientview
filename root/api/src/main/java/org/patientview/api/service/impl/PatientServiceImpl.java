@@ -797,24 +797,26 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         }
 
-        // add patient entered results fhirlink
-        Group patientEnteredResultsGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
-        if (patientEnteredResultsGroup == null) {
-            throw new ResourceNotFoundException("Group for patient entered results does not exist");
-        }
-        Identifier identifier = entityUser.getIdentifiers().iterator().next();
-        Patient patient = buildPatient(entityUser, identifier);
-        FhirDatabaseEntity fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+        // add patient entered results fhirlink (if not an existing user as they have already)
+        if (!migrationUser.isPartialMigration()) {
+            Group patientEnteredResultsGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+            if (patientEnteredResultsGroup == null) {
+                throw new ResourceNotFoundException("Group for patient entered results does not exist");
+            }
+            Identifier identifier = entityUser.getIdentifiers().iterator().next();
+            Patient patient = buildPatient(entityUser, identifier);
+            FhirDatabaseEntity fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
-        FhirLink fhirLink = new FhirLink();
-        fhirLink.setUser(entityUser);
-        fhirLink.setIdentifier(identifier);
-        fhirLink.setGroup(patientEnteredResultsGroup);
-        fhirLink.setResourceId(fhirPatient.getLogicalId());
-        fhirLink.setVersionId(fhirPatient.getVersionId());
-        fhirLink.setResourceType(ResourceType.Patient.name());
-        fhirLink.setActive(true);
-        fhirLinkService.save(fhirLink);
+            FhirLink fhirLink = new FhirLink();
+            fhirLink.setUser(entityUser);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(patientEnteredResultsGroup);
+            fhirLink.setResourceId(fhirPatient.getLogicalId());
+            fhirLink.setVersionId(fhirPatient.getVersionId());
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+            fhirLinkService.save(fhirLink);
+        }
     }
 
     // fast method, inserts observations in bulk after converting to correct JSON
@@ -1030,14 +1032,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
-
-            // wipe existing patient data, observation data and fhir links to start with fresh data
-            deleteExistingPatientData(fhirLinks);
-            deleteAllExistingObservationData(fhirLinks);
-            userService.deleteFhirLinks(userId);
-            fhirLinks = new HashSet<>();
-            entityUser.setFhirLinks(new HashSet<FhirLink>());
-
+            if (!migrationUser.isPartialMigration()) {
+                // wipe existing patient data, observation data and fhir links to start with fresh data
+                deleteExistingPatientData(fhirLinks);
+                deleteAllExistingObservationData(fhirLinks);
+                userService.deleteFhirLinks(userId);
+                fhirLinks = new HashSet<>();
+                entityUser.setFhirLinks(new HashSet<FhirLink>());
+            }
         }
 
         // set up map of observation headings
