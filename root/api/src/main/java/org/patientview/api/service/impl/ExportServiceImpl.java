@@ -155,10 +155,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             throws ResourceNotFoundException, FhirResourceException {
         ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
         ArrayList<String> row = new ArrayList<>();
-        row.add("Start Date");
+        row.add("Date");
         row.add("Source");
         row.add("Type");
-        row.add("Content");
+        row.add("Content (expand row to view)");
         document.add(row);
 
         //Order letters based on date
