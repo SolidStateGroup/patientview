@@ -29,7 +29,7 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
         $scope.showResults = false;
         //Setup the title
         if($scope.referrer == ("/results") || $scope.referrer == ("/resultstable")) {
-            scope.referrer = "results";
+            $scope.referrer = "results";
             $scope.showResults = true;
             $scope.pgtitle = "Results";
         }else if($scope.referrer == "/letters"){
