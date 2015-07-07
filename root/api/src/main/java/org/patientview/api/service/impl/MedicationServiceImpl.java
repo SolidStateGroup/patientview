@@ -87,9 +87,11 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
     }
 
     @Override
-    public List<FhirMedicationStatement> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirMedicationStatement> getByUserId(final Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
         return getByUserId(userId, null, null);
     }
+
     @Override
     public List<FhirMedicationStatement> getByUserId(final Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
@@ -122,29 +124,29 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                 query.append(fhirLink.getResourceId().toString());
                 query.append("' ");
 
-                if(fromDate != null && toDate != null){
-                    query.append("AND   content -> 'whenGiven' ->> 'start' >= '" + fromDate +"' ");
-                    query.append("AND   content -> 'whenGiven' ->> 'end' <= '" + toDate +"' ");
+                if (fromDate != null && toDate != null) {
+                    query.append("AND   content -> 'whenGiven' ->> 'start' >= '" + fromDate + "' ");
+                    query.append("AND   content -> 'whenGiven' ->> 'end' <= '" + toDate + "' ");
                 }
                 query.append(" ORDER BY  content -> 'whenGiven' ->> 'start' DESC ");
 
                 // get list of medication statements
                 List<MedicationStatement> medicationStatements
-                    = fhirResource.findResourceByQuery(query.toString(), MedicationStatement.class);
+                        = fhirResource.findResourceByQuery(query.toString(), MedicationStatement.class);
 
                 // for each, create new transport object with medication found from resource reference
                 for (MedicationStatement medicationStatement : medicationStatements) {
 
                     try {
                         JSONObject medicationJson = fhirResource.getResource(
-                            UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
-                            ResourceType.Medication);
+                                UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
+                                ResourceType.Medication);
 
                         Medication medication = (Medication) DataUtils.getResource(medicationJson);
 
                         org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement =
-                            new org.patientview.persistence.model.FhirMedicationStatement(
-                                medicationStatement, medication, fhirLink.getGroup());
+                                new org.patientview.persistence.model.FhirMedicationStatement(
+                                        medicationStatement, medication, fhirLink.getGroup());
 
                         fhirMedications.add(new FhirMedicationStatement(fhirMedicationStatement));
 

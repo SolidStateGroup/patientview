@@ -44,5 +44,6 @@ public interface MedicationService {
      * @throws FhirResourceException
      */
     @UserOnly
-    List<FhirMedicationStatement> getByUserId(Long userId, String fromDate, String toDate) throws ResourceNotFoundException, FhirResourceException;
+    List<FhirMedicationStatement> getByUserId(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException;
 }

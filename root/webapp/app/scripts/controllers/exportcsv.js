@@ -22,13 +22,13 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
         $scope.from = currentDate;
         //Add to scope, remove blank values so date will always be selected
         $scope.months =  _.without(UtilService.generateMonths(), '');
-        $scope.years = _.without(UtilService.generateYears(), '');
+        $scope.years = _.without(UtilService.generateYears2000(), '');
         $scope.days =  _.without(UtilService.generateDays(), '');
         //Add the referrer (used for the end point)
         $scope.referrer = $location.$$path.toString();
         $scope.showResults = false;
         //Setup the title
-        if($scope.referrer == ("/results")) {
+        if($scope.referrer == ("/results") || $scope.referrer == ("/resultstable")) {
             $scope.showResults = true;
             $scope.pgtitle = "Results";
         }else if($scope.referrer == "/letters"){

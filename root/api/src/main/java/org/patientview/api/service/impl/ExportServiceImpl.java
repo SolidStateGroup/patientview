@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
@@ -67,13 +68,14 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         List<String> headings = new ArrayList<>();
         ArrayList<String> row = new ArrayList<>();
         row.add("Date");
+        row.add("Unit");
 
 
         //If there are no codes sent with the request, get all codes applicable for this user
         for (ObservationHeading heading : observationHeadingService.getAvailableObservationHeadings(userId)) {
             if (resultCodes.contains(heading.getHeading()) || resultCodes.size() == 0) {
                 headings.add(heading.getCode().toUpperCase());
-                row.add(heading.getHeading());
+                row.add(heading.getName());
             }
         }
         document.add(row);
@@ -83,27 +85,39 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         for (Map.Entry<Long, Map<String, List<FhirObservation>>> entry : resultsMap.entrySet()) {
             row = new ArrayList<>();
+            ArrayList<String> unitNames = new ArrayList<>();
             row.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(entry.getKey()));
-
             for (String heading : headings) {
                 Map<String, List<FhirObservation>> results = entry.getValue();
                 if (results.containsKey(heading.toUpperCase())) {
                     //If there is only one result for that timestamp and code, add to the cell
                     if (results.get(heading.toUpperCase()).size() == 1) {
-                        row.add(((results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
-                                : results.get(heading.toUpperCase()).get(0).getComments()) + " "
-                                + results.get(heading.toUpperCase()).get(0).getValue());
+                        row.add(String.format("%s %s",
+                                (results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
+                                        : results.get(heading.toUpperCase()).get(0).getComments(),
+                                results.get(heading.toUpperCase()).get(0).getValue()) == null ? ""
+                                : results.get(heading.toUpperCase()).get(0).getValue().trim());
+                        //Add the unit
+                        if (!unitNames.contains(results.get(heading.toUpperCase()).get(0).getGroup().getShortName())) {
+                            unitNames.add(results.get(heading.toUpperCase()).get(0).getGroup().getShortName());
+                        }
                     } else {
                         //When multiple codes exist, add to the same cell with a new line
                         String multipleResults = "";
                         for (int i = results.get(heading.toUpperCase()).size() - 1; i >= 0; i--) {
                             FhirObservation observation = results.get(heading.toUpperCase()).get(i);
                             if (i == 0) {
-                                multipleResults += ((observation.getComments() == null) ? ""
-                                        : observation.getComments()) + " " + observation.getValue() + "";
+                                multipleResults += String.format("%s %s",
+                                        (observation.getComments() == null) ? "" : observation.getComments(),
+                                        observation.getValue() == null ? "" : observation.getValue().trim());
                             } else {
-                                multipleResults += ((observation.getComments() == null) ? ""
-                                        : observation.getComments()) + " " + observation.getValue() + "\n";
+                                multipleResults += String.format("%s %s \n",
+                                        (observation.getComments() == null) ? "" : observation.getComments(),
+                                        observation.getValue() == null ? "" : observation.getValue().trim());
+                            }
+                            //Add the unit
+                            if (!unitNames.contains(observation.getGroup().getShortName())) {
+                                unitNames.add(observation.getGroup().getShortName());
                             }
                         }
                         row.add(multipleResults);
@@ -113,6 +127,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     row.add("");
                 }
             }
+            row.add(1, StringUtils.join(unitNames, ","));
             document.add(row);
         }
         return getDownloadContent("Results",
@@ -240,6 +255,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         for (ArrayList<String> row : document) {
             for (String cell : row) {
+                cell = cell.replace("\"", "\"\"");
                 documentString += "\"" + cell + "\",";
             }
             documentString += "\n";
