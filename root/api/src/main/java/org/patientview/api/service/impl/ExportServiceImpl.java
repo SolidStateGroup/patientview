@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.patientview.api.builder.CSVDocumentBuilder;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
@@ -62,37 +63,38 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                                               String toDate,
                                               List<String> resultCodes)
             throws ResourceNotFoundException, FhirResourceException {
-
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
         //Setup the headers and the document structure we want to return
-        ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
         List<String> headings = new ArrayList<>();
-        ArrayList<String> row = new ArrayList<>();
-        row.add("Date");
-        row.add("Unit");
+        document.addHeader("Date");
+        document.addHeader("Unit");
 
 
         //If there are no codes sent with the request, get all codes applicable for this user
         for (ObservationHeading heading : observationHeadingService.getAvailableObservationHeadings(userId)) {
             if (resultCodes.contains(heading.getHeading()) || resultCodes.size() == 0) {
                 headings.add(heading.getCode().toUpperCase());
-                row.add(heading.getName());
+                document.addHeader(heading.getName());
             }
         }
-        document.add(row);
         //Get all results for a specified period of time
         Map<Long, Map<String, List<FhirObservation>>> resultsMap =
                 observationService.getObservationsByMultipleCodeAndDate(userId, headings, "DESC", fromDate, toDate);
 
         for (Map.Entry<Long, Map<String, List<FhirObservation>>> entry : resultsMap.entrySet()) {
-            row = new ArrayList<>();
             ArrayList<String> unitNames = new ArrayList<>();
-            row.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(entry.getKey()));
+            document.createNewRow();
+            document.resetCurrentPosition();
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(entry.getKey()));
+            //Skip the units column as we don't want to fill this yet
+            document.nextCell();
+
             for (String heading : headings) {
                 Map<String, List<FhirObservation>> results = entry.getValue();
                 if (results.containsKey(heading.toUpperCase())) {
                     //If there is only one result for that timestamp and code, add to the cell
                     if (results.get(heading.toUpperCase()).size() == 1) {
-                        row.add(String.format("%s %s",
+                        document.addValueToNextCell(String.format("%s %s",
                                 (results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
                                         : results.get(heading.toUpperCase()).get(0).getComments(),
                                 results.get(heading.toUpperCase()).get(0).getValue()) == null ? ""
@@ -103,47 +105,42 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         }
                     } else {
                         //When multiple codes exist, add to the same cell with a new line
-                        String multipleResults = "";
                         for (int i = results.get(heading.toUpperCase()).size() - 1; i >= 0; i--) {
                             FhirObservation observation = results.get(heading.toUpperCase()).get(i);
-                            if (i == 0) {
-                                multipleResults += String.format("%s %s",
-                                        (observation.getComments() == null) ? "" : observation.getComments(),
-                                        observation.getValue() == null ? "" : observation.getValue().trim());
+                            String result = String.format("%s %s",
+                                    (observation.getComments() == null) ? "" : observation.getComments(),
+                                    observation.getValue() == null ? "" : observation.getValue().trim());
+                            if (i == results.get(heading.toUpperCase()).size() - 1) {
+                                document.addValueToNextCell(result);
                             } else {
-                                multipleResults += String.format("%s %s \n",
-                                        (observation.getComments() == null) ? "" : observation.getComments(),
-                                        observation.getValue() == null ? "" : observation.getValue().trim());
-                            }
+                                    document.addValueToPreviousCell(String.format("%s %s",
+                                            (observation.getComments() == null) ? "" : observation.getComments(),
+                                            observation.getValue() == null ? "" : observation.getValue().trim()));
+                                }
                             //Add the unit
                             if (!unitNames.contains(observation.getGroup().getShortName())) {
                                 unitNames.add(observation.getGroup().getShortName());
                             }
                         }
-                        row.add(multipleResults);
                     }
-                } else {
-                    //Add a blank value for no results
-                    row.add("");
+                }else{
+                    document.nextCell();
                 }
             }
-            row.add(1, StringUtils.join(unitNames, ","));
-            document.add(row);
+            document.addValueToCellCascade(1, StringUtils.join(unitNames, ","));
         }
         return getDownloadContent("Results",
-                makeCSVString(document).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
     }
 
     @Override
     public HttpEntity<byte[]> downloadMedicines(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
-        ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
-        ArrayList<String> row = new ArrayList<>();
-        row.add("Date");
-        row.add("Medicine Name");
-        row.add("Dose");
-        row.add("Source");
-        document.add(row);
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Date");
+        document.addHeader("Medicine Name");
+        document.addHeader("Dose");
+        document.addHeader("Source");
 
         List<FhirMedicationStatement> medicationStatements = medicationService.getByUserId(userId, fromDate, toDate);
         TreeMap<String, FhirMedicationStatement> orderedMedicationStatement = new TreeMap<>(Collections.reverseOrder());
@@ -154,27 +151,25 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         for (FhirMedicationStatement medicationStatement : orderedMedicationStatement.values()) {
-            row = new ArrayList<>();
-            row.add(new SimpleDateFormat("dd-MMM-yyyy").format(medicationStatement.getStartDate()));
-            row.add(medicationStatement.getName());
-            row.add(medicationStatement.getDose());
-            row.add(medicationStatement.getGroup().getName());
-            document.add(row);
+            document.createNewRow();
+            document.resetCurrentPosition();
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(medicationStatement.getStartDate()));
+            document.addValueToNextCell(medicationStatement.getName());
+            document.addValueToNextCell(medicationStatement.getDose());
+            document.addValueToNextCell(medicationStatement.getGroup().getName());
         }
         return getDownloadContent("Medicines",
-                makeCSVString(document).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
     }
 
     @Override
     public HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
-        ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
-        ArrayList<String> row = new ArrayList<>();
-        row.add("Date");
-        row.add("Source");
-        row.add("Type");
-        row.add("Content (expand row to view)");
-        document.add(row);
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Date");
+        document.addHeader("Source");
+        document.addHeader("Type");
+        document.addHeader("Content (expand row to view)");
 
         //Order letters based on date
         List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
@@ -186,17 +181,18 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         for (FhirDocumentReference fhirDoc : fhirDocuments) {
-            row = new ArrayList<>();
-            row.add(new SimpleDateFormat("dd-MMM-yyyy").format(fhirDoc.getDate()));
-            row.add(fhirDoc.getGroup().getName());
-            row.add(fhirDoc.getType());
+            document.createNewRow();
+            document.resetCurrentPosition();
+
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(fhirDoc.getDate()));
+            document.addValueToNextCell(fhirDoc.getGroup().getName());
+            document.addValueToNextCell(fhirDoc.getType());
             //Limitation of CSV cannot display some characters, so replace
             String content = fhirDoc.getContent().replaceAll("&#\\d*;", "");
-            row.add(content);
-            document.add(row);
+            document.addValueToNextCell(content);
         }
         return getDownloadContent("Letters",
-                makeCSVString(document).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
 
     }
 
