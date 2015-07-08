@@ -17,11 +17,10 @@ public class CSVDocumentBuilder {
 
     /**
      * Creates a document that models as a csv file
-     *
      */
-    public CSVDocumentBuilder(){
+    public CSVDocumentBuilder() {
         document = new ArrayList<ArrayList<String>>();
-        currentRow= 0;
+        currentRow = 0;
         currentCell = 0;
         numberOfColumns = 0;
         createNewRow();
@@ -32,29 +31,26 @@ public class CSVDocumentBuilder {
      *
      * @param header String to be displayed in header
      */
-    public void addHeader(String header){
+    public void addHeader(String header) {
         document.get(0).add(header);
         numberOfColumns++;
     }
 
     /**
      * Move the pointer to the next cell
-     *
+     * <p/>
      * Used for when no result/value is present for a cell
      */
-    public void nextCell(){
+    public void nextCell() {
         currentCell++;
     }
 
     /**
-     *
      * Create a new row with blank values in each column/cell
-     *
-     *
      */
-    public void createNewRow(){
+    public void createNewRow() {
         ArrayList<String> newRow = new ArrayList<>();
-        for(int i = 0; i < numberOfColumns; i++){
+        for (int i = 0; i < numberOfColumns; i++) {
             newRow.add("");
         }
         document.add(newRow);
@@ -65,14 +61,14 @@ public class CSVDocumentBuilder {
      *
      * @return the csv document structure
      */
-    public ArrayList<ArrayList<String>> getDocument(){
+    public ArrayList<ArrayList<String>> getDocument() {
         return document;
     }
 
     /**
      * Reset the current points to the last row and first cell
      */
-    public void resetCurrentPosition(){
+    public void resetCurrentPosition() {
         currentRow = document.size() - 1;
         currentCell = 0;
     }
@@ -82,10 +78,10 @@ public class CSVDocumentBuilder {
      * row below that (e.g. dates and units)
      *
      * @param cellNumber Cell number to place the value
-     * @param value The value to add
+     * @param value      The value to add
      */
     public void addValueToCellCascade(int cellNumber, String value) {
-        for(int i = currentRow; i < document.size(); i++){
+        for (int i = currentRow; i < document.size(); i++) {
             document.get(i).set(cellNumber, value);
         }
     }
@@ -96,8 +92,8 @@ public class CSVDocumentBuilder {
      *
      * @param value The value to place in the cell
      */
-    public void addValueToNextCell(String value){
-        if(currentCell < numberOfColumns) {
+    public void addValueToNextCell(String value) {
+        if (currentCell < numberOfColumns) {
             document.get(currentRow).set(currentCell, value);
             currentCell++;
         }
@@ -105,23 +101,23 @@ public class CSVDocumentBuilder {
 
     /**
      * Adds the value to the last cell (based on current cell)
-     *
+     * <p/>
      * If the row does not exist, a new row is created
      * If the row does exist, it is added to the row
      *
      * @param value The value to place into the cell
      */
-    public void addValueToPreviousCell(String value){
+    public void addValueToPreviousCell(String value) {
         int tempCurrentRow = currentRow;
         int cellNumber = currentCell - 1;
-        while(isCellFilled(tempCurrentRow, cellNumber) && tempCurrentRow < document.size()){
+        while (isCellFilled(tempCurrentRow, cellNumber) && tempCurrentRow < document.size()) {
             tempCurrentRow++;
         }
-        if(tempCurrentRow >= document.size()) {
+        if (tempCurrentRow >= document.size()) {
             createNewRow();
             document.get(tempCurrentRow).set(0, document.get(currentRow).get(0));
             document.get(tempCurrentRow).set(cellNumber, value);
-        }else{
+        } else {
             document.get(tempCurrentRow).set(cellNumber, value);
         }
     }
@@ -132,10 +128,11 @@ public class CSVDocumentBuilder {
      * @param rowNumber the row number to check exists
      * @return If the row exists
      */
-    private boolean rowExists(int rowNumber){
-        if(rowNumber > document.size() - 1){
+    private boolean rowExists(int rowNumber) {
+        if (rowNumber > document.size() - 1) {
             return false;
-        }else{
+        }
+        else {
             return true;
         }
     }
@@ -143,25 +140,25 @@ public class CSVDocumentBuilder {
     /**
      * Checks if the specified cell has a value within it
      *
-     * @param rowNumber The row number to check
+     * @param rowNumber  The row number to check
      * @param cellNumber The cell number to check
      * @return If the cell has a value within it
      */
-    private boolean isCellFilled(int rowNumber, int cellNumber){
+    private boolean isCellFilled(int rowNumber, int cellNumber) {
         //Check the row exists
-        if(rowExists(rowNumber)){
+        if (rowExists(rowNumber)) {
             //Check if the cell exists
-            if(document.get(rowNumber).size() > cellNumber){
+            if (document.get(rowNumber).size() > cellNumber) {
                 //Check the length of the string in the cell
-                if(document.get(rowNumber).get(cellNumber).length() != 0){
+                if (document.get(rowNumber).get(cellNumber).length() != 0) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
