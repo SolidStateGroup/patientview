@@ -94,21 +94,17 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 if (results.containsKey(heading.toUpperCase())) {
                     //If there is only one result for that timestamp and code, add to the cell
                     if (results.get(heading.toUpperCase()).size() == 1) {
-
-                        if (results.get(heading.toUpperCase()).get(0).getValue().equals("null")) {
-                            document.nextCell();
-                        } else {
-                            document.addValueToNextCell(String.format("%s %s",
-                                    (results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
-                                            : results.get(heading.toUpperCase()).get(0).getComments(),
-                                    results.get(heading.toUpperCase()).get(0).getValue()) == null ? ""
-                                    : results.get(heading.toUpperCase()).get(0).getValue().trim());
-                            //Add the unit
-                            if (!unitNames.contains(
-                                    results.get(heading.toUpperCase()).get(0).getGroup().getShortName())) {
-                                unitNames.add(results.get(heading.toUpperCase()).get(0).getGroup().getShortName());
-                            }
+                        document.addValueToNextCell(String.format("%s %s",
+                                (results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
+                                        : results.get(heading.toUpperCase()).get(0).getComments(),
+                                results.get(heading.toUpperCase()).get(0).getValue()) == null ? ""
+                                : results.get(heading.toUpperCase()).get(0).getValue().trim());
+                        //Add the unit
+                        if (!unitNames.contains(
+                                results.get(heading.toUpperCase()).get(0).getGroup().getShortName())) {
+                            unitNames.add(results.get(heading.toUpperCase()).get(0).getGroup().getShortName());
                         }
+
                     } else {
                         //When multiple codes exist, add to the same cell with a new line
                         for (int i = results.get(heading.toUpperCase()).size() - 1; i >= 0; i--) {
@@ -116,21 +112,19 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                             String result = String.format("%s %s",
                                     (observation.getComments() == null) ? "" : observation.getComments(),
                                     observation.getValue() == null ? "" : observation.getValue().trim());
-                            if (observation.getValue().equals("null")) {
-                                document.nextCell();
+
+                            if (i == results.get(heading.toUpperCase()).size() - 1) {
+                                document.addValueToNextCell(result);
                             } else {
-                                if (i == results.get(heading.toUpperCase()).size() - 1) {
-                                    document.addValueToNextCell(result);
-                                } else {
-                                    document.addValueToPreviousCell(String.format("%s %s",
-                                            (observation.getComments() == null) ? "" : observation.getComments(),
-                                            observation.getValue() == null ? "" : observation.getValue().trim()));
-                                }
-                                //Add the unit
-                                if (!unitNames.contains(observation.getGroup().getShortName())) {
-                                    unitNames.add(observation.getGroup().getShortName());
-                                }
+                                document.addValueToPreviousCell(String.format("%s %s",
+                                        (observation.getComments() == null) ? "" : observation.getComments(),
+                                        observation.getValue() == null ? "" : observation.getValue().trim()));
                             }
+                            //Add the unit
+                            if (!unitNames.contains(observation.getGroup().getShortName())) {
+                                unitNames.add(observation.getGroup().getShortName());
+                            }
+
                         }
                     }
                 } else {
