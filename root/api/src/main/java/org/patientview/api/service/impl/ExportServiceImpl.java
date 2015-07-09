@@ -94,11 +94,17 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 if (results.containsKey(heading.toUpperCase())) {
                     //If there is only one result for that timestamp and code, add to the cell
                     if (results.get(heading.toUpperCase()).size() == 1) {
+
+                        if(results.get(heading.toUpperCase()).get(0).getValue() == null){
+                            results.get(heading.toUpperCase()).get(0).setValue("");
+                        }
+                        if(results.get(heading.toUpperCase()).get(0).getComments() == null){
+                            results.get(heading.toUpperCase()).get(0).setComments("");
+                        }
+
                         document.addValueToNextCell(String.format("%s %s",
-                                (results.get(heading.toUpperCase()).get(0).getComments() == null) ? ""
-                                        : results.get(heading.toUpperCase()).get(0).getComments(),
-                                results.get(heading.toUpperCase()).get(0).getValue()) == null ? ""
-                                : results.get(heading.toUpperCase()).get(0).getValue().trim());
+                                results.get(heading.toUpperCase()).get(0).getComments(),
+                                results.get(heading.toUpperCase()).get(0).getValue().trim()));
                         //Add the unit
                         if (!unitNames.contains(
                                 results.get(heading.toUpperCase()).get(0).getGroup().getShortName())) {
@@ -109,22 +115,27 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         //When multiple codes exist, add to the same cell with a new line
                         for (int i = results.get(heading.toUpperCase()).size() - 1; i >= 0; i--) {
                             FhirObservation observation = results.get(heading.toUpperCase()).get(i);
+
+                            if(observation.getValue() == null){
+                                observation.setValue("");
+                            }
+                            if(observation.getComments() == null){
+                                observation.setComments("");
+                            }
+
                             String result = String.format("%s %s",
-                                    (observation.getComments() == null) ? "" : observation.getComments(),
-                                    observation.getValue() == null ? "" : observation.getValue().trim());
+                                    observation.getComments(),
+                                    observation.getValue().trim());
 
                             if (i == results.get(heading.toUpperCase()).size() - 1) {
                                 document.addValueToNextCell(result);
                             } else {
-                                document.addValueToPreviousCell(String.format("%s %s",
-                                        (observation.getComments() == null) ? "" : observation.getComments(),
-                                        observation.getValue() == null ? "" : observation.getValue().trim()));
+                                document.addValueToPreviousCell(result);
                             }
                             //Add the unit
                             if (!unitNames.contains(observation.getGroup().getShortName())) {
                                 unitNames.add(observation.getGroup().getShortName());
                             }
-
                         }
                     }
                 } else {
