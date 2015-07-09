@@ -95,10 +95,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     //If there is only one result for that timestamp and code, add to the cell
                     if (results.get(heading.toUpperCase()).size() == 1) {
 
-                        if(results.get(heading.toUpperCase()).get(0).getValue() == null){
+                        if (results.get(heading.toUpperCase()).get(0).getValue() == null) {
                             results.get(heading.toUpperCase()).get(0).setValue("");
                         }
-                        if(results.get(heading.toUpperCase()).get(0).getComments() == null){
+                        if (results.get(heading.toUpperCase()).get(0).getComments() == null) {
                             results.get(heading.toUpperCase()).get(0).setComments("");
                         }
 
@@ -116,10 +116,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         for (int i = results.get(heading.toUpperCase()).size() - 1; i >= 0; i--) {
                             FhirObservation observation = results.get(heading.toUpperCase()).get(i);
 
-                            if(observation.getValue() == null){
+                            if (observation.getValue() == null) {
                                 observation.setValue("");
                             }
-                            if(observation.getComments() == null){
+                            if (observation.getComments() == null) {
                                 observation.setComments("");
                             }
 
