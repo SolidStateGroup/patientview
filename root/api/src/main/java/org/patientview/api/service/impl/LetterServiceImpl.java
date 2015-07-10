@@ -10,15 +10,19 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.model.FhirDocumentReference;
+import org.patientview.api.service.AuditService;
 import org.patientview.api.service.FileDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -30,7 +34,9 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -41,19 +47,22 @@ import java.util.UUID;
 public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> implements LetterService {
 
     @Inject
-    private FhirResource fhirResource;
+    private AuditService auditService;
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
 
     @Inject
-    private GroupRepository groupRepository;
+    private FhirResource fhirResource;
 
     @Inject
     private FileDataRepository fileDataRepository;
 
     @Inject
     private FileDataService fileDataService;
+
+    @Inject
+    private GroupRepository groupRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -206,11 +215,19 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         }
 
         List<UUID> documentReferenceUuids = new ArrayList<>();
+        Map<UUID, DocumentReference> documentReferenceMap = new HashMap<>();
+        Map<UUID, FhirLink> fhirLinkMap = new HashMap<>();
 
         // get all letters
         for (FhirLink fhirLink : fhirLinkRepository.findByUserAndGroup(entityUser, entityGroup)) {
-            documentReferenceUuids.addAll(
-                    fhirResource.getLogicalIdsBySubjectId("documentreference", fhirLink.getResourceId()));
+            List<UUID> logicalIds
+                    = fhirResource.getLogicalIdsBySubjectId("documentreference", fhirLink.getResourceId());
+
+            for (UUID logicalId : logicalIds) {
+                fhirLinkMap.put(logicalId, fhirLink);
+            }
+
+            documentReferenceUuids.addAll(logicalIds);
         }
 
         List<UUID> documentReferenceUuidsToDelete = new ArrayList<>();
@@ -227,11 +244,44 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
             if (dateTime.getMillis() == date) {
                 documentReferenceUuidsToDelete.add(uuid);
+                documentReferenceMap.put(uuid, documentReference);
             }
         }
 
         for (UUID uuid : documentReferenceUuidsToDelete) {
             fhirResource.deleteEntity(uuid, "documentreference");
+
+            FhirLink fhirLink = fhirLinkMap.get(uuid);
+            Group group = null;
+
+            if (fhirLink != null && fhirLink.getGroup() != null) {
+                group = fhirLink.getGroup();
+            }
+
+            Audit audit = new Audit();
+            audit.setAuditActions(AuditActions.PATIENT_LETTER_DELETE);
+            audit.setUsername(entityUser.getUsername());
+            audit.setActorId(getCurrentUser().getId());
+            audit.setGroup(group);
+            audit.setSourceObjectId(entityUser.getId());
+            audit.setSourceObjectType(AuditObjectTypes.User);
+
+            DocumentReference doc = documentReferenceMap.get(uuid);
+
+            String type = null;
+            if (doc.getType() != null) {
+                type = doc.getType().getTextSimple();
+            }
+
+            String dateString;
+            if (doc.getCreated() != null) {
+                dateString = doc.getCreated().getValue().toHumanDisplay();
+            } else {
+                dateString = "unknown date";
+            }
+
+            audit.setInformation(type + " (" + dateString + ")");
+            auditService.save(audit);
         }
     }
 }

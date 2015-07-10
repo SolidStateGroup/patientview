@@ -66,6 +66,7 @@ public enum AuditActions {
     PATIENT_DELETE("Patient delete"),
     PATIENT_GROUP_ROLE_ADD("Patient Group Role add"), // new in pv2
     PATIENT_GROUP_ROLE_DELETE("Patient Group Role delete"), // new in pv2
+    PATIENT_LETTER_DELETE("Patient letter delete"), // new in pv2 (2.1.0)
 
     // admin
     ADMIN_ADD("Admin add"),
