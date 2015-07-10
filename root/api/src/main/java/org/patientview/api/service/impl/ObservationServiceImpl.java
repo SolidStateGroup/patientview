@@ -305,7 +305,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     // used by migration
     @Override
     public FhirDatabaseObservation buildFhirDatabaseObservation(FhirObservation fhirObservation,
-                                                                ObservationHeading observationHeading, FhirLink fhirLink)
+                                                                ObservationHeading observationHeading,
+                                                                FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException {
 
         // build actual FHIR observation and set subject
@@ -513,8 +514,11 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     }
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
-                                                               final String orderBy, final String orderDirection, final Long limit)
+    public List<org.patientview.api.model.FhirObservation> get(final Long userId,
+                                                               final String code,
+                                                               final String orderBy,
+                                                               final String orderDirection,
+                                                               final Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
@@ -582,7 +586,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                                                 BigDecimal.ROUND_HALF_UP).toString());
                             } else {
                                 fhirObservation.setValue(
-                                        new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                                        new DecimalFormat("0.#####")
+                                                .format(Double.valueOf(fhirObservation.getValue())));
                             }
                         } catch (NumberFormatException ignore) {
                             // do not update if cant convert to double or big decimal (string based value)
@@ -938,7 +943,12 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return new FhirObservationPage(output, Long.valueOf(tempMap.entrySet().size()), Long.valueOf(pages));
     }
 
-    public Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> getObservationsByMultipleCodeAndDate(Long userId, List<String> codes, String orderDirection, String fromDate, String toDate)
+    public Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> getObservationsByMultipleCodeAndDate(
+            Long userId,
+            List<String> codes,
+            String orderDirection,
+            String fromDate,
+            String toDate)
             throws ResourceNotFoundException, FhirResourceException {
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -954,8 +964,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             orderDirection = "DESC";
         }
 
-        if(codes.size() == 0) {
-            for(String observationCode : observationHeadingMap.keySet()){
+        if (codes.size() == 0) {
+            for (String observationCode : observationHeadingMap.keySet()) {
                 codes.add(observationCode);
             }
         }
@@ -999,7 +1009,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
         query.append(codeString);
         query.append(") ");
-        if(fromDate != null && toDate != null) {
+        if (fromDate != null && toDate != null) {
             query.append("AND CONTENT ->> 'appliesDateTime' >= '" + fromDate + "' ");
             query.append("AND CONTENT ->> 'appliesDateTime' <= '" + toDate + "' ");
         }
@@ -1058,11 +1068,12 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     new org.patientview.api.model.FhirObservation(fhirObservation));
         }
 
-        if(orderDirection.equals("DESC")) {
-            Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> reverseMap = new TreeMap<>(Collections.reverseOrder());
+        if (orderDirection.equals("DESC")) {
+            Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> reverseMap
+                    = new TreeMap<>(Collections.reverseOrder());
             reverseMap.putAll(tempMap);
             return reverseMap;
-        }else {
+        } else {
             return tempMap;
         }
 
@@ -1097,7 +1108,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     }
 
     // note: doesn't return change since last observation, must be retrieved separately
-    private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
+    private ObservationSummary getObservationSummaryMap(Group group,
+                                                        List<ObservationHeading> observationHeadings,
                                                         Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
 

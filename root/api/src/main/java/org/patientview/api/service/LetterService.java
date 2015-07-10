@@ -53,7 +53,8 @@ public interface LetterService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    List<FhirDocumentReference> getByUserId(Long userId, String fromDate, String toDate) throws ResourceNotFoundException, FhirResourceException;
+    List<FhirDocumentReference> getByUserId(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly
     FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;
