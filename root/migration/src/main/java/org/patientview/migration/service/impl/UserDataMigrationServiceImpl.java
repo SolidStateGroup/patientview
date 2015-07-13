@@ -2212,7 +2212,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
                         // for partial migration
-                        migrationUser.setPartialMigration(true);
+                        migrationUser.setPartialMigration(false);
 
                         if (migrationUser != null) {
                             try {
