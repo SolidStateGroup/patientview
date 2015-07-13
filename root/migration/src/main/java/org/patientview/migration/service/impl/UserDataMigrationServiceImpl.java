@@ -2194,7 +2194,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             List<Long> userIds = new ArrayList<Long>();
 
             // single user testing, user is not already present in pv2, has test results to migrate as well
-            userIds.add(652L);
+            userIds.add(341L);
 
             //userIds.add(1058L);
 
