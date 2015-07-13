@@ -2132,7 +2132,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ignoredIds.add(1046L);
         ignoredIds.add(1058L);
 
-        boolean singleUser = true;
+        boolean singleUser = false;
         boolean replaceExisting = false;
 
         if (!singleUser) {
