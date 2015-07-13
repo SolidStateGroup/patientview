@@ -529,11 +529,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 if (score >= 10) {
                     severity = ScoreSeverity.HIGH;
-                }
-                if (score >= 4) {
+                } else if (score >= 4) {
                     severity = ScoreSeverity.MEDIUM;
-                }
-                if (score < 4) {
+                } else if (score < 4) {
                     severity = ScoreSeverity.LOW;
                 }
 
@@ -664,11 +662,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 if (score >= 16) {
                     severity = ScoreSeverity.HIGH;
-                }
-                if (score >= 4) {
+                } else if (score >= 4) {
                     severity = ScoreSeverity.MEDIUM;
-                }
-                if (score < 4) {
+                } else if (score < 4) {
                     severity = ScoreSeverity.LOW;
                 }
 
