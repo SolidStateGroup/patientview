@@ -893,10 +893,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (CollectionUtils.isNotEmpty(letters)) {
 
             // remove duplicates and empty letters
-            Map<Calendar, Letter> letterMap = new HashMap<Calendar, Letter>();
+            Map<String, Letter> letterMap = new HashMap<String, Letter>();
             for (Letter letter : letters) {
                 if (StringUtils.isNotEmpty(letter.getContent())) {
-                    letterMap.put(letter.getDate(), letter);
+                    letterMap.put(letter.getDate().toString() + letter.getType(), letter);
                 }
             }
 
