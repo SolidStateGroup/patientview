@@ -93,7 +93,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private DataSource dataSource;
 
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
-    private static final boolean DELETE_EXISTING = true;
+    private static final boolean DELETE_EXISTING = false;
     private static final int THREE = 3;
     private static final int FOUR = 4;
 
