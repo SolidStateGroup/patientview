@@ -2127,19 +2127,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // do not migrate these pv1 ids (avoid data clashes etc with ibd migration)
         List<Long> ignoredIds = new ArrayList<Long>();
 
-        // matching users to be manually deleted from pv2 before migrating
-        ignoredIds.add(33L);
-        ignoredIds.add(110L);
+        // test patients in ibd
+        ignoredIds.add(41L);
+
+        // need partial migration (using single user migration)
         ignoredIds.add(1004L);
         ignoredIds.add(1010L);
         ignoredIds.add(1046L);
         ignoredIds.add(1058L);
-
-        // usernames must be changed in ibd to avoid data clashes with different people in pv2
-        ignoredIds.add(89L);
-        ignoredIds.add(128L);
-        ignoredIds.add(1066L);
-        ignoredIds.add(1084L);
 
         boolean singleUser = true;
         boolean replaceExisting = false;
@@ -2197,7 +2192,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             LOG.info("--- Single user migration ---");
 
             List<Long> userIds = new ArrayList<Long>();
-            userIds.add(1058L);
+
+            // single user testing, user is not already present in pv2, has test results to migrate as well
+            userIds.add(753L);
+
+            //userIds.add(1058L);
 
             for (Long userId : userIds) {
                 try {
