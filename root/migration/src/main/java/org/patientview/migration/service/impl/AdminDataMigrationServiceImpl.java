@@ -68,16 +68,21 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
+    private @Value("${jdbc.url}") String jdbcUrl;
+    private @Value("${jdbc.username}") String jdbcUsername;
+    private @Value("${jdbc.password}") String jdbcPassword;
 
     @Override
     public void init() throws JsonMigrationException {
         try {
+            LOG.info("Starting admin data initialisation");
             JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
             features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
             roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
             groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+            LOG.info("Finished admin data initialisation");
         } catch (JsonMigrationException e) {
             LOG.error("Could not authenticate {} ", e.getCause());
             throw new JsonMigrationException(e.getMessage());
@@ -157,7 +162,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                     "WHERE linkType = '" + codeTypeName + "'";
 
             try {
-                DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+                DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
                 connection = dataSource.getConnection();
                 Statement statement = connection.createStatement();
                 ResultSet results = statement.executeQuery(sql);
@@ -253,7 +258,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             String sql = "SELECT headingcode, heading, rollover, link, panel, panelorder FROM result_heading";
 
             try {
-                DataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/ibd", "root", "");
+                DataSource dataSource = new DriverManagerDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
                 connection = dataSource.getConnection();
                 Statement statement = connection.createStatement();
                 ResultSet results = statement.executeQuery(sql);
