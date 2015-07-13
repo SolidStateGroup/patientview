@@ -156,14 +156,14 @@ public class ImportControllerTest {
         //String fileName = "data/xml/2.0.6tests/SGC02_01439_2609995652.xml"; // ok, 282 observations
 
         // local testing
-        //String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
 
         // IBD
         //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
-        String fileName = "data/xml/partialmigration/test1.xml";
+        //String fileName = "data/xml/partialmigration/test1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
