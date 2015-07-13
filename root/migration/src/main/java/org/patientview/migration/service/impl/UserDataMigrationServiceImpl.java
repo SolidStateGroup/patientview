@@ -2164,7 +2164,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                                     try {
                                                         LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
                                                                 + group.getCode() + " submitting to REST");
-                                                        executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                                                        //executorService.submit(new AsyncMigrateUserTask(migrationUser));
 
                                                         migratedPv1IdsThisRun.add(oldUser.getId());
                                                     } catch (Exception e) {
