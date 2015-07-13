@@ -731,7 +731,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 diagnosticReport.setGroup(unit);
                 diagnosticReport.setDate(results.getTimestamp(1));
                 diagnosticReport.setType(typeMap.get(results.getLong(3)).toString());
-                diagnosticReport.setName("Photo of patient");
+                diagnosticReport.setName(" ");
                 diagnosticReport.setResult(observation);
                 diagnosticReport.setIdentifier(nhsNo);
 
