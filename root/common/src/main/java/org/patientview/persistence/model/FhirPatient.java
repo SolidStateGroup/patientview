@@ -31,7 +31,7 @@ public class FhirPatient extends BaseModel {
     // used during migration
     private String identifier;
     private Group group;
-    private FhirPractitioner practitioner;
+    private List<FhirPractitioner> practitioners = new ArrayList<>();
 
     public FhirPatient() {
     }
@@ -200,12 +200,12 @@ public class FhirPatient extends BaseModel {
         this.group = group;
     }
 
-    public FhirPractitioner getPractitioner() {
-        return practitioner;
+    public List<FhirPractitioner> getPractitioners() {
+        return practitioners;
     }
 
-    public void setPractitioner(FhirPractitioner practitioner) {
-        this.practitioner = practitioner;
+    public void setPractitioners(List<FhirPractitioner> practitioners) {
+        this.practitioners = practitioners;
     }
 
     public String getDateOfBirthNoTime() {

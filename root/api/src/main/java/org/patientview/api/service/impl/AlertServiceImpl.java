@@ -282,7 +282,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             for (String emailAddress : emailAddresses) {
                 String[] recipients = {emailAddress};
                 Email email = new Email();
-                email.setBcc(true);
+                email.setBcc(false);
                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));
                 email.setSenderName(properties.getProperty("smtp.sender.name"));
                 email.setRecipients(recipients);

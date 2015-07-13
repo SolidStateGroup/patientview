@@ -3,6 +3,8 @@ package org.patientview.persistence.model;
 import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.patientview.persistence.model.enums.PractitionerRoles;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class FhirPractitioner extends BaseModel {
     private String address4;
     private String postcode;
     private List<FhirContact> contacts;
+    private String role;
 
     public FhirPractitioner() {
     }
@@ -58,6 +61,13 @@ public class FhirPractitioner extends BaseModel {
                 }
                 getContacts().add(contact);
             }
+        }
+
+        // role (set to GP if null)
+        if (!CollectionUtils.isEmpty(practitioner.getRole())) {
+            setRole(practitioner.getRole().get(0).getTextSimple());
+        } else {
+            setRole(PractitionerRoles.GP.toString());
         }
     }
 
@@ -123,5 +133,13 @@ public class FhirPractitioner extends BaseModel {
 
     public void setContacts(List<FhirContact> contacts) {
         this.contacts = contacts;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

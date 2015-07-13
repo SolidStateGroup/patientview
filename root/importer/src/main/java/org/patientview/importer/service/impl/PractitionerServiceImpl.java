@@ -3,15 +3,23 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.HumanName;
+import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -75,7 +83,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                         CommonUtils.cleanSql(data.getGpdetails().getGpaddress3()),
                         CommonUtils.cleanSql(data.getGpdetails().getGpaddress4()),
                         CommonUtils.cleanSql(data.getGpdetails().getGppostcode()),
-                        CommonUtils.cleanSql(data.getGpdetails().getGptelephone()));
+                        CommonUtils.cleanSql(data.getGpdetails().getGptelephone()),
+                        null);
 
                 if (!uuids.isEmpty()) {
                     // native update existing FHIR entities (should be a single row), return reference
@@ -106,8 +115,83 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 
+    @Override
+    public void addOtherPractitionersToPatient(Patientview data, FhirLink fhirLink) throws FhirResourceException {
+        if (data.getPatient().getClinicaldetails() != null) {
+            List<UUID> practitionerUuidsToAdd = new ArrayList<>();
+
+            // named consultant
+            if (StringUtils.isNotEmpty(data.getPatient().getClinicaldetails().getNamedconsultant())) {
+                practitionerUuidsToAdd.add(storeOtherPractitioner(
+                    data.getPatient().getClinicaldetails().getNamedconsultant(), PractitionerRoles.NAMED_CONSULTANT));
+            }
+
+            // IBD nurse
+            if (StringUtils.isNotEmpty(data.getPatient().getClinicaldetails().getIbdnurse())) {
+                practitionerUuidsToAdd.add(storeOtherPractitioner(
+                    data.getPatient().getClinicaldetails().getIbdnurse(), PractitionerRoles.IBD_NURSE));
+            }
+
+            // add practitioners to existing patient
+            if (!CollectionUtils.isEmpty(practitionerUuidsToAdd)) {
+                try {
+                    Patient patient = (Patient) DataUtils.getResource(
+                            fhirResource.getResource(fhirLink.getResourceId(), ResourceType.Patient));
+
+                    for (UUID practitionerUuid : practitionerUuidsToAdd) {
+                        ResourceReference careProvider = patient.addCareProvider();
+                        careProvider.setReferenceSimple("uuid");
+                        careProvider.setDisplaySimple(practitionerUuid.toString());
+                    }
+
+                    fhirResource.updateEntity(
+                            patient, ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
+                } catch (Exception e) {
+                    LOG.error(nhsno + ": Unable to add other practitioners to patient, continuing..");
+                }
+            }
+        }
+    }
+
+    private UUID storeOtherPractitioner(String name, PractitionerRoles role) throws FhirResourceException {
+        // build simple practitioner, setting role
+        Practitioner practitioner = new Practitioner();
+
+        HumanName humanName = new HumanName();
+        humanName.addFamilySimple(CommonUtils.cleanSql(name));
+        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
+        humanName.setUse(nameUse);
+        practitioner.setName(humanName);
+
+        practitioner.addRole().setTextSimple(role.toString());
+
+        // check existing by role
+        List<Map<String, UUID>> uuids = getUuids(CommonUtils.cleanSql(name),
+                null, null, null, null, null, null, role.toString());
+
+        if (!uuids.isEmpty()) {
+            // native update existing FHIR entities (should be a single row), return reference
+            UUID logicalId = null;
+
+            for (Map<String, UUID> objectData : uuids) {
+                fhirResource.updateEntity(practitioner,
+                        ResourceType.Practitioner.name(), "practitioner", objectData.get("logicalId"));
+                logicalId = objectData.get("logicalId");
+            }
+
+            LOG.info(nhsno + ": Existing " + role.toString() + ", " + logicalId);
+            return logicalId;
+        } else {
+            // native create new FHIR object
+            FhirDatabaseEntity entity = fhirResource.createEntity(
+                    practitioner, ResourceType.Practitioner.name(), "practitioner");
+            LOG.info(nhsno + ": New " + role.toString() + ", " + entity.getLogicalId());
+            return entity.getLogicalId();
+        }
+    }
+
     private List<Map<String, UUID>> getUuids(String familyName, String address1, String address2, String address3, 
-                                             String address4, String postcode, String telephone) 
+                                             String address4, String postcode, String telephone, String role)
             throws FhirResourceException {
 
         // build query, handle db stored '' for ' in text e.g. O''DONNEL
@@ -164,6 +248,14 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
             query.append("' ");
         } else {
             query.append("AND (content #> '{telecom,0}' ->> 'value') IS NULL ");
+        }
+
+        if (StringUtils.isNotEmpty(role)) {
+            query.append("AND content #> '{role,0}' ->> 'text' = '");
+            query.append(role.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content #> '{role,0}' ->> 'text') IS NULL ");
         }
 
         // execute and return UUIDs

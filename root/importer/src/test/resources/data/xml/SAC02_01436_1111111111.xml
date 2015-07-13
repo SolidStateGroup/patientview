@@ -334,6 +334,13 @@
                 <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
             </letter>
             <letter>
+                <letterdate>2013-10-24T14:58:52</letterdate>
+                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of
+                another letter with some spaces
+                another letter with some spaces
+                another letter with some spaces]]></lettercontent>
+            </letter>
+            <letter>
                 <letterdate>2013-10-09T15:56:52</letterdate>
                 <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is 'the contents of a letter]]></lettercontent>
             </letter>
@@ -378,15 +385,17 @@
                 <diagnosticdate>2014-08-09T15:58:25</diagnosticdate>
             </diagnostic>
         </diagnostics>
-        <allergy>
-            <allergysubstance>Some substance</allergysubstance>
-            <allergytypecode>Drug</allergytypecode>
-            <allergyreaction>Itching</allergyreaction>
-            <allergyconfidencelevel>Confirmed no YC</allergyconfidencelevel>
-            <allergyinfosource>Patient</allergyinfosource>
-            <allergystatus>Active</allergystatus>
-            <allergydescription>Causes itching</allergydescription>
-            <allergyrecordeddate>2014-08-09</allergyrecordeddate>
-        </allergy>
+        <allergydetails>
+            <allergy>
+                <allergysubstance>Some substance</allergysubstance>
+                <allergytypecode>Drug</allergytypecode>
+                <allergyreaction>Itching</allergyreaction>
+                <allergyconfidencelevel>Confirmed no YC</allergyconfidencelevel>
+                <allergyinfosource>Patient</allergyinfosource>
+                <allergystatus>Active</allergystatus>
+                <allergydescription>Causes itching</allergydescription>
+                <allergyrecordeddate>2014-08-09</allergyrecordeddate>
+            </allergy>
+        </allergydetails>
     </patient>
 </patientview>

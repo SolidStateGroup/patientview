@@ -15,6 +15,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -48,31 +49,43 @@ public class PractitionerServiceImpl extends BaseController<PractitionerServiceI
         humanName.setUse(nameUse);
         practitioner.setName(humanName);
 
-        Address address = new Address();
-        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress1())) {
-            address.addLineSimple(fhirPractitioner.getAddress1());
-        }
-        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress2())) {
-            address.setCitySimple(fhirPractitioner.getAddress2());
-        }
-        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress3())) {
-            address.setStateSimple(fhirPractitioner.getAddress3());
-        }
-        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress4())) {
-            address.setCountrySimple(fhirPractitioner.getAddress4());
-        }
-        if (StringUtils.isNotEmpty(fhirPractitioner.getPostcode())) {
-            address.setZipSimple(fhirPractitioner.getPostcode());
-        }
-        practitioner.setAddress(address);
-
-        for (FhirContact fhirContact : fhirPractitioner.getContacts()) {
-            if (StringUtils.isNotEmpty(fhirContact.getValue())) {
-                Contact contact = practitioner.addTelecom();
-                contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
-                contact.setValueSimple(fhirContact.getValue());
-                contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress1())
+                || StringUtils.isNotEmpty(fhirPractitioner.getAddress2())
+                || StringUtils.isNotEmpty(fhirPractitioner.getAddress3())
+                || StringUtils.isNotEmpty(fhirPractitioner.getAddress4())
+                || StringUtils.isNotEmpty(fhirPractitioner.getPostcode())) {
+            Address address = new Address();
+            if (StringUtils.isNotEmpty(fhirPractitioner.getAddress1())) {
+                address.addLineSimple(fhirPractitioner.getAddress1());
             }
+            if (StringUtils.isNotEmpty(fhirPractitioner.getAddress2())) {
+                address.setCitySimple(fhirPractitioner.getAddress2());
+            }
+            if (StringUtils.isNotEmpty(fhirPractitioner.getAddress3())) {
+                address.setStateSimple(fhirPractitioner.getAddress3());
+            }
+            if (StringUtils.isNotEmpty(fhirPractitioner.getAddress4())) {
+                address.setCountrySimple(fhirPractitioner.getAddress4());
+            }
+            if (StringUtils.isNotEmpty(fhirPractitioner.getPostcode())) {
+                address.setZipSimple(fhirPractitioner.getPostcode());
+            }
+            practitioner.setAddress(address);
+        }
+
+        if (!CollectionUtils.isEmpty(fhirPractitioner.getContacts())) {
+            for (FhirContact fhirContact : fhirPractitioner.getContacts()) {
+                if (StringUtils.isNotEmpty(fhirContact.getValue())) {
+                    Contact contact = practitioner.addTelecom();
+                    contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
+                    contact.setValueSimple(fhirContact.getValue());
+                    contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+                }
+            }
+        }
+
+        if (StringUtils.isNotEmpty(fhirPractitioner.getRole())) {
+            practitioner.addRole().setTextSimple(fhirPractitioner.getRole());
         }
 
         FhirDatabaseEntity entity

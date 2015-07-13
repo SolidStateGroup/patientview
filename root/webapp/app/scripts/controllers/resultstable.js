@@ -172,6 +172,27 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
             // closed
         });
     };
+
+    $scope.openExportToCSVModal = function () {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/exportToCSVModal.html',
+            controller: "ExportInfoModalInstanceCtrl",
+            size: 'sm',
+            windowClass: 'results-modal',
+            resolve: {
+                result: function(){
+                    return true;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
     
     $scope.getGroupsFromRow = function (row) {
         var groups = [];

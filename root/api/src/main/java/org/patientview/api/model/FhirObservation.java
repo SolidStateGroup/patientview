@@ -21,6 +21,9 @@ public class FhirObservation {
     private String location;
     private String units;
 
+    // only used by my IBD
+    private String diagram;
+
     public FhirObservation() {
     }
 
@@ -38,6 +41,7 @@ public class FhirObservation {
         this.bodySite = fhirObservation.getBodySite();
         this.location = fhirObservation.getLocation();
         this.units = fhirObservation.getUnits();
+        this.diagram = fhirObservation.getDiagram();
     }
 
     public Long getId() {
@@ -126,5 +130,13 @@ public class FhirObservation {
 
     public void setUnits(String units) {
         this.units = units;
+    }
+
+    public String getDiagram() {
+        return diagram;
+    }
+
+    public void setDiagram(String diagram) {
+        this.diagram = diagram;
     }
 }

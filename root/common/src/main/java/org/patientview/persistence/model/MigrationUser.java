@@ -17,6 +17,9 @@ public class MigrationUser {
     private Long observationEndDate;
     private boolean deleteExistingTestObservations = false;
 
+    // used for partial migrations
+    private boolean partialMigration = false;
+
     // User
     private User user;
 
@@ -40,6 +43,12 @@ public class MigrationUser {
 
     // Patient (pv1 patient table data)
     private List<FhirPatient> patients = new ArrayList<>();
+
+    // for crohns, colitis symptom scores
+    private List<SurveyResponse> surveyResponses = new ArrayList<>();
+
+    // allergies
+    private List<FhirAllergy> allergies = new ArrayList<>();
 
     public MigrationUser () {
     }
@@ -78,6 +87,14 @@ public class MigrationUser {
 
     public void setObservationEndDate(Long observationEndDate) {
         this.observationEndDate = observationEndDate;
+    }
+
+    public boolean isPartialMigration() {
+        return partialMigration;
+    }
+
+    public void setPartialMigration(boolean partialMigration) {
+        this.partialMigration = partialMigration;
     }
 
     public User getUser() {
@@ -150,5 +167,21 @@ public class MigrationUser {
 
     public void setDeleteExistingTestObservations(boolean deleteExistingTestObservations) {
         this.deleteExistingTestObservations = deleteExistingTestObservations;
+    }
+
+    public List<SurveyResponse> getSurveyResponses() {
+        return surveyResponses;
+    }
+
+    public void setSurveyResponses(List<SurveyResponse> surveyResponses) {
+        this.surveyResponses = surveyResponses;
+    }
+
+    public List<FhirAllergy> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(List<FhirAllergy> allergies) {
+        this.allergies = allergies;
     }
 }

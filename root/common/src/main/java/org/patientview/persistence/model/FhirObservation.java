@@ -39,6 +39,9 @@ public class FhirObservation extends BaseModel {
     // stored during import if value can be stored as Quantity
     private String units;
 
+    // only used by my IBD
+    private String diagram;
+
     public FhirObservation() {
     }
 
@@ -49,39 +52,37 @@ public class FhirObservation extends BaseModel {
             throw new FhirResourceException("Cannot convert FHIR observation, missing Name");
         }
 
-        if (observation.getValue() == null) {
-            throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
-        }
-
         setTemporaryUuid(UUID.randomUUID().toString());
         setName(observation.getName().getTextSimple().toUpperCase());
         setComments(observation.getCommentsSimple());
 
-        if (observation.getValue().getClass().equals(Quantity.class)) {
+        if (observation.getValue() != null) {
+            if (observation.getValue().getClass().equals(Quantity.class)) {
 
-            // value
-            Quantity value = (Quantity) observation.getValue();
-            if (value.getValueSimple() != null) {
-                setValue(value.getValueSimple().toString());
-            }
+                // value
+                Quantity value = (Quantity) observation.getValue();
+                if (value.getValueSimple() != null) {
+                    setValue(value.getValueSimple().toString());
+                }
 
-            // comparator
-            Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();
-            if (quantityComparator != null && !quantityComparator.equals(Quantity.QuantityComparator.Null)) {
-                setComparator(quantityComparator.toCode());
-            }
-            
-            // units
-            String units = value.getUnitsSimple();
-            if (StringUtils.isNotEmpty(units)) {
-                setUnits(units);
-            }
+                // comparator
+                Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();
+                if (quantityComparator != null && !quantityComparator.equals(Quantity.QuantityComparator.Null)) {
+                    setComparator(quantityComparator.toCode());
+                }
 
-        } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
-            CodeableConcept value = (CodeableConcept) observation.getValue();
-            setValue(value.getTextSimple());
-        } else {
-            throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
+                // units
+                String units = value.getUnitsSimple();
+                if (StringUtils.isNotEmpty(units)) {
+                    setUnits(units);
+                }
+
+            } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                CodeableConcept value = (CodeableConcept) observation.getValue();
+                setValue(value.getTextSimple());
+            } else {
+                throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
+            }
         }
 
         if (observation.getApplies() != null) {
@@ -187,5 +188,13 @@ public class FhirObservation extends BaseModel {
 
     public void setUnits(String units) {
         this.units = units;
+    }
+
+    public String getDiagram() {
+        return diagram;
+    }
+
+    public void setDiagram(String diagram) {
+        this.diagram = diagram;
     }
 }

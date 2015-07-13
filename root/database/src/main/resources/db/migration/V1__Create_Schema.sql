@@ -624,7 +624,7 @@ CREATE TABLE PV_External_Service_Task_Queue_Item
   Last_Update_Date            TIMESTAMP,
   Last_Updated_By             BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
+);
 
 CREATE TABLE PV_File_Data
 (
@@ -635,7 +635,87 @@ CREATE TABLE PV_File_Data
   Content         BYTEA NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
-)
+);
+
+/* new for 2.1.0 */
+CREATE TABLE PV_Survey
+(
+  Id              BIGINT NOT NULL,
+  Type            TEXT NOT NULL,
+  Description     TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Survey_Response
+(
+  Id              BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL,
+  Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
+  Date            TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Survey_Response_Score
+(
+  Id              BIGINT NOT NULL,
+  Type            TEXT NOT NULL,
+  Survey_Response_Id       BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
+  Score           INT NOT NULL,
+  Severity        TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Question_Group
+(
+  Id              BIGINT NOT NULL,
+  Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
+  Text            TEXT NOT NULL,
+  Description     TEXT,
+  Number          TEXT,
+  Display_Order   INT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Question
+(
+  Id              BIGINT NOT NULL,
+  Question_Group_Id     BIGINT NOT NULL REFERENCES PV_Question_Group (Id),
+  Element_Type    TEXT NOT NULL,
+  Html_Type       TEXT NOT NULL,
+  Text            TEXT NOT NULL,
+  Type            TEXT,
+  Description     TEXT,
+  Number          TEXT,
+  Display_Order   INT,
+  Range_Start     INT,
+  Range_End       INT,
+  Range_Start_Description          TEXT,
+  Range_End_Description          TEXT,
+  Help_Link       TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Question_Option
+(
+  Id              BIGINT NOT NULL,
+  Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
+  Text            TEXT NOT NULL,
+  Type            TEXT,
+  Description     TEXT,
+  Display_Order   INT,
+  Score           INT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Question_Answer
+(
+  Id              BIGINT NOT NULL,
+  Question_Id     BIGINT NOT NULL REFERENCES PV_Question (Id),
+  Question_Option_Id     BIGINT REFERENCES PV_Question_Option (Id),
+  Survey_Response_Id     BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
+  Value            TEXT,
+  PRIMARY KEY (Id)
+);
 
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1

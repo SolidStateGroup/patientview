@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
@@ -201,7 +202,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     sb.append(obs.getResourceType()).append("','");
                     sb.append(obs.getPublished().toString()).append("','");
                     sb.append(obs.getUpdated().toString()).append("','");
-                    sb.append(obs.getContent());
+                    sb.append(CommonUtils.cleanSql(obs.getContent()));
                     sb.append("')");
                     if (i != (fhirDatabaseObservations.size() - 1)) {
                         sb.append(",");

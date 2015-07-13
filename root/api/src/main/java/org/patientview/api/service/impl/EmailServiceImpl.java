@@ -73,14 +73,16 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                     }
 
                     try {
-                        InternetAddress fromAddress = new InternetAddress(email.getSenderEmail(), email.getSenderName());
+                        InternetAddress fromAddress
+                                = new InternetAddress(email.getSenderEmail(), email.getSenderName());
                         helper.setFrom(fromAddress);
 
                         if (email.isBcc()) {
                             fromAddress.setPersonal("PatientView User");
                             helper.setTo(fromAddress);
                         }
-                        //LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
+                        //LOG.info("Email: Set from " + fromAddress.getPersonal() + " ("
+                        // + fromAddress.getAddress() + ")");
                     } catch (UnsupportedEncodingException uee) {
                         helper.setFrom(email.getSenderEmail());
 

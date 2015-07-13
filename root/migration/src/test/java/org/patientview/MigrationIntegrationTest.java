@@ -28,7 +28,7 @@ import javax.inject.Inject;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(value = "classpath:source-repository.xml")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Ignore
+
 public class MigrationIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrationIntegrationTest.class);
@@ -69,7 +69,7 @@ public class MigrationIntegrationTest {
     @Transactional
     @Rollback(false)
     public void test02UserMigration() throws JsonMigrationException {
-        userDataMigrationService.migrate(null);
+        userDataMigrationService.migrate("SALIBD");
     }
 
     /**

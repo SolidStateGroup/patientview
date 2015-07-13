@@ -40,7 +40,21 @@ public interface LetterService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    List<FhirDocumentReference> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+    List<FhirDocumentReference>
+    getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Get a List of all a User's letters, retrieved from FHIR.
+     * @param userId ID of User to retrieve letters for
+     * @param fromDate yyyy-mm-dd date to search from
+     * @param toDate  yyyy-mm-dd date to search to
+     * @return List of letters in FhirDocumentReference format
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    List<FhirDocumentReference> getByUserId(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly
     FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;

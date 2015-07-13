@@ -4,7 +4,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.time.format.DateTimeFormat;
 import org.patientview.persistence.model.enums.IdentifierTypes;
+
+import java.util.Date;
 
 /**
  * Created by james@solidstategroup.com
@@ -79,5 +82,34 @@ public final class CommonUtils {
         }
 
         return input.replace("'","''");
+    }
+
+    public static Date getDateFromString(String text) {
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        try {
+            return DateTimeFormat.forPattern("dd/MM/yyyy' 'HH:mm:ss").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        try {
+            return DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(text).toDate();
+        } catch (IllegalArgumentException iae) {
+            // likely too short
+        }
+
+        throw new IllegalArgumentException();
     }
 }

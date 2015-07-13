@@ -41,6 +41,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.IbdDiseaseExtent;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.UserRepository;
@@ -72,7 +73,7 @@ import java.util.UUID;
 
 /**
  * Observation service, for management and retrieval of observations (test results), stored in FHIR.
- *
+ * <p/>
  * Created by james@solidstategroup.com
  * Created on 02/09/2014
  */
@@ -304,7 +305,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     // used by migration
     @Override
     public FhirDatabaseObservation buildFhirDatabaseObservation(FhirObservation fhirObservation,
-                                                            ObservationHeading observationHeading, FhirLink fhirLink)
+                                                                ObservationHeading observationHeading,
+                                                                FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException {
 
         // build actual FHIR observation and set subject
@@ -487,6 +489,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     /**
      * Natively delete Observations from FHIR by logical ID.
+     *
      * @param observationsUuidsToDelete List of UUID Observation logical IDs to delete
      * @throws FhirResourceException
      */
@@ -511,8 +514,11 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     }
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
-                                                   final String orderBy, final String orderDirection, final Long limit)
+    public List<org.patientview.api.model.FhirObservation> get(final Long userId,
+                                                               final String code,
+                                                               final String orderBy,
+                                                               final String orderDirection,
+                                                               final Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
@@ -580,7 +586,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                                                 BigDecimal.ROUND_HALF_UP).toString());
                             } else {
                                 fhirObservation.setValue(
-                                    new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                                        new DecimalFormat("0.#####")
+                                                .format(Double.valueOf(fhirObservation.getValue())));
                             }
                         } catch (NumberFormatException ignore) {
                             // do not update if cant convert to double or big decimal (string based value)
@@ -639,6 +646,13 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             if (fhirGroup != null) {
                 fhirObservation.setGroup(fhirGroup);
             }
+
+            // handle my IBD IBD_DISEASE_EXTENT observations with a diagram
+            if (fhirObservation.getValue() != null
+                    && fhirObservation.getName().equals(NonTestObservationTypes.IBD_DISEASE_EXTENT.toString())) {
+                fhirObservation.setDiagram(IbdDiseaseExtent.getDiagramByName(fhirObservation.getValue()));
+            }
+
             fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
         }
         return fhirObservations;
@@ -929,6 +943,142 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return new FhirObservationPage(output, Long.valueOf(tempMap.entrySet().size()), Long.valueOf(pages));
     }
 
+    public Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> getObservationsByMultipleCodeAndDate(
+            Long userId,
+            List<String> codes,
+            String orderDirection,
+            String fromDate,
+            String toDate)
+            throws ResourceNotFoundException, FhirResourceException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+            observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+        }
+
+        if (!(orderDirection.equals("ASC") || orderDirection.equals("DESC"))) {
+            orderDirection = "DESC";
+        }
+
+        if (codes.size() == 0) {
+            for (String observationCode : observationHeadingMap.keySet()) {
+                codes.add(observationCode);
+            }
+        }
+        StringBuilder codeString = new StringBuilder();
+        StringBuilder fhirLinkString = new StringBuilder();
+
+        for (int i = 0; i < codes.size(); i++) {
+            codeString.append("'");
+            codeString.append(codes.get(i).toUpperCase());
+            codeString.append("'");
+            if (i != codes.size() - 1) {
+                codeString.append(",");
+            }
+        }
+
+        List<FhirLink> fhirLinks = new ArrayList<>(user.getFhirLinks());
+        Map<String, Group> subjectGroupMap = new HashMap<>();
+
+        for (int i = 0; i < fhirLinks.size(); i++) {
+            FhirLink fhirLink = fhirLinks.get(i);
+            if (fhirLink.getActive()) {
+                if (!subjectGroupMap.containsKey(fhirLink.getResourceId().toString())) {
+                    subjectGroupMap.put(fhirLink.getResourceId().toString(), fhirLink.getGroup());
+                }
+
+                fhirLinkString.append("'");
+                fhirLinkString.append(fhirLink.getResourceId().toString());
+                fhirLinkString.append("'");
+                if (i != fhirLinks.size() - 1) {
+                    fhirLinkString.append(",");
+                }
+            }
+        }
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT  content::varchar ");
+        query.append("FROM    observation ");
+        query.append("WHERE   content -> 'subject' ->> 'display' IN (");
+        query.append(fhirLinkString);
+        query.append(") ");
+        query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
+        query.append(codeString);
+        query.append(") ");
+        if (fromDate != null && toDate != null) {
+            query.append("AND CONTENT ->> 'appliesDateTime' >= '" + fromDate + "' ");
+            query.append("AND CONTENT ->> 'appliesDateTime' <= '" + toDate + "' ");
+        }
+        query.append("ORDER BY content-> 'appliesDateTime' ");
+        query.append(orderDirection);
+
+        query.append(", CONTENT -> 'comments' ASC");
+
+        List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+        Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> tempMap = new TreeMap<>();
+
+        // convert to transport object
+        for (Observation observation : observations) {
+
+            // convert from FHIR observation to FhirObservation and add group
+            FhirObservation fhirObservation = new FhirObservation(observation);
+            if (subjectGroupMap.containsKey(observation.getSubject().getDisplaySimple())) {
+                fhirObservation.setGroup(subjectGroupMap.get(observation.getSubject().getDisplaySimple()));
+            }
+
+            // set correct number of decimal places
+            if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+                try {
+                    ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName());
+                    if (observationHeading != null) {
+                        if (observationHeading.getDecimalPlaces() != null) {
+                            fhirObservation.setValue(new BigDecimal(fhirObservation.getValue()).setScale(
+                                    observationHeading.getDecimalPlaces().intValue(),
+                                    BigDecimal.ROUND_HALF_UP).toString());
+                        } else {
+                            fhirObservation.setValue(
+                                    new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                        }
+                    } else {
+                        fhirObservation.setValue(
+                                new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                    }
+                } catch (NumberFormatException ignore) {
+                    // do not update if cant convert to double or big decimal (string based value)
+                    LOG.trace("NumberFormatException", ignore);
+                }
+            }
+
+            // add to output for this date, overriding this observation type if present
+            Long applies = fhirObservation.getApplies().getTime();
+            if (!tempMap.containsKey(applies)) {
+                tempMap.put(applies, new HashMap<String, List<org.patientview.api.model.FhirObservation>>());
+            }
+
+            if (tempMap.get(applies).get(fhirObservation.getName()) == null) {
+                tempMap.get(applies).put(fhirObservation.getName(),
+                        new ArrayList<org.patientview.api.model.FhirObservation>());
+            }
+            tempMap.get(applies).get(fhirObservation.getName()).add(
+                    new org.patientview.api.model.FhirObservation(fhirObservation));
+        }
+
+        if (orderDirection.equals("DESC")) {
+            Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> reverseMap
+                    = new TreeMap<>(Collections.reverseOrder());
+            reverseMap.putAll(tempMap);
+            return reverseMap;
+        } else {
+            return tempMap;
+        }
+
+    }
+
     public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -958,8 +1108,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     }
 
     // note: doesn't return change since last observation, must be retrieved separately
-    private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
-                                            Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+    private ObservationSummary getObservationSummaryMap(Group group,
+                                                        List<ObservationHeading> observationHeadings,
+                                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
@@ -1014,7 +1165,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         JSONArray links = (JSONArray) resource.get("link");
-        JSONObject link = (JSONObject)  links.get(0);
+        JSONObject link = (JSONObject) links.get(0);
         String[] href = link.getString("href").split("/");
         return UUID.fromString(href[href.length - 1]);
     }

@@ -1,0 +1,72 @@
+<style>
+    .td-strong {
+        font-weight: bold;
+    }
+    .row-question {
+        margin: 10px 0 0 15px;
+    }
+    .question-description {
+        font-weight: normal;
+        color: #368DE8;
+        font-size: 14px;
+    }
+    .capitalize {
+        text-transform:capitalize;
+    }
+</style>
+<div class="modal-header">
+    <h3 class="modal-title">{{surveyResponse.survey.description}}</h3>
+</div>
+<div class="modal-body">
+    <table class="table table-bordered" data-ng-if="surveyResponse">
+        <tbody>
+            <tr>
+                <td class="td-strong">Date</td>
+                <td>{{surveyResponse.date | date:'dd-MMM-yyyy'}}</td>
+            </tr>
+            <tr data-ng-repeat="score in surveyResponse.surveyResponseScores">
+                <td class="td-strong">
+                    Score:
+                    <span data-ng-if="surveyResponse.surveyResponseScores.length > 1" class="capitalize">
+                        {{
+                            score.type
+                                .replace('SYMPTOM_SCORE','Symptom Score')
+                                .replace('IBD_CONTROL_EIGHT','Control Questions')
+                                .replace('IBD_CONTROL_VAS','Self Rating Scale')
+                        }}
+                    </span>
+                    <span data-ng-if="score.severity !== 'UNKNOWN'">(severity)</span>
+                </td>
+                <td>
+                    {{score.score}}
+                    <span data-ng-if="score.severity !== 'UNKNOWN'">({{score.severity}})</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div data-ng-repeat="questionGroup in surveyResponse.survey.questionGroups | orderBy:'displayOrder'">
+        <h4>
+            <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
+            {{questionGroup.text}}
+            <div class="question-description">{{questionGroup.description}}</div>
+        </h4>
+        <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
+            <strong>{{question.text}}</strong>
+            <span data-ng-if="question.helpLink">
+                <a href="{{question.helpLink}}" target="_blank">info</a>
+            </span>
+            <div class="question-description">{{question.description}}</div>
+            <p data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'">{{responseMap[question.id].value}}</p>
+            <p data-ng-if="question.elementType === 'SINGLE_SELECT'">{{responseMap[question.id].questionOption.text}}</p>
+        </div>
+    </div>
+
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+</div>

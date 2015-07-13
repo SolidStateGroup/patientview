@@ -222,5 +222,77 @@ public class AlertServiceTest {
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(alertRepository, Mockito.times(1)).save(any(Alert.class));
     }
+
+    @Test
+    public void testSendMultipleAlertEmails() throws Exception {
+
+        User user = TestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+
+        Alert alert = new Alert();
+        alert.setEmailAlertSent(false);
+        alert.setEmailAlert(true);
+        alert.setUser(user);
+        alert.setId(1L);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        User user2 = TestUtils.createUser("test2User");
+        user2.setEmail("test2@solidstategroup.com");
+
+        Alert alert2 = new Alert();
+        alert2.setEmailAlertSent(false);
+        alert2.setEmailAlert(true);
+        alert2.setUser(user);
+        alert2.setId(2L);
+        alert2.setAlertType(AlertTypes.RESULT);
+
+        List<Alert> alerts = new ArrayList<>();
+        alerts.add(alert);
+        alerts.add(alert2);
+
+        when(alertRepository.findByEmailAlertSetAndNotSent()).thenReturn(alerts);
+        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findOne(eq(alert2.getId()))).thenReturn(alert);
+        alertService.sendAlertEmails();
+
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
+    }
+
+    @Test
+    public void testSendMultipleIndividualAlertEmails() throws Exception {
+
+        User user = TestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+
+        Alert alert = new Alert();
+        alert.setEmailAlertSent(false);
+        alert.setEmailAlert(true);
+        alert.setUser(user);
+        alert.setId(1L);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        User user2 = TestUtils.createUser("test2User");
+        user2.setEmail("test2@solidstategroup.com");
+
+        Alert alert2 = new Alert();
+        alert2.setEmailAlertSent(false);
+        alert2.setEmailAlert(true);
+        alert2.setUser(user2);
+        alert2.setId(2L);
+        alert2.setAlertType(AlertTypes.RESULT);
+
+        List<Alert> alerts = new ArrayList<>();
+        alerts.add(alert);
+        alerts.add(alert2);
+
+        when(alertRepository.findByEmailAlertSetAndNotSent()).thenReturn(alerts);
+        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findOne(eq(alert2.getId()))).thenReturn(alert2);
+        alertService.sendIndividualAlertEmails();
+
+        verify(emailService, Mockito.times(2)).sendEmail(any(Email.class));
+        verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
+    }
 }
 

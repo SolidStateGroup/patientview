@@ -22,7 +22,8 @@ public class AllergyIntoleranceBuilderTest extends BaseTest {
     public void testAllergyIntoleranceBuilder() throws Exception {
         Patientview patientview = Util.unmarshallPatientRecord(getTestFile());
         AllergyIntoleranceBuilder allergyIntoleranceBuilder
-                = new AllergyIntoleranceBuilder(patientview.getPatient().getAllergy().get(0), new ResourceReference());
+                = new AllergyIntoleranceBuilder(patientview.getPatient().getAllergydetails().getAllergy().get(0),
+                new ResourceReference());
         AllergyIntolerance allergyIntolerance = allergyIntoleranceBuilder.build();
 
         Assert.assertNotNull("Created allergy intolerance should not be null", allergyIntolerance);
