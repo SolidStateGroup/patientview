@@ -896,7 +896,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             Map<String, Letter> letterMap = new HashMap<String, Letter>();
             for (Letter letter : letters) {
                 if (StringUtils.isNotEmpty(letter.getContent())) {
-                    letterMap.put(letter.getDate().toString() + letter.getType(), letter);
+                    letterMap.put(letter.getDate().toString() + letter.getContent(), letter);
                 }
             }
 
