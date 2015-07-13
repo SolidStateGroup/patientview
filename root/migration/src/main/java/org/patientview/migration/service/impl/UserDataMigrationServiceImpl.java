@@ -2132,7 +2132,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ignoredIds.add(1046L);
         ignoredIds.add(1058L);
 
-        boolean singleUser = false;
+        boolean singleUser = true;
         boolean replaceExisting = false;
 
         if (!singleUser) {
@@ -2164,7 +2164,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                                     try {
                                                         LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
                                                                 + group.getCode() + " submitting to REST");
-                                                        //executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                                                        executorService.submit(new AsyncMigrateUserTask(migrationUser));
 
                                                         migratedPv1IdsThisRun.add(oldUser.getId());
                                                     } catch (Exception e) {
@@ -2190,9 +2190,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             List<Long> userIds = new ArrayList<Long>();
 
             // single user testing, user is not already present in pv2, has test results to migrate as well
-            userIds.add(408L);
-
-            //userIds.add(1058L);
+            userIds.add(1004L);
+            userIds.add(1010L);
+            userIds.add(1046L);
+            userIds.add(1058L);
 
             for (Long userId : userIds) {
                 try {
@@ -2208,7 +2209,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
                         // for partial migration
-                        migrationUser.setPartialMigration(false);
+                        migrationUser.setPartialMigration(true);
 
                         if (migrationUser != null) {
                             try {

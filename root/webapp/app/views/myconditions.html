@@ -27,7 +27,7 @@
                     <div class="panel-heading"><h3>Other Helpful Information</h3></div>
                     <div class="panel-body">
                         <ul>
-                            <li data-ng-repeat="link in currentSpecialty.links">
+                            <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
                                 <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                             </li>
                         </ul>
