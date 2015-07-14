@@ -74,6 +74,11 @@
                             <dd data-ng-show="loggedInUser.latestDataReceivedDate && loggedInUser.latestDataReceivedBy">
                                 <a href="#/results">{{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}</a>
                                 <span class="sub-text">from {{loggedInUser.latestDataReceivedBy.name}}</span>
+                                <p class="small">
+                                    <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Data_last_received_8211_what_does_this_mean" target="_blank">
+                                        What does this date signify?
+                                    </a>
+                                </p>
                             </dd>
                             <dd data-ng-show="!loggedInUser.latestDataReceivedDate || !loggedInUser.latestDataReceivedBy">
                                 Not Available
