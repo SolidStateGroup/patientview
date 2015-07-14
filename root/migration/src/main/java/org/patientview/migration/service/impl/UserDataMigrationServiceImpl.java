@@ -177,7 +177,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private @Value("${jdbc.username}") String jdbcUsername;
     private @Value("${jdbc.password}") String jdbcPassword;
 
-    private static final boolean IBD = true;
+    private static final boolean IBD = false;
 
     @Inject
     private DataSource dataSource;
@@ -2190,10 +2190,55 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             List<Long> userIds = new ArrayList<Long>();
 
             // single user testing, user is not already present in pv2, has test results to migrate as well
-            userIds.add(1004L);
+            /*userIds.add(1004L);
             userIds.add(1010L);
             userIds.add(1046L);
-            userIds.add(1058L);
+            userIds.add(1058L);*/
+
+            // incorrectly overwritten during ibd migration, need migrating from pv1 again with usernames XXXX.pv
+            userIds.add(73L);
+            userIds.add(1923L);
+            userIds.add(2018L);
+            userIds.add(2060L);
+            userIds.add(4542L);
+            userIds.add(6247L);
+            userIds.add(6782L);
+            userIds.add(7501L);
+            userIds.add(7641L);
+            userIds.add(7766L);
+            userIds.add(7875L);
+            userIds.add(8255L);
+            userIds.add(8642L);
+            userIds.add(9907L);
+            userIds.add(10549L);
+            userIds.add(11110L);
+            userIds.add(14544L);
+            userIds.add(15205L);
+            userIds.add(16601L);
+            userIds.add(17817L);
+            userIds.add(20660L);
+            userIds.add(21413L);
+            userIds.add(29117L);
+            userIds.add(29434L);
+            userIds.add(40002L);
+            userIds.add(46625L);
+            userIds.add(48432L);
+            userIds.add(55033L);
+            userIds.add(62476L);
+            userIds.add(63783L);
+            userIds.add(66504L);
+            userIds.add(68309L);
+            userIds.add(68331L);
+            userIds.add(69368L);
+            userIds.add(74147L);
+            userIds.add(74163L);
+            userIds.add(74934L);
+            userIds.add(75148L);
+            userIds.add(78267L);
+            userIds.add(80147L);
+            userIds.add(80377L);
+            userIds.add(82826L);
+            userIds.add(88899L);
 
             for (Long userId : userIds) {
                 try {
@@ -2209,7 +2254,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
                         // for partial migration
-                        migrationUser.setPartialMigration(true);
+                        migrationUser.setPartialMigration(false);
 
                         if (migrationUser != null) {
                             try {
