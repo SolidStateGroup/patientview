@@ -266,8 +266,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         for (ArrayList<String> row : document) {
             for (String cell : row) {
-                cell = cell.replace("\"", "\"\"");
-                documentString += "\"" + cell + "\",";
+                if (cell == null) {
+                    documentString += "\"\",";
+                } else {
+                    cell = cell.replace("\"", "\"\"");
+                    documentString += "\"" + cell + "\",";
+                }
             }
             documentString += "\n";
             //When there is no data

@@ -1,12 +1,10 @@
 package org.patientview.api.model;
 
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.DateAndTime;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.UserFeature;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 

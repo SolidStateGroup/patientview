@@ -6,7 +6,6 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.Patient;
 import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.AuditService;
@@ -75,6 +74,7 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;

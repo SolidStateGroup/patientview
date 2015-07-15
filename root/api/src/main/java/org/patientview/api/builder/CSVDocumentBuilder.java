@@ -3,23 +3,22 @@ package org.patientview.api.builder;
 import java.util.ArrayList;
 
 /**
- * Created by tom on 08/07/15.
+ * CSV document builder
+ * Created by tom@solidstategroup.com
+ * Created on 08/07/2015
  */
 public class CSVDocumentBuilder {
 
-
-    private ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
-
-    private int numberOfColumns;
-
     private int currentRow;
     private int currentCell;
+    private ArrayList<ArrayList<String>> document = new ArrayList<ArrayList<String>>();
+    private int numberOfColumns;
 
     /**
      * Creates a document that models as a csv file
      */
     public CSVDocumentBuilder() {
-        document = new ArrayList<ArrayList<String>>();
+        document = new ArrayList<>();
         currentRow = 0;
         currentCell = 0;
         numberOfColumns = 0;

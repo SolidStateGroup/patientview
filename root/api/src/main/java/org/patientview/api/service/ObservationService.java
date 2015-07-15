@@ -39,7 +39,7 @@ public interface ObservationService {
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
-    @RoleOnly(roles = {RoleName.UNIT_ADMIN_API})
+    @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })
     void addTestObservations(Long userId, Long groupId, FhirObservationRange fhirObservationRange)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
@@ -53,7 +53,7 @@ public interface ObservationService {
      * @throws FhirResourceException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
+    @RoleOnly(roles = { RoleName.PATIENT })
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
@@ -80,7 +80,7 @@ public interface ObservationService {
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN_API})
+    @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
     List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
@@ -110,7 +110,7 @@ public interface ObservationService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
+    @RoleOnly(roles = { RoleName.PATIENT })
     FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit,
                                           Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException;
@@ -129,10 +129,9 @@ public interface ObservationService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
-    Map<Long, Map<String, List<FhirObservation>>> getObservationsByMultipleCodeAndDate
-    (Long userId, List<String> codes, String orderDirection, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException;
+    @RoleOnly(roles = { RoleName.PATIENT })
+    Map<Long, Map<String, List<FhirObservation>>> getObservationsByMultipleCodeAndDate(Long userId, List<String> codes,
+        String orderDirection, String fromDate, String toDate) throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Get a summary of observation data for a User, used on the default Results page.
@@ -143,7 +142,7 @@ public interface ObservationService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
+    @RoleOnly(roles = { RoleName.PATIENT })
     List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 }

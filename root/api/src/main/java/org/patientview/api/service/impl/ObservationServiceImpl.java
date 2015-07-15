@@ -1109,8 +1109,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group,
-                                                        List<ObservationHeading> observationHeadings,
-                                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+                                        List<ObservationHeading> observationHeadings,
+                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
