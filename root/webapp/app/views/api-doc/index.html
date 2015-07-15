@@ -79,14 +79,14 @@
 
       function log() {
         if ('console' in window) {
-          console.log.apply(console, arguments);
+          //console.log.apply(console, arguments);
         }
       }
   });
   </script>
 
     <style>
-        .footer {
+        .footer, .sandbox_header, .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {
             display:none;
         }
     </style>

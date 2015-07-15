@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.wordnik.swagger.annotations.ApiOperation;
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
@@ -26,6 +27,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
+@ExcludeFromApiDoc
 @RestController
 public class StaticDataController extends BaseController<StaticDataController> {
 

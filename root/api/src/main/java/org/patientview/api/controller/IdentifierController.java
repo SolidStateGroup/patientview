@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.UserIdentifier;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -26,6 +27,7 @@ import javax.persistence.EntityExistsException;
  * Created by jamesr@solidstategroup.com
  * Created on 04/08/2014
  */
+@ExcludeFromApiDoc
 @RestController
 public class IdentifierController extends BaseController<IdentifierController> {
 

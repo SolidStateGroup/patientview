@@ -29,6 +29,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */
+@ExcludeFromApiDoc
 @RestController
 public class GpMedicationController extends BaseController<GpMedicationController> {
 

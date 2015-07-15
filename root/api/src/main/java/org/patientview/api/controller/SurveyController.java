@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.SurveyService;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.enums.SurveyTypes;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
  * Created by jamesr@solidstategroup.com
  * Created on 09/06/2015
  */
+@ExcludeFromApiDoc
 @RestController
 public class SurveyController extends BaseController<SurveyController> {
 

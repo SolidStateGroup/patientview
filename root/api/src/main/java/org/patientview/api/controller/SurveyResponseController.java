@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.SurveyResponse;
@@ -22,6 +23,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
  */
+@ExcludeFromApiDoc
 @RestController
 public class SurveyResponseController extends BaseController<SurveyResponseController> {
 

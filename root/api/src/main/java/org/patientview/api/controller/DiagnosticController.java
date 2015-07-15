@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -26,6 +27,7 @@ import java.util.List;
  * Created on 05/10/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class DiagnosticController extends BaseController<DiagnosticController> {
 
     @Inject

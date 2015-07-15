@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -49,6 +50,7 @@ public class PatientController  extends BaseController<PatientController> {
     }
 
     // API
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/patient/{userId}/group/{groupId}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

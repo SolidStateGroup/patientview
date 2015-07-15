@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.service.MedicationService;
 import org.patientview.config.exception.FhirResourceException;
@@ -21,6 +22,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */
+@ExcludeFromApiDoc
 @RestController
 public class MedicationController extends BaseController<MedicationController> {
 

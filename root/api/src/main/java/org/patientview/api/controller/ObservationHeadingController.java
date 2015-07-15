@@ -31,7 +31,6 @@ import java.util.List;
  * Created on 11/09/2014
  */
 @RestController
-@ExcludeFromApiDoc
 public class ObservationHeadingController extends BaseController<ObservationHeadingController> {
 
     @Inject
@@ -42,6 +41,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @param observationHeading ObservationHeading to create
      * @return ObservationHeading, newly created (note: consider only returning ID)
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -59,6 +59,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(
             value = "/observationheading/{observationHeadingId}/group/{groupId}/panel/{panel}/panelorder/{panelOrder}",
             method = RequestMethod.POST)
@@ -75,6 +76,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * size etc
      * @return Page of ObservationHeading objects
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -88,6 +90,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @return ObservationHeading object
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading/{observationHeadingId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -103,6 +106,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @return List of ObservationHeading objects
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/availablealertobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -132,6 +136,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * Get the available ResultCluster (groups of result types available to Users when entering their own results).
      * @return List of ResultCluster objects
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/resultclusters", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<ResultCluster>> getResultClusters() {
@@ -146,6 +151,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/savedobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -161,6 +167,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheadinggroup/{observationHeadingGroupId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void removeObservationHeadingGroup(@PathVariable("observationHeadingGroupId") Long observationHeadingGroupId)
@@ -173,6 +180,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @param observationHeading ObservationHeading to update
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading", method = RequestMethod.PUT)
     @ResponseBody
     public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
@@ -185,6 +193,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @param codes List of Codes representing the ObservationHeadings to be associated with a User's results table view
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/saveobservationheadingselection", method = RequestMethod.POST)
     @ResponseBody
     public void saveObservationHeadingSelection(@PathVariable("userId") Long userId, @RequestBody String[] codes)
@@ -199,6 +208,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
     @ResponseBody
     public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)

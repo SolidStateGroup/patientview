@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -25,6 +26,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
+@ExcludeFromApiDoc
 @RestController
 public class LetterController extends BaseController<LetterController> {
 

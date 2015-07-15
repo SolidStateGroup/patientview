@@ -60,6 +60,7 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/group/{groupId}/observations", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -77,6 +78,7 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/observations/resultclusters", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -135,6 +137,7 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/observations/summary", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<ObservationSummary>> getObservationSummary(

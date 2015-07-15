@@ -113,7 +113,7 @@ public class AuthController extends BaseController<AuthController> {
      * @throws ResourceForbiddenException
      */
     @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
-            + "information and static data")
+            + "information and static data used by front end")
     @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
     public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
             throws AuthenticationServiceException, ResourceForbiddenException {
@@ -127,6 +127,7 @@ public class AuthController extends BaseController<AuthController> {
      * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
      * @throws AuthenticationServiceException
      */
+    @ExcludeFromApiDoc
     @ApiOperation(value = "Switch User", notes = "Switch to a patient, equivalent to logging in as that user")
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
@@ -141,6 +142,7 @@ public class AuthController extends BaseController<AuthController> {
      * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
      * @throws AuthenticationServiceException
      */
+    @ExcludeFromApiDoc
     @ApiOperation(value = "Switch to Previous User", notes = "Switch back to original user after viewing a patient")
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
