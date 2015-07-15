@@ -47,7 +47,7 @@ public class Request {
         setCompletionDate(request.getCompletionDate());
 
         if (request.getCompletedBy() != null) {
-            setCompletedBy(new User(request.getCompletedBy(), null));
+            setCompletedBy(new User(request.getCompletedBy()));
         }
 
         setNotes(request.getNotes());

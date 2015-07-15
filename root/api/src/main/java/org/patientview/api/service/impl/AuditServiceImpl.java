@@ -69,7 +69,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             if (audit.getActorId() != null) {
                 org.patientview.persistence.model.User actor = userRepository.findOne(audit.getActorId());
                 if (actor != null) {
-                    transportAudit.setActor(new User(actor, null));
+                    transportAudit.setActor(new User(actor));
                 }
             }
 
@@ -81,7 +81,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
                             = userRepository.findOne(audit.getSourceObjectId());
 
                     if (sourceObject != null) {
-                        transportAudit.setSourceObjectUser(new User(sourceObject, null));
+                        transportAudit.setSourceObjectUser(new User(sourceObject));
                     }
                 } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
                     org.patientview.persistence.model.Group sourceObject

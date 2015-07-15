@@ -34,13 +34,10 @@ public class User extends BaseUser {
     private Date latestDataReceivedDate;
     private BaseGroup latestDataReceivedBy;
 
-    // FHIR
-    private Date fhirDateOfBirth;
-
     public User() {
     }
 
-    public User(org.patientview.persistence.model.User user, org.hl7.fhir.instance.model.Patient patient) {
+    public User(org.patientview.persistence.model.User user) {
         setId(user.getId());
         setUsername(user.getUsername());
         setForename(user.getForename());
@@ -62,16 +59,6 @@ public class User extends BaseUser {
                 if (groupRole.getGroup() != null) {
                     getGroupRoles().add(new GroupRole(groupRole));
                 }
-            }
-        }
-
-        // if user has fhirPatient data (is a patient)
-        if (patient != null) {
-            // set date of birth
-            if (patient.getBirthDateSimple() != null) {
-                DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
-                    setFhirDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(),
-                        fhirDateOfBirth.getMonth() - 1, fhirDateOfBirth.getDay()).getTimeInMillis()));
             }
         }
 
@@ -187,15 +174,6 @@ public class User extends BaseUser {
 
     public void setLatestDataReceivedDate(Date latestDataReceivedDate) {
         this.latestDataReceivedDate = latestDataReceivedDate;
-    }
-
-
-    public Date getFhirDateOfBirth() {
-        return fhirDateOfBirth;
-    }
-
-    public void setFhirDateOfBirth(Date dateOfBirth) {
-        this.fhirDateOfBirth = dateOfBirth;
     }
 
     public Boolean getChangePassword() {

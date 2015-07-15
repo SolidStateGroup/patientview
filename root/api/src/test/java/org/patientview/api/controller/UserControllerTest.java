@@ -124,7 +124,7 @@ public class UserControllerTest {
 
         User postUser = TestUtils.createUser("testPost");
 
-        org.patientview.api.model.User apiUser = new org.patientview.api.model.User(user, null);
+        org.patientview.api.model.User apiUser = new org.patientview.api.model.User(user);
         apiUser.setId(1L);
 
         when(userService.createUserWithPasswordEncryption(eq(postUser))).thenReturn(apiUser.getId());
@@ -502,7 +502,7 @@ public class UserControllerTest {
         user2.setUsername("user2");
 
         when(userService.getByUsername(eq(user2.getUsername())))
-                .thenReturn(new org.patientview.api.model.User(user2, null));
+                .thenReturn(new org.patientview.api.model.User(user2));
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/username/" + user2.getUsername()))

@@ -40,7 +40,7 @@ public class UserToken {
 
     public UserToken(org.patientview.persistence.model.UserToken userToken) {
         if (userToken.getUser() != null) {
-            setUser(new User(userToken.getUser(), null));
+            setUser(new User(userToken.getUser()));
         }
         setToken(userToken.getToken());
         setExpiration(userToken.getExpiration());

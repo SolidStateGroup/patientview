@@ -584,7 +584,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user, null);
+        org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user);
 
         // get last data received if present
         List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
@@ -671,7 +671,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (foundUser == null) {
             return null;
         } else {
-            return new org.patientview.api.model.User(foundUser, null);
+            return new org.patientview.api.model.User(foundUser);
         }
     }
 
@@ -688,7 +688,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (CollectionUtils.isEmpty(foundUsers)) {
             return null;
         } else {
-            return new org.patientview.api.model.User(foundUsers.get(0), null);
+            return new org.patientview.api.model.User(foundUsers.get(0));
         }
     }
 
@@ -700,7 +700,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // assume identifiers are unique so get the user associated with the first identifier
-        return new org.patientview.api.model.User(identifiers.get(0).getUser(), null);
+        return new org.patientview.api.model.User(identifiers.get(0).getUser());
     }
 
     public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
@@ -1276,7 +1276,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         user.setChangePassword(Boolean.TRUE);
         user.setLocked(Boolean.FALSE);
         user.setFailedLogonAttempts(0);
-        return new org.patientview.api.model.User(userRepository.save(user), null);
+        return new org.patientview.api.model.User(userRepository.save(user));
     }
 
     /**
@@ -1431,27 +1431,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
 
         for (User user : users) {
-            // if patient, add patient specific FHIR details
-            Set<FhirLink> fhirLinks = user.getFhirLinks();
-            if (fhirLinks.isEmpty()) {
-                transportUsers.add(new org.patientview.api.model.User(user, null));
-            } else {
-                // is a patient (has FHIR content), get most recent FHIR data and populate transport object
-                FhirLink recentFhirData = fhirLinks.iterator().next();
-                for (FhirLink fhirLink : fhirLinks) {
-                    if (fhirLink.getCreated().after(recentFhirData.getCreated())) {
-                        recentFhirData = fhirLink;
-                    }
-                }
-
-                try {
-                    Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
-                    transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
-                } catch (FhirResourceException fre) {
-                    LOG.error("FhirResourceException on retrieving patient data");
-                    transportUsers.add(new org.patientview.api.model.User(user, null));
-                }
-            }
+            transportUsers.add(new org.patientview.api.model.User(user));
         }
 
         return transportUsers;

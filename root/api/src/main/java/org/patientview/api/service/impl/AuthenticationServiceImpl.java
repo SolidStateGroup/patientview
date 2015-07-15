@@ -215,7 +215,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("User is not currently logged in");
         }
 
-        return new org.patientview.api.model.User(userToken.getUser(), null);
+        return new org.patientview.api.model.User(userToken.getUser());
     }
 
     // retrieve static data and user specific data to avoid requerying
