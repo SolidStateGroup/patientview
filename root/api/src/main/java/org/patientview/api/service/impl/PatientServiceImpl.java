@@ -721,6 +721,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // set practitioners
                     patient = setPractitioners(patient, fhirPatient);
 
+                    // set conditions
+                    patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
+
                     patients.add(patient);
                 }
             }

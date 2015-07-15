@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
@@ -98,6 +99,8 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
+    @ApiOperation(value = "Get Observations of a Certain Type For a User", notes = "Given a User ID and observation "
+            + "code, retrieve all observations.")
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
@@ -119,6 +122,7 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<FhirObservationPage> getObservationsByCodes(

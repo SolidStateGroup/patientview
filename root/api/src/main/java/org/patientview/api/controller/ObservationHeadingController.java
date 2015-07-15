@@ -124,6 +124,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
