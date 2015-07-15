@@ -26,7 +26,8 @@
       var myUrl = window.location.protocol + "//" + window.location.host;
       var url = window.location.search.match(/url=([^&]+)/);
       if (url && url.length > 1) {
-        url = decodeURIComponent(url[1]);
+        //url = decodeURIComponent(url[1]);
+        url = url[1];
       } else {
         url = myUrl.replace(":9000","") + "/api/api-docs" ;
       }

@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
@@ -37,6 +38,7 @@ public class StaticDataController extends BaseController<StaticDataController> {
      * @param request HttpServletRequest used to determine if type is passed as request parameter
      * @return List of Feature objects
      */
+    @ApiOperation(value = "Get All Features", notes = "Get all Features, optionally by type.")
     @RequestMapping(value = "/feature", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Feature>> getAllFeatures(

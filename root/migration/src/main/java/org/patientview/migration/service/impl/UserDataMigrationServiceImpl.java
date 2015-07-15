@@ -2237,7 +2237,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             userIds.add(78267L);
             userIds.add(80147L);
             userIds.add(80377L);
-            userIds.add(82826L);
+            //userIds.add(82826L); // was deleted in pv2 manually by another user
             userIds.add(88899L);
 
             for (Long userId : userIds) {
