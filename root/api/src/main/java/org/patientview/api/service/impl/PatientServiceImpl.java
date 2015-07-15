@@ -724,6 +724,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     // set conditions
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
+                    // set encounters (treatment)
+                    patient = setEncounters(
+                            patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
+
                     patients.add(patient);
                 }
             }
