@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -34,6 +35,23 @@ public class PatientController  extends BaseController<PatientController> {
 
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
+     * Produces a list of basic patient information. Used by CKD.
+     * @param userId ID of User to retrieve patient record for
+     * @return List of Patient objects containing patient information
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
+    @ApiOperation(value = "Get Basic Patient Information", notes = "Given a User ID, get basic patient "
+            + "information for a user from clinical data stored in FHIR")
+    @RequestMapping(value = "/patient/{userId}/basic", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<org.patientview.api.model.Patient>> getBasicPatientDetails(
+            @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
+        return new ResponseEntity<>(patientService.getBasic(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
      * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
      * @param userId ID of User to retrieve patient record for
      * @param groupIds IDs of Groups to retrieve patient records from
@@ -41,6 +59,7 @@ public class PatientController  extends BaseController<PatientController> {
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(

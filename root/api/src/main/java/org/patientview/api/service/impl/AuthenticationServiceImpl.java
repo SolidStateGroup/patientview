@@ -112,52 +112,31 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         LOG.debug("Setting the session length to {}", sessionLength);
     }
 
-    @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String switchToUser(Long userId) throws AuthenticationServiceException {
+    @Cacheable(value = "authenticateOnToken")
+    public Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException {
+        UserToken userToken = userTokenRepository.findByToken(authentication.getName());
 
-        LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
+        if (userToken != null) {
 
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
+            Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+
+            for (GroupRole groupRole : userToken.getUser().getGroupRoles()) {
+                try {
+                    if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+                        grantedAuthorities.add(addChildGroupsToGroupRole(groupRole));
+                    } else {
+                        grantedAuthorities.add(groupRole);
+                    }
+                } catch (ResourceNotFoundException rnf) {
+                    throw new AuthenticationServiceException("Error retrieving child groups");
+                }
+            }
+            return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
+                    grantedAuthorities);
+
+        } else {
+            throw new AuthenticationServiceException("Token could not be found");
         }
-
-        if (!userService.currentUserCanSwitchToUser(user)) {
-            throw new AuthenticationServiceException("Forbidden");
-        }
-
-        Date now = new Date();
-        UserToken userToken = new UserToken();
-        userToken.setUser(user);
-        userToken.setToken(CommonUtils.getAuthToken());
-        userToken.setCreated(now);
-        userToken.setExpiration(new Date(now.getTime() + sessionLength));
-        userToken = userTokenRepository.save(userToken);
-        userRepository.save(user);
-
-        auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
-                user.getId(), AuditObjectTypes.User, null);
-
-        return userToken.getToken();
-    }
-
-    @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
-
-        LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
-        }
-
-        UserToken userToken = getToken(token);
-
-        if (userToken == null) {
-            throw new AuthenticationServiceException("Cannot switch user, token not found");
-        }
-
-        return userToken.getToken();
     }
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
@@ -228,24 +207,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userToken.getToken();
     }
 
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return userRepository.findByUsernameCaseInsensitive(username);
-    }
-
-    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
-    public void logout(String token) throws AuthenticationServiceException {
+    @Override
+    public org.patientview.api.model.User getBasicUserInformation(String token) throws ResourceForbiddenException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-        auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
-                userToken.getUser().getId(), AuditObjectTypes.User, null);
 
-        // delete all user tokens associated with this user (should only ever be one per user)
-        userTokenRepository.deleteByUserId(userToken.getUser().getId());
-        SecurityContextHolder.getContext().setAuthentication(null);
+        return new org.patientview.api.model.User(userToken.getUser(), null);
     }
 
     // retrieve static data and user specific data to avoid requerying
@@ -283,31 +253,24 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return transportUserToken;
     }
 
-    @Cacheable(value = "authenticateOnToken")
-    public Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException {
-        UserToken userToken = userTokenRepository.findByToken(authentication.getName());
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        return userRepository.findByUsernameCaseInsensitive(username);
+    }
 
-        if (userToken != null) {
+    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    public void logout(String token) throws AuthenticationServiceException {
+        UserToken userToken = userTokenRepository.findByToken(token);
 
-            Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-
-            for (GroupRole groupRole : userToken.getUser().getGroupRoles()) {
-                try {
-                    if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
-                        grantedAuthorities.add(addChildGroupsToGroupRole(groupRole));
-                    } else {
-                        grantedAuthorities.add(groupRole);
-                    }
-                } catch (ResourceNotFoundException rnf) {
-                    throw new AuthenticationServiceException("Error retrieving child groups");
-                }
-            }
-            return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
-                    grantedAuthorities);
-
-        } else {
-            throw new AuthenticationServiceException("Token could not be found");
+        if (userToken == null) {
+            throw new AuthenticationServiceException("User is not currently logged in");
         }
+        auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
+                userToken.getUser().getId(), AuditObjectTypes.User, null);
+
+        // delete all user tokens associated with this user (should only ever be one per user)
+        userTokenRepository.deleteByUserId(userToken.getUser().getId());
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     @Override
@@ -331,6 +294,54 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 return false;
             }
         }
+    }
+
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
+
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
+        }
+
+        UserToken userToken = getToken(token);
+
+        if (userToken == null) {
+            throw new AuthenticationServiceException("Cannot switch user, token not found");
+        }
+
+        return userToken.getToken();
+    }
+
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public String switchToUser(Long userId) throws AuthenticationServiceException {
+
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
+        }
+
+        if (!userService.currentUserCanSwitchToUser(user)) {
+            throw new AuthenticationServiceException("Forbidden");
+        }
+
+        Date now = new Date();
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + sessionLength));
+        userToken = userTokenRepository.save(userToken);
+        userRepository.save(user);
+
+        auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
+                user.getId(), AuditObjectTypes.User, null);
+
+        return userToken.getToken();
     }
 
     private GroupRole addChildGroupsToGroupRole(GroupRole groupRole) throws ResourceNotFoundException {

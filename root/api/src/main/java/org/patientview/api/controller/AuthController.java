@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.ForgottenCredentials;
+import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
@@ -105,6 +106,21 @@ public class AuthController extends BaseController<AuthController> {
     }
 
     /**
+     * Get basic user information (User) given the token produced when a user successfully logs in. Used by CKD.
+     * @param token String token associated with a successfully logged in user
+     * @return User object containing relevant user information
+     * @throws AuthenticationServiceException
+     * @throws ResourceForbiddenException
+     */
+    @ApiOperation(value = "Get Basic User Information", notes = "Once logged in and have a token, get basic user "
+            + "information including group role membership")
+    @RequestMapping(value = "/auth/{token}/basicuserinformation", method = RequestMethod.GET)
+    public ResponseEntity<User> getBasicUserInformation(@PathVariable("token") String token)
+            throws AuthenticationServiceException, ResourceForbiddenException {
+        return new ResponseEntity<>(authenticationService.getBasicUserInformation(token), HttpStatus.OK);
+    }
+
+    /**
      * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.
      * Performed after login.
      * @param token String token associated with a successfully logged in user
@@ -112,6 +128,7 @@ public class AuthController extends BaseController<AuthController> {
      * @throws AuthenticationServiceException
      * @throws ResourceForbiddenException
      */
+    @ExcludeFromApiDoc
     @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
             + "information and static data used by front end")
     @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)

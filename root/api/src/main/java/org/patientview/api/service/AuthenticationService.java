@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.enums.RoleName;
@@ -38,6 +39,13 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
+
+    /**
+     * Get basic user information given the token produced when a user successfully logs in. Performed after login.
+     * @param token String token associated with a successfully logged in user
+     * @return User object containing relevant user information
+     */
+    User getBasicUserInformation(String token) throws ResourceForbiddenException;
 
     /**
      * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.

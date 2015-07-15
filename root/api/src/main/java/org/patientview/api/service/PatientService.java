@@ -70,6 +70,19 @@ public interface PatientService {
      */
     Patient get(UUID uuid) throws FhirResourceException;
 
+    /**
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
+     * Produces a list of basic patient information. Used by CKD.
+     * @param userId ID of User to retrieve patient record for
+     * @return List of Patient objects containing patient information
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
+    List<org.patientview.api.model.Patient> getBasic(Long userId)
+        throws FhirResourceException, ResourceNotFoundException;
+
     // migration only
     void migratePatientData(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;

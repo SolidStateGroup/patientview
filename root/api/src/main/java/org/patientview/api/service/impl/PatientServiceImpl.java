@@ -688,6 +688,47 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
+    @Override
+    public List<org.patientview.api.model.Patient> getBasic(Long userId)
+            throws FhirResourceException, ResourceNotFoundException {
+        // check User exists
+        User user = userService.get(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<org.patientview.api.model.Patient> patients = new ArrayList<>();
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.addAll(user.getFhirLinks());
+
+        // sort fhirLinks by id
+        Collections.sort(fhirLinks, new Comparator<FhirLink>() {
+            public int compare(FhirLink f1, FhirLink f2) {
+                return f2.getCreated().compareTo(f1.getCreated());
+            }
+        });
+
+        // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getActive() && !Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
+                Patient fhirPatient = get(fhirLink.getResourceId());
+
+                if (fhirPatient != null) {
+                    // create basic patient with group
+                    org.patientview.api.model.Patient patient
+                            = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
+
+                    // set practitioners
+                    patient = setPractitioners(patient, fhirPatient);
+
+                    patients.add(patient);
+                }
+            }
+        }
+
+        return patients;
+    }
+
     private Practitioner getPractitioner(final UUID uuid) throws FhirResourceException {
         try {
             return (Practitioner) DataUtils.getResource(fhirResource.getResource(uuid, ResourceType.Practitioner));

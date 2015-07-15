@@ -20,7 +20,7 @@ public class BaseUser {
     // only staff users
     private Boolean deleted;
 
-    // onyl staff users
+    // only staff users
     private String roleDescription;
 
     // picture, stored as base64 in database, but retrieved using separate call to User controller
