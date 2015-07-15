@@ -43,7 +43,7 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo(
                 "PatientView REST API",
-                "The REST API and request endpoints that are used by PatientView",
+                "The recommended REST API endpoints to be used when integrating with PatientView",
                 properties.getProperty("site.url") + "/#/terms",
                 null,
                 null,

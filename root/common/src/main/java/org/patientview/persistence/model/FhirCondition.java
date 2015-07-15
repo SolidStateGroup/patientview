@@ -25,6 +25,9 @@ public class FhirCondition extends BaseModel {
     // used by my IBD to insert links
     private Set<Link> links;
 
+    // pulled from Code if present (set separately to constuctor)
+    private String description;
+
     public FhirCondition() {
     }
 
@@ -98,5 +101,13 @@ public class FhirCondition extends BaseModel {
 
     public void setLinks(Set<Link> links) {
         this.links = links;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
