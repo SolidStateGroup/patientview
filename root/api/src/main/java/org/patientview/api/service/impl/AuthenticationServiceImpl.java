@@ -59,7 +59,6 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- *
  * Created by james@solidstategroup.com
  * Created on 13/06/2014
  */
@@ -186,7 +185,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // strip spaces from beginning and end of password
         password = password.trim();
 
-        if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
+        if (!user.getPassword().equals(DigestUtils.sha256Hex(password)) && user.getSalt() == null) {
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
+            incrementFailedLogon(user);
+            throw new AuthenticationServiceException("Incorrect username or password");
+        } else if (user.getSalt() != null
+                && !user.getPassword().equals(
+                DigestUtils.sha256Hex(password + user.getSalt()))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
                     user.getId(), AuditObjectTypes.User, null);
             incrementFailedLogon(user);
@@ -204,6 +210,16 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
+        //Salt password
+        if (user.getSalt() == null) {
+            try {
+                String salt = userService.generateSalt();
+                user.setSalt(salt);
+                user.setPassword(DigestUtils.sha256Hex(password + salt));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         // set last login IP address from headers if present
         HttpServletRequest request
@@ -216,9 +232,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             user.setLastLoginIpAddress(forwardedFor.split(",")[0]);
         } else if (StringUtils.isNotEmpty(realIp)) {
             user.setLastLoginIpAddress(realIp);
-        }  else {
+        } else {
             user.setLastLoginIpAddress(request.getRemoteAddr());
         }
+
 
         userRepository.save(user);
 
@@ -232,8 +249,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
     public void logout(String token) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -339,7 +356,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     private org.patientview.api.model.UserToken setFhirInformation(org.patientview.api.model.UserToken userToken,
-                                                                   User user)  {
+                                                                   User user) {
         // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy (ignore PATIENT_ENTERED)
         if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
             Date latestDataReceivedDate = new Date(1, 1, 1);
@@ -382,7 +399,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken)
-        throws ResourceForbiddenException {
+            throws ResourceForbiddenException {
         List<org.patientview.persistence.model.Group> userGroups
                 = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 

@@ -83,6 +83,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -198,8 +201,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
 
                     if (!groupRoleRepository.userGroupRoleExists(groupRole.getUser().getId(),
-                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
-                    {
+                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId())) {
                         GroupRole parentGroupRole = new GroupRole();
                         parentGroupRole.setGroup(groupRelationship.getObjectGroup());
                         parentGroupRole.setRole(groupRole.getRole());
@@ -545,8 +547,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      */
     public Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
-        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-
+        try {
+            String salt = generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(user.getPassword() + salt));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         // validate that group roles exist and current user has rights to create
         for (GroupRole groupRole : user.getGroupRoles()) {
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
@@ -806,6 +813,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Get users based on a list of groups and roles
      * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
+     *
      * @return Page of api User
      */
     public Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
@@ -946,7 +954,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // check type of field by name (e.g. surname = String)
             Field[] fields = User.class.getDeclaredFields();
-            for (Field f:fields) {
+            for (Field f : fields) {
                 if (f.getName().equalsIgnoreCase(sortField)) {
                     fieldExists = true;
                     if (f.getType().equals(String.class)) {
@@ -1046,6 +1054,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups and roles (only used by conversation service now)
+     *
      * @return Page of standard User
      */
     public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
@@ -1113,6 +1122,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups, roles and user features
+     *
      * @return Page of standard User
      */
     public Page<User> getUsersByGroupsRolesFeatures(GetParameters getParameters) throws ResourceNotFoundException {
@@ -1240,16 +1250,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Reset the flag so the user will not be prompted to change the password again
      *
-     * @param userId Id of User to change password
+     * @param userId   Id of User to change password
      * @param password password to set
      */
     public void changePassword(Long userId, String password) throws ResourceNotFoundException {
         User user = findUser(userId);
-        user.setChangePassword(Boolean.FALSE);
-        user.setPassword(DigestUtils.sha256Hex(password));
-        user.setLocked(Boolean.FALSE);
-        user.setFailedLogonAttempts(0);
-        userRepository.save(user);
+        try {
+            user.setChangePassword(Boolean.FALSE);
+            String salt = generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(password + salt));
+            user.setLocked(Boolean.FALSE);
+            user.setFailedLogonAttempts(0);
+            userRepository.save(user);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -1271,11 +1287,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 LOG.error("Could not send reset password email {}", me);
             }
         }
-
-        user.setPassword(DigestUtils.sha256Hex(password));
-        user.setChangePassword(Boolean.TRUE);
-        user.setLocked(Boolean.FALSE);
-        user.setFailedLogonAttempts(0);
+        try {
+            String salt = generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(password + salt));
+            user.setChangePassword(Boolean.TRUE);
+            user.setLocked(Boolean.FALSE);
+            user.setFailedLogonAttempts(0);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         return new org.patientview.api.model.User(userRepository.save(user), null);
     }
 
@@ -1366,10 +1387,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 LOG.error("Cannot send email: {}", me);
             }
 
-            // Hash the password and save user
-            user.setLocked(Boolean.FALSE);
-            user.setFailedLogonAttempts(0);
-            user.setPassword(DigestUtils.sha256Hex(password));
+            try {
+                String salt = generateSalt();
+                user.setSalt(salt);
+
+                // Hash the password and save user
+                user.setLocked(Boolean.FALSE);
+                user.setFailedLogonAttempts(0);
+                user.setPassword(DigestUtils.sha256Hex(password + salt));
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
             userRepository.save(user);
         } else {
             throw new ResourceNotFoundException("Could not find account");
@@ -1674,5 +1702,31 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         user.setPicture(null);
         userRepository.save(user);
+    }
+
+    @Override
+    public String generateSalt() throws NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+
+        return toHex(salt);
+    }
+
+    /**
+     * Converts a byte array into a hexadecimal string.
+     *
+     * @param array the byte array to convert
+     * @return a length*2 character string encoding the byte array
+     */
+    private static String toHex(byte[] array) {
+        BigInteger bi = new BigInteger(1, array);
+        String hex = bi.toString(16);
+        int paddingLength = (array.length * 2) - hex.length();
+        if (paddingLength > 0) {
+            return String.format("%0" + paddingLength + "d", 0) + hex;
+        } else {
+            return hex;
+        }
     }
 }
