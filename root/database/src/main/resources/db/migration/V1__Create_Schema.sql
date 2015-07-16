@@ -3,6 +3,7 @@ CREATE TABLE PV_User
   Id               BIGINT       NOT NULL,
   Username         VARCHAR(50)  NOT NULL UNIQUE,
   Password         VARCHAR(100) NOT NULL,
+  Salt         VARCHAR(100) NOT NULL,
   Change_Password  BOOL         NOT NULL,
   Failed_Logon_Attempts INTEGER NOT NULL DEFAULT 0,
   Locked           BOOL         NOT NULL,
@@ -27,6 +28,7 @@ CREATE TABLE PV_User
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
+
 
 CREATE TABLE PV_User_Migration
 (
