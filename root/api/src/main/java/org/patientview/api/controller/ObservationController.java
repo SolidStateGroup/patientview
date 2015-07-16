@@ -117,12 +117,13 @@ public class ObservationController extends BaseController<ObservationController>
      * @param code List of Codes defining the types of observations to retrieve
      * @param limit Number of observations to retrieve
      * @param offset Offset (page) of observations to retrieve
-     * @param orderDirection Ordering of observations e.g. date received descending
+     * @param orderDirection Ordering of observations e.g. DESC = date received descending
      * @return FhirObservationPage representing observation data for a User
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
-    @ExcludeFromApiDoc
+    @ApiOperation(value = "Get Observations of Multiple Types For a User", notes = "Given a User ID and search "
+            + "parameters, retrieve a page of observations.")
     @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<FhirObservationPage> getObservationsByCodes(
