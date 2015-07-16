@@ -330,6 +330,14 @@
         </eyecheckup>
         <letterdetails>
             <letter>
+                <letterdate>2015-08-08T14:52:52</letterdate>
+                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a new letter]]></lettercontent>
+            </letter>
+            <letter>
+                <letterdate>2015-08-08T14:52:52</letterdate>
+                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is another letter]]></lettercontent>
+            </letter>
+            <letter>
                 <letterdate>2013-10-24T14:58:52</letterdate>
                 <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
             </letter>

@@ -33,6 +33,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -336,11 +338,15 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                 = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
                         Date applies = xmlDate.toGregorianCalendar().getTime();
 
+                        // get date without timestamp
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        Date dateWithoutTime = sdf.parse(sdf.format(applies));
+
                         if (StringUtils.isNotEmpty(results.getString(3))) {
-                            existingMap.put(results.getString(1), applies.toString() + results.getString(3));
+                            existingMap.put(results.getString(1), dateWithoutTime.toString() + results.getString(3));
                         }
                     }
-                } catch (DatatypeConfigurationException e) {
+                } catch (DatatypeConfigurationException | ParseException e) {
                     LOG.error(nhsno + ": Error getting existing DocumentReference", e);
                 }
             }
@@ -403,8 +409,13 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             if (documentReference.getDescriptionSimple() != null) {
                 XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
                         documentReference.getCreated().getValue().toString());
-                String applies = xmlDate.toGregorianCalendar().getTime().toString();
-                String key = applies + documentReference.getDescriptionSimple();
+                Date applies = xmlDate.toGregorianCalendar().getTime();
+
+                // get date without timestamp
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date dateWithoutTime = sdf.parse(sdf.format(applies));
+
+                String key = dateWithoutTime.toString() + documentReference.getDescriptionSimple();
 
                 for (Map.Entry keyValue : existingMap.entrySet()) {
                     if (keyValue.getValue() != null) {
@@ -415,7 +426,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                     }
                 }
             }
-        } catch (DatatypeConfigurationException e) {
+        } catch (DatatypeConfigurationException | ParseException e) {
             LOG.error(nhsno + ": Error converting DocumentReference created date");
             return existingByDateAndContent;
         }
