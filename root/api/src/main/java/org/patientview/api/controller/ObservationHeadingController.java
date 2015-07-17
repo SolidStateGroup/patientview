@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
@@ -124,7 +125,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    @ExcludeFromApiDoc
+    @ApiOperation(value = "Get Available Observations Types For a User", notes = "Given a User ID "
+            + "retrieve a list of available observation types for that user (where they have observation data).")
     @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
