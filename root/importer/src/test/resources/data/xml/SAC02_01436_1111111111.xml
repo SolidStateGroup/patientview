@@ -331,7 +331,8 @@
         <letterdetails>
             <letter>
                 <letterdate>2015-11-24T14:58:52</letterdate>
-                <lettertype>Clinic Letter x</lettertype><lettercontent><![CDATA[This is the content's of a letter]]></lettercontent>
+                <lettertype>Clinic Letter x</lettertype><lettercontent><![CDATA[This is the content's
+                of a letter]]></lettercontent>
             </letter>
 
         </letterdetails>

@@ -424,7 +424,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             while ((results.next())) {
                 if (StringUtils.isNotEmpty(results.getString(2)) && StringUtils.isNotEmpty(results.getString(3))) {
-                    String content = results.getString(3).replace("'", "''").replace("''''", "''");
+                    // replace used to fix migrated letters coming as duplicates
+                    String content = results.getString(3)
+                            .replaceAll("\\s+", " ")
+                            .replace("'", "''").replace("''''", "''")
+                            .replace(" \n", "CARRIAGE_RETURN").replace("\n ", "CARRIAGE_RETURN")
+                            .replace("CARRIAGE_RETURN", "\n");
                     existingMap.put(results.getString(1), results.getString(2) + content);
                 }
             }
@@ -510,7 +515,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             if (documentReference.getType() != null) {
                 type = documentReference.getType().getTextSimple();
             }
-            String key = type + documentReference.getDescriptionSimple().replace("'", "''").replace("''''", "''");
+            // replace used to fix migrated letters coming as duplicates
+            String key = type + documentReference.getDescriptionSimple()
+                    .replaceAll("\\s+", " ")
+                    .replace("'", "''").replace("''''", "''")
+                    .replace(" \n", "CARRIAGE_RETURN").replace("\n ", "CARRIAGE_RETURN")
+                    .replace("CARRIAGE_RETURN", "\n");
 
             for (Map.Entry keyValue : existingMap.entrySet()) {
                 if (keyValue.getValue() != null) {
