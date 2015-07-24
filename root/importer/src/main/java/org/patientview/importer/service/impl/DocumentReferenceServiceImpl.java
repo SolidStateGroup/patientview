@@ -510,7 +510,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             if (documentReference.getType() != null) {
                 type = documentReference.getType().getTextSimple();
             }
-            String key = type + documentReference.getDescriptionSimple();
+            String key = type + documentReference.getDescriptionSimple().replace("'", "''").replace("''''", "''");
 
             for (Map.Entry keyValue : existingMap.entrySet()) {
                 if (keyValue.getValue() != null) {
