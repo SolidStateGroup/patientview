@@ -330,64 +330,10 @@
         </eyecheckup>
         <letterdetails>
             <letter>
-                <letterdate>2015-08-08T14:52:52</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a new letter]]></lettercontent>
+                <letterdate>2015-11-24T14:58:52</letterdate>
+                <lettertype>Clinic Letter x</lettertype><lettercontent><![CDATA[This is the content's of a letter]]></lettercontent>
             </letter>
-            <letter>
-                <letterdate>2015-08-08T14:52:52</letterdate>
-                <lettertype>Clinic Letter 3</lettertype><lettercontent><![CDATA[This is the contents of a new letter 3]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2015-08-08T14:52:52</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is another letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-10-24T14:58:52</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-10-24T14:58:52</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of
-                another letter with some spaces
-                another letter with some spaces
-                another letter with some spaces]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-10-09T15:56:52</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is 'the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-08-26T13:16:21</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-08-07T14:09:19</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-07-22T15:57:29</letterdate>
-                <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2013-01-22T08:37:44</letterdate>
-                <lettertype>Discharge Summary</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2012-11-29T18:16:28</letterdate>
-                <lettertype>Discharge Summary</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2012-11-29T18:05:15</letterdate>
-                <lettertype>Discharge Summary</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2012-10-23T18:10:55</letterdate>
-                <lettertype>Discharge Summary</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
-            <letter>
-                <letterdate>2012-08-09T15:58:25</letterdate>
-                <lettertype>General Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
-            </letter>
+
         </letterdetails>
         <diagnostics>
             <diagnostic>

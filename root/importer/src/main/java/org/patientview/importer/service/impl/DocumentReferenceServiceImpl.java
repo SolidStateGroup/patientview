@@ -424,7 +424,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             while ((results.next())) {
                 if (StringUtils.isNotEmpty(results.getString(2)) && StringUtils.isNotEmpty(results.getString(3))) {
-                    existingMap.put(results.getString(1), results.getString(2) + results.getString(3));
+                    String content = results.getString(3).replace("'", "''").replace("''''", "''");
+                    existingMap.put(results.getString(1), results.getString(2) + content);
                 }
             }
 
