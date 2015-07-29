@@ -29,7 +29,6 @@ CREATE TABLE PV_User
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_User_Migration
 (
   Id                      BIGINT       NOT NULL,
