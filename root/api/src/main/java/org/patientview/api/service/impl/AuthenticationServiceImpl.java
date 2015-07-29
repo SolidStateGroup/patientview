@@ -249,8 +249,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
+    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
     public void logout(String token) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 

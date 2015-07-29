@@ -3,7 +3,7 @@ CREATE TABLE PV_User
   Id               BIGINT       NOT NULL,
   Username         VARCHAR(50)  NOT NULL UNIQUE,
   Password         VARCHAR(100) NOT NULL,
-  Salt         VARCHAR(100) NOT NULL,
+  Salt             VARCHAR(100) NOT NULL,
   Change_Password  BOOL         NOT NULL,
   Failed_Logon_Attempts INTEGER NOT NULL DEFAULT 0,
   Locked           BOOL         NOT NULL,

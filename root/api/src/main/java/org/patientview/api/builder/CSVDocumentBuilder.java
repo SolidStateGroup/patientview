@@ -129,12 +129,7 @@ public class CSVDocumentBuilder {
      * @return If the row exists
      */
     private boolean rowExists(int rowNumber) {
-        if (rowNumber > document.size() - 1) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return rowNumber <= document.size() - 1;
     }
 
     /**
@@ -145,21 +140,8 @@ public class CSVDocumentBuilder {
      * @return If the cell has a value within it
      */
     private boolean isCellFilled(int rowNumber, int cellNumber) {
-        //Check the row exists
-        if (rowExists(rowNumber)) {
-            //Check if the cell exists
-            if (document.get(rowNumber).size() > cellNumber) {
-                //Check the length of the string in the cell
-                if (document.get(rowNumber).get(cellNumber).length() != 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return rowExists(rowNumber)
+                && document.get(rowNumber).size() > cellNumber
+                && document.get(rowNumber).get(cellNumber).length() != 0;
     }
 }
