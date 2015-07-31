@@ -1,0 +1,43 @@
+<style>
+    .nav-tabs li {
+        cursor: pointer;
+    }
+    p.no-data {
+        margin: 10px;
+    }
+    .nav-tabs li a {
+        border-width: 1px 1px 0 1px;
+        border-color: #DDDDDD;
+        background-color: #F5F5F5;
+    }
+    .nav-tabs li.active a {
+        font-weight: bold;
+    }
+</style>
+<div data-ng-show="!patientDetails.length">
+    <br/>
+    <p>Your conditions have not yet been added to PatientView.</p><br/>
+</div>
+
+<div class="details-filter clearfix">
+    <div class="pull-right">Information provided by: &nbsp;&nbsp;
+        <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
+            <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
+            <span class="checkbox-label">{{patient.group.shortName}}</span>
+        </span>
+    </div>
+</div>
+<div>
+    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined)}">
+                <a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl"></div>
+            </div>
+        </div>
+    </div>
+</div>
