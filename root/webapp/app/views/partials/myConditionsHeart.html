@@ -30,13 +30,13 @@
 <div>
     <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
         <ul class="nav nav-tabs">
-            <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined)}">
+            <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}">
                 <a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a>
             </li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined)}">
-                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl"></div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}">
+                <div data-ng-include src="'views/partials/symptomScoresHeart.html'" data-ng-controller="SymptomScoresCtrl"></div>
             </div>
         </div>
     </div>
