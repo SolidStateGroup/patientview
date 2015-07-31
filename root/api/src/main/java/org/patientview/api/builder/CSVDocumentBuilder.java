@@ -36,6 +36,27 @@ public class CSVDocumentBuilder {
     }
 
     /**
+     * Appends the value given to the cell for the last row of the document
+     *
+     * @param cellNumber - Cell number to insert the value
+     * @param value      - The string value to insert
+     */
+    public void appendUniqueValueToLastRowCell(int cellNumber, String value) {
+        appendUnqiueValue(cellNumber, document.size() - 1, value);
+    }
+
+    /**
+     * Appends the value given to the current row of the document
+     *
+     * @param cellNumber - Cell number to insert the value
+     * @param value      - The string value to insert
+     */
+    public void appendUnqiueValueToCurrentRowCell(int cellNumber, String value) {
+        appendUnqiueValue(cellNumber, currentRow, value);
+    }
+
+
+    /**
      * Move the pointer to the next cell
      * <p/>
      * Used for when no result/value is present for a cell
@@ -139,8 +160,40 @@ public class CSVDocumentBuilder {
      * @return If the cell has a value within it
      */
     private boolean isCellFilled(int rowNumber, int cellNumber) {
-        return rowExists(rowNumber)
-                && document.get(rowNumber).size() > cellNumber
-                && document.get(rowNumber).get(cellNumber).length() != 0;
+        //Check the row exists
+        if (rowExists(rowNumber)) {
+            //Check if the cell exists
+            if (document.get(rowNumber).size() > cellNumber) {
+                //Check the length of the string in the cell
+                return document.get(rowNumber).get(cellNumber).length() != 0;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Internal method used to append string to given row and cell
+     *
+     * @param cellNumber - Cell number to insert the value (0 index)
+     * @param rowNumber  - Row number to insert the value (0 index)
+     * @param value      - String value to insert
+     */
+    private void appendUnqiueValue(int cellNumber, int rowNumber, String value) {
+
+        String currentValue = document.get(rowNumber).get(cellNumber);
+
+        if (!currentValue.contains(value.trim())) {
+
+            if (currentValue.trim().length() == 0) {
+                currentValue = value;
+            } else {
+                currentValue += ", " + value;
+            }
+
+            document.get(rowNumber).set(cellNumber, currentValue);
+        }
     }
 }

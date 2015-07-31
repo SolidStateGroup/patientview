@@ -66,8 +66,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         CSVDocumentBuilder document = new CSVDocumentBuilder();
         //Setup the headers and the document structure we want to return
         List<String> headings = new ArrayList<>();
+
         document.addHeader("Date");
         document.addHeader("Unit");
+        document.addHeader("Comments");
 
 
         //If there are no codes sent with the request, get all codes applicable for this user
@@ -86,7 +88,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.createNewRow();
             document.resetCurrentPosition();
             document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(entry.getKey()));
-            //Skip the units column as we don't want to fill this yet
+            //Skip the units and comments column as we don't want to fill this yet
+            document.nextCell();
             document.nextCell();
 
             for (String heading : headings) {
@@ -101,10 +104,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         if (results.get(heading.toUpperCase()).get(0).getComments() == null) {
                             results.get(heading.toUpperCase()).get(0).setComments("");
                         }
+                        document.appendUnqiueValueToCurrentRowCell(2,
+                                results.get(heading.toUpperCase()).get(0).getComments());
 
-                        document.addValueToNextCell(String.format("%s %s",
-                                results.get(heading.toUpperCase()).get(0).getComments(),
-                                results.get(heading.toUpperCase()).get(0).getValue().trim()));
+
+                        document.addValueToNextCell(results.get(heading.toUpperCase()).get(0).getValue().trim());
                         //Add the unit
                         if (!unitNames.contains(
                                 results.get(heading.toUpperCase()).get(0).getGroup().getShortName())) {
@@ -123,14 +127,13 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                                 observation.setComments("");
                             }
 
-                            String result = String.format("%s %s",
-                                    observation.getComments(),
-                                    observation.getValue().trim());
-
                             if (i == results.get(heading.toUpperCase()).size() - 1) {
-                                document.addValueToNextCell(result);
+                                document.addValueToNextCell(observation.getValue().trim());
+                                document.appendUnqiueValueToCurrentRowCell(2, observation.getComments());
+
                             } else {
-                                document.addValueToPreviousCell(result);
+                                document.addValueToPreviousCell(observation.getValue().trim());
+                                document.appendUniqueValueToLastRowCell(2, observation.getComments());
                             }
                             //Add the unit
                             if (!unitNames.contains(observation.getGroup().getShortName())) {
