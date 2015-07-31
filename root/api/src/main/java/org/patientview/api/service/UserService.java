@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -361,4 +362,6 @@ public interface UserService {
      */
     @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
+
+    String generateSalt() throws NoSuchAlgorithmException;
 }

@@ -925,21 +925,25 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             output = new TreeMap<>(Collections.reverseOrder());
             if ((offset == 0 && limit == 1)) {
                 output.put(keys.get(keys.size() - 1), tempMap.get(keys.get(keys.size() - 1)));
-            } else for (int i = 0; i < keys.size(); i++) {
-                if (count >= offset && count < (offset + limit)) {
-                    output.put(keys.get(i), tempMap.get(keys.get(i)));
+            } else {
+                for (int i = 0; i < keys.size(); i++) {
+                    if (count >= offset && count < (offset + limit)) {
+                        output.put(keys.get(i), tempMap.get(keys.get(i)));
+                    }
+                    count--;
                 }
-                count--;
             }
         } else {
             output = new TreeMap<>();
             if ((offset == 0 && limit == 1)) {
                 output.put(keys.get(0), tempMap.get(keys.get(0)));
-            } else for (int i = keys.size() - 1; i >= 0; i--) {
-                if (count >= offset && count < (offset + limit)) {
-                    output.put(keys.get(i), tempMap.get(keys.get(i)));
+            } else {
+                for (int i = keys.size() - 1; i >= 0; i--) {
+                    if (count >= offset && count < (offset + limit)) {
+                        output.put(keys.get(i), tempMap.get(keys.get(i)));
+                    }
+                    count--;
                 }
-                count--;
             }
         }
 

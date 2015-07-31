@@ -37,6 +37,9 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "salt")
+    private String salt;
+
     @Column(name = "change_password")
     private Boolean changePassword;
 
@@ -129,6 +132,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    public String getSalt(){
+        return salt;
+    }
+    public void setSalt(String salt){
+        this.salt = salt;
     }
 
     public Boolean getChangePassword() {
