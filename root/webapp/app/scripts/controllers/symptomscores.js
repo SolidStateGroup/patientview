@@ -1,8 +1,10 @@
 'use strict';
 
 angular.module('patientviewApp').controller('SymptomScoresCtrl',['$scope', '$routeParams', '$location',
-    'SurveyResponseService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
-function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, $modal, $timeout, $filter, UtilService) {
+    'SurveyResponseService', 'SurveyService', 'ObservationService', 'ObservationHeadingService', '$modal',
+    '$timeout', '$filter', 'UtilService',
+function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, ObservationService,
+          ObservationHeadingService,  $modal, $timeout, $filter, UtilService) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -262,6 +264,12 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             size: 'lg',
             backdrop: 'static',
             resolve: {
+                ObservationService: function(){
+                    return ObservationService;
+                },
+                ObservationHeadingService: function(){
+                    return ObservationHeadingService;
+                },
                 SurveyService: function(){
                     return SurveyService;
                 },

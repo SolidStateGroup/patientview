@@ -42,8 +42,9 @@ function ($scope, $rootScope, $modalInstance, SurveyResponseService, surveyRespo
 }];
 
 var SurveyResponseDetailsNewModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'SurveyService',
-    'SurveyResponseService', 'surveyType', 'UtilService',
-function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseService, surveyType, UtilService) {
+    'SurveyResponseService', 'ObservationService', 'ObservationHeadingService', 'surveyType', 'UtilService',
+function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseService, ObservationService,
+          ObservationHeadingService, surveyType, UtilService) {
 
     var init = function() {
         $scope.surveyResponse = {};
@@ -119,10 +120,20 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             }
         }
 
+        // save, with heart symptom scoring specific code
         SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function() {
             if (surveyType === 'HEART_SYMPTOM_SCORE') {
                 $scope.enterResults = {};
                 $scope.showEnterResults = true;
+
+                ObservationHeadingService.getByCode('weight').then(function(observationHeading) {
+                    $scope.weightHeading = observationHeading;
+                });
+
+                ObservationHeadingService.getByCode('pulse').then(function(observationHeading) {
+                    $scope.pulseHeading = observationHeading;
+                });
+
             } else {
                 $modalInstance.close();
             }
@@ -132,7 +143,32 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     };
 
     $scope.saveResults = function () {
-        console.log($scope.enterResults);
+        var userResultClusters = [];
+        var resultCluster = {};
+        var date = new Date();
+        resultCluster.minute = date.getMinutes();
+        resultCluster.hour = date.getHours();
+        resultCluster.day = date.getDate();
+        resultCluster.month = date.getMonth() + 1;
+        resultCluster.year = date.getFullYear();
+        resultCluster.values = [];
+
+        if ($scope.weightHeading) {
+            resultCluster.values[$scope.weightHeading.id] = $scope.enterResults.weight;
+        }
+
+        if ($scope.pulseHeading) {
+            resultCluster.values[$scope.pulseHeading.id] = $scope.enterResults.pulse;
+        }
+
+        userResultClusters.push(resultCluster);
+
+        // generate result clusters to store similarly to enter own results
+        ObservationService.saveResultClusters($scope.loggedInUser.id, userResultClusters).then(function() {
+            $modalInstance.close();
+        }, function () {
+            alert('Cannot save your results');
+        });
     };
 
     $scope.range = function(min, max) {

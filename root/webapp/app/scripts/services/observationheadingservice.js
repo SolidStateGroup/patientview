@@ -104,6 +104,15 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             });
             return deferred.promise;
         },
+        getByCode: function (code) {
+            var deferred = $q.defer();
+            Restangular.one('observationheading/code', code).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getResultClusters: function () {
             var deferred = $q.defer();
             // GET /resultclusters

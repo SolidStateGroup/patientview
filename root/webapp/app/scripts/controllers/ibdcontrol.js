@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('IbdControlCtrl',['$scope', '$routeParams', '$location',
-    'SurveyResponseService', 'SurveyService', '$modal', '$timeout', '$filter', 'UtilService',
-function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, $modal, $timeout, $filter, UtilService) {
+    'SurveyResponseService', 'SurveyService', 'ObservationService', 'ObservationHeadingService', '$modal', '$timeout', '$filter', 'UtilService',
+function ($scope, $routeParams, $location, SurveyResponseService, SurveyService, ObservationService, ObservationHeadingService, $modal, $timeout, $filter, UtilService) {
 
     $scope.init = function() {
         $scope.loading = true;
