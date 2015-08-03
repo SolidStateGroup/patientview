@@ -51,7 +51,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 16;
 
                 getSurveyResponses();
-            } else if (primaryDiagnosis === 'Heart') {
+            } else if (primaryDiagnosis === 'Heart Failure') {
                 $scope.surveyType = 'HEART_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{

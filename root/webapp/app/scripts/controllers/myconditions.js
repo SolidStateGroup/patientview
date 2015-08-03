@@ -244,7 +244,7 @@ function ($scope, PatientService, GroupService, ObservationService) {
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
                         // create myIBD object if present
                         $scope.patientDetails[i].myIbd = {};
-                        $scope.patientDetails[i].myIbd.primaryDiagnosis = 'Heart';
+                        $scope.patientDetails[i].myIbd.primaryDiagnosis = 'Heart Failure';
                     }
                 }
 
