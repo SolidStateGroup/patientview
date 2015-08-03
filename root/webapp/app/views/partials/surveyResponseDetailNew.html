@@ -96,7 +96,7 @@
     <div class="modal-header">
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" data-ng-if="!showEnterResults">
         <div class="row row-question">
             <div class="col-md-5">
                 <span class="question-text">Date</span>
@@ -161,9 +161,29 @@
             </div>
         </div>
     </div>
+    <div class="modal-body" data-ng-if="showEnterResults">
+        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is know, else click Cancel</p>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Pulse Rate:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.pulseRate" only-num>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Weight:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.weight" only-num-decimal>
+            </div>
+        </div>
+    </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
+        <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulseRate || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
     </div>
 </form>

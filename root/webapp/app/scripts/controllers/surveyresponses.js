@@ -120,10 +120,19 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         }
 
         SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function() {
-            $modalInstance.close();
+            if (surveyType === 'HEART_SYMPTOM_SCORE') {
+                $scope.enterResults = {};
+                $scope.showEnterResults = true;
+            } else {
+                $modalInstance.close();
+            }
         }, function (error) {
             $scope.errorMessage = error.data;
         });
+    };
+
+    $scope.saveResults = function () {
+        console.log($scope.enterResults);
     };
 
     $scope.range = function(min, max) {
