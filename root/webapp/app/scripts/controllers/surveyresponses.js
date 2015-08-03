@@ -90,7 +90,11 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     };
 
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        if (!$scope.showEnterResults) {
+            $modalInstance.dismiss('cancel');
+        } else {
+            $modalInstance.close();
+        }
     };
 
     $scope.save = function () {
