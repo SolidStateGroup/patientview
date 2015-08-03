@@ -162,10 +162,10 @@
         </div>
     </div>
     <div class="modal-body" data-ng-if="showEnterResults">
-        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is know, else click Cancel</p>
+        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is known, else click Cancel</p>
         <div class="row">
             <div class="col-md-3 question-text">
-                Pulse Rate:
+                Pulse<span data-ng-if="pulseHeading && pulseHeading.units"> ({{pulseHeading.units}})</span>:
             </div>
             <div class="col-md-9">
                 <input type="text" class="form-control" data-ng-model="enterResults.pulse" only-num>
@@ -173,7 +173,7 @@
         </div>
         <div class="row">
             <div class="col-md-3 question-text">
-                Weight:
+                Weight<span data-ng-if="weightHeading && weightHeading.units"> ({{weightHeading.units}})</span>:
             </div>
             <div class="col-md-9">
                 <input type="text" class="form-control" data-ng-model="enterResults.weight" only-num-decimal>

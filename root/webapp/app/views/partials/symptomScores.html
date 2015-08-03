@@ -28,11 +28,11 @@
         <ul class="symptom-info-list">
             <li data-ng-if="surveyType === 'CROHNS_SYMPTOM_SCORE' || surveyType === 'COLITIS_SYMPTOM_SCORE'">
                 The symptom checker can be used to keep a personal record of your symptoms over time.</li>
-            <li data-ng-if="surveyType === 'HEART_SYMPTOM_SCORE'">
-                The following questions refer to your heart failure and how it may affect your life. Please read and
-                complete the following questions. There are no right or wrong answers. Please mark the answer
-                that best applies to you.
-            </li>
+            <span data-ng-if="surveyType === 'HEART_SYMPTOM_SCORE'">
+                <li>The following questions refer to your heart failure and how it may affect your life. </li>
+                <li>Please read and complete the following questions. There are no right or wrong answers. Please mark
+                    the answer that best applies to you.</li>
+            </span>
             <li>The scores generated from the questions are based on previous validated research studies.</li>
             <span data-ng-if="surveyType === 'CROHNS_SYMPTOM_SCORE' || surveyType === 'COLITIS_SYMPTOM_SCORE'">
                 <li>If you have 3 days of worsening symptoms from your bowels, record your symptoms every day on the chart for 2 weeks.</li>
