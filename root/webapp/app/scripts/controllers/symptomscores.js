@@ -180,7 +180,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                     month: '%e. %b. %Y',
                     year: '%e. %b. %Y'
                 },
-                text: 'ESEMPIO'
+                text: 'ESEMPIO',
+                ordinal: false
             },
             yAxis: {
                 plotLines: $scope.plotLines,
