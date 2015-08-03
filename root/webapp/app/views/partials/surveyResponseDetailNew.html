@@ -137,9 +137,11 @@
                 </div>
                 <div class="col-md-7">
                     <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
-                            data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
-                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
-                        <label for="{{questionOption.id}}" class="radio-label">{{questionOption.text}}</label>
+                        data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <label for="{{questionOption.id}}" class="radio-label">
+                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            &nbsp;{{questionOption.text}}
+                        </label>
                     </span>
                     <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
                             data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
@@ -149,7 +151,6 @@
                             data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
                             class="form-control">
                     </select>
-
                     <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
                         <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
                                 ng-model='answers[question.id]'></div>

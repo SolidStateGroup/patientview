@@ -179,20 +179,20 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.surveyType = 'HEART_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
-                    color: '#FF8A8A',
-                    width: 90,
-                    value: 13
+                    color: '#77DD77',
+                    width: 80,
+                    value: 20
                 },{
                     color: '#FFB347',
-                    width: 90,
-                    value: 7
+                    width: 80,
+                    value: 12
                 }, {
-                    color: '#77DD77',
-                    width: 60,
-                    value: 2
+                    color: '#FF8A8A',
+                    width: 80,
+                    value: 4
                 }];
 
-                $scope.max = 16;
+                $scope.max = 25;
 
                 getSurveyResponses();
             } else {
@@ -213,11 +213,9 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
         var data = [];
 
-        for (var i = $scope.surveyResponses.length -1; i >= 0; i--) {
-
+        for (var i = $scope.surveyResponses.length - 1; i >= 0; i--) {
             var surveyResponse = $scope.surveyResponses[i];
             var score = surveyResponse.surveyResponseScores[0].score;
-            //console.log(score);
             var row = [];
             row[0] = surveyResponse.date;
             row[1] = parseFloat(score);
@@ -229,52 +227,60 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         }
 
         $('#chart_'.concat($scope.surveyType)).highcharts('StockChart', {
-            rangeSelector : {
-                buttons: [{
-                    type: 'month',
-                    count: 1,
-                    text: '1m'
-                }, {
-                    type: 'month',
-                    count: 3,
-                    text: '3m'
-                }, {
-                    type: 'year',
-                    count: 1,
-                    text: '1y'
-                }, {
-                    type: 'year',
-                    count: 3,
-                    text: '3y'
-                }, {
-                    type: 'all',
-                    text: 'All'
-                }],
+            rangeSelector: {
+                buttons: [
+                    {
+                        type: 'month',
+                        count: 1,
+                        text: '1m'
+                    },
+                    {
+                        type: 'month',
+                        count: 3,
+                        text: '3m'
+                    },
+                    {
+                        type: 'year',
+                        count: 1,
+                        text: '1y'
+                    },
+                    {
+                        type: 'year',
+                        count: 3,
+                        text: '3y'
+                    },
+                    {
+                        type: 'all',
+                        text: 'All'
+                    }
+                ],
 
                 selected: 3
             },
 
-            credits : {
+            credits: {
                 enabled: false
             },
-            title : {
+            title: {
                 text: ''
             },
             navigator: {
                 enabled: true
             },
-            series : [{
-                name : 'Score',
-                data : data,
-                color: '#585858',
-                tooltip: {
-                    valueDecimals: 1
-                },
-                marker : {
-                    enabled : true,
-                    radius : 2
+            series: [
+                {
+                    name: 'Score',
+                    data: data,
+                    color: '#585858',
+                    tooltip: {
+                        valueDecimals: 1
+                    },
+                    marker: {
+                        enabled: true,
+                        radius: 2
+                    }
                 }
-            }],
+            ],
             chart: {
                 events: {
                     zoomType: 'x',

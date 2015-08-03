@@ -6,7 +6,7 @@ VALUES (2, 'COLITIS_SYMPTOM_SCORE', 'Colitis Symptom Score');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (3, 'IBD_CONTROL', 'My Disease Control Rating');
 INSERT INTO "pv_survey" ("id", "type", "description")
-VALUES (4, 'HEART_SYMPTOM_SCORE', 'My Disease Control Rating');
+VALUES (4, 'HEART_SYMPTOM_SCORE', 'Heart Failure Symptom Score');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
@@ -26,7 +26,7 @@ INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "numb
 VALUES (7, 3, 'How would you rate the OVERALL control of your IBD in the past two weeks?', '(please use the slider)', 5, 5);
 
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
-VALUES (8, 4, 'Heart Questions', null, null, 1);
+VALUES (8, 4, '', null, null, 1);
 
 /* Questions, see QuestionTypes.java */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")

@@ -109,7 +109,8 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         }
 
         if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)
+                || survey.getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
             Integer score = calculateScore(newSurveyResponse, type);
 
@@ -230,6 +231,19 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     score += questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL);
                 }
             }
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING);
+            }
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE);
+            }
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH);
+            }
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP);
+            }
         }
 
         return score;
@@ -241,11 +255,9 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (score != null) {
                 if (score >= 16) {
                     return ScoreSeverity.HIGH;
-                }
-                if (score >= 4) {
+                } else if (score >= 4) {
                     return ScoreSeverity.MEDIUM;
-                }
-                if (score < 4) {
+                } else if (score < 4) {
                     return ScoreSeverity.LOW;
                 }
             }
@@ -253,12 +265,20 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (score != null) {
                 if (score >= 10) {
                     return ScoreSeverity.HIGH;
-                }
-                if (score >= 4) {
+                } else if (score >= 4) {
                     return ScoreSeverity.MEDIUM;
-                }
-                if (score < 4) {
+                } else if (score < 8) {
                     return ScoreSeverity.LOW;
+                }
+            }
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
+            if (score != null) {
+                if (score >= 16) {
+                    return ScoreSeverity.LOW;
+                } else if (score > 8) {
+                    return ScoreSeverity.MEDIUM;
+                } else if (score <= 8) {
+                    return ScoreSeverity.HIGH;
                 }
             }
         }
