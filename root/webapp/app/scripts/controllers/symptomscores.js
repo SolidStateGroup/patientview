@@ -175,6 +175,26 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 16;
 
                 getSurveyResponses();
+            } else if (primaryDiagnosis === 'Heart') {
+                $scope.surveyType = 'HEART_SYMPTOM_SCORE';
+
+                $scope.plotLines = [{
+                    color: '#FF8A8A',
+                    width: 90,
+                    value: 13
+                },{
+                    color: '#FFB347',
+                    width: 90,
+                    value: 7
+                }, {
+                    color: '#77DD77',
+                    width: 60,
+                    value: 2
+                }];
+
+                $scope.max = 16;
+
+                getSurveyResponses();
             } else {
                 $scope.unknownPrimaryDiagnosis = true;
                 $scope.loading = false;

@@ -50,5 +50,16 @@ public enum QuestionOptionTypes {
     NOT_SURE,
     BETTER,
     NO_CHANGE,
-    WORSE
+    WORSE,
+
+    // Heart Symptom Scores
+    EVERY_MORNING,
+    THREE_OR_MORE_PER_WEEK,
+    ONE_OR_TWO_PER_WEEK,
+    LT_ONE_PER_WEEK,
+    NOT_IN_TWO_WEEKS,
+    ALL_THE_TIME,
+    SEVERAL_TIMES_DAILY,
+    AT_LEAST_ONCE_DAILY,
+    EVERY_NIGHT
 }
