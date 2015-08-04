@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,6 +84,20 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ResponseBody
     public ResponseEntity<Page<ObservationHeading>> findAll(GetParameters getParameters) {
         return new ResponseEntity<>(observationHeadingService.findAll(getParameters), HttpStatus.OK);
+    }
+
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/observationheading/code/{code}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ObservationHeading> findByCode(@PathVariable("code") String code)
+            throws ResourceNotFoundException {
+        List<ObservationHeading> observationHeadings = observationHeadingService.findByCode(code);
+        if (!CollectionUtils.isEmpty(observationHeadings)) {
+            return new ResponseEntity<>(observationHeadings.get(0), HttpStatus.OK);
+        } else {
+            throw new ResourceNotFoundException();
+        }
     }
 
     /**

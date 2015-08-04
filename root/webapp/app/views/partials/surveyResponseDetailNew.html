@@ -1,6 +1,6 @@
 <style>
     .row-question {
-        margin: 2px 0 2px 0;
+        margin: 2px 0 20px 0;
     }
     .question-text {
         font-weight: bold;
@@ -96,7 +96,7 @@
     <div class="modal-header">
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" data-ng-if="!showEnterResults">
         <div class="row row-question">
             <div class="col-md-5">
                 <span class="question-text">Date</span>
@@ -137,9 +137,11 @@
                 </div>
                 <div class="col-md-7">
                     <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
-                            data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
-                        <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
-                        <label for="{{questionOption.id}}" class="radio-label">{{questionOption.text}}</label>
+                        data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <label for="{{questionOption.id}}" class="radio-label">
+                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            &nbsp;{{questionOption.text}}
+                        </label>
                     </span>
                     <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
                             data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
@@ -149,7 +151,6 @@
                             data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
                             class="form-control">
                     </select>
-
                     <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
                         <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
                                 ng-model='answers[question.id]'></div>
@@ -160,9 +161,29 @@
             </div>
         </div>
     </div>
+    <div class="modal-body" data-ng-if="showEnterResults">
+        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is known, else click Cancel</p>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Pulse<span data-ng-if="pulseHeading && pulseHeading.units"> ({{pulseHeading.units}})</span>:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.pulse" only-num>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Weight<span data-ng-if="weightHeading && weightHeading.units"> ({{weightHeading.units}})</span>:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.weight" only-num-decimal>
+            </div>
+        </div>
+    </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
     </div>
 </form>

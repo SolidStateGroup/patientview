@@ -1,16 +1,19 @@
-/* Survey */
+/* Survey, see SurveyTypes.java */
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (1, 'CROHNS_SYMPTOM_SCORE', 'Crohns Symptom Score');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (2, 'COLITIS_SYMPTOM_SCORE', 'Colitis Symptom Score');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (3, 'IBD_CONTROL', 'My Disease Control Rating');
+INSERT INTO "pv_survey" ("id", "type", "description")
+VALUES (4, 'HEART_SYMPTOM_SCORE', 'Heart Failure Symptom Score');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (1, 1, 'Crohn''s Questions', null, null, 1);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (2, 2, 'Colitis Questions', null, null, 1);
+
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (3, 3, 'Do you believe that:', null, 1, 1);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
@@ -22,7 +25,10 @@ VALUES (6, 3, 'At your next clinic visit, would you like to discuss:', null, 4, 
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (7, 3, 'How would you rate the OVERALL control of your IBD in the past two weeks?', '(please use the slider)', 5, 5);
 
-/* Questions */
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (8, 4, '', null, null, 1);
+
+/* Questions, see QuestionTypes.java */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (1, 1, 'SINGLE_SELECT', 'SELECT', 'Do you have any abdominal pain at present?', null, null, 1, null, null, 'ABDOMINAL_PAIN');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
@@ -78,7 +84,16 @@ VALUES (25, 6, 'SINGLE_SELECT', 'RADIO', 'd. New symptoms that have developed si
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "range_start_description", "range_end_description", "type")
 VALUES (26, 7, 'SINGLE_SELECT_RANGE', 'SLIDER', '', null, null, 1, 0, 100, 'Worst possible control', 'Best possible control', 'IBD_OVERALL_CONTROL');
 
-/* Question Options */
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (27, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, how many times did you have swelling in your feet, ankles or legs bothered you?', null, 1, 1, null, null, 'HEART_SWELLING');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (28, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average, how many times has fatigue limited your ability to do what you want?', null, 2, 2, null, null, 'HEART_FATIGUE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (29, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average, how many times has shortness of breath limited your ability to do what you wanted?', null, 3, 3, null, null, 'HEART_SHORTNESS_OF_BREATH');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (30, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average how many times have you been forced to sleep sitting up in a chair or with least 3 pillows to prop you up because of shortness of breath?', null, 4, 4, null, null, 'HEART_SHORTNESS_OF_BREATH_SLEEP');
+
+/* Question Options, see QuestionOptionTypes.java */
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
 VALUES (1, 1, 'No', null, 1, 'NO', 0);
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
@@ -253,3 +268,67 @@ INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "d
 VALUES (85, 25, 'No', null, 2, 'NO', 0);
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
 VALUES (86, 25, 'Not Sure', null, 3, 'NOT_SURE', 0);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (87, 27, 'Every morning', null, 1, 'EVERY_MORNING', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (88, 27, '3 or more times a week, but not every day', null, 2, 'THREE_OR_MORE_PER_WEEK', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (89, 27, '1 - 2 times a week', null, 3, 'ONE_OR_TWO_PER_WEEK', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (90, 27, 'Less than once a week', null, 4, 'LT_ONE_PER_WEEK', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (91, 27, 'Never over the past 2 weeks', null, 5, 'NOT_IN_TWO_WEEKS', 5);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (92, 28, 'All the time', null, 1, 'ALL_THE_TIME', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (93, 28, 'Several times per day', null, 2, 'SEVERAL_TIMES_DAILY', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (94, 28, 'At least once a day', null, 3, 'AT_LEAST_ONCE_DAILY', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (95, 28, '3 or more times per week but not every day', null, 4, 'THREE_OR_MORE_PER_WEEK', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (96, 28, '1 - 2 times a week', null, 5, 'ONE_OR_TWO_PER_WEEK', 5);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (97, 28, 'Less than once a week', null, 6, 'LT_ONE_PER_WEEK', 6);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (98, 28, 'Never over the past 2 weeks', null, 7, 'NOT_IN_TWO_WEEKS', 7);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (99, 29, 'All the time', null, 1, 'ALL_THE_TIME', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (100, 29, 'Several times per day', null, 2, 'SEVERAL_TIMES_DAILY', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (101, 29, 'At least once a day', null, 3, 'AT_LEAST_ONCE_DAILY', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (102, 29, '3 or more times per week but not every day', null, 4, 'THREE_OR_MORE_PER_WEEK', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (103, 29, '1 - 2 times a week', null, 5, 'ONE_OR_TWO_PER_WEEK', 5);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (104, 29, 'Less than once a week', null, 6, 'LT_ONE_PER_WEEK', 6);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (105, 29, 'Never over the past 2 weeks', null, 7, 'NOT_IN_TWO_WEEKS', 7);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (106, 30, 'Every night', null, 1, 'EVERY_NIGHT', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (107, 30, '3 or more times a week, but not every day', null, 2, 'THREE_OR_MORE_PER_WEEK', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (108, 30, '1 - 2 times a week', null, 3, 'ONE_OR_TWO_PER_WEEK', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (109, 30, 'Less than once a week', null, 4, 'LT_ONE_PER_WEEK', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (110, 30, 'Never over the past 2 weeks', null, 5, 'NOT_IN_TWO_WEEKS', 5);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -140,7 +140,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                     month: '%e. %b. %Y',
                     year: '%e. %b. %Y'
                 },
-                text: 'ESEMPIO'
+                text: 'ESEMPIO',
+                ordinal: false
             },
             tooltip: {
                 minTickInterval: 864000000,
