@@ -997,9 +997,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userCountSql.append(sql);
         userCountSql.append(" GROUP BY u.id ");
 
+        //Updated as when more than 1 identifier, the patient was exclued
+        //TODO Use more efficient method of checking (Distinct count isn't efficient)
         if (andGroups) {
-            userListSql.append("HAVING COUNT(gr) = :groupCount ");
-            userCountSql.append("HAVING COUNT(gr) = :groupCount ");
+            userListSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i)");
+            userCountSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
         }
 
         userListSql.append(sortOrder);
