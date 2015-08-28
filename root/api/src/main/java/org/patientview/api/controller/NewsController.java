@@ -119,6 +119,7 @@ public class NewsController extends BaseController<NewsController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.NewsItem>> findByUserId(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "newsType", required = false) String newsType,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 
         PageRequest pageable;
@@ -131,7 +132,7 @@ public class NewsController extends BaseController<NewsController> {
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
-        return new ResponseEntity<>(newsService.findByUserId(userId, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(newsService.findByUserId(userId, newsType , pageable), HttpStatus.OK);
     }
 
     /**

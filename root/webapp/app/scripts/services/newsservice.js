@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'UtilService', 'StaticDataService',
+    function ($q, Restangular, UtilService, StaticDataService) {
     return {
         get: function (newsId) {
             var deferred = $q.defer();
@@ -11,10 +12,10 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        getByUser: function (userId, page, size) {
+        getByUser: function (userId, newsType, page, size) {
             var deferred = $q.defer();
             // GET /user/{userId}/news?page=0&size=5
-            Restangular.one('user', userId).one('news').get({'page': page, 'size': size}).then(function(successResult) {
+            Restangular.one('user', userId).one('news').get({'page': page, 'newsType': newsType, 'size': size}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

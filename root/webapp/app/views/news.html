@@ -1,5 +1,12 @@
 <div data-ng-show="!loading">
     <h1>News
+
+        <div class="pull-right" style="width:300px;">
+            <select class="form-control" data-ng-model="newsType" ng-init="newsType = options[0]"
+                    data-ng-options="newsType.value as newsType.description for newsType in newsTypes | orderBy:[orderGroups,'value']">
+            </select>
+        </div>
+
         <button class="btn blue" data-ng-click="openModalNewNews('lg')" data-ng-show="permissions.canAddNews">Create New</button>
     </h1>
 
@@ -25,20 +32,8 @@
         </div>
     </script>
 
+
     <div data-ng-show="!loading" data-ng-cloak>
-        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
-            <ul class="pagination">
-                <li data-ng-class="prevPageDisabled()">
-                    <a href data-ng-click="prevPage()">« Prev</a>
-                </li>
-                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
-                    <a href>{{n+1}}</a>
-                </li>
-                <li data-ng-class="nextPageDisabled()">
-                    <a href data-ng-click="nextPage()">Next »</a>
-                </li>
-            </ul>
-        </div>
 
         <div class="message-item" data-ng-repeat="news in pagedItems">
             <div class="content-panel">
@@ -78,6 +73,20 @@
 
         <div data-ng-show="pagedItems.length < 1">
             <h4>No News Found</h4>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

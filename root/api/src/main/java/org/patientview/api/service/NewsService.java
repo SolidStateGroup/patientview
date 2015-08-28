@@ -77,11 +77,12 @@ public interface NewsService {
      * Get a Page of NewsItems for a specific User.
      * @param userId ID of User to retrieve news for
      * @param pageable Pageable object containing pagination properties
+     * @param newsType The news type to result (1=regular, 2=featured)
      * @return Page of NewsItem for a specific User
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, Pageable pageable)
+    Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, String newsType, Pageable pageable)
             throws ResourceNotFoundException;
 
     /**

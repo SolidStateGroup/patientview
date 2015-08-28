@@ -2,405 +2,425 @@
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
     'NewsService', 'UtilService', 'MedicationService', 'ObservationService', 'ObservationHeadingService', 'AlertService',
-function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService,
-          ObservationHeadingService, AlertService) {
+    function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService,
+              ObservationHeadingService, AlertService) {
 
-    // get graph every time group is changed
-    $scope.$watch('graphGroupId', function(newValue) {
+        // get graph every time group is changed
+        $scope.$watch('graphGroupId', function (newValue) {
 
-        if ($scope.permissions && !$scope.permissions.isPatient) {
-            $scope.chartLoading = true;
-            $('#chart_div').html('');
+            if ($scope.permissions && !$scope.permissions.isPatient) {
+                $scope.chartLoading = true;
+                $('#chart_div').html('');
 
-            if (newValue !== undefined) {
-                GroupService.getStatistics(newValue).then(function (statisticsArray) {
-                    var patients = [];
-                    var uniqueLogons = [];
-                    var logons = [];
-                    var xAxisCategories = [];
+                if (newValue !== undefined) {
+                    GroupService.getStatistics(newValue).then(function (statisticsArray) {
+                        var patients = [];
+                        var uniqueLogons = [];
+                        var logons = [];
+                        var xAxisCategories = [];
 
-                    for (var i = 0; i < statisticsArray.length; i++) {
-                        var statistics = statisticsArray[i];
+                        for (var i = 0; i < statisticsArray.length; i++) {
+                            var statistics = statisticsArray[i];
 
-                        if (i !== statisticsArray.length -1) {
-                            var dateObject = new Date(statistics.startDate);
+                            if (i !== statisticsArray.length - 1) {
+                                var dateObject = new Date(statistics.startDate);
 
-                            xAxisCategories.push(
+                                xAxisCategories.push(
                                     UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
 
-                            if (statistics.statistics.PATIENT_COUNT !== undefined) {
-                                patients.push(statistics.statistics.PATIENT_COUNT);
-                            } else {
-                                patients.push(null);
+                                if (statistics.statistics.PATIENT_COUNT !== undefined) {
+                                    patients.push(statistics.statistics.PATIENT_COUNT);
+                                } else {
+                                    patients.push(null);
+                                }
+
+                                if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
+                                    uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
+                                } else {
+                                    uniqueLogons.push(null);
+                                }
+
+                                if (statistics.statistics.LOGGED_ON_COUNT !== undefined) {
+                                    logons.push(statistics.statistics.LOGGED_ON_COUNT);
+                                } else {
+                                    logons.push(null);
+                                }
                             }
 
-                            if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
-                                uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
-                            } else {
-                                uniqueLogons.push(null);
+                            $scope.statisticsDate = statistics.endDate;
+                            $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
+
+                            if ($scope.lockedUsers && statistics.statistics.LOCKED_PATIENT_COUNT) {
+                                $scope.lockedPatients = statistics.statistics.LOCKED_PATIENT_COUNT;
+                                $scope.lockedStaff = $scope.lockedUsers - $scope.lockedPatients;
                             }
 
-                            if (statistics.statistics.LOGGED_ON_COUNT !== undefined) {
-                                logons.push(statistics.statistics.LOGGED_ON_COUNT);
-                            } else {
-                                logons.push(null);
+                            $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
+                            if ($scope.inactiveUsers && statistics.statistics.INACTIVE_PATIENT_COUNT) {
+                                $scope.inactivePatients = statistics.statistics.INACTIVE_PATIENT_COUNT;
+                                $scope.inactiveStaff = $scope.inactiveUsers - $scope.inactivePatients;
+                            }
+
+                            $scope.totalUsers = statistics.statistics.USER_COUNT;
+                            $scope.totalPatients = statistics.statistics.PATIENT_COUNT;
+                            $scope.totalStaff = $scope.totalUsers - $scope.totalPatients;
+
+                            if ($scope.totalUsers && $scope.inactiveUsers) {
+                                $scope.activeUsers = $scope.totalUsers - $scope.inactiveUsers;
+                            }
+                            if ($scope.totalStaff && $scope.inactiveStaff) {
+                                $scope.activeStaff = $scope.totalStaff - $scope.inactiveStaff;
+                            }
+                            if ($scope.totalPatients && $scope.inactivePatients) {
+                                $scope.activePatients = $scope.totalPatients - $scope.inactivePatients;
                             }
                         }
 
-                        $scope.statisticsDate = statistics.endDate;
-                        $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
-
-                        if ($scope.lockedUsers && statistics.statistics.LOCKED_PATIENT_COUNT) {
-                            $scope.lockedPatients = statistics.statistics.LOCKED_PATIENT_COUNT;
-                            $scope.lockedStaff = $scope.lockedUsers - $scope.lockedPatients;
-                        }
-
-                        $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
-                        if ($scope.inactiveUsers && statistics.statistics.INACTIVE_PATIENT_COUNT) {
-                            $scope.inactivePatients = statistics.statistics.INACTIVE_PATIENT_COUNT;
-                            $scope.inactiveStaff = $scope.inactiveUsers - $scope.inactivePatients;
-                        }
-
-                        $scope.totalUsers = statistics.statistics.USER_COUNT;
-                        $scope.totalPatients = statistics.statistics.PATIENT_COUNT;
-                        $scope.totalStaff = $scope.totalUsers - $scope.totalPatients;
-                        
-                        if ($scope.totalUsers && $scope.inactiveUsers) {
-                            $scope.activeUsers = $scope.totalUsers - $scope.inactiveUsers;
-                        }
-                        if ($scope.totalStaff && $scope.inactiveStaff) {
-                            $scope.activeStaff = $scope.totalStaff - $scope.inactiveStaff;
-                        }
-                        if ($scope.totalPatients && $scope.inactivePatients) {
-                            $scope.activePatients = $scope.totalPatients - $scope.inactivePatients;
-                        }
-                    }
-
-                    // using highcharts
-                    $('#chart_div').highcharts({
-                        chart: {
-                            zoomType: 'xy'
-                        },
-                        title: {
-                            text: ''
-                        },
-                        xAxis: {
-                            categories: xAxisCategories,
-                            labels: {enabled:false}
-                        },
-                        yAxis: {
-                            title: {
-                                text: null
+                        // using highcharts
+                        $('#chart_div').highcharts({
+                            chart: {
+                                zoomType: 'xy'
                             },
-                            plotLines: [
+                            title: {
+                                text: ''
+                            },
+                            xAxis: {
+                                categories: xAxisCategories,
+                                labels: {enabled: false}
+                            },
+                            yAxis: {
+                                title: {
+                                    text: null
+                                },
+                                plotLines: [
+                                    {
+                                        value: 0,
+                                        width: 1,
+                                        color: '#808080'
+                                    }
+                                ],
+                                min: 0,
+                                allowDecimals: false
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'middle',
+                                borderWidth: 0
+                            },
+                            series: [
                                 {
-                                    value: 0,
-                                    width: 1,
-                                    color: '#808080'
+                                    name: 'Patient Count',
+                                    data: patients
+                                },
+                                {
+                                    name: 'Unique Logons',
+                                    data: uniqueLogons
+                                },
+                                {
+                                    name: 'Logons',
+                                    data: logons
                                 }
                             ],
-                            min: 0,
-                            allowDecimals: false
-                        },
-                        legend: {
-                            layout: 'vertical',
-                            align: 'right',
-                            verticalAlign: 'middle',
-                            borderWidth: 0
-                        },
-                        series: [
-                            {
-                                name: 'Patient Count',
-                                data: patients
+                            credits: {
+                                enabled: false
                             },
-                            {
-                                name: 'Unique Logons',
-                                data: uniqueLogons
-                            },
-                            {
-                                name: 'Logons',
-                                data: logons
+                            exporting: {
+                                enabled: false
                             }
-                        ],
-                        credits: {
-                            enabled: false
-                        },
-                        exporting: {
-                            enabled: false
-                        }
+                        });
+
+                        $scope.chartLoading = false;
                     });
-                    
-                    $scope.chartLoading = false;
+                }
+            }
+        });
+
+        var init = function () {
+            $scope.loading = true;
+
+            $scope.allGroups = [];
+            $scope.permissions = {};
+            var i;
+
+            $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+            $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+            $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+            $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
+
+            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+                $scope.permissions.showRequestButton = true;
+                $scope.permissions.showStaffAlerts = true;
+            }
+
+            if ($scope.permissions.isPatient) {
+                // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
+                MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function (gpMedicationStatus) {
+                    $scope.gpMedicationStatus = gpMedicationStatus;
+                }, function () {
+                    alert('Cannot get GP medication status');
+                });
+
+                getAvailableObservationHeadings();
+            }
+
+            // set the list of groups to show in the data grid
+            $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
+
+            // hide Generic group
+            _.remove($scope.graphGroups, {code: 'Generic'});
+
+            for (i = 0; i < $scope.graphGroups.length; i++) {
+                $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+            }
+
+            // set group (avoid blank option)
+            if ($scope.graphGroups && $scope.graphGroups.length > 0) {
+                $scope.graphGroupId = $scope.graphGroups[0].id;
+            }
+
+            NewsService.getByUser($scope.loggedInUser.id, "REGULAR", 0, 5).then(function (page) {
+                $scope.newsItems = page.content;
+                $scope.loading = false;
+            }, function () {
+                $scope.loading = false;
+            });
+
+            NewsService.getByUser($scope.loggedInUser.id, "DASHBOARD", 0, 5).then(function (page) {
+                $scope.featuredNewsItems = page.content;
+                $scope.loading = false;
+            }, function () {
+                $scope.loading = false;
+            });
+        };
+
+        $scope.getContactAlertsAndOldSubmissionDateGroups = function () {
+            // get contact alerts for admin users
+            if ($scope.permissions.showStaffAlerts) {
+                $scope.showStaffGroupAlerts = true;
+                $scope.contactAlerts = [];
+                $scope.oldSubmissionDateGroups = [];
+
+                // get contact alerts
+                $scope.contactAlertsLoading = true;
+                AlertService.getContactAlerts($scope.loggedInUser.id).then(function (contactAlerts) {
+                    $scope.contactAlertsLoading = false;
+                    for (var i = 0; i < contactAlerts.length; i++) {
+                        if (contactAlerts[i].group.groupType.value === 'UNIT') {
+                            $scope.contactAlerts.push(contactAlerts[i]);
+                        }
+                    }
+                }, function () {
+                    alert("Error getting contact alerts");
+                    $scope.contactAlertsLoading = false;
+                });
+
+                // identify groups which have last import date more than 48 hours in past, note: could be done from user
+                // information but would require log out and in again
+                $scope.oldSubmissionDateGroupsLoading = true;
+                GroupService.getGroupsForUser($scope.loggedInUser.id, {}).then(function (page) {
+                    for (var i = 0; i < page.content.length; i++) {
+                        var group = page.content[i];
+                        var fortyEightHoursAgo = new Date().getTime() - 172800000;
+                        if (group.groupType.value === 'UNIT') {
+                            if (group.lastImportDate === null || group.lastImportDate < fortyEightHoursAgo) {
+                                $scope.oldSubmissionDateGroups.push(group);
+                            }
+                        }
+                        $scope.oldSubmissionDateGroupsLoading = false;
+                    }
+                }, function () {
+                    alert("Error getting user groups");
+                    $scope.oldSubmissionDateGroupsLoading = false;
                 });
             }
-        }
-    });
+        };
 
-    var init = function() {
-        $scope.loading = true;
-
-        $scope.allGroups = [];
-        $scope.permissions = {};
-        var i;
-
-        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
-        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
-        $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
-
-        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
-            $scope.permissions.showRequestButton = true;
-            $scope.permissions.showStaffAlerts = true;
-        }
-
-        if ($scope.permissions.isPatient) {
-            // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
-            MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function(gpMedicationStatus) {
-                $scope.gpMedicationStatus = gpMedicationStatus;
-            }, function () {
-                alert('Cannot get GP medication status');
-            });
-
-            getAvailableObservationHeadings();
-        }
-
-        // set the list of groups to show in the data grid
-        $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
-
-        // hide Generic group
-        _.remove($scope.graphGroups, {code: 'Generic'});
-
-        for(i=0;i<$scope.graphGroups.length;i++) {
-            $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
-        }
-
-        // set group (avoid blank option)
-        if ($scope.graphGroups && $scope.graphGroups.length > 0) {
-            $scope.graphGroupId = $scope.graphGroups[0].id;
-        }
-
-        NewsService.getByUser($scope.loggedInUser.id, 0, 5).then(function(page) {
-            $scope.newsItems = page.content;
-            $scope.loading = false;
-        }, function() {
-            $scope.loading = false;
-        });
-    };
-
-    $scope.getContactAlertsAndOldSubmissionDateGroups = function() {
-        // get contact alerts for admin users
-        if ($scope.permissions.showStaffAlerts) {
-            $scope.showStaffGroupAlerts = true;
-            $scope.contactAlerts = [];
-            $scope.oldSubmissionDateGroups = [];
-
-            // get contact alerts
-            $scope.contactAlertsLoading = true;
-            AlertService.getContactAlerts($scope.loggedInUser.id).then(function(contactAlerts) {
-                $scope.contactAlertsLoading = false;
-                for (var i=0; i<contactAlerts.length; i++) {
-                    if (contactAlerts[i].group.groupType.value === 'UNIT') {
-                        $scope.contactAlerts.push(contactAlerts[i]);
+        $scope.viewNewsItem = function (news) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/viewNewsModal.html',
+                controller: ViewNewsModalInstanceCtrl,
+                size: 'lg',
+                resolve: {
+                    news: function () {
+                        return news;
                     }
                 }
-            }, function() {
-                alert("Error getting contact alerts");
-                $scope.contactAlertsLoading = false;
             });
 
-            // identify groups which have last import date more than 48 hours in past, note: could be done from user
-            // information but would require log out and in again
-            $scope.oldSubmissionDateGroupsLoading = true;
-            GroupService.getGroupsForUser($scope.loggedInUser.id, {}).then(function(page) {
-                for (var i=0; i<page.content.length; i++) {
-                    var group = page.content[i];
-                    var fortyEightHoursAgo = new Date().getTime() - 172800000;
-                    if (group.groupType.value === 'UNIT') {
-                        if (group.lastImportDate === null || group.lastImportDate < fortyEightHoursAgo) {
-                            $scope.oldSubmissionDateGroups.push(group);
-                        }
+            modalInstance.result.then(function () {
+                // ok (not used)
+            }, function () {
+                // closed
+            });
+        };
+
+        var saveGpMedicationStatus = function () {
+            MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus).then(function () {
+                init();
+                if ($scope.gpMedicationStatus.optInStatus === true) {
+                    $scope.justOptedIn = true;
+                }
+            }, function () {
+                alert('Cannot save GP medication status');
+            });
+        };
+
+        $scope.gpMedicinesOptIn = function () {
+            $scope.gpMedicationStatus.optInStatus = true;
+            $scope.gpMedicationStatus.optInHidden = false;
+            $scope.gpMedicationStatus.optOutHidden = false;
+            $scope.gpMedicationStatus.optInDate = new Date().getTime();
+            saveGpMedicationStatus();
+        };
+
+        $scope.gpMedicinesHideOptIn = function () {
+            $scope.gpMedicationStatus.optInHidden = true;
+            saveGpMedicationStatus();
+        };
+
+        $scope.hasGroupLink = function (newsItem){
+            var hasGroup = false;
+            newsItem.newsLinks.forEach(
+                function (element) {
+                    if(element.group != null){
+                        hasGroup = true;
+
                     }
-                    $scope.oldSubmissionDateGroupsLoading = false;
-                }
+
+                });
+            return hasGroup;
+        };
+
+        // Migration only
+        $scope.startObservationMigration = function () {
+            ObservationService.startObservationMigration().then(function () {
+
             }, function () {
-                alert("Error getting user groups");
-                $scope.oldSubmissionDateGroupsLoading = false;
+                alert('Cannot start observation migration');
             });
-        }
-    };
+        };
 
-    $scope.viewNewsItem = function(news) {
-        var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewNewsModal.html',
-            controller: ViewNewsModalInstanceCtrl,
-            size: 'lg',
-            resolve: {
-                news: function(){
-                    return news;
+        // alerts
+        $scope.addAlertObservationHeading = function (observationHeadingId) {
+            var found = false;
+
+            for (var i = 0; i < $scope.alertObservationHeadings.length; i++) {
+                if ($scope.alertObservationHeadings[i].observationHeading.id === observationHeadingId) {
+                    found = true;
                 }
             }
-        });
 
-        modalInstance.result.then(function () {
-            // ok (not used)
-        }, function () {
-            // closed
-        });
-    };
+            if (!found) {
+                var alertObservationHeading = {};
+                alertObservationHeading.user = {};
+                alertObservationHeading.user.id = $scope.loggedInUser.id;
+                alertObservationHeading.observationHeading = {};
+                alertObservationHeading.observationHeading.id = observationHeadingId;
+                alertObservationHeading.webAlert = true;
+                alertObservationHeading.emailAlert = true;
+                alertObservationHeading.alertType = 'RESULT';
 
-    var saveGpMedicationStatus = function() {
-        MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus).then(function() {
-            init();
-            if ($scope.gpMedicationStatus.optInStatus === true) {
-                $scope.justOptedIn = true;
+                AlertService.addAlert($scope.loggedInUser.id, alertObservationHeading).then(function () {
+                    getAlerts();
+                }, function () {
+                    alert('Error adding result alert');
+                });
             }
-        }, function () {
-            alert('Cannot save GP medication status');
-        });
-    };
+        };
 
-    $scope.gpMedicinesOptIn = function() {
-        $scope.gpMedicationStatus.optInStatus = true;
-        $scope.gpMedicationStatus.optInHidden = false;
-        $scope.gpMedicationStatus.optOutHidden = false;
-        $scope.gpMedicationStatus.optInDate = new Date().getTime();
-        saveGpMedicationStatus();
-    };
-
-    $scope.gpMedicinesHideOptIn = function() {
-        $scope.gpMedicationStatus.optInHidden = true;
-        saveGpMedicationStatus();
-    };
-
-    // Migration only
-    $scope.startObservationMigration = function() {
-        ObservationService.startObservationMigration().then(function() {
-
-        }, function () {
-            alert('Cannot start observation migration');
-        });
-    };
-
-    // alerts
-    $scope.addAlertObservationHeading = function(observationHeadingId) {
-        var found = false;
-
-        for (var i=0;i<$scope.alertObservationHeadings.length;i++) {
-            if ($scope.alertObservationHeadings[i].observationHeading.id === observationHeadingId) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            var alertObservationHeading = {};
-            alertObservationHeading.user = {};
-            alertObservationHeading.user.id = $scope.loggedInUser.id;
-            alertObservationHeading.observationHeading = {};
-            alertObservationHeading.observationHeading.id = observationHeadingId;
-            alertObservationHeading.webAlert = true;
-            alertObservationHeading.emailAlert = true;
-            alertObservationHeading.alertType = 'RESULT';
-
-            AlertService.addAlert($scope.loggedInUser.id, alertObservationHeading).then(function () {
+        $scope.removeAlert = function (alertId) {
+            AlertService.removeAlert($scope.loggedInUser.id, alertId).then(function () {
                 getAlerts();
             }, function () {
-                alert('Error adding result alert');
+                alert('Error removing result alert');
             });
-        }
-    };
+        };
 
-    $scope.removeAlert = function(alertId) {
-        AlertService.removeAlert($scope.loggedInUser.id, alertId).then(function () {
-            getAlerts();
-        }, function () {
-            alert('Error removing result alert');
-        });
-    };
-
-    $scope.updateAlert = function(alert) {
-        AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
-            getAlerts();
-        }, function () {
-            alert('Error updating alert');
-        });
-    };
-
-    $scope.updateLetterAlert = function(letterAlert) {
-        if (letterAlert.id === undefined) {
-            letterAlert.user = {};
-            letterAlert.user.id = $scope.loggedInUser.id;
-            letterAlert.alertType = 'LETTER';
-
-            AlertService.addAlert($scope.loggedInUser.id, letterAlert).then(function () {
-                getAlerts();
-            }, function () {
-                alert('Error adding result alert');
-            });
-        } else {
-            AlertService.updateAlert($scope.loggedInUser.id, letterAlert).then(function () {
+        $scope.updateAlert = function (alert) {
+            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
                 getAlerts();
             }, function () {
                 alert('Error updating alert');
             });
-        }
-    };
+        };
 
-    $scope.hideAlertNotification = function(alert) {
-        alert.webAlertViewed = true;
-        AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
-            getAlerts();
-        }, function () {
-            alert('Error updating alert');
-        });
-    };
+        $scope.updateLetterAlert = function (letterAlert) {
+            if (letterAlert.id === undefined) {
+                letterAlert.user = {};
+                letterAlert.user.id = $scope.loggedInUser.id;
+                letterAlert.alertType = 'LETTER';
 
-    var getAvailableObservationHeadings = function() {
-        ObservationHeadingService.getAvailableAlertObservationHeadings($scope.loggedInUser.id)
-            .then(function(observationHeadings) {
-                if (observationHeadings.length > 0) {
-                    $scope.observationHeadingMap = [];
-                    var blankObservationHeading = {};
-                    blankObservationHeading.id = -1;
-                    blankObservationHeading.heading = ' Please Select..';
-                    observationHeadings.push(blankObservationHeading);
-                    $scope.observationHeadings = observationHeadings;
-                    $scope.selectedObservationHeadingId = -1;
-                    for (var i = 0; i < $scope.observationHeadings.length; i++) {
-                        $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
-                    }
-                }
+                AlertService.addAlert($scope.loggedInUser.id, letterAlert).then(function () {
+                    getAlerts();
+                }, function () {
+                    alert('Error adding result alert');
+                });
+            } else {
+                AlertService.updateAlert($scope.loggedInUser.id, letterAlert).then(function () {
+                    getAlerts();
+                }, function () {
+                    alert('Error updating alert');
+                });
+            }
+        };
+
+        $scope.hideAlertNotification = function (alert) {
+            alert.webAlertViewed = true;
+            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
                 getAlerts();
-                $scope.initFinished = true;
-            }, function() {
-                alert('Error retrieving result types');
+            }, function () {
+                alert('Error updating alert');
             });
-    };
+        };
 
-    var getAlerts = function() {
+        var getAvailableObservationHeadings = function () {
+            ObservationHeadingService.getAvailableAlertObservationHeadings($scope.loggedInUser.id)
+                .then(function (observationHeadings) {
+                    if (observationHeadings.length > 0) {
+                        $scope.observationHeadingMap = [];
+                        var blankObservationHeading = {};
+                        blankObservationHeading.id = -1;
+                        blankObservationHeading.heading = ' Please Select..';
+                        observationHeadings.push(blankObservationHeading);
+                        $scope.observationHeadings = observationHeadings;
+                        $scope.selectedObservationHeadingId = -1;
+                        for (var i = 0; i < $scope.observationHeadings.length; i++) {
+                            $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
+                        }
+                    }
+                    getAlerts();
+                    $scope.initFinished = true;
+                }, function () {
+                    alert('Error retrieving result types');
+                });
+        };
 
-        delete $scope.alertObservationHeadings;
-        delete $scope.letterAlert;
+        var getAlerts = function () {
 
-        // result alerts, multiple
-        AlertService.getAlerts($scope.loggedInUser.id, 'RESULT')
-            .then(function(alertObservationHeadings) {
-                $scope.alertObservationHeadings = alertObservationHeadings;
-            }, function() {
-                alert('Error getting result alerts');
-            });
+            delete $scope.alertObservationHeadings;
+            delete $scope.letterAlert;
 
-        // letter alert, should only return one
-        AlertService.getAlerts($scope.loggedInUser.id, 'LETTER')
-            .then(function(alertLetters) {
-                if (alertLetters.length) {
-                    $scope.letterAlert = alertLetters[0];
-                } else {
-                    delete $scope.letterAlert;
-                }
-            }, function() {
-                alert('Error getting letter alerts');
-            });
-    };
+            // result alerts, multiple
+            AlertService.getAlerts($scope.loggedInUser.id, 'RESULT')
+                .then(function (alertObservationHeadings) {
+                    $scope.alertObservationHeadings = alertObservationHeadings;
+                }, function () {
+                    alert('Error getting result alerts');
+                });
 
-    init();
-}]);
+            // letter alert, should only return one
+            AlertService.getAlerts($scope.loggedInUser.id, 'LETTER')
+                .then(function (alertLetters) {
+                    if (alertLetters.length) {
+                        $scope.letterAlert = alertLetters[0];
+                    } else {
+                        delete $scope.letterAlert;
+                    }
+                }, function () {
+                    alert('Error getting letter alerts');
+                });
+        };
+
+        init();
+    }]);

@@ -39,6 +39,7 @@ import java.util.Set;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
@@ -92,9 +93,9 @@ public class NewsServiceTest {
 
         List<NewsItem> roleNews = new ArrayList<>();
 
-        for (int i=0;i<10;i++) {
+        for (int i = 0; i < 10; i++) {
             NewsItem newsItem = new NewsItem();
-            newsItem.setId((long)i);
+            newsItem.setId((long) i);
             newsItem.setCreator(testUser);
             newsItem.setHeading(String.valueOf(i));
             newsItem.setStory("ROLE NEWS STORY TEXT " + String.valueOf(i));
@@ -102,7 +103,7 @@ public class NewsServiceTest {
             newsItem.setCreated(new Date(System.currentTimeMillis() + i));
 
             NewsLink newsLink = new NewsLink();
-            newsLink.setId((long)i);
+            newsLink.setId((long) i);
             newsLink.setNewsItem(newsItem);
             newsLink.setGroup(testGroup);
             roleNews.add(newsItem);
@@ -110,9 +111,9 @@ public class NewsServiceTest {
 
         List<NewsItem> groupNews = new ArrayList<>();
 
-        for (int i=0;i<5;i++) {
+        for (int i = 0; i < 5; i++) {
             NewsItem newsItem = new NewsItem();
-            newsItem.setId((long)(i+10));
+            newsItem.setId((long) (i + 10));
             newsItem.setCreator(testUser);
             newsItem.setHeading(String.valueOf(i));
             newsItem.setStory("GROUP NEWS STORY TEXT " + String.valueOf(i));
@@ -120,7 +121,7 @@ public class NewsServiceTest {
             newsItem.setCreated(new Date(System.currentTimeMillis() + 10 + i));
 
             NewsLink newsLink = new NewsLink();
-            newsLink.setId((long)(i+10));
+            newsLink.setId((long) (i + 10));
             newsLink.setNewsItem(newsItem);
             newsLink.setGroup(testGroup);
             roleNews.add(newsItem);
@@ -134,7 +135,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), "ALL", new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -190,7 +191,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), "ALL", new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -293,7 +294,7 @@ public class NewsServiceTest {
             newsItem.setHeading("HEADING TEXT UPDATED");
             newsService.save(newsItem);
         } catch (ResourceNotFoundException | ResourceForbiddenException e) {
-            Assert.fail("Exception: " +  e.getMessage());
+            Assert.fail("Exception: " + e.getMessage());
         }
 
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
