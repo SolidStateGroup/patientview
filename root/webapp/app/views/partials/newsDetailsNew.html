@@ -47,7 +47,7 @@
         <p>Regular items will appear in the user's news feed as usual. Dashboard notices will appear at the top of the user's dashboard to convey information specific to your group.</p>
         <div class="group-add-container">
             <div class="select-add-group">
-                <select class="form-control" data-ng-model="newNews.newsType"  data-ng-options="newsType.value as newsType.description for newsType in newNews.newsTypes" />
+                <select class="form-control" data-ng-model="newNews.newsType"  data-ng-options="newsType.id as newsType.description for newsType in newNews.newsTypes" />
             </div>
         </div>
     </div>

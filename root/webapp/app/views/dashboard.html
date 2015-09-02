@@ -43,7 +43,7 @@
                                 <div class="featured-content-innter">
                                     <h4 data-ng-repeat="newsLink in news.newsLinks"
                                          class="featured-news-heading">
-                                            <a href="" data-ng-show="hasGroupLink(news) && newsLink.group != null"
+                                            <a href="" data-ng-show="newsLink.group != null && (userHasGroup(newsLink.group.id))"
                                                data-ng-click="viewNewsItem(news)">
                                                 {{newsLink.group.shortName}} - {{news.created |
                                                 date:'dd-MMM-yyyy hh:mm

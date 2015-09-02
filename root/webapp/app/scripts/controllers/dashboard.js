@@ -292,6 +292,19 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             return hasGroup;
         };
 
+        $scope.userHasGroup = function (groupId){
+            var hasGroup = false;
+            $scope.loggedInUser.groupRoles.forEach(
+                function (element) {
+                    console.log(element)
+                    console.log(groupId)
+                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
+                        hasGroup = true;
+                    }
+                });
+            return hasGroup;
+        };
+
         // Migration only
         $scope.startObservationMigration = function () {
             ObservationService.startObservationMigration().then(function () {

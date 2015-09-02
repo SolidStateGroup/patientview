@@ -67,7 +67,7 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
                 });
 
                 $scope.newNews.newsTypes = newsTypes;
-                $scope.newNews.newsType = newsTypes[0].value;
+                $scope.newNews.newsType = newsTypes[0].id;
                 $scope.modalLoading = false;
             }, function () {
                 $scope.modalLoading = false;
@@ -318,7 +318,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
         // Save from edit
         $scope.save = function (editNewsForm, news) {
-            NewsService.save(news).then(function () {
+            NewsService.save(news, news.newsType).then(function () {
 
                 // successfully saved, replace existing element in data grid with updated
                 editNewsForm.$setPristine(true);
@@ -398,6 +398,32 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             }, function () {
                 // closed
             });
+        };
+
+        $scope.userHasGroup = function (groupId){
+            var hasGroup = false;
+            $scope.loggedInUser.groupRoles.forEach(
+                function (element) {
+                    console.log(element)
+                    console.log(groupId)
+                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
+                        hasGroup = true;
+                    }
+                });
+            return hasGroup;
+        };
+
+        $scope.hasGroupLink = function (newsItem){
+            var hasGroup = false;
+            newsItem.newsLinks.forEach(
+                function (element) {
+                    if(element.group != null){
+                        hasGroup = true;
+
+                    }
+
+                });
+            return hasGroup;
         };
 
         $scope.init();
