@@ -33,6 +33,9 @@ public class NewsItem extends BaseModel implements Editable {
     @OneToMany(mappedBy = "newsItem", cascade = {CascadeType.ALL})
     private Set<NewsLink> newsLinks;
 
+    @Column(name = "news_type")
+    private int newsType;
+
     @Column(name = "last_update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdate;
@@ -143,5 +146,13 @@ public class NewsItem extends BaseModel implements Editable {
         } else {
             return 1;
         }
+    }
+
+    public int getNewsType() {
+        return newsType;
+    }
+
+    public void setNewsType(int newsType) {
+        this.newsType = newsType;
     }
 }

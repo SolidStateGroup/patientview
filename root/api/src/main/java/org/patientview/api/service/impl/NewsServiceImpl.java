@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.NewsService;
+import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -55,6 +56,9 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     @Inject
     private EntityManager entityManager;
+
+    @Inject
+    private StaticDataManager staticDataManagerr;
 
     public Long add(final NewsItem newsItem) {
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
@@ -168,13 +172,16 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     private List<NewsItem> extractNewsItems(Page<NewsItem> newsItemPage) {
         if (newsItemPage != null && newsItemPage.getNumberOfElements() > 0) {
-             return newsItemPage.getContent();
+            return newsItemPage.getContent();
         } else {
             return Collections.emptyList();
         }
     }
 
-    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, Pageable pageable)
+    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId,
+                                                                 int newsTypeId,
+                                                                 boolean limitResults,
+                                                                 Pageable pageable)
             throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
@@ -185,9 +192,20 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Set<NewsItem> newsItemSet = new HashSet<>();
 
-        newsItemSet.addAll(extractNewsItems(newsItemRepository.findRoleNewsByUser(entityUser, pageableAll)));
-        newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupNewsByUser(entityUser, pageableAll)));
-        newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
+        //TODO dont hardcode
+        if (newsTypeId != 63) {
+
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findGroupNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findGroupRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
+        } else {
+            newsItemSet.addAll(extractNewsItems(newsItemRepository.findRoleNewsByUser(entityUser, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupNewsByUser(entityUser, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
+        }
 
         // get specialty news (accessed by parent/child relationships from groups in newsLink)
         /*newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
@@ -200,6 +218,39 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
         Collections.sort(newsItems);
+
+
+        //Limit featured articles to 1 per group if we are on the dashboard
+        if (newsTypeId == 62 && limitResults) {
+            List<Group> groups = new ArrayList<>();
+            List<NewsItem> tmpNewsItems = new ArrayList<>();
+
+            for (NewsItem newsItem : newsItems) {
+                boolean containsGroup = false;
+                int i = 0;
+                for (NewsLink newsLink : newsItem.getNewsLinks()) {
+                    if (newsLink.getGroup() != null) {
+                        //Check if we already have an item for this group
+                        if (groups.contains(newsLink.getGroup())) {
+                            if (i <= 0 || containsGroup) {
+                                containsGroup = true;
+                            }
+                        } else {
+                            //If not, add to the groups list
+                            groups.add(newsLink.getGroup());
+                            containsGroup = false;
+                        }
+                    }
+                    i++;
+                }
+                if (!containsGroup) {
+                    tmpNewsItems.add(newsItem);
+                }
+            }
+            //Replace the set with the reduced one.
+            newsItems = tmpNewsItems;
+        }
+
 
         // manually do pagination
         int startIndex = pageable.getOffset();
@@ -226,7 +277,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return new PageImpl<>(transportNewsItems, pageable, newsItems.size());
     }
 
-    public Page<org.patientview.api.model.NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException {
+    public Page<org.patientview.api.model.NewsItem> getPublicNews(Pageable pageable)
+            throws ResourceNotFoundException {
         //return newsItemRepository.getPublicNews(pageable);
         List<NewsItem> newsItems = new ArrayList<>(extractNewsItems(newsItemRepository.getPublicNews(pageable)));
 
@@ -398,7 +450,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             Group newsLinkGroup = newsLink.getGroup();
             Role newsLinkRole = newsLink.getRole();
             if ((newsLink.getGroup() != null && (newsLinkGroup.getId().equals(entityGroup.getId())))
-               && (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId())))) {
+                    && (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId())))) {
                 found = true;
             }
         }

@@ -72,7 +72,7 @@ public class NewsItemRepositoryTest {
     Lookup lookup;
 
     @Before
-    public void setup () {
+    public void setup() {
         creator = dataTestUtils.createUser("testCreator");
         lookup = dataTestUtils.createLookup("TOP", LookupTypes.MENU);
     }
@@ -80,7 +80,6 @@ public class NewsItemRepositoryTest {
     /**
      * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
      * Fail: The correct news it not retrieved
-     *
      */
     @Test
     public void testGetPublicNews() {
@@ -149,7 +148,6 @@ public class NewsItemRepositoryTest {
     /**
      * Test: Create a news item link it to a role, link a user to the role and then retrieve the news
      * Fail: The correct news it not retrieved
-     *
      */
     @Test
     public void testGetRoleNewsByUser() {
@@ -191,7 +189,6 @@ public class NewsItemRepositoryTest {
     /**
      * Test: Create a news item link it to a group and role, link a user to the grouprole and then retrieve the news
      * Fail: The correct news it not retrieved
-     *
      */
     @Test
     public void testGetGroupRoleNewsByUser() {
@@ -244,7 +241,6 @@ public class NewsItemRepositoryTest {
     /**
      * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
      * Fail: The correct news it not retrieved
-     *
      */
     @Test
     public void testGetRoleNewsByUser_deleteNewsItemLink() {
@@ -383,7 +379,8 @@ public class NewsItemRepositoryTest {
         group.setGroupRelationships(new HashSet<GroupRelationship>());
         specialty.setGroupRelationships(new HashSet<GroupRelationship>());
 
-        GroupRelationship groupRelationship =  TestUtils.createGroupRelationship(group, specialty, RelationshipTypes.PARENT);
+        GroupRelationship groupRelationship = TestUtils.createGroupRelationship(group, specialty,
+                RelationshipTypes.PARENT);
         groupRelationship.setId(null);
         groupRelationship.setCreator(creator);
         group.getGroupRelationships().add(groupRelationship);
@@ -419,7 +416,7 @@ public class NewsItemRepositoryTest {
         Assert.assertEquals("There should be 0 news item available", 0, newsItems.getContent().size());
 
         // should be a single news item as a result of parent/child relationship between SPECIALTY and TEST_GROUP
-        Page<NewsItem> newsItems2 = newsItemRepository.findSpecialtyNewsByUser(specialtyUser, pageable);
+        Page<NewsItem> newsItems2 = newsItemRepository.findSpecialtyNewsByUser(specialtyUser, pageable, 1);
         Assert.assertEquals("There should be 1 news item available", 1, newsItems2.getContent().size());
     }
 

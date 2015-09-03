@@ -1,3 +1,5 @@
+<div class="loading" data-ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
+
 <p data-ng-show="permissions.canAddNews"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
       target="_blank">Guidance on creating news items.</a></p>
 <div class="row">
@@ -16,12 +18,14 @@
         </div>
     </div>
 </div>
+
 <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
+                <img src="http://icons.iconarchive.com/icons/icojam/blue-bits/16/star-rating-icon.png" class="featured-news" data-ng-show="newNews.newsType==2" />
                 <h2 class="message-title">{{newNews.heading}}
                     <span data-ng-repeat="newsLink in newNews.newsLinks" class="pull-right news-link-labels">
                         <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
@@ -31,6 +35,19 @@
                 <div class="last-message">
                     <p class="message-content" data-ng-bind-html="parseHTMLText(newNews.story)"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <hr/>
+    <div class="col-md-12" data-ng-show="!modalLoading">
+        <label class="inner-title">News Item Type </label>
+        <p>Regular items will appear in the user's news feed as usual. Dashboard notices will appear at the top of the user's dashboard to convey information specific to your group.</p>
+        <div class="group-add-container">
+            <div class="select-add-group">
+                <select class="form-control" data-ng-model="newNews.newsType"  data-ng-options="newsType.id as newsType.description for newsType in newNews.newsTypes" />
             </div>
         </div>
     </div>
@@ -70,9 +87,8 @@
                     </select>
                     <span class="bracket post">)</span>
                 </div>
-                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd)" data-ng-disabled="!roleToAdd">Add</button>
+                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd, newsType)" data-ng-disabled="!roleToAdd">Add</button>
             </div>
          </div>
     </div>
-    <div class="loading" data-ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>

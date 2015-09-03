@@ -22,6 +22,7 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (8, now(), 'Identifier','IDENTIFIER', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (9, now(), 'Contact point type','CONTACT_POINT_TYPE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (10, now(), 'Types of statistic','STATISTIC_TYPE', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (11, now(), 'Types of news items','NEWS_TYPE', '1');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (1, now(), 'UNIT','Unit','1', '1');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (2, now(), 'SPECIALTY','Specialty','1','1');
@@ -59,6 +60,9 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (49, now(), 'RADAR_NUMBER','Radar Number','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (57, now(), 'NON_UK_UNIQUE','Non UK Unique Identifier','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (60, now(), 'CENTRAL_SUPPORT','Central Support','1','1');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (61, now(), 'REGULAR','Regular News Item','1','11');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (62, now(), 'DASHBOARD','Dashboard News Item','1','11');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (63, now(), 'ALL','All News Items','1','11');
 
 /* Group Statistics (see AuditActions.java) */
 

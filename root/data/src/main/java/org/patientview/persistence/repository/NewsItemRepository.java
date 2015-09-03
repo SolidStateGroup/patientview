@@ -22,6 +22,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
 
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles gr WHERE gr.user = :user AND l.role IS NULL AND n.newsType = :newsType")
+    public Page<NewsItem> findGroupNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType,
+                                                     Pageable pageable);
+
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.role.groupRoles gr WHERE gr.user = :user AND l.group IS NULL AND n.newsType = :newsType")
+    public Page<NewsItem> findRoleNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType
+            , Pageable pageable);
+
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles ggr JOIN l.role.groupRoles rgr WHERE ggr.user = :user AND rgr.user = :user AND n.newsType = :newsType")
+    public Page<NewsItem> findGroupRoleNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType,
+                                                         Pageable pageable);
+
+    @Query("SELECT DISTINCT n FROM NewsItem n " +
+            "JOIN n.newsLinks l " +
+            "JOIN l.group g " +
+            "JOIN g.groupRelationships grl " +
+            "JOIN grl.objectGroup pg " +
+            "JOIN pg.groupRoles pgr " +
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' " +
+            "AND n.newsType = :newsType")
+    public Page<NewsItem> findSpecialtyNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType, Pageable pageable);
+
+
     @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles gr WHERE gr.user = :user AND l.role IS NULL")
     public Page<NewsItem> findGroupNewsByUser(@Param("user") User user, Pageable pageable);
 
@@ -37,12 +60,13 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN g.groupRelationships grl " +
             "JOIN grl.objectGroup pg " +
             "JOIN pg.groupRoles pgr " +
-            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT'")
-    public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable);
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' " +
+            "AND n.newsType = :newsType")
+    public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable, @Param("newsType") int newsType);
 
     @Query("SELECT DISTINCT n FROM NewsItem n " +
             "JOIN n.newsLinks l " +
             "JOIN l.role r " +
-            "WHERE r.name = org.patientview.persistence.model.enums.RoleName.PUBLIC")
+            "WHERE r.name = org.patientview.persistence.model.enums.RoleName.PUBLIC ")
     Page<NewsItem> getPublicNews(Pageable pageable);
 }
