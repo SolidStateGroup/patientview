@@ -14,10 +14,12 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
@@ -36,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +65,10 @@ public class NewsServiceTest {
 
     @InjectMocks
     NewsService newsService = new NewsServiceImpl();
+
+    @Mock
+    StaticDataManager staticDataManager;
+
 
     @Before
     public void setup() {
@@ -127,7 +134,13 @@ public class NewsServiceTest {
             roleNews.add(newsItem);
         }
 
+        Lookup lookup = new Lookup();
+        lookup.setId(63L);
+
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(staticDataManager.getLookupByTypeAndValue((LookupTypes)anyObject(), Matchers.anyString()))
+                .thenReturn(lookup);
+
         when(newsItemRepository.findGroupNewsByUser(eq(testUser),
                 eq(pageableAll))).thenReturn(new PageImpl<>(roleNews));
         when(newsItemRepository.findRoleNewsByUser(eq(testUser),
@@ -185,7 +198,12 @@ public class NewsServiceTest {
         groupNews.add(newsItem1);
         groupNews.add(newsItem2);
 
+        Lookup lookup = new Lookup();
+        lookup.setId(63L);
+
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(staticDataManager.getLookupByTypeAndValue((LookupTypes) anyObject(), Matchers.anyString()))
+                .thenReturn(lookup);
         when(newsItemRepository.findGroupNewsByUser(eq(testUser),
                 eq(pageableAll))).thenReturn(new PageImpl<>(groupNews));
 
