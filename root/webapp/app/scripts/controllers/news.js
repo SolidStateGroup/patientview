@@ -60,12 +60,14 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
 
             StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
                 var newsTypes = [];
-                page.forEach(function(newsType){
-                   if(newsType.value != "ALL"){
-                     newsTypes.push(newsType);
-                   }
+                var newsTypesArray = [];
+                page.forEach(function (newsType) {
+                    if (newsType.value != "ALL") {
+                        newsTypes.push(newsType);
+                        newsTypesArray[newsType.value] = newsType.id;
+                    }
                 });
-
+                $scope.newsTypesArray = newsTypesArray;
                 $scope.newNews.newsTypes = newsTypes;
                 $scope.newNews.newsType = newsTypes[0].id;
                 $scope.modalLoading = false;
@@ -80,19 +82,34 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
             alert('Error loading possible roles');
         });
 
+
         $scope.ok = function () {
             $scope.newNews.creator = {};
             $scope.newNews.creator.id = $scope.loggedInUser.id;
 
-            NewsService.create($scope.newNews).then(function () {
-                $modalInstance.close();
-            }, function (result) {
-                if (result.data) {
-                    $scope.errorMessage = ' - ' + result.data;
-                } else {
-                    $scope.errorMessage = ' ';
+
+            //Check if the user has picked a dashboard item as a general public message
+            var publicMessageError = false;
+            $scope.newNews.newsLinks.forEach(function (newsLink) {
+                if (newsLink.role.name == "PUBLIC" && $scope.newNews.newsType == $scope.newsTypesArray['DASHBOARD']) {
+                    publicMessageError = true;
+                    return;
                 }
             });
+
+            if (publicMessageError) {
+                $scope.errorMessage = 'Dashboard messages cannot be set to General Public. Please correct to continue.';
+            } else {
+                NewsService.create($scope.newNews).then(function () {
+                    $modalInstance.close();
+                }, function (result) {
+                    if (result.data) {
+                        $scope.errorMessage = ' - ' + result.data;
+                    } else {
+                        $scope.errorMessage = ' ';
+                    }
+                });
+            }
         };
 
         $scope.cancel = function () {
@@ -199,7 +216,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         // get page of data every time currentPage is changed
         $scope.$watch('newsType', function (newValue) {
             $scope.loading = true;
-            NewsService.getByUser($scope.loggedInUser.id, newValue, false,  $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+            NewsService.getByUser($scope.loggedInUser.id, newValue, false, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
@@ -209,6 +226,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                 // error
             });
         });
+
 
         // open modal for new news
         $scope.openModalNewNews = function (size) {
@@ -400,24 +418,24 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             });
         };
 
-        $scope.userHasGroup = function (groupId){
+        $scope.userHasGroup = function (groupId) {
             var hasGroup = false;
             $scope.loggedInUser.groupRoles.forEach(
                 function (element) {
                     console.log(element)
                     console.log(groupId)
-                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
+                    if (element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN') {
                         hasGroup = true;
                     }
                 });
             return hasGroup;
         };
 
-        $scope.hasGroupLink = function (newsItem){
+        $scope.hasGroupLink = function (newsItem) {
             var hasGroup = false;
             newsItem.newsLinks.forEach(
                 function (element) {
-                    if(element.group != null){
+                    if (element.group != null) {
                         hasGroup = true;
 
                     }
