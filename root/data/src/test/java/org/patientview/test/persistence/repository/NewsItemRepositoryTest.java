@@ -369,6 +369,7 @@ public class NewsItemRepositoryTest {
         newsItem.setNewsLinks(new HashSet<NewsLink>());
         newsItem.getNewsLinks().add(newsLink);
         newsItem.getNewsLinks().add(newsLink2);
+
         newsItemRepository.save(newsItem);
 
         // Create a specialty
@@ -416,7 +417,7 @@ public class NewsItemRepositoryTest {
         Assert.assertEquals("There should be 0 news item available", 0, newsItems.getContent().size());
 
         // should be a single news item as a result of parent/child relationship between SPECIALTY and TEST_GROUP
-        Page<NewsItem> newsItems2 = newsItemRepository.findSpecialtyNewsByUser(specialtyUser, pageable, 1);
+        Page<NewsItem> newsItems2 = newsItemRepository.findSpecialtyNewsByUser(specialtyUser, pageable);
         Assert.assertEquals("There should be 1 news item available", 1, newsItems2.getContent().size());
     }
 
