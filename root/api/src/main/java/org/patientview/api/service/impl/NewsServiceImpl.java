@@ -11,7 +11,6 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
@@ -179,7 +178,10 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
-    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsTypeId, boolean limitResults, Pageable pageable)
+    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId,
+                                                                 int newsTypeId,
+                                                                 boolean limitResults,
+                                                                 Pageable pageable)
             throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {

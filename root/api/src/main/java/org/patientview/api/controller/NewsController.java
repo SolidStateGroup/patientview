@@ -137,7 +137,8 @@ public class NewsController extends BaseController<NewsController> {
 
 
 
-        return new ResponseEntity<>(newsService.findByUserId(userId, newsTypeId, limitResults, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(
+                newsService.findByUserId(userId, newsTypeId, limitResults, pageable), HttpStatus.OK);
     }
 
     /**

@@ -29,7 +29,7 @@ public interface NewsService {
      * @return Long ID of the newly added NewsItem
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Long add(NewsItem newsItem);
 
     /**
@@ -40,7 +40,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -53,7 +53,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addGroupAndRole(Long newsItemId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -65,7 +65,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -75,7 +75,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void delete(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -88,7 +88,10 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsType, boolean limitResults, Pageable pageable)
+    Page<org.patientview.api.model.NewsItem> findByUserId(Long userId,
+                                                          int newsType,
+                                                          boolean limitResults,
+                                                          Pageable pageable)
             throws ResourceNotFoundException;
 
     /**
@@ -99,7 +102,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     NewsItem get(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -119,7 +122,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -131,7 +134,7 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -141,7 +144,7 @@ public interface NewsService {
      * @param roleId     ID of a Role to hide the NewsItem from
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
 
     /**
@@ -151,6 +154,6 @@ public interface NewsService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException;
 }
