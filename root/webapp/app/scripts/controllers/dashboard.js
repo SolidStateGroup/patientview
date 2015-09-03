@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
-    'NewsService', 'UtilService', 'MedicationService', 'ObservationService', 'ObservationHeadingService', 'AlertService',
-    function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService,
-              ObservationHeadingService, AlertService) {
+    'NewsService', 'UtilService', 'StaticDataService', 'MedicationService', 'ObservationService',
+    'ObservationHeadingService', 'AlertService',
+    function (UserService, $modal, $scope, GroupService, NewsService, UtilService, StaticDataService, MedicationService,
+              ObservationService, ObservationHeadingService, AlertService) {
 
         // get graph every time group is changed
         $scope.$watch('graphGroupId', function (newValue) {
@@ -179,18 +180,28 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 $scope.graphGroupId = $scope.graphGroups[0].id;
             }
 
-            NewsService.getByUser($scope.loggedInUser.id, 61, false, 0, 5).then(function (page) {
-                $scope.newsItems = page.content;
-                $scope.loading = false;
-            }, function () {
-                $scope.loading = false;
-            });
+            StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
+                var newsTypes = [];
+                page.forEach(function (newsType) {
+                    if (newsType.value != "ALL") {
+                        newsTypes[newsType.value] = newsType.id;
+                    }
+                });
 
-            NewsService.getByUser($scope.loggedInUser.id, 62, true, 0, 5).then(function (page) {
-                $scope.featuredNewsItems = page.content;
-                $scope.loading = false;
-            }, function () {
-                $scope.loading = false;
+
+                NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
+                    $scope.newsItems = page.content;
+                    $scope.loading = false;
+                }, function () {
+                    $scope.loading = false;
+                });
+
+                NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
+                    $scope.featuredNewsItems = page.content;
+                    $scope.loading = false;
+                }, function () {
+                    $scope.loading = false;
+                });
             });
         };
 

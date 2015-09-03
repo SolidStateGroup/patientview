@@ -11,6 +11,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
@@ -58,7 +59,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     private EntityManager entityManager;
 
     @Inject
-    private StaticDataManager staticDataManagerr;
+    private StaticDataManager staticDataManager;
 
     public Long add(final NewsItem newsItem) {
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
@@ -192,8 +193,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Set<NewsItem> newsItemSet = new HashSet<>();
 
-        //TODO dont hardcode
-        if (newsTypeId != 63) {
+        if (newsTypeId != staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "ALL").getId()) {
 
             newsItemSet.addAll(extractNewsItems(
                     newsItemRepository.findRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
@@ -221,7 +221,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
 
         //Limit featured articles to 1 per group if we are on the dashboard
-        if (newsTypeId == 62 && limitResults) {
+        if (newsTypeId == staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "DASHBOARD").getId()
+                && limitResults) {
             List<Group> groups = new ArrayList<>();
             List<NewsItem> tmpNewsItems = new ArrayList<>();
 

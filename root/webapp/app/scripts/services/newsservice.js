@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'UtilService', 'StaticDataService',
-    function ($q, Restangular, UtilService, StaticDataService) {
+angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'UtilService',
+    function ($q, Restangular, UtilService) {
         return {
             get: function (newsId) {
                 var deferred = $q.defer();
