@@ -129,7 +129,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
             StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
                 $scope.newsTypes = page;
-                $scope.newsType = "ALL";
+                $scope.newsType = page[2].id;
             });
         };
 
@@ -185,7 +185,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         // get page of data every time currentPage is changed
         $scope.$watch('currentPage', function (newValue) {
             $scope.loading = true;
-            NewsService.getByUser($scope.loggedInUser.id, $scope.newsType, newValue, $scope.itemsPerPage).then(function (page) {
+            NewsService.getByUser($scope.loggedInUser.id, $scope.newsType, false, newValue, $scope.itemsPerPage).then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
@@ -199,7 +199,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         // get page of data every time currentPage is changed
         $scope.$watch('newsType', function (newValue) {
             $scope.loading = true;
-            NewsService.getByUser($scope.loggedInUser.id, newValue, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+            NewsService.getByUser($scope.loggedInUser.id, newValue, false,  $scope.currentPage, $scope.itemsPerPage).then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
@@ -238,7 +238,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
             modalInstance.result.then(function () {
                 $scope.loading = true;
-                NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+                NewsService.getByUser($scope.loggedInUser.id, $scope.newsType, false, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
                     $scope.pagedItems = page.content;
                     $scope.total = page.totalElements;
                     $scope.totalPages = page.totalPages;
@@ -350,7 +350,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         $scope.remove = function (news) {
             NewsService.remove(news).then(function () {
                 $scope.loading = true;
-                NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+                NewsService.getByUser($scope.loggedInUser.id, $scope.newsType, false, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
                     $scope.pagedItems = page.content;
                     $scope.total = page.totalElements;
                     $scope.totalPages = page.totalPages;

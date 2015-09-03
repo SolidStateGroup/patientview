@@ -179,15 +179,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
-    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, String newsType, Pageable pageable)
+    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsTypeId, boolean limitResults, Pageable pageable)
             throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
-
-        if (newsType == null) {
-            newsType = "ALL";
         }
 
         // get role, group and grouprole specific news (directly accessed through newsLink)
@@ -195,9 +191,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Set<NewsItem> newsItemSet = new HashSet<>();
 
         //TODO dont hardcode
-        if (!newsType.equals("ALL")) {
-            int newsTypeId = Integer.parseInt(
-                    staticDataManagerr.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, newsType).getId().toString());
+        if (newsTypeId != 63) {
 
             newsItemSet.addAll(extractNewsItems(
                     newsItemRepository.findRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
@@ -211,12 +205,25 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
         }
 
-        //Limit featured articles to 1 per group
-        if (newsType.equals("DASHBOARD")) {
-            List<Group> groups = new ArrayList<>();
-            Set<NewsItem> tmpNewsItemSet = new HashSet<>();
+        // get specialty news (accessed by parent/child relationships from groups in newsLink)
+        /*newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
 
-            for (NewsItem newsItem : newsItemSet) {
+        // remove generic specialty news and sort combined list
+        List<NewsItem> newsItems = new ArrayList<>();
+        for (NewsItem newsItem : newsItemSet) {
+            if (newsItem.getNewsLinks())
+        }*/
+
+        List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
+        Collections.sort(newsItems);
+
+
+        //Limit featured articles to 1 per group if we are on the dashboard
+        if (newsTypeId == 62 && limitResults) {
+            List<Group> groups = new ArrayList<>();
+            List<NewsItem> tmpNewsItems = new ArrayList<>();
+
+            for (NewsItem newsItem : newsItems) {
                 boolean containsGroup = false;
                 int i = 0;
                 for (NewsLink newsLink : newsItem.getNewsLinks()) {
@@ -235,24 +242,13 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                     i++;
                 }
                 if (!containsGroup) {
-                    tmpNewsItemSet.add(newsItem);
+                    tmpNewsItems.add(newsItem);
                 }
             }
             //Replace the set with the reduced one.
-            newsItemSet = tmpNewsItemSet;
-
+            newsItems = tmpNewsItems;
         }
-        // get specialty news (accessed by parent/child relationships from groups in newsLink)
-        /*newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
 
-        // remove generic specialty news and sort combined list
-        List<NewsItem> newsItems = new ArrayList<>();
-        for (NewsItem newsItem : newsItemSet) {
-            if (newsItem.getNewsLinks())
-        }*/
-
-        List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
-        Collections.sort(newsItems);
 
         // manually do pagination
         int startIndex = pageable.getOffset();

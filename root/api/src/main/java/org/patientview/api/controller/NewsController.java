@@ -110,6 +110,8 @@ public class NewsController extends BaseController<NewsController> {
      * Get a Page of NewsItems for a specific User.
      * @param userId ID of User to retrieve news for
      * @param size Size of the page
+     * @param newsTypeId the id of the items we want to show
+     * @param limitResults if we want to show all items or just 2 items per group (dashboard only)
      * @param page Page number
      * @return Page of NewsItem for a specific User
      * @throws ResourceNotFoundException
@@ -119,7 +121,8 @@ public class NewsController extends BaseController<NewsController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.NewsItem>> findByUserId(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
-            @RequestParam(value = "newsType", required = false) String newsType,
+            @RequestParam(value = "newsType", required = false) int newsTypeId,
+            @RequestParam(value = "limitResults", required = false) boolean limitResults,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 
         PageRequest pageable;
@@ -132,7 +135,9 @@ public class NewsController extends BaseController<NewsController> {
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
-        return new ResponseEntity<>(newsService.findByUserId(userId, newsType , pageable), HttpStatus.OK);
+
+
+        return new ResponseEntity<>(newsService.findByUserId(userId, newsTypeId, limitResults, pageable), HttpStatus.OK);
     }
 
     /**

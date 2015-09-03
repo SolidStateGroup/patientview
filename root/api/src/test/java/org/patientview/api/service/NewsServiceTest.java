@@ -135,7 +135,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), "ALL", new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -191,7 +191,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), "ALL", new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",

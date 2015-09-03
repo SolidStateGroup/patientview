@@ -3,7 +3,7 @@
 
         <div class="pull-right" style="width:300px;">
             <select class="form-control" data-ng-model="newsType" ng-init="newsType = options[0]"
-                    data-ng-options="newsType.value as newsType.description for newsType in newsTypes | orderBy:[orderGroups,'value']">
+                    data-ng-options="newsType.id as newsType.description for newsType in newsTypes | orderBy:[orderGroups,'value']">
             </select>
         </div>
 

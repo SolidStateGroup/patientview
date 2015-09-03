@@ -179,14 +179,14 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 $scope.graphGroupId = $scope.graphGroups[0].id;
             }
 
-            NewsService.getByUser($scope.loggedInUser.id, "REGULAR", 0, 5).then(function (page) {
+            NewsService.getByUser($scope.loggedInUser.id, 61, false, 0, 5).then(function (page) {
                 $scope.newsItems = page.content;
                 $scope.loading = false;
             }, function () {
                 $scope.loading = false;
             });
 
-            NewsService.getByUser($scope.loggedInUser.id, "DASHBOARD", 0, 5).then(function (page) {
+            NewsService.getByUser($scope.loggedInUser.id, 62, true, 0, 5).then(function (page) {
                 $scope.featuredNewsItems = page.content;
                 $scope.loading = false;
             }, function () {
