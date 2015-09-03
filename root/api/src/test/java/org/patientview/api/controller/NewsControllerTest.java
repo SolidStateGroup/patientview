@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.NewsService;
+import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
@@ -28,7 +29,6 @@ import java.util.Set;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Test associated with news
@@ -45,6 +45,9 @@ public class NewsControllerTest {
 
     @InjectMocks
     private NewsController newsController;
+
+    @Mock
+    private StaticDataManager staticDataManager;
 
     private MockMvc mockMvc;
 
@@ -78,7 +81,8 @@ public class NewsControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/news"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/news")
+                    .param("newsType", "63"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
