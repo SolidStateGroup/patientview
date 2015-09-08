@@ -222,7 +222,7 @@ CREATE TABLE PV_News_Item (
   Id               BIGINT    NOT NULL,
   Heading          VARCHAR(100),
   Story            TEXT      NOT NULL,
-  News_Type        BIGINT,
+  News_Type        INTEGER DEFAULT '61' NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
