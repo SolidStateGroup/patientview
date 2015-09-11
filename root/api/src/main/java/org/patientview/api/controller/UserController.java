@@ -148,6 +148,19 @@ public class UserController extends BaseController<UserController> {
             throws ResourceInvalidException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
+    /**
+     * Change the picture associated with a User account.
+     * @param userId ID of User to change picture
+     * @param base64 base64 string containing picture information
+     * @return String containing picture information, required by IE8 in response to uploading a file
+     * @throws ResourceInvalidException
+     */
+    @RequestMapping(value = "/user/{userId}/picturebase64", method = RequestMethod.POST)
+    @ResponseBody
+    public void changePicture(@PathVariable("userId") Long userId, @RequestBody String base64)
+            throws ResourceInvalidException {
+        userService.addPicture(userId, base64);
+    }
 
     /**
      * Create a new User.

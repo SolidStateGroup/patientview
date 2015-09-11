@@ -1604,6 +1604,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    @Override
+    public void addPicture(Long userId, String base64) {
+        User user = userRepository.findOne(userId);
+        user.setPicture(base64);
+        userRepository.save(user);
+    }
+
     protected BufferedImage transformImage(BufferedImage image, int angle) {
         Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
         int width = image.getWidth();
