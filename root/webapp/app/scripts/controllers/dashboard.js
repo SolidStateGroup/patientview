@@ -290,31 +290,23 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             saveGpMedicationStatus();
         };
 
-        $scope.hasGroupLink = function (newsItem){
-            var hasGroup = false;
+        $scope.listDistinctGroups = function (newsItem){
+            var groupIds = [];
+            var newsLinks = [];
+
             newsItem.newsLinks.forEach(
                 function (element) {
                     if(element.group != null){
-                        hasGroup = true;
 
-                    }
-
-                });
-            return hasGroup;
-        };
-
-        $scope.userHasGroup = function (groupId){
-            var hasGroup = false;
-            $scope.loggedInUser.groupRoles.forEach(
-                function (element) {
-                    console.log(element)
-                    console.log(groupId)
-                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
-                        hasGroup = true;
+                        if(groupIds.indexOf(element.group.id) == -1){
+                            groupIds.push(element.group.id);
+                            newsLinks.push(element);
+                        }
                     }
                 });
-            return hasGroup;
+            return newsLinks;
         };
+
 
         // Migration only
         $scope.startObservationMigration = function () {
