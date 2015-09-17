@@ -2345,7 +2345,7 @@ textarea.form-control.article-content {
 }
 
 /** todo BELOW SMALL DESKTOP - review potential need for mobile design **/
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: 992px) {
   /* line 72, ../sass/_hero.scss */
   .hero-panel {
     height: auto;
