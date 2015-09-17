@@ -17,6 +17,10 @@ hr{
     width:100%;
 }
 
+.para-thumb{
+    margin-right:10px;
+}
+
 .left{
     float:left;
 }
@@ -45,6 +49,10 @@ hr{
 
 .page-content {
     padding-bottom: 60px;
+
+    &.home{
+        margin-top:20px;
+    }
 }
 
 .panel-header {
@@ -303,7 +311,6 @@ hr{
 }
 
 .news-container{
-  margin-top:20px;
   .panel-header{
     margin-bottom:10px;
   }
@@ -404,6 +411,12 @@ ul {
     }
     &.aquamarine{
         background:$aquamarine;
+    }
+    &.white{
+        background:$white;
+        i{
+            background-size:100%;
+        }
     }
 
     i{
@@ -724,6 +737,14 @@ i.icon-back-to{
     background: url('../../../images/icons/back-to.png') 0 0 no-repeat;
     height: 22px;
     width: 23px;
+    display:block;
+    margin-right:5px;
+}
+
+i.icon-brand-pulse{
+    background: url('../../../images/icons/brand-pulse.png') 0 0 no-repeat;
+    height: 30px;
+    width: 30px;
     display:block;
     margin-right:5px;
 }

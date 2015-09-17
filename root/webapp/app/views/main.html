@@ -61,52 +61,64 @@
         </div>
     </div>
 </div>
-<div class="page-content">
-    <div class="content-area">
-        <h2>About Patient View</h2>
-        <p>PatientView shows your latest test results, plus info about diagnosis and treatment. You can view it from
-            anywhere you want, and share your information with anyone you want.</p>
-        <p>Your local unit or health organisation must have joined.  PatientView started out as a service for kidney
-            patients in the UK, but can now work for others too.</p>
-        <p>Information comes directly from existing records, for example hospital and GP records, or may be entered
-            directly or via other apps. Secure messaging functionality is included.</p>
-        <p><a href="" class="btn blue" data-ng-click="furtherInformation();"> Tell Me More</a></p>
+<div class="row page-content home">
+    <div class="col-md-8">
+        <div class="content-area">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge white pull-left"><i class="icon-brand-pulse"></i></span> About PatientView</h3>
+            </div>
+            <p class="clearfix"><img class="para-thumb pull-left" src="http://placehold.it/100x50" alt="image title" /> PatientView shows your latest test results, plus info about diagnosis and treatment. You can view it from
+                anywhere you want, and share your information with anyone you want.</p>
+            <p class="clearfix"><img class="para-thumb pull-left" src="http://placehold.it/100x50" alt="image title" />Your local unit or health organisation must have joined.  PatientView started out as a service for kidney
+                patients in the UK, but can now work for others too.</p>
+            <p class="clearfix"><img class="para-thumb pull-left" src="http://placehold.it/100x50" alt="image title" />Information comes directly from existing records, for example hospital and GP records, or may be entered
+                directly or via other apps. Secure messaging functionality is included.</p>
+            <ul class="list-inline list-unstyled button-list">
+                <li>
+                    <a href="" class="btn blue" data-ng-click="furtherInformation();"> What can it do?</a>
+                </li>
+                <li>
+                    <a href="" class="btn blue" data-ng-click="furtherInformation();"> Tell Me More</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row homepage-cols">
+            <div class="user-info col-md-6">
+                <div class="panel-header content-panel lowlight">
+                    <h3><span class="badge primary pull-left"><i class="icon-patients"></i></span> For patients</h3>
+                </div>
+                <div class="content-panel">
+                    <div class="content-inner">
+                        <h4>Joining PatientView</h4>
+                        <ul>
+                            <li><a href="http://rixg.org/patientview2/howto/where/" target="_blank">Can I join?</a></li>
+                            <li><a href="http://rixg.org/patientview2/howto/" target="_blank">How do I?</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel-footer">
+                        <a href="#/request"><button class="btn blue"><i class="icon-join pull-left"></i> I want to join</button></a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-info col-md-6">
+                <div class="panel-header content-panel lowlight">
+                    <h3><span class="badge aqua pull-left"><i class="icon-organisations"></i></span> For Organisations</h3>
+                </div>
+                <div class="content-panel">
+                    <div class="content-inner">
+                        <h4>What do I need to know?</h4>
+                        <ul>
+                            <li><a href="http://rixg.org/patientview2/howto/become-a-partner/" target="_blank">Become a partner</a></li>
+                            <li><a href="http://rixg.org/patientview2/admin-and-technical/set-up-patientview-in-a-new-unit/" target="_blank">Add us to an existing specialty</a></li>
+                            <li><a href="http://rixg.org/patientview2/about/links-policy/" target="_blank">Our info link policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="row homepage-cols">
-        <div class="user-info col-md-4">
-            <div class="panel-header content-panel lowlight">
-                <h3><span class="badge primary pull-left"><i class="icon-patients"></i></span> For patients</h3>
-            </div>
-            <div class="content-panel">
-                <div class="content-inner">
-                    <h4>Joining PatientView</h4>
-                    <ul>
-                        <li><a href="http://rixg.org/patientview2/howto/where/" target="_blank">Can I join?</a></li>
-                        <li><a href="http://rixg.org/patientview2/howto/" target="_blank">What can it do?</a></li>
-                        <li><a href="http://rixg.org/patientview2/howto/" target="_blank">How do I?</a></li>
-                    </ul>
-                </div>
-                <div class="panel-footer">
-                    <a href="#/request"><button class="btn blue"><i class="icon-join pull-left"></i> I want to join</button></a>
-                </div>
-            </div>
-        </div>
-        <div class="user-info col-md-4">
-            <div class="panel-header content-panel lowlight">
-                <h3><span class="badge aqua pull-left"><i class="icon-organisations"></i></span> For Organisations</h3>
-            </div>
-            <div class="content-panel">
-                <div class="content-inner">
-                    <h4>What do I need to know?</h4>
-                    <ul>
-                        <li><a href="http://rixg.org/patientview2/howto/become-a-partner/" target="_blank">Become a partner</a></li>
-                        <li><a href="http://rixg.org/patientview2/admin-and-technical/set-up-patientview-in-a-new-unit/" target="_blank">Add us to an existing specialty</a></li>
-                        <li><a href="http://rixg.org/patientview2/about/links-policy/" target="_blank">Our info link policy</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="news-container col-md-4">
+    <aside class="col-md-4">
+        <div class="news-container">
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
@@ -132,5 +144,5 @@
                 </li>
             </ul>
         </div>
-    </div>
+    </aside>
 </div>
