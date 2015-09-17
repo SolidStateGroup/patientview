@@ -2232,6 +2232,35 @@ textarea.form-control.article-content {
   margin: 20px 0;
 }
 
+/* line 75, ../sass/_lists.scss */
+.image-list li > div {
+  position: relative;
+  min-height: 200px;
+}
+/* line 79, ../sass/_lists.scss */
+.image-list li > div:first-child {
+  padding-left: 0;
+}
+/* line 84, ../sass/_lists.scss */
+.image-list .content-panel {
+  margin-top: 20px;
+  padding: 15px;
+}
+/* line 90, ../sass/_lists.scss */
+.image-list .one-image img:first-child {
+  width: 100%;
+}
+/* line 95, ../sass/_lists.scss */
+.image-list .two-images {
+  position: relative;
+}
+/* line 97, ../sass/_lists.scss */
+.image-list .two-images img:first-child {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
 /** hero pane **/
 /* line 3, ../sass/_hero.scss */
 .hero-panel {

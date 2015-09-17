@@ -70,3 +70,34 @@
 .button-list{
     margin:20px 0;
 }
+
+.image-list{
+    li > div{
+        position: relative;
+        min-height:200px;
+
+        &:first-child{
+            padding-left:0;
+        }
+    }
+
+    .content-panel{
+        margin-top:20px;
+        padding:15px;
+    }
+
+    .one-image{
+        img:first-child{
+            width:100%;
+        }
+    }
+
+    .two-images{
+        position: relative;
+        img:first-child{
+            position: absolute;
+            right:0;
+            bottom:0;
+        }
+    }
+}
