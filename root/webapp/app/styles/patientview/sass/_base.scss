@@ -86,6 +86,10 @@ hr{
     @include bootstrap-box-shadow($content-panel);
     overflow: hidden;
 
+    &.about{
+        padding:15px;
+    }
+
     &.navbar-default{
         margin-bottom:0;
     }
