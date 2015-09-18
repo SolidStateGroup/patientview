@@ -188,6 +188,23 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                     }
                 }
             };
+        },
+        getWhatCanItDoRoute: function() {
+            return {
+                'url': '/whatcanitdo',
+                'templateUrl': 'views/whatcanitdo.html',
+                'controller': 'WhatCanItDoCtrl',
+                'title': 'What Can It Do',
+                'lookup': {
+                    'id': 103,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
         }
     };
 }]);
