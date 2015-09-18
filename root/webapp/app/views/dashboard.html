@@ -26,28 +26,47 @@
         font-family: Lato, sans-serif;
     }
 
-    .featured-content-inner{
-        padding: 3px;
+    .featured-news{
+        padding-bottom: 1px;
     }
 
-    .featured-news{
+    .featured-news h3 {
+        padding-bottom: 5px;
+    }
+
+    .featured-news img {
         float: left;
         margin-right: 5px;
-        margin-top: 5px;
     }
 
-    .featured-news-heading{
-        font-size: 15px;
-        font-weight: 800;
+    .featured-news-heading {
+        font-size: 12px;
         margin-bottom: 0px;
         margin-top: 0px;
 
     }
 
-    .featured-news-content{
+    .featured-news-heading a {
+        font-size: 15px;
+    }
+
+    .featured-news-content {
         color: grey;
         margin-bottom: 5px;
     }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    .read-more {
+        padding-right: 7px;
+    }
+
+    .featured-section-content-inner {
+        padding: 0px;
+    }
+
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -57,39 +76,34 @@
         <div class="col-md-8">
             <div class="tab-panel-item" data-ng-show="featuredNewsItems">
                 <div class="content-panel chart-container">
-                    <div class="panel-intro">
-                        <h3><img src="http://icons.iconarchive.com/icons/icojam/blue-bits/16/star-rating-icon.png"
-                                 class="featured-news"/>Featured Notices</h3>
-
+                    <div class="panel-intro featured-news" style="padding-bottom:1px;">
+                        <h3><img src="../../../images/icons/featured-news.png"/>
+                            Featured Notices</h3>
                         <ul class="unstyled">
                             <li class="news-item content-panel" data-ng-repeat="news in featuredNewsItems">
-                                <div class="featured-content-innter">
-                                    <h4 data-ng-repeat="newsLink in news.newsLinks"
-                                         class="featured-news-heading">
-                                            <a href="" data-ng-show="newsLink.group != null && (userHasGroup(newsLink.group.id))"
-                                               data-ng-click="viewNewsItem(news)">
-                                                {{newsLink.group.shortName}} - {{news.created |
-                                                date:'dd-MMM-yyyy hh:mm
-                                                HH:mm'}} - {{news.heading}}
-                                            </a>
-                                            <a href="" data-ng-click="viewNewsItem(news)"
-                                               data-ng-show="!hasGroupLink(news)">
-                                                All Units - {{news.created | date:'dd-MMM-yyyy HH:mm'}} -
-                                                {{news.heading}}
-                                            </a>
-                                        </h4>
+                                <div class="content-inner">
+                                    <h4 data-ng-repeat="newsLink in listDistinctGroups(news)"
+                                        class="featured-news-heading">
+                                        <a href="" data-ng-show="newsLink.group != null"
+                                           data-ng-click="viewNewsItem(news)">
+                                            {{news.heading}} </a> ({{news.created |
+                                        date:'dd-MMM-yyyy HH:mm'}} - {{newsLink.group.shortName}})
+                                    </h4>
 
-                                    <p class="featured-news-content">{{stripHTML(news.story) | limitTo:210}}
-                                        {{stripHTML(news.story).length>210 ?
+                                    <p class="featured-news-content">{{stripHTML(news.story) | limitTo:200}}
+                                        {{stripHTML(news.story).length > 200 ?
                                         "....." : ""}}
-                                        <a class="pull-right" href="" data-ng-click="viewNewsItem(news)">More...</a>
+                                        <a class="pull-right read-more" href=""
+                                           data-ng-show="stripHTML(news.story).length > 200"
+                                           data-ng-click="viewNewsItem(news)">Read More...</a>
                                     </p>
 
                                 </div>
                             </li>
                         </ul>
-
                     </div>
+
+
                 </div>
             </div>
             <div class="tab-panel-item">

@@ -3,9 +3,11 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.NewsService;
+import org.patientview.api.service.StaticDataManager;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.NewsItem;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,9 @@ public class NewsController extends BaseController<NewsController> {
 
     @Inject
     private NewsService newsService;
+
+    @Inject
+    private StaticDataManager staticDataManager;
 
     /**
      * Add a NewsItem.
@@ -110,7 +115,7 @@ public class NewsController extends BaseController<NewsController> {
      * Get a Page of NewsItems for a specific User.
      * @param userId ID of User to retrieve news for
      * @param size Size of the page
-     * @param newsTypeId the id of the items we want to show
+     * @param newsTypeString the id of the items we want to show
      * @param limitResults if we want to show all items or just 2 items per group (dashboard only)
      * @param page Page number
      * @return Page of NewsItem for a specific User
@@ -121,7 +126,7 @@ public class NewsController extends BaseController<NewsController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.NewsItem>> findByUserId(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
-            @RequestParam(value = "newsType", required = false) int newsTypeId,
+            @RequestParam(value = "newsType", required = false) String newsTypeString,
             @RequestParam(value = "limitResults", required = false) boolean limitResults,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 
@@ -135,7 +140,14 @@ public class NewsController extends BaseController<NewsController> {
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
+        int newsTypeId;
 
+        if(newsTypeString != null) {
+            newsTypeId = Integer.parseInt(newsTypeString);
+        }else{
+            newsTypeId = Integer.parseInt(
+                    staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "ALL").getId().toString());
+        }
 
         return new ResponseEntity<>(
                 newsService.findByUserId(userId, newsTypeId, limitResults, pageable), HttpStatus.OK);
