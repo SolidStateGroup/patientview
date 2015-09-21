@@ -201,6 +201,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                     newsItemRepository.findGroupNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
             newsItemSet.addAll(extractNewsItems(
                     newsItemRepository.findGroupRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findSpecialtyNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
         } else {
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findRoleNewsByUser(entityUser, pageableAll)));
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupNewsByUser(entityUser, pageableAll)));
