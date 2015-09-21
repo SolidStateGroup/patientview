@@ -80,6 +80,10 @@ hr{
     }
 }
 
+.content-area.whatcan p{
+    font-size:20px;
+}
+
 .content-panel {
     background: $white;
     @include bootstrap-border-radius(4px);
@@ -88,6 +92,7 @@ hr{
 
     &.about{
         padding:15px;
+        font-size:20px;
     }
 
     &.navbar-default{
