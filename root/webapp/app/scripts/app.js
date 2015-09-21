@@ -144,6 +144,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getPrivacyRoute(), data.routes)) {
                     data.routes.push(RouteService.getPrivacyRoute());
                 }
+                if (!routeExists(RouteService.getWhatCanItDoRoute(), data.routes)) {
+                    data.routes.push(RouteService.getWhatCanItDoRoute());
+                }
 
                 for (var j = 0; j < data.routes.length; j++) {
                     var path = data.routes[j].url;
