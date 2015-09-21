@@ -290,6 +290,17 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             saveGpMedicationStatus();
         };
 
+        $scope.userHasGroup = function (groupId){
+            var hasGroup = false;
+            $scope.loggedInUser.groupRoles.forEach(
+                function (element) {
+                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
+                        hasGroup = true;
+                    }
+                });
+            return hasGroup;
+        };
+
         $scope.listDistinctGroups = function (newsItem){
             var groupIds = [];
             var newsLinks = [];
@@ -298,7 +309,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 function (element) {
                     if(element.group != null){
 
-                        if(groupIds.indexOf(element.group.id) == -1){
+                        if(groupIds.indexOf(element.group.id) == -1 && $scope.userHasGroup(element.group.id)){
                             groupIds.push(element.group.id);
                             newsLinks.push(element);
                         }
@@ -306,7 +317,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 });
             return newsLinks;
         };
-
 
         // Migration only
         $scope.startObservationMigration = function () {
