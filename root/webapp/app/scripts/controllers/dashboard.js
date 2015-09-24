@@ -294,7 +294,8 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             var hasGroup = false;
             $scope.loggedInUser.groupRoles.forEach(
                 function (element) {
-                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN'){
+                    if(element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN' ||
+                        element.role.name == 'SPECIALTY_ADMIN'){
                         hasGroup = true;
                     }
                 });
