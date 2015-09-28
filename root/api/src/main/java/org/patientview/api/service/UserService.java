@@ -89,6 +89,16 @@ public interface UserService {
     String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
 
     /**
+     * Change the picture associated with a User account. (base64)
+     * @param userId ID of User to change picture
+     * @param base64 Base64 string of image
+     * @return String containing picture information, required by IE8 in response to uploading a file
+     * @throws ResourceInvalidException
+     */
+    @UserOnly
+    void addPicture(Long userId, String base64);
+
+    /**
      * Used when a User changes their own password.
      * @param userId ID of User to change password
      * @param password New password

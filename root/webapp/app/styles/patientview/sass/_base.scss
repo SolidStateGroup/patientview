@@ -17,6 +17,10 @@ hr{
     width:100%;
 }
 
+.para-thumb{
+    margin-right:10px;
+}
+
 .left{
     float:left;
 }
@@ -45,6 +49,10 @@ hr{
 
 .page-content {
     padding-bottom: 60px;
+
+    &.home{
+        margin-top:20px;
+    }
 }
 
 .panel-header {
@@ -72,11 +80,20 @@ hr{
     }
 }
 
+.content-area.whatcan p{
+    font-size:17px;
+}
+
 .content-panel {
     background: $white;
     @include bootstrap-border-radius(4px);
     @include bootstrap-box-shadow($content-panel);
     overflow: hidden;
+
+    &.about{
+        padding:15px;
+        font-size:17px;
+    }
 
     &.navbar-default{
         margin-bottom:0;
@@ -302,13 +319,6 @@ hr{
     margin-top:10px;
 }
 
-.news-container{
-  margin-top:20px;
-  .panel-header{
-    margin-bottom:10px;
-  }
-}
-
 .homepage-cols{
   .news-container{
     margin-top:0;
@@ -405,6 +415,12 @@ ul {
     &.aquamarine{
         background:$aquamarine;
     }
+    &.white{
+        background:$white;
+        i{
+            background-size:100%;
+        }
+    }
 
     i{
         display:block;
@@ -453,6 +469,26 @@ ul {
 
     i{
 //        margin-right:10px;
+    }
+}
+
+.social-link{
+    margin-bottom:10px;
+    color:$textdefault;
+    font-size:16px;
+    display: block;
+
+    h3{
+        line-height: 43px;
+        margin:0;
+    }
+
+    &:hover{
+        text-decoration: none;
+    }
+
+    i{
+        margin-right:10px;
     }
 }
 
@@ -610,6 +646,14 @@ i.icon-organisations{
     margin-top:7px;
 }
 
+i.icon-facebook{
+    background: url('../../../images/icons/facebook.png') 0 0 no-repeat;
+    height: 39px;
+    width: 39px;
+    margin-top:3px;
+    display:block;
+}
+
 i.icon-news{
     background: url('../../../images/icons/news.png') 0 0 no-repeat;
     height: 22px;
@@ -724,6 +768,14 @@ i.icon-back-to{
     background: url('../../../images/icons/back-to.png') 0 0 no-repeat;
     height: 22px;
     width: 23px;
+    display:block;
+    margin-right:5px;
+}
+
+i.icon-brand-pulse{
+    background: url('../../../images/icons/brand-pulse.png') 0 0 no-repeat;
+    height: 30px;
+    width: 30px;
     display:block;
     margin-right:5px;
 }

@@ -997,9 +997,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userCountSql.append(sql);
         userCountSql.append(" GROUP BY u.id ");
 
+        //Updated as when more than 1 identifier, the patient was exclued
+        //TODO Use more efficient method of checking (Distinct count isn't efficient)
         if (andGroups) {
-            userListSql.append("HAVING COUNT(gr) = :groupCount ");
-            userCountSql.append("HAVING COUNT(gr) = :groupCount ");
+            userListSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i)");
+            userCountSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
         }
 
         userListSql.append(sortOrder);
@@ -1600,6 +1602,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } catch (Exception e) {
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
+    }
+
+    @Override
+    public void addPicture(Long userId, String base64) {
+        User user = userRepository.findOne(userId);
+        user.setPicture(base64);
+        userRepository.save(user);
     }
 
     protected BufferedImage transformImage(BufferedImage image, int angle) {

@@ -14,10 +14,12 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
@@ -36,9 +38,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
@@ -61,6 +65,10 @@ public class NewsServiceTest {
 
     @InjectMocks
     NewsService newsService = new NewsServiceImpl();
+
+    @Mock
+    StaticDataManager staticDataManager;
+
 
     @Before
     public void setup() {
@@ -92,9 +100,9 @@ public class NewsServiceTest {
 
         List<NewsItem> roleNews = new ArrayList<>();
 
-        for (int i=0;i<10;i++) {
+        for (int i = 0; i < 10; i++) {
             NewsItem newsItem = new NewsItem();
-            newsItem.setId((long)i);
+            newsItem.setId((long) i);
             newsItem.setCreator(testUser);
             newsItem.setHeading(String.valueOf(i));
             newsItem.setStory("ROLE NEWS STORY TEXT " + String.valueOf(i));
@@ -102,7 +110,7 @@ public class NewsServiceTest {
             newsItem.setCreated(new Date(System.currentTimeMillis() + i));
 
             NewsLink newsLink = new NewsLink();
-            newsLink.setId((long)i);
+            newsLink.setId((long) i);
             newsLink.setNewsItem(newsItem);
             newsLink.setGroup(testGroup);
             roleNews.add(newsItem);
@@ -110,9 +118,9 @@ public class NewsServiceTest {
 
         List<NewsItem> groupNews = new ArrayList<>();
 
-        for (int i=0;i<5;i++) {
+        for (int i = 0; i < 5; i++) {
             NewsItem newsItem = new NewsItem();
-            newsItem.setId((long)(i+10));
+            newsItem.setId((long) (i + 10));
             newsItem.setCreator(testUser);
             newsItem.setHeading(String.valueOf(i));
             newsItem.setStory("GROUP NEWS STORY TEXT " + String.valueOf(i));
@@ -120,13 +128,19 @@ public class NewsServiceTest {
             newsItem.setCreated(new Date(System.currentTimeMillis() + 10 + i));
 
             NewsLink newsLink = new NewsLink();
-            newsLink.setId((long)(i+10));
+            newsLink.setId((long) (i + 10));
             newsLink.setNewsItem(newsItem);
             newsLink.setGroup(testGroup);
             roleNews.add(newsItem);
         }
 
+        Lookup lookup = new Lookup();
+        lookup.setId(63L);
+
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(staticDataManager.getLookupByTypeAndValue((LookupTypes)anyObject(), Matchers.anyString()))
+                .thenReturn(lookup);
+
         when(newsItemRepository.findGroupNewsByUser(eq(testUser),
                 eq(pageableAll))).thenReturn(new PageImpl<>(roleNews));
         when(newsItemRepository.findRoleNewsByUser(eq(testUser),
@@ -134,7 +148,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -184,13 +198,18 @@ public class NewsServiceTest {
         groupNews.add(newsItem1);
         groupNews.add(newsItem2);
 
+        Lookup lookup = new Lookup();
+        lookup.setId(63L);
+
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(staticDataManager.getLookupByTypeAndValue((LookupTypes) anyObject(), Matchers.anyString()))
+                .thenReturn(lookup);
         when(newsItemRepository.findGroupNewsByUser(eq(testUser),
                 eq(pageableAll))).thenReturn(new PageImpl<>(groupNews));
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -293,7 +312,7 @@ public class NewsServiceTest {
             newsItem.setHeading("HEADING TEXT UPDATED");
             newsService.save(newsItem);
         } catch (ResourceNotFoundException | ResourceForbiddenException e) {
-            Assert.fail("Exception: " +  e.getMessage());
+            Assert.fail("Exception: " + e.getMessage());
         }
 
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
