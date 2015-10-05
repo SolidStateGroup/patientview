@@ -404,7 +404,7 @@ public class NewsItemRepositoryTest {
         User specialtyUser = dataTestUtils.createUser("NewsUser");
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(specialtyUser);
-        groupRole.setRole(dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF));
+        groupRole.setRole(dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF));
         groupRole.setGroup(specialty);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
