@@ -30,8 +30,7 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
     public Page<NewsItem> findRoleNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType
             , Pageable pageable);
 
-    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles ggr JOIN l.role.groupRoles rgr " +
-            "WHERE ggr.user = :user AND rgr.user = :user AND n.newsType = :newsType")
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles ggr JOIN l.role.groupRoles rgr WHERE ggr.user = :user AND rgr.user = :user AND n.newsType = :newsType")
     public Page<NewsItem> findGroupRoleNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType,
                                                          Pageable pageable);
 
@@ -41,8 +40,7 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN g.groupRelationships grl " +
             "JOIN grl.objectGroup pg " +
             "JOIN pg.groupRoles pgr " +
-            "JOIN l.group.groupRoles gr " +
-            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' AND gr.user = :user " +
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' " +
             "AND n.newsType = :newsType")
     public Page<NewsItem> findSpecialtyNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType, Pageable pageable);
 
@@ -62,9 +60,7 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN g.groupRelationships grl " +
             "JOIN grl.objectGroup pg " +
             "JOIN pg.groupRoles pgr " +
-            "JOIN l.group.groupRoles gr " +
-            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' AND gr.user = :user "
-            )
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT'")
     public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT DISTINCT n FROM NewsItem n " +
