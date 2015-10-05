@@ -40,7 +40,7 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN g.groupRelationships grl " +
             "JOIN grl.objectGroup pg " +
             "JOIN pg.groupRoles pgr " +
-            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' " +
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' AND pgr.role.name = 'SPECIALTY_ADMIN'" +
             "AND n.newsType = :newsType")
     public Page<NewsItem> findSpecialtyNewsByUserAndType(@Param("user") User user, @Param("newsType") int newsType, Pageable pageable);
 
@@ -60,7 +60,7 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN g.groupRelationships grl " +
             "JOIN grl.objectGroup pg " +
             "JOIN pg.groupRoles pgr " +
-            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT'")
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT' AND pgr.role.name = 'SPECIALTY_ADMIN'")
     public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT DISTINCT n FROM NewsItem n " +
