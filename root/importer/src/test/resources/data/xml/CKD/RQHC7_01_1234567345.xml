@@ -1,6 +1,6 @@
 <patientview>
     <sequence>01</sequence>
-    <dateofreport>2015-10-06T12:00:00</dateofreport>
+    <dateofreport>2015-04-08T12:00:00</dateofreport>
     <flag>Follow-up-report</flag>
     <centredetails>
         <centrecode>RQHC7</centrecode>
@@ -36,9 +36,9 @@
                 <testname>BP sys</testname>
                 <testcode>bpsys</testcode>
                 <units>mm mg</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-01" stop="2015-04-02"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-01T10:01:00</datestamp>
                     <value>160</value>
                 </result>
             </test>
@@ -46,9 +46,9 @@
                 <testname>BP dia</testname>
                 <testcode>bpdia</testcode>
                 <units>mm mg</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-02" stop="2015-04-03"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-02T11:02:00</datestamp>
                     <value>81</value>
                 </result>
             </test>
@@ -56,9 +56,9 @@
                 <testname>HbA1c</testname>
                 <testcode>hba1c</testcode>
                 <units>%</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-03" stop="2015-04-04"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-03T12:02:00</datestamp>
                     <value>4.6</value>
                 </result>
             </test>
@@ -66,9 +66,9 @@
                 <testname>Albumin</testname>
                 <testcode>albumin</testcode>
                 <units>g/l</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-04" stop="2015-04-05"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-04T13:03:00</datestamp>
                     <value>31</value>
                 </result>
             </test>
@@ -76,9 +76,9 @@
                 <testname>Serum Creatinine</testname>
                 <testcode>creatinine</testcode>
                 <units>umol/l</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-05" stop="2015-04-06"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-05T14:04:00</datestamp>
                     <value>104</value>
                 </result>
             </test>
@@ -86,9 +86,9 @@
                 <testname>eGFR</testname>
                 <testcode>egfr</testcode>
                 <units>ml/min/1.73m^2</units>
-                <daterange start="2015-10-05" stop="2015-10-07"/>
+                <daterange start="2015-04-06" stop="2015-04-07"/>
                 <result>
-                    <datestamp>2015-10-06T10:00:00</datestamp>
+                    <datestamp>2015-04-06T15:05:00</datestamp>
                     <value>59</value>
                 </result>
             </test>
