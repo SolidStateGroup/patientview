@@ -93,8 +93,8 @@ public class ImportControllerTest {
 
     // used to test the service once running (CKD files)
     @Test
-    //@Ignore("IntegrationTest")
-    public void importIntegrationTestCKD() throws Exception {
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD01() throws Exception {
         List<String> files = new ArrayList<>();
         files.add("data/xml/CKD/RQHC7_01_1234567345.xml");
         files.add("data/xml/CKD/RQHC7_01_4325437666.xml");
@@ -102,6 +102,28 @@ public class ImportControllerTest {
         files.add("data/xml/CKD/RQHC7_01_5432134678.xml");
         files.add("data/xml/CKD/RQHC7_01_5566778833.xml");
         files.add("data/xml/CKD/RQHC7_01_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD02() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_02_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_02_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD03() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_03_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_03_9879879876.xml");
         for (String file : files) {
             post(getFileFromString(file));
         }
