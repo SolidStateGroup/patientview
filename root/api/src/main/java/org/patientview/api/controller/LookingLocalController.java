@@ -57,7 +57,7 @@ public class LookingLocalController extends BaseController {
     }
 
     /**
-     * Deal with the URIs "/lookinglocal/auth", check POSTed credentials
+     * Deal with the URIs "/lookinglocal/auth", check POSTed credentials and return login successful screen
      * @param username User entered username
      * @param password User entered password
      */
@@ -71,7 +71,12 @@ public class LookingLocalController extends BaseController {
 
         try {
             String token = authenticationService.authenticate(username, password);
-            return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
+            try {
+                return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(
+                        lookingLocalService.getErrorXml("Could not login, " + e.getMessage()), HttpStatus.OK);
+            }
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
         } catch (AuthenticationServiceException e) {
@@ -135,6 +140,22 @@ public class LookingLocalController extends BaseController {
     }
 
     /**
+    * Deal with the URIs "/lookinglocal/secure/main"
+    */
+    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_MAIN, method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> main(@RequestParam(value = "token", required = false) String token)
+            throws IOException, TransformerException, ParserConfigurationException {
+        LOGGER.debug("main start");
+        try {
+            return new ResponseEntity<>(lookingLocalService.getMainXml(token), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    lookingLocalService.getErrorXml("Could not get main, " + e.getMessage()), HttpStatus.OK);
+        }
+    }
+
+    /**
      * Deal with the URIs "/lookinglocal/error"
      * @param response HTTP response
      *//*
@@ -149,20 +170,7 @@ public class LookingLocalController extends BaseController {
         }
     }
 
-    *//**
-     * Deal with the URIs "/lookinglocal/secure/main"
-     * @param response HTTP response
-     *//*
-    @RequestMapping(value = Routes.LOOKING_LOCAL_MAIN)
-    @ResponseBody
-    public void getMainScreenXml(HttpServletResponse response) {
-        LOGGER.debug("main start");
-        try {
-            LookingLocalUtils.getMainXml(response);
-        } catch (Exception e) {
-            LOGGER.error("Could not create main screen response output stream{}" + e);
-        }
-    }
+
 
     *//**
      * Deal with the URIs "/lookinglocal/secure/details"

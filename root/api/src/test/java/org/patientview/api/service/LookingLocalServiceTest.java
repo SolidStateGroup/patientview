@@ -25,7 +25,7 @@ import java.io.IOException;
 @ContextConfiguration(classes = {TestCommonConfig.class, LookingLocalServiceImpl.class})
 public class LookingLocalServiceTest {
 
-    private static final String TOKEN = "1234567890";
+    private static final String token = "1234567890";
 
     @Autowired
     private LookingLocalServiceImpl lookingLocalService;
@@ -49,11 +49,11 @@ public class LookingLocalServiceTest {
 
     @Test
     public void testGetAuthXml() throws IOException, TransformerException, ParserConfigurationException {
-        String out = lookingLocalService.getLoginSuccessfulXml(TOKEN);
+        String out = lookingLocalService.getLoginSuccessfulXml(token);
 
         Assert.assertNotNull("Should return Looking Local home XML", out);
         Assert.assertTrue("Should have login successful message", out.contains("Login Successful"));
-        Assert.assertTrue("Should contain links with token", out.contains("?token=" + TOKEN));
+        Assert.assertTrue("Should contain links with token", out.contains("?token=" + token));
     }
 
     @Test
@@ -72,6 +72,14 @@ public class LookingLocalServiceTest {
 
         Assert.assertNotNull("Should return Looking Local error XML", out);
         Assert.assertTrue("Should have correct error message", out.contains(errorMessage));
+    }
+
+    @Test
+    public void testGetMainXml() throws IOException, TransformerException, ParserConfigurationException {
+        String out = lookingLocalService.getMainXml(token);
+
+        Assert.assertNotNull("Should return Looking Local main XML", out);
+        Assert.assertTrue("Should contain links with token", out.contains("?token=" + token));
     }
 }
 

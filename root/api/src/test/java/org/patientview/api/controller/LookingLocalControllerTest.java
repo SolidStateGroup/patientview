@@ -28,6 +28,10 @@ import static org.mockito.Mockito.when;
  */
 public class LookingLocalControllerTest {
 
+    private static final String username = "username";
+    private static final String password = "password";
+    private static final String token = "1234567890";
+
     @Mock
     private AuthenticationService authenticationService;
 
@@ -60,10 +64,6 @@ public class LookingLocalControllerTest {
 
     @Test
     public void testAuth() throws Exception {
-        String username = "username";
-        String password = "password";
-        String token = "1234567890";
-
         when(authenticationService.authenticate(eq(username), eq(password)))
                 .thenReturn(token);
 
@@ -78,7 +78,6 @@ public class LookingLocalControllerTest {
     @Test
     public void testAuth_noUsername() throws Exception {
         String username = "";
-        String password = "password";
 
         when(authenticationService.authenticate(eq(username), eq(password)))
                 .thenThrow(new UsernameNotFoundException("username not found"));
@@ -93,7 +92,6 @@ public class LookingLocalControllerTest {
 
     @Test
     public void testAuth_wrongCredentials() throws Exception {
-        String username = "username";
         String password = "wrong_password";
 
         when(authenticationService.authenticate(eq(username), eq(password)))
@@ -105,6 +103,14 @@ public class LookingLocalControllerTest {
 
         verify(authenticationService, Mockito.times(1)).authenticate(eq(username), eq(password));
         verify(lookingLocalService, Mockito.times(1)).getAuthErrorXml();
+    }
+
+    @Test
+    public void testMain() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(lookingLocalService, Mockito.times(1)).getMainXml(eq(token));
     }
 }
 

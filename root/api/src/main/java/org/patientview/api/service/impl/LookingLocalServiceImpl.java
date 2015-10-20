@@ -35,53 +35,6 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     Properties properties;
 
     /**
-     * Create XML for the Login Successful screen in Looking Local
-     * @param token String token used to authenticate further requests
-     */
-    @Override
-    public String getLoginSuccessfulXml(String token) throws TransformerException, IOException, ParserConfigurationException {
-        Document doc = getDocument();
-        // add page to screen
-        Element pageElement = doc.createElement("page");
-        pageElement.setAttribute("title", "Login Successful");
-        pageElement.setAttribute("transform", "default");
-        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
-
-        // add form to screen
-        Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("site.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
-        formElement.setAttribute("method", "get");
-        pageElement.appendChild(formElement);
-
-        // static element
-        Element details = doc.createElement("static");
-        details.setAttribute("value", "You have successfully logged in.");
-        formElement.appendChild(details);
-
-        // home button
-        Element home = doc.createElement("submit");
-        home.setAttribute("name", "left");
-        home.setAttribute("title", "Continue");
-        formElement.appendChild(home);
-
-        // form action
-        Element formAction = doc.createElement("hiddenField");
-        formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("site.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
-        formElement.appendChild(formAction);
-
-        // form method
-        Element formMethod = doc.createElement("hiddenField");
-        formMethod.setAttribute("name", "formMethod");
-        formMethod.setAttribute("value", "get");
-        formElement.appendChild(formMethod);
-
-        return outputXml(doc);
-    }
-
-    /**
      * Create XML for the authentication error screen in Looking Local
      */
     @Override
@@ -95,7 +48,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -114,7 +67,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
         formElement.appendChild(formAction);
 
         // form method
@@ -159,7 +112,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -177,7 +130,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
         formElement.appendChild(formAction);
 
         // form method
@@ -200,7 +153,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
         formElement.setAttribute("method", "post");
         formElement.setAttribute("name", "blank");
         pageElement.appendChild(formElement);
@@ -241,7 +194,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
         formElement.appendChild(formAction);
 
         // form method
@@ -251,6 +204,122 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         formElement.appendChild(formMethod);
 
         //outputXml(doc, response);
+        return outputXml(doc);
+    }
+
+    /**
+     * Create XML for the Login Successful screen in Looking Local
+     * @param token String token used to authenticate further requests
+     */
+    @Override
+    public String getLoginSuccessfulXml(String token) throws TransformerException, IOException, ParserConfigurationException {
+        Document doc = getDocument();
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "Login Successful");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+        formElement.setAttribute("method", "get");
+        pageElement.appendChild(formElement);
+
+        // static element
+        Element details = doc.createElement("static");
+        details.setAttribute("value", "You have successfully logged in.");
+        formElement.appendChild(details);
+
+        // home button
+        Element home = doc.createElement("submit");
+        home.setAttribute("name", "left");
+        home.setAttribute("title", "Continue");
+        formElement.appendChild(home);
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "get");
+        formElement.appendChild(formMethod);
+
+        return outputXml(doc);
+    }
+
+    /**
+     * Create XML for the main screen in Looking Local with core options
+     */
+    @Override
+    public String getMainXml(String token) throws TransformerException, IOException, ParserConfigurationException {
+        Document doc = getDocument();
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "PatientView");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_DETAILS + "?token=" + token);
+        formElement.setAttribute("method", "post");
+        pageElement.appendChild(formElement);
+
+        // static element
+        Element details = doc.createElement("static");
+        details.setAttribute("value", "Select what you would like to look at:");
+        formElement.appendChild(details);
+
+        //  multisubmitField
+        Element multisubmit = doc.createElement("multisubmitField");
+        multisubmit.setAttribute("name", "selection");
+        formElement.appendChild(multisubmit);
+
+        // my details field Option
+        Element fieldOption1 = doc.createElement("fieldOption");
+        fieldOption1.setAttribute("name", "My Details");
+        fieldOption1.setAttribute("value", "1");
+        multisubmit.appendChild(fieldOption1);
+
+        // medical result field Option
+        Element fieldOption2 = doc.createElement("fieldOption");
+        fieldOption2.setAttribute("name", "Medical Results");
+        fieldOption2.setAttribute("value", "2");
+        multisubmit.appendChild(fieldOption2);
+
+        // drugs field Option
+        Element fieldOption3 = doc.createElement("fieldOption");
+        fieldOption3.setAttribute("name", "Drugs");
+        fieldOption3.setAttribute("value", "3");
+        multisubmit.appendChild(fieldOption3);
+
+        // letters field Option
+        Element fieldOption4 = doc.createElement("fieldOption");
+        fieldOption4.setAttribute("name", "Letters");
+        fieldOption4.setAttribute("value", "4");
+        multisubmit.appendChild(fieldOption4);
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_DETAILS + "?token=" + token);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "post");
+        formElement.appendChild(formMethod);
+
         return outputXml(doc);
     }
 
