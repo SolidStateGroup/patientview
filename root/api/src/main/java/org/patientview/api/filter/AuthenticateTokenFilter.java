@@ -73,6 +73,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // Swagger.io API documentation
         publicUrls.add("/api-docs");
 
+        // Looking Local
+        publicUrls.add("/lookinglocal/home");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }
