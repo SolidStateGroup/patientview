@@ -145,7 +145,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         LOG.debug("Authenticating user: {}", username);
 
-        if (username == null) {
+        if (username == null || password == null) {
             throw new UsernameNotFoundException("Incorrect username or password");
         }
 
