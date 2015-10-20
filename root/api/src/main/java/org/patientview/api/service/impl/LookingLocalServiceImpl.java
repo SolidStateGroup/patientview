@@ -29,10 +29,11 @@ import java.util.Properties;
  * Created on 20/10/2015
  */
 @Service
-public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalServiceImpl> implements LookingLocalService {
+public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalServiceImpl>
+        implements LookingLocalService {
 
     @Inject
-    Properties properties;
+    private Properties properties;
 
     /**
      * Create XML for the authentication error screen in Looking Local
@@ -212,7 +213,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
      * @param token String token used to authenticate further requests
      */
     @Override
-    public String getLoginSuccessfulXml(String token) throws TransformerException, IOException, ParserConfigurationException {
+    public String getLoginSuccessfulXml(String token)
+            throws TransformerException, IOException, ParserConfigurationException {
         Document doc = getDocument();
         // add page to screen
         Element pageElement = doc.createElement("page");
