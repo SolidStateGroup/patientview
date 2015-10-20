@@ -1,13 +1,18 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.LookingLocalRoutes;
 import org.patientview.api.service.LookingLocalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +32,9 @@ import java.io.IOException;
 public class LookingLocalController extends BaseController {
 
     @Inject
+    private AuthenticationService authenticationService;
+
+    @Inject
     private LookingLocalService lookingLocalService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LookingLocalController.class);
@@ -41,29 +49,36 @@ public class LookingLocalController extends BaseController {
     /**
      * Return Looking Local home XML
      */
-    @RequestMapping(value = "/lookinglocal/home", method = RequestMethod.GET)
+    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_HOME, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getHomeXml() throws IOException, TransformerException, ParserConfigurationException {
+    public ResponseEntity<String> home() throws IOException, TransformerException, ParserConfigurationException {
         LOGGER.debug("home start");
         return new ResponseEntity<>(lookingLocalService.getHomeXml(), HttpStatus.OK);
     }
 
-/*    *//**
+    /**
      * Deal with the URIs "/lookinglocal/auth", check POSTed credentials
-     * @param request HTTP request
-     * @param response HTTP response
      * @param username User entered username
      * @param password User entered password
-     *//*
-    @RequestMapping(value = "/lookinglocal/auth", method = RequestMethod.POST)
+     */
+    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_AUTH, method = RequestMethod.POST)
     @ResponseBody
-    public void getAuth(HttpServletRequest request,
+    public ResponseEntity<String> auth(
                         @RequestParam(value = "username", required = false) String username,
-                        @RequestParam(value = "password", required = false) String password,
-                        HttpServletResponse response) {
+                        @RequestParam(value = "password", required = false) String password)
+            throws IOException, TransformerException, ParserConfigurationException {
         LOGGER.debug("auth start");
 
-        PatientViewPasswordEncoder encoder = new PatientViewPasswordEncoder();
+        try {
+            String token = authenticationService.authenticate(username, password);
+            return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
+        } catch (AuthenticationServiceException e) {
+            return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
+        }
+
+        /*PatientViewPasswordEncoder encoder = new PatientViewPasswordEncoder();
         User user = securityUserManager.get(username);
 
         if (user != null) {
@@ -88,7 +103,7 @@ public class LookingLocalController extends BaseController {
                     session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
                     LOGGER.debug("auth passed");
                     try {
-                        LookingLocalUtils.getAuthXml(response);
+                        LookingLocalUtils.getLoginSuccessfulXml(response);
                     } catch (Exception e) {
                         LOGGER.error("Could not create home screen response output stream{}" + e);
                     }
@@ -116,10 +131,10 @@ public class LookingLocalController extends BaseController {
             } catch (Exception e) {
                 LOGGER.error("Could not create home screen response output stream{}" + e);
             }
-        }
+        }*/
     }
 
-    *//**
+    /**
      * Deal with the URIs "/lookinglocal/error"
      * @param response HTTP response
      *//*

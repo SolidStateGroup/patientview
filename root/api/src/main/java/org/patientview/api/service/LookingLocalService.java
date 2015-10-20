@@ -12,5 +12,11 @@ import java.io.IOException;
  */
 public interface LookingLocalService {
 
-    String getHomeXml() throws ParserConfigurationException, TransformerException, IOException;
+    String getHomeXml() throws TransformerException, IOException, ParserConfigurationException;
+
+    String getLoginSuccessfulXml(String token) throws TransformerException, IOException, ParserConfigurationException;
+
+    String getAuthErrorXml() throws TransformerException, IOException, ParserConfigurationException;
+
+    String getErrorXml(String errorText) throws TransformerException, IOException, ParserConfigurationException;
 }

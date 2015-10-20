@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.service.LookingLocalRoutes;
 import org.patientview.api.service.LookingLocalService;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -30,22 +31,100 @@ import java.util.Properties;
 @Service
 public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalServiceImpl> implements LookingLocalService {
 
-    public static final String LOOKING_LOCAL_HOME = "/lookinglocal/home";
-    public static final String LOOKING_LOCAL_AUTH = "/lookinglocal/auth";
-    public static final String LOOKING_LOCAL_ERROR = "/lookinglocal/error";
-    public static final String LOOKING_LOCAL_ERROR_REDIRECT = "error";
-    public static final String LOOKING_LOCAL_MAIN = "/lookinglocal/secure/main";
-    public static final String LOOKING_LOCAL_MAIN_REDIRECT = "secure/main";
-    public static final String LOOKING_LOCAL_DETAILS = "/lookinglocal/secure/details";
-    public static final String LOOKING_LOCAL_MY_DETAILS = "/lookinglocal/secure/myDetails";
-    public static final String LOOKING_LOCAL_DRUGS = "/lookinglocal/secure/drugs";
-    public static final String LOOKING_LOCAL_LETTERS = "/lookinglocal/secure/letters";
-    public static final String LOOKING_LOCAL_RESULTS_DISPLAY = "/lookinglocal/secure/resultsDisplay";
-    public static final String LOOKING_LOCAL_RESULT_DISPLAY = "/lookinglocal/secure/resultDisplay";
-    public static final String LOOKING_LOCAL_LETTER_DISPLAY = "/lookinglocal/secure/letterDisplay";
-
     @Inject
     Properties properties;
+
+    /**
+     * Create XML for the Login Successful screen in Looking Local
+     * @param token String token used to authenticate further requests
+     */
+    @Override
+    public String getLoginSuccessfulXml(String token) throws TransformerException, IOException, ParserConfigurationException {
+        Document doc = getDocument();
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "Login Successful");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("site.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+        formElement.setAttribute("method", "get");
+        pageElement.appendChild(formElement);
+
+        // static element
+        Element details = doc.createElement("static");
+        details.setAttribute("value", "You have successfully logged in.");
+        formElement.appendChild(details);
+
+        // home button
+        Element home = doc.createElement("submit");
+        home.setAttribute("name", "left");
+        home.setAttribute("title", "Continue");
+        formElement.appendChild(home);
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("site.url")
+                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "get");
+        formElement.appendChild(formMethod);
+
+        return outputXml(doc);
+    }
+
+    /**
+     * Create XML for the authentication error screen in Looking Local
+     */
+    @Override
+    public String getAuthErrorXml() throws TransformerException, IOException, ParserConfigurationException {
+        Document doc = getDocument();
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "There has been an authentication error");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("method", "get");
+        pageElement.appendChild(formElement);
+
+        // static element
+        Element details = doc.createElement("static");
+        details.setAttribute("value", "We're sorry, the username/password combination was not recognised. "
+                + "Please try again");
+        formElement.appendChild(details);
+
+        // home button
+        Element home = doc.createElement("submit");
+        home.setAttribute("name", "left");
+        home.setAttribute("title", "Home");
+        formElement.appendChild(home);
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "get");
+        formElement.appendChild(formMethod);
+
+        return outputXml(doc);
+    }
 
     /**
      * Utility function, creates empty XML document
@@ -66,6 +145,50 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         return doc;
     }
 
+    /**
+     * Create XML for the general error screen in Looking Local
+     */
+    @Override
+    public String getErrorXml(String errorText) throws TransformerException, IOException, ParserConfigurationException {
+        Document doc = getDocument();
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "There has been an error");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("method", "get");
+        pageElement.appendChild(formElement);
+
+        // static element
+        Element details = doc.createElement("static");
+        details.setAttribute("value", "There has been an error. " + errorText);
+        formElement.appendChild(details);
+
+        // home button
+        Element home = doc.createElement("submit");
+        home.setAttribute("name", "left");
+        home.setAttribute("title", "Home");
+        formElement.appendChild(home);
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "get");
+        formElement.appendChild(formMethod);
+
+        return outputXml(doc);
+    }
+
     @Override
     public String getHomeXml() throws ParserConfigurationException, TransformerException, IOException {
         Document doc = getDocument();
@@ -77,7 +200,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("site.url") + LOOKING_LOCAL_AUTH);
+        formElement.setAttribute("action", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
         formElement.setAttribute("method", "post");
         formElement.setAttribute("name", "blank");
         pageElement.appendChild(formElement);
@@ -118,7 +241,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("site.url") + LOOKING_LOCAL_AUTH);
+        formAction.setAttribute("value", properties.getProperty("site.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
         formElement.appendChild(formAction);
 
         // form method
@@ -129,6 +252,26 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         //outputXml(doc, response);
         return outputXml(doc);
+    }
+
+    /**
+     * Write xml document to String and return
+     * @param doc Input XML to output to String
+     */
+    private String outputXml(Document doc) throws TransformerException, IOException {
+
+        // output string
+        DOMSource domSource = new DOMSource(doc);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+        transformer.setOutputProperty("encoding", "ISO-8859-1");
+        transformer.transform(domSource, result);
+
+        return writer.toString();
     }
 
     /**
@@ -158,25 +301,5 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         out.println(sb);
         out.close();
         out.flush();
-    }
-
-    /**
-     * Write xml document to String and return
-     * @param doc Input XML to output to String
-     */
-    private String outputXml(Document doc) throws TransformerException, IOException {
-
-        // output string
-        DOMSource domSource = new DOMSource(doc);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-        transformer.setOutputProperty("encoding", "ISO-8859-1");
-        transformer.transform(domSource, result);
-
-        return writer.toString();
     }
 }

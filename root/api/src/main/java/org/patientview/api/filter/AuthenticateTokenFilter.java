@@ -75,6 +75,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         // Looking Local
         publicUrls.add("/lookinglocal/home");
+        publicUrls.add("/lookinglocal/auth");
 
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);

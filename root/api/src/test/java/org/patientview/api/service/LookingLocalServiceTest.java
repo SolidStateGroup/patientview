@@ -25,6 +25,8 @@ import java.io.IOException;
 @ContextConfiguration(classes = {TestCommonConfig.class, LookingLocalServiceImpl.class})
 public class LookingLocalServiceTest {
 
+    private static final String TOKEN = "1234567890";
+
     @Autowired
     private LookingLocalServiceImpl lookingLocalService;
 
@@ -43,6 +45,33 @@ public class LookingLocalServiceTest {
         String out = lookingLocalService.getHomeXml();
 
         Assert.assertNotNull("Should return Looking Local home XML", out);
+    }
+
+    @Test
+    public void testGetAuthXml() throws IOException, TransformerException, ParserConfigurationException {
+        String out = lookingLocalService.getLoginSuccessfulXml(TOKEN);
+
+        Assert.assertNotNull("Should return Looking Local home XML", out);
+        Assert.assertTrue("Should have login successful message", out.contains("Login Successful"));
+        Assert.assertTrue("Should contain links with token", out.contains("?token=" + TOKEN));
+    }
+
+    @Test
+    public void testGetAuthErrorXml() throws IOException, TransformerException, ParserConfigurationException {
+        String out = lookingLocalService.getAuthErrorXml();
+
+        Assert.assertNotNull("Should return Looking Local auth error XML", out);
+        Assert.assertTrue("Should have correct error message",
+                out.contains("username/password combination was not recognised"));
+    }
+
+    @Test
+    public void testGetErrorXml() throws IOException, TransformerException, ParserConfigurationException {
+        String errorMessage = "username not found";
+        String out = lookingLocalService.getErrorXml(errorMessage);
+
+        Assert.assertNotNull("Should return Looking Local error XML", out);
+        Assert.assertTrue("Should have correct error message", out.contains(errorMessage));
     }
 }
 
