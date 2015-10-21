@@ -47,12 +47,12 @@ public class LookingLocalController extends BaseController {
     private String resultSelection = null;*/
 
     /**
-     * Return Looking Local home XML
+     * Deal with URI "/lookinglocal/home", shows login screen
      */
     @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_HOME, method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> home() throws IOException, TransformerException, ParserConfigurationException {
-        LOGGER.debug("home start");
+        LOGGER.info("home start");
         return new ResponseEntity<>(lookingLocalService.getHomeXml(), HttpStatus.OK);
     }
 
@@ -67,7 +67,7 @@ public class LookingLocalController extends BaseController {
                         @RequestParam(value = "username", required = false) String username,
                         @RequestParam(value = "password", required = false) String password)
             throws IOException, TransformerException, ParserConfigurationException {
-        LOGGER.debug("auth start");
+        LOGGER.info("auth start");
 
         try {
             String token = authenticationService.authenticate(username, password);
@@ -146,7 +146,7 @@ public class LookingLocalController extends BaseController {
     @ResponseBody
     public ResponseEntity<String> main(@RequestParam(value = "token", required = false) String token)
             throws IOException, TransformerException, ParserConfigurationException {
-        LOGGER.debug("main start");
+        LOGGER.info("main start");
         try {
             return new ResponseEntity<>(lookingLocalService.getMainXml(token), HttpStatus.OK);
         } catch (Exception e) {
