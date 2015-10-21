@@ -1,7 +1,10 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.service.LookingLocalRoutes;
+import org.patientview.api.model.UserToken;
+import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,6 +36,9 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         implements LookingLocalService {
 
     @Inject
+    private AuthenticationService authenticationService;
+
+    @Inject
     private Properties properties;
 
     /**
@@ -49,7 +55,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -68,7 +74,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.appendChild(formAction);
 
         // form method
@@ -113,7 +119,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -131,7 +137,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_HOME);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.appendChild(formAction);
 
         // form method
@@ -154,7 +160,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
+        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_AUTH);
         formElement.setAttribute("method", "post");
         formElement.setAttribute("name", "blank");
         pageElement.appendChild(formElement);
@@ -195,7 +201,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // form action
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
-        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalRoutes.LOOKING_LOCAL_AUTH);
+        formAction.setAttribute("value", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_AUTH);
         formElement.appendChild(formAction);
 
         // form method
@@ -225,7 +231,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // add form to screen
         Element formElement = doc.createElement("form");
         formElement.setAttribute("action", properties.getProperty("api.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+                + LookingLocalProperties.LOOKING_LOCAL_MAIN + "?token=" + token);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -244,14 +250,21 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
         formAction.setAttribute("value", properties.getProperty("api.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_MAIN + "?token=" + token);
+                + LookingLocalProperties.LOOKING_LOCAL_MAIN + "?token=" + token);
         formElement.appendChild(formAction);
 
         // form method
         Element formMethod = doc.createElement("hiddenField");
         formMethod.setAttribute("name", "formMethod");
-        formMethod.setAttribute("value", "get");
+        formMethod.setAttribute("value", "post");
         formElement.appendChild(formMethod);
+
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
 
         return outputXml(doc);
     }
@@ -271,7 +284,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         // add form to screen
         Element formElement = doc.createElement("form");
         formElement.setAttribute("action", properties.getProperty("api.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_DETAILS + "?token=" + token);
+                + LookingLocalProperties.LOOKING_LOCAL_DETAILS + "?token=" + token);
         formElement.setAttribute("method", "post");
         pageElement.appendChild(formElement);
 
@@ -313,7 +326,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         Element formAction = doc.createElement("hiddenField");
         formAction.setAttribute("name", "formAction");
         formAction.setAttribute("value", properties.getProperty("api.url")
-                + LookingLocalRoutes.LOOKING_LOCAL_DETAILS + "?token=" + token);
+                + LookingLocalProperties.LOOKING_LOCAL_DETAILS + "?token=" + token);
         formElement.appendChild(formAction);
 
         // form method
@@ -321,6 +334,403 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         formMethod.setAttribute("name", "formMethod");
         formMethod.setAttribute("value", "post");
         formElement.appendChild(formMethod);
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
+
+        return outputXml(doc);
+    }
+
+    @Override
+    public String getMyDetailsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+
+        UserToken userToken;
+
+        try {
+            userToken = authenticationService.getUserInformation(token);
+        } catch (ResourceForbiddenException rfe) {
+            return getErrorXml("Forbidden");
+        }
+
+        Document doc = getDocument();
+
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "My Details");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_MY_DETAILS + "?token=" + token);
+        formElement.setAttribute("method", "post");
+        pageElement.appendChild(formElement);
+
+        ///
+        Element pageStatic = doc.createElement("static");
+        pageStatic.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageStatic);
+
+        // if patient details exist, get first set of patient details and display on screen
+        /*if (!CollectionUtils.isEmpty(patientDetails)) {
+            Patient patient = getPatientDetails(patientDetails);
+
+            if (page == 0) {
+                // first page
+                Element name = doc.createElement("static");
+                name.setAttribute("value", "Name: "
+                        + (patient.getForename() != null ? patient.getForename() : "unavailable")
+                        + (patient.getSurname() != null ? " " + patient.getSurname() : ""));
+                formElement.appendChild(name);
+
+                Element dob = doc.createElement("static");
+                dob.setAttribute("value", "Date of Birth: "
+                        + (patient.getFormatedDateOfBirth() != null
+                        ? patient.getFormatedDateOfBirth() : "unavailable"));
+                formElement.appendChild(dob);
+
+                Element nhsNo = doc.createElement("static");
+                nhsNo.setAttribute("value", "NHS Number: "
+                        + (patient.getNhsno() != null ? patient.getNhsno() : "unavailable"));
+                formElement.appendChild(nhsNo);
+
+                Element hospitalNo = doc.createElement("static");
+                hospitalNo.setAttribute("value", "Hospital Number: "
+                        + (patient.getHospitalnumber() != null ? patient.getHospitalnumber() : "unavailable"));
+                formElement.appendChild(hospitalNo);
+
+                Element address = doc.createElement("static");
+                address.setAttribute("value", "Address: "
+                        + (patient.getAddress1() != null ? patient.getAddress1()  + ", " : "unavailable")
+                        + (patient.getAddress2() != null ? patient.getAddress2()  + ", " : " ")
+                        + (patient.getAddress3() != null ? patient.getAddress3()  + ", " : " ")
+                        + (patient.getAddress4() != null ? patient.getAddress4() : " "));
+                formElement.appendChild(address);
+
+                Element telephone1 = doc.createElement("static");
+                telephone1.setAttribute("value", "Telephone 1: "
+                        + (patient.getTelephone1() != null ? patient.getTelephone1() : "unavailable"));
+                formElement.appendChild(telephone1);
+
+                Element telephone2 = doc.createElement("static");
+                telephone2.setAttribute("value", "Telephone 2: "
+                        + (patient.getTelephone2() != null ? patient.getTelephone2() : "unavailable"));
+                formElement.appendChild(telephone2);
+
+                Element mobile = doc.createElement("static");
+                mobile.setAttribute("value", "Mobile: "
+                        + (patient.getMobile() != null ? patient.getMobile() : "unavailable"));
+                formElement.appendChild(mobile);
+
+                Element diagnosis = doc.createElement("static");
+                diagnosis.setAttribute("value", "Diagnosis: "
+                        + (patient.getDiagnosis() != null
+                        ? getDiagnosisDescription(patient.getDiagnosis()) : "unavailable"));
+                formElement.appendChild(diagnosis);
+
+            } else {
+                // second page
+                Element gpName = doc.createElement("static");
+                gpName.setAttribute("value", "GP Name: "
+                        + (patient.getGpname() != null ? patient.getGpname() : "unavailable"));
+                formElement.appendChild(gpName);
+
+                Element gpTelephone = doc.createElement("static");
+                gpTelephone.setAttribute("value", "GP Telephone: "
+                        + (patient.getGptelephone() != null ? patient.getGptelephone() : "unavailable"));
+                formElement.appendChild(gpTelephone);
+
+                Element gpAddress = doc.createElement("static");
+                gpAddress.setAttribute("value", "GP Address: "
+                        + (patient.getGpaddress1() != null ? patient.getGpaddress1()  + ", " : "unavailable")
+                        + (patient.getGpaddress2() != null ? patient.getGpaddress2()  + ", " : " ")
+                        + (patient.getGpaddress3() != null ? patient.getGpaddress3() : " "));
+                formElement.appendChild(gpAddress);
+
+                Element treatment = doc.createElement("static");
+                treatment.setAttribute("value", "Treatment: "
+                        + (patient.getTreatment() != null
+                        ? getTreatmentDescription(patient.getTreatment()) : "unavailable"));
+                formElement.appendChild(treatment);
+
+                Element transplantStatus = doc.createElement("static");
+                transplantStatus.setAttribute("value", "Transplant status: "
+                        + (patient.getTransplantstatus() != null ? patient.getTransplantstatus() : "unavailable"));
+                formElement.appendChild(transplantStatus);
+
+                Element otherConditions = doc.createElement("static");
+                otherConditions.setAttribute("value", "Other conditions: "
+                        + (patient.getOtherConditions() != null ? patient.getOtherConditions() : "unavailable"));
+                formElement.appendChild(otherConditions);
+            }
+        } else {
+            // no patient details found for this user, put error message
+            Element errorMessage = doc.createElement("static");
+            errorMessage.setAttribute("value", "The 'My Details' page is for patient information only.");
+            formElement.appendChild(errorMessage);
+        }*/
+
+        // back button
+        Element back = doc.createElement("submit");
+        back.setAttribute("name", "left");
+        back.setAttribute("title", "Back");
+        formElement.appendChild(back);
+
+        if (page == 0) {
+            // more button
+            Element more = doc.createElement("submit");
+            more.setAttribute("name", "right");
+            more.setAttribute("title", "More");
+            formElement.appendChild(more);
+        }
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_MY_DETAILS + "?token=" + token);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "post");
+        formElement.appendChild(formMethod);
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
+
+        // page
+        Element pageNumberElement = doc.createElement("hiddenField");
+        pageNumberElement.setAttribute("name", "page");
+        pageNumberElement.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageNumberElement);
+
+        return outputXml(doc);
+    }
+
+    @Override
+    public String getResultsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+        UserToken userToken;
+
+        try {
+            userToken = authenticationService.getUserInformation(token);
+        } catch (ResourceForbiddenException rfe) {
+            return getErrorXml("Forbidden");
+        }
+
+        Document doc = getDocument();
+
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "My Results");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.setAttribute("method", "post");
+        pageElement.appendChild(formElement);
+
+        ///
+        Element pageStatic = doc.createElement("static");
+        pageStatic.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageStatic);
+
+
+        // back button
+        Element back = doc.createElement("submit");
+        back.setAttribute("name", "left");
+        back.setAttribute("title", "Back");
+        formElement.appendChild(back);
+
+        if (page == 0) {
+            // more button
+            Element more = doc.createElement("submit");
+            more.setAttribute("name", "right");
+            more.setAttribute("title", "More");
+            formElement.appendChild(more);
+        }
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "post");
+        formElement.appendChild(formMethod);
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
+
+        // page
+        Element pageNumberElement = doc.createElement("hiddenField");
+        pageNumberElement.setAttribute("name", "page");
+        pageNumberElement.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageNumberElement);
+
+        return outputXml(doc);
+    }
+
+    @Override
+    public String getDrugsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+        UserToken userToken;
+
+        try {
+            userToken = authenticationService.getUserInformation(token);
+        } catch (ResourceForbiddenException rfe) {
+            return getErrorXml("Forbidden");
+        }
+
+        Document doc = getDocument();
+
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "My Medicines");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.setAttribute("method", "post");
+        pageElement.appendChild(formElement);
+
+        ///
+        Element pageStatic = doc.createElement("static");
+        pageStatic.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageStatic);
+
+
+        // back button
+        Element back = doc.createElement("submit");
+        back.setAttribute("name", "left");
+        back.setAttribute("title", "Back");
+        formElement.appendChild(back);
+
+        if (page == 0) {
+            // more button
+            Element more = doc.createElement("submit");
+            more.setAttribute("name", "right");
+            more.setAttribute("title", "More");
+            formElement.appendChild(more);
+        }
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "post");
+        formElement.appendChild(formMethod);
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
+
+        // page
+        Element pageNumberElement = doc.createElement("hiddenField");
+        pageNumberElement.setAttribute("name", "page");
+        pageNumberElement.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageNumberElement);
+
+        return outputXml(doc);
+    }
+
+    @Override
+    public String getLettersXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+        UserToken userToken;
+
+        try {
+            userToken = authenticationService.getUserInformation(token);
+        } catch (ResourceForbiddenException rfe) {
+            return getErrorXml("Forbidden");
+        }
+
+        Document doc = getDocument();
+
+        // add page to screen
+        Element pageElement = doc.createElement("page");
+        pageElement.setAttribute("title", "My Letters");
+        pageElement.setAttribute("transform", "default");
+        doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
+
+        // add form to screen
+        Element formElement = doc.createElement("form");
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.setAttribute("method", "post");
+        pageElement.appendChild(formElement);
+
+        ///
+        Element pageStatic = doc.createElement("static");
+        pageStatic.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageStatic);
+
+
+        // back button
+        Element back = doc.createElement("submit");
+        back.setAttribute("name", "left");
+        back.setAttribute("title", "Back");
+        formElement.appendChild(back);
+
+        if (page == 0) {
+            // more button
+            Element more = doc.createElement("submit");
+            more.setAttribute("name", "right");
+            more.setAttribute("title", "More");
+            formElement.appendChild(more);
+        }
+
+        // form action
+        Element formAction = doc.createElement("hiddenField");
+        formAction.setAttribute("name", "formAction");
+        formAction.setAttribute("value", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_RESULTS);
+        formElement.appendChild(formAction);
+
+        // form method
+        Element formMethod = doc.createElement("hiddenField");
+        formMethod.setAttribute("name", "formMethod");
+        formMethod.setAttribute("value", "post");
+        formElement.appendChild(formMethod);
+
+        // token
+        Element tokenElement = doc.createElement("hiddenField");
+        tokenElement.setAttribute("name", "token");
+        tokenElement.setAttribute("value", token);
+        formElement.appendChild(tokenElement);
+
+        // page
+        Element pageNumberElement = doc.createElement("hiddenField");
+        pageNumberElement.setAttribute("name", "page");
+        pageNumberElement.setAttribute("value", String.valueOf(page));
+        formElement.appendChild(pageNumberElement);
 
         return outputXml(doc);
     }

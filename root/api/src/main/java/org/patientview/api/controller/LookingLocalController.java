@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.AuthenticationService;
-import org.patientview.api.service.LookingLocalRoutes;
+import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import java.io.IOException;
 
 /**
  * RESTful interface for Looking Local, XML based front end for TV.
@@ -49,11 +46,19 @@ public class LookingLocalController extends BaseController {
     /**
      * Deal with URI "/lookinglocal/home", shows login screen
      */
-    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_HOME, method = RequestMethod.GET)
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_HOME, method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> home() throws IOException, TransformerException, ParserConfigurationException {
+    public ResponseEntity<String> home() {
         LOGGER.info("home start");
-        return new ResponseEntity<>(lookingLocalService.getHomeXml(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(lookingLocalService.getHomeXml(), HttpStatus.OK);
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -61,97 +66,53 @@ public class LookingLocalController extends BaseController {
      * @param username User entered username
      * @param password User entered password
      */
-    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_AUTH, method = RequestMethod.POST)
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_AUTH, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> auth(
                         @RequestParam(value = "username", required = false) String username,
-                        @RequestParam(value = "password", required = false) String password)
-            throws IOException, TransformerException, ParserConfigurationException {
-        LOGGER.info("auth start");
-
+                        @RequestParam(value = "password", required = false) String password) {
         try {
-            String token = authenticationService.authenticate(username, password);
+            LOGGER.info("auth start");
+
             try {
-                return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
-            } catch (Exception e) {
-                return new ResponseEntity<>(
-                        lookingLocalService.getErrorXml("Could not login, " + e.getMessage()), HttpStatus.OK);
-            }
-        } catch (UsernameNotFoundException e) {
-            return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
-        } catch (AuthenticationServiceException e) {
-            return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
-        }
-
-        /*PatientViewPasswordEncoder encoder = new PatientViewPasswordEncoder();
-        User user = securityUserManager.get(username);
-
-        if (user != null) {
-            if (user.getPassword().equals(encoder.encode(password))) {
-
-                // Authenticate user manually
-                SecurityUser userLogin = (SecurityUser) userDetailsService.loadUserByUsername(username);
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(userLogin,
-                        userLogin.getPassword(), userLogin.getAuthorities()));
-
-                // manage extra authentication success handlers manually (usually
-                // managed by PatientViewAuthenticationSuccessHandler.onAuthenticationSuccess)
-                SecurityUser securityUser = (SecurityUser) securityContext.getAuthentication().getPrincipal();
-                List<SpecialtyUserRole> specialtyUserRoles = userManager.getSpecialtyUserRoles(user);
-
-                if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
-                    Specialty specialty = specialtyUserRoles.get(0).getSpecialty();
-                    securityUser.setSpecialty(specialty);
-                    // manually add to session
-                    HttpSession session = request.getSession(true);
-                    session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-                    LOGGER.debug("auth passed");
-                    try {
-                        LookingLocalUtils.getLoginSuccessfulXml(response);
-                    } catch (Exception e) {
-                        LOGGER.error("Could not create home screen response output stream{}" + e);
-                    }
-
-                } else {
-                    LOGGER.debug("auth failed, no specialties");
-                    try {
-                        LookingLocalUtils.getErrorXml(response, "Auth error");
-                    } catch (Exception e) {
-                        LOGGER.error("Could not create home screen response output stream{}" + e);
-                    }
-                }
-            } else {
-                LOGGER.debug("auth failed, password");
+                String token = authenticationService.authenticate(username, password);
                 try {
-                    LookingLocalUtils.getAuthErrorXml(response);
+                    return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
                 } catch (Exception e) {
-                    LOGGER.error("Could not create home screen response output stream{}" + e);
+                    return new ResponseEntity<>(
+                            lookingLocalService.getErrorXml("Could not login, " + e.getMessage()), HttpStatus.OK);
                 }
+            } catch (UsernameNotFoundException e) {
+                return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
+            } catch (AuthenticationServiceException e) {
+                return new ResponseEntity<>(lookingLocalService.getAuthErrorXml(), HttpStatus.OK);
             }
-        } else {
-            LOGGER.debug("auth failed, user null");
+        } catch (Exception e) {
             try {
-                LookingLocalUtils.getAuthErrorXml(response);
-            } catch (Exception e) {
-                LOGGER.error("Could not create home screen response output stream{}" + e);
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Could not get auth " + e.getMessage()),
+                        HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
             }
-        }*/
+        }
     }
 
     /**
     * Deal with the URIs "/lookinglocal/secure/main"
     */
-    @RequestMapping(value = LookingLocalRoutes.LOOKING_LOCAL_MAIN, method = RequestMethod.GET)
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_MAIN, method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<String> main(@RequestParam(value = "token", required = false) String token)
-            throws IOException, TransformerException, ParserConfigurationException {
+    public ResponseEntity<String> main(@RequestParam(value = "token", required = false) String token) {
         LOGGER.info("main start");
         try {
             return new ResponseEntity<>(lookingLocalService.getMainXml(token), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(
-                    lookingLocalService.getErrorXml("Could not get main, " + e.getMessage()), HttpStatus.OK);
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Could not get main " + e.getMessage()),
+                        HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -168,54 +129,213 @@ public class LookingLocalController extends BaseController {
         } catch (Exception e) {
             LOGGER.error("Could not create main screen response output stream{}" + e);
         }
-    }
+    }*/
 
 
 
-    *//**
+    /**
      * Deal with the URIs "/lookinglocal/secure/details"
-     * @param request HTTP request
-     * @param response HTTP response
      * @param selection User option selection
      * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
-     *//*
-    @RequestMapping(value = Routes.LOOKING_LOCAL_DETAILS)
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_DETAILS, method = RequestMethod.POST)
     @ResponseBody
-    public void getDetailsScreenXml(HttpServletRequest request, HttpServletResponse response,
-                                    @RequestParam(value = "selection", required = false) String selection,
-                                    @RequestParam(value = "buttonPressed", required = false) String buttonPressed) {
-        LOGGER.debug("details start");
-        page = 0;
+    public ResponseEntity<String> details(
+            @RequestParam(value = "selection", required = false) String selection,
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("details start");
 
         try {
             if (buttonPressed != null) {
                 if (buttonPressed.equals("left")) {
-                    getMainScreenXml(response);
+                    return new ResponseEntity<>(lookingLocalService.getMainXml(token), HttpStatus.OK);
                 } else if (selection != null) {
                 switch (Integer.parseInt(selection)) {
-                    case LookingLocalUtils.OPTION_1 :
-                        getMyDetailsScreenXml(request, response, "go");
-                    case LookingLocalUtils.OPTION_2 : LookingLocalUtils.getMedicalResultsXml(request, response);
-                        break;
-                    case LookingLocalUtils.OPTION_3 :
-                        getDrugsScreenXml(request, response, "go");
-                    case LookingLocalUtils.OPTION_4 :
-                        getLettersScreenXml(request, response, null, "go");
-                    default : getErrorScreenXml(response, "Incorrect option");
+                    case LookingLocalProperties.OPTION_1 :
+                        return myDetails("go", 0, token);
+                    case LookingLocalProperties.OPTION_2 :
+                        return results("go", 0, token);
+                    case LookingLocalProperties.OPTION_3 :
+                        return drugs("go", 0, token);
+                    case LookingLocalProperties.OPTION_4 :
+                        return letters("go", 0, token);
+                    default :
+                        return new ResponseEntity<>(lookingLocalService.getErrorXml("Incorrect option"), HttpStatus.OK);
                     }
                 } else {
-                    getErrorScreenXml(response, "Incorrect button [details] " + buttonPressed);
+                    return new ResponseEntity<>(
+                            lookingLocalService.getErrorXml("Incorrect button [details]"), HttpStatus.OK);
                 }
             } else {
-                getErrorScreenXml(response, "Button error");
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Button error"), HttpStatus.OK);
             }
         } catch (Exception e) {
-            getErrorScreenXml(response, e.getMessage());
-            LOGGER.error("Could not create details response output stream: " + e.toString());
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    *//**
+    /**
+     * Deal with the URIs "/lookinglocal/secure/myDetails"
+     * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
+     * @param page page of details to get
+     * @param token authorisation token
+     * @return XML for my details
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_MY_DETAILS, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> myDetails(
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("my details start");
+
+        try {
+            if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                if (buttonPressed.equals("right")) {
+                    page++;
+                } else if (buttonPressed.equals("left")) {
+                    page--;
+                }
+            }
+
+            if (page < 0) {
+                return details(null, "left", token);
+            }
+
+            return new ResponseEntity<>(lookingLocalService.getMyDetailsXml(token, page), HttpStatus.OK);
+
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Deal with the URIs "/lookinglocal/secure/results"
+     * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
+     * @param page page of details to get
+     * @param token authorisation token
+     * @return XML for result type list
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_RESULTS, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> results(
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("results start");
+
+        try {
+            if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                if (buttonPressed.equals("right")) {
+                    page++;
+                } else if (buttonPressed.equals("left")) {
+                    page--;
+                }
+            }
+
+            if (page < 0) {
+                return details(null, "left", token);
+            }
+
+            return new ResponseEntity<>(lookingLocalService.getResultsXml(token, page), HttpStatus.OK);
+
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Deal with the URIs "/lookinglocal/secure/drugs"
+     * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
+     * @param page page of details to get
+     * @param token authorisation token
+     * @return XML for drugs list
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_DRUGS, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> drugs(
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("drugs start");
+
+        try {
+            if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                if (buttonPressed.equals("right")) {
+                    page++;
+                } else if (buttonPressed.equals("left")) {
+                    page--;
+                }
+            }
+
+            if (page < 0) {
+                return details(null, "left", token);
+            }
+
+            return new ResponseEntity<>(lookingLocalService.getDrugsXml(token, page), HttpStatus.OK);
+
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Deal with the URIs "/lookinglocal/secure/letters"
+     * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
+     * @param page page of details to get
+     * @param token authorisation token
+     * @return XML for letters list
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_LETTERS, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> letters(
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("letters start");
+
+        try {
+            if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                if (buttonPressed.equals("right")) {
+                    page++;
+                } else if (buttonPressed.equals("left")) {
+                    page--;
+                }
+            }
+
+            if (page < 0) {
+                return details(null, "left", token);
+            }
+
+            return new ResponseEntity<>(lookingLocalService.getLettersXml(token, page), HttpStatus.OK);
+
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
      * Deal with the URIs "/lookinglocal/secure/myDetails"
      * @param request HTTP request
      * @param response HTTP response
@@ -237,7 +357,7 @@ public class LookingLocalController extends BaseController {
             }
 
             if (page == -1) {
-                getDetailsScreenXml(request, response, null, "left");
+                details(request, response, null, "left");
             }
 
             LookingLocalUtils.getMyDetailsXml(request, response, page);
@@ -273,7 +393,7 @@ public class LookingLocalController extends BaseController {
             }
 
             if (page == -1) {
-                getDetailsScreenXml(request, response, null, "left");
+                details(request, response, null, "left");
             } else {
                 LookingLocalUtils.getDrugsXml(request, response, page, ITEMS_PER_PAGE);
             }
@@ -290,7 +410,7 @@ public class LookingLocalController extends BaseController {
      * @param selection User option selection
      * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
      *//*
-    @RequestMapping(value = Routes.LOOKING_LOCAL_RESULTS_DISPLAY)
+    @RequestMapping(value = Routes.LOOKING_LOCAL_RESULTS)
     @ResponseBody
     public void getMedicalResultsXml(HttpServletRequest request, HttpServletResponse response,
                                      @RequestParam(value = "selection", required = false) String selection,
@@ -299,7 +419,7 @@ public class LookingLocalController extends BaseController {
         try {
             if (buttonPressed != null) {
                 if (buttonPressed.equals("left")) {
-                    getDetailsScreenXml(request, response, null, "left");
+                    details(request, response, null, "left");
                 } else if (selection != null) {
                     page = 0;
                     resultSelection = selection;
@@ -382,7 +502,7 @@ public class LookingLocalController extends BaseController {
                 }
 
                 if (page == -1) {
-                    getDetailsScreenXml(request, response, null, "left");
+                    details(request, response, null, "left");
                 } else {
                     LookingLocalUtils.getLettersXml(request, response, page, ITEMS_PER_PAGE);
                 }
