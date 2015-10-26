@@ -22,7 +22,8 @@ public interface LookingLocalService {
 
     String getMainXml(String token) throws TransformerException, IOException, ParserConfigurationException;
 
-    String getMyDetailsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException;
+    String getMyDetailsXml(String token, int page)
+            throws TransformerException, IOException, ParserConfigurationException;
 
     String getResultsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException;
 

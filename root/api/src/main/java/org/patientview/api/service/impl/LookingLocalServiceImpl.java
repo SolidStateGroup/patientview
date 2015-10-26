@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.patientview.api.model.Patient;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
@@ -9,13 +10,12 @@ import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirPractitioner;
-import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
-import org.patientview.persistence.model.enums.TransplantStatus;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,7 +70,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -134,7 +135,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_HOME);
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_HOME);
         formElement.setAttribute("method", "get");
         pageElement.appendChild(formElement);
 
@@ -175,7 +177,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         // add form to screen
         Element formElement = doc.createElement("form");
-        formElement.setAttribute("action", properties.getProperty("api.url") + LookingLocalProperties.LOOKING_LOCAL_AUTH);
+        formElement.setAttribute("action", properties.getProperty("api.url")
+                + LookingLocalProperties.LOOKING_LOCAL_AUTH);
         formElement.setAttribute("method", "post");
         formElement.setAttribute("name", "blank");
         pageElement.appendChild(formElement);
@@ -360,7 +363,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     }
 
     @Override
-    public String getMyDetailsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+    public String getMyDetailsXml(String token, int page)
+            throws TransformerException, IOException, ParserConfigurationException {
 
         UserToken userToken;
         List<Patient> patientDetails;
@@ -373,7 +377,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         try {
             patientDetails = patientService.getBasic(userToken.getUser().getId());
-        } catch (FhirResourceException | ResourceNotFoundException e ) {
+        } catch (FhirResourceException | ResourceNotFoundException e) {
             return getErrorXml("Error getting details");
         }
 
@@ -406,13 +410,15 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
             Element name = doc.createElement("static");
             name.setAttribute("value", "Name: "
-                    + (patient.getFhirPatient().getForename() != null ? patient.getFhirPatient().getForename() : "unavailable")
-                    + (patient.getFhirPatient().getSurname() != null ? " " + patient.getFhirPatient().getSurname() : ""));
+                    + (patient.getFhirPatient().getForename() != null
+                        ? patient.getFhirPatient().getForename() : "unavailable")
+                    + (patient.getFhirPatient().getSurname() != null
+                        ? " " + patient.getFhirPatient().getSurname() : ""));
             formElement.appendChild(name);
 
             Element dob = doc.createElement("static");
             dob.setAttribute("value", "Date of Birth: "
-                    + (patient.getFhirPatient().getDateOfBirthNoTime() != null
+                    + (StringUtils.isNotEmpty(patient.getFhirPatient().getDateOfBirthNoTime())
                     ? patient.getFhirPatient().getDateOfBirthNoTime() : "unavailable"));
             formElement.appendChild(dob);
 
@@ -431,13 +437,29 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
                         + (gp.getAddress4() != null ? " " + gp.getAddress4()  + "," : "")
                         + (gp.getPostcode() != null ? " " + gp.getPostcode() : ""));
                 formElement.appendChild(gpAddress);
+
+                String gpTelephoneNo = null;
+
+                if (!gp.getContacts().isEmpty()) {
+                    for (FhirContact contact : gp.getContacts()) {
+                        if (StringUtils.isNotEmpty(contact.getValue())) {
+                            gpTelephoneNo = contact.getValue();
+                        }
+                    }
+                }
+
+                if (gpTelephoneNo != null) {
+                    Element gpTelephone = doc.createElement("static");
+                    gpTelephone.setAttribute("value", "GP Telephone: " + gpTelephoneNo);
+                    formElement.appendChild(gpTelephone);
+                }
             }
 
             if (!patient.getFhirPatient().getIdentifiers().isEmpty()) {
                 String identifier = null;
                 String hospitalNumber = null;
 
-                for(FhirIdentifier i : patient.getFhirPatient().getIdentifiers()) {
+                for (FhirIdentifier i : patient.getFhirPatient().getIdentifiers()) {
                     if (i.getLabel().equals(IdentifierTypes.CHI_NUMBER.toString())
                             || i.getLabel().equals(IdentifierTypes.HSC_NUMBER.toString())
                             || i.getLabel().equals(IdentifierTypes.NHS_NUMBER.toString())
@@ -472,7 +494,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
                 String transplantStatusKidney = null;
                 String treatment = null;
 
-                for(FhirEncounter e : patient.getFhirEncounters()) {
+                for (FhirEncounter e : patient.getFhirEncounters()) {
                     if (e.getEncounterType().equals(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString())) {
                         transplantStatusKidney = e.getStatus();
                     }
@@ -493,94 +515,12 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
                     formElement.appendChild(gpName);
                 }
             }
-        }
-
-        // if patient details exist, get first set of patient details and display on screen
-        /*if (!CollectionUtils.isEmpty(patientDetails)) {
-            Patient patient = getPatientDetails(patientDetails);
-
-            if (page == 0) {
-                // first page
-                Element nhsNo = doc.createElement("static");
-                nhsNo.setAttribute("value", "NHS Number: "
-                        + (patient.getNhsno() != null ? patient.getNhsno() : "unavailable"));
-                formElement.appendChild(nhsNo);
-
-                Element hospitalNo = doc.createElement("static");
-                hospitalNo.setAttribute("value", "Hospital Number: "
-                        + (patient.getHospitalnumber() != null ? patient.getHospitalnumber() : "unavailable"));
-                formElement.appendChild(hospitalNo);
-
-                Element address = doc.createElement("static");
-                address.setAttribute("value", "Address: "
-                        + (patient.getAddress1() != null ? patient.getAddress1()  + ", " : "unavailable")
-                        + (patient.getAddress2() != null ? patient.getAddress2()  + ", " : " ")
-                        + (patient.getAddress3() != null ? patient.getAddress3()  + ", " : " ")
-                        + (patient.getAddress4() != null ? patient.getAddress4() : " "));
-                formElement.appendChild(address);
-
-                Element telephone1 = doc.createElement("static");
-                telephone1.setAttribute("value", "Telephone 1: "
-                        + (patient.getTelephone1() != null ? patient.getTelephone1() : "unavailable"));
-                formElement.appendChild(telephone1);
-
-                Element telephone2 = doc.createElement("static");
-                telephone2.setAttribute("value", "Telephone 2: "
-                        + (patient.getTelephone2() != null ? patient.getTelephone2() : "unavailable"));
-                formElement.appendChild(telephone2);
-
-                Element mobile = doc.createElement("static");
-                mobile.setAttribute("value", "Mobile: "
-                        + (patient.getMobile() != null ? patient.getMobile() : "unavailable"));
-                formElement.appendChild(mobile);
-
-                Element diagnosis = doc.createElement("static");
-                diagnosis.setAttribute("value", "Diagnosis: "
-                        + (patient.getDiagnosis() != null
-                        ? getDiagnosisDescription(patient.getDiagnosis()) : "unavailable"));
-                formElement.appendChild(diagnosis);
-
-            } else {
-                // second page
-                Element gpName = doc.createElement("static");
-                gpName.setAttribute("value", "GP Name: "
-                        + (patient.getGpname() != null ? patient.getGpname() : "unavailable"));
-                formElement.appendChild(gpName);
-
-                Element gpTelephone = doc.createElement("static");
-                gpTelephone.setAttribute("value", "GP Telephone: "
-                        + (patient.getGptelephone() != null ? patient.getGptelephone() : "unavailable"));
-                formElement.appendChild(gpTelephone);
-
-                Element gpAddress = doc.createElement("static");
-                gpAddress.setAttribute("value", "GP Address: "
-                        + (patient.getGpaddress1() != null ? patient.getGpaddress1()  + ", " : "unavailable")
-                        + (patient.getGpaddress2() != null ? patient.getGpaddress2()  + ", " : " ")
-                        + (patient.getGpaddress3() != null ? patient.getGpaddress3() : " "));
-                formElement.appendChild(gpAddress);
-
-                Element treatment = doc.createElement("static");
-                treatment.setAttribute("value", "Treatment: "
-                        + (patient.getTreatment() != null
-                        ? getTreatmentDescription(patient.getTreatment()) : "unavailable"));
-                formElement.appendChild(treatment);
-
-                Element transplantStatus = doc.createElement("static");
-                transplantStatus.setAttribute("value", "Transplant status: "
-                        + (patient.getTransplantstatus() != null ? patient.getTransplantstatus() : "unavailable"));
-                formElement.appendChild(transplantStatus);
-
-                Element otherConditions = doc.createElement("static");
-                otherConditions.setAttribute("value", "Other conditions: "
-                        + (patient.getOtherConditions() != null ? patient.getOtherConditions() : "unavailable"));
-                formElement.appendChild(otherConditions);
-            }
         } else {
             // no patient details found for this user, put error message
             Element errorMessage = doc.createElement("static");
-            errorMessage.setAttribute("value", "The 'My Details' page is for patient information only.");
+            errorMessage.setAttribute("value", "There are no patient details available.");
             formElement.appendChild(errorMessage);
-        }*/
+        }
 
         // back button
         Element back = doc.createElement("submit");
@@ -588,7 +528,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         back.setAttribute("title", "Back");
         formElement.appendChild(back);
 
-        if (page == 0 && patientDetails.size() > 1) {
+        if (patientDetails.size() > 1 && page < patientDetails.size() - 1) {
             // more button
             Element more = doc.createElement("submit");
             more.setAttribute("name", "right");
@@ -625,7 +565,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     }
 
     @Override
-    public String getResultsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+    public String getResultsXml(String token, int page)
+            throws TransformerException, IOException, ParserConfigurationException {
         UserToken userToken;
 
         try {
@@ -698,7 +639,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     }
 
     @Override
-    public String getDrugsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+    public String getDrugsXml(String token, int page)
+            throws TransformerException, IOException, ParserConfigurationException {
         UserToken userToken;
 
         try {
@@ -771,7 +713,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     }
 
     @Override
-    public String getLettersXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException {
+    public String getLettersXml(String token, int page)
+            throws TransformerException, IOException, ParserConfigurationException {
         UserToken userToken;
 
         try {
