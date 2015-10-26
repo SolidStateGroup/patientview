@@ -364,21 +364,44 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
-
         List<ObservationHeading> observationHeadings = findAll();
+        List<ObservationHeading> availableObservationHeadings = new ArrayList<>();
 
-        Set<ObservationHeading> availableObservationHeadings = new HashSet<>();
+        // add based on default panel (if not 0)
+        for (ObservationHeading observationHeading : observationHeadings) {
+            if (observationHeading.getDefaultPanel() != null
+                    && !observationHeading.getDefaultPanel().equals(0L)) {
+                availableObservationHeadings.add(observationHeading);
+            }
+        }
 
+        // add if specialty specific exists, remove if panel 0
         for (ObservationHeading observationHeading : observationHeadings) {
             for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-                if (userGroups.contains(observationHeadingGroup.getGroup())) {
-                    observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
-                    availableObservationHeadings.add(observationHeading);
+                for (Group userGroup : userGroups) {
+                    if (userGroup.getId().equals(observationHeadingGroup.getGroup().getId())) {
+                        if (observationHeadingGroup.getPanel() != null
+                                && !observationHeadingGroup.getPanel().equals(0L)) {
+                            // add if panel != 0
+                            availableObservationHeadings.add(observationHeading);
+                        } else if (observationHeadingGroup.getPanel() != null
+                                && observationHeadingGroup.getPanel().equals(0L)) {
+                            // remove if panel == 0
+                            availableObservationHeadings.remove(observationHeading);
+                        }
+                    }
                 }
             }
         }
 
-        return new ArrayList<>(availableObservationHeadings);
+        // convert list to set
+        Set<ObservationHeading> out = new HashSet<>();
+        for (ObservationHeading observationHeading : availableObservationHeadings) {
+            observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+            out.add(observationHeading);
+        }
+
+        return new ArrayList<>(out);
     }
 
     public void delete(final Long observationHeadingId) {
