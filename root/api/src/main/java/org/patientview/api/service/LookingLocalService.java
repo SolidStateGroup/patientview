@@ -25,9 +25,15 @@ public interface LookingLocalService {
     String getMyDetailsXml(String token, int page)
             throws TransformerException, IOException, ParserConfigurationException;
 
+    String getResultXml(String token, int page, String selection)
+    throws TransformerException, IOException, ParserConfigurationException;
+
     String getResultsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException;
 
     String getDrugsXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException;
+
+    String getLetterXml(String token, int page, String selection)
+        throws TransformerException, IOException, ParserConfigurationException;
 
     String getLettersXml(String token, int page) throws TransformerException, IOException, ParserConfigurationException;
 }

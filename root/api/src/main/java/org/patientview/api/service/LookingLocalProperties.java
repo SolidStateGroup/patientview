@@ -14,7 +14,7 @@ public final class LookingLocalProperties {
     public static final String LOOKING_LOCAL_DRUGS = "/lookinglocal/secure/drugs";
     public static final String LOOKING_LOCAL_LETTERS = "/lookinglocal/secure/letters";
     public static final String LOOKING_LOCAL_RESULTS = "/lookinglocal/secure/results";
-    public static final String LOOKING_LOCAL_RESULT_DISPLAY = "/lookinglocal/secure/resultDisplay";
+    public static final String LOOKING_LOCAL_RESULT = "/lookinglocal/secure/result";
     public static final String LOOKING_LOCAL_LETTER_DISPLAY = "/lookinglocal/secure/letterDisplay";
 
     // properties

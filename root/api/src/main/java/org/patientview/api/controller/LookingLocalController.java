@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalProperties;
@@ -155,11 +156,11 @@ public class LookingLocalController extends BaseController {
                     case LookingLocalProperties.OPTION_1 :
                         return myDetails("go", 0, token);
                     case LookingLocalProperties.OPTION_2 :
-                        return results("go", 0, token);
+                        return results("go", 0, null, token);
                     case LookingLocalProperties.OPTION_3 :
                         return drugs("go", 0, token);
                     case LookingLocalProperties.OPTION_4 :
-                        return letters("go", 0, token);
+                        return letters("go", 0, null, token);
                     default :
                         return new ResponseEntity<>(lookingLocalService.getErrorXml("Incorrect option"), HttpStatus.OK);
                     }
@@ -230,8 +231,64 @@ public class LookingLocalController extends BaseController {
     public ResponseEntity<String> results(
             @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
             @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
         LOGGER.info("results start");
+
+        try {
+            if (StringUtils.isNotEmpty(buttonPressed)) {
+                // left or right button pressed
+                if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                    if (buttonPressed.equals("right")) {
+                        page++;
+                    } else if (buttonPressed.equals("left")) {
+                        page--;
+                    }
+                }
+
+                if (page < 0) {
+                    return details(null, "left", token);
+                }
+
+                return new ResponseEntity<>(lookingLocalService.getResultsXml(token, page), HttpStatus.OK);
+            } else if (selection != null) {
+                // selection of result type made
+                return result("go", 0, selection, token);
+            } else {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Button error"), HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Deal with the URIs "/lookinglocal/secure/result"
+     * @param buttonPressed button according to Looking Local, used for "Back", "More" etc buttons
+     * @param page page of details to get
+     * @param token authorisation token
+     * @return XML for results list for one result type
+     */
+    @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_RESULT, method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> result(
+            @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
+            @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "selection", required = false) String selection,
+            @RequestParam(value = "token", required = false) String token) {
+        LOGGER.info("result start");
+
+        if (selection == null) {
+            try {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Result type not chosen"), HttpStatus.OK);
+            } catch (Exception e2) {
+                throw new RuntimeException(e2);
+            }
+        }
 
         try {
             if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
@@ -243,10 +300,10 @@ public class LookingLocalController extends BaseController {
             }
 
             if (page < 0) {
-                return details(null, "left", token);
+                return results("go", 0, null, token);
             }
 
-            return new ResponseEntity<>(lookingLocalService.getResultsXml(token, page), HttpStatus.OK);
+            return new ResponseEntity<>(lookingLocalService.getResultXml(token, page, selection), HttpStatus.OK);
 
         } catch (Exception e) {
             try {
@@ -308,23 +365,32 @@ public class LookingLocalController extends BaseController {
     public ResponseEntity<String> letters(
             @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
             @RequestParam(value = "page", required = false) int page,
+            @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
         LOGGER.info("letters start");
 
         try {
-            if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
-                if (buttonPressed.equals("right")) {
-                    page++;
-                } else if (buttonPressed.equals("left")) {
-                    page--;
+            if (buttonPressed != null) {
+                // left or right button pressed
+                if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
+                    if (buttonPressed.equals("right")) {
+                        page++;
+                    } else if (buttonPressed.equals("left")) {
+                        page--;
+                    }
                 }
-            }
 
-            if (page < 0) {
-                return details(null, "left", token);
-            }
+                if (page < 0) {
+                    return details(null, "left", token);
+                }
 
-            return new ResponseEntity<>(lookingLocalService.getLettersXml(token, page), HttpStatus.OK);
+                return new ResponseEntity<>(lookingLocalService.getLettersXml(token, page), HttpStatus.OK);
+            } else if (selection != null) {
+                // selection of letter made
+                return new ResponseEntity<>(lookingLocalService.getLetterXml(token, page, selection), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(lookingLocalService.getErrorXml("Button error"), HttpStatus.OK);
+            }
 
         } catch (Exception e) {
             try {
