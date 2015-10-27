@@ -18,6 +18,7 @@ import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirIdentifier;
@@ -192,7 +193,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
                 Element pageStatic = doc.createElement("static");
                 pageStatic.setAttribute("value", fhirMedicationStatement.getName()
                         + " (" + fhirMedicationStatement.getDose() + ") "
-                        + fhirMedicationStatement.getStartDate());
+                        + CommonUtils.dateToSimpleString(fhirMedicationStatement.getStartDate()));
                 formElement.appendChild(pageStatic);
             }
 
@@ -731,7 +732,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
             for (FhirObservation fhirObservation : observationsPage) {
                 Element pageStatic = doc.createElement("static");
                 pageStatic.setAttribute("value", fhirObservation.getValue() + "" + units + " ("
-                        + fhirObservation.getApplies() + ")");
+                        + CommonUtils.dateToSimpleString(fhirObservation.getApplies()) + ")");
                 formElement.appendChild(pageStatic);
             }
 
@@ -939,7 +940,8 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
             // add page to screen
             Element pageElement = doc.createElement("page");
-            pageElement.setAttribute("title", found.getType() + " (" + found.getDate().toString() + ") ");
+            pageElement.setAttribute("title", found.getType() + " ("
+                    + CommonUtils.dateToSimpleString(found.getDate()) + ") ");
             pageElement.setAttribute("transform", "default");
             doc.getElementsByTagName("screen").item(0).appendChild(pageElement);
 
@@ -1148,7 +1150,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
             for (FhirDocumentReference fhirDocumentReference : fhirDocumentReferencesPage) {
                 Element fieldOption = doc.createElement("fieldOption");
                 fieldOption.setAttribute("name", fhirDocumentReference.getType()
-                        + " (" + fhirDocumentReference.getDate() + ")");
+                        + " (" + CommonUtils.dateToSimpleString(fhirDocumentReference.getDate()) + ")");
                 fieldOption.setAttribute("value",
                         fhirDocumentReference.getDate().toString() + fhirDocumentReference.getType());
                 multisubmit.appendChild(fieldOption);
