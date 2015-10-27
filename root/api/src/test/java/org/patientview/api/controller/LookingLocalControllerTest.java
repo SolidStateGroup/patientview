@@ -107,7 +107,7 @@ public class LookingLocalControllerTest {
 
     @Test
     public void testMain() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(LookingLocalProperties.LOOKING_LOCAL_MAIN + "?token=" + token))
+        mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_MAIN + "?token=" + token))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(lookingLocalService, Mockito.times(1)).getMainXml(eq(token));

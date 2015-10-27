@@ -4,31 +4,30 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.config.TestCommonConfig;
 import org.patientview.api.service.impl.LookingLocalServiceImpl;
 import org.patientview.test.util.TestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 20/10/2015
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestCommonConfig.class, LookingLocalServiceImpl.class})
 public class LookingLocalServiceTest {
 
     private static final String token = "1234567890";
 
-    @Autowired
+    @InjectMocks
     private LookingLocalServiceImpl lookingLocalService;
+
+    @Mock
+    private Properties properties;
 
     @Before
     public void setup() {
@@ -79,7 +78,7 @@ public class LookingLocalServiceTest {
         String out = lookingLocalService.getMainXml(token);
 
         Assert.assertNotNull("Should return Looking Local main XML", out);
-        Assert.assertTrue("Should contain links with token", out.contains("?token=" + token));
+        Assert.assertTrue("Should contain token", out.contains(token));
     }
 }
 
