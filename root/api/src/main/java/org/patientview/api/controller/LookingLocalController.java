@@ -5,8 +5,6 @@ import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -35,8 +33,6 @@ public class LookingLocalController extends BaseController {
     @Inject
     private LookingLocalService lookingLocalService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LookingLocalController.class);
-
     /**
      * Deal with the URIs "/lookinglocal/auth", check POSTed credentials and return login successful screen
      * @param username User entered username
@@ -48,8 +44,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "username", required = false) String username,
             @RequestParam(value = "password", required = false) String password) {
         try {
-            LOGGER.info("auth start");
-
             try {
                 String token = authenticationService.authenticate(username, password);
                 try {
@@ -84,8 +78,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("details start");
-
         try {
             if (buttonPressed != null) {
                 if (buttonPressed.equals("left")) {
@@ -132,8 +124,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("drugs start");
-
         try {
             if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
                 if (buttonPressed.equals("right")) {
@@ -164,7 +154,6 @@ public class LookingLocalController extends BaseController {
     @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_HOME, method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> home() {
-        LOGGER.info("home start");
         try {
             return new ResponseEntity<>(lookingLocalService.getHomeXml(), HttpStatus.OK);
         } catch (Exception e) {
@@ -190,8 +179,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("letter start");
-
         if (selection == null) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml("letter not chosen"), HttpStatus.OK);
@@ -242,8 +229,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("letters start");
-
         try {
             if (StringUtils.isNotEmpty(buttonPressed)) {
                 // left or right button pressed
@@ -282,7 +267,6 @@ public class LookingLocalController extends BaseController {
     @RequestMapping(value = LookingLocalProperties.LOOKING_LOCAL_MAIN, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> main(@RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("main start");
         try {
             return new ResponseEntity<>(lookingLocalService.getMainXml(token), HttpStatus.OK);
         } catch (Exception e) {
@@ -308,8 +292,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "buttonPressed", required = false) String buttonPressed,
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("my details start");
-
         try {
             if (buttonPressed.equals("left") || buttonPressed.equals("right")) {
                 if (buttonPressed.equals("right")) {
@@ -348,8 +330,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("result start");
-
         if (selection == null) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml("Result type not chosen"), HttpStatus.OK);
@@ -396,8 +376,6 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "page", required = false) int page,
             @RequestParam(value = "selection", required = false) String selection,
             @RequestParam(value = "token", required = false) String token) {
-        LOGGER.info("results start");
-
         try {
             if (StringUtils.isNotEmpty(buttonPressed)) {
                 // left or right button pressed
