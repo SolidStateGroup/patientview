@@ -206,7 +206,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
             }
         } else {
             Element errorMessage = doc.createElement("static");
-            errorMessage.setAttribute("value", "There are currently no results available.");
+            errorMessage.setAttribute("value", "There is currently no medication data available.");
             formElement.appendChild(errorMessage);
         }
 
@@ -1165,7 +1165,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
             }
         } else {
             Element errorMessage = doc.createElement("static");
-            errorMessage.setAttribute("value", "There are currently no results available.");
+            errorMessage.setAttribute("value", "There are currently no letters available.");
             formElement.appendChild(errorMessage);
         }
 
