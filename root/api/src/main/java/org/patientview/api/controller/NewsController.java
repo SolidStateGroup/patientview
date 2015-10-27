@@ -142,9 +142,9 @@ public class NewsController extends BaseController<NewsController> {
 
         int newsTypeId;
 
-        if(newsTypeString != null) {
+        if (newsTypeString != null) {
             newsTypeId = Integer.parseInt(newsTypeString);
-        }else{
+        } else {
             newsTypeId = Integer.parseInt(
                     staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "ALL").getId().toString());
         }

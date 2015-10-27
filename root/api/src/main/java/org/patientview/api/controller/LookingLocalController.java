@@ -93,7 +93,8 @@ public class LookingLocalController extends BaseController {
                         case LookingLocalProperties.OPTION_4 :
                             return letters("go", 0, null, token);
                         default :
-                            return new ResponseEntity<>(lookingLocalService.getErrorXml("Incorrect option"), HttpStatus.OK);
+                            return new ResponseEntity<>(lookingLocalService.getErrorXml("Incorrect option"),
+                                    HttpStatus.OK);
                     }
                 } else {
                     return new ResponseEntity<>(
@@ -138,7 +139,6 @@ public class LookingLocalController extends BaseController {
             }
 
             return new ResponseEntity<>(lookingLocalService.getDrugsXml(token, page), HttpStatus.OK);
-
         } catch (Exception e) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
@@ -205,7 +205,6 @@ public class LookingLocalController extends BaseController {
             }
 
             return new ResponseEntity<>(lookingLocalService.getLetterXml(token, page, selection), HttpStatus.OK);
-
         } catch (Exception e) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
@@ -306,7 +305,6 @@ public class LookingLocalController extends BaseController {
             }
 
             return new ResponseEntity<>(lookingLocalService.getMyDetailsXml(token, page), HttpStatus.OK);
-
         } catch (Exception e) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
@@ -352,7 +350,6 @@ public class LookingLocalController extends BaseController {
             }
 
             return new ResponseEntity<>(lookingLocalService.getResultXml(token, page, selection), HttpStatus.OK);
-
         } catch (Exception e) {
             try {
                 return new ResponseEntity<>(lookingLocalService.getErrorXml(e.getMessage()), HttpStatus.OK);
