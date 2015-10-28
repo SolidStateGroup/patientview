@@ -28,6 +28,18 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
     };
 
+    $scope.compareResults = function(codeToCompare) {
+        // first code in list is most important, don't remove
+        var codes = [];
+        codes.push($scope.codes[0]);
+        codes.push(codeToCompare);
+        $scope.codes = codes;
+
+        $scope.loading = true;
+        $scope.chartLoading = true;
+        $scope.getObservations();
+    };
+
     $scope.getAvailableObservationHeadings = function(code, userId) {
         ObservationHeadingService.getAvailableObservationHeadings(userId).then(function(observationHeadings) {
             $scope.observationHeadings = observationHeadings;
@@ -98,14 +110,14 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 };
 
                 if (index == 0) {
-                    yAxisData.style = {
-                        color: '#ff0000'
-                    };
+                    //yAxisData.style = {
+                    //    color: '#ff0000'
+                    //};
                     yAxisData.opposite = true;
                 } else {
-                    yAxisData.style = {
-                        color: '#00ff000'
-                    };
+                    //yAxisData.style = {
+                    //    color: '#00ff000'
+                    //};
                     yAxisData.opposite = false;
                 }
 
