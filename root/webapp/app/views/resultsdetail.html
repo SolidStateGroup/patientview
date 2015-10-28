@@ -20,7 +20,7 @@
 
 <div class="row result-detail-panel">
     <div class="col-md-7 result-container clearfix">
-        <div class="result-item-container" data-ng-show="selectedObservation && !loading && observations">
+        <div class="result-item-container" data-ng-show="selectedObservation && !loading && observations[selectedCode]">
             <div class="content-panel result-item">
                 <div class="result-header">
                     <a href="" data-ng-click="openObservationHeadingInformation(observationHeading)" class="pull-right">
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="info-header" data-ng-show="!loading && observations && selectedCode !== 'resultcomment'">
+        <div class="info-header" data-ng-show="!loading && observations[selectedCode] && selectedCode !== 'resultcomment'">
             <div class="btn-group btn-group-switcher pull-right hidden">
                 <a href="" data-ng-click="setRangeInDays(30)" class="btn blue" data-ng-class="{active: range==30}">30 Days</a>
                 <a href="" data-ng-click="setRangeInDays(90)" class="btn blue" data-ng-class="{active: range==90}">3 Months</a>
@@ -68,7 +68,7 @@
             </div>
         </div>
     </div>
-    <aside class="col-md-5 historical-data" data-ng-show="!loading && observations">
+    <aside class="col-md-5 historical-data" data-ng-show="!loading && observations[selectedCode]">
         <div class="info-header blue">
             <p>Click <i class="icon-graph-tiny"></i> to select result</p>
         </div>

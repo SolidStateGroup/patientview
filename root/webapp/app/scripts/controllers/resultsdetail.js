@@ -12,16 +12,19 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $location.path('/results');
         }
 
+        $scope.codes = [];
+        $scope.observations = [];
+
         // handle single result type from query parameter
         var code = $routeParams.code;
 
         if (code instanceof Array) {
-            code = $scope.code[0];
+            $scope.codes = $scope.code;
+        } else {
+            $scope.codes.push(code);
         }
 
-        $scope.selectedCode = code;
-        $scope.getObservations(code);
-        $scope.getAvailableObservationHeadings(code, $scope.loggedInUser.id);
+        $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
     };
 
     $scope.getAvailableObservationHeadings = function(code, userId) {
@@ -29,6 +32,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $scope.observationHeadings = observationHeadings;
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
             $scope.selectedCode = code;
+
+            $scope.getObservations(code);
         }, function() {
             alert('Error retrieving result types');
         });
@@ -48,9 +53,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
 
-        for (var i = $scope.observations.length -1; i >= 0; i--) {
-
-            var observation = $scope.observations[i];
+        for (var i = $scope.observations[$scope.selectedCode].length -1; i >= 0; i--) {
+            var observation = $scope.observations[$scope.selectedCode][i];
 
             var row = [];
             row[0] = observation.applies;
@@ -167,10 +171,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.getObservations = function(code) {
         $scope.loading = true;
         $scope.chartLoading = true;
+
         ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
             if (observations.length) {
-                $scope.observations = _.sortBy(observations, 'applies').reverse();
-                $scope.selectedObservation = $scope.observations[0];
+                $scope.observations[code] = _.sortBy(observations, 'applies').reverse();
+                $scope.selectedObservation = $scope.observations[code][0];
 
                 // dont show or deal with chart if result comment type
                 //if ($scope.selectedCode !== 'resultcomment') {
@@ -254,8 +259,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.tableObservations = [];
         $scope.tableObservationsKey = [];
 
-        for (var i=0;i<$scope.observations.length;i++) {
-            var observation = $scope.observations[i];
+        for (var i=0;i<$scope.observations[$scope.selectedCode].length;i++) {
+            var observation = $scope.observations[$scope.selectedCode][i];
             if (start <= observation.applies && end >= observation.applies) {
                 observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
                 observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');
