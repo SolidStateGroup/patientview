@@ -10,6 +10,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -185,9 +186,9 @@ public class NewsController extends BaseController<NewsController> {
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
 
         if (pageConverted != null && sizeConverted != null) {
-            pageable = new PageRequest(pageConverted, sizeConverted);
+            pageable = new PageRequest(pageConverted, sizeConverted, Sort.Direction.DESC, "lastUpdate");
         } else {
-            pageable = new PageRequest(0, Integer.MAX_VALUE);
+            pageable = new PageRequest(0, Integer.MAX_VALUE, Sort.Direction.DESC, "lastUpdate");
         }
 
         return new ResponseEntity<>(newsService.getPublicNews(pageable), HttpStatus.OK);

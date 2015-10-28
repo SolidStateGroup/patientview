@@ -49,7 +49,10 @@
                         </span>
                     </h2>
                     <div class="last-message">
-                        <p class="date-stamp"><strong>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                        <p class="date-stamp">
+                            <strong data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                            <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                        </p>
                         <p class="message-content">
                             <span class="text">
                                 <p class="message-content">

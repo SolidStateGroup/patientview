@@ -573,7 +573,10 @@
                             </ul>
                             <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
 
-                            <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                            <p class="news-date">
+                                <span data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
+                                <span data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</span>
+                            </p>
 
                             <div class="message-content">
                                 <p data-ng-bind-html="parseHTMLText(news.story)"></p>
