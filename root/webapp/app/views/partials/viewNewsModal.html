@@ -4,6 +4,18 @@
 <div class="modal-body">
     <h5>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</h5>
     <p><span data-ng-bind-html="parseHTMLText(news.story)"></span></p>
+    <div>
+        <div class="pull-left" data-ng-repeat="newsLink in news.newsLinks" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+            <span class="label label-info">
+                <span data-ng-show="newsLink.group">{{newsLink.group.name}}</span>
+                <span data-ng-show="!newsLink.group.id">All Groups</span>
+                (
+                <span data-ng-show="newsLink.role">{{newsLink.role.description}}</span>
+                <span data-ng-show="!newsLink.role.id">All Roles</span>
+                }
+            </span> &nbsp;&nbsp;
+        </div>
+    </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
