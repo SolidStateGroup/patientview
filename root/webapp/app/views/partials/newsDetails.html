@@ -1,3 +1,10 @@
+<style>
+    .preview-news-link-labels .label {
+        font-size: 14px;
+        line-height: 25px;
+    }
+</style>
+
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
@@ -20,12 +27,22 @@
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
-                <h2 class="message-title">{{editNews.heading}}
-                    <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(editNews.newsLinks)" class="pull-right news-link-labels">
-                        <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
-                        <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
-                    </span>
-                </h2>
+                <div>
+                    <div class="pull-left">
+                        <h2 class="message-title">{{editNews.heading}}</h2>
+                    </div>
+                    <div class="pull-right">
+                        <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(editNews.newsLinks)" class="news-link-labels preview-news-link-labels">
+                            <span class="label label-info">
+                                <span data-ng-show="newsLink.group">{{newsLink.group.name}}</span>
+                                <span data-ng-show="!newsLink.group.id">All Groups</span>
+                                (<span data-ng-show="newsLink.role">{{newsLink.role.description}}</span><span data-ng-show="!newsLink.role.id">All Roles</span>)
+                            </span>
+                            &nbsp;
+                        </span>
+                    </div>
+                </div>
+                <br/>
                 <div class="last-message">
                     <p class="message-content" data-ng-bind-html="parseHTMLText(editNews.story)"></p>
                 </div>
