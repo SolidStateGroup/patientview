@@ -19,10 +19,12 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var code = $routeParams.code;
 
         if (code instanceof Array) {
-            $scope.codes = $scope.code;
+            $scope.codes = code;
         } else {
             $scope.codes.push(code);
         }
+
+        console.log($scope.codes);
 
         $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
     };
@@ -48,32 +50,60 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         // using highstocks
         $('.chart-content-panel').show();
 
+        var i, j;
         var data = [];
+        data[$scope.selectedCode] = [];
 
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
 
-        for (var i = $scope.observations[$scope.selectedCode].length -1; i >= 0; i--) {
-            var observation = $scope.observations[$scope.selectedCode][i];
+        var firstObservations = [];
 
-            var row = [];
-            row[0] = observation.applies;
-            row[1] = parseFloat(observation.value);
+        // create series for chart
+        var series = [];
 
-            // don't display textual results on graph
-            if (!isNaN(row[1])) {
-                data.push(row);
+        $scope.codes.forEach(function(code, index) {
+            if ($scope.observations[code] !== undefined) {
+                data[code] = [];
 
-                // get min/max values for y-axis
-                if (observation.value > maxValue) {
-                    maxValue = observation.value;
-                }
+                for (i = $scope.observations[code].length - 1; i >= 0; i--) {
+                    var observation = $scope.observations[code][i];
 
-                if (observation.value < minValue) {
-                    minValue = observation.value;
+                    if (i == $scope.observations[code].length - 1) {
+                        firstObservations[code] = observation;
+                    }
+
+                    var row = [];
+                    row[0] = observation.applies;
+                    row[1] = parseFloat(observation.value);
+
+                    // don't display textual results on graph
+                    if (!isNaN(row[1])) {
+                        data[code].push(row);
+
+                        // get min/max values for y-axis
+                        if (observation.value > maxValue) {
+                            maxValue = observation.value;
+                        }
+
+                        if (observation.value < minValue) {
+                            minValue = observation.value;
+                        }
+                    }
                 }
             }
-        }
+
+            if (data[code]) {
+                var seriesData = {};
+                seriesData.name = firstObservations[code].name;
+                seriesData.tooltip = {
+                    valueDecimals: firstObservations[code].decimalPlaces
+                };
+                seriesData.data = data[code];
+
+                series.push(seriesData);
+            }
+        });
 
         $('#chart_div').highcharts('StockChart', {
             rangeSelector : {
@@ -113,13 +143,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 enabled: true
             },
 
-            series : [{
-                name : $scope.selectedObservation.name,
-                data : data,
-                tooltip: {
-                    valueDecimals: $scope.selectedObservation.decimalPlaces
-                }
-            }],
+            series: series,
 
             chart: {
                 events: {
@@ -227,6 +251,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.changeObservationHeading = function(code) {
         $('.chart-content-panel').hide();
+        $scope.codes = [];
+        $scope.codes.push(code);
+
         $scope.observationHeading = $scope.findObservationHeadingByCode(code);
         $scope.selectedCode = $scope.observationHeading.code;
         $scope.getObservations(code);
