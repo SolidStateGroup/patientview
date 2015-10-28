@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location',
-    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter',
-function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal, $timeout, $filter) {
+    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter', '$q',
+function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService,
+          $modal, $timeout, $filter, $q) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -24,8 +25,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $scope.codes.push(code);
         }
 
-        console.log($scope.codes);
-
         $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
     };
 
@@ -35,7 +34,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
             $scope.selectedCode = code;
 
-            $scope.getObservations(code);
+            $scope.getObservations();
         }, function() {
             alert('Error retrieving result types');
         });
@@ -50,17 +49,13 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         // using highstocks
         $('.chart-content-panel').show();
 
-        var i, j;
+        var i;
         var data = [];
-        data[$scope.selectedCode] = [];
-
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
-
         var firstObservations = [];
-
-        // create series for chart
         var series = [];
+        var yAxis = [];
 
         $scope.codes.forEach(function(code, index) {
             if ($scope.observations[code] !== undefined) {
@@ -94,11 +89,34 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
 
             if (data[code]) {
+                var yAxisData = {};
+                yAxisData.title = {
+                    text: firstObservations[code].name
+                };
+                yAxisData.labels = {
+                    format: '{value}'
+                };
+
+                if (index == 0) {
+                    yAxisData.style = {
+                        color: '#ff0000'
+                    };
+                    yAxisData.opposite = true;
+                } else {
+                    yAxisData.style = {
+                        color: '#00ff000'
+                    };
+                    yAxisData.opposite = false;
+                }
+
+                yAxis.push(yAxisData);
+
                 var seriesData = {};
                 seriesData.name = firstObservations[code].name;
                 seriesData.tooltip = {
                     valueDecimals: firstObservations[code].decimalPlaces
                 };
+                seriesData.yAxis = index;
                 seriesData.data = data[code];
 
                 series.push(seriesData);
@@ -130,21 +148,16 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
                 selected: 3
             },
-
             credits : {
                 enabled: false
             },
-
             title : {
                 text: ''
             },
-
             navigator: {
                 enabled: true
             },
-
             series: series,
-
             chart: {
                 events: {
                     zoomType: 'x',
@@ -171,6 +184,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 text: 'ESEMPIO',
                 ordinal: false
             },
+            yAxis: yAxis,
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',
@@ -192,32 +206,41 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.chartLoading = false;
     };
 
-    $scope.getObservations = function(code) {
+    $scope.getObservations = function() {
         $scope.loading = true;
         $scope.chartLoading = true;
+        var promises = [];
+        var obs = [];
+        var selectedObs;
 
-        ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
-            if (observations.length) {
-                $scope.observations[code] = _.sortBy(observations, 'applies').reverse();
-                $scope.selectedObservation = $scope.observations[code][0];
+        $scope.codes.forEach(function(code, index) {
+            promises.push(ObservationService.getByCode($scope.loggedInUser.id, code).then(function (observations) {
+                if (observations.length) {
+                    obs[code] = _.sortBy(observations, 'applies').reverse();
 
-                // dont show or deal with chart if result comment type
-                //if ($scope.selectedCode !== 'resultcomment') {
-                    $scope.initialiseChart();
-                //}
-            } else {
-                delete $scope.observations;
-                delete $scope.selectedObservation;
-            }
+                    if (index == 0) {
+                        selectedObs = obs[code][0];
+                    }
+                } else {
+                    delete obs[code];
+                    //delete $scope.selectedObservation;
+                }
+
+            }, function () {
+                alert('Error retrieving results');
+                $scope.loading = false;
+            }));
+        });
+
+        $q.all(promises).then(function() {
+            $scope.observations = obs;
+            $scope.selectedObservation = selectedObs;
             $scope.loading = false;
-        }, function() {
-            alert('Error retrieving results');
-            $scope.loading = false;
+            $scope.initialiseChart();
         });
     };
 
     $scope.getResultIcon = function(value) {
-
         if (value === undefined || value === 0 || value === null || isNaN(value)) {
             return null;
         }
