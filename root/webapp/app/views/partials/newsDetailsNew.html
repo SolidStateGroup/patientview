@@ -26,12 +26,7 @@
             <label class="control-label">Preview </label>
             <div class="message-summary">
                 <img src="http://icons.iconarchive.com/icons/icojam/blue-bits/16/star-rating-icon.png" class="featured-news" data-ng-show="newNews.newsType==2" />
-                <h2 class="message-title">{{newNews.heading}}
-                    <span data-ng-repeat="newsLink in newNews.newsLinks" class="pull-right news-link-labels">
-                        <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
-                        <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
-                    </span>
-                </h2>
+                <h2 class="message-title">{{newNews.heading}}</h2>
                 <div class="last-message">
                     <p class="message-content" data-ng-bind-html="parseHTMLText(newNews.story)"></p>
                 </div>
