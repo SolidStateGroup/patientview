@@ -77,12 +77,13 @@
                         <li><strong>Compare Results</strong></li>
                     </ul>
                 </div>
-                <div class="result-comment pull-left" >
-                    <select class="form-control pull-right" data-ng-model="compareCode"
+                <div class="pull-left" >
+                    <br/>
+                    <select class="form-control" data-ng-model="compareCode"
                             data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
                                 | orderBy:'heading' | addCodeFilter:codes"
                             data-ng-change="compareResults(compareCode)">
-                        <option value="">Selected a result type to compare:</option>
+                        <option value="">Selected a result type to compare with {{observationHeading.heading}}:</option>
                     </select>
 
                 </div>

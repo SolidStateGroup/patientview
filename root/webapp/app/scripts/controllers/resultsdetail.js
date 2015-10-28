@@ -68,6 +68,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var firstObservations = [];
         var series = [];
         var yAxis = [];
+        var legend = {};
 
         $scope.codes.forEach(function(code, index) {
             if ($scope.observations[code] !== undefined) {
@@ -102,9 +103,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
             if (data[code]) {
                 var yAxisData = {};
-                yAxisData.title = {
-                    text: firstObservations[code].name
-                };
+                if ($scope.codes.length > 1) {
+                    yAxisData.title = {
+                        text: firstObservations[code].name
+                    };
+                }
                 yAxisData.labels = {
                     format: '{value}'
                 };
@@ -135,6 +138,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         });
 
+        legend.enabled = $scope.codes.length > 1;
+
         $('#chart_div').highcharts('StockChart', {
             rangeSelector : {
                 buttons: [{
@@ -163,6 +168,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             credits : {
                 enabled: false
             },
+            legend : legend,
             title : {
                 text: ''
             },
