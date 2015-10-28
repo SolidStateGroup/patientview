@@ -292,6 +292,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.changeObservationHeading = function(code) {
         $('.chart-content-panel').hide();
+        delete $scope.compareCode;
         $scope.codes = [];
         $scope.codes.push(code);
 
