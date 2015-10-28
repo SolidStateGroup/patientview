@@ -2,7 +2,11 @@
     <h3 class="modal-title">{{news.heading}}</h3>
 </div>
 <div class="modal-body">
-    <h5>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</h5>
+    <h5>
+        Created {{news.created | date:'dd-MMM-yyyy HH:mm'}} by {{news.creator.forename}} {{news.creator.surname}}<span data-ng-if="news.lastUpdate && news.lastUpdate !== news.created">,
+        updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{news.lastUpdater.forename}} {{news.lastUpdater.surname}}
+        </span>
+    </h5>
     <p><span data-ng-bind-html="parseHTMLText(news.story)"></span></p>
     <div>
         <div class="pull-left" data-ng-repeat="newsLink in news.newsLinks" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
