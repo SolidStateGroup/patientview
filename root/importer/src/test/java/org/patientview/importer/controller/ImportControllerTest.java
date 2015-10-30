@@ -130,11 +130,23 @@ public class ImportControllerTest {
     }
 
     @Test
-    //@Ignore("IntegrationTest")
+    @Ignore("IntegrationTest")
     public void importIntegrationTestCKD04() throws Exception {
         List<String> files = new ArrayList<>();
         files.add("data/xml/CKD/RQHC7_04_4325437666.xml");
         files.add("data/xml/CKD/RQHC7_04_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_2_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_2/RQHC7_01_1234567345.xml");
+        files.add("data/xml/CKD_2/RQHC7_01_5432134678.xml");
+        files.add("data/xml/CKD_2/RQHC7_01_5566778833.xml");
         for (String file : files) {
             post(getFileFromString(file));
         }
