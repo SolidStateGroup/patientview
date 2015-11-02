@@ -3,8 +3,12 @@
 </div>
 <div class="modal-body">
     <h5>
-        Created {{news.created | date:'dd-MMM-yyyy HH:mm'}} by {{news.creator.forename}} {{news.creator.surname}}<span data-ng-if="news.lastUpdate && news.lastUpdate !== news.created">,
-        updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{news.lastUpdater.forename}} {{news.lastUpdater.surname}}
+        Created {{news.created | date:'dd-MMM-yyyy HH:mm'}}<span data-ng-if="news.creator"> by {{news.creator.forename}}
+            {{news.creator.surname}}</span><span data-ng-if="news.lastUpdate && news.lastUpdate !== news.created">,
+        updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+        <span data-ng-if="news.lastUpdater">
+            by {{news.lastUpdater.forename}} {{news.lastUpdater.surname}}
+        </span>
         </span>
     </h5>
     <p><span data-ng-bind-html="parseHTMLText(news.story)"></span></p>
