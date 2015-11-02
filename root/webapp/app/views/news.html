@@ -43,7 +43,7 @@
                 </ul>
                 <div class="message-summary">
                     <h2 class="message-title"><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a>
-                        <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(news.newsLinks)" class="pull-right news-link-labels">
+                        <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(news.newsLinks)" class="pull-right news-link-labels hidden">
                             <span class="label label-info">
                                 <span data-ng-show="newsLink.group">{{newsLink.group.name}}</span>
                                 <span data-ng-show="!newsLink.group.id">All Groups</span>
