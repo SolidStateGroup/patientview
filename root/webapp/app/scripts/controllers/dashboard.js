@@ -302,21 +302,35 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             return hasGroup;
         };
 
-        $scope.listDistinctGroups = function (newsItem){
+        $scope.listDistinctGroups = function (newsItem) {
             var groupIds = [];
             var newsLinks = [];
 
             newsItem.newsLinks.forEach(
                 function (element) {
-                    if(element.group != null){
+                    if (element.group != null) {
 
-                        if(groupIds.indexOf(element.group.id) == -1 && $scope.userHasGroup(element.group.id)){
+                        if(groupIds.indexOf(element.group.id) == -1 && $scope.userHasGroup(element.group.id)) {
                             groupIds.push(element.group.id);
                             newsLinks.push(element);
                         }
                     }
                 });
             return newsLinks;
+        };
+
+        $scope.listNewsLinkGroupNames = function (newsItem) {
+            var newsLinks = $scope.listDistinctGroups(newsItem);
+            var text = "";
+
+            for (var i=0; i<newsLinks.length; i++) {
+                text += newsLinks[i].group.shortName;
+                if (i !== newsLinks.length - 1) {
+                    text += ", ";
+                }
+            }
+
+            return text;
         };
 
         // Migration only

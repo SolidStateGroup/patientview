@@ -71,7 +71,6 @@
 
 <div data-ng-show="!loading" data-ng-cloak>
     <br/>
-
     <div class="row">
         <div class="col-md-8">
             <div class="tab-panel-item" data-ng-show="featuredNewsItems">
@@ -82,28 +81,23 @@
                         <ul class="unstyled">
                             <li class="news-item content-panel" data-ng-repeat="news in featuredNewsItems">
                                 <div class="content-inner">
-                                    <h4 data-ng-repeat="newsLink in listDistinctGroups(news)"
+                                    <h4
                                         class="featured-news-heading">
-                                        <a href="" data-ng-show="newsLink.group != null"
-                                           data-ng-click="viewNewsItem(news)">
-                                            {{news.heading}} </a> ({{news.created |
-                                        date:'dd-MMM-yyyy HH:mm'}} - {{newsLink.group.shortName}})
+                                        <a href="" data-ng-click="viewNewsItem(news)">{{news.heading}} </a>
+                                        <br/>
+                                        {{news.created | date:'dd-MMM-yyyy HH:mm'}} - {{listNewsLinkGroupNames(news)}}
                                     </h4>
 
                                     <p class="featured-news-content">{{stripHTML(news.story) | limitTo:200}}
-                                        {{stripHTML(news.story).length > 200 ?
-                                        "....." : ""}}
+                                        {{stripHTML(news.story).length > 200 ? "....." : ""}}
                                         <a class="pull-right read-more" href=""
                                            data-ng-show="stripHTML(news.story).length > 200"
                                            data-ng-click="viewNewsItem(news)">Read More...</a>
                                     </p>
-
                                 </div>
                             </li>
                         </ul>
                     </div>
-
-
                 </div>
             </div>
             <div class="tab-panel-item">
