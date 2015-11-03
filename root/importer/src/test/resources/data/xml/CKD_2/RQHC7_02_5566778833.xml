@@ -1,0 +1,97 @@
+<patientview>
+    <sequence>02</sequence>
+    <dateofreport>2015-05-12T12:00:00</dateofreport>
+    <flag>Follow-up-report</flag>
+    <centredetails>
+        <centrecode>RQHC7</centrecode>
+        <centrename>Swansea, Morriston Hospital</centrename>
+        <centreaddress1>Renal Unit, ABM Univeristy Health Board</centreaddress1>
+        <centreaddress2>Morriston Hospital</centreaddress2>
+        <centreaddress3>Morriston, Swansea</centreaddress3>
+        <centrepostcode>SA6 6NL</centrepostcode>
+        <centretelephone>01792 703602</centretelephone>
+    </centredetails>
+    <gpdetails>
+        <gpname>Dr Geraint Peer</gpname>
+        <gpaddress1>Sometown Medical Practice</gpaddress1>
+        <gpaddress2>456 Road</gpaddress2>
+        <gpaddress3>Sometown</gpaddress3>
+        <gppostcode>AB2 3EF</gppostcode>
+    </gpdetails>
+    <patient>
+        <personaldetails>
+            <surname>AtlantisHighRiskCKDUser</surname>
+            <forename>AtlantisHighRiskCKDUser</forename>
+            <dateofbirth>1964-04-14</dateofbirth>
+            <sex>Male</sex>
+            <nhsno>5566778833</nhsno>
+            <address1>567 street</address1>
+            <address2>Sometown</address2>
+            <postcode>AB1 2CD</postcode>
+            <telephone1>34566 789012</telephone1>
+            <mobile>87654 321098</mobile>
+        </personaldetails>
+        <testdetails>
+            <test>
+                <testname>BP sys</testname>
+                <testcode>bpsys</testcode>
+                <units>mm mg</units>
+                <daterange start="2015-05-01" stop="2015-05-02"/>
+                <result>
+                    <datestamp>2015-05-01T10:01:00</datestamp>
+                    <value>142</value>
+                </result>
+            </test>
+            <test>
+                <testname>BP dia</testname>
+                <testcode>bpdia</testcode>
+                <units>mm mg</units>
+                <daterange start="2015-05-02" stop="2015-05-03"/>
+                <result>
+                    <datestamp>2015-05-02T11:02:00</datestamp>
+                    <value>88</value>
+                </result>
+            </test>
+            <test>
+                <testname>Haemoglobin</testname>
+                <testcode>hb</testcode>
+                <units>g/l</units>
+                <daterange start="2015-05-03" stop="2015-05-04"/>
+                <result>
+                    <datestamp>2015-05-03T12:03:00</datestamp>
+                    <value>115</value>
+                </result>
+            </test>
+            <test>
+                <testname>Albumin</testname>
+                <testcode>albumin</testcode>
+                <units>g/l</units>
+                <daterange start="2015-05-04" stop="2015-05-05"/>
+                <result>
+                    <datestamp>2015-05-04T13:04:00</datestamp>
+                    <value>123</value>
+                </result>
+            </test>
+            <test>
+                <testname>Serum Creatinine</testname>
+                <testcode>creatinine</testcode>
+                <units>umol/l</units>
+                <daterange start="2015-05-05" stop="2015-05-06"/>
+                <result>
+                    <datestamp>2015-05-05T14:05:00</datestamp>
+                    <value>76</value>
+                </result>
+            </test>
+            <test>
+                <testname>eGFR</testname>
+                <testcode>egfr</testcode>
+                <units>ml/min/1.73m^2</units>
+                <daterange start="2015-05-06" stop="2015-05-07"/>
+                <result>
+                    <datestamp>2015-05-06T15:06:00</datestamp>
+                    <value>60</value>
+                </result>
+            </test>
+        </testdetails>
+    </patient>
+</patientview>

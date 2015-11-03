@@ -152,6 +152,18 @@ public class ImportControllerTest {
         }
     }
 
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_2_02() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_2/RQHC7_02_1234567345.xml");
+        files.add("data/xml/CKD_2/RQHC7_02_5432134678.xml");
+        files.add("data/xml/CKD_2/RQHC7_02_5566778833.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // used to test the service once running (milestone 4 files)
     @Test
     @Ignore("IntegrationTest")
