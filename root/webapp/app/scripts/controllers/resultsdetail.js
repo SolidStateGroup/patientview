@@ -70,6 +70,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var yAxis = [];
         var legend = {};
 
+        // special options for blood pressure
+        var sameScale = (_.contains($scope.codes, "bpsys") && _.contains($scope.codes, "bpdia"));
+
         $scope.codes.forEach(function(code, index) {
             if ($scope.observations[code] !== undefined) {
                 data[code] = [];
@@ -103,7 +106,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
             if (data[code]) {
                 var yAxisData = {};
-                if ($scope.codes.length > 1) {
+                if ($scope.codes.length > 1 && !sameScale) {
                     yAxisData.title = {
                         text: firstObservations[code].name
                     };
@@ -112,16 +115,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                     format: '{value}'
                 };
 
-                if (index == 0) {
-                    //yAxisData.style = {
-                    //    color: '#ff0000'
-                    //};
-                    yAxisData.opposite = true;
-                } else {
-                    //yAxisData.style = {
-                    //    color: '#00ff000'
-                    //};
-                    yAxisData.opposite = false;
+                if (!sameScale) {
+                    yAxisData.opposite = index == 0;
                 }
 
                 yAxis.push(yAxisData);
@@ -131,7 +126,13 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 seriesData.tooltip = {
                     valueDecimals: firstObservations[code].decimalPlaces
                 };
-                seriesData.yAxis = index;
+
+                if (sameScale) {
+                    seriesData.yAxis = 0;
+                } else {
+                    seriesData.yAxis = index;
+                }
+
                 seriesData.data = data[code];
 
                 series.push(seriesData);
