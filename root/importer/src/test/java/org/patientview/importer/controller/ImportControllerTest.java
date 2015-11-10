@@ -82,7 +82,6 @@ public class ImportControllerTest {
         }
 
         Mockito.verify(queueService, Mockito.times(1)).importRecord(Mockito.any(Patientview.class));
-
     }
 
     // used to test the service once running
@@ -90,6 +89,79 @@ public class ImportControllerTest {
     @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
         LOG.info(post(getTestFile()).toString());
+    }
+
+    // used to test the service once running (CKD files)
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_01_1234567345.xml");
+        files.add("data/xml/CKD/RQHC7_01_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_01_4444443333.xml");
+        files.add("data/xml/CKD/RQHC7_01_5432134678.xml");
+        files.add("data/xml/CKD/RQHC7_01_5566778833.xml");
+        files.add("data/xml/CKD/RQHC7_01_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD02() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_02_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_02_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD03() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_03_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_03_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD04() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD/RQHC7_04_4325437666.xml");
+        files.add("data/xml/CKD/RQHC7_04_9879879876.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_2_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_2/RQHC7_01_1234567345.xml");
+        files.add("data/xml/CKD_2/RQHC7_01_5432134678.xml");
+        files.add("data/xml/CKD_2/RQHC7_01_5566778833.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_2_02() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_2/RQHC7_02_1234567345.xml");
+        files.add("data/xml/CKD_2/RQHC7_02_5432134678.xml");
+        files.add("data/xml/CKD_2/RQHC7_02_5566778833.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
     }
 
     // used to test the service once running (milestone 4 files)
@@ -147,14 +219,6 @@ public class ImportControllerTest {
     }
 
     String getTestFile() throws IOException, URISyntaxException {
-
-        // 2.0.6 testing
-        //String fileName = "data/xml/2.0.6tests/SAC02_01439_1202913202.xml"; // ok, 290 observations
-        //String fileName = "data/xml/2.0.6tests/SAC02_01439_1312455233.xml"; // 400 bad request, wrong xml
-        //String fileName = "data/xml/2.0.6tests/SAC02_01439_3103833318.xml"; // ok, 336 observations
-        //String fileName = "data/xml/2.0.6tests/SGC02_01439_1312045485.xml"; // ok, 288 observations
-        //String fileName = "data/xml/2.0.6tests/SGC02_01439_2609995652.xml"; // ok, 282 observations
-
         // local testing
         String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
@@ -181,9 +245,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

@@ -126,6 +126,7 @@ public class NewsServiceTest {
             newsItem.setStory("GROUP NEWS STORY TEXT " + String.valueOf(i));
             newsItem.setNewsLinks(new HashSet<NewsLink>());
             newsItem.setCreated(new Date(System.currentTimeMillis() + 10 + i));
+            newsItem.setLastUpdate(new Date(System.currentTimeMillis() + 10 + i));
 
             NewsLink newsLink = new NewsLink();
             newsLink.setId((long) (i + 10));
@@ -151,8 +152,8 @@ public class NewsServiceTest {
                     = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
-            Assert.assertTrue("Should be ordered by creation date descending",
-                    newsItems.getContent().get(0).getCreated().after(newsItems.getContent().get(1).getCreated()));
+            Assert.assertTrue("Should be ordered by update date descending",
+                    newsItems.getContent().get(0).getLastUpdate().after(newsItems.getContent().get(1).getLastUpdate()));
 
             verify(newsItemRepository, Mockito.times(1)).findGroupNewsByUser(Matchers.eq(testUser),
                     Matchers.eq(pageableAll));
@@ -186,6 +187,7 @@ public class NewsServiceTest {
         NewsLink newsLink1 = TestUtils.createNewsLink(newsItem1, testGroup, null);
         newsItem1.getNewsLinks().add(newsLink1);
         newsItem1.setCreated(new Date(System.currentTimeMillis() + 1));
+        newsItem1.setLastUpdate(new Date(System.currentTimeMillis() + 1));
 
         NewsItem newsItem2 = TestUtils.createNewsItem("HEADING2", "STORY2");
         NewsLink newsLink2 = TestUtils.createNewsLink(newsItem2, testGroup, null);
@@ -193,6 +195,7 @@ public class NewsServiceTest {
         newsItem2.getNewsLinks().add(newsLink2);
         newsItem2.getNewsLinks().add(newsLink3);
         newsItem2.setCreated(new Date(System.currentTimeMillis() + 2));
+        newsItem2.setLastUpdate(new Date(System.currentTimeMillis() + 2));
 
         List<NewsItem> groupNews = new ArrayList<>();
         groupNews.add(newsItem1);
@@ -212,8 +215,8 @@ public class NewsServiceTest {
                     = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
-            Assert.assertTrue("Should be ordered by creation date descending",
-                    newsItems.getContent().get(0).getCreated().after(newsItems.getContent().get(1).getCreated()));
+            Assert.assertTrue("Should be ordered by update date descending",
+                    newsItems.getContent().get(0).getLastUpdate().after(newsItems.getContent().get(1).getLastUpdate()));
 
             org.patientview.api.model.NewsItem returnedNewsItem1 = newsItems.getContent().get(0);
             org.patientview.api.model.NewsItem returnedNewsItem2 = newsItems.getContent().get(1);

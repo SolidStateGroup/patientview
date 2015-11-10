@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location',
-    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter',
-function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal, $timeout, $filter) {
+    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter', '$q',
+function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService,
+          $modal, $timeout, $filter, $q) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -12,16 +13,31 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $location.path('/results');
         }
 
+        $scope.codes = [];
+        $scope.observations = [];
+
         // handle single result type from query parameter
         var code = $routeParams.code;
 
         if (code instanceof Array) {
-            code = $scope.code[0];
+            $scope.codes = code;
+        } else {
+            $scope.codes.push(code);
         }
 
-        $scope.selectedCode = code;
-        $scope.getObservations(code);
-        $scope.getAvailableObservationHeadings(code, $scope.loggedInUser.id);
+        $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
+    };
+
+    $scope.compareResults = function(codeToCompare) {
+        // first code in list is most important, don't remove
+        var codes = [];
+        codes.push($scope.codes[0]);
+        codes.push(codeToCompare);
+        $scope.codes = codes;
+
+        $scope.loading = true;
+        $scope.chartLoading = true;
+        $scope.getObservations();
     };
 
     $scope.getAvailableObservationHeadings = function(code, userId) {
@@ -29,6 +45,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $scope.observationHeadings = observationHeadings;
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
             $scope.selectedCode = code;
+
+            $scope.getObservations();
         }, function() {
             alert('Error retrieving result types');
         });
@@ -43,33 +61,85 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         // using highstocks
         $('.chart-content-panel').show();
 
+        var i;
         var data = [];
-
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
+        var firstObservations = [];
+        var series = [];
+        var yAxis = [];
+        var legend = {};
 
-        for (var i = $scope.observations.length -1; i >= 0; i--) {
+        // special options for blood pressure
+        var sameScale = (_.contains($scope.codes, "bpsys") && _.contains($scope.codes, "bpdia"));
 
-            var observation = $scope.observations[i];
+        $scope.codes.forEach(function(code, index) {
+            if ($scope.observations[code] !== undefined) {
+                data[code] = [];
 
-            var row = [];
-            row[0] = observation.applies;
-            row[1] = parseFloat(observation.value);
+                for (i = $scope.observations[code].length - 1; i >= 0; i--) {
+                    var observation = $scope.observations[code][i];
 
-            // don't display textual results on graph
-            if (!isNaN(row[1])) {
-                data.push(row);
+                    if (i == $scope.observations[code].length - 1) {
+                        firstObservations[code] = observation;
+                    }
 
-                // get min/max values for y-axis
-                if (observation.value > maxValue) {
-                    maxValue = observation.value;
-                }
+                    var row = [];
+                    row[0] = observation.applies;
+                    row[1] = parseFloat(observation.value);
 
-                if (observation.value < minValue) {
-                    minValue = observation.value;
+                    // don't display textual results on graph
+                    if (!isNaN(row[1])) {
+                        data[code].push(row);
+
+                        // get min/max values for y-axis
+                        if (observation.value > maxValue) {
+                            maxValue = observation.value;
+                        }
+
+                        if (observation.value < minValue) {
+                            minValue = observation.value;
+                        }
+                    }
                 }
             }
-        }
+
+            if (data[code]) {
+                var yAxisData = {};
+                if ($scope.codes.length > 1 && !sameScale) {
+                    yAxisData.title = {
+                        text: firstObservations[code].name
+                    };
+                }
+                yAxisData.labels = {
+                    format: '{value}'
+                };
+
+                if (!sameScale) {
+                    yAxisData.opposite = index == 0;
+                }
+
+                yAxis.push(yAxisData);
+
+                var seriesData = {};
+                seriesData.name = firstObservations[code].name;
+                seriesData.tooltip = {
+                    valueDecimals: firstObservations[code].decimalPlaces
+                };
+
+                if (sameScale) {
+                    seriesData.yAxis = 0;
+                } else {
+                    seriesData.yAxis = index;
+                }
+
+                seriesData.data = data[code];
+
+                series.push(seriesData);
+            }
+        });
+
+        legend.enabled = $scope.codes.length > 1;
 
         $('#chart_div').highcharts('StockChart', {
             rangeSelector : {
@@ -96,27 +166,17 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
                 selected: 3
             },
-
             credits : {
                 enabled: false
             },
-
+            legend : legend,
             title : {
                 text: ''
             },
-
             navigator: {
                 enabled: true
             },
-
-            series : [{
-                name : $scope.selectedObservation.name,
-                data : data,
-                tooltip: {
-                    valueDecimals: $scope.selectedObservation.decimalPlaces
-                }
-            }],
-
+            series: series,
             chart: {
                 events: {
                     zoomType: 'x',
@@ -143,6 +203,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 text: 'ESEMPIO',
                 ordinal: false
             },
+            yAxis: yAxis,
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',
@@ -164,31 +225,41 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.chartLoading = false;
     };
 
-    $scope.getObservations = function(code) {
+    $scope.getObservations = function() {
         $scope.loading = true;
         $scope.chartLoading = true;
-        ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
-            if (observations.length) {
-                $scope.observations = _.sortBy(observations, 'applies').reverse();
-                $scope.selectedObservation = $scope.observations[0];
+        var promises = [];
+        var obs = [];
+        var selectedObs;
 
-                // dont show or deal with chart if result comment type
-                //if ($scope.selectedCode !== 'resultcomment') {
-                    $scope.initialiseChart();
-                //}
-            } else {
-                delete $scope.observations;
-                delete $scope.selectedObservation;
-            }
+        $scope.codes.forEach(function(code, index) {
+            promises.push(ObservationService.getByCode($scope.loggedInUser.id, code).then(function (observations) {
+                if (observations.length) {
+                    obs[code] = _.sortBy(observations, 'applies').reverse();
+
+                    if (index == 0) {
+                        selectedObs = obs[code][0];
+                    }
+                } else {
+                    delete obs[code];
+                    //delete $scope.selectedObservation;
+                }
+
+            }, function () {
+                alert('Error retrieving results');
+                $scope.loading = false;
+            }));
+        });
+
+        $q.all(promises).then(function() {
+            $scope.observations = obs;
+            $scope.selectedObservation = selectedObs;
             $scope.loading = false;
-        }, function() {
-            alert('Error retrieving results');
-            $scope.loading = false;
+            $scope.initialiseChart();
         });
     };
 
     $scope.getResultIcon = function(value) {
-
         if (value === undefined || value === 0 || value === null || isNaN(value)) {
             return null;
         }
@@ -222,6 +293,10 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.changeObservationHeading = function(code) {
         $('.chart-content-panel').hide();
+        delete $scope.compareCode;
+        $scope.codes = [];
+        $scope.codes.push(code);
+
         $scope.observationHeading = $scope.findObservationHeadingByCode(code);
         $scope.selectedCode = $scope.observationHeading.code;
         $scope.getObservations(code);
@@ -254,8 +329,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.tableObservations = [];
         $scope.tableObservationsKey = [];
 
-        for (var i=0;i<$scope.observations.length;i++) {
-            var observation = $scope.observations[i];
+        for (var i=0;i<$scope.observations[$scope.selectedCode].length;i++) {
+            var observation = $scope.observations[$scope.selectedCode][i];
             if (start <= observation.applies && end >= observation.applies) {
                 observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
                 observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');

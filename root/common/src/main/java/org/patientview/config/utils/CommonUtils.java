@@ -4,7 +4,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 
 import java.util.Date;
@@ -111,5 +113,11 @@ public final class CommonUtils {
         }
 
         throw new IllegalArgumentException();
+    }
+
+    public static String dateToSimpleString(Date date) {
+        DateTime dateTime = new DateTime(date);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
+        return fmt.print(dateTime).replace(" 00:00","");
     }
 }

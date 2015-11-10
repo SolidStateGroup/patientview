@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -80,6 +81,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
             }
         }
+
+        // set updater and update time (used for ordering correctly)
+        newsItem.setCreator(getCurrentUser());
+        newsItem.setLastUpdater(getCurrentUser());
+        newsItem.setLastUpdate(newsItem.getCreated());
+
         return newsItemRepository.save(newsItem).getId();
     }
 
@@ -220,7 +227,24 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }*/
 
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
-        Collections.sort(newsItems);
+        //Collections.sort(newsItems);
+
+        // sort by last updated DESC
+        Collections.sort(newsItems, new Comparator<NewsItem>() {
+            @Override
+            public int compare(NewsItem n1, NewsItem n2) {
+                if (n1.getLastUpdate() == null || n2.getLastUpdate() == null) {
+                    if (n1.getLastUpdate() == null && n2.getLastUpdate() != null) {
+                        return n1.getCreated().compareTo(n2.getLastUpdate()) * -1;
+                    }
+                    if (n1.getLastUpdate() != null && n2.getLastUpdate() == null) {
+                        return n1.getLastUpdate().compareTo(n2.getCreated()) * -1;
+                    }
+                    return 0;
+                }
+                return n1.getLastUpdate().compareTo(n2.getLastUpdate()) * -1;
+            }
+        });
 
 
         //Limit featured articles to 1 per group if we are on the dashboard

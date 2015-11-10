@@ -16,6 +16,7 @@ public class NewsItem {
     private String story;
     private List<NewsLink> newsLinks;
     private Date created;
+    private BaseUser creator;
     private Date lastUpdate;
     private BaseUser lastUpdater;
     private boolean edit;
@@ -37,6 +38,9 @@ public class NewsItem {
         }
 
         setCreated(newsItem.getCreated());
+        if (newsItem.getCreator() != null) {
+            setCreator(new BaseUser(newsItem.getCreator()));
+        }
         setLastUpdate(newsItem.getLastUpdate());
         if (newsItem.getLastUpdater() != null) {
             setLastUpdater(new BaseUser(newsItem.getLastUpdater()));
@@ -83,6 +87,14 @@ public class NewsItem {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public BaseUser getCreator() {
+        return creator;
+    }
+
+    public void setCreator(BaseUser creator) {
+        this.creator = creator;
     }
 
     public Date getLastUpdate() {

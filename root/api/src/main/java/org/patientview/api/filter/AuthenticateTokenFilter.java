@@ -1,6 +1,7 @@
 package org.patientview.api.filter;
 
 import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.LookingLocalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -19,7 +20,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +77,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // Swagger.io API documentation
         publicUrls.add("/api-docs");
 
+        // Looking Local
+        publicUrls.add("/lookinglocal/home");
+        publicUrls.add("/lookinglocal/auth");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }
@@ -115,7 +123,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             chain.doFilter(request, response);
         } else {
             if (!authenticateRequest(httpRequest)) {
-                redirectFailedAuthentication((HttpServletResponse) response);
+                redirectFailedAuthentication((HttpServletResponse) response, request, path);
                 return;
             }
             chain.doFilter(request, response);
@@ -152,12 +160,36 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
      * Sends unauthorised response to client if authentication has failed.
      * @param response HttpServletResponse passed in to send error
      */
-    private void redirectFailedAuthentication(HttpServletResponse response) {
+    private void redirectFailedAuthentication(
+            HttpServletResponse response, ServletRequest servletRequest, String path) {
+
         try {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            if (path.contains("/lookinglocal/")) {
+                // send Looking Local XML error page as is a Looking Local request
+                WebApplicationContext webApplicationContext =
+                        WebApplicationContextUtils.getWebApplicationContext(servletRequest.getServletContext());
+
+                LookingLocalService lookingLocalService
+                        = (LookingLocalService) webApplicationContext.getBean("lookingLocalServiceImpl");
+
+                try {
+                    String errorXml = lookingLocalService.getErrorXml("Unauthorised");
+                    response.setContentType("text/xml");
+                    response.setContentLength(errorXml.length());
+                    PrintWriter out;
+                    out = response.getWriter();
+                    out.println(errorXml);
+                    out.close();
+                    out.flush();
+                } catch (TransformerException | ParserConfigurationException e) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorised");
+                }
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorised");
+            }
         } catch (IOException ioe) {
-            LOG.error("Could not send 401");
-            throw new RuntimeException("Error sending 401 for unauthorised request");
+            LOG.error("Could not send 401 for " + path);
+            throw new RuntimeException("Error sending 401 for unauthorised request for " + path);
         }
     }
 
