@@ -282,6 +282,19 @@ public interface UserService {
     void init();
 
     /**
+     * Move Users between groups, with optional check to remove/add parent group if a member of only one group
+     * @param groupFromId ID of Group to move users from
+     * @param groupToId ID of Group to move users to
+     * @param roleId ID of User's Role (to allow only moving patients or staff)
+     * @param checkParentGroup boolean to remove/add parent group if only a member of one group
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly
+    void moveUsersGroup(Long groupFromId, Long groupToId, Long roleId, boolean checkParentGroup)
+            throws ResourceForbiddenException, ResourceNotFoundException;
+
+    /**
      * Remove all Group membership and associated Roles for a User, used when 'deleting' a User when the KEEP_ALL_DATA
      * Feature is available on one of their groups. Note: consider refactoring to manage this within the service.
      * @param userId ID of User to remove all Groups and associated Roles from

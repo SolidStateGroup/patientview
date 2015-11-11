@@ -1708,6 +1708,73 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return toHex(salt);
     }
 
+    @Override
+    public void moveUsersGroup(Long groupFromId, Long groupToId, Long roleId, boolean checkParentGroup)
+            throws ResourceForbiddenException, ResourceNotFoundException {
+
+        // check all exist
+        Group fromGroup = groupRepository.findOne(groupFromId);
+        Group toGroup = groupRepository.findOne(groupToId);
+        Role role = roleRepository.findOne(roleId);
+
+        if (fromGroup == null) {
+            throw new ResourceNotFoundException("Group with id " + groupFromId + " does not exist");
+        }
+        if (toGroup == null) {
+            throw new ResourceNotFoundException("Group with id " + groupToId + " does not exist");
+        }
+        if (role == null) {
+            throw new ResourceNotFoundException("Role with id " + roleId + " does not exist");
+        }
+
+        LOG.info("Moving users with Role '" + role.getName().toString() + "' from Group with code '" +
+                fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+
+        String[] groupFromIds = {groupFromId.toString()};
+        String[] groupToIds = {groupToId.toString()};
+        String[] roleIds = {roleId.toString()};
+
+        GetParameters getParametersFrom = new GetParameters();
+        getParametersFrom.setGroupIds(groupFromIds);
+        getParametersFrom.setRoleIds(roleIds);
+
+        GetParameters getParametersTo = new GetParameters();
+        getParametersTo.setGroupIds(groupToIds);
+        getParametersTo.setRoleIds(roleIds);
+
+        Page<User> usersFrom  = getUsersByGroupsAndRolesNoFilter(getParametersFrom);
+        Page<User> usersTo  = getUsersByGroupsAndRolesNoFilter(getParametersTo);
+
+        int count = 0;
+
+        for (User user : usersFrom.getContent()) {
+            if (checkParentGroup) {
+                // method using full add and remove group role, including parent groups
+                deleteGroupRole(user.getId(), groupFromId, roleId);
+
+                if (!usersTo.getContent().contains(user)) {
+                    addGroupRole(user.getId(), groupToId, roleId);
+                    count++;
+                }
+            } else {
+                // alternate method using direct GroupRole modification
+                GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(user, fromGroup, role);
+                if (entityGroupRole != null) {
+                    groupRoleRepository.delete(entityGroupRole);
+                }
+
+                if (!usersTo.getContent().contains(user)) {
+                    GroupRole newGroupRole = new GroupRole(user, toGroup, role);
+                    groupRoleRepository.save(newGroupRole);
+                    count++;
+                }
+            }
+        }
+
+        LOG.info("Moved " + count + " users with Role '" + role.getName().toString() + "' from Group with code '" +
+                fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+    }
+
     /**
      * Converts a byte array into a hexadecimal string.
      *
