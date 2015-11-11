@@ -114,6 +114,13 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "last_login_ip_address")
     private String lastLoginIpAddress;
 
+    @Column(name = "current_login")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date currentLogin;
+
+    @Column(name = "current_login_ip_address")
+    private String currentLoginIpAddress;
+
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<FhirLink> fhirLinks;
@@ -375,5 +382,21 @@ public class User extends RangeModel implements UserDetails {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public Date getCurrentLogin() {
+        return currentLogin;
+    }
+
+    public void setCurrentLogin(Date currentLogin) {
+        this.currentLogin = currentLogin;
+    }
+
+    public String getCurrentLoginIpAddress() {
+        return currentLoginIpAddress;
+    }
+
+    public void setCurrentLoginIpAddress(String currentLoginIpAddress) {
+        this.currentLoginIpAddress = currentLoginIpAddress;
     }
 }

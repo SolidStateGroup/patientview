@@ -192,7 +192,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken = userTokenRepository.save(userToken);
 
         user.setFailedLogonAttempts(0);
-        user.setLastLogin(new Date());
+
         //Salt password
         if (user.getSalt() == null) {
             try {
@@ -204,6 +204,17 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             }
         }
 
+        // handle current and last login time and IP, updating last login with current then setting new current
+        if (user.getCurrentLogin() != null) {
+            user.setLastLogin(user.getCurrentLogin());
+        }
+
+        if (StringUtils.isNotEmpty(user.getCurrentLoginIpAddress())) {
+            user.setLastLoginIpAddress(user.getCurrentLoginIpAddress());
+        }
+
+        user.setCurrentLogin(now);
+
         // set last login IP address from headers if present
         HttpServletRequest request
                 = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -212,13 +223,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         String realIp = request.getHeader("X-Real-IP");
 
         if (StringUtils.isNotEmpty(forwardedFor)) {
-            user.setLastLoginIpAddress(forwardedFor.split(",")[0]);
+            user.setCurrentLoginIpAddress(forwardedFor.split(",")[0]);
         } else if (StringUtils.isNotEmpty(realIp)) {
-            user.setLastLoginIpAddress(realIp);
+            user.setCurrentLoginIpAddress(realIp);
         } else {
-            user.setLastLoginIpAddress(request.getRemoteAddr());
+            user.setCurrentLoginIpAddress(request.getRemoteAddr());
         }
-
 
         userRepository.save(user);
 

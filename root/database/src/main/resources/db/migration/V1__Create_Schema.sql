@@ -16,6 +16,8 @@ CREATE TABLE PV_User
   Verification_Code    VARCHAR(200),
   Email_Verified   BOOL         NOT NULL DEFAULT FALSE,
   Contact_Number   VARCHAR(50),
+  Current_Login       TIMESTAMP,
+  Current_Login_Ip_Address    VARCHAR(50),
   Last_Login       TIMESTAMP,
   Last_Login_Ip_Address    VARCHAR(50),
   Deleted          BOOLEAN      NOT NULL DEFAULT FALSE,
@@ -134,7 +136,6 @@ CREATE TABLE PV_Role
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
-
 
 CREATE TABLE PV_User_Group_Role
 (
