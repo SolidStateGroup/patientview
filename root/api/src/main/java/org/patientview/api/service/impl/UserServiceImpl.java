@@ -1750,9 +1750,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         for (User user : usersFrom.getContent()) {
             if (checkParentGroup) {
                 // method using full add and remove group role, including parent groups
+
+                LOG.info("Deleting GroupRole for user '" + user.getUsername() + "'");
                 deleteGroupRole(user.getId(), groupFromId, roleId);
 
                 if (!usersTo.getContent().contains(user)) {
+                    LOG.info("Adding GroupRole for user '" + user.getUsername() + "'");
                     addGroupRole(user.getId(), groupToId, roleId);
                     count++;
                 }
@@ -1760,10 +1763,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 // alternate method using direct GroupRole modification
                 GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(user, fromGroup, role);
                 if (entityGroupRole != null) {
+                    LOG.info("Deleting GroupRole for user '" + user.getUsername() + "'");
                     groupRoleRepository.delete(entityGroupRole);
                 }
 
                 if (!usersTo.getContent().contains(user)) {
+                    LOG.info("Adding GroupRole for user '" + user.getUsername() + "'");
                     GroupRole newGroupRole = new GroupRole(user, toGroup, role);
                     groupRoleRepository.save(newGroupRole);
                     count++;
