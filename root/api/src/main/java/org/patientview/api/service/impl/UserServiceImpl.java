@@ -1713,22 +1713,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
 
         // check all exist
-        final Group fromGroup = groupRepository.findOne(groupFromId);
-        final Group toGroup = groupRepository.findOne(groupToId);
+        final Group groupFrom = groupRepository.findOne(groupFromId);
+        final Group groupTo = groupRepository.findOne(groupToId);
         final Role role = roleRepository.findOne(roleId);
 
-        if (fromGroup == null) {
-            throw new ResourceNotFoundException("Group with id " + groupFromId + " does not exist");
+        if (groupFrom == null) {
+            throw new ResourceNotFoundException("Moving Users: Group with id " + groupFromId + " does not exist");
         }
-        if (toGroup == null) {
-            throw new ResourceNotFoundException("Group with id " + groupToId + " does not exist");
+        if (groupTo == null) {
+            throw new ResourceNotFoundException("Moving Users: Group with id " + groupToId + " does not exist");
         }
         if (role == null) {
-            throw new ResourceNotFoundException("Role with id " + roleId + " does not exist");
+            throw new ResourceNotFoundException("Moving Users: Role with id " + roleId + " does not exist");
         }
 
-        LOG.info("Moving users with Role '" + role.getName().toString() + "' from Group with code '"
-                + fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+        LOG.info("Moving Users: Moving users with Role '" + role.getName().toString() + "' from Group with code '"
+                + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
 
         String[] groupFromIds = {groupFromId.toString()};
         String[] groupToIds = {groupToId.toString()};
@@ -1751,33 +1751,37 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (checkParentGroup) {
                 // method using full add and remove group role, including parent groups
 
-                LOG.info("Deleting GroupRole for user '" + user.getUsername() + "'");
+                LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
+                        + role.getName().toString() + "' for user '" + user.getUsername() + "'");
                 deleteGroupRole(user.getId(), groupFromId, roleId);
 
                 if (!usersTo.getContent().contains(user)) {
-                    LOG.info("Adding GroupRole for user '" + user.getUsername() + "'");
+                    LOG.info("Moving Users: Adding GroupRole '" + groupTo.getCode() + ", "
+                            + role.getName().toString() + "'  for user '" + user.getUsername() + "'");
                     addGroupRole(user.getId(), groupToId, roleId);
                     count++;
                 }
             } else {
                 // alternate method using direct GroupRole modification
-                GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(user, fromGroup, role);
+                GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(user, groupFrom, role);
                 if (entityGroupRole != null) {
-                    LOG.info("Deleting GroupRole for user '" + user.getUsername() + "'");
+                    LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
+                            + role.getName().toString() + "' for user '" + user.getUsername() + "'");
                     groupRoleRepository.delete(entityGroupRole);
                 }
 
                 if (!usersTo.getContent().contains(user)) {
-                    LOG.info("Adding GroupRole for user '" + user.getUsername() + "'");
-                    GroupRole newGroupRole = new GroupRole(user, toGroup, role);
+                    LOG.info("Moving Users: Adding GroupRole '" + groupTo.getCode() + ", "
+                            + role.getName().toString() + "'  for user '" + user.getUsername() + "'");
+                    GroupRole newGroupRole = new GroupRole(user, groupTo, role);
                     groupRoleRepository.save(newGroupRole);
                     count++;
                 }
             }
         }
 
-        LOG.info("Moved " + count + " users with Role '" + role.getName().toString()
-                + "' from Group with code '" + fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+        LOG.info("Moving Users: Moved " + count + " users with Role '" + role.getName().toString()
+                + "' from Group with code '" + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
     }
 
     /**
