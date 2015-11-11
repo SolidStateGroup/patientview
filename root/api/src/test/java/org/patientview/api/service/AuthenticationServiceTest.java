@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -16,6 +17,8 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -39,6 +42,7 @@ import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -96,7 +100,6 @@ public class AuthenticationServiceTest {
      */
     @Test
     public void testAuthenticate() {
-
         String password = "doNotShow";
 
         User user = new User();
@@ -109,14 +112,12 @@ public class AuthenticationServiceTest {
         UserToken userToken = new UserToken();
         userToken.setUser(user);
 
-        try {
-            when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
-            when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-            authenticationService.authenticate(user.getUsername(), password);
-        } catch (Exception e) {
-            Assert.fail("This call should not fail: " + e.getMessage());
-            e.printStackTrace();
-        }
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+        authenticationService.authenticate(user.getUsername(), password);
+
+        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
     /**
