@@ -1709,13 +1709,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void moveUsersGroup(Long groupFromId, Long groupToId, Long roleId, boolean checkParentGroup)
-            throws ResourceForbiddenException, ResourceNotFoundException {
+    public void moveUsersGroup(final Long groupFromId, final Long groupToId, final Long roleId,
+        final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
 
         // check all exist
-        Group fromGroup = groupRepository.findOne(groupFromId);
-        Group toGroup = groupRepository.findOne(groupToId);
-        Role role = roleRepository.findOne(roleId);
+        final Group fromGroup = groupRepository.findOne(groupFromId);
+        final Group toGroup = groupRepository.findOne(groupToId);
+        final Role role = roleRepository.findOne(roleId);
 
         if (fromGroup == null) {
             throw new ResourceNotFoundException("Group with id " + groupFromId + " does not exist");
@@ -1727,8 +1727,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("Role with id " + roleId + " does not exist");
         }
 
-        LOG.info("Moving users with Role '" + role.getName().toString() + "' from Group with code '" +
-                fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+        LOG.info("Moving users with Role '" + role.getName().toString() + "' from Group with code '"
+                + fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
 
         String[] groupFromIds = {groupFromId.toString()};
         String[] groupToIds = {groupToId.toString()};
@@ -1742,8 +1742,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         getParametersTo.setGroupIds(groupToIds);
         getParametersTo.setRoleIds(roleIds);
 
-        Page<User> usersFrom  = getUsersByGroupsAndRolesNoFilter(getParametersFrom);
-        Page<User> usersTo  = getUsersByGroupsAndRolesNoFilter(getParametersTo);
+        Page<User> usersFrom = getUsersByGroupsAndRolesNoFilter(getParametersFrom);
+        Page<User> usersTo = getUsersByGroupsAndRolesNoFilter(getParametersTo);
 
         int count = 0;
 
@@ -1771,8 +1771,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        LOG.info("Moved " + count + " users with Role '" + role.getName().toString() + "' from Group with code '" +
-                fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
+        LOG.info("Moved " + count + " users with Role '" + role.getName().toString()
+                + "' from Group with code '" + fromGroup.getCode() + "' to '" + toGroup.getCode() + "'");
     }
 
     /**
