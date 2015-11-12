@@ -17,6 +17,7 @@ public class ConversationUser {
     private BaseUser user;
     private Boolean anonymous;
     private Set<ConversationUserLabel> conversationUserLabels;
+    private boolean canSwitchUser;
 
     public ConversationUser() {
     }
@@ -25,6 +26,7 @@ public class ConversationUser {
         setId(conversationUser.getId());
         setUser(new BaseUser(conversationUser.getUser()));
         setAnonymous(conversationUser.getAnonymous());
+        setCanSwitchUser(conversationUser.isCanSwitchUser());
 
         setConversationUserLabels(new HashSet<ConversationUserLabel>());
         if (!CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
@@ -65,5 +67,13 @@ public class ConversationUser {
 
     public void setConversationUserLabels(Set<ConversationUserLabel> conversationUserLabels) {
         this.conversationUserLabels = conversationUserLabels;
+    }
+
+    public boolean getCanSwitchUser() {
+        return canSwitchUser;
+    }
+
+    public void setCanSwitchUser(boolean canSwitchUser) {
+        this.canSwitchUser = canSwitchUser;
     }
 }
