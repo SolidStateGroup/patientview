@@ -1727,9 +1727,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("Moving Users: Role with id " + roleId + " does not exist");
         }
 
-        LOG.info("Moving Users: Moving users with Role '" + role.getName().toString() + "' from Group with code '"
-                + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
-
         String[] groupFromIds = {groupFromId.toString()};
         String[] groupToIds = {groupToId.toString()};
         String[] roleIds = {roleId.toString()};
@@ -1746,6 +1743,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Page<User> usersTo = getUsersByGroupsAndRolesNoFilter(getParametersTo);
 
         int count = 0;
+        int countDelete = 0;
+
+        LOG.info("Moving Users: Moving " + usersFrom.getContent().size() + " users with Role '"
+                + role.getName().toString() + "' from Group with code '"
+                + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
 
         for (User user : usersFrom.getContent()) {
             if (checkParentGroup) {
@@ -1754,6 +1756,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
                         + role.getName().toString() + "' for user '" + user.getUsername() + "'");
                 deleteGroupRole(user.getId(), groupFromId, roleId);
+                countDelete++;
 
                 if (!usersTo.getContent().contains(user)) {
                     LOG.info("Moving Users: Adding GroupRole '" + groupTo.getCode() + ", "
@@ -1768,6 +1771,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
                             + role.getName().toString() + "' for user '" + user.getUsername() + "'");
                     groupRoleRepository.delete(entityGroupRole);
+                    countDelete++;
                 }
 
                 if (!usersTo.getContent().contains(user)) {
@@ -1780,8 +1784,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        LOG.info("Moving Users: Moved " + count + " users with Role '" + role.getName().toString()
+        LOG.info("Moving Users: Moved " + countDelete + " users with Role '"
+                + role.getName().toString()
                 + "' from Group with code '" + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
+        LOG.info("Moving Users: " + countDelete + " deleted GroupRole");
+        LOG.info("Moving Users: " + count + " added GroupRole");
+        LOG.info("Moving Users: " + (countDelete - count) + " already in new group");
     }
 
     /**
