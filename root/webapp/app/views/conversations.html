@@ -196,10 +196,18 @@
                         <h4 class="message-title">
                             <span data-ng-show="message.unread" class="label label-success pull-right new-message">New</span>
                             <span data-ng-show="message.user">
-                                {{message.user.forename}} {{message.user.surname}}
-                                <span data-ng-show="message.user.roleDescription"> ({{message.user.roleDescription}})</span>
-                                <span data-ng-show="message.user.deleted"> (deleted)</span>
-                                
+                                <a href="" data-ng-click="viewUser(conversationUser.user.id)" data-ng-if="message.user.canSwitchUser">
+                                <span class="label label-info conversation-user-label">
+                                    {{message.user.forename}} {{message.user.surname}}
+                                    <span data-ng-show="message.user.roleDescription"> ({{message.user.roleDescription}})</span>
+                                    <span data-ng-show="message.user.deleted"> (deleted)</span></span><span>(View Patient)</span></a>
+                                <span data-ng-if="!message.user.canSwitchUser">
+                                    <span class="label label-info conversation-user-label">
+                                        {{message.user.forename}} {{message.user.surname}}
+                                        <span data-ng-show="message.user.roleDescription"> ({{message.user.roleDescription}})</span>
+                                        <span data-ng-show="message.user.deleted"> (deleted)</span>
+                                    </span>
+                                </span>
                                 <span data-ng-show="message.user.picture.length" class="pull-left">
                                     <img data-ng-src="{{'/api/conversation/' + conversation.id + '/user/' + message.user.id + '/picture?token=' + authToken}}" class="conversation-user-picture" src="">
                                 </span>
