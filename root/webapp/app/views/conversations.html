@@ -140,7 +140,6 @@
                                     <span data-ng-show="conversationUser.user.roleDescription"> ({{conversationUser.user.roleDescription}})</span>
                                     <span data-ng-show="conversationUser.user.deleted"> (deleted)</span></span></span>
                             <br/>
-                            <a href="" data-ng-click="openModalChangeConversationRecipients(conversation)">Change Participants</a>
                         </span>
                     </h2>
                     <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
@@ -165,7 +164,8 @@
                         <p class="date-stamp">
                             <strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong>
                             <span class="pull-right">
-                                <a href="" data-ng-click="printConversation(conversation)">Print</a>
+                                <a class="archive-link" href="" data-ng-click="openModalChangeConversationRecipients(conversation)">Change Participants</a>
+                                <a class="archive-link" href="" data-ng-click="printConversation(conversation)">Print</a>
                                 <a class="archive-link" href="" data-ng-click="archive(conversation)" data-ng-show="!conversation.archived">
                                     Archive</a>
                                 <a class="archive-link" href="" data-ng-click="unArchive(conversation)" data-ng-show="conversation.archived">
