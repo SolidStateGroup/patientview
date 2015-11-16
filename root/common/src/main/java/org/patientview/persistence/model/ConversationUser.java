@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Set;
 
 /**
@@ -36,7 +37,10 @@ public class ConversationUser extends AuditModel {
     @OneToMany(mappedBy = "conversationUser", 
             cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private Set<ConversationUserLabel> conversationUserLabels;
-    
+
+    @Transient
+    private boolean canSwitchUser;
+
     @JsonIgnore
     public Conversation getConversation() {
         return conversation;
@@ -68,5 +72,13 @@ public class ConversationUser extends AuditModel {
 
     public void setConversationUserLabels(Set<ConversationUserLabel> conversationUserLabels) {
         this.conversationUserLabels = conversationUserLabels;
+    }
+
+    public boolean isCanSwitchUser() {
+        return canSwitchUser;
+    }
+
+    public void setCanSwitchUser(boolean canSwitchUser) {
+        this.canSwitchUser = canSwitchUser;
     }
 }

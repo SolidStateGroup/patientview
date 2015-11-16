@@ -32,7 +32,7 @@
         <repository>
             <id>nexus</id>
             <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com</url>
+            <url>http://nexus2.solidstategroup.com</url>
         </repository>
         <repository>
             <id>spring-milestones</id>

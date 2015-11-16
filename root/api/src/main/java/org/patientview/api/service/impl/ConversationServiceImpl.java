@@ -442,6 +442,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 anonConversationUser.setConversationUserLabels(conversationUser.getConversationUserLabels());
                 newConversation.getConversationUsers().add(anonConversationUser);
             } else {
+                // validate if current user can switch to this user (used to allow view patient)
+                conversationUser.setCanSwitchUser(userService.currentUserCanSwitchToUser(conversationUser.getUser()));
                 newConversation.getConversationUsers().add(conversationUser);
             }
         }

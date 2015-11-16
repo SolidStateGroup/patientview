@@ -966,6 +966,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $rootScope.previousLoggedInUser = $scope.loggedInUser;
             localStorageService.set('previousLoggedInUser', $scope.loggedInUser);
 
+            $rootScope.previousLocation = '/patients';
+            localStorageService.set('previousLocation', '/patients');
+
             $rootScope.authToken = authToken;
             $cookies.authToken = authToken;
             localStorageService.set('authToken', authToken);

@@ -241,8 +241,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$rootScope', '$modal', '$q', '$filter',
-    'ConversationService', 'GroupService', 'UserService',
-function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupService, UserService) {
+    'ConversationService', 'GroupService', 'UserService', 'AuthService', '$location', 'localStorageService', '$cookies',
+function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupService, UserService, AuthService, $location, localStorageService, $cookies) {
 
     var init = function() {
         $scope.itemsPerPage = 5;
@@ -635,6 +635,59 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         printWindow.print();
         printWindow.close();
     };
-    
+
+    // view patient
+    $scope.viewUser = function (userId) {
+        $scope.loadingMessage = 'Viewing Patient';
+        $scope.loading = true;
+        $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
+        $rootScope.switchingUser = true;
+        var currentToken = $rootScope.authToken;
+
+        AuthService.switchUser(userId, null).then(function(authToken) {
+
+            $rootScope.previousAuthToken = currentToken;
+            localStorageService.set('previousAuthToken', currentToken);
+
+            $rootScope.previousLoggedInUser = $scope.loggedInUser;
+            localStorageService.set('previousLoggedInUser', $scope.loggedInUser);
+
+            $rootScope.previousLocation = '/conversations';
+            localStorageService.set('previousLocation', '/conversations');
+
+            $rootScope.authToken = authToken;
+            $cookies.authToken = authToken;
+            localStorageService.set('authToken', authToken);
+
+            // get user information, store in session
+            AuthService.getUserInformation(authToken).then(function (userInformation) {
+
+                var user = userInformation.user;
+                delete userInformation.user;
+                user.userInformation = userInformation;
+
+                $rootScope.loggedInUser = user;
+                localStorageService.set('loggedInUser', user);
+
+                $rootScope.routes = userInformation.routes;
+                localStorageService.set('routes', userInformation.routes);
+
+                $scope.loading = false;
+                $location.path('/dashboard');
+                delete $rootScope.switchingUser;
+
+            }, function() {
+                alert('Error receiving user information');
+                $scope.loading = false;
+            });
+
+        }, function() {
+            alert('Cannot view patient');
+            $scope.loading = false;
+            delete $rootScope.switchingUser;
+        });
+    };
+
     init();
 }]);

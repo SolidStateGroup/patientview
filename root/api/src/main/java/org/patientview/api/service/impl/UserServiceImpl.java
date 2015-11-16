@@ -1708,6 +1708,90 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return toHex(salt);
     }
 
+    @Override
+    public void moveUsersGroup(final Long groupFromId, final Long groupToId, final Long roleId,
+        final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
+
+        // check all exist
+        final Group groupFrom = groupRepository.findOne(groupFromId);
+        final Group groupTo = groupRepository.findOne(groupToId);
+        final Role role = roleRepository.findOne(roleId);
+
+        if (groupFrom == null) {
+            throw new ResourceNotFoundException("Moving Users: Group with id " + groupFromId + " does not exist");
+        }
+        if (groupTo == null) {
+            throw new ResourceNotFoundException("Moving Users: Group with id " + groupToId + " does not exist");
+        }
+        if (role == null) {
+            throw new ResourceNotFoundException("Moving Users: Role with id " + roleId + " does not exist");
+        }
+
+        String[] groupFromIds = {groupFromId.toString()};
+        String[] groupToIds = {groupToId.toString()};
+        String[] roleIds = {roleId.toString()};
+
+        GetParameters getParametersFrom = new GetParameters();
+        getParametersFrom.setGroupIds(groupFromIds);
+        getParametersFrom.setRoleIds(roleIds);
+
+        GetParameters getParametersTo = new GetParameters();
+        getParametersTo.setGroupIds(groupToIds);
+        getParametersTo.setRoleIds(roleIds);
+
+        Page<User> usersFrom = getUsersByGroupsAndRolesNoFilter(getParametersFrom);
+        Page<User> usersTo = getUsersByGroupsAndRolesNoFilter(getParametersTo);
+
+        int count = 0;
+        int countDelete = 0;
+
+        LOG.info("Moving Users: Moving " + usersFrom.getContent().size() + " users with Role '"
+                + role.getName().toString() + "' from Group with code '"
+                + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
+
+        for (User user : usersFrom.getContent()) {
+            if (checkParentGroup) {
+                // method using full add and remove group role, including parent groups
+
+                LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
+                        + role.getName().toString() + "' for user '" + user.getUsername() + "'");
+                deleteGroupRole(user.getId(), groupFromId, roleId);
+                countDelete++;
+
+                if (!usersTo.getContent().contains(user)) {
+                    LOG.info("Moving Users: Adding GroupRole '" + groupTo.getCode() + ", "
+                            + role.getName().toString() + "'  for user '" + user.getUsername() + "'");
+                    addGroupRole(user.getId(), groupToId, roleId);
+                    count++;
+                }
+            } else {
+                // alternate method using direct GroupRole modification
+                GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(user, groupFrom, role);
+                if (entityGroupRole != null) {
+                    LOG.info("Moving Users: Deleting GroupRole '" + groupFrom.getCode() + ", "
+                            + role.getName().toString() + "' for user '" + user.getUsername() + "'");
+                    groupRoleRepository.delete(entityGroupRole);
+                    countDelete++;
+                }
+
+                if (!usersTo.getContent().contains(user)) {
+                    LOG.info("Moving Users: Adding GroupRole '" + groupTo.getCode() + ", "
+                            + role.getName().toString() + "'  for user '" + user.getUsername() + "'");
+                    GroupRole newGroupRole = new GroupRole(user, groupTo, role);
+                    groupRoleRepository.save(newGroupRole);
+                    count++;
+                }
+            }
+        }
+
+        LOG.info("Moving Users: Moved " + countDelete + " users with Role '"
+                + role.getName().toString()
+                + "' from Group with code '" + groupFrom.getCode() + "' to '" + groupTo.getCode() + "'");
+        LOG.info("Moving Users: " + countDelete + " deleted GroupRole");
+        LOG.info("Moving Users: " + count + " added GroupRole");
+        LOG.info("Moving Users: " + (countDelete - count) + " already in new group");
+    }
+
     /**
      * Converts a byte array into a hexadecimal string.
      *

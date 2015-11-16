@@ -164,6 +164,17 @@ public class ImportControllerTest {
         }
     }
 
+    // hfdemo
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestHfdemo() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/hfdemo/EDINHF1_5745634581_01.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // used to test the service once running (milestone 4 files)
     @Test
     @Ignore("IntegrationTest")
@@ -245,8 +256,8 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
-        //String postUrl="https://production.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://production.patientview.org/importer/import";
         //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);

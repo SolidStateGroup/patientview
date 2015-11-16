@@ -303,6 +303,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 delete $rootScope.authToken;
                 delete $rootScope.previousAuthToken;
                 delete $rootScope.previousLoggedInUser;
+                delete $rootScope.previousLocation;
                 delete $cookies.authToken;
                 localStorageService.clearAll();
                 $location.path('/');
@@ -335,7 +336,14 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
                         $rootScope.setUnreadConversationCount();
 
-                        $location.path('/patients').search('a');
+                        if ($rootScope.previousLocation != undefined && $rootScope.previousLocation != null) {
+                            $location.path($rootScope.previousLocation).search('a');
+
+                            delete $rootScope.previousLocation;
+                            localStorageService.remove('previousLocation');
+                        } else {
+                            $location.path('/patients').search('a');
+                        }
 
                         delete $rootScope.previousAuthToken;
                         localStorageService.remove('previousAuthToken');
@@ -372,6 +380,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             var previousLoggedInUser = localStorageService.get('previousLoggedInUser');
             if (previousLoggedInUser !== undefined) {
                 $rootScope.previousLoggedInUser = previousLoggedInUser;
+            }
+
+            // get previous location
+            var previousLocation = localStorageService.get('previousLocation');
+            if (previousLocation !== undefined) {
+                $rootScope.previousLocation = previousLocation;
             }
 
             // get cookie user
