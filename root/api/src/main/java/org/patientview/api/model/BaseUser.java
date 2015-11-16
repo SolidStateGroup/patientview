@@ -26,6 +26,8 @@ public class BaseUser {
     // picture, stored as base64 in database, but retrieved using separate call to User controller
     private String picture;
 
+    private boolean canSwitchUser;
+
     public BaseUser() {
     }
 
@@ -40,6 +42,8 @@ public class BaseUser {
         if (StringUtils.isNotEmpty(user.getPicture())) {
             setPicture(Integer.toString(user.getPicture().length()));
         }
+
+        setCanSwitchUser(user.isCanSwitchUser());
     }
 
     public BaseUser(org.patientview.api.model.User user) {
@@ -53,6 +57,8 @@ public class BaseUser {
         if (StringUtils.isNotEmpty(user.getPicture())) {
             setPicture(Integer.toString(user.getPicture().length()));
         }
+
+        setCanSwitchUser(user.isCanSwitchUser());
     }
 
     public Long getId() {
@@ -117,5 +123,13 @@ public class BaseUser {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public boolean isCanSwitchUser() {
+        return canSwitchUser;
+    }
+
+    public void setCanSwitchUser(boolean canSwitchUser) {
+        this.canSwitchUser = canSwitchUser;
     }
 }

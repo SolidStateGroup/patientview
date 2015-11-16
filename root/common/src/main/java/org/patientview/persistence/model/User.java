@@ -125,6 +125,9 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<FhirLink> fhirLinks;
 
+    @Transient
+    private boolean canSwitchUser;
+
     public String getUsername() {
         return username;
     }
@@ -398,5 +401,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setCurrentLoginIpAddress(String currentLoginIpAddress) {
         this.currentLoginIpAddress = currentLoginIpAddress;
+    }
+
+    public boolean isCanSwitchUser() {
+        return canSwitchUser;
+    }
+
+    public void setCanSwitchUser(boolean canSwitchUser) {
+        this.canSwitchUser = canSwitchUser;
     }
 }

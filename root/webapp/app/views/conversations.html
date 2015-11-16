@@ -145,14 +145,14 @@
                     <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
                     <div class="last-message">
                         <h4>Most recent message from:
-                            <a href="" data-ng-click="viewUser(getLastMessageUser(conversation).id)" data-ng-if="conversationUser.canSwitchUser">
+                            <a href="" data-ng-click="viewUser(getLastMessageUser(conversation).id)" data-ng-if="getLastMessageUser(conversation).canSwitchUser">
                                 <span class="label label-info conversation-user-label">
                                     {{getLastMessageUser(conversation).forename}} {{getLastMessageUser(conversation).surname}}
-                                    <span data-ng-show="conversationUser.user.roleDescription"> ({{getLastMessageUser(conversation).roleDescription}})</span>
-                                    <span data-ng-show="conversationUser.user.deleted"> (deleted)</span></span><span>(View Patient)</span></a>
-                                <span class="label label-info conversation-user-label" data-ng-if="!conversationUser.canSwitchUser">
+                                    <span data-ng-show="getLastMessageUser(conversation).roleDescription"> ({{getLastMessageUser(conversation).roleDescription}})</span>
+                                    <span data-ng-show="getLastMessageUser(conversation).deleted"> (deleted)</span></span><span>(View Patient)</span></a>
+                                <span class="label label-info conversation-user-label" data-ng-if="!getLastMessageUser(conversation).canSwitchUser">
                                     {{getLastMessageUser(conversation).forename}} {{getLastMessageUser(conversation).surname}}
-                                    <span data-ng-show="conversationUser.user.deleted"> (deleted)</span></span>
+                                    <span data-ng-show="getLastMessageUser(conversation).deleted"> (deleted)</span></span>
                             <span data-ng-show="getLastMessageUser(conversation).deleted"> (deleted)</span>
                         </h4>
                         
@@ -196,7 +196,7 @@
                         <h4 class="message-title">
                             <span data-ng-show="message.unread" class="label label-success pull-right new-message">New</span>
                             <span data-ng-show="message.user">
-                                <a href="" data-ng-click="viewUser(conversationUser.user.id)" data-ng-if="message.user.canSwitchUser">
+                                <a href="" data-ng-click="viewUser(message.user.id)" data-ng-if="message.user.canSwitchUser">
                                 <span class="label label-info conversation-user-label">
                                     {{message.user.forename}} {{message.user.surname}}
                                     <span data-ng-show="message.user.roleDescription"> ({{message.user.roleDescription}})</span>

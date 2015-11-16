@@ -463,6 +463,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 if (anonUserIds.contains(message.getUser().getId())) {
                     newMessage.setUser(anonUser);
                 } else {
+                    message.getUser().setCanSwitchUser(
+                            userService.currentUserCanSwitchToUser(message.getUser())
+                        && !getCurrentUser().equals(message.getUser()));
                     newMessage.setUser(message.getUser());
                 }
             }
