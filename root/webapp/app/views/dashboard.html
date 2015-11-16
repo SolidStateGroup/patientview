@@ -67,6 +67,16 @@
         padding: 0px;
     }
 
+    i.icon-forward-to{
+        background: url('../images/icons/forward-to.png') 0 0 no-repeat;
+        height: 22px;
+        width: 23px;
+        display:block;
+        margin-left:10px;
+        position: relative;
+        top: 4px;
+    }
+
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -583,8 +593,11 @@
                         </div>
                     </li>
                     <li data-ng-if="newsItems.length < newsItemsTotalElements">
-                        <span class="pull-left">
-                            <button class="btn blue" href="/#/news">Older News</button>
+                        <span class="pull-right">
+                            <button class="btn blue" href="/#/news">
+                                Older News
+                                <i class="icon-forward-to pull-right"></i>
+                            </button>
                         </span>
                     </li>
                 </ul>
