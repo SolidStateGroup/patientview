@@ -583,6 +583,11 @@
                             </div>
                         </div>
                     </li>
+                    <li data-ng-if="newsItems.length < newsItemsTotalElements">
+                        <h4 class="pull-right">
+                            <a href="/#/news">Older News</a>
+                        </h4>
+                    </li>
                 </ul>
                 <ul class="unstyled" data-ng-hide="newsItems">
                     <li class="news-item content-panel">
