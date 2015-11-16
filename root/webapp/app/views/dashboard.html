@@ -577,16 +577,15 @@
                                 <p data-ng-bind-html="parseHTMLText(news.story)"></p>
 
                                 <div class="news-actions">
-                                    <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read Story
-                                    </button>
+                                    <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read Story</button>
                                 </div>
                             </div>
                         </div>
                     </li>
                     <li data-ng-if="newsItems.length < newsItemsTotalElements">
-                        <h4 class="pull-right">
-                            <a href="/#/news">Older News</a>
-                        </h4>
+                        <span class="pull-left">
+                            <button class="btn blue" href="/#/news">Older News</button>
+                        </span>
                     </li>
                 </ul>
                 <ul class="unstyled" data-ng-hide="newsItems">
