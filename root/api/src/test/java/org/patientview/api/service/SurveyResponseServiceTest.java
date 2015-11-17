@@ -31,6 +31,8 @@ import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
+import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
@@ -117,7 +119,6 @@ public class SurveyResponseServiceTest {
 
     @Test
     public void testAdd() throws ResourceNotFoundException, MessagingException {
-
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -172,22 +173,17 @@ public class SurveyResponseServiceTest {
         surveyResponse.setDate(new Date());
         surveyResponse.setSurvey(survey);
 
-        surveyResponse.getSurveyResponseScores().add(
-            new SurveyResponseScore(surveyResponse, SurveyResponseScoreTypes.SYMPTOM_SCORE, 16, ScoreSeverity.HIGH));
-
         Question question = new Question();
         question.setId(1L);
-
-        QuestionOption questionOption = new QuestionOption();
-        questionOption.setId(1L);
+        question.setType(QuestionTypes.FEELING);
+        question.setElementType(QuestionElementTypes.SINGLE_SELECT_RANGE);
 
         QuestionAnswer questionAnswer = new QuestionAnswer();
-        questionAnswer.setQuestionOption(questionOption);
         questionAnswer.setQuestion(question);
+        questionAnswer.setValue("20");
         surveyResponse.getQuestionAnswers().add(questionAnswer);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(questionOptionRepository.findOne(eq(questionOption.getId()))).thenReturn(questionOption);
         when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
         when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
 
@@ -249,7 +245,7 @@ public class SurveyResponseServiceTest {
         staffUser.getUserFeatures().add(TestUtils.createUserFeature(scoringAlertFeature, staffUser));
 
         Lookup specialtyGroupLookup
-            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+                = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
         List<Role> staffRoles = new ArrayList<>();
         staffRoles.add(staffRole);
 
@@ -270,22 +266,17 @@ public class SurveyResponseServiceTest {
         surveyResponse.setDate(new Date());
         surveyResponse.setSurvey(survey);
 
-        surveyResponse.getSurveyResponseScores().add(
-            new SurveyResponseScore(surveyResponse, SurveyResponseScoreTypes.SYMPTOM_SCORE, 10, ScoreSeverity.MEDIUM));
-
         Question question = new Question();
         question.setId(1L);
-
-        QuestionOption questionOption = new QuestionOption();
-        questionOption.setId(1L);
+        question.setType(QuestionTypes.FEELING);
+        question.setElementType(QuestionElementTypes.SINGLE_SELECT_RANGE);
 
         QuestionAnswer questionAnswer = new QuestionAnswer();
-        questionAnswer.setQuestionOption(questionOption);
         questionAnswer.setQuestion(question);
+        questionAnswer.setValue("1");
         surveyResponse.getQuestionAnswers().add(questionAnswer);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(questionOptionRepository.findOne(eq(questionOption.getId()))).thenReturn(questionOption);
         when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
         when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
 

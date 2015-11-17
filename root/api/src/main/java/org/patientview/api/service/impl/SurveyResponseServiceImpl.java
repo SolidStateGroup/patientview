@@ -184,7 +184,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         surveyResponseRepository.save(newSurveyResponse);
 
         // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
-        sendScoringAlerts(user, survey, surveyResponse);
+        sendScoringAlerts(user, survey, newSurveyResponse);
     }
 
     private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
