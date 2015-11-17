@@ -6,6 +6,7 @@ import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.ConversationUserLabel;
@@ -46,6 +47,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -101,6 +103,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     private UserRepository userRepository;
 
     @Override
+    @Transactional
     public void add(Long userId, SurveyResponse surveyResponse) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -249,11 +252,13 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             conversation.setType(ConversationTypes.MESSAGE);
                             conversation.setCreator(notificationUser);
                             conversation.setCreated(now);
+                            conversation.setOpen(false);
 
                             // ConversationUsers and associated ConversationUserLabel
                             ConversationUser notificationConversationUser
                                     = new ConversationUser(conversation, notificationUser);
                             notificationConversationUser.setCreator(notificationUser);
+                            notificationConversationUser.setAnonymous(false);
 
                             ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
                             notificationConversationUserLabel.setConversationUser(notificationConversationUser);
@@ -268,6 +273,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             ConversationUser staffConversationUser
                                     = new ConversationUser(conversation, staffUser);
                             staffConversationUser.setCreator(notificationUser);
+                            staffConversationUser.setAnonymous(false);
 
                             ConversationUserLabel staffConversationUserLabel = new ConversationUserLabel();
                             staffConversationUserLabel.setConversationUser(staffConversationUser);
@@ -291,7 +297,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             message.setType(MessageTypes.MESSAGE);
 
                             StringBuilder msg = new StringBuilder();
-                            msg.append("A poor symptom score has been entered by a patient with details: <br/>");
+                            msg.append("A poor symptom score has been entered by a patient with details:<br/>");
                             msg.append("<br/>Name: ");
                             msg.append(user.getName());
                             msg.append("<br/>Username: ");
@@ -299,12 +305,14 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             msg.append("<br/>Identifier(s): ");
 
                             for (Identifier identifier : user.getIdentifiers()) {
-                                msg.append(identifier);
+                                msg.append(identifier.getIdentifier());
                                 msg.append(" ");
                             }
 
-                            msg.append("<br/><br/>Score Type: ");
+                            msg.append("<br/>Score Type: ");
                             msg.append(survey.getType().getName());
+                            msg.append("<br/>Score Date: ");
+                            msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
 
                             if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
                                 msg.append("<br/>Score: ");
