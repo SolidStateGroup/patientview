@@ -1,13 +1,20 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.ConversationUserLabel;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
@@ -16,15 +23,19 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ConversationLabel;
+import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
@@ -33,14 +44,19 @@ import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -52,10 +68,19 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         implements SurveyResponseService {
 
     @Inject
+    private ConversationRepository conversationRepository;
+
+    @Inject
+    private EmailService emailService;
+
+    @Inject
     private FeatureRepository featureRepository;
 
     @Inject
     private LookupService lookupService;
+
+    @Inject
+    private Properties properties;
 
     @Inject
     private QuestionRepository questionRepository;
@@ -163,49 +188,169 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
-
         // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
         if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
                 || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
 
-            // get groups, roles and feature id from user/IBD_SCORING_ALERTS feature to find staff to send alert email
-            Set<Long> groupIds = new HashSet<>();
-            Set<Long> roleIds = new HashSet<>();
-            List<Long> featureIds = new ArrayList<>();
-
-            // get specialty group type, used to avoid getting all staff users in a user's specialty
-            Lookup specialtyGroupType
-                    = lookupService.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.SPECIALTY.toString());
-
-            // get staff roles
-            List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-            for (Role role : staffRoles) {
-                roleIds.add(role.getId());
-            }
-
-            // get IBD_SCORING_ALERTS feature
-            Feature scoringAlertFeature = featureRepository.findByName(FeatureType.IBD_SCORING_ALERTS.toString());
-            if (scoringAlertFeature != null) {
-                featureIds.add(scoringAlertFeature.getId());
-            }
-
-            // get user's groups (ignoring specialty)
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                if (!groupRole.getGroup().getGroupType().equals(specialtyGroupType)) {
-                    groupIds.add(groupRole.getGroup().getId());
+            // check if score warrants an alert sending
+            boolean sendAlerts = false;
+            for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                if (score.getSeverity().equals(ScoreSeverity.HIGH)) {
+                    sendAlerts = true;
                 }
             }
 
-            // get list of suitable staff users to send alerts to
-            Page<User> staffUsers = userRepository.findStaffByGroupsRolesFeatures(
-                    "%%", new ArrayList<>(groupIds), new ArrayList<>(roleIds), featureIds,
-                    new PageRequest(0, Integer.MAX_VALUE));
+            if (sendAlerts) {
+                // get groups, roles and feature id from user/IBD_SCORING_ALERTS feature to find staff to send alert
+                Set<Long> groupIds = new HashSet<>();
+                Set<Long> roleIds = new HashSet<>();
+                List<Long> featureIds = new ArrayList<>();
 
-            if (staffUsers != null) {
-                for (User staffUser : staffUsers.getContent()) {
-                    // send secure message with patient details and score
+                // get specialty group type, used to avoid getting all staff users in a user's specialty
+                Lookup specialtyGroupType
+                        = lookupService.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.SPECIALTY.toString());
 
-                    // send email with no patient identifiable information
+                // get staff roles
+                List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+                for (Role role : staffRoles) {
+                    roleIds.add(role.getId());
+                }
+
+                // get IBD_SCORING_ALERTS feature
+                Feature scoringAlertFeature = featureRepository.findByName(FeatureType.IBD_SCORING_ALERTS.toString());
+                if (scoringAlertFeature != null) {
+                    featureIds.add(scoringAlertFeature.getId());
+                }
+
+                // get user's groups (ignoring specialty)
+                for (GroupRole groupRole : user.getGroupRoles()) {
+                    if (!groupRole.getGroup().getGroupType().equals(specialtyGroupType)) {
+                        groupIds.add(groupRole.getGroup().getId());
+                    }
+                }
+
+                // get list of suitable staff users to send alerts to
+                Page<User> staffUsers = userRepository.findStaffByGroupsRolesFeatures(
+                        "%%", new ArrayList<>(groupIds), new ArrayList<>(roleIds), featureIds,
+                        new PageRequest(0, Integer.MAX_VALUE));
+
+                if (staffUsers != null) {
+                    for (User staffUser : staffUsers.getContent()) {
+                        // only send secure message and email if PatientView Notifications exists
+                        User notificationUser
+                                = userRepository.findByUsernameCaseInsensitive("patientviewnotifications");
+
+                        if (notificationUser != null) {
+                            // send secure message from PatientView Notifications (patientviewnotifications) user with
+                            // patient details and score
+                            Date now = new Date();
+                            Conversation conversation = new Conversation();
+                            conversation.setTitle("Poor Symptom Score: " + user.getUsername());
+                            conversation.setType(ConversationTypes.MESSAGE);
+                            conversation.setCreator(notificationUser);
+                            conversation.setCreated(now);
+
+                            // ConversationUsers and associated ConversationUserLabel
+                            ConversationUser notificationConversationUser
+                                    = new ConversationUser(conversation, notificationUser);
+                            notificationConversationUser.setCreator(notificationUser);
+
+                            ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
+                            notificationConversationUserLabel.setConversationUser(notificationConversationUser);
+                            notificationConversationUserLabel.setCreator(notificationUser);
+                            notificationConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+
+                            notificationConversationUser.setConversationUserLabels(
+                                    new HashSet<ConversationUserLabel>());
+                            notificationConversationUser.getConversationUserLabels()
+                                    .add(notificationConversationUserLabel);
+
+                            ConversationUser staffConversationUser
+                                    = new ConversationUser(conversation, staffUser);
+                            staffConversationUser.setCreator(notificationUser);
+
+                            ConversationUserLabel staffConversationUserLabel = new ConversationUserLabel();
+                            staffConversationUserLabel.setConversationUser(staffConversationUser);
+                            staffConversationUserLabel.setCreator(notificationUser);
+                            staffConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+
+                            staffConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                            staffConversationUser.getConversationUserLabels().add(staffConversationUserLabel);
+
+                            conversation.setConversationUsers(new HashSet<ConversationUser>());
+                            conversation.getConversationUsers().add(notificationConversationUser);
+                            conversation.getConversationUsers().add(staffConversationUser);
+
+                            // Conversation Message
+                            conversation.setMessages(new ArrayList<Message>());
+                            Message message = new Message();
+                            message.setConversation(conversation);
+                            message.setCreator(notificationUser);
+                            message.setCreated(now);
+                            message.setUser(notificationUser);
+                            message.setType(MessageTypes.MESSAGE);
+
+                            StringBuilder msg = new StringBuilder();
+                            msg.append("A poor symptom score has been entered by a patient with details: <br/>");
+                            msg.append("<br/>Name: ");
+                            msg.append(user.getName());
+                            msg.append("<br/>Username: ");
+                            msg.append(user.getUsername());
+                            msg.append("<br/>Identifier(s): ");
+
+                            for (Identifier identifier : user.getIdentifiers()) {
+                                msg.append(identifier);
+                                msg.append(" ");
+                            }
+
+                            msg.append("<br/><br/>Score Type: ");
+                            msg.append(survey.getType().getName());
+
+                            if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
+                                msg.append("<br/>Score: ");
+                                for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                                    msg.append(score.getScore());
+                                    if (score.getSeverity() != null) {
+                                        msg.append(" (");
+                                        msg.append(score.getSeverity().getName());
+                                        msg.append(")");
+                                    }
+                                }
+                            }
+
+                            message.setMessage(msg.toString());
+                            conversation.getMessages().add(message);
+
+                            // set updated, used in UI to order conversations
+                            conversation.setLastUpdate(now);
+                            conversation.setLastUpdater(notificationUser);
+
+                            // persist conversation
+                            conversationRepository.save(conversation);
+
+                            // send email with no patient identifiable information
+                            Email email = new Email();
+                            email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+                            email.setSenderName(properties.getProperty("smtp.sender.name"));
+                            email.setSubject("PatientView - Poor Symptom Score Recorded");
+                            email.setRecipients(new String[]{staffUser.getEmail()});
+
+                            email.setBody("Dear " + staffUser.getName()
+                                    + ", <br/><br/>A patient has recorded a poor symptom score on <a href=\""
+                                    + properties.getProperty("site.url") + "\">PatientView</a>"
+                                    + "<br/><br/>Please log in to view a message containing more details.<br/>");
+
+                            // try and send but ignore if exception and log
+                            try {
+                                emailService.sendEmail(email);
+                            } catch (MailException | MessagingException me) {
+                                LOG.error("Cannot send scoring alert email (continuing): {}", me);
+                            }
+                        } else {
+                            LOG.error("Cannot send scoring alert conversation, email "
+                                    + "(PatientView Notifications does not exist)");
+                        }
+                    }
                 }
             }
         }
