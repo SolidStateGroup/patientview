@@ -12,7 +12,8 @@ public enum FeatureType {
     UNIT_TECHNICAL_CONTACT("Unit Technical Contact"), 
     PATIENT_SUPPORT_CONTACT("Patient Support Contact"), 
     DEFAULT_MESSAGING_CONTACT("Default Messaging Contact"),
-    CENTRAL_SUPPORT_CONTACT("Central Support Contact");
+    CENTRAL_SUPPORT_CONTACT("Central Support Contact"),
+    IBD_SCORING_ALERTS("IBD Scoring Alerts");
 
     private String name;
     FeatureType(String name) { this.name = name; }

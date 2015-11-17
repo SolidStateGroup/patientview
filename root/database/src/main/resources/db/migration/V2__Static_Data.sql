@@ -186,6 +186,7 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (7, 'DEFAULT_MESSAGING_CONTACT', 'Default Messaging Contact', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (8, 'KEEP_ALL_DATA', 'Keep All Data', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (9, 'CENTRAL_SUPPORT_CONTACT', 'Central Support Contact', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (10, 'IBD_SCORING_ALERTS', 'IBD Scoring Alerts', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -197,6 +198,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (12, 7, 15)
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (13, 8, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (14, 4, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (15, 9, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (16, 10, 15);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );

@@ -1,31 +1,47 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.service.LookupService;
+import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionOption;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -36,10 +52,19 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         implements SurveyResponseService {
 
     @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
+    private LookupService lookupService;
+
+    @Inject
     private QuestionRepository questionRepository;
 
     @Inject
     private QuestionOptionRepository questionOptionRepository;
+
+    @Inject
+    private RoleService roleService;
 
     @Inject
     private SurveyRepository surveyRepository;
@@ -132,6 +157,58 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         }
 
         surveyResponseRepository.save(newSurveyResponse);
+
+        // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
+        sendScoringAlerts(user, survey, surveyResponse);
+    }
+
+    private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
+
+        // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
+        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+
+            // get groups, roles and feature id from user/IBD_SCORING_ALERTS feature to find staff to send alert email
+            Set<Long> groupIds = new HashSet<>();
+            Set<Long> roleIds = new HashSet<>();
+            List<Long> featureIds = new ArrayList<>();
+
+            // get specialty group type, used to avoid getting all staff users in a user's specialty
+            Lookup specialtyGroupType
+                    = lookupService.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.SPECIALTY.toString());
+
+            // get staff roles
+            List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+            for (Role role : staffRoles) {
+                roleIds.add(role.getId());
+            }
+
+            // get IBD_SCORING_ALERTS feature
+            Feature scoringAlertFeature = featureRepository.findByName(FeatureType.IBD_SCORING_ALERTS.toString());
+            if (scoringAlertFeature != null) {
+                featureIds.add(scoringAlertFeature.getId());
+            }
+
+            // get user's groups (ignoring specialty)
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (!groupRole.getGroup().getGroupType().equals(specialtyGroupType)) {
+                    groupIds.add(groupRole.getGroup().getId());
+                }
+            }
+
+            // get list of suitable staff users to send alerts to
+            Page<User> staffUsers = userRepository.findStaffByGroupsRolesFeatures(
+                    "%%", new ArrayList<>(groupIds), new ArrayList<>(roleIds), featureIds,
+                    new PageRequest(0, Integer.MAX_VALUE));
+
+            if (staffUsers != null) {
+                for (User staffUser : staffUsers.getContent()) {
+                    // send secure message with patient details and score
+
+                    // send email with no patient identifiable information
+                }
+            }
+        }
     }
 
     private Integer calculateScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type) {

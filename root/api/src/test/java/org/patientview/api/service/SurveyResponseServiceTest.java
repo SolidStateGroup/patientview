@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.SurveyResponseServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -22,18 +23,25 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,10 +63,19 @@ public class SurveyResponseServiceTest {
     User creator;
 
     @Mock
+    FeatureRepository featureRepository;
+
+    @Mock
+    LookupService lookupService;
+
+    @Mock
     QuestionRepository questionRepository;
 
     @Mock
     QuestionOptionRepository questionOptionRepository;
+
+    @Mock
+    RoleService roleService;
 
     @Mock
     SurveyRepository surveyRepository;
@@ -91,6 +108,8 @@ public class SurveyResponseServiceTest {
         user.setIdentifiers(new HashSet<Identifier>());
 
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString());
         Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
@@ -103,7 +122,27 @@ public class SurveyResponseServiceTest {
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
+        user.setGroupRoles(groupRoles);
 
+        // staff user for scoring alerts
+        User staffUser = TestUtils.createUser("staffUser");
+        staffUser.setId(2L);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        staffUser.setGroupRoles(new HashSet<GroupRole>());
+        staffUser.getGroupRoles().add(TestUtils.createGroupRole(staffRole, group, staffUser));
+        staffUser.setUserFeatures(new HashSet<UserFeature>());
+        Feature scoringAlertFeature = TestUtils.createFeature(FeatureType.IBD_SCORING_ALERTS.toString());
+        staffUser.getUserFeatures().add(TestUtils.createUserFeature(scoringAlertFeature, staffUser));
+
+        Lookup specialtyGroupLookup
+            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+        List<Role> staffRoles = new ArrayList<>();
+        staffRoles.add(staffRole);
+
+        List<User> staffUsers = new ArrayList<>();
+        staffUsers.add(staffUser);
+
+        // survey
         Survey survey = new Survey();
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
         survey.setId(1L);
@@ -128,6 +167,15 @@ public class SurveyResponseServiceTest {
         when(questionOptionRepository.findOne(eq(questionOption.getId()))).thenReturn(questionOption);
         when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
         when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
+
+        // scoring alerts
+        when(lookupService.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.SPECIALTY.toString())))
+                .thenReturn(specialtyGroupLookup);
+        when(roleService.getRolesByType(eq(RoleType.STAFF))).thenReturn(staffRoles);
+        when(featureRepository.findByName(eq(FeatureType.IBD_SCORING_ALERTS.toString())))
+                .thenReturn(scoringAlertFeature);
+        when(userRepository.findStaffByGroupsRolesFeatures(eq("%%"), any(List.class), any(List.class), any(List.class),
+                any(Pageable.class))).thenReturn(new PageImpl<>(staffUsers));
 
         surveyResponseService.add(user.getId(), surveyResponse);
 
