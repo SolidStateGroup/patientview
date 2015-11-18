@@ -33,7 +33,7 @@ public class PersistenceConfig extends CommonConfig {
     @PostConstruct
     public void init() {
         properties.setProperty("hibernate.hbm2ddl.auto", "validate");
-        properties.setProperty("hibernate.show_sql", "true");
+        properties.setProperty("hibernate.show_sql", "false");
         properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
 
     }
