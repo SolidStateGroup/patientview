@@ -238,40 +238,89 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                         new PageRequest(0, Integer.MAX_VALUE));
 
                 if (staffUsers != null) {
-                    for (User staffUser : staffUsers.getContent()) {
-                        // only send secure message and email if PatientView Notifications exists
-                        User notificationUser
-                                = userRepository.findByUsernameCaseInsensitive("patientviewnotifications");
+                    // only send secure message and email if PatientView Notifications exists
+                    User notificationUser
+                            = userRepository.findByUsernameCaseInsensitive("patientviewnotifications");
 
-                        if (notificationUser != null) {
-                            // send secure message from PatientView Notifications (patientviewnotifications) user with
-                            // patient details and score
-                            Date now = new Date();
-                            Conversation conversation = new Conversation();
-                            conversation.setTitle("Poor Symptom Score: " + user.getUsername());
-                            conversation.setType(ConversationTypes.MESSAGE);
-                            conversation.setCreator(notificationUser);
-                            conversation.setCreated(now);
-                            conversation.setOpen(false);
+                    if (notificationUser != null) {
+                        // send secure message from PatientView Notifications (patientviewnotifications) user with
+                        // patient details and score
+                        Date now = new Date();
+                        Conversation conversation = new Conversation();
+                        conversation.setTitle("Poor Symptom Score: " + user.getUsername());
+                        conversation.setType(ConversationTypes.MESSAGE);
+                        conversation.setCreator(notificationUser);
+                        conversation.setCreated(now);
+                        conversation.setOpen(false);
 
-                            // ConversationUsers and associated ConversationUserLabel
-                            ConversationUser notificationConversationUser
-                                    = new ConversationUser(conversation, notificationUser);
-                            notificationConversationUser.setCreator(notificationUser);
-                            notificationConversationUser.setAnonymous(false);
+                        // ConversationUsers and associated ConversationUserLabel
+                        ConversationUser notificationConversationUser
+                                = new ConversationUser(conversation, notificationUser);
+                        notificationConversationUser.setCreator(notificationUser);
+                        notificationConversationUser.setAnonymous(false);
 
-                            ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
-                            notificationConversationUserLabel.setConversationUser(notificationConversationUser);
-                            notificationConversationUserLabel.setCreator(notificationUser);
-                            notificationConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+                        ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
+                        notificationConversationUserLabel.setConversationUser(notificationConversationUser);
+                        notificationConversationUserLabel.setCreator(notificationUser);
+                        notificationConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
 
-                            notificationConversationUser.setConversationUserLabels(
-                                    new HashSet<ConversationUserLabel>());
-                            notificationConversationUser.getConversationUserLabels()
-                                    .add(notificationConversationUserLabel);
+                        notificationConversationUser.setConversationUserLabels(
+                                new HashSet<ConversationUserLabel>());
+                        notificationConversationUser.getConversationUserLabels()
+                                .add(notificationConversationUserLabel);
 
-                            ConversationUser staffConversationUser
-                                    = new ConversationUser(conversation, staffUser);
+                        conversation.setConversationUsers(new HashSet<ConversationUser>());
+                        conversation.getConversationUsers().add(notificationConversationUser);
+
+                        // Conversation Message
+                        conversation.setMessages(new ArrayList<Message>());
+                        Message message = new Message();
+                        message.setConversation(conversation);
+                        message.setCreator(notificationUser);
+                        message.setCreated(now);
+                        message.setUser(notificationUser);
+                        message.setType(MessageTypes.MESSAGE);
+
+                        StringBuilder msg = new StringBuilder();
+                        msg.append("A poor symptom score has been entered by a patient with details:<br/>");
+                        msg.append("<br/>Name: ");
+                        msg.append(user.getName());
+                        msg.append("<br/>Username: ");
+                        msg.append(user.getUsername());
+                        msg.append("<br/>Identifier(s): ");
+
+                        for (Identifier identifier : user.getIdentifiers()) {
+                            msg.append(identifier.getIdentifier());
+                            msg.append(" ");
+                        }
+
+                        msg.append("<br/>Score Type: ");
+                        msg.append(survey.getType().getName());
+                        msg.append("<br/>Score Date: ");
+                        msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
+
+                        if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
+                            msg.append("<br/>Score: ");
+                            for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                                msg.append(score.getScore());
+                                if (score.getSeverity() != null) {
+                                    msg.append(" (");
+                                    msg.append(score.getSeverity().getName());
+                                    msg.append(")");
+                                }
+                            }
+                        }
+
+                        message.setMessage(msg.toString());
+                        conversation.getMessages().add(message);
+
+                        // set updated, used in UI to order conversations
+                        conversation.setLastUpdate(now);
+                        conversation.setLastUpdater(notificationUser);
+
+                        for (User staffUser : staffUsers.getContent()) {
+                            // add conversation users to conversation
+                            ConversationUser staffConversationUser = new ConversationUser(conversation, staffUser);
                             staffConversationUser.setCreator(notificationUser);
                             staffConversationUser.setAnonymous(false);
 
@@ -283,60 +332,9 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             staffConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
                             staffConversationUser.getConversationUserLabels().add(staffConversationUserLabel);
 
-                            conversation.setConversationUsers(new HashSet<ConversationUser>());
-                            conversation.getConversationUsers().add(notificationConversationUser);
                             conversation.getConversationUsers().add(staffConversationUser);
 
-                            // Conversation Message
-                            conversation.setMessages(new ArrayList<Message>());
-                            Message message = new Message();
-                            message.setConversation(conversation);
-                            message.setCreator(notificationUser);
-                            message.setCreated(now);
-                            message.setUser(notificationUser);
-                            message.setType(MessageTypes.MESSAGE);
-
-                            StringBuilder msg = new StringBuilder();
-                            msg.append("A poor symptom score has been entered by a patient with details:<br/>");
-                            msg.append("<br/>Name: ");
-                            msg.append(user.getName());
-                            msg.append("<br/>Username: ");
-                            msg.append(user.getUsername());
-                            msg.append("<br/>Identifier(s): ");
-
-                            for (Identifier identifier : user.getIdentifiers()) {
-                                msg.append(identifier.getIdentifier());
-                                msg.append(" ");
-                            }
-
-                            msg.append("<br/>Score Type: ");
-                            msg.append(survey.getType().getName());
-                            msg.append("<br/>Score Date: ");
-                            msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
-
-                            if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
-                                msg.append("<br/>Score: ");
-                                for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
-                                    msg.append(score.getScore());
-                                    if (score.getSeverity() != null) {
-                                        msg.append(" (");
-                                        msg.append(score.getSeverity().getName());
-                                        msg.append(")");
-                                    }
-                                }
-                            }
-
-                            message.setMessage(msg.toString());
-                            conversation.getMessages().add(message);
-
-                            // set updated, used in UI to order conversations
-                            conversation.setLastUpdate(now);
-                            conversation.setLastUpdater(notificationUser);
-
-                            // persist conversation
-                            conversationRepository.save(conversation);
-
-                            // send email with no patient identifiable information
+                            // send personalised email to staff member with no patient identifiable information
                             Email email = new Email();
                             email.setSenderEmail(properties.getProperty("smtp.sender.email"));
                             email.setSenderName(properties.getProperty("smtp.sender.name"));
@@ -354,10 +352,13 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             } catch (MailException | MessagingException me) {
                                 LOG.error("Cannot send scoring alert email (continuing): {}", me);
                             }
-                        } else {
-                            LOG.error("Cannot send scoring alert conversation, email "
-                                    + "(PatientView Notifications does not exist)");
                         }
+
+                        // persist conversation
+                        conversationRepository.save(conversation);
+                    } else {
+                        LOG.error("Cannot send scoring alert conversation, email "
+                                + "(PatientView Notifications does not exist)");
                     }
                 }
             }
