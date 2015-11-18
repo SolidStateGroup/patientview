@@ -63,8 +63,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         var i;
         var data = [];
-        var minValue = Number.MAX_VALUE;
-        var maxValue = Number.MIN_VALUE;
+        var maxValue = [];
+        var minValue = [];
         var firstObservations = [];
         var series = [];
         var yAxis = [];
@@ -75,6 +75,13 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         $scope.codes.forEach(function(code, index) {
             if ($scope.observations[code] !== undefined) {
+                var observeHeading = $scope.findObservationHeadingByCode(code);
+
+                minValue[code] = observeHeading.minGraph
+                    ? parseFloat(observeHeading.minGraph) : Number.MAX_VALUE;
+                maxValue[code] = observeHeading.maxGraph
+                    ? parseFloat(observeHeading.maxGraph) : Number.MIN_VALUE;
+
                 data[code] = [];
 
                 for (i = $scope.observations[code].length - 1; i >= 0; i--) {
@@ -93,12 +100,12 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                         data[code].push(row);
 
                         // get min/max values for y-axis
-                        if (observation.value > maxValue) {
-                            maxValue = observation.value;
+                        if (observation.value > maxValue[code]) {
+                            maxValue[code] = row[1];
                         }
 
-                        if (observation.value < minValue) {
-                            minValue = observation.value;
+                        if (observation.value < minValue[code]) {
+                            minValue[code] = row[1];
                         }
                     }
                 }
@@ -117,6 +124,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
                 if (!sameScale) {
                     yAxisData.opposite = index == 0;
+                    yAxisData.max = maxValue[code];
+                    yAxisData.min = minValue[code];
                 }
 
                 yAxis.push(yAxisData);
