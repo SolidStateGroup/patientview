@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
+import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Email;
@@ -1514,7 +1515,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             User user = conversationUser.getUser();
 
             // only send messages to other users, not current user and only if user has email address
-            if (!user.getId().equals(getCurrentUser().getId()) && StringUtils.isNotEmpty(user.getEmail())) {
+            if (!user.getId().equals(getCurrentUser().getId()) && StringUtils.isNotEmpty(user.getEmail())
+                    && !user.getUsername().equals(DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName())) {
 
                 Email email = new Email();
                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));

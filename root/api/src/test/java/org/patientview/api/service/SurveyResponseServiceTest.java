@@ -9,6 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.impl.SurveyResponseServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -20,11 +21,9 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
-import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
-import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -160,7 +159,7 @@ public class SurveyResponseServiceTest {
         staffUsers.add(staffUser);
 
         // PatientView Notifications user, sends secure message (conversation)
-        User notificationsUser = TestUtils.createUser("patientviewnotifications");
+        User notificationsUser = TestUtils.createUser(DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName());
         notificationsUser.setId(3L);
 
         // survey
@@ -253,7 +252,7 @@ public class SurveyResponseServiceTest {
         staffUsers.add(staffUser);
 
         // PatientView Notifications user, sends secure message (conversation)
-        User notificationsUser = TestUtils.createUser("patientviewnotifications");
+        User notificationsUser = TestUtils.createUser(DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName());
         notificationsUser.setId(3L);
 
         // survey

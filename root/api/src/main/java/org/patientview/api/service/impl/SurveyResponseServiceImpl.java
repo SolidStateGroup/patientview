@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
@@ -239,8 +240,8 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
                 if (staffUsers != null) {
                     // only send secure message and email if PatientView Notifications exists
-                    User notificationUser
-                            = userRepository.findByUsernameCaseInsensitive("patientviewnotifications");
+                    User notificationUser = userRepository.findByUsernameCaseInsensitive(
+                            DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName());
 
                     if (notificationUser != null) {
                         // send secure message from PatientView Notifications (patientviewnotifications) user with
