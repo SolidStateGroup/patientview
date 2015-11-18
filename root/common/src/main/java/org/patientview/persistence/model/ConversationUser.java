@@ -41,6 +41,13 @@ public class ConversationUser extends AuditModel {
     @Transient
     private boolean canSwitchUser;
 
+    public ConversationUser() { }
+
+    public ConversationUser(Conversation conversation, User user) {
+        this.conversation = conversation;
+        this.user = user;
+    }
+
     @JsonIgnore
     public Conversation getConversation() {
         return conversation;

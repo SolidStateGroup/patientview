@@ -672,5 +672,18 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         });
     };
 
+    // show With: text next to recipients
+    $scope.showWithText = function(conversationUsers) {
+        if (conversationUsers.length > 2) {
+            return true;
+        }
+
+        for (var i=0; i<conversationUsers.length; i++) {
+            if (conversationUsers.user.username === 'patientviewnotifications') {
+                return false;
+            }
+        }
+    };
+
     init();
 }]);

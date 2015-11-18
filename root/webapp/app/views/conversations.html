@@ -130,9 +130,10 @@
                             {{conversation.title}} 
                             <span class="label label-danger label-archived" data-ng-show="conversation.archived">Archived</span>
                         </a>
-                        <span class="recipient pull-left">with:
+                        <span class="recipient pull-left">
+                            <span data-ng-if="showWithText(conversation.conversationUsers)">with: </span>
                             <span data-ng-repeat="conversationUser in conversation.conversationUsers | orderBy:['user.forename', 'user.surname']"
-                                  data-ng-show="conversationUser.user.id != loggedInUser.id">
+                                  data-ng-show="conversationUser.user.id != loggedInUser.id && conversationUser.user.username !== 'patientviewnotifications'">
                                 <a href="" title="View Patient" data-ng-click="viewUser(conversationUser.user.id)" data-ng-if="conversationUser.canSwitchUser">
                                 <span class="label label-info conversation-user-label">
                                     {{conversationUser.user.forename}} {{conversationUser.user.surname}}
