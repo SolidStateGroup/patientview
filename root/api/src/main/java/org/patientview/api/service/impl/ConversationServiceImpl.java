@@ -1492,8 +1492,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         sb.append(entityUser.getEmail());
         sb.append("\">");
         sb.append(entityUser.getEmail());
-        sb.append("</a>)<br/><br/>Content: <br/>");
+        sb.append("</a>)<br/><br/>Content: <br/><hr>");
         sb.append(conversation.getMessages().get(0).getMessage());
+        sb.append("<hr><br/>");
         email.setBody(sb.toString());
 
         // try and send but ignore if exception and log
