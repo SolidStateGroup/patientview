@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', '$rootScope',
-function ($http, $q, Restangular, $rootScope) {
+angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', 'UserService', '$rootScope',
+function ($http, $q, Restangular, UserService, $rootScope) {
     return {
         addConversationUser: function (conversationId, userId) {
             var deferred = $q.defer();
@@ -151,6 +151,25 @@ function ($http, $q, Restangular, $rootScope) {
                     deferred.reject(failureResult);
                 });
             return deferred.promise;
-        }
-    };
+        },
+        userHasMessagingFeature: function() {
+            // GLOBAL_ADMIN and PATIENT both always have messaging enabled
+            if (UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser)
+                || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
+                return true;
+            }
+
+            var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
+                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
+
+            for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
+                var feature = $scope.loggedInUser.userInformation.userFeatures[i];
+                if (messagingFeatures.indexOf(feature.name) > -1) {
+                    return true;
+                }
+            }
+
+            return false;
+            }
+        };
 }]);

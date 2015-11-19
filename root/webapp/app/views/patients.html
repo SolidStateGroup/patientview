@@ -23,7 +23,25 @@
                         data-ng-show="showForm && recipientsExist">Create Membership Request</button>
             </div>
         </script>
-        
+        <!-- new secure message conversation -->
+        <script type="text/ng-template" id="newConversationModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Conversation</h3>
+                <p>Add your Title and Message to send a secure message to a patient.</p>
+            </div>
+            <div class="modal-body">
+                <form name="conversationFormNew" data-ng-model="newConversation">
+                    <div data-ng-include src="'views/partials/conversationDetailsNew.html'" data-ng-controller="ConversationDetailsCtrl"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+                <button class="btn btn-primary" data-ng-click="ok()"
+                        data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
+                        data-ng-show="newConversation.recipients.length && !sendingMessage">Create New Secure Message</button>
+            </div>
+        </script>
         <!-- existing patient modal (search by identifier) -->
         <script type="text/ng-template" id="findExistingPatientModal.html">
             <div class="modal-header">
@@ -309,6 +327,7 @@
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                     <li><a href="" data-ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View Patient</a></li>
                                     <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li data-ng-show="permissions.messagingEnabled"><a href="" data-ng-click="openModalNewConversation('lg', user)" class="dropdown-menu-accordion-item">Send Secure Message</a></li>
                                     <li data-ng-show="permissions.showMembershipRequestMenuOption"><a href="" data-ng-click="openModalCreateMembershipRequest(user)" class="dropdown-menu-accordion-item">Send Membership Request</a></li>
                                     <li data-ng-hide="user.emailVerified || !permissions.canSendVerificationEmails" id="li-email-verified-{{user.id}}"><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
                                     <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>

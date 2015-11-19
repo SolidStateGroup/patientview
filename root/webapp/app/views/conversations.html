@@ -34,7 +34,7 @@
     }
 </style>
 
-<div data-ng-show="!loading && userHasMessagingFeature()">
+<div data-ng-show="!loading && hasMessagingFeature">
     <h1>Messages <button class="btn blue" data-ng-click="openModalNewConversation('lg')">Create New</button></h1>
     <!-- new conversation modal template -->
     <script type="text/ng-template" id="newConversationModal.html">
