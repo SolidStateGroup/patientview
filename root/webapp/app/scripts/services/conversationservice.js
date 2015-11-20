@@ -155,15 +155,15 @@ function ($http, $q, Restangular, UserService, $rootScope) {
         userHasMessagingFeature: function() {
             // GLOBAL_ADMIN and PATIENT both always have messaging enabled
             if (UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser)
-                || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
+                || UserService.checkRoleExists('PATIENT', $rootScope.loggedInUser) ) {
                 return true;
             }
 
             var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
                 'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
 
-            for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
-                var feature = $scope.loggedInUser.userInformation.userFeatures[i];
+            for (var i = 0; i < $rootScope.loggedInUser.userInformation.userFeatures.length; i++) {
+                var feature = $rootScope.loggedInUser.userInformation.userFeatures[i];
                 if (messagingFeatures.indexOf(feature.name) > -1) {
                     return true;
                 }

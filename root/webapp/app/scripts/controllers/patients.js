@@ -15,10 +15,6 @@ var NewPatientConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalIn
             $scope.newConversation.recipients = [];
             $scope.conversationGroups = [];
 
-
-
-            console.log(ConversationUser);
-
             var recipient = {};
             recipient.id = ConversationUser.id;
             var dob = new Date(ConversationUser.dateOfBirth);
@@ -26,10 +22,7 @@ var NewPatientConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalIn
                 " (" + dob.getDate() + "-"+UtilService.getMonthTextShort(dob.getMonth()) + "-" + dob.getFullYear() + ")";
             $scope.newConversation.recipients.push(recipient);
 
-
-
             GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
-
                 var myGroups = [];
                 var supportGroups = [];
                 var otherGroups = [];
