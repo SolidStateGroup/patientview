@@ -679,10 +679,14 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         }
 
         for (var i=0; i<conversationUsers.length; i++) {
-            if (conversationUsers.user.username === 'patientviewnotifications') {
+            if (conversationUsers[i].user.username === 'patientviewnotifications') {
                 return false;
             }
         }
+    };
+
+    $scope.userHasMessagingFeature = function() {
+        return ConversationService.userHasMessagingFeature();
     };
 
     init();

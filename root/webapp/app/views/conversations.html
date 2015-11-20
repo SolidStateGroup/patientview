@@ -252,8 +252,7 @@
         
     </div>
 </div>
-
-<div data-ng-show="!userHasMessagingFeature()">
+<div data-ng-if="!userHasMessagingFeature()">
     <h1>Messages</h1>
     <p>If you require messaging access please contact your group administrator.</p>
 </div>

@@ -160,7 +160,7 @@ function ($http, $q, Restangular, UserService, $rootScope) {
             }
 
             var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
-                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
+                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT', 'IBD_SCORING_ALERTS'];
 
             for (var i = 0; i < $rootScope.loggedInUser.userInformation.userFeatures.length; i++) {
                 var feature = $rootScope.loggedInUser.userInformation.userFeatures[i];
@@ -170,6 +170,6 @@ function ($http, $q, Restangular, UserService, $rootScope) {
             }
 
             return false;
-            }
-        };
+        }
+    };
 }]);
