@@ -683,6 +683,8 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
                 return false;
             }
         }
+
+        return true;
     };
 
     $scope.userHasMessagingFeature = function() {
