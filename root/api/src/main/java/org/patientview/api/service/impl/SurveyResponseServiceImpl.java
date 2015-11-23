@@ -6,6 +6,7 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Conversation;
@@ -25,6 +26,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -35,6 +37,7 @@ import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.ConversationRepository;
@@ -243,123 +246,139 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     User notificationUser = userRepository.findByUsernameCaseInsensitive(
                             DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName());
 
-                    if (notificationUser != null) {
-                        // send secure message from PatientView Notifications (patientviewnotifications) user with
-                        // patient details and score
-                        Date now = new Date();
-                        Conversation conversation = new Conversation();
-                        conversation.setTitle("Poor Symptom Score: " + user.getUsername());
-                        conversation.setType(ConversationTypes.MESSAGE);
-                        conversation.setCreator(notificationUser);
-                        conversation.setCreated(now);
-                        conversation.setOpen(false);
-
-                        // ConversationUsers and associated ConversationUserLabel
-                        ConversationUser notificationConversationUser
-                                = new ConversationUser(conversation, notificationUser);
-                        notificationConversationUser.setCreator(notificationUser);
-                        notificationConversationUser.setAnonymous(false);
-
-                        ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
-                        notificationConversationUserLabel.setConversationUser(notificationConversationUser);
-                        notificationConversationUserLabel.setCreator(notificationUser);
-                        notificationConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
-
-                        notificationConversationUser.setConversationUserLabels(
-                                new HashSet<ConversationUserLabel>());
-                        notificationConversationUser.getConversationUserLabels()
-                                .add(notificationConversationUserLabel);
-
-                        conversation.setConversationUsers(new HashSet<ConversationUser>());
-                        conversation.getConversationUsers().add(notificationConversationUser);
-
-                        // Conversation Message
-                        conversation.setMessages(new ArrayList<Message>());
-                        Message message = new Message();
-                        message.setConversation(conversation);
-                        message.setCreator(notificationUser);
-                        message.setCreated(now);
-                        message.setUser(notificationUser);
-                        message.setType(MessageTypes.MESSAGE);
-
-                        StringBuilder msg = new StringBuilder();
-                        msg.append("A poor symptom score has been entered by a patient with details:<br/>");
-                        msg.append("<br/>Name: ");
-                        msg.append(user.getName());
-                        msg.append("<br/>Username: ");
-                        msg.append(user.getUsername());
-                        msg.append("<br/>Identifier(s): ");
-
-                        for (Identifier identifier : user.getIdentifiers()) {
-                            msg.append(identifier.getIdentifier());
-                            msg.append(" ");
+                    // staff users must have both IBD_SCORING_ALERTS feature and messaging features
+                    Set<User> usersWithFeature = new HashSet<>();
+                    for (User staffUser : staffUsers.getContent()) {
+                        boolean hasMessagingFeature = false;
+                        for (UserFeature userFeature : staffUser.getUserFeatures()) {
+                            if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
+                                hasMessagingFeature = true;
+                            }
                         }
+                        if (hasMessagingFeature) {
+                            usersWithFeature.add(staffUser);
+                        }
+                    }
 
-                        msg.append("<br/>Score Type: ");
-                        msg.append(survey.getType().getName());
-                        msg.append("<br/>Score Date: ");
-                        msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
+                    if (!usersWithFeature.isEmpty()) {
+                        if (notificationUser != null) {
+                            // send secure message from PatientView Notifications (patientviewnotifications) user with
+                            // patient details and score
+                            Date now = new Date();
+                            Conversation conversation = new Conversation();
+                            conversation.setTitle("Poor Symptom Score: " + user.getUsername());
+                            conversation.setType(ConversationTypes.MESSAGE);
+                            conversation.setCreator(notificationUser);
+                            conversation.setCreated(now);
+                            conversation.setOpen(false);
 
-                        if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
-                            msg.append("<br/>Score: ");
-                            for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
-                                msg.append(score.getScore());
-                                if (score.getSeverity() != null) {
-                                    msg.append(" (");
-                                    msg.append(score.getSeverity().getName());
-                                    msg.append(")");
+                            // ConversationUsers and associated ConversationUserLabel
+                            ConversationUser notificationConversationUser
+                                    = new ConversationUser(conversation, notificationUser);
+                            notificationConversationUser.setCreator(notificationUser);
+                            notificationConversationUser.setAnonymous(false);
+
+                            ConversationUserLabel notificationConversationUserLabel = new ConversationUserLabel();
+                            notificationConversationUserLabel.setConversationUser(notificationConversationUser);
+                            notificationConversationUserLabel.setCreator(notificationUser);
+                            notificationConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+
+                            notificationConversationUser.setConversationUserLabels(
+                                    new HashSet<ConversationUserLabel>());
+                            notificationConversationUser.getConversationUserLabels()
+                                    .add(notificationConversationUserLabel);
+
+                            conversation.setConversationUsers(new HashSet<ConversationUser>());
+                            conversation.getConversationUsers().add(notificationConversationUser);
+
+                            // Conversation Message
+                            conversation.setMessages(new ArrayList<Message>());
+                            Message message = new Message();
+                            message.setConversation(conversation);
+                            message.setCreator(notificationUser);
+                            message.setCreated(now);
+                            message.setUser(notificationUser);
+                            message.setType(MessageTypes.MESSAGE);
+
+                            StringBuilder msg = new StringBuilder();
+                            msg.append("A poor symptom score has been entered by a patient with details:<br/>");
+                            msg.append("<br/>Name: ");
+                            msg.append(user.getName());
+                            msg.append("<br/>Username: ");
+                            msg.append(user.getUsername());
+                            msg.append("<br/>Identifier(s): ");
+
+                            for (Identifier identifier : user.getIdentifiers()) {
+                                msg.append(identifier.getIdentifier());
+                                msg.append(" ");
+                            }
+
+                            msg.append("<br/>Score Type: ");
+                            msg.append(survey.getType().getName());
+                            msg.append("<br/>Score Date: ");
+                            msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
+
+                            if (!CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores())) {
+                                msg.append("<br/>Score: ");
+                                for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                                    msg.append(score.getScore());
+                                    if (score.getSeverity() != null) {
+                                        msg.append(" (");
+                                        msg.append(score.getSeverity().getName());
+                                        msg.append(")");
+                                    }
                                 }
                             }
-                        }
 
-                        message.setMessage(msg.toString());
-                        conversation.getMessages().add(message);
+                            message.setMessage(msg.toString());
+                            conversation.getMessages().add(message);
 
-                        // set updated, used in UI to order conversations
-                        conversation.setLastUpdate(now);
-                        conversation.setLastUpdater(notificationUser);
+                            // set updated, used in UI to order conversations
+                            conversation.setLastUpdate(now);
+                            conversation.setLastUpdater(notificationUser);
 
-                        for (User staffUser : staffUsers.getContent()) {
-                            // add conversation users to conversation
-                            ConversationUser staffConversationUser = new ConversationUser(conversation, staffUser);
-                            staffConversationUser.setCreator(notificationUser);
-                            staffConversationUser.setAnonymous(false);
+                            for (User staffUser : staffUsers.getContent()) {
+                                // add conversation users to conversation
+                                ConversationUser staffConversationUser = new ConversationUser(conversation, staffUser);
+                                staffConversationUser.setCreator(notificationUser);
+                                staffConversationUser.setAnonymous(false);
 
-                            ConversationUserLabel staffConversationUserLabel = new ConversationUserLabel();
-                            staffConversationUserLabel.setConversationUser(staffConversationUser);
-                            staffConversationUserLabel.setCreator(notificationUser);
-                            staffConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+                                ConversationUserLabel staffConversationUserLabel = new ConversationUserLabel();
+                                staffConversationUserLabel.setConversationUser(staffConversationUser);
+                                staffConversationUserLabel.setCreator(notificationUser);
+                                staffConversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
 
-                            staffConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
-                            staffConversationUser.getConversationUserLabels().add(staffConversationUserLabel);
+                                staffConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                                staffConversationUser.getConversationUserLabels().add(staffConversationUserLabel);
 
-                            conversation.getConversationUsers().add(staffConversationUser);
+                                conversation.getConversationUsers().add(staffConversationUser);
 
-                            // send personalised email to staff member with no patient identifiable information
-                            Email email = new Email();
-                            email.setSenderEmail(properties.getProperty("smtp.sender.email"));
-                            email.setSenderName(properties.getProperty("smtp.sender.name"));
-                            email.setSubject("PatientView - Poor Symptom Score Recorded");
-                            email.setRecipients(new String[]{staffUser.getEmail()});
+                                // send personalised email to staff member with no patient identifiable information
+                                Email email = new Email();
+                                email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+                                email.setSenderName(properties.getProperty("smtp.sender.name"));
+                                email.setSubject("PatientView - Poor Symptom Score Recorded");
+                                email.setRecipients(new String[]{staffUser.getEmail()});
 
-                            email.setBody("Dear " + staffUser.getName()
-                                    + ", <br/><br/>A patient has recorded a poor symptom score on <a href=\""
-                                    + properties.getProperty("site.url") + "\">PatientView</a>"
-                                    + "<br/><br/>Please log in to view a message containing more details.<br/>");
+                                email.setBody("Dear " + staffUser.getName()
+                                        + ", <br/><br/>A patient has recorded a poor symptom score on <a href=\""
+                                        + properties.getProperty("site.url") + "\">PatientView</a>"
+                                        + "<br/><br/>Please log in to view a message containing more details.<br/>");
 
-                            // try and send but ignore if exception and log
-                            try {
-                                emailService.sendEmail(email);
-                            } catch (MailException | MessagingException me) {
-                                LOG.error("Cannot send scoring alert email (continuing): {}", me);
+                                // try and send but ignore if exception and log
+                                try {
+                                    emailService.sendEmail(email);
+                                } catch (MailException | MessagingException me) {
+                                    LOG.error("Cannot send scoring alert email (continuing): {}", me);
+                                }
                             }
-                        }
 
-                        // persist conversation
-                        conversationRepository.save(conversation);
-                    } else {
-                        LOG.error("Cannot send scoring alert conversation, email "
-                                + "(PatientView Notifications does not exist)");
+                            // persist conversation
+                            conversationRepository.save(conversation);
+                        } else {
+                            LOG.error("Cannot send scoring alert conversation, email "
+                                    + "(PatientView Notifications does not exist)");
+                        }
                     }
                 }
             }

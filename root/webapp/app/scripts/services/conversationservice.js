@@ -160,7 +160,9 @@ function ($http, $q, Restangular, UserService, $rootScope) {
             }
 
             var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
-                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT', 'IBD_SCORING_ALERTS'];
+                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
+
+            // although IBD_SCORING_ALERTS is a messaging feature, you must have MESSAGING or another enabled as well
 
             for (var i = 0; i < $rootScope.loggedInUser.userInformation.userFeatures.length; i++) {
                 var feature = $rootScope.loggedInUser.userInformation.userFeatures[i];
