@@ -149,6 +149,8 @@ public class SurveyResponseServiceTest {
         staffUser.setUserFeatures(new HashSet<UserFeature>());
         Feature scoringAlertFeature = TestUtils.createFeature(FeatureType.IBD_SCORING_ALERTS.toString());
         staffUser.getUserFeatures().add(TestUtils.createUserFeature(scoringAlertFeature, staffUser));
+        staffUser.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), staffUser));
 
         Lookup specialtyGroupLookup
             = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
