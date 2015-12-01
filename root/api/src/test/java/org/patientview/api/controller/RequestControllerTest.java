@@ -92,6 +92,18 @@ public class RequestControllerTest {
     }
 
     /**
+     * Test: Request to complete relevant SUBMITTED requests
+     * @throws Exception
+     */
+    @Test
+    public void testCompleteRequests() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders.post("/request/complete"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(requestService, Mockito.times(1)).completeRequests();
+    }
+
+    /**
      * Test: The request of get all of the request statuses
      * Fail: The service does not get called for requests
      */

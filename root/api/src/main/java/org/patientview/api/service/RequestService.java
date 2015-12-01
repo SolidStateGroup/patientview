@@ -31,6 +31,10 @@ public interface RequestService {
      */
     Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException;
 
+    /**
+     * Complete SUBMITTED requests. Completes join requests where a user already exists (and user was created after
+     * the request came in). Completes forgot login requests where a user has since logged in.
+     */
     @RoleOnly
     void completeRequests();
 
