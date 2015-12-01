@@ -132,19 +132,35 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         if (requests != null) {
             for (Request request : requests.getContent()) {
-                if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
-                    // is a join request, so clean up identifier and search for existing user
-                    if (request.getNhsNumber() != null) {
-                        String identifier = request.getNhsNumber().replace(" ", "").trim();
-                        if (StringUtils.isNotEmpty(identifier)) {
-                            List<Identifier> identifiers = identifierRepository.findByValue(identifier);
-                            if (!identifiers.isEmpty()) {
-                                // user with this identifier already exists
+                // clean up identifier and search for existing user
+                if (request.getNhsNumber() != null) {
+                    String identifier = request.getNhsNumber().replace(" ", "").trim();
+                    if (StringUtils.isNotEmpty(identifier)) {
+                        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+                        if (!identifiers.isEmpty()) {
+                            User user = identifiers.get(0).getUser();
+                            // user with this identifier already exists
+                            if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
                                 // only COMPLETE if patient creation date after request date
                                 // (user may have forgotten about account)
-                                if (identifiers.get(0).getUser().getCreated().after(request.getCreated())) {
+                                if (user.getCreated().after(request.getCreated())) {
                                     // set to COMPLETED and save
                                     request.setStatus(RequestStatus.COMPLETED);
+                                    request.setCompletedBy(getCurrentUser());
+                                    request.setCompletionDate(new Date());
+                                    requestRepository.save(request);
+                                }
+                            }
+                            else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
+                                // forgot login, so check if user has logged in since request created
+                                if ((user.getLastLogin() != null
+                                        && user.getLastLogin().after(request.getCreated()))
+                                    || (user.getLastLogin() != null
+                                        && user.getLastLogin().after(request.getCreated()))) {
+                                    // set to COMPLETED and save
+                                    request.setStatus(RequestStatus.COMPLETED);
+                                    request.setCompletedBy(getCurrentUser());
+                                    request.setCompletionDate(new Date());
                                     requestRepository.save(request);
                                 }
                             }
@@ -153,9 +169,6 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                 }
             }
         }
-        //Strip identifier entered in join request of all spaces
-        //Search for matching identifier in patient list
-        //If a match is found then set join request status to Completed UNLESS the patient date created is earlier than the join request date (implying that the patient may have forgotten about their account).
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,

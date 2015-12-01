@@ -149,26 +149,24 @@ public class RequestServiceTest {
         Assert.fail("The service should throw an exception");
     }
 
+    /**
+     * Test: Complete a SUBMITTED forgot login request where the user has now logged in successfully
+     * @throws ResourceNotFoundException
+     * @throws MessagingException
+     * @throws ResourceForbiddenException
+     */
     @Test
-    public void testCompleteJoinRequest()
+    public void testCompleteForgotLoginRequest()
             throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
-
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         // store "old" request
-        DateTime monthAgo = new DateTime(new Date()).minusMonths(1);
-
-        Group group = TestUtils.createGroup("TestGroup");
-        group.setContactPoints(new HashSet<ContactPoint>());
-        group.getContactPoints().add(TestUtils.createContactPoint("123", ContactPointTypes.PV_ADMIN_EMAIL));
-
         Request request = new Request();
         request.setForename("Test");
         request.setSurname("User");
         request.setDateOfBirth(new Date());
-        request.setGroupId(group.getId());
-        request.setType(RequestTypes.JOIN_REQUEST);
-        request.setCreated(monthAgo.toDate());
+        request.setType(RequestTypes.FORGOT_LOGIN);
+        request.setCreated(new DateTime(new Date()).minusMonths(1).toDate());
         request.setNhsNumber("111 111 1111");
 
         List<Request> requests = new ArrayList<>();
@@ -177,11 +175,8 @@ public class RequestServiceTest {
 
         // patient
         User patient = TestUtils.createUser("patient");
-        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
-        Set<GroupRole> groupRolesPatient = new HashSet<>();
-        groupRolesPatient.add(groupRolePatient);
-        patient.setGroupRoles(groupRolesPatient);
+        patient.setCreated(new Date());
+        patient.setLastLogin(new Date());
 
         // lookup
         LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
@@ -201,27 +196,195 @@ public class RequestServiceTest {
         requestTypes.add(RequestTypes.JOIN_REQUEST);
         requestTypes.add(RequestTypes.FORGOT_LOGIN);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(requestRepository.save(any(Request.class))).thenReturn(request);
         when(requestRepository.findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class)))
                 .thenReturn(requestsPage);
         when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
-
-        request = requestService.add(request);
-
-        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
-        verify(requestRepository, Mockito.times(1)).save(any(Request.class));
-        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
-
-        Assert.assertNotNull("The return request should not be null", request);
-        Assert.assertNotNull("The group should not be null", request.getGroup());
 
         // complete requests (should only complete one)
         requestService.completeRequests();
 
         verify(requestRepository, Mockito.times(1))
                 .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
-        verify(requestRepository, Mockito.times(2)).save(any(Request.class));
+        verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+    }
+
+    /**
+     * Test: Do not complete a SUBMITTED forgot login request as the user has not logged in successfully
+     * @throws ResourceNotFoundException
+     * @throws MessagingException
+     * @throws ResourceForbiddenException
+     */
+    @Test
+    public void testCompleteForgotLoginRequest_notLoggedIn()
+            throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        // store "old" request
+        Request request = new Request();
+        request.setForename("Test");
+        request.setSurname("User");
+        request.setDateOfBirth(new Date());
+        request.setType(RequestTypes.FORGOT_LOGIN);
+        request.setCreated(new DateTime(new Date()).minusMonths(1).toDate());
+        request.setNhsNumber("111 111 1111");
+
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        Page<Request> requestsPage = new PageImpl<>(requests);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        patient.setCreated(new Date());
+        patient.setLastLogin(new DateTime(new Date()).minusMonths(2).toDate());
+
+        // lookup
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
+
+        // identifier
+        String identifierString = "1111111111";
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, identifierString);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // request types and status to search for
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        when(requestRepository.save(any(Request.class))).thenReturn(request);
+        when(requestRepository.findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class)))
+                .thenReturn(requestsPage);
+        when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
+
+        // complete requests (should not complete any)
+        requestService.completeRequests();
+
+        verify(requestRepository, Mockito.times(1))
+                .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
+        verify(requestRepository, Mockito.times(0)).save(any(Request.class));
+    }
+
+    /**
+     * Test: Complete a SUBMITTED join request where the user has now been created
+     * @throws ResourceNotFoundException
+     * @throws MessagingException
+     * @throws ResourceForbiddenException
+     */
+    @Test
+    public void testCompleteJoinRequest()
+            throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        // store "old" request
+        Request request = new Request();
+        request.setForename("Test");
+        request.setSurname("User");
+        request.setDateOfBirth(new Date());
+        request.setType(RequestTypes.JOIN_REQUEST);
+        request.setCreated(new DateTime(new Date()).minusMonths(1).toDate());
+        request.setNhsNumber("111 111 1111");
+
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        Page<Request> requestsPage = new PageImpl<>(requests);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        patient.setCreated(new Date());
+
+        // lookup
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
+
+        // identifier
+        String identifierString = "1111111111";
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, identifierString);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // request types and status to search for
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        when(requestRepository.save(any(Request.class))).thenReturn(request);
+        when(requestRepository.findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class)))
+                .thenReturn(requestsPage);
+        when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
+
+        // complete requests (should only complete one)
+        requestService.completeRequests();
+
+        verify(requestRepository, Mockito.times(1))
+                .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
+        verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+    }
+
+    /**
+     * Test: Do not complete a SUBMITTED join request as the user was created before the join request
+     * @throws ResourceNotFoundException
+     * @throws MessagingException
+     * @throws ResourceForbiddenException
+     */
+    @Test
+    public void testCompleteJoinRequest_userForgot()
+            throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        // store "new" request
+        Request request = new Request();
+        request.setForename("Test");
+        request.setSurname("User");
+        request.setDateOfBirth(new Date());
+        request.setType(RequestTypes.JOIN_REQUEST);
+        request.setCreated(new Date());
+        request.setNhsNumber("111 111 1111");
+
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        Page<Request> requestsPage = new PageImpl<>(requests);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        patient.setCreated(new DateTime(new Date()).minusMonths(1).toDate());
+
+        // lookup
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
+
+        // identifier
+        String identifierString = "1111111111";
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, identifierString);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // request types and status to search for
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        when(requestRepository.save(any(Request.class))).thenReturn(request);
+        when(requestRepository.findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class)))
+                .thenReturn(requestsPage);
+        when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
+
+        // complete requests (shouldn't complete any)
+        requestService.completeRequests();
+
+        verify(requestRepository, Mockito.times(1))
+                .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
+        verify(requestRepository, Mockito.times(0)).save(any(Request.class));
     }
 
     /**
