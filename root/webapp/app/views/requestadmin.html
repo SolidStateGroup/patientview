@@ -10,7 +10,13 @@
         margin-top: 10px;
     }
 </style>
-<h1 data-ng-show="!loading">Request Admin</h1>
+<h1 data-ng-show="!loading">
+    Request Admin
+    <a data-ng-click="complete()" class="btn blue pull-right" data-ng-disabled="completingRequests"
+       data-ng-show="permissions.isSuperAdmin">
+        Complete Expired Requests
+    </a>
+</h1>
 <p data-ng-show="!loading">To manage this request list, click Edit and pick a new status when you deal with each.
     Remember to click Save when you have changed a status.</p>
 <div class="content-panel filter-panel" data-ng-show="!loading" data-ng-cloak>
@@ -172,7 +178,7 @@
 </div>
 
 <!-- pagination -->
-<div pv-pagination></div>
+<div pv-pagination data-ng-show="!loading"></div>
 
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">

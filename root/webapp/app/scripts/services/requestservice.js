@@ -21,22 +21,11 @@ angular.module('patientviewApp').factory('RequestService', ['$q', 'Restangular',
             return deferred.promise;
         },
 
-        // lookup values for the statuses
-        getStatuses: function () {
+        // complete relevant SUBMITTED requests
+        complete: function () {
             var deferred = $q.defer();
-            Restangular.all('request/statuses').getList().then(function(successResult) {
-                deferred.resolve(successResult);
-            },function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-
-        // get the request relating to a new user
-        getByUser: function (userId, getParameters) {
-            var deferred = $q.defer();
-            // GET /user/{userId}/requests
-            Restangular.one('user/' + userId).one('requests').get(getParameters).then(function(successResult) {
+            // POST /request/complete
+            Restangular.all('request/complete').post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -56,14 +45,13 @@ angular.module('patientviewApp').factory('RequestService', ['$q', 'Restangular',
             return deferred.promise;
         },
 
-        // save an existing request
-        save: function (request) {
-            // PUT /request
-            request = UtilService.cleanObject(request, 'request');
+        // get the request relating to a new user
+        getByUser: function (userId, getParameters) {
             var deferred = $q.defer();
-            Restangular.all('request').customPUT(request).then(function(successResult) {
+            // GET /user/{userId}/requests
+            Restangular.one('user/' + userId).one('requests').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function(failureResult) {
+            }, function (failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
@@ -73,6 +61,30 @@ angular.module('patientviewApp').factory('RequestService', ['$q', 'Restangular',
             var deferred = $q.defer();
             // GET /user/{userId}/conversations/unreadcount
             Restangular.one('user', userId).one('requests/count').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+
+        // lookup values for the statuses
+        getStatuses: function () {
+            var deferred = $q.defer();
+            Restangular.all('request/statuses').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            },function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+
+        // save an existing request
+        save: function (request) {
+            // PUT /request
+            request = UtilService.cleanObject(request, 'request');
+            var deferred = $q.defer();
+            Restangular.all('request').customPUT(request).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

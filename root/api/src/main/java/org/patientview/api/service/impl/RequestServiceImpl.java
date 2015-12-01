@@ -117,6 +117,9 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
     @Override
     public void completeRequests() {
+        LOG.info(getCurrentUser().getUsername()
+                + " completing SUBMITTED relevant join request and forgot login requests");
+
         // get SUBMITTED requests
         List<RequestStatus> submittedStatus = new ArrayList<>();
         submittedStatus.add(RequestStatus.SUBMITTED);
