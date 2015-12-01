@@ -12,6 +12,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
@@ -19,6 +20,7 @@ import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -48,22 +50,25 @@ import java.util.Properties;
 public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> implements RequestService {
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
-    private RequestRepository requestRepository;
+    private CaptchaService captchaService;
 
     @Inject
     private EmailService emailService;
 
     @Inject
-    private CaptchaService captchaService;
+    private GroupRepository groupRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private Properties properties;
+
+    @Inject
+    private RequestRepository requestRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -108,6 +113,49 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         return entityRequest;
+    }
+
+    @Override
+    public void completeRequests() {
+        // get SUBMITTED requests
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        Page<Request> requests = requestRepository.findAllByStatuses(
+                submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
+
+        //List<Request> outDatedRequests = new ArrayList<>();
+
+        if (requests != null) {
+            for (Request request : requests.getContent()) {
+                if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
+                    // is a join request, so clean up identifier and search for existing user
+                    if (request.getNhsNumber() != null) {
+                        String identifier = request.getNhsNumber().replace(" ", "").trim();
+                        if (StringUtils.isNotEmpty(identifier)) {
+                            List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+                            if (!identifiers.isEmpty()) {
+                                // user with this identifier already exists
+                                // only COMPLETE if patient creation date after request date
+                                // (user may have forgotten about account)
+                                if (identifiers.get(0).getUser().getCreated().after(request.getCreated())) {
+                                    // set to COMPLETED and save
+                                    request.setStatus(RequestStatus.COMPLETED);
+                                    requestRepository.save(request);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //Strip identifier entered in join request of all spaces
+        //Search for matching identifier in patient list
+        //If a match is found then set join request status to Completed UNLESS the patient date created is earlier than the join request date (implying that the patient may have forgotten about their account).
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,

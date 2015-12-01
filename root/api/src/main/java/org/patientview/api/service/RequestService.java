@@ -31,6 +31,9 @@ public interface RequestService {
      */
     Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @RoleOnly
+    void completeRequests();
+
     /**
      * Get a Request given ID.
      * @param requestId ID of Request to get

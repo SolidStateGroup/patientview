@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,13 +16,21 @@ import org.patientview.api.service.impl.RequestServiceImpl;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Request;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -36,6 +45,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -49,25 +59,28 @@ import static org.mockito.Mockito.when;
 public class RequestServiceTest {
 
     @Mock
-    RequestRepository requestRepository;
-
-    @Mock
-    GroupRepository groupRepository;
-
-    @Mock
-    UserRepository userRepository;
+    CaptchaService captchaService;
 
     @Mock
     EmailService emailService;
 
     @Mock
-    CaptchaService captchaService;
+    GroupRepository groupRepository;
+
+    @Mock
+    IdentifierRepository identifierRepository;
 
     @Mock
     Properties properties;
 
+    @Mock
+    RequestRepository requestRepository;
+
     @InjectMocks
     RequestService requestService = new RequestServiceImpl();
+
+    @Mock
+    UserRepository userRepository;
 
     @Before
     public void setUp() throws Exception {
@@ -134,6 +147,81 @@ public class RequestServiceTest {
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         Assert.fail("The service should throw an exception");
+    }
+
+    @Test
+    public void testCompleteJoinRequest()
+            throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
+
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        // store "old" request
+        DateTime monthAgo = new DateTime(new Date()).minusMonths(1);
+
+        Group group = TestUtils.createGroup("TestGroup");
+        group.setContactPoints(new HashSet<ContactPoint>());
+        group.getContactPoints().add(TestUtils.createContactPoint("123", ContactPointTypes.PV_ADMIN_EMAIL));
+
+        Request request = new Request();
+        request.setForename("Test");
+        request.setSurname("User");
+        request.setDateOfBirth(new Date());
+        request.setGroupId(group.getId());
+        request.setType(RequestTypes.JOIN_REQUEST);
+        request.setCreated(monthAgo.toDate());
+        request.setNhsNumber("111 111 1111");
+
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        Page<Request> requestsPage = new PageImpl<>(requests);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // lookup
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
+
+        // identifier
+        String identifierString = "1111111111";
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, identifierString);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // request types and status to search for
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(requestRepository.save(any(Request.class))).thenReturn(request);
+        when(requestRepository.findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class)))
+                .thenReturn(requestsPage);
+        when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
+
+        request = requestService.add(request);
+
+        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
+        verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+
+        Assert.assertNotNull("The return request should not be null", request);
+        Assert.assertNotNull("The group should not be null", request.getGroup());
+
+        // complete requests (should only complete one)
+        requestService.completeRequests();
+
+        verify(requestRepository, Mockito.times(1))
+                .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
+        verify(requestRepository, Mockito.times(2)).save(any(Request.class));
     }
 
     /**
