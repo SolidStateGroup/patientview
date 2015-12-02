@@ -5,13 +5,15 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.ConditionService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +27,13 @@ import java.util.UUID;
  * Created on 08/09/2014
  */
 @Service
-public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> implements ConditionService {
+public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceImpl> implements ConditionService {
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private UserService userService;
 
     @Override
     public List<Condition> get(final UUID patientUuid) throws FhirResourceException {
@@ -76,5 +81,17 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         }
 
         fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+    }
+
+    @Override
+    public void staffAddCondition(Long patientUserId, String code)
+            throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException {
+
+        User patient = userService.get(patientUserId);
+        if (!userService.currentUserCanGetUser(patient)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        User staff = getCurrentUser();
     }
 }
