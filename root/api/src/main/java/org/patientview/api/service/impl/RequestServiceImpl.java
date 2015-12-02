@@ -116,10 +116,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     @Override
-    public void completeRequests() {
-        LOG.info(getCurrentUser().getUsername()
-                + " completing SUBMITTED relevant join request and forgot login requests");
-
+    public Integer completeRequests() {
         // get SUBMITTED requests
         List<RequestStatus> submittedStatus = new ArrayList<>();
         submittedStatus.add(RequestStatus.SUBMITTED);
@@ -132,6 +129,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                 submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
 
         //List<Request> outDatedRequests = new ArrayList<>();
+        int count = 0;
 
         if (requests != null) {
             for (Request request : requests.getContent()) {
@@ -152,19 +150,21 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                                     request.setCompletedBy(getCurrentUser());
                                     request.setCompletionDate(new Date());
                                     requestRepository.save(request);
+                                    count++;
                                 }
                             }
                             else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
                                 // forgot login, so check if user has logged in since request created
                                 if ((user.getLastLogin() != null
                                         && user.getLastLogin().after(request.getCreated()))
-                                    || (user.getLastLogin() != null
-                                        && user.getLastLogin().after(request.getCreated()))) {
+                                    || (user.getCurrentLogin() != null
+                                        && user.getCurrentLogin().after(request.getCreated()))) {
                                     // set to COMPLETED and save
                                     request.setStatus(RequestStatus.COMPLETED);
                                     request.setCompletedBy(getCurrentUser());
                                     request.setCompletionDate(new Date());
                                     requestRepository.save(request);
+                                    count++;
                                 }
                             }
                         }
@@ -172,6 +172,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                 }
             }
         }
+
+        LOG.info(getCurrentUser().getUsername()
+                + " completed " + count + " SUBMITTED relevant join request and forgot login requests");
+
+        return count;
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,

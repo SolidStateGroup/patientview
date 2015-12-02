@@ -57,8 +57,8 @@ public class RequestController extends BaseController<RequestController> {
      */
     @RequestMapping(value = "/request/complete", method = RequestMethod.POST)
     @ResponseBody
-    public void completeRequests() {
-        requestService.completeRequests();
+    public ResponseEntity<Integer> completeRequests() {
+        return new ResponseEntity<>(requestService.completeRequests(), HttpStatus.OK);
     }
 
     /**

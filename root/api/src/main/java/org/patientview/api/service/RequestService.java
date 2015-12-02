@@ -36,7 +36,7 @@ public interface RequestService {
      * the request came in). Completes forgot login requests where a user has since logged in.
      */
     @RoleOnly
-    void completeRequests();
+    Integer completeRequests();
 
     /**
      * Get a Request given ID.

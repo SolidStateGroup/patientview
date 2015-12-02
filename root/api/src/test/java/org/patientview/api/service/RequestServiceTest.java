@@ -9,19 +9,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.persistence.model.Email;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.RequestServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Request;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
@@ -45,7 +43,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -202,11 +199,12 @@ public class RequestServiceTest {
         when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
 
         // complete requests (should only complete one)
-        requestService.completeRequests();
+        int count = requestService.completeRequests();
 
         verify(requestRepository, Mockito.times(1))
                 .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
         verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+        Assert.assertEquals("Should have returned count of 1", 1, count);
     }
 
     /**
@@ -262,11 +260,12 @@ public class RequestServiceTest {
         when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
 
         // complete requests (should not complete any)
-        requestService.completeRequests();
+        int count = requestService.completeRequests();
 
         verify(requestRepository, Mockito.times(1))
                 .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
         verify(requestRepository, Mockito.times(0)).save(any(Request.class));
+        Assert.assertEquals("Should have returned count of 0", 0, count);
     }
 
     /**
@@ -321,11 +320,12 @@ public class RequestServiceTest {
         when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
 
         // complete requests (should only complete one)
-        requestService.completeRequests();
+        int count = requestService.completeRequests();
 
         verify(requestRepository, Mockito.times(1))
                 .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
         verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+        Assert.assertEquals("Should have returned count of 1", 1, count);
     }
 
     /**
@@ -380,11 +380,12 @@ public class RequestServiceTest {
         when(identifierRepository.findByValue(identifierString)).thenReturn(identifiers);
 
         // complete requests (shouldn't complete any)
-        requestService.completeRequests();
+        int count = requestService.completeRequests();
 
         verify(requestRepository, Mockito.times(1))
                 .findAllByStatuses(eq(submittedStatus), eq(requestTypes), any(Pageable.class));
         verify(requestRepository, Mockito.times(0)).save(any(Request.class));
+        Assert.assertEquals("Should have returned count of 1", 0, count);
     }
 
     /**
