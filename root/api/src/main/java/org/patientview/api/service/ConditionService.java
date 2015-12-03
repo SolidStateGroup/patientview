@@ -28,6 +28,17 @@ public interface ConditionService {
      */
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
 
+    /**
+     * Get staff entered conditions for a patient if present
+     * @param userId Long User ID of patient to get staff entered Conditions for
+     * @return List of staff entered Conditions
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    List<Condition> getStaffEntered(Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
+
     // used by migration
     void addCondition(FhirCondition fhirCondition, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;

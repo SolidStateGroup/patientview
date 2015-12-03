@@ -580,7 +580,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      */
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
-            throws FhirResourceException, ResourceNotFoundException {
+            throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
 
         // check User exists
         User user = userService.get(userId);
@@ -634,6 +634,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
+
+                        // set staff entered conditions
+                        patient = setStaffEnteredConditions(patient, user.getId());
 
                         // set encounters (treatment)
                         patient = setEncounters(
@@ -1224,6 +1227,30 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,
                                                             List<Condition> conditions) {
         for (Condition condition : conditions) {
+            FhirCondition fhirCondition = new FhirCondition(condition);
+
+            // try and set links based on diagnosis code (used by my IBD)
+            List<Code> codes = codeService.findAllByCodeAndType(fhirCondition.getCode(),
+                    lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+            if (!codes.isEmpty()) {
+                Code code = codes.get(0);
+
+                fhirCondition.setDescription(code.getDescription());
+
+                if (!CollectionUtils.isEmpty(code.getLinks())) {
+                    fhirCondition.setLinks(codes.get(0).getLinks());
+                }
+            }
+            patient.getFhirConditions().add(fhirCondition);
+        }
+
+        return patient;
+    }
+
+    private org.patientview.api.model.Patient setStaffEnteredConditions(
+            org.patientview.api.model.Patient patient, Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        for (Condition condition : conditionService.getStaffEntered(userId)) {
             FhirCondition fhirCondition = new FhirCondition(condition);
 
             // try and set links based on diagnosis code (used by my IBD)

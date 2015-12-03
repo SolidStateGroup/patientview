@@ -96,6 +96,45 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
     }
 
     @Override
+    public List<Condition> getStaffEntered(Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        User patientUser = userService.get(userId);
+        if (!userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        // sort identifiers and choose first (must have fhir link with identifier to link to fhir database
+        List<Identifier> identifiersSorted = new ArrayList<>(patientUser.getIdentifiers());
+        Collections.sort(identifiersSorted);
+
+        // get STAFF_ENTERED group
+        Group staffEnteredGroup = groupService.findByCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+        if (staffEnteredGroup == null) {
+            throw new ResourceNotFoundException("Group for staff entered data does not exist");
+        }
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                patientUser, staffEnteredGroup, identifiersSorted.get(0));
+
+        if (!CollectionUtils.isEmpty(fhirLinks)) {
+            FhirLink fhirLink= fhirLinks.get(0);
+            List<Condition> conditions = new ArrayList<>();
+
+            conditions.addAll(fhirResource.findResourceByQuery("SELECT content::varchar " + "FROM condition "
+                    + "WHERE content -> 'subject' ->> 'display' = '"
+                    + fhirLink.getResourceId() + "' ", Condition.class));
+
+            return conditions;
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
     public void addCondition(FhirCondition fhirCondition, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException {
 
