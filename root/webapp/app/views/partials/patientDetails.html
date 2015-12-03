@@ -3,6 +3,9 @@
     .user-picture {
         max-width: 150px;
     }
+    .diagnosis-staff {
+        margin-bottom: 10px;
+    }
 </style>
 
 <div data-ng-show="editUser.picture.length" class="row text-center edit-staff" data-ng-if="editUser.id">
@@ -190,6 +193,34 @@
                        placeholder="Identifier" name="newIdentifier" data-ng-model="newIdentifier.identifier">
                 <select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType"
                         data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <hr/>
+    <div class="col-md-12">
+        <label class="control-label">Condition Information</label>
+        <p>Please enter information related to the patient's condition below. This is necessary when the data is not sent automatically from the unit to PatientView.</p>
+        <div class="row diagnosis-staff">
+            <div class="col-md-2">
+                Current Diagnosis:
+            </div>
+            <div class="col-md-10">
+                <strong>SomeDiagnosis</strong> &nbsp;&nbsp;&nbsp; (set 12 Mar 2015 by globaladmin globaladmin)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                Assign Diagnosis:
+            </div>
+            <div class="col-md-9">
+                <select data-ng-model="selectedDiagnosis"
+                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
+                        class="form-control"></select>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(editUser.id, selectedDiagnosis)">Save</button>
             </div>
         </div>
     </div>

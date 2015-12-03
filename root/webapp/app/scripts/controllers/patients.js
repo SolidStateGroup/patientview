@@ -528,11 +528,12 @@ function ($scope, $modalInstance, user, UserService) {
 
 // Patient controller
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
-    '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 
+    '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, 
+    'DiagnosisService', 'CodeService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies) {
+        ConversationService, $cookies, DiagnosisService, CodeService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -541,76 +542,54 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.initFinished = false;
     $scope.selectedGroup = [];
 
-    // multi search
-    $scope.search = function() {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        $scope.getItems();
+    $scope.addDiagnosis = function (userId, selectedDiagnosis) {
+        DiagnosisService.add(userId, selectedDiagnosis.code).then(function() {
+            alert('Added diagnosis with description "' + selectedDiagnosis.description + '"');
+        }, function() {
+            alert('Failed to add diagnosis with description "' + selectedDiagnosis.description + '"');
+        })
     };
 
-    // update page when currentPage is changed
-    $scope.$watch('currentPage', function(value) {
-        delete $scope.successMessage;
-        if ($scope.initFinished === true) {
-            $scope.currentPage = value;
-            $scope.getItems();
-        }
-    });
+    // delete user
+    $scope.deleteUser = function (userId) {
+        $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
+        // close any open edit panels
+        $('.panel-collapse.in').collapse('hide');
 
-    // filter users by group
-    $scope.setSelectedGroup = function () {
-        delete $scope.successMessage;
-        var id = this.group.id;
-        if (_.contains($scope.selectedGroup, id)) {
-            $scope.selectedGroup = _.without($scope.selectedGroup, id);
-        } else {
-            $scope.selectedGroup.push(id);
-        }
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-    $scope.isGroupChecked = function (id) {
-        if (_.contains($scope.selectedGroup, id)) {
-            return 'glyphicon glyphicon-ok pull-right';
-        }
-        return false;
-    };
-    $scope.removeAllSelectedGroup = function (groupType) {
-        delete $scope.successMessage;
-        var newSelectedGroupList = [];
+        UserService.get(userId).then(function(user) {
+            var modalInstance = $modal.open({
+                templateUrl: 'deletePatientModal.html',
+                controller: DeletePatientModalInstanceCtrl,
+                resolve: {
+                    permissions: function(){
+                        return $scope.permissions;
+                    },
+                    user: function(){
+                        return user;
+                    },
+                    UserService: function(){
+                        return UserService;
+                    },
+                    allGroups: function(){
+                        return $scope.allGroups;
+                    },
+                    allRoles: function(){
+                        return $scope.allRoles;
+                    }
+                }
+            });
 
-        for (var i=0; i<$scope.selectedGroup.length; i++) {
-            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
-                newSelectedGroupList.push($scope.selectedGroup[i]);
-            }
-        }
-
-        $scope.selectedGroup = newSelectedGroupList;
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-    $scope.removeSelectedGroup = function (group) {
-        delete $scope.successMessage;
-        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
-    $scope.sortBy = function(sortField) {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        if ($scope.sortField !== sortField) {
-            $scope.sortDirection = 'ASC';
-            $scope.sortField = sortField;
-        } else {
-            if ($scope.sortDirection === 'ASC') {
-                $scope.sortDirection = 'DESC';
-            } else {
-                $scope.sortDirection = 'ASC';
-            }
-        }
-
-        $scope.getItems();
+            modalInstance.result.then(function () {
+                // closed, refresh list
+                $scope.currentPage = 0;
+                $scope.getItems();
+            }, function () {
+                // closed
+                $scope.currentPage = 0;
+                $scope.getItems();
+            });
+        });
     };
 
     // Get users based on current user selected filters etc
@@ -662,7 +641,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 $scope.statusFilter = $routeParams.statusFilter;
             }
         }
-        
+
         if ($routeParams.groupId !== undefined && !isNaN($routeParams.groupId)) {
             $scope.selectedGroup.push(Number($routeParams.groupId));
         }
@@ -717,6 +696,30 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
 
         $scope.permissions.messagingEnabled = ConversationService.userHasMessagingFeature();
+
+        // get diagnosis codes
+        if ($scope.permissions.canEditPatients) {
+            StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
+                if (codeTypes.length > 0) {
+                    var arr = [];
+                    for (var i=0; i<codeTypes.length; i++) {
+                        if (codeTypes[i].value === 'DIAGNOSIS') {
+                            arr.push(codeTypes[i].id);
+                        }
+                    }
+
+                    var getParameters = {};
+                    getParameters.codeTypes = arr;
+                    getParameters.sortField = 'description';
+
+                    CodeService.getAll(getParameters).then(function (page) {
+                        $scope.diagnosisCodes = page.content;
+                    }, function () {
+                    });
+                }
+            });
+
+        }
 
         // get patient type roles
         var roles = $scope.loggedInUser.userInformation.patientRoles;
@@ -817,6 +820,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
+    $scope.isGroupChecked = function (id) {
+        if (_.contains($scope.selectedGroup, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+
     // Opened for edit
     $scope.opened = function (openedUser) {
         $scope.successMessage = '';
@@ -885,46 +895,46 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    // Save from edit
-    $scope.save = function (editUserForm, user) {
-        delete $scope.successMessage;
-
-        if ((user.selectedDay != '' || user.selectedMonth != '' || user.selectedYear != '')
-            && !UtilService.validationDateNoFuture(user.selectedDay, user.selectedMonth, user.selectedYear)
-            && !(user.selectedDay == '' && user.selectedMonth == '' && user.selectedYear == '')) {
-            alert('Please enter a valid date of birth (and not in the future)');
-        } else {
-            user.dateOfBirth = null;
-            UserService.save(user).then(function () {
-                // successfully saved user
-                editUserForm.$setPristine(true);
-                $scope.saved = true;
-
-                // update accordion header for group with data from GET
-                UserService.get(user.id).then(function (successResult) {
-                    for (var i = 0; i < $scope.pagedItems.length; i++) {
-                        if ($scope.pagedItems[i].id === successResult.id) {
-                            var headerDetails = $scope.pagedItems[i];
-                            headerDetails.forename = successResult.forename;
-                            headerDetails.surname = successResult.surname;
-                            headerDetails.email = successResult.email;
-                            headerDetails.dateOfBirth = successResult.dateOfBirth;
-                        }
-                    }
-                }, function () {
-                    alert('Error updating header (saved successfully)');
-                });
-
-                $scope.successMessage = 'User saved';
-            }, function (failureResult) {
-                if (failureResult.status === 409) {
-                    // conflict (already exists)
-                    alert('Cannot save User: ' + failureResult.data);
-                } else {
-                    alert('Cannot save User: ' + failureResult.data);
-                }
-            });
+    // handle opening modal for creating membership request
+    $scope.openModalCreateMembershipRequest = function (user) {
+        // close any open edit panels
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
         }
+        // clear messages
+        $scope.errorMessage = '';
+        $scope.warningMessage = '';
+        $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
+
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'createMembershipRequestModal.html',
+            controller: CreateMembershipRequestModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                ConversationService : function() {
+                    return ConversationService;
+                },
+                GroupService: function() {
+                    return GroupService;
+                },
+                permissions: function() {
+                    return $scope.permissions;
+                },
+                user: function() {
+                    return user;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function () {
+            // no ok button, do nothing
+        }, function () {
+            $scope.getItems();
+        });
     };
 
     // handle opening modal for finding existing patient by identifier value
@@ -972,7 +982,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-
     // open modal for new conversation
     $scope.openModalNewConversation = function (size, user) {
         delete $scope.errorMessage;
@@ -1009,88 +1018,181 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    // handle opening modal for creating membership request
-    $scope.openModalCreateMembershipRequest = function (user) {
-        // close any open edit panels
-        for (var i = 0; i < $scope.pagedItems.length; i++) {
-            $scope.pagedItems[i].showEdit = false;
-        }
-        // clear messages
-        $scope.errorMessage = '';
-        $scope.warningMessage = '';
-        $scope.successMessage = '';
-        $scope.printSuccessMessage = false;
-
-        // open modal and pass in required objects for use in modal scope
-        var modalInstance = $modal.open({
-            templateUrl: 'createMembershipRequestModal.html',
-            controller: CreateMembershipRequestModalInstanceCtrl,
-            size: 'lg',
-            backdrop: 'static',
-            resolve: {
-                ConversationService : function() {
-                    return ConversationService;                    
-                },
-                GroupService: function() {
-                    return GroupService;
-                },
-                permissions: function() {
-                    return $scope.permissions;
-                },
-                user: function() {
-                    return user;
-                }
-            }
-        });
-
-        // handle modal close (via button click)
-        modalInstance.result.then(function () {
-            // no ok button, do nothing
-        }, function () {
-            $scope.getItems();
-        });
+    $scope.printSuccessMessageCompat = function() {
+        // ie8 compatibility
+        var printContent = $('#success-message').clone();
+        printContent.children('.print-success-message').remove();
+        var windowUrl = 'PatientView';
+        var uniqueName = new Date();
+        var windowName = 'Print' + uniqueName.getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+        printWindow.document.write(printContent.html());
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     };
 
-    // delete user
-    $scope.deleteUser = function (userId) {
+    $scope.removeAllSelectedGroup = function (groupType) {
+        delete $scope.successMessage;
+        var newSelectedGroupList = [];
+
+        for (var i=0; i<$scope.selectedGroup.length; i++) {
+            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
+                newSelectedGroupList.push($scope.selectedGroup[i]);
+            }
+        }
+
+        $scope.selectedGroup = newSelectedGroupList;
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    $scope.removeSelectedGroup = function (group) {
+        delete $scope.successMessage;
+        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    $scope.removeStatusFilter = function() {
+        delete $scope.statusFilter;
+        $scope.getItems();
+    };
+
+    // reset user password
+    $scope.resetUserPassword = function (userId) {
         $scope.successMessage = '';
         $scope.printSuccessMessage = false;
-        // close any open edit panels
-        $('.panel-collapse.in').collapse('hide');
 
         UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
-                templateUrl: 'deletePatientModal.html',
-                controller: DeletePatientModalInstanceCtrl,
+                templateUrl: 'views/partials/resetPasswordModal.html',
+                controller: ResetPasswordModalInstanceCtrl,
                 resolve: {
-                    permissions: function(){
-                        return $scope.permissions;
-                    },
                     user: function(){
                         return user;
                     },
                     UserService: function(){
                         return UserService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (successResult) {
+                $scope.printSuccessMessage = true;
+                $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
+                    + ' (username: ' + user.username + '), new password is: ' + successResult.password;
+            }, function () {
+                // closed
+            });
+        });
+    };
+
+    // Save from edit
+    $scope.save = function (editUserForm, user) {
+        delete $scope.successMessage;
+
+        if ((user.selectedDay != '' || user.selectedMonth != '' || user.selectedYear != '')
+            && !UtilService.validationDateNoFuture(user.selectedDay, user.selectedMonth, user.selectedYear)
+            && !(user.selectedDay == '' && user.selectedMonth == '' && user.selectedYear == '')) {
+            alert('Please enter a valid date of birth (and not in the future)');
+        } else {
+            user.dateOfBirth = null;
+            UserService.save(user).then(function () {
+                // successfully saved user
+                editUserForm.$setPristine(true);
+                $scope.saved = true;
+
+                // update accordion header for group with data from GET
+                UserService.get(user.id).then(function (successResult) {
+                    for (var i = 0; i < $scope.pagedItems.length; i++) {
+                        if ($scope.pagedItems[i].id === successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
+                            headerDetails.forename = successResult.forename;
+                            headerDetails.surname = successResult.surname;
+                            headerDetails.email = successResult.email;
+                            headerDetails.dateOfBirth = successResult.dateOfBirth;
+                        }
+                    }
+                }, function () {
+                    alert('Error updating header (saved successfully)');
+                });
+
+                $scope.successMessage = 'User saved';
+            }, function (failureResult) {
+                if (failureResult.status === 409) {
+                    // conflict (already exists)
+                    alert('Cannot save User: ' + failureResult.data);
+                } else {
+                    alert('Cannot save User: ' + failureResult.data);
+                }
+            });
+        }
+    };
+
+    // multi search
+    $scope.search = function() {
+        delete $scope.successMessage;
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    // send verification email
+    $scope.sendVerificationEmail = function (userId) {
+        $scope.printSuccessMessage = false;
+        $scope.successMessage = '';
+
+        UserService.get(userId).then(function(user) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/sendVerificationEmailModal.html',
+                controller: SendVerificationEmailModalInstanceCtrl,
+                resolve: {
+                    user: function(){
+                        return user;
                     },
-                    allGroups: function(){
-                        return $scope.allGroups;
-                    },
-                    allRoles: function(){
-                        return $scope.allRoles;
+                    UserService: function(){
+                        return UserService;
                     }
                 }
             });
 
             modalInstance.result.then(function () {
-                // closed, refresh list
-                $scope.currentPage = 0;
-                $scope.getItems();
+                $scope.successMessage = 'Verification email has been sent';
             }, function () {
                 // closed
-                $scope.currentPage = 0;
-                $scope.getItems();
             });
         });
+    };
+
+    // filter users by group
+    $scope.setSelectedGroup = function () {
+        delete $scope.successMessage;
+        var id = this.group.id;
+        if (_.contains($scope.selectedGroup, id)) {
+            $scope.selectedGroup = _.without($scope.selectedGroup, id);
+        } else {
+            $scope.selectedGroup.push(id);
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    $scope.sortBy = function(sortField) {
+        delete $scope.successMessage;
+        $scope.currentPage = 0;
+        if ($scope.sortField !== sortField) {
+            $scope.sortDirection = 'ASC';
+            $scope.sortField = sortField;
+        } else {
+            if ($scope.sortDirection === 'ASC') {
+                $scope.sortDirection = 'DESC';
+            } else {
+                $scope.sortDirection = 'ASC';
+            }
+        }
+
+        $scope.getItems();
     };
 
     // view patient
@@ -1146,81 +1248,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    // reset user password
-    $scope.resetUserPassword = function (userId) {
-        $scope.successMessage = '';
-        $scope.printSuccessMessage = false;
-
-        UserService.get(userId).then(function(user) {
-            var modalInstance = $modal.open({
-                templateUrl: 'views/partials/resetPasswordModal.html',
-                controller: ResetPasswordModalInstanceCtrl,
-                resolve: {
-                    user: function(){
-                        return user;
-                    },
-                    UserService: function(){
-                        return UserService;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (successResult) {
-                $scope.printSuccessMessage = true;
-                $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
-                    + ' (username: ' + user.username + '), new password is: ' + successResult.password;
-            }, function () {
-                // closed
-            });
-        });
-    };
-
-    // send verification email
-    $scope.sendVerificationEmail = function (userId) {
-        $scope.printSuccessMessage = false;
-        $scope.successMessage = '';
-
-        UserService.get(userId).then(function(user) {
-            var modalInstance = $modal.open({
-                templateUrl: 'views/partials/sendVerificationEmailModal.html',
-                controller: SendVerificationEmailModalInstanceCtrl,
-                resolve: {
-                    user: function(){
-                        return user;
-                    },
-                    UserService: function(){
-                        return UserService;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function () {
-                $scope.successMessage = 'Verification email has been sent';
-            }, function () {
-                // closed
-            });
-        });
-    };
-
-    $scope.printSuccessMessageCompat = function() {
-        // ie8 compatibility
-        var printContent = $('#success-message').clone();
-        printContent.children('.print-success-message').remove();
-        var windowUrl = 'PatientView';
-        var uniqueName = new Date();
-        var windowName = 'Print' + uniqueName.getTime();
-        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
-        printWindow.document.write(printContent.html());
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-    };
-
-    $scope.removeStatusFilter = function() {
-        delete $scope.statusFilter;
-        $scope.getItems();
-    };
+    // update page when currentPage is changed
+    $scope.$watch('currentPage', function(value) {
+        delete $scope.successMessage;
+        if ($scope.initFinished === true) {
+            $scope.currentPage = value;
+            $scope.getItems();
+        }
+    });
 
     $scope.init();
 }]);
