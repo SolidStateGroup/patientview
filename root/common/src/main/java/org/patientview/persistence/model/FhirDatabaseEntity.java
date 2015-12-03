@@ -21,6 +21,8 @@ public class FhirDatabaseEntity {
     private String category = null;
     private String content;
 
+    public FhirDatabaseEntity() {}
+
     public FhirDatabaseEntity(String content, String resourceType) throws NullArgumentException {
         this.versionId = UUID.randomUUID();
         this.resourceType = resourceType;

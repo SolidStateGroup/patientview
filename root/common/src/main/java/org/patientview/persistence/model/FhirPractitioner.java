@@ -25,8 +25,7 @@ public class FhirPractitioner extends BaseModel {
     private List<FhirContact> contacts;
     private String role;
 
-    public FhirPractitioner() {
-    }
+    public FhirPractitioner() {}
 
     public FhirPractitioner(Practitioner practitioner) {
 

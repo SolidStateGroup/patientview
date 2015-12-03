@@ -15,7 +15,6 @@ import java.util.UUID;
  */
 public interface PractitionerService {
 
-    // used by migration
     List<UUID> getPractitionerLogicalUuidsByName(String name) throws FhirResourceException;
 
     // used by migration
