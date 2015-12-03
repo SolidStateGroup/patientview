@@ -324,5 +324,9 @@ public class ConditionServiceTest {
         verify(fhirResource, times(1)).createEntity(
                 any(Patient.class), eq(ResourceType.Patient.name()), eq("patient"));
         verify(userRepository, times(1)).save(any(User.class));
+
+        // required when adding practitioner
+        verify(fhirResource, times(1)).createEntity(
+                any(Practitioner.class), eq(ResourceType.Practitioner.name()), eq("practitioner"));
     }
 }
