@@ -639,7 +639,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         patient = setEncounters(
                                 patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
 
-                        // set edta diagnosis if present based on available codes
+                        // set edta diagnosis if present based on available codes in conditions
                         patient = setDiagnosisCodes(patient);
 
                         // set non test observations
