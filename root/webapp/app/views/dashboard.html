@@ -77,6 +77,16 @@
         top: 4px;
     }
 
+    .group-li {
+        margin-top: 5px;
+    }
+    .group-image {
+        width: 60px;
+    }
+    .group-description {
+        margin-left: 10px;
+    }
+
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -146,8 +156,16 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="groupRole.role.name !== 'MEMBER'">
-                                        <span>
+                                        data-ng-if="groupRole.role.name !== 'MEMBER'"
+                                        class="group-li">
+                                        <span class="group-image">
+                                            <img src="../images/icons/pv-renal.png" data-ng-if="groupRole.group.code === 'Renal'"/>
+                                            <img src="../images/icons/pv-diabetes.png" data-ng-if="groupRole.group.code === 'Diabetes'"/>
+                                            <img src="../images/icons/pv-heart.png" data-ng-if="groupRole.group.code === 'Cardiol'"/>
+                                            <img src="../images/icons/pv-ibd.png" data-ng-if="groupRole.group.code === 'IBD'"/>
+                                            <img src="../images/icons/pv-units.png" data-ng-if="groupRole.group.groupType.value === 'UNIT'"/>
+                                        </span>
+                                        <span class="group-description">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
