@@ -1,10 +1,13 @@
 package org.patientview.api.controller;
 
+import org.hl7.fhir.instance.model.Condition;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ConditionService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.List;
 
 /**
  * RESTful interface for adding diagnoses (Conditions).
@@ -39,5 +43,11 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
     public void add(@PathVariable("userId") Long userId, @PathVariable("code") String code)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         conditionService.staffAddCondition(userId, code);
+    }
+
+    @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.GET)
+    public ResponseEntity<List<Condition>> getStaffEntered(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+        return new ResponseEntity<>(conditionService.getStaffEntered(userId), HttpStatus.OK);
     }
 }

@@ -849,6 +849,18 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             openedUser.showEdit = true;
             openedUser.editLoading = true;
 
+            // set latest staff entered diagnosis if present
+            /*DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                if (conditions.length) {
+                    var latest = conditions[0];
+                    for (var i=0; i<conditions.length; i++) {
+                        //console.log(conditions[i]);
+                    }
+                }
+            }, function() {
+                alert('Error retrieving staff entered condition information');
+            });*/
+
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             UserService.get(openedUser.id).then(function (user) {
 

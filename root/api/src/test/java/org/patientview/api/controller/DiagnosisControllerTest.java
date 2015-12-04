@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ConditionService;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -52,5 +53,15 @@ public class DiagnosisControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/user/" + userId + "/diagnosis/" + code))
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(conditionService, Mockito.times(1)).staffAddCondition(eq(userId), eq(code));
+    }
+
+    @Test
+    public void testGetStaffEntered() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+        Long userId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + userId + "/diagnosis/staffentered")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
