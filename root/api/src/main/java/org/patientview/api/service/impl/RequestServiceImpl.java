@@ -35,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -130,6 +131,8 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         //List<Request> outDatedRequests = new ArrayList<>();
         int count = 0;
+        Date now = new Date();
+        String dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(now);
 
         if (requests != null) {
             for (Request request : requests.getContent()) {
@@ -148,7 +151,13 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                                     // set to COMPLETED and save
                                     request.setStatus(RequestStatus.COMPLETED);
                                     request.setCompletedBy(getCurrentUser());
-                                    request.setCompletionDate(new Date());
+                                    request.setCompletionDate(now);
+                                    if (StringUtils.isEmpty(request.getNotes())) {
+                                        request.setNotes("Closed via auto completion routine on " + dateFormat + ".");
+                                    } else {
+                                        request.setNotes(request.getNotes() + " Closed via auto completion routine on "
+                                                + dateFormat + ".");
+                                    }
                                     requestRepository.save(request);
                                     count++;
                                 }
@@ -162,7 +171,13 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                                     // set to COMPLETED and save
                                     request.setStatus(RequestStatus.COMPLETED);
                                     request.setCompletedBy(getCurrentUser());
-                                    request.setCompletionDate(new Date());
+                                    request.setCompletionDate(now);
+                                    if (StringUtils.isEmpty(request.getNotes())) {
+                                        request.setNotes("Closed via auto completion routine on " + dateFormat + ".");
+                                    } else {
+                                        request.setNotes(request.getNotes() + " Closed via auto completion routine on "
+                                                + dateFormat + ".");
+                                    }
                                     requestRepository.save(request);
                                     count++;
                                 }

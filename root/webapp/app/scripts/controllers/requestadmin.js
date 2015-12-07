@@ -61,6 +61,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         $scope.completingRequests = true;
         if (confirm('This will complete SUBMITTED requests that are no longer relevant. \n\nCompletes join requests where a user already exists (and user was created after the request came in). Also completes "Forgot Login" requests where a user has since logged in.\n')) {
             RequestService.complete().then(function(count) {
+                $rootScope.setSubmittedRequestCount();
                 alert(count + ' relevant SUBMITTED requests have been changed to COMPLETED');
                 $scope.completingRequests = false;
                 $scope.getItems();
@@ -68,6 +69,8 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
                 alert('Error completing SUBMITTED requests');
                 $scope.completingRequests = false;
             })
+        } else {
+            $scope.completingRequests = false;
         }
     };
 
