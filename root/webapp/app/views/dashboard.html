@@ -164,32 +164,18 @@
                                         data-ng-if="groupRole.role.name !== 'MEMBER'"
                                         class="group-li">
 
-                                        <!-- Renal -->
-                                        <a href="#/myconditions?s=renal" class="group-link" data-ng-if="groupRole.group.code === 'Renal' && permissions.isPatient">
-                                            <img class="group-image" src="../images/icons/pv-renal.png"/>
-                                        </a>
-                                        <img class="group-image" src="../images/icons/pv-renal.png" data-ng-if="groupRole.group.code === 'Renal' && !permissions.isPatient"/>
+                                        <!-- renal, diabetes, heart failure, ibd -->
+                                        <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
+                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
+                                            <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
+                                                <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
+                                            </a>
+                                            <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
+                                        </span>
 
-                                        <!-- Diabetes -->
-                                        <a href="#/myconditions?s=diabetes" class="group-link" data-ng-if="groupRole.group.code === 'Diabetes' && permissions.isPatient">
-                                            <img class="group-image" src="../images/icons/pv-diabetes.png"/>
-                                        </a>
-                                        <img class="group-image" src="../images/icons/pv-diabetes.png" data-ng-if="groupRole.group.code === 'Diabetes' && !permissions.isPatient"/>
-
-                                        <!-- Heart failure -->
-                                        <a href="#/myconditions?s=cardiol" class="group-link" data-ng-if="groupRole.group.code === 'Cardiol' && permissions.isPatient">
-                                            <img class="group-image" src="../images/icons/pv-heart.png"/>
-                                        </a>
-                                        <img class="group-image" src="../images/icons/pv-heart.png" data-ng-if="groupRole.group.code === 'Cardiol' && !permissions.isPatient"/>
-
-                                        <!-- IBD -->
-                                        <a href="#/myconditions?s=ibd" class="group-link" data-ng-if="groupRole.group.code === 'IBD' && permissions.isPatient">
-                                            <img class="group-image" src="../images/icons/pv-ibd.png"/>
-                                        </a>
-                                        <img class="group-image" src="../images/icons/pv-ibd.png" data-ng-if="groupRole.group.code === 'IBD' && !permissions.isPatient"/>
-
-                                        <!-- units -->
-                                        <img class="group-image" src="../images/icons/pv-units.png" data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
+                                        <!-- units & Generic specialties-->
+                                        <img class="group-image" src="../images/icons/pv-units.png"
+                                             data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
 
                                         <span class="group-description">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
