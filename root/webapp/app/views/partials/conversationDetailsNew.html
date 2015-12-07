@@ -7,7 +7,7 @@
                     <ul class="feature-list unstyled">
                         <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
                             <div class="feature-list-name"><span class="feature-list-name">{{user.description}}</span> &nbsp;
-                                <a id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
+                                <a data-ng-hide="singlePatientConversation" id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
                             </div>
                         </li>
                     </ul>
@@ -23,7 +23,7 @@
         </div>
 
         <div>
-            <div class="row">
+            <div class="row" data-ng-hide="singlePatientConversation">
                 <div class="col-md-6">
                     <label for="conversation-select-group">Group</label>
                     <select class="form-control recipient-select" id="conversation-select-group"

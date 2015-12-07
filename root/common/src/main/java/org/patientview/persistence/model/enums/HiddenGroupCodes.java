@@ -9,6 +9,7 @@ package org.patientview.persistence.model.enums;
 public enum HiddenGroupCodes {
 
     PATIENT_ENTERED("Patient Entered Data"),
+    STAFF_ENTERED("Staff Entered Data"),
     ECS("ECS");
 
     private String name;

@@ -13,6 +13,9 @@ INSERT INTO pv_user (id, username, password, change_password, locked, email, for
 INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
   (5, 'ecs','pppppp', false, false, 'ecs@patientview.org', 'ecs', 'ecs', now(), now(), 1, false);
 
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
+  (6, 'patientviewnotifications','pppppp', false, false, 'patientviewnotifications@patientview.org', 'PatientView', 'Notifications', now(), now(), 1, false);
+
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (1, now(), 'Type of group','GROUP', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (2, now(), 'Type of menu','MENU', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (3, now(), 'Type of role','ROLE', '1');
@@ -163,6 +166,9 @@ INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id,
 /* used for storing user entered results */
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (6, 'Patient Entered Data', 'PATIENT_ENTERED', null, 2, false, now(), 1, false, 'Patient Entered');
 
+/* used for storing staff entered results */
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (7, 'Staff Entered Data', 'STAFF_ENTERED', null, 2, false, now(), 1, false, 'Staff Entered');
+
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '2', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', true, 'Unit Admin', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', '6', '3', true, 'Unit Staff', now(), '1');
@@ -186,6 +192,7 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (7, 'DEFAULT_MESSAGING_CONTACT', 'Default Messaging Contact', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (8, 'KEEP_ALL_DATA', 'Keep All Data', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (9, 'CENTRAL_SUPPORT_CONTACT', 'Central Support Contact', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (10, 'IBD_SCORING_ALERTS', 'IBD Scoring Alerts (needs Messaging)', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -197,6 +204,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (12, 7, 15)
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (13, 8, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (14, 4, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (15, 9, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (16, 10, 15);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );

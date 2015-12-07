@@ -67,6 +67,31 @@
         padding: 0px;
     }
 
+    i.icon-forward-to{
+        background: url('../images/icons/forward-to.png') 0 0 no-repeat;
+        height: 22px;
+        width: 23px;
+        display:block;
+        margin-left:10px;
+        position: relative;
+        top: 4px;
+    }
+
+    .group-li {
+        margin-top: 5px;
+    }
+    .group-image {
+        width: 30px;
+    }
+    .group-description {
+        margin-left: 5px;
+    }
+    .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
+        text-decoration: none;
+        outline: none;
+        border: 0px none transparent;
+    }
+
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -136,8 +161,33 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="groupRole.role.name !== 'MEMBER'">
-                                        <span>
+                                        data-ng-if="groupRole.role.name !== 'MEMBER'"
+                                        class="group-li">
+
+                                        <!-- renal, diabetes, heart failure, ibd -->
+                                        <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
+                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
+                                            <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
+                                                <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
+                                                <span class="group-description">
+                                                    {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
+                                                    <span class="light-text">({{groupRole.role.description}})</span>
+                                                </span>
+                                            </a>
+                                            <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
+                                            <span class="group-description" data-ng-if="!permissions.isPatient">
+                                                {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
+                                                <span class="light-text">({{groupRole.role.description}})</span>
+                                            </span>
+                                        </span>
+
+                                        <!-- units & Generic specialties-->
+                                        <img class="group-image" src="../images/icons/pv-units.png"
+                                             data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
+
+                                        <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
+                                            && groupRole.group.code !== 'Diabetes' &&
+                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
@@ -577,11 +627,18 @@
                                 <p data-ng-bind-html="parseHTMLText(news.story)"></p>
 
                                 <div class="news-actions">
-                                    <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read Story
-                                    </button>
+                                    <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read Story</button>
                                 </div>
                             </div>
                         </div>
+                    </li>
+                    <li data-ng-if="newsItems.length < newsItemsTotalElements">
+                        <span class="pull-right">
+                            <a class="btn blue" href="/#/news/#top">
+                                Older News
+                                <i class="icon-forward-to pull-right"></i>
+                            </a>
+                        </span>
                     </li>
                 </ul>
                 <ul class="unstyled" data-ng-hide="newsItems">

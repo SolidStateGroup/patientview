@@ -122,7 +122,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
     'RoleService', 'UserService', 'StaticDataService',
     function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService, StaticDataService) {
 
-        $scope.itemsPerPage = 5;
+        $scope.itemsPerPage = 10;
         $scope.currentPage = 0;
 
         $scope.init = function () {

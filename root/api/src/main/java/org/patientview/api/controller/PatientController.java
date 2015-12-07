@@ -64,7 +64,7 @@ public class PatientController  extends BaseController<PatientController> {
     @ResponseBody
     public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(
             @PathVariable("userId") Long userId, @RequestParam(value = "groupId", required = false) List<Long> groupIds)
-            throws FhirResourceException, ResourceNotFoundException {
+            throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(patientService.get(userId, groupIds), HttpStatus.OK);
     }
 

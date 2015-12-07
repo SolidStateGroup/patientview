@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', '$rootScope',
-function ($http, $q, Restangular, $rootScope) {
+angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', 'UserService', '$rootScope',
+function ($http, $q, Restangular, UserService, $rootScope) {
     return {
         addConversationUser: function (conversationId, userId) {
             var deferred = $q.defer();
@@ -151,6 +151,42 @@ function ($http, $q, Restangular, $rootScope) {
                     deferred.reject(failureResult);
                 });
             return deferred.promise;
+        },
+        userHasMessagingFeature: function() {
+            var i, j;
+
+            // GLOBAL_ADMIN and PATIENT both always have messaging enabled
+            if (UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser)
+                || UserService.checkRoleExists('PATIENT', $rootScope.loggedInUser) ) {
+                return true;
+            }
+
+            var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
+                'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
+
+            // although IBD_SCORING_ALERTS is a messaging feature, you must have MESSAGING or another enabled as well
+            var userMessaging = false;
+            var groupMessaging = false;
+
+            for (i = 0; i < $rootScope.loggedInUser.userInformation.userFeatures.length; i++) {
+                var feature = $rootScope.loggedInUser.userInformation.userFeatures[i];
+                if (messagingFeatures.indexOf(feature.name) > -1) {
+                    userMessaging = true;
+                }
+            }
+
+            // check member of at least one non specialty group with messaging feature
+            for (i = 0; i < $rootScope.loggedInUser.groupRoles.length; i++) {
+                var group = $rootScope.loggedInUser.groupRoles[i].group;
+                for (j = 0; j < group.groupFeatures.length; j++) {
+                    if (group.groupFeatures[j].feature.name === "MESSAGING"
+                        && group.groupType.value !== "SPECIALTY") {
+                        groupMessaging = true;
+                    }
+                }
+            }
+
+            return (userMessaging && groupMessaging);
         }
     };
 }]);

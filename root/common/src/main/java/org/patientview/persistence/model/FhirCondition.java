@@ -25,8 +25,11 @@ public class FhirCondition extends BaseModel {
     // used by my IBD to insert links
     private Set<Link> links;
 
-    // pulled from Code if present (set separately to constuctor)
+    // pulled from Code if present (set separately to constructor)
     private String description;
+
+    // used for displaying staff member who entered condition if present
+    private String asserter;
 
     public FhirCondition() {
     }
@@ -109,5 +112,13 @@ public class FhirCondition extends BaseModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAsserter() {
+        return asserter;
+    }
+
+    public void setAsserter(String asserter) {
+        this.asserter = asserter;
     }
 }

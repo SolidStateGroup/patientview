@@ -191,6 +191,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
                 NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
                     $scope.newsItems = page.content;
+                    $scope.newsItemsTotalElements = page.totalElements;
                     $scope.loading = false;
                 }, function () {
                     $scope.loading = false;

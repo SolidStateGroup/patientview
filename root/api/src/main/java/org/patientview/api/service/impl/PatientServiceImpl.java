@@ -580,7 +580,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      */
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
-            throws FhirResourceException, ResourceNotFoundException {
+            throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
 
         // check User exists
         User user = userService.get(userId);
@@ -635,11 +635,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
+                        // set staff entered conditions
+                        patient = setStaffEnteredConditions(patient, user.getId());
+
                         // set encounters (treatment)
                         patient = setEncounters(
                                 patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
 
-                        // set edta diagnosis if present based on available codes
+                        // set edta diagnosis if present based on available codes in conditions
                         patient = setDiagnosisCodes(patient);
 
                         // set non test observations
@@ -1244,6 +1247,30 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return patient;
     }
 
+    private org.patientview.api.model.Patient setStaffEnteredConditions(
+            org.patientview.api.model.Patient patient, Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        for (Condition condition : conditionService.getStaffEntered(userId)) {
+            FhirCondition fhirCondition = new FhirCondition(condition);
+
+            // try and set links based on diagnosis code (used by my IBD)
+            List<Code> codes = codeService.findAllByCodeAndType(fhirCondition.getCode(),
+                    lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+            if (!codes.isEmpty()) {
+                Code code = codes.get(0);
+
+                fhirCondition.setDescription(code.getDescription());
+
+                if (!CollectionUtils.isEmpty(code.getLinks())) {
+                    fhirCondition.setLinks(codes.get(0).getLinks());
+                }
+            }
+            patient.getFhirConditions().add(fhirCondition);
+        }
+
+        return patient;
+    }
+
     private org.patientview.api.model.Patient setDiagnosisCodes(org.patientview.api.model.Patient patient) {
         for (FhirCondition condition : patient.getFhirConditions()) {
             if (condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
@@ -1338,8 +1365,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
             for (ResourceReference practitionerReference : fhirPatient.getCareProvider()) {
-                patient.getFhirPractitioners().add(new FhirPractitioner(getPractitioner(
-                        UUID.fromString(practitionerReference.getDisplaySimple()))));
+                Practitioner practitioner = getPractitioner(UUID.fromString(practitionerReference.getDisplaySimple()));
+                if (practitioner != null) {
+                    patient.getFhirPractitioners().add(new FhirPractitioner(practitioner));
+                }
             }
         }
 

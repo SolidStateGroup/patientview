@@ -56,11 +56,12 @@ public interface PatientService {
      * @return List of Patient objects containing patient encounters, conditions etc
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
      */
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
     List<org.patientview.api.model.Patient> get(Long userId, List<Long> groupIds)
-            throws FhirResourceException, ResourceNotFoundException;
+            throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Get a FHIR Patient record given the UUID associated with the Patient in FHIR.

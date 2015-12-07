@@ -260,7 +260,7 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
     });
 
     var getItems = function() {
-        if ($scope.userHasMessagingFeature()) {
+        if (ConversationService.userHasMessagingFeature()) {
             $scope.loading = true;
             var getParameters = {};
             getParameters.page = $scope.currentPage;
@@ -282,6 +282,7 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
                 }
 
                 $scope.pagedItems = page.content;
+                $scope.hasMessagingFeature = true;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
                 $scope.loading = false;
@@ -289,6 +290,8 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
                 $scope.loading = false;
                 alert("Could not get conversations");
             });
+        }else{
+            $scope.hasMessagingFeature = false;
         }
     };
 
@@ -517,26 +520,6 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         });
     };
 
-    $scope.userHasMessagingFeature = function() {
-        // GLOBAL_ADMIN and PATIENT both always have messaging enabled
-        if (UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)
-            || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
-            return true;
-        }
-
-        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT', 'UNIT_TECHNICAL_CONTACT',
-            'PATIENT_SUPPORT_CONTACT', 'CENTRAL_SUPPORT_CONTACT'];
-
-        for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
-            var feature = $scope.loggedInUser.userInformation.userFeatures[i];
-            if (messagingFeatures.indexOf(feature.name) > -1) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
     $scope.getLastMessageUser = function(conversation) {
         var message = conversation.messages[conversation.messages.length-1];
         if (message != null) {
@@ -687,6 +670,25 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             $scope.loading = false;
             delete $rootScope.switchingUser;
         });
+    };
+
+    // show With: text next to recipients
+    $scope.showWithText = function(conversationUsers) {
+        if (conversationUsers.length > 2) {
+            return true;
+        }
+
+        for (var i=0; i<conversationUsers.length; i++) {
+            if (conversationUsers[i].user.username === 'patientviewnotifications') {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    $scope.userHasMessagingFeature = function() {
+        return ConversationService.userHasMessagingFeature();
     };
 
     init();

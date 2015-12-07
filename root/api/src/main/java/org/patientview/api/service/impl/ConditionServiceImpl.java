@@ -4,19 +4,44 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.HumanName;
+import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.api.controller.BaseController;
+import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
+import org.patientview.api.service.GroupService;
+import org.patientview.api.service.LookupService;
+import org.patientview.api.service.PatientService;
+import org.patientview.api.service.PractitionerService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeTypes;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,10 +50,34 @@ import java.util.UUID;
  * Created on 08/09/2014
  */
 @Service
-public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> implements ConditionService {
+public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceImpl> implements ConditionService {
+
+    @Inject
+    private CodeService codeService;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private LookupService lookupService;
+
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private PractitionerService practitionerService;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
 
     @Override
     public List<Condition> get(final UUID patientUuid) throws FhirResourceException {
@@ -44,6 +93,45 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
 
         return conditions;
+    }
+
+    @Override
+    public List<Condition> getStaffEntered(Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        User patientUser = userService.get(userId);
+        if (!userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        // sort identifiers and choose first (must have fhir link with identifier to link to fhir database
+        List<Identifier> identifiersSorted = new ArrayList<>(patientUser.getIdentifiers());
+        Collections.sort(identifiersSorted);
+
+        // get STAFF_ENTERED group
+        Group staffEnteredGroup = groupService.findByCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+        if (staffEnteredGroup == null) {
+            throw new ResourceNotFoundException("Group for staff entered data does not exist");
+        }
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                patientUser, staffEnteredGroup, identifiersSorted.get(0));
+
+        if (!CollectionUtils.isEmpty(fhirLinks)) {
+            FhirLink fhirLink= fhirLinks.get(0);
+            List<Condition> conditions = new ArrayList<>();
+
+            conditions.addAll(fhirResource.findResourceByQuery("SELECT content::varchar " + "FROM condition "
+                    + "WHERE content -> 'subject' ->> 'display' = '"
+                    + fhirLink.getResourceId() + "' ", Condition.class));
+
+            return conditions;
+        }
+
+        return new ArrayList<>();
     }
 
     @Override
@@ -76,5 +164,123 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         }
 
         fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+    }
+
+    @Override
+    public void staffAddCondition(Long patientUserId, String code)
+            throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException {
+
+        User patientUser = userService.get(patientUserId);
+        if (!userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        // sort identifiers and choose first (must have fhir link with identifier to link to fhir database
+        List<Identifier> identifiersSorted = new ArrayList<>(patientUser.getIdentifiers());
+        Collections.sort(identifiersSorted);
+        Identifier patientIdentifier = identifiersSorted.get(0);
+
+        // get STAFF_ENTERED group
+        Group staffEnteredGroup = groupService.findByCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+        if (staffEnteredGroup == null) {
+            throw new ResourceNotFoundException("Group for staff entered data does not exist");
+        }
+
+        // check
+        Lookup codeLookup = lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        List<Code> codes = codeService.findAllByCodeAndType(code, codeLookup);
+        if (CollectionUtils.isEmpty(codes)) {
+            throw new ResourceNotFoundException("Cannot find code");
+        }
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                patientUser, staffEnteredGroup, identifiersSorted.get(0));
+
+        FhirLink fhirLink;
+
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            // create FHIR Patient & fhirlink if not exists with STAFF_ENTERED group, userId and identifier
+            fhirLink = addFhirLink(patientUser, patientIdentifier, staffEnteredGroup);
+        } else {
+            fhirLink = fhirLinks.get(0);
+        }
+
+        // fhir link now exists, get patient reference used when building Condition
+        ResourceReference patientReference = Util.createFhirResourceReference(fhirLink.getResourceId());
+
+        // get or create practitioner reference if does not exist, used to store staff user id
+        ResourceReference staffReference = Util.createFhirResourceReference(getPractitionerUuid(getCurrentUser()));
+
+        // create new Condition with subject and asserter
+        Condition condition = new Condition();
+        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
+        condition.setSubject(patientReference);
+        condition.setAsserter(staffReference);
+
+        // set code
+        condition.setNotesSimple(code);
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setTextSimple(code);
+        condition.setCode(codeableConcept);
+
+        // set category DIAGNOSIS_STAFF_ENTERED
+        CodeableConcept category = new CodeableConcept();
+        category.setTextSimple(DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED.toString());
+        condition.setCategory(category);
+
+        // set assertion date
+        DateAndTime dateAndTime = new DateAndTime(new Date());
+        condition.setDateAssertedSimple(dateAndTime);
+
+        // store in FHIR
+        fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+    }
+
+    private FhirLink addFhirLink(User patientUser, Identifier identifier, Group group) throws FhirResourceException {
+        FhirDatabaseEntity fhirPatient
+            = fhirResource.createEntity(
+                patientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
+
+        // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(patientUser);
+        fhirLink.setIdentifier(identifier);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(fhirPatient.getLogicalId());
+        fhirLink.setVersionId(fhirPatient.getVersionId());
+        fhirLink.setResourceType(ResourceType.Patient.name());
+        fhirLink.setActive(true);
+
+        if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
+            patientUser.setFhirLinks(new HashSet<FhirLink>());
+        }
+
+        patientUser.getFhirLinks().add(fhirLink);
+        userRepository.save(patientUser);
+
+        return fhirLink;
+    }
+
+    private UUID getPractitionerUuid(User user) throws FhirResourceException {
+        List<UUID> practitionerUuids = practitionerService.getPractitionerLogicalUuidsByName(user.getId().toString());
+
+        if (!CollectionUtils.isEmpty(practitionerUuids)) {
+            return practitionerUuids.get(0);
+        } else {
+            // build simple practitioner, storing user id in family name
+            Practitioner practitioner = new Practitioner();
+            HumanName humanName = new HumanName();
+            humanName.addFamilySimple(user.getId().toString());
+            practitioner.setName(humanName);
+
+            // native create new FHIR object
+            FhirDatabaseEntity entity = fhirResource.createEntity(
+                    practitioner, ResourceType.Practitioner.name(), "practitioner");
+            return entity.getLogicalId();
+        }
     }
 }

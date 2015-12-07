@@ -12,6 +12,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
@@ -19,6 +20,7 @@ import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -33,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,22 +51,25 @@ import java.util.Properties;
 public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> implements RequestService {
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
-    private RequestRepository requestRepository;
+    private CaptchaService captchaService;
 
     @Inject
     private EmailService emailService;
 
     @Inject
-    private CaptchaService captchaService;
+    private GroupRepository groupRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private Properties properties;
+
+    @Inject
+    private RequestRepository requestRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -108,6 +114,84 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         return entityRequest;
+    }
+
+    @Override
+    public Integer completeRequests() {
+        // get SUBMITTED requests
+        List<RequestStatus> submittedStatus = new ArrayList<>();
+        submittedStatus.add(RequestStatus.SUBMITTED);
+
+        List<RequestTypes> requestTypes = new ArrayList<>();
+        requestTypes.add(RequestTypes.JOIN_REQUEST);
+        requestTypes.add(RequestTypes.FORGOT_LOGIN);
+
+        Page<Request> requests = requestRepository.findAllByStatuses(
+                submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
+
+        //List<Request> outDatedRequests = new ArrayList<>();
+        int count = 0;
+        Date now = new Date();
+        String dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(now);
+
+        if (requests != null) {
+            for (Request request : requests.getContent()) {
+                // clean up identifier and search for existing user
+                if (request.getNhsNumber() != null) {
+                    String identifier = request.getNhsNumber().replace(" ", "").trim();
+                    if (StringUtils.isNotEmpty(identifier)) {
+                        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+                        if (!identifiers.isEmpty()) {
+                            User user = identifiers.get(0).getUser();
+                            // user with this identifier already exists
+                            if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
+                                // only COMPLETE if patient creation date after request date
+                                // (user may have forgotten about account)
+                                if (user.getCreated().after(request.getCreated())) {
+                                    // set to COMPLETED and save
+                                    request.setStatus(RequestStatus.COMPLETED);
+                                    request.setCompletedBy(getCurrentUser());
+                                    request.setCompletionDate(now);
+                                    if (StringUtils.isEmpty(request.getNotes())) {
+                                        request.setNotes("Closed via auto completion routine on " + dateFormat + ".");
+                                    } else {
+                                        request.setNotes(request.getNotes() + " Closed via auto completion routine on "
+                                                + dateFormat + ".");
+                                    }
+                                    requestRepository.save(request);
+                                    count++;
+                                }
+                            }
+                            else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
+                                // forgot login, so check if user has logged in since request created
+                                if ((user.getLastLogin() != null
+                                        && user.getLastLogin().after(request.getCreated()))
+                                    || (user.getCurrentLogin() != null
+                                        && user.getCurrentLogin().after(request.getCreated()))) {
+                                    // set to COMPLETED and save
+                                    request.setStatus(RequestStatus.COMPLETED);
+                                    request.setCompletedBy(getCurrentUser());
+                                    request.setCompletionDate(now);
+                                    if (StringUtils.isEmpty(request.getNotes())) {
+                                        request.setNotes("Closed via auto completion routine on " + dateFormat + ".");
+                                    } else {
+                                        request.setNotes(request.getNotes() + " Closed via auto completion routine on "
+                                                + dateFormat + ".");
+                                    }
+                                    requestRepository.save(request);
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        LOG.info(getCurrentUser().getUsername()
+                + " completed " + count + " SUBMITTED relevant join request and forgot login requests");
+
+        return count;
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,

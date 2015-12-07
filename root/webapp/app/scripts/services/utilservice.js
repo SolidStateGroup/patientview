@@ -147,6 +147,12 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             return monthNames[parseInt(month)];
         },
 
+        getMonthTextShort: function(month) {
+            var monthNames = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+            return monthNames[parseInt(month)];
+        },
+
         generateDays: function () {
             var days = [];
             days.push('');

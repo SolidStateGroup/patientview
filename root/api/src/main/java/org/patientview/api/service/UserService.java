@@ -121,6 +121,13 @@ public interface UserService {
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     /**
+     * Check if current User has the permissions to get another User.
+     * @param user User to get
+     * @return True if current User can get the other User
+     */
+    boolean currentUserCanGetUser(User user);
+
+    /**
      * Check if current User has the permissions to switch to another User.
      * @param user User to switch to
      * @return True if current User can switch to the other User
