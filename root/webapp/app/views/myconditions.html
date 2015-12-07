@@ -2,13 +2,20 @@
     .specialty-switcher {
         margin-left:10px;
     }
+    .group-image {
+        width: 30px;
+        margin-right:5px;
+    }
 </style>
 <h1 data-ng-show="!loading">
     My Conditions
     <span data-ng-show="specialties && specialties.length > 1" class="specialty-switcher">
         <div class="btn-group-switcher btn-group">
             <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
-               class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
+               class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">
+                <img class="group-image" src="../images/icons/pv-{{specialty.code.toLowerCase()}}.png"/>
+                {{specialty.name}}
+            </a>
         </div>
     </span>
 </h1>
