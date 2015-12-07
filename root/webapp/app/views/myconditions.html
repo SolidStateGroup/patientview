@@ -13,7 +13,7 @@
 </style>
 <h1 data-ng-show="!loading">
     My Conditions
-    <span data-ng-show="specialties && specialties.length > 1" class="specialty-switcher">
+    <span data-ng-show="specialties && specialties.length > 0" class="specialty-switcher">
         <div class="btn-group-switcher btn-group">
             <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
                class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">
