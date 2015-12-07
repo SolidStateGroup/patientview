@@ -169,15 +169,25 @@
                                             groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
                                             <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
                                                 <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
+                                                <span class="group-description">
+                                                    {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
+                                                    <span class="light-text">({{groupRole.role.description}})</span>
+                                                </span>
                                             </a>
                                             <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
+                                            <span class="group-description" data-ng-if="!permissions.isPatient">
+                                                {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
+                                                <span class="light-text">({{groupRole.role.description}})</span>
+                                            </span>
                                         </span>
 
                                         <!-- units & Generic specialties-->
                                         <img class="group-image" src="../images/icons/pv-units.png"
                                              data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
 
-                                        <span class="group-description">
+                                        <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
+                                            && groupRole.group.code !== 'Diabetes' &&
+                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
