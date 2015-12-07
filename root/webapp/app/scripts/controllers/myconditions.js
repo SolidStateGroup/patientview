@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService', 'ObservationService',
-function ($scope, PatientService, GroupService, ObservationService) {
+angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService', 'ObservationService', '$routeParams',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams) {
 
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
@@ -272,9 +272,18 @@ function ($scope, PatientService, GroupService, ObservationService) {
             }
         }
 
-        // get conditions based on first specialty
         if ($scope.specialties.length) {
-            $scope.currentSpecialty = $scope.specialties[0];
+            var specialty = $scope.specialties[0];
+            // get conditions based on first specialty or route param if present
+            if ($routeParams.s !== undefined) {
+                for (i=0; i<$scope.specialties.length; i++) {
+                    if ($scope.specialties[i].code.toLowerCase() === $routeParams.s.toLowerCase()) {
+                        specialty = $scope.specialties[i];
+                    }
+                }
+            }
+
+            $scope.currentSpecialty = specialty;
             getAllPublic();
         } else {
             alert('Error getting specialties');

@@ -81,10 +81,15 @@
         margin-top: 5px;
     }
     .group-image {
-        width: 60px;
+        width: 30px;
     }
     .group-description {
-        margin-left: 10px;
+        margin-left: 5px;
+    }
+    .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
+        text-decoration: none;
+        outline: none;
+        border: 0px none transparent;
     }
 
 </style>
@@ -158,13 +163,34 @@
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
                                         data-ng-if="groupRole.role.name !== 'MEMBER'"
                                         class="group-li">
-                                        <span class="group-image">
-                                            <img src="../images/icons/pv-renal.png" data-ng-if="groupRole.group.code === 'Renal'"/>
-                                            <img src="../images/icons/pv-diabetes.png" data-ng-if="groupRole.group.code === 'Diabetes'"/>
-                                            <img src="../images/icons/pv-heart.png" data-ng-if="groupRole.group.code === 'Cardiol'"/>
-                                            <img src="../images/icons/pv-ibd.png" data-ng-if="groupRole.group.code === 'IBD'"/>
-                                            <img src="../images/icons/pv-units.png" data-ng-if="groupRole.group.groupType.value === 'UNIT'"/>
-                                        </span>
+
+                                        <!-- Renal -->
+                                        <a href="#/myconditions?s=renal" class="group-link" data-ng-if="groupRole.group.code === 'Renal' && permissions.isPatient">
+                                            <img class="group-image" src="../images/icons/pv-renal.png"/>
+                                        </a>
+                                        <img class="group-image" src="../images/icons/pv-renal.png" data-ng-if="groupRole.group.code === 'Renal' && !permissions.isPatient"/>
+
+                                        <!-- Diabetes -->
+                                        <a href="#/myconditions?s=diabetes" class="group-link" data-ng-if="groupRole.group.code === 'Diabetes' && permissions.isPatient">
+                                            <img class="group-image" src="../images/icons/pv-diabetes.png"/>
+                                        </a>
+                                        <img class="group-image" src="../images/icons/pv-diabetes.png" data-ng-if="groupRole.group.code === 'Diabetes' && !permissions.isPatient"/>
+
+                                        <!-- Heart failure -->
+                                        <a href="#/myconditions?s=cardiol" class="group-link" data-ng-if="groupRole.group.code === 'Cardiol' && permissions.isPatient">
+                                            <img class="group-image" src="../images/icons/pv-heart.png"/>
+                                        </a>
+                                        <img class="group-image" src="../images/icons/pv-heart.png" data-ng-if="groupRole.group.code === 'Cardiol' && !permissions.isPatient"/>
+
+                                        <!-- IBD -->
+                                        <a href="#/myconditions?s=ibd" class="group-link" data-ng-if="groupRole.group.code === 'IBD' && permissions.isPatient">
+                                            <img class="group-image" src="../images/icons/pv-ibd.png"/>
+                                        </a>
+                                        <img class="group-image" src="../images/icons/pv-ibd.png" data-ng-if="groupRole.group.code === 'IBD' && !permissions.isPatient"/>
+
+                                        <!-- units -->
+                                        <img class="group-image" src="../images/icons/pv-units.png" data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
+
                                         <span class="group-description">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>

@@ -36,7 +36,6 @@ public interface ConditionService {
      * @throws ResourceForbiddenException
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     List<Condition> getStaffEntered(Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
