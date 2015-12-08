@@ -63,46 +63,6 @@
                 </result>
             </test>
             <test>
-                <testname>Haemoglobin</testname>
-                <testcode>hb</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-06" stop="2015-04-07"/>
-                <result>
-                    <datestamp>2015-04-06T13:04:00</datestamp>
-                    <value>166</value>
-                </result>
-            </test>
-            <test>
-                <testname>Albumin</testname>
-                <testcode>albumin</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-07" stop="2015-04-08"/>
-                <result>
-                    <datestamp>2015-04-07T14:05:00</datestamp>
-                    <value>111</value>
-                </result>
-            </test>
-            <test>
-                <testname>Serum Creatinine</testname>
-                <testcode>creatinine</testcode>
-                <units>umol/l</units>
-                <daterange start="2015-04-08" stop="2015-04-09"/>
-                <result>
-                    <datestamp>2015-04-08T15:06:00</datestamp>
-                    <value>74</value>
-                </result>
-            </test>
-            <test>
-                <testname>eGFR</testname>
-                <testcode>egfr</testcode>
-                <units>ml/min/1.73m^2</units>
-                <daterange start="2015-04-09" stop="2015-04-10"/>
-                <result>
-                    <datestamp>2015-04-09T20:10:00</datestamp>
-                    <value>68</value>
-                </result>
-            </test>
-            <test>
                 <testname>ACR</testname>
                 <testcode>acr</testcode>
                 <units>mg/mmol</units>
@@ -110,6 +70,16 @@
                 <result>
                     <datestamp>2015-04-10T21:11:00</datestamp>
                     <value>22</value>
+                </result>
+            </test>
+            <test>
+                <testname>HbA1c</testname>
+                <testcode>hba1c</testcode>
+                <units>%</units>
+                <daterange start="2015-04-11" stop="2015-04-12"/>
+                <result>
+                    <datestamp>2015-04-11T22:12:00</datestamp>
+                    <value>4.9</value>
                 </result>
             </test>
         </testdetails>

@@ -63,46 +63,6 @@
                 </result>
             </test>
             <test>
-                <testname>Haemoglobin</testname>
-                <testcode>hb</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-05" stop="2015-04-06"/>
-                <result>
-                    <datestamp>2015-04-05T13:04:00</datestamp>
-                    <value>145</value>
-                </result>
-            </test>
-            <test>
-                <testname>Albumin</testname>
-                <testcode>albumin</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-06" stop="2015-04-07"/>
-                <result>
-                    <datestamp>2015-04-06T14:05:00</datestamp>
-                    <value>111</value>
-                </result>
-            </test>
-            <test>
-                <testname>Serum Creatinine</testname>
-                <testcode>creatinine</testcode>
-                <units>umol/l</units>
-                <daterange start="2015-04-07" stop="2015-04-08"/>
-                <result>
-                    <datestamp>2015-04-07T15:06:00</datestamp>
-                    <value>78</value>
-                </result>
-            </test>
-            <test>
-                <testname>eGFR</testname>
-                <testcode>egfr</testcode>
-                <units>ml/min/1.73m^2</units>
-                <daterange start="2015-04-08" stop="2015-04-09"/>
-                <result>
-                    <datestamp>2015-04-08T20:10:00</datestamp>
-                    <value>65</value>
-                </result>
-            </test>
-            <test>
                 <testname>ACR</testname>
                 <testcode>acr</testcode>
                 <units>mg/mmol</units>
