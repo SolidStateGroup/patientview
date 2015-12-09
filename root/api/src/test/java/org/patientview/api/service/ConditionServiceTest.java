@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ConditionServiceImpl;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
@@ -145,7 +146,7 @@ public class ConditionServiceTest {
                 + "WHERE content -> 'subject' ->> 'display' = '"
                 + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
 
-        List<Condition> conditionsList = conditionService.getStaffEntered(patient.getId());
+        List<FhirCondition> conditionsList = conditionService.getStaffEntered(patient.getId());
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"
