@@ -197,7 +197,8 @@
         </div>
     </div>
 </div>
-<div class="row">
+<!-- condition information (diagnosis) if in heart failure -->
+<div class="row" data-ng-if="canAddDiagnosis()">
     <hr/>
     <div class="col-md-12">
         <label class="control-label">Condition Information</label>
@@ -206,8 +207,8 @@
             <div class="col-md-2">
                 Current Diagnosis:
             </div>
-            <div class="col-md-10">
-                <strong>SomeDiagnosis</strong> &nbsp;&nbsp;&nbsp; (set 12 Mar 2015 by globaladmin globaladmin)
+            <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
+                <strong>{{editUser.staffEnteredDiagnosis.description}}</strong> &nbsp;&nbsp;&nbsp; (set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{editUser.staffEnteredDiagnosis.asserter}})
             </div>
         </div>
         <div class="row">

@@ -36,7 +36,7 @@ public interface ConditionService {
      * @throws ResourceForbiddenException
      * @throws ResourceNotFoundException
      */
-    List<Condition> getStaffEntered(Long userId)
+    List<FhirCondition> getStaffEntered(Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
     // used by migration

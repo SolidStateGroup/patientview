@@ -79,6 +79,43 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
     @Inject
     private UserService userService;
 
+    private FhirCondition createFhirCondition(Condition condition) throws FhirResourceException {
+        FhirCondition fhirCondition = new FhirCondition(condition);
+
+        // try and set links based on diagnosis code (used by my IBD)
+        List<Code> codes = codeService.findAllByCodeAndType(fhirCondition.getCode(),
+                lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+        if (!codes.isEmpty()) {
+            Code code = codes.get(0);
+
+            fhirCondition.setDescription(code.getDescription());
+
+            if (!CollectionUtils.isEmpty(code.getLinks())) {
+                fhirCondition.setLinks(codes.get(0).getLinks());
+            }
+        }
+
+        // set asserter based on practitioner content
+        if (condition.getAsserter() != null && condition.getAsserter().getDisplaySimple() != null) {
+            Practitioner practitioner = (Practitioner)fhirResource.get(
+                    UUID.fromString(condition.getAsserter().getDisplaySimple()), ResourceType.Practitioner);
+            if (practitioner != null && practitioner.getName() != null
+                    && !CollectionUtils.isEmpty(practitioner.getName().getFamily())) {
+                try {
+                    User staffUser = userRepository.findOne(
+                            Long.parseLong(practitioner.getName().getFamily().get(0).getValue()));
+                    if (staffUser != null) {
+                        fhirCondition.setAsserter(staffUser.getName());
+                    }
+                } catch (NumberFormatException nfe) {
+                    // incorrect family name, should be Long as stores user id
+                }
+            }
+        }
+
+        return fhirCondition;
+    }
+
     @Override
     public List<Condition> get(final UUID patientUuid) throws FhirResourceException {
         List<Condition> conditions = new ArrayList<>();
@@ -96,7 +133,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
     }
 
     @Override
-    public List<Condition> getStaffEntered(Long userId)
+    public List<FhirCondition> getStaffEntered(Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
         User patientUser = userService.get(userId);
         if (!userService.currentUserCanGetUser(patientUser)) {
@@ -128,7 +165,11 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
                     + "WHERE content -> 'subject' ->> 'display' = '"
                     + fhirLink.getResourceId() + "' ", Condition.class));
 
-            return conditions;
+            List<FhirCondition> fhirConditions = new ArrayList<>();
+            for (Condition condition : conditions) {
+                fhirConditions.add(createFhirCondition(condition));
+            }
+            return fhirConditions;
         }
 
         return new ArrayList<>();
