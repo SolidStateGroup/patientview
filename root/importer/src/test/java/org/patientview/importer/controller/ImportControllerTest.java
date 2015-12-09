@@ -166,7 +166,7 @@ public class ImportControllerTest {
     }
 
     @Test
-    //@Ignore("IntegrationTest")
+    @Ignore("IntegrationTest")
     public void importIntegrationTestCKD_3_01() throws Exception {
         List<String> files = new ArrayList<>();
         files.add("data/xml/CKD_3/RQR00_01_667788990.xml");
