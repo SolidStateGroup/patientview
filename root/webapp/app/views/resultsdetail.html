@@ -90,7 +90,7 @@
                         <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
                     </select>
                     <br/>
-                    <a data-ng-if="hasBloodPressure()" href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
+                    <a data-ng-if="observationHeadings.length && hasBloodPressure()" href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
                 </div>
             </div>
         </div>

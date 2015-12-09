@@ -55,12 +55,14 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.hasBloodPressure = function() {
         var hasBpsys = false;
         var hasBpdia = false;
-        for (var i=0; i<$scope.observationHeadings.length; i++) {
-            if ($scope.observationHeadings[i].code === 'bpdia') {
-                hasBpdia = true;
-            }
-            if ($scope.observationHeadings[i].code === 'bpsys') {
-                hasBpsys = true;
+        if ($scope.observationHeadings) {
+            for (var i = 0; i < $scope.observationHeadings.length; i++) {
+                if ($scope.observationHeadings[i].code === 'bpdia') {
+                    hasBpdia = true;
+                }
+                if ($scope.observationHeadings[i].code === 'bpsys') {
+                    hasBpsys = true;
+                }
             }
         }
 
