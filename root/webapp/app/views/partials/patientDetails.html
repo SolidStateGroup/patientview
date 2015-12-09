@@ -210,6 +210,9 @@
             <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
                 <strong>{{editUser.staffEnteredDiagnosis.description}}</strong> &nbsp;&nbsp;&nbsp; (set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{editUser.staffEnteredDiagnosis.asserter}})
             </div>
+            <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
+                <strong>No diagnosis entered</strong>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-2">
