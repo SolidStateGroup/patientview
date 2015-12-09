@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService', 'ObservationService', '$routeParams',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams) {
+angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
+    'ObservationService', '$routeParams', 'DiagnosisService',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService) {
 
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
@@ -217,6 +218,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
     var getMyConditions = function() {
         var childGroupIds = [];
         $scope.patientDetails = '';
+        delete $scope.staffEnteredDiagnosis;
 
         $scope.unitGroups.forEach(function(unit) {
             if (_.findWhere(unit.parentGroups, {id: $scope.currentSpecialty.id})) {
@@ -225,6 +227,24 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         });
 
         if (childGroupIds.length > 0) {
+
+            // get staff entered diagnosis if present
+            var canGetStaffEnteredDiagnosis = false;
+
+            for (var i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
+                if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
+                    canGetStaffEnteredDiagnosis = true;
+                }
+            }
+
+            if (canGetStaffEnteredDiagnosis) {
+                DiagnosisService.getStaffEntered($scope.loggedInUser.id).then(function(diagnoses) {
+                    $scope.staffEnteredDiagnosis = diagnoses[diagnoses.length - 1];
+                }, function() {
+                    alert('Failed to retrieve staff entered diagnosis');
+                })
+            }
+
             PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
                 $scope.patientDetails = patientDetails;
 
