@@ -5,6 +5,9 @@
     .result-item-container .result-header h4 .info-link {
         font-size: 14px;
     }
+    .info-link {
+        color: #00adc6;
+    }
 </style>
 <div data-ng-show="!loading">
     <h1 class="clearfix">
@@ -59,7 +62,7 @@
                     <div class="result-header">
                         <h4>
                             <a href="" data-ng-click="openObservationHeadingInformation(result)">
-                                <span class="info-link pull-right">About</span>
+                                <span class="info-link pull-right">About test</span>
                             </a>
                             <span class="result-heading-title">{{result.heading}}</span>
                         </h4>
@@ -100,7 +103,7 @@
                     <div class="result-footer">
                         <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
                             <i class="icon-circle-arrow pull-right"></i>
-                            View More Details
+                            View Chart
                         </a>
                     </div>
                 </div>
