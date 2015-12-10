@@ -79,7 +79,7 @@ public class ImporterConfig {
 
     @Bean
     public ExecutorService executorServiceBean() {
-        return Executors.newFixedThreadPool(20);
+        return Executors.newFixedThreadPool(10);
     }
 
     @Bean

@@ -65,8 +65,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     @Inject
     private IdentifierRepository identifierRepository;
 
-    private String nhsno;
-
     /**
      * Creates all of the FHIR DocumentReference records from the Patientview object.
      * Links them to the Patient by subject.
@@ -78,7 +76,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
         Alert alert = null;
         boolean verboseLogging = false;
-        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        String nhsno = data.getPatient().getPersonaldetails().getNhsno();
         if (verboseLogging) {
             LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
         }
@@ -94,7 +92,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             Map<String, String> existingMap = getExistingTypeAndContentBySubjectId(fhirLink);
 
             List<org.patientview.persistence.model.Identifier> identifiers
-                    = identifierRepository.findByValue(this.nhsno);
+                    = identifierRepository.findByValue(nhsno);
 
             // get LETTER alert if exists
             if (!CollectionUtils.isEmpty(identifiers)) {
@@ -314,7 +312,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         return output;
     }
 
-    private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink)
+    private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink, String nhsno)
             throws FhirResourceException, SQLException {
         Map<String, Date> existingMap = new HashMap<>();
 
@@ -358,7 +356,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     }
 
     // check for existing by letter content
-    private Map<String, String> getExistingDateAndContentBySubjectId(FhirLink fhirLink) throws FhirResourceException {
+    private Map<String, String> getExistingDateAndContentBySubjectId(FhirLink fhirLink, String nhsno) throws FhirResourceException {
         Map<String, String> existingMap = new HashMap<>();
 
         // build query
@@ -442,7 +440,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         return existingMap;
     }
 
-    private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap) {
+    private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap, String nhsno) {
         List<UUID> existingByDate = new ArrayList<>();
 
         try {
@@ -468,7 +466,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     }
 
     private List<UUID> getExistingByDateAndContent(DocumentReference documentReference, Map<String,
-            String> existingMap) {
+            String> existingMap, String nhsno) {
         List<UUID> existingByDateAndContent = new ArrayList<>();
 
         try {
