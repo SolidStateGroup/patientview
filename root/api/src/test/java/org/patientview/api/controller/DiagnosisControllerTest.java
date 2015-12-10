@@ -64,4 +64,14 @@ public class DiagnosisControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    public void testRemoveStaffEntered() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+        Long userId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + userId + "/diagnosis/staffentered")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }

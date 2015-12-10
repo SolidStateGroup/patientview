@@ -54,4 +54,8 @@ public interface ConditionService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void staffAddCondition(Long patientUserId, String code)
             throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void staffRemoveCondition(Long patientUserId)
+            throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException;
 }

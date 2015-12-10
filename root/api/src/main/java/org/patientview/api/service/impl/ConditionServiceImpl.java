@@ -281,6 +281,40 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
         fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
     }
 
+    @Override
+    public void staffRemoveCondition(Long patientUserId) throws ResourceForbiddenException, ResourceNotFoundException,
+            FhirResourceException {
+
+        User patientUser = userService.get(patientUserId);
+        if (!userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        // get STAFF_ENTERED group
+        Group staffEnteredGroup = groupService.findByCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+        if (staffEnteredGroup == null) {
+            throw new ResourceNotFoundException("Group for staff entered data does not exist");
+        }
+
+        // sort identifiers and choose first (must have fhir link with identifier to link to fhir database
+        List<Identifier> identifiersSorted = new ArrayList<>(patientUser.getIdentifiers());
+        Collections.sort(identifiersSorted);
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                patientUser, staffEnteredGroup, identifiersSorted.get(0));
+
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            throw new ResourceNotFoundException("No patient data exists for this patient");
+        }
+
+        fhirResource.executeSQL("UPDATE condition SET content -> 'status' = 'refuted'"
+                + " WHERE content -> 'subject' ->> 'display' = '" + fhirLinks.get(0).getResourceId() + "' ");
+    }
+
     private FhirLink addFhirLink(User patientUser, Identifier identifier, Group group) throws FhirResourceException {
         FhirDatabaseEntity fhirPatient
             = fhirResource.createEntity(

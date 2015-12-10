@@ -31,6 +31,9 @@ public class FhirCondition extends BaseModel {
     // used for displaying staff member who entered condition if present
     private String asserter;
 
+    // used to set deletion status (confirmed = ok, refuted = deleted) for staff entered diagnosis
+    private String status;
+
     public FhirCondition() {
     }
 
@@ -47,6 +50,10 @@ public class FhirCondition extends BaseModel {
             DateAndTime date = condition.getDateAssertedSimple();
             setDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
                     date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+        }
+
+        if (condition.getStatusSimple() != null) {
+            setStatus(condition.getStatusSimple().toCode());
         }
     }
 
@@ -120,5 +127,13 @@ public class FhirCondition extends BaseModel {
 
     public void setAsserter(String asserter) {
         this.asserter = asserter;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

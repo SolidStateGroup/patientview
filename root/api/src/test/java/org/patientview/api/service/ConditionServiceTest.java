@@ -394,4 +394,71 @@ public class ConditionServiceTest {
         verify(fhirResource, times(1)).createEntity(
                 any(Practitioner.class), eq(ResourceType.Practitioner.name()), eq("practitioner"));
     }
+
+    @Test
+    public void testStaffRemoveCondition() throws Exception {
+        String code = "00";
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User staffUser = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, staffUser);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staffUser.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(staffUser, groupRoles);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // patient identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        // staff entered results group
+        Group staffEntered = TestUtils.createGroup("staffEntered");
+        staffEntered.setCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+
+        // fhir link
+        FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier);
+        fhirLink.setGroup(staffEntered);
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(fhirLink);
+
+        // returned conditions
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setTextSimple(code);
+        Condition condition = new Condition();
+        condition.setCode(codeableConcept);
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(condition);
+
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(staffEntered), eq(identifier)))
+                .thenReturn(fhirLinks);
+        when(groupService.findByCode(eq(HiddenGroupCodes.STAFF_ENTERED.toString()))).thenReturn(staffEntered);
+        when(userService.get(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
+        when(fhirResource.findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
+                + "WHERE content -> 'subject' ->> 'display' = '"
+                + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
+
+        List<FhirCondition> conditionsList = conditionService.getStaffEntered(patient.getId());
+
+        verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
+                + "WHERE content -> 'subject' ->> 'display' = '"
+                + fhirLink.getResourceId() + "' "), eq(Condition.class));
+        Assert.assertEquals("There should be 1 condition", 1, conditionsList.size());
+
+        // remove
+        conditionService.staffRemoveCondition(patient.getId());
+        verify(fhirResource, times(1)).executeSQL(eq("UPDATE condition SET content -> 'status' = 'refuted'"
+                + " WHERE content -> 'subject' ->> 'display' = '" + fhirLinks.get(0).getResourceId() + "' "));
+    }
 }

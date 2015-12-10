@@ -50,4 +50,10 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         return new ResponseEntity<>(conditionService.getStaffEntered(userId), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.DELETE)
+    public void removeStaffEntered(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+        conditionService.staffRemoveCondition(userId);
+    }
 }
