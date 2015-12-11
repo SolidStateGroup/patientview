@@ -5,7 +5,7 @@
 </style>
 
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-12" data-ng-class="{'col-md-9': patient.myIbd.links.length}">
         <div class="panel panel-default" data-ng-show="patient.myIbd">
             <div class="panel-heading"><h3>My IBD</h3></div>
         <table class="table table-bordered">
@@ -145,7 +145,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="panel panel-default" data-ng-show="currentSpecialty.links">
+        <div class="panel panel-default">
             <div class="panel-heading"><h3>Useful Links</h3></div>
             <div class="panel-body">
                 <ul>
