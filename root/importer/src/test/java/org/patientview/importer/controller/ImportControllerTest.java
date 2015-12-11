@@ -177,6 +177,18 @@ public class ImportControllerTest {
         }
     }
 
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_4_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_4/RQR00_01_5312335683.xml");
+        files.add("data/xml/CKD_4/RQR00_01_6655443322.xml");
+        files.add("data/xml/CKD_4/RQR00_01_7531245791.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // hfdemo
     @Test
     @Ignore("IntegrationTest")
@@ -270,9 +282,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
