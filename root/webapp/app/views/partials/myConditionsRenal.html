@@ -1,4 +1,8 @@
-
+<style>
+    .asserter {
+        font-weight: normal;
+    }
+</style>
 <div data-ng-show="!patientDetails.length">
     <br/>
     <p>Your conditions have not yet been added to PatientView by the {{currentSpecialty.name}} specialty.</p>
@@ -44,11 +48,13 @@
                     <tr data-ng-if="staffEnteredDiagnosis">
                         <td class="forced-width">
                             Diagnosis (staff entered)
-                            <br/>Set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}}
                         </td>
                         <td>
                             <dl class="conditions-link-list unstyled">
-                                <dt><h5>{{staffEnteredDiagnosis.description}}</h5></dt>
+                                <dt>
+                                <h5>{{staffEnteredDiagnosis.description}}</h5>
+                                <span class="light-text asserter">Set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}}</span>
+                                </dt>
                                 <dd>
                             <span data-ng-repeat="link in staffEnteredDiagnosis.links | orderBy:'displayOrder'">
                                 <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
