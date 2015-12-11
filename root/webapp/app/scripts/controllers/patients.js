@@ -605,16 +605,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    $scope.getDiagnosis = function () {
-        if ($scope.canAddDiagnosis()) {
-            DiagnosisService.getStaffEntered($scope.editUser.id).then(function(diagnoses) {
-                return diagnoses[diagnoses.length - 1];
-            }, function() {
-                alert('Failed to retrieve staff entered diagnosis');
-            })
-        }
-    };
-
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
         $scope.loading = true;
@@ -651,6 +641,70 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }, function() {
             alert("Error retrieving users");
             delete $scope.loading;
+        });
+    };
+
+    $scope.getUser = function(openedUser) {
+        UserService.get(openedUser.id).then(function (user) {
+
+            $scope.editing = true;
+            user.roles = $scope.allowedRoles;
+
+            // create list of available features (all - users existing features)
+            user.availableFeatures = _.clone($scope.allFeatures);
+            if (user.userFeatures) {
+                for (var j = 0; j < user.userFeatures.length; j++) {
+                    for (var k = 0; k < user.availableFeatures.length; k++) {
+                        if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
+                            user.availableFeatures.splice(k, 1);
+                        }
+                    }
+                }
+            } else {
+                user.userFeatures = [];
+            }
+
+            // set date of birth dropdowns
+            if (user.dateOfBirth != null) {
+                user.selectedYear = user.dateOfBirth.split('-')[0].toString();
+                user.selectedMonth = user.dateOfBirth.split('-')[1].toString();
+                user.selectedDay = user.dateOfBirth.split('-')[2].toString();
+            } else {
+                user.selectedYear = '';
+                user.selectedMonth = '';
+                user.selectedDay = '';
+            }
+
+            // set the user being edited to a clone of the existing user (so only updated in UI on save)
+            $scope.editUser = _.clone(user);
+
+            // set role to first
+            $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
+            // set latest staff entered diagnosis if present
+            if ($scope.canAddDiagnosis()) {
+                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                    if (conditions.length) {
+                        var latest = conditions[0];
+                        for (var i = 0; i < conditions.length; i++) {
+                            if (conditions[i].date > latest.date) {
+                                latest = conditions[i];
+                            }
+                        }
+                        if (latest.status === 'confirmed') {
+                            $scope.editUser.staffEnteredDiagnosis = latest;
+                        }
+                    }
+                }, function () {
+                    alert('Error retrieving staff entered condition information');
+                });
+            }
+
+            openedUser.editLoading = false;
+        }, function(failureResult) {
+            openedUser.showEdit = false;
+            openedUser.editLoading = false;
+            alert('Cannot open patient: ' + failureResult.data);
         });
     };
 
@@ -877,68 +931,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    $scope.getUser = function(openedUser) {
-        UserService.get(openedUser.id).then(function (user) {
-
-            $scope.editing = true;
-            user.roles = $scope.allowedRoles;
-
-            // create list of available features (all - users existing features)
-            user.availableFeatures = _.clone($scope.allFeatures);
-            if (user.userFeatures) {
-                for (var j = 0; j < user.userFeatures.length; j++) {
-                    for (var k = 0; k < user.availableFeatures.length; k++) {
-                        if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
-                            user.availableFeatures.splice(k, 1);
-                        }
-                    }
-                }
-            } else {
-                user.userFeatures = [];
-            }
-
-            // set date of birth dropdowns
-            if (user.dateOfBirth != null) {
-                user.selectedYear = user.dateOfBirth.split('-')[0].toString();
-                user.selectedMonth = user.dateOfBirth.split('-')[1].toString();
-                user.selectedDay = user.dateOfBirth.split('-')[2].toString();
-            } else {
-                user.selectedYear = '';
-                user.selectedMonth = '';
-                user.selectedDay = '';
-            }
-
-            // set the user being edited to a clone of the existing user (so only updated in UI on save)
-            $scope.editUser = _.clone(user);
-
-            // set role to first
-            $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
-
-            // set latest staff entered diagnosis if present
-            if ($scope.canAddDiagnosis()) {
-                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
-                    if (conditions.length) {
-                        var latest = conditions[0];
-                        for (var i = 0; i < conditions.length; i++) {
-                            if (conditions[i].date > latest.date) {
-                                latest = conditions[i];
-                            }
-                        }
-                        $scope.editUser.staffEnteredDiagnosis = latest;
-                    }
-                }, function () {
-                    alert('Error retrieving staff entered condition information');
-                });
-            }
-
-            openedUser.editLoading = false;
-        }, function(failureResult) {
-            openedUser.showEdit = false;
-            openedUser.editLoading = false;
-            alert('Cannot open patient: ' + failureResult.data);
-        });
-    };
-
     // handle opening modal for creating membership request
     $scope.openModalCreateMembershipRequest = function (user) {
         // close any open edit panels
@@ -1090,6 +1082,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.selectedGroup = newSelectedGroupList;
         $scope.currentPage = 0;
         $scope.getItems();
+    };
+
+    $scope.removeDiagnosis = function () {
+        DiagnosisService.removeStaffEntered($scope.editUser.id).then(function() {
+            $scope.getUser($scope.editUser);
+        }, function() {
+            alert('Failed to remove diagnosis.');
+        })
     };
 
     $scope.removeSelectedGroup = function (group) {

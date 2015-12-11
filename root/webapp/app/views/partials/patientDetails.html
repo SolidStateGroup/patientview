@@ -208,7 +208,10 @@
                 Current Diagnosis:
             </div>
             <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
-                <strong>{{editUser.staffEnteredDiagnosis.description}}</strong> &nbsp;&nbsp;&nbsp; (set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{editUser.staffEnteredDiagnosis.asserter}})
+                <strong>{{editUser.staffEnteredDiagnosis.description}}</strong>
+                &nbsp;&nbsp;&nbsp; (set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}}
+                by {{editUser.staffEnteredDiagnosis.asserter}})
+                <a href="" data-ng-click="removeDiagnosis()">(remove)</a>
             </div>
             <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
                 <strong>No diagnosis entered</strong>

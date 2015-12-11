@@ -45,15 +45,27 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
         conditionService.staffAddCondition(userId, code);
     }
 
+    /**
+     * Get staff entered Conditions for a patient if present
+     * @param userId Long User ID of patient to get staff entered Conditions for
+     * @return List of staff entered Conditions
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.GET)
     public ResponseEntity<List<FhirCondition>> getStaffEntered(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         return new ResponseEntity<>(conditionService.getStaffEntered(userId), HttpStatus.OK);
     }
 
+    /**
+     * Set the status of all a User's staff entered Conditions to "refuted", equivalent to deleting
+     * @param userId User ID of user to set staff entered Conditions status to "refuted"
+     * @throws Exception
+     */
     @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.DELETE)
-    public void removeStaffEntered(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+    public void removeStaffEntered(@PathVariable("userId") Long userId) throws Exception {
         conditionService.staffRemoveCondition(userId);
     }
 }

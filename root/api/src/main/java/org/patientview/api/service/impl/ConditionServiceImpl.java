@@ -34,6 +34,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -282,8 +283,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
     }
 
     @Override
-    public void staffRemoveCondition(Long patientUserId) throws ResourceForbiddenException, ResourceNotFoundException,
-            FhirResourceException {
+    public void staffRemoveCondition(Long patientUserId) throws Exception {
 
         User patientUser = userService.get(patientUserId);
         if (!userService.currentUserCanGetUser(patientUser)) {
@@ -311,14 +311,27 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
             throw new ResourceNotFoundException("No patient data exists for this patient");
         }
 
-        fhirResource.executeSQL("UPDATE condition SET content -> 'status' = 'refuted'"
-                + " WHERE content -> 'subject' ->> 'display' = '" + fhirLinks.get(0).getResourceId() + "' ");
+        // get logical ids of patient conditions
+        List<UUID> patientConditionUuids
+                = fhirResource.getLogicalIdsBySubjectId(
+                        ResourceType.Condition.getPath(), fhirLinks.get(0).getResourceId());
+
+        for (UUID uuid : patientConditionUuids) {
+            Condition condition
+                    = (Condition) DataUtils.getResource(fhirResource.getResource(uuid, ResourceType.Condition));
+            if (condition.getStatusSimple() != null
+                    && !condition.getStatusSimple().equals(Condition.ConditionStatus.refuted)) {
+                condition.setStatusSimple(Condition.ConditionStatus.refuted);
+                fhirResource.updateEntity(
+                        condition, ResourceType.Condition.getPath(), ResourceType.Condition.getPath(), uuid);
+            }
+        }
     }
 
     private FhirLink addFhirLink(User patientUser, Identifier identifier, Group group) throws FhirResourceException {
         FhirDatabaseEntity fhirPatient
-            = fhirResource.createEntity(
-                patientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
+                = fhirResource.createEntity(
+                        patientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
 
         // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
         FhirLink fhirLink = new FhirLink();

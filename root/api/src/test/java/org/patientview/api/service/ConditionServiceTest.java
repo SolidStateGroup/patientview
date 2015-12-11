@@ -6,10 +6,12 @@ import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,7 +34,11 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.persistence.util.DataUtils;
 import org.patientview.test.util.TestUtils;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,6 +56,8 @@ import static org.mockito.Mockito.when;
  * Created by jamesr@solidstategroup.com
  * Created on 02/12/2015
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DataUtils.class)
 public class ConditionServiceTest {
 
     @Mock
@@ -85,6 +93,7 @@ public class ConditionServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(DataUtils.class);
     }
 
     @After
@@ -437,8 +446,14 @@ public class ConditionServiceTest {
         codeableConcept.setTextSimple(code);
         Condition condition = new Condition();
         condition.setCode(codeableConcept);
+        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
+
+        // UUID for returned condition
+        UUID uuid = UUID.randomUUID();
+        List<UUID> uuids = new ArrayList<>();
+        uuids.add(uuid);
 
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(staffEntered), eq(identifier)))
                 .thenReturn(fhirLinks);
@@ -449,16 +464,24 @@ public class ConditionServiceTest {
                 + "WHERE content -> 'subject' ->> 'display' = '"
                 + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
 
+        when(fhirResource.getLogicalIdsBySubjectId(
+                eq(ResourceType.Condition.getPath()), eq(fhirLinks.get(0).getResourceId()))).thenReturn(uuids);
+        when(DataUtils.getResource(any(JSONObject.class))).thenReturn(condition);
+
+        // get
         List<FhirCondition> conditionsList = conditionService.getStaffEntered(patient.getId());
 
-        verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
+        verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"
                 + fhirLink.getResourceId() + "' "), eq(Condition.class));
         Assert.assertEquals("There should be 1 condition", 1, conditionsList.size());
 
         // remove
         conditionService.staffRemoveCondition(patient.getId());
-        verify(fhirResource, times(1)).executeSQL(eq("UPDATE condition SET content -> 'status' = 'refuted'"
-                + " WHERE content -> 'subject' ->> 'display' = '" + fhirLinks.get(0).getResourceId() + "' "));
+        verify(fhirResource, times(1)).getLogicalIdsBySubjectId(
+                eq(ResourceType.Condition.getPath()), eq(fhirLinks.get(0).getResourceId()));
+        verify(fhirResource, times(1)).getResource(eq(uuid), eq(ResourceType.Condition));
+        verify(fhirResource, times(1)).updateEntity(eq(condition), eq(ResourceType.Condition.getPath()),
+                eq(ResourceType.Condition.getPath()), eq(uuid));
     }
 }
