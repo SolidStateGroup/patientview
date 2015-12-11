@@ -65,4 +65,7 @@ public interface ExportService {
                                        String fromDate,
                                        String toDate)
             throws ResourceNotFoundException, FhirResourceException;
+
+    @UserOnly
+    HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException;
 }

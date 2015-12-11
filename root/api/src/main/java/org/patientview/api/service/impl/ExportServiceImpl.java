@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.patientview.api.builder.CSVDocumentBuilder;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
@@ -10,25 +11,40 @@ import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.Survey;
+import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
+import org.patientview.persistence.model.enums.QuestionTypes;
+import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 /**
@@ -52,6 +68,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
     @Inject
     private MedicationService medicationService;
+
+    @Inject
+    private QuestionRepository questionRepository;
+
+    @Inject
+    private SurveyResponseService surveyResponseService;
 
     @Inject
     private UserRepository userRepository;
@@ -212,6 +234,118 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         return getDownloadContent("Letters",
                 makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
 
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException {
+        if (!Util.isInEnum(type, SurveyTypes.class)) {
+            throw new ResourceNotFoundException("Survey type not found");
+        }
+
+        List<SurveyResponse> surveyResponses
+                = surveyResponseService.getByUserIdAndSurveyType(userId, SurveyTypes.valueOf(type));
+
+        if (CollectionUtils.isEmpty(surveyResponses)) {
+            throw new ResourceNotFoundException("No survey responses found");
+        }
+
+        // survey specific output with dates from and to based on survey response dates
+        Date fromDate = new DateTime().plusYears(999).toDate();
+        Date toDate = new DateTime().minusYears(999).toDate();
+        Survey survey = surveyResponses.get(0).getSurvey();
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+
+        List<QuestionTypes> questionTypes = new ArrayList<>();
+        boolean includeScore = false;
+
+        // question types
+        switch (survey.getType()) {
+            case IBD_CONTROL:
+                questionTypes.add(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
+                questionTypes.add(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT);
+                questionTypes.add(QuestionTypes.IBD_NO_TREATMENT);
+                questionTypes.add(QuestionTypes.IBD_OVERALL_CONTROL);
+                break;
+        }
+
+        document.addHeader("Date Taken");
+
+        // set CSV headers
+        for (QuestionTypes questionType : questionTypes) {
+            try {
+                Question question = questionRepository.findByType(questionType).iterator().next();
+                document.addHeader(question.getDescription());
+            } catch (NoSuchElementException nse) {
+                throw new ResourceNotFoundException("Error retrieving questions");
+            }
+        }
+
+        // set score header if required
+        if (includeScore) {
+            document.addHeader("Score (severity)");
+        }
+
+        for (SurveyResponse surveyResponse : surveyResponses) {
+            // create map of specific answers
+            List<QuestionAnswer> answers = surveyResponse.getQuestionAnswers();
+            Map<QuestionTypes, String> answerMap = new HashMap<>();
+
+            for (QuestionAnswer questionAnswer : answers) {
+                // only care about certain questions
+                if (questionTypes.contains(questionAnswer.getQuestion().getType())) {
+                    // if is a select, then get the text of the question option
+                    if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT)) {
+                        answerMap.put(questionAnswer.getQuestion().getType(),
+                                questionAnswer.getQuestionOption().getText());
+                    }
+                    // if is a ranged value then get value
+                    if (questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.SINGLE_SELECT_RANGE)) {
+                        answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
+                    }
+                }
+            }
+
+            // set from and to dates
+            if (surveyResponse.getDate().before(fromDate)) {
+                fromDate = surveyResponse.getDate();
+            }
+            if (surveyResponse.getDate().after(toDate)) {
+                toDate = surveyResponse.getDate();
+            }
+
+            // create CSV row
+            document.createNewRow();
+            document.resetCurrentPosition();
+
+            // set date column
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(surveyResponse.getDate()));
+
+            // set answer columns
+            for (QuestionTypes questionType : questionTypes) {
+                if (answerMap.containsKey(questionType)) {
+                    document.addValueToNextCell(answerMap.get(questionType));
+                } else {
+                    document.addValueToNextCell("");
+                }
+            }
+
+            if (includeScore) {
+                for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                    String scoreString = score.getScore().toString();
+                    if (score.getSeverity() != null) {
+                        scoreString += " (" + score.getSeverity().getName() + ")";
+                    }
+                    document.addValueToNextCell(scoreString);
+                }
+            }
+        }
+
+        return getDownloadContent(survey.getType().toString(),
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")),
+                        userId,
+                        new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
+                        new SimpleDateFormat("dd-MMM-yyyy").format(toDate));
     }
 
     /**

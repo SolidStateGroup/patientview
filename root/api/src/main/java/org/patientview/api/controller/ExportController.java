@@ -82,5 +82,10 @@ public class ExportController extends BaseController<ExportController> {
         return exportService.downloadMedicines(userId, fromDate, toDate);
     }
 
-
+    @RequestMapping(value = "/user/{userId}/export/survey/{type}/download", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadSurveyResponses(@PathVariable("userId") Long userId,
+            @PathVariable("type") String type) throws ResourceNotFoundException {
+        return exportService.downloadSurveyResponses(userId, type);
+    }
 }
