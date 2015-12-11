@@ -11,7 +11,6 @@ import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
-import org.patientview.api.service.SurveyResponseService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -28,6 +27,7 @@ import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.QuestionRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -73,7 +73,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private QuestionRepository questionRepository;
 
     @Inject
-    private SurveyResponseService surveyResponseService;
+    private SurveyResponseRepository surveyResponseRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -243,7 +243,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         List<SurveyResponse> surveyResponses
-                = surveyResponseService.getByUserIdAndSurveyType(userId, SurveyTypes.valueOf(type));
+                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), SurveyTypes.valueOf(type));
 
         if (CollectionUtils.isEmpty(surveyResponses)) {
             throw new ResourceNotFoundException("No survey responses found");
@@ -274,8 +274,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (QuestionTypes questionType : questionTypes) {
             try {
                 Question question = questionRepository.findByType(questionType).iterator().next();
-                document.addHeader(question.getDescription());
-            } catch (NoSuchElementException nse) {
+                document.addHeader(question.getText());
+            } catch (NoSuchElementException | NullPointerException nse) {
                 throw new ResourceNotFoundException("Error retrieving questions");
             }
         }
