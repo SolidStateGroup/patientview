@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +79,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     @Inject
     private UserRepository userRepository;
 
+    private static final int YEARS_RANGE = 999;
 
     @Override
     public HttpEntity<byte[]> downloadResults(Long userId,
@@ -250,8 +252,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         // survey specific output with dates from and to based on survey response dates
-        Date fromDate = new DateTime().plusYears(999).toDate();
-        Date toDate = new DateTime().minusYears(999).toDate();
+        Date fromDate = new DateTime().plusYears(YEARS_RANGE).toDate();
+        Date toDate = new DateTime().minusYears(YEARS_RANGE).toDate();
         Survey survey = surveyResponses.get(0).getSurvey();
         CSVDocumentBuilder document = new CSVDocumentBuilder();
 
@@ -266,6 +268,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 questionTypes.add(QuestionTypes.IBD_NO_TREATMENT);
                 questionTypes.add(QuestionTypes.IBD_OVERALL_CONTROL);
                 break;
+            default:
+                includeScore = true;
+                break;
+                //throw new ResourceNotFoundException("Cannot download, survey type not found from survey");
         }
 
         document.addHeader("Date Taken");
@@ -274,7 +280,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (QuestionTypes questionType : questionTypes) {
             try {
                 Question question = questionRepository.findByType(questionType).iterator().next();
-                document.addHeader(question.getText());
+                if (StringUtils.isNotEmpty(question.getText())) {
+                    document.addHeader(question.getText());
+                } else {
+                    document.addHeader(question.getType().toString());
+                }
             } catch (NoSuchElementException | NullPointerException nse) {
                 throw new ResourceNotFoundException("Error retrieving questions");
             }
@@ -284,6 +294,14 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         if (includeScore) {
             document.addHeader("Score (severity)");
         }
+
+        // order by date in survey desc
+        Collections.sort(surveyResponses, new Comparator<SurveyResponse>() {
+            @Override
+            public int compare(SurveyResponse s1, SurveyResponse s2) {
+                return s2.getDate().compareTo(s1.getDate());
+            }
+        });
 
         for (SurveyResponse surveyResponse : surveyResponses) {
             // create map of specific answers
@@ -349,7 +367,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     }
 
     /**
-     * Transforms a byle array into a download file
+     * Transforms a byte array into a download file
      *
      * @param fileName The name of the file to be downloaded
      * @param content  The file content (i.e. the CSV file)
@@ -361,35 +379,30 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                                                   String fromDate,
                                                   String toDate) {
         FileData fileData = new FileData();
-
         fileData.setType("text-csv");
         fileData.setContent(content);
 
-        if (fileData != null) {
-            User user = userRepository.findOne(userId);
-            Identifier identifier = user.getIdentifiers().iterator().next();
-            if (identifier.getIdentifier() != null) {
-                fileData.setName(String.format("%s-%s-%s-%s.csv",
-                        fileName,
-                        identifier.getIdentifier(),
-                        fromDate.replace("-", ""),
-                        toDate.replace("-", "")));
-            } else {
-                fileData.setName(String.format("%s-%s-%s.csv",
-                        fileName, fromDate, toDate));
-            }
-
-            HttpHeaders header = new HttpHeaders();
-            String[] contentTypeArr = fileData.getType().split("/");
-            if (contentTypeArr.length == 2) {
-                header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
-            }
-            header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
-            header.setContentLength(fileData.getContent().length);
-            return new HttpEntity<>(fileData.getContent(), header);
+        User user = userRepository.findOne(userId);
+        Identifier identifier = user.getIdentifiers().iterator().next();
+        if (identifier.getIdentifier() != null) {
+            fileData.setName(String.format("%s-%s-%s-%s.csv",
+                    fileName,
+                    identifier.getIdentifier(),
+                    fromDate.replace("-", ""),
+                    toDate.replace("-", "")));
+        } else {
+            fileData.setName(String.format("%s-%s-%s.csv",
+                    fileName, fromDate, toDate));
         }
 
-        return null;
+        HttpHeaders header = new HttpHeaders();
+        String[] contentTypeArr = fileData.getType().split("/");
+        if (contentTypeArr.length == 2) {
+            header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
+        }
+        header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
+        header.setContentLength(fileData.getContent().length);
+        return new HttpEntity<>(fileData.getContent(), header);
     }
 
     /**

@@ -98,7 +98,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
 
         // set asserter based on practitioner content
         if (condition.getAsserter() != null && condition.getAsserter().getDisplaySimple() != null) {
-            Practitioner practitioner = (Practitioner)fhirResource.get(
+            Practitioner practitioner = (Practitioner) fhirResource.get(
                     UUID.fromString(condition.getAsserter().getDisplaySimple()), ResourceType.Practitioner);
             if (practitioner != null && practitioner.getName() != null
                     && !CollectionUtils.isEmpty(practitioner.getName().getFamily())) {
@@ -110,6 +110,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
                     }
                 } catch (NumberFormatException nfe) {
                     // incorrect family name, should be Long as stores user id
+                    LOG.trace("NumberFormatException getting asserter id");
                 }
             }
         }
@@ -159,7 +160,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionServiceIm
                 patientUser, staffEnteredGroup, identifiersSorted.get(0));
 
         if (!CollectionUtils.isEmpty(fhirLinks)) {
-            FhirLink fhirLink= fhirLinks.get(0);
+            FhirLink fhirLink = fhirLinks.get(0);
             List<Condition> conditions = new ArrayList<>();
 
             conditions.addAll(fhirResource.findResourceByQuery("SELECT content::varchar " + "FROM condition "

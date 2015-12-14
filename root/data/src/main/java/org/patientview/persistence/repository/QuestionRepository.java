@@ -17,6 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRED)
 public interface QuestionRepository extends CrudRepository<Question, Long> {
 
-    @Query("SELECT q FROM question q WHERE q.type = :questionType")
+    @Query("SELECT q FROM Question q WHERE q.type = :questionType")
     public Iterable<Question> findByType(@Param("questionType") QuestionTypes type);
 }
