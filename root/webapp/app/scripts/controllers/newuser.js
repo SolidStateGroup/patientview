@@ -1,14 +1,37 @@
 'use strict';
 
 // new patient modal instance controller
-angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService', 'UtilService', 'StaticDataService',
-function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService) {
-    
-    var init = function() {
-        var addPatient = false;
-        if ($location.url().indexOf("newpatient") > 0) {
-            addPatient = true;
+angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
+    'UtilService', 'StaticDataService', '$timeout', 'CodeService',
+function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService) {
+
+    $scope.canAddDiagnosis = function () {
+        // only Cardiol specialty
+        if ($scope.editUser && $scope.addPatient) {
+            for (var i=0; i<$scope.editUser.groupRoles.length; i++) {
+                if ($scope.editUser.groupRoles[i].group.code === 'Cardiol') {
+                    return true;
+                }
+            }
         }
+
+        return false;
+    };
+
+    $scope.addDiagnosis = function(diagnosis) {
+        if ($scope.editUser && $scope.addPatient) {
+            $scope.editUser.staffEnteredDiagnosis = diagnosis;
+        }
+    };
+
+    $scope.removeDiagnosis = function() {
+        if ($scope.editUser && $scope.addPatient) {
+            delete $scope.editUser.staffEnteredDiagnosis;
+        }
+    };
+
+    var init = function() {
+        $scope.addPatient = ($location.url().indexOf("newpatient") > 0);
 
         var i, role, group, roles, allFeatures;
         $scope.allGroups = [];
@@ -19,7 +42,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         var groups = $scope.loggedInUser.userInformation.userGroups;
         
-        if (addPatient) {
+        if ($scope.addPatient) {
             roles = $scope.loggedInUser.userInformation.patientRoles;
         } else {
             roles = $scope.loggedInUser.userInformation.staffRoles;
@@ -50,6 +73,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             if (group.visible === true) {
                 var minimalGroup = {};
                 minimalGroup.id = group.id;
+                minimalGroup.code = group.code;
                 minimalGroup.shortName = group.shortName;
                 minimalGroup.name = group.name;
                 minimalGroup.groupType = {};
@@ -74,7 +98,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         $scope.allowedRoles = allowedRoles;
 
         // get list of features available when user is adding a new Feature
-        if (addPatient) {
+        if ($scope.addPatient) {
             allFeatures = $scope.loggedInUser.userInformation.patientFeatures;
         } else {
             allFeatures = $scope.loggedInUser.userInformation.staffFeatures;
@@ -87,7 +111,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             }
         }
 
-        if (addPatient) {
+        if ($scope.addPatient) {
             // get list of identifier types when user adding identifiers to patient members
             $scope.identifierTypes = [];
             StaticDataService.getLookupsByType('IDENTIFIER').then(function (identifierTypes) {
@@ -99,6 +123,34 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                         }
                     }
                     $scope.identifierTypes = noHospitalNumber;
+                }
+            });
+
+            StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
+                if (codeTypes.length > 0) {
+                    var arr = [];
+                    for (var i=0; i<codeTypes.length; i++) {
+                        if (codeTypes[i].value === 'DIAGNOSIS') {
+                            arr.push(codeTypes[i].id);
+                        }
+                    }
+
+                    var getParameters = {};
+                    getParameters.codeTypes = arr;
+                    getParameters.sortField = 'description';
+
+                    CodeService.getAll(getParameters).then(function (page) {
+                        $scope.diagnosisCodes = page.content;
+
+
+                        // set diagnosis dropdown
+                        $timeout(function() {
+                            $('#select-diagnosis').selectize({
+                                sortField: 'text'
+                            });
+                        });
+                    }, function () {
+                    });
                 }
             });
         }

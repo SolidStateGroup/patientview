@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 // new conversation modal instance controller
 var NewPatientConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'ConversationUser',
     'UserService', 'ConversationService', 'UtilService',
@@ -556,7 +554,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.addDiagnosis = function (userId, selectedDiagnosis) {
-        DiagnosisService.add(userId, selectedDiagnosis).then(function() {
+        DiagnosisService.add(userId, selectedDiagnosis.code).then(function() {
             $scope.getUser($scope.editUser);
         }, function() {
             alert('Failed to add diagnosis with description "' + selectedDiagnosis.description + '"');
@@ -801,7 +799,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     });
                 }
             });
-
         }
 
         // get patient type roles

@@ -223,7 +223,7 @@
             </div>
             <div class="col-md-9">
                 <select data-ng-model="selectedDiagnosis"
-                        data-ng-options="diagnosis.code as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
+                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
                         class="demo-default" id="select-diagnosis-{{editUser.id}}"></select>
             </div>
             <div class="col-md-1">
