@@ -223,8 +223,8 @@
             </div>
             <div class="col-md-9">
                 <select data-ng-model="selectedDiagnosis"
-                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
-                        class="form-control"></select>
+                        data-ng-options="diagnosis.code as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
+                        class="demo-default" id="select-diagnosis-{{editUser.id}}"></select>
             </div>
             <div class="col-md-1">
                 <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(editUser.id, selectedDiagnosis)">Save</button>

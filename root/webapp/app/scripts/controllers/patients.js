@@ -556,7 +556,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.addDiagnosis = function (userId, selectedDiagnosis) {
-        DiagnosisService.add(userId, selectedDiagnosis.code).then(function() {
+        DiagnosisService.add(userId, selectedDiagnosis).then(function() {
             $scope.getUser($scope.editUser);
         }, function() {
             alert('Failed to add diagnosis with description "' + selectedDiagnosis.description + '"');
@@ -697,6 +697,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     }
                 }, function () {
                     alert('Error retrieving staff entered condition information');
+                });
+
+                $timeout(function() {
+                    $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                        sortField: 'text'
+                    });
                 });
             }
 
