@@ -2,6 +2,26 @@
     .nav-tabs {
         border-bottom: none;
     }
+    .no-left-margin {
+        margin-left: 0;
+        padding-left: 0;
+    }
+    .links-ul {
+        padding: 0;
+    }
+    .links-li {
+        list-style-type: none;
+    }
+    .image-colour-key-red {
+        width:15px;
+        height:15px;
+        border:none;
+        background-color: red;
+        float: left;
+        margin-right: 7px;
+        position: relative;
+        top: 2px;
+    }
 </style>
 
 <div class="row">
@@ -24,7 +44,7 @@
                     <div class="pull-right" style="padding-right: 10px;">
                         <img data-ng-src={{patient.myIbd.ibdDiseaseExtentDiagram}} alt="{{patient.myIbd.ibdDiseaseExtent}}"/>
                         <br/><br/>
-                        <div style="width:15px;height:15px;border:none; background-color: red; float: left; margin-right: 7px; position: relative; top: 2px;"></div>
+                        <div class="image-colour-key-red"></div>
                         Represents the part of the bowel affected by your condition.
                     </div>
                 </td>
@@ -144,12 +164,12 @@
         </table>
         </div>
     </div>
-    <div class="col-md-3" data-ng-if="patient.myIbd.links.length">
+    <div class="col-md-3 no-left-margin" data-ng-if="patient.myIbd.links.length">
         <div class="panel panel-default">
             <div class="panel-heading"><h3>Useful Links</h3></div>
             <div class="panel-body">
-                <ul>
-                    <li data-ng-repeat="link in patient.myIbd.links | orderBy:'displayOrder'">
+                <ul class="links-ul">
+                    <li data-ng-repeat="link in patient.myIbd.links | orderBy:'displayOrder'" class="links-li">
                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                     </li>
                 </ul>
