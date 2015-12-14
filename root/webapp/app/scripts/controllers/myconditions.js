@@ -238,8 +238,18 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             }
 
             if (canGetStaffEnteredDiagnosis) {
-                DiagnosisService.getStaffEntered($scope.loggedInUser.id).then(function(diagnoses) {
-                    $scope.staffEnteredDiagnosis = diagnoses[diagnoses.length - 1];
+                DiagnosisService.getStaffEntered($scope.loggedInUser.id).then(function(conditions) {
+                    if (conditions.length) {
+                        var latest = conditions[0];
+                        for (var i = 0; i < conditions.length; i++) {
+                            if (conditions[i].date > latest.date) {
+                                latest = conditions[i];
+                            }
+                        }
+                        if (latest.status === 'confirmed') {
+                            $scope.editUser.staffEnteredDiagnosis = latest;
+                        }
+                    }
                 }, function() {
                     alert('Failed to retrieve staff entered diagnosis');
                 })
