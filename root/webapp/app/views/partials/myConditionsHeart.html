@@ -33,13 +33,17 @@
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}">
                 <a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a>
             </li>
+            <li data-ng-class="{active:activeTab === 'CONDITION_INFO'}">
+                <a data-ng-click="activeTab = 'CONDITION_INFO'">Condition Information</a>
+            </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}">
                 <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl"></div>
             </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'CONDITION_INFO'}">
+                <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
+            </div>
         </div>
-
-        <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
     </div>
 </div>
