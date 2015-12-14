@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @ComponentScan(basePackages = {"org.patientview.api.aspect","org.patientview.api.service"})
 public class AuditTrailAspectTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityAspectTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditTrailAspectTest.class);
 
     private User creator;
 
@@ -71,7 +71,6 @@ public class AuditTrailAspectTest {
      **/
     @Test
     public void testAuditChangePassword() {
-
         User user = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(user);
 
@@ -80,9 +79,7 @@ public class AuditTrailAspectTest {
         annotatedObjectMethod(user);
         // when create a user and then hit our test method
         verify(auditService, Mockito.times(2)).save(any(org.patientview.persistence.model.Audit.class));
-
     }
-
 
     /**
      * Test: See if the audit work with a Id being passed
@@ -99,6 +96,4 @@ public class AuditTrailAspectTest {
         annotatedIdMethod(user.getId());
         verify(auditService, Mockito.times(2)).save(any(org.patientview.persistence.model.Audit.class));
     }
-
-
 }

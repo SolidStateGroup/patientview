@@ -2,8 +2,9 @@
 
 // new patient modal instance controller
 angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
-    'UtilService', 'StaticDataService', '$timeout', 'CodeService',
-function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService) {
+    'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService',
+function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService,
+          DiagnosisService) {
 
     $scope.canAddDiagnosis = function () {
         // only Cardiol specialty
@@ -197,8 +198,19 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                     $scope.successMessage = 'User successfully created ' +
                         'with username: ' + $scope.editUser.username + ' ' +
                         'and password: ' + password;
-                    clearForm();
                     $scope.showForm = false;
+
+                    // now add staff entered diagnosis if present
+                    if ($scope.editUser.staffEnteredDiagnosis) {
+                        DiagnosisService.add(userId, $scope.editUser.staffEnteredDiagnosis.code).then(function() {
+                            clearForm();
+                        }, function() {
+                            clearForm();
+                            alert('Failed to add diagnosis, patient was created successfully.');
+                        })
+                    } else {
+                        clearForm();
+                    }
                 }, function() {
                     alert('Cannot get user (has been created)');
                 });
