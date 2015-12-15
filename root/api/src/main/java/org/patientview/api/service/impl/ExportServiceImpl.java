@@ -57,18 +57,17 @@ import java.util.TreeMap;
 @Service
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
-
-    @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private ObservationHeadingService observationHeadingService;
-
     @Inject
     private LetterService letterService;
 
     @Inject
     private MedicationService medicationService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
+    private ObservationService observationService;
 
     @Inject
     private QuestionRepository questionRepository;
@@ -288,7 +287,6 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             default:
                 includeScore = true;
                 break;
-                //throw new ResourceNotFoundException("Cannot download, survey type not found from survey");
         }
 
         document.addHeader("Date Taken");
@@ -448,6 +446,4 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
         return documentString;
     }
-
-
 }

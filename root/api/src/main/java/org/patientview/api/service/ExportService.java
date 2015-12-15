@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * ObservationHeading service, for managing result types and visibility of results for patients when viewing or entering
- * their own results.
+ * Export Service, serves binary files to user for downloading results, medicines, letters, survey responses etc
  * <p/>
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
@@ -25,15 +24,12 @@ public interface ExportService {
      * @param userId   The user requesting the download
      * @param fromDate The inital date to search on
      * @param toDate   The last date to search on
-     * @return
+     * @return byte array CSV file containing results
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
-    HttpEntity<byte[]> downloadResults(Long userId,
-                                       String fromDate,
-                                       String toDate,
-                                       List<String> resultCodes)
+    HttpEntity<byte[]> downloadResults(Long userId, String fromDate, String toDate, List<String> resultCodes)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
@@ -42,7 +38,7 @@ public interface ExportService {
      * @param userId   The user requesting the download
      * @param fromDate The initial date to search on
      * @param toDate   The last date to search on
-     * @return
+     * @return byte array CSV file containing medicines
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
@@ -61,11 +57,16 @@ public interface ExportService {
      * @throws FhirResourceException
      */
     @UserOnly
-    HttpEntity<byte[]> downloadLetters(Long userId,
-                                       String fromDate,
-                                       String toDate)
+    HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException;
 
+    /**
+     * Produce byte array (CSV file) of survey responses based on user ID and survey type
+     * @param userId ID of user to download survey responses for
+     * @param type String of type SurveyTypes
+     * @return byte array CSV file containing responses
+     * @throws ResourceNotFoundException
+     */
     @UserOnly
     HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException;
 }
