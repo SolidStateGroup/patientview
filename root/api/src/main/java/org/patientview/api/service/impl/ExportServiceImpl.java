@@ -268,6 +268,23 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 questionTypes.add(QuestionTypes.IBD_NO_TREATMENT);
                 questionTypes.add(QuestionTypes.IBD_OVERALL_CONTROL);
                 break;
+            case CROHNS_SYMPTOM_SCORE:
+                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
+                questionTypes.add(QuestionTypes.OPEN_BOWELS);
+                questionTypes.add(QuestionTypes.FEELING);
+                questionTypes.add(QuestionTypes.COMPLICATION);
+                questionTypes.add(QuestionTypes.MASS_IN_TUMMY);
+                includeScore = true;
+                break;
+            case COLITIS_SYMPTOM_SCORE:
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
+                questionTypes.add(QuestionTypes.TOILET_TIMING);
+                questionTypes.add(QuestionTypes.PRESENT_BLOOD);
+                questionTypes.add(QuestionTypes.FEELING);
+                questionTypes.add(QuestionTypes.COMPLICATION);
+                includeScore = true;
+                break;
             default:
                 includeScore = true;
                 break;
