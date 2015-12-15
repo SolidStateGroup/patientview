@@ -247,7 +247,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                             }
                         }
                         if (latest.status === 'confirmed') {
-                            $scope.editUser.staffEnteredDiagnosis = latest;
+                            $scope.staffEnteredDiagnosis = latest;
                         }
                     }
                 }, function() {

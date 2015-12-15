@@ -71,7 +71,7 @@ public interface CodeService extends CrudService<Code> {
      * of page etc
      * @return Page of Code objects
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
     /**
