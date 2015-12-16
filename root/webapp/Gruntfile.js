@@ -438,7 +438,7 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'https://test.patienview.org/api',
+                        apiEndpoint: 'https://test.patientview.org/api',
                         reCaptchaPublicKey: '',
                         buildDateTime: Date.now()
                     }
