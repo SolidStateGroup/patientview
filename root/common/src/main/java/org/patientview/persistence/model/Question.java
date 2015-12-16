@@ -72,6 +72,9 @@ public class Question extends BaseModel {
     @OneToMany(mappedBy = "question")
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
+    @Column(name= "required")
+    private boolean required;
+
     public Question() {}
 
     public Question(QuestionTypes type) {
@@ -188,5 +191,13 @@ public class Question extends BaseModel {
 
     public void setQuestionOptions(List<QuestionOption> questionOptions) {
         this.questionOptions = questionOptions;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

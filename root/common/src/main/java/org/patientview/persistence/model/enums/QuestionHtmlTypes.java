@@ -7,7 +7,9 @@ package org.patientview.persistence.model.enums;
 public enum QuestionHtmlTypes {
     SELECT("select"),
     RADIO("radio"),
-    SLIDER("slider");
+    SLIDER("slider"),
+    TEXT("text"),
+    TEXT_NUMERIC("text (numeric)");
 
     private String name;
     QuestionHtmlTypes(String name) { this.name = name; }

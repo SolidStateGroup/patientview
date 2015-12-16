@@ -695,6 +695,7 @@ CREATE TABLE PV_Question
   Range_Start_Description          TEXT,
   Range_End_Description          TEXT,
   Help_Link       TEXT,
+  Required        BOOL      NOT NULL,
   PRIMARY KEY (Id)
 );
 

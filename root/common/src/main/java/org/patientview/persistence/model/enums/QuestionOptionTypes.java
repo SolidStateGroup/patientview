@@ -61,5 +61,15 @@ public enum QuestionOptionTypes {
     ALL_THE_TIME,
     SEVERAL_TIMES_DAILY,
     AT_LEAST_ONCE_DAILY,
-    EVERY_NIGHT
+    EVERY_NIGHT,
+
+    // IBD Fatigue
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    NOT_APPLICABLE,
+    CONSTANT,
+    INTERMITTENT
 }

@@ -7,6 +7,8 @@ INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (3, 'IBD_CONTROL', 'My Disease Control Rating');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (4, 'HEART_SYMPTOM_SCORE', 'Heart Failure Symptom Score');
+INSERT INTO "pv_survey" ("id", "type", "description")
+VALUES (5, 'IBD_FATIGUE', 'IBD Fatigue');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
@@ -27,6 +29,23 @@ VALUES (7, 3, 'How would you rate the OVERALL control of your IBD in the past tw
 
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (8, 4, '', null, null, 1);
+
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (9, 5, 'SECTION I - Fatigue Assessment Scale',
+        'This section of the questionnaire will identify fatigue, its severity, frequency and duration.
+        <br/>Sometimes people with inflammatory bowel disease feel fatigued. The term ‘fatigue’ is used throughout the
+        questionnaire. Fatigue has been defined as a sense of continuing tiredness, with periods of sudden and
+        overwhelming lack of energy or feeling of exhaustion that is not relieved following rest or sleep.
+        <br/>Please choose one number for each question, score from 0 - 4 with 0 = no fatigue, 4 = severe fatigue.', null, 1);
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (10, 5, 'SECTION II – IBD-Fatigue Impact on Daily Activities Scale',
+        'This section assesses the perceived impact of fatigue on your daily activities in the past two weeks.
+        <br/>Please answer all the questions. The possible answers to the questions are: None of the time - 0;
+        Some of the time – 1; Often - 2; Most of the time - 3; All of the time - 4.
+        <br/>If a particular activity does not apply to you, for example you do not drive, please select N/A.
+        <br/>Please tick only one answer for each question reflecting on the past two weeks.', null, 2);
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (11, 5, 'SECTION III – Additional Questions about your Fatigue', null, null, 3);
 
 /* Questions, see QuestionTypes.java */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
@@ -92,6 +111,92 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (29, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average, how many times has shortness of breath limited your ability to do what you wanted?', null, 3, 3, null, null, 'HEART_SHORTNESS_OF_BREATH');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (30, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average how many times have you been forced to sleep sitting up in a chair or with least 3 pillows to prop you up because of shortness of breath?', null, 4, 4, null, null, 'HEART_SHORTNESS_OF_BREATH_SLEEP');
+
+/* IBD fatigue, section 1 */
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (31, 9, 'SINGLE_SELECT', 'RADIO', 'What is your fatigue level right NOW?', null, 1, 1, null, null, 'IBD_FATIGUE_NOW', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (32, 9, 'SINGLE_SELECT', 'RADIO', 'What was your HIGHEST fatigue level in the past two weeks?', null, 2, 2, null, null, 'IBD_FATIGUE_HIGHEST_TWO_WEEKS', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (33, 9, 'SINGLE_SELECT', 'RADIO', 'What was your LOWEST fatigue level in the past two weeks?', null, 3, 3, null, null, 'IBD_FATIGUE_LOWEST_TWO_WEEKS', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (34, 9, 'SINGLE_SELECT', 'RADIO', 'What was your AVERAGE fatigue level in the past two weeks?', null, 4, 4, null, null, 'IBD_FATIGUE_AVERAGE_TWO_WEEKS', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (35, 9, 'SINGLE_SELECT', 'RADIO', 'How much of your waking time have you felt fatigued in the past two weeks?', null, 5, 5, null, null, 'IBD_FATIGUE_WAKING_TWO_WEEKS', true);
+/* IBD fatigue, section 2 */
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (36, 10, 'SINGLE_SELECT', 'RADIO', 'I had to nap during the day because of fatigue', null, 1, 1, null, null, 'IBD_DAS_NAP', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (37, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue stopped me from going out to social events', null, 2, 2, null, null, 'IBD_DAS_SOCIAL', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (38, 10, 'SINGLE_SELECT', 'RADIO', 'I was not able to go to work or college because of fatigue', null, 3, 3, null, null, 'IBD_DAS_GO_WORK', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (39, 10, 'SINGLE_SELECT', 'RADIO', 'My performance at work or education was affected by fatigue', null, 4, 4, null, null, 'IBD_DAS_PERFORMANCE_WORK', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (40, 10, 'SINGLE_SELECT', 'RADIO', 'I had problems concentrating because of fatigue', null, 5, 5, null, null, 'IBD_DAS_CONCENTRATING', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (41, 10, 'SINGLE_SELECT', 'RADIO', 'I had difficulty motivating myself because of fatigue', null, 6, 6, null, null, 'IBD_DAS_MOTIVATING', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (42, 10, 'SINGLE_SELECT', 'RADIO', 'I could not wash and dress myself because of fatigue', null, 7, 7, null, null, 'IBD_DAS_WASH', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (43, 10, 'SINGLE_SELECT', 'RADIO', 'I had difficulty with walking because of fatigue', null, 8, 8, null, null, 'IBD_DAS_WALK', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (44, 10, 'SINGLE_SELECT', 'RADIO', 'I was unable to drive as much as I need to because of fatigue', null, 9, 9, null, null, 'IBD_DAS_DRIVE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (45, 10, 'SINGLE_SELECT', 'RADIO', 'I was not able to do as much physical exercise as I wanted to because of fatigue', null, 10, 10, null, null, 'IBD_DAS_EXERCISE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (46, 10, 'SINGLE_SELECT', 'RADIO', 'I had difficulty continuing with my hobbies/interests because of fatigue', null, 11, 11, null, null, 'IBD_DAS_HOBBIES', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (47, 10, 'SINGLE_SELECT', 'RADIO', 'My emotional relationship with my partner was affected by fatigue', null, 12, 12, null, null, 'IBD_DAS_EMOTIONAL', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (48, 10, 'SINGLE_SELECT', 'RADIO', 'My sexual relationship with my partner was affected by fatigue', null, 13, 13, null, null, 'IBD_DAS_SEXUAL', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (49, 10, 'SINGLE_SELECT', 'RADIO', 'My relationship with my children was affected by fatigue', null, 14, 14, null, null, 'IBD_DAS_CHILDREN', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (50, 10, 'SINGLE_SELECT', 'RADIO', 'I was low in mood because of fatigue', null, 15, 15, null, null, 'IBD_DAS_LOW_MOOD', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (51, 10, 'SINGLE_SELECT', 'RADIO', 'I felt isolated because of fatigue', null, 16, 16, null, null, 'IBD_DAS_ISOLATED', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (52, 10, 'SINGLE_SELECT', 'RADIO', 'My memory was affected because of fatigue', null, 17, 17, null, null, 'IBD_DAS_MEMORY', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (53, 10, 'SINGLE_SELECT', 'RADIO', 'I made mistakes because of fatigue', null, 18, 18, null, null, 'IBD_DAS_MISTAKES', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (54, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue made me irritable', null, 19, 19, null, null, 'IBD_DAS_IRRITABLE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (55, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue made me frustrated', null, 20, 20, null, null, 'IBD_DAS_FRUSTRATED', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (56, 10, 'SINGLE_SELECT', 'RADIO', 'I got words mixed up because of fatigue', null, 21, 21, null, null, 'IBD_DAS_WORDS_MIXED', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (57, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue stopped me from enjoying life', null, 22, 22, null, null, 'IBD_DAS_ENJOYING_LIFE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (58, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue stopped me from having a fulfilling life', null, 23, 23, null, null, 'IBD_DAS_FULFILLING_LIFE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (59, 10, 'SINGLE_SELECT', 'RADIO', 'My self-esteem was affected by fatigue', null, 24, 24, null, null, 'IBD_DAS_SELF_ESTEEM', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (60, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue affected my confidence', null, 25, 25, null, null, 'IBD_DAS_CONFIDENCE', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (61, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue made me feel unhappy', null, 26, 26, null, null, 'IBD_DAS_UNHAPPY', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (62, 10, 'SINGLE_SELECT', 'RADIO', 'I had difficulties sleeping at night because of fatigue', null, 27, 27, null, null, 'IBD_DAS_SLEEPING', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (63, 10, 'SINGLE_SELECT', 'RADIO', 'Fatigue affected my ability to do all my normal household activities', null, 28, 28, null, null, 'IBD_DAS_HOUSEHOLD', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (64, 10, 'SINGLE_SELECT', 'RADIO', 'I had to ask others for help because of fatigue', null, 29, 29, null, null, 'IBD_DAS_OTHERS_HELP', true);
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
+VALUES (65, 10, 'SINGLE_SELECT', 'RADIO', 'Quality of my life was affected by fatigue', null, 30, 30, null, null, 'IBD_DAS_QUALITY_LIFE', true);
+/* IBD fatigue, section 3 */
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (66, 11, 'TEXT', 'TEXT', 'What do you think is the main cause of your fatigue apart from IBD?', null, 1, 1, null, null, 'IBD_FATIGUE_EXTRA_MAIN_CAUSE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (67, 11, 'TEXT', 'TEXT', 'What do you think are the other causes of your fatigue?', null, 2, 2, null, null, 'IBD_FATIGUE_EXTRA_OTHER_CAUSE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (68, 11, 'TEXT', 'TEXT', 'Have you found anything that helps with your fatigue?', null, 3, 3, null, null, 'IBD_FATIGUE_EXTRA_HELPS');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (69, 11, 'TEXT_NUMERIC', 'TEXT_NUMERIC', 'How long have you experienced fatigue? (years)', null, 4, 4, null, null, 'IBD_FATIGUE_EXTRA_LENGTH_YEARS');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (70, 11, 'TEXT_NUMERIC', 'TEXT_NUMERIC', 'How long have you experienced fatigue? (months)', null, null, 5, null, null, 'IBD_FATIGUE_EXTRA_LENGTH_MONTHS');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (71, 11, 'SINGLE_SELECT', 'RADIO', 'During this time has your fatigue been:', null, 5, 6, null, null, 'IBD_FATIGUE_EXTRA_STATUS');
 
 /* Question Options, see QuestionOptionTypes.java */
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
@@ -318,17 +423,407 @@ VALUES (109, 30, 'Less than once a week', null, 4, 'LT_ONE_PER_WEEK', 4);
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
 VALUES (110, 30, 'Never over the past 2 weeks', null, 5, 'NOT_IN_TWO_WEEKS', 5);
 
+/* IBD fatigue, section 1 */
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (111, 31, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (112, 31, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (113, 31, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (114, 31, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (115, 31, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (116, 32, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (117, 32, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (118, 32, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (119, 32, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (120, 32, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (121, 33, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (122, 33, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (123, 33, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (124, 33, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (125, 33, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (126, 34, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (127, 34, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (128, 34, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (129, 34, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (130, 34, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (131, 35, '0', 'None of the time', 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (132, 35, '1', 'Some of the time', 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (133, 35, '2', 'Often', 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (134, 35, '3', 'Most of the time', 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (135, 35, '4', 'All the time', 5, 'FOUR', 4);
 
+/* IBD fatigue, section 2 */
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (136, 36, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (137, 36, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (138, 36, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (139, 36, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (140, 36, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (141, 37, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (142, 37, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (143, 37, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (144, 37, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (145, 37, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (146, 38, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (147, 38, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (148, 38, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (149, 38, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (150, 38, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (151, 38, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (152, 39, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (153, 39, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (154, 39, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (155, 39, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (156, 39, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (157, 39, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (158, 40, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (159, 40, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (160, 40, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (161, 40, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (162, 40, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (163, 41, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (164, 41, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (165, 41, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (166, 41, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (167, 41, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (168, 42, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (169, 42, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (170, 42, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (171, 42, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (172, 42, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (173, 43, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (174, 43, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (175, 43, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (176, 43, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (177, 43, '4', null, 5, 'FOUR', 4);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (178, 44, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (179, 44, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (180, 44, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (181, 44, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (182, 44, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (183, 44, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
 
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (184, 45, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (185, 45, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (186, 45, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (187, 45, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (188, 45, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (189, 46, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (190, 46, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (191, 46, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (192, 46, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (193, 46, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (194, 47, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (195, 47, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (196, 47, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (197, 47, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (198, 47, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (199, 47, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (200, 48, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (201, 48, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (202, 48, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (203, 48, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (204, 48, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (205, 48, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (206, 49, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (207, 49, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (208, 49, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (209, 49, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (210, 49, '4', null, 5, 'FOUR', 4);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (211, 49, 'N/A', null, 6, 'NOT_APPLICABLE', 0);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (212, 50, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (213, 50, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (214, 50, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (215, 50, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (216, 50, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (217, 51, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (218, 51, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (219, 51, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (220, 51, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (221, 51, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (222, 52, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (223, 52, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (224, 52, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (225, 52, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (226, 52, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (227, 53, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (228, 53, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (229, 53, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (230, 53, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (231, 53, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (232, 54, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (233, 54, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (234, 54, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (235, 54, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (236, 54, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (237, 55, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (238, 55, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (239, 55, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (240, 55, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (241, 55, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (242, 56, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (243, 56, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (244, 56, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (245, 56, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (246, 56, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (247, 57, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (248, 57, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (249, 57, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (250, 57, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (251, 57, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (252, 58, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (253, 58, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (254, 58, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (255, 58, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (256, 58, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (257, 59, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (258, 59, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (259, 59, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (260, 59, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (261, 59, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (262, 60, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (263, 60, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (264, 60, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (265, 60, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (266, 60, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (267, 61, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (268, 61, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (269, 61, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (270, 61, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (271, 61, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (272, 62, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (273, 62, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (274, 62, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (275, 62, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (276, 62, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (277, 63, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (278, 63, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (279, 63, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (280, 63, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (281, 63, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (282, 64, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (283, 64, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (284, 64, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (285, 64, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (286, 64, '4', null, 5, 'FOUR', 4);
+
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (287, 65, '0', null, 1, 'ZERO', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (288, 65, '1', null, 2, 'ONE', 1);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (289, 65, '2', null, 3, 'TWO', 2);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (290, 65, '3', null, 4, 'THREE', 3);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (291, 65, '4', null, 5, 'FOUR', 4);
+
+/* IBD fatigue, section 3 */
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (292, 71, 'Constant', null, 1, 'CONSTANT', 0);
+INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
+VALUES (293, 71, 'Intermittent', null, 2, 'INTERMITTENT', 0);

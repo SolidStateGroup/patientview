@@ -28,15 +28,12 @@
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
-        <h3>My Disease Control Rating
+        <h3>IBD Fatigue Questionnaire
             <button class="btn blue enter-symptoms" data-ng-click="openModalEnterSurveyResponses()">Answer Questions</button>
         </h3>
     </div>
     <div class="row info">
-        <p>We would like to ask you some basic questions to find out whether your IBD has been well controlled over
-           the last two weeks. These questions are general in nature. They were chosen with the help of IBD
-           patients and can apply to anyone with ulcerative colitis or Crohn's disease. Your answers are intended
-           to help the IBD Team to monitor your condition.</p>
+        <p>We would like to ask you some basic questions about your fatigue due to IBD.</p>
     </div>
     <div class="row result-detail-panel" data-ng-show="!loading && surveyResponses">
         <div class="col-md-7 result-container clearfix">
@@ -51,8 +48,7 @@
                 <div class="table-head accordion-title-row">
                     <div class="hidden">ID</div>
                     <div class="head-item accordion-title-text "><span>Date Taken</span></div>
-                    <div class="head-item accordion-title-text "><span>Control Questions</span></div>
-                    <div class="head-item accordion-title-text "><span>Self Rating Scale</span></div>
+                    <div class="head-item accordion-title-text "><span>Score</span></div>
                     <div class="head-item accordion-title-text "></div>
                 </div>
                 <div class="item-header">
@@ -65,7 +61,6 @@
                         <div class="row-item hidden">{{observation.id}}</div>
                         <div class="row-item accordion-heading-text">{{surveyResponse.date | date:'dd-MMM-yyyy'}}</div>
                         <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[0].score}}</div>
-                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[1].score}}</div>
                         <div class="row-item accordion-heading-text" style="color: #428bca;" data-ng-click="openModalSurveyResponseDetail(surveyResponse.id)">View</div>
                     </div>
                 </div>
@@ -78,10 +73,10 @@
     </div>
 
     <div class="alert-block" data-ng-show="!loading && !surveyResponses">
-        <h5>No Responses Found, you can answer the Disease Control Questionnaire by clicking the "Answer Questions" button</h5>
+        <h5>No Responses Found, you can answer the Fatigue Questionnaire by clicking the "Answer Questions" button</h5>
     </div>
     <div data-ng-show="loading" class="container">
-        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Disease Control Scores</h3>
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Fatigue Scores</h3>
         <br/>
     </div>
 </div>
