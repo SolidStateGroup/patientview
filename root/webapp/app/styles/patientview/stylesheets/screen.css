@@ -1383,18 +1383,27 @@ html .clearFooter, body .clearFooter {
     min-width: 60px;
     text-align: center;
   }
+  /* line 393, ../sass/_nav.scss */
+  .temp-mobile-nav .mobile-list {
+    padding-right: 10px;
+  }
 
-  /* line 394, ../sass/_nav.scss */
+  /* line 398, ../sass/_nav.scss */
+  .navbar-header .temp-mobile-nav ul li.help-link {
+    right: 85px;
+  }
+
+  /* line 402, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
 
-  /* line 398, ../sass/_nav.scss */
+  /* line 406, ../sass/_nav.scss */
   .footer .legal-links {
     width: 40%;
   }
 
-  /* line 402, ../sass/_nav.scss */
+  /* line 410, ../sass/_nav.scss */
   .footer .partner-info {
     width: 100%;
     position: absolute;
@@ -2901,59 +2910,101 @@ textarea.form-control.article-content {
   width: auto;
 }
 
+/* line 310, ../sass/_results.scss */
+.admin-header {
+  padding-left: 210px;
+  padding-top: 10px;
+}
+
+/* line 314, ../sass/_results.scss */
+.label-request {
+  margin-left: 10px;
+  position: relative;
+  top: -2px;
+}
+
+/* line 319, ../sass/_results.scss */
+.user-header-picture {
+  max-height: 40px;
+  padding-right: 10px;
+}
+
 @media (max-width: 767px) {
-  /* line 313, ../sass/_results.scss */
+  /* line 327, ../sass/_results.scss */
   .header-select > div {
     height: auto;
   }
-  /* line 317, ../sass/_results.scss */
+  /* line 331, ../sass/_results.scss */
   .header-select h1 {
     font-size: 30px;
   }
-  /* line 321, ../sass/_results.scss */
+  /* line 335, ../sass/_results.scss */
   .header-select select {
     margin-bottom: 10px;
     margin-top: 0;
   }
-  /* line 326, ../sass/_results.scss */
+  /* line 340, ../sass/_results.scss */
   .header-select .select-title {
     float: left;
   }
 
-  /* line 330, ../sass/_results.scss */
+  /* line 344, ../sass/_results.scss */
   .results-header {
     height: 185px;
   }
-  /* line 332, ../sass/_results.scss */
+  /* line 346, ../sass/_results.scss */
   .results-header .header-icon {
     display: none;
   }
-  /* line 336, ../sass/_results.scss */
+  /* line 350, ../sass/_results.scss */
   .results-header .form-row {
     width: 100%;
   }
-  /* line 338, ../sass/_results.scss */
+  /* line 352, ../sass/_results.scss */
   .results-header .form-row label, .results-header .form-row select {
     text-align: center;
     width: 100%;
   }
 
-  /* line 347, ../sass/_results.scss */
+  /* line 361, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list {
     width: auto;
   }
-  /* line 350, ../sass/_results.scss */
+  /* line 364, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list.inline {
     margin-top: 10px;
   }
+  /* line 369, ../sass/_results.scss */
+  .result-detail-panel .result-item-container .result-value {
+    float: none;
+    width: auto;
+  }
+  /* line 374, ../sass/_results.scss */
+  .result-detail-panel .result-item-container .result-comment {
+    width: auto;
+  }
+
+  /* line 380, ../sass/_results.scss */
+  .admin-header {
+    padding-left: 60px;
+    padding-top: 0;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  /* line 387, ../sass/_results.scss */
+  .back-to-admin a {
+    width: auto;
+    padding: 10px;
+  }
 }
-/* line 359, ../sass/_results.scss */
+/* line 393, ../sass/_results.scss */
 .select-result-type {
   width: 390px;
   margin-left: 10px;
 }
 
-/* line 365, ../sass/_results.scss */
+/* line 399, ../sass/_results.scss */
 .results-filter-list .feature-list-item {
   float: left;
   margin: 0 5px 5px 0;
