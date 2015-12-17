@@ -501,110 +501,12 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                 score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP);
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_NOW) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_NOW);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_HIGHEST_TWO_WEEKS) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_HIGHEST_TWO_WEEKS);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_LOWEST_TWO_WEEKS) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_LOWEST_TWO_WEEKS);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_AVERAGE_TWO_WEEKS) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_AVERAGE_TWO_WEEKS);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_WAKING_TWO_WEEKS) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_FATIGUE_WAKING_TWO_WEEKS);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_NAP) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_NAP);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SOCIAL) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SOCIAL);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_GO_WORK) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_GO_WORK);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_PERFORMANCE_WORK) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_PERFORMANCE_WORK);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CONCENTRATING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CONCENTRATING);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MOTIVATING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MOTIVATING);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WASH) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WASH);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WALK) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WALK);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_DRIVE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_DRIVE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EXERCISE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EXERCISE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOBBIES) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOBBIES);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CHILDREN) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CHILDREN);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_LOW_MOOD) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_LOW_MOOD);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ISOLATED) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ISOLATED);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MEMORY) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MEMORY);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_IRRITABLE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_IRRITABLE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_FRUSTRATED) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_FRUSTRATED);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WORDS_MIXED) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_WORDS_MIXED);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ENJOYING_LIFE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ENJOYING_LIFE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_FULFILLING_LIFE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_FULFILLING_LIFE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SELF_ESTEEM) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SELF_ESTEEM);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CONFIDENCE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CONFIDENCE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_UNHAPPY) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_UNHAPPY);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SLEEPING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SLEEPING);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOUSEHOLD) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOUSEHOLD);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_OTHERS_HELP) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_OTHERS_HELP);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_QUALITY_LIFE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_QUALITY_LIFE);
+            // section 1 & 2
+            for (QuestionTypes questionType : QuestionTypes.values()) {
+                if ((questionType.toString().contains("IBD_FATIGUE_I") || questionType.toString().contains("IBD_DAS"))
+                        && questionTypeScoreMap.get(questionType) != null) {
+                    score += questionTypeScoreMap.get(questionType);
+                }
             }
         }
 
@@ -645,11 +547,11 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
             if (score != null) {
-                if (score >= 120) {
+                if (score >= 80) {
                     return ScoreSeverity.HIGH;
-                } else if (score >= 80) {
+                } else if (score >= 40) {
                     return ScoreSeverity.MEDIUM;
-                } else if (score < 80) {
+                } else if (score < 40) {
                     return ScoreSeverity.LOW;
                 }
             }

@@ -284,6 +284,27 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 questionTypes.add(QuestionTypes.COMPLICATION);
                 includeScore = true;
                 break;
+            case IBD_FATIGUE:
+                // section 1
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_I")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 2
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_DAS")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 3
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_EXTRA")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                includeScore = true;
+                break;
             default:
                 includeScore = true;
                 break;
@@ -333,7 +354,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     }
                     // if is a ranged value then get value
                     if (questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.SINGLE_SELECT_RANGE)) {
+                            QuestionElementTypes.SINGLE_SELECT_RANGE)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }
