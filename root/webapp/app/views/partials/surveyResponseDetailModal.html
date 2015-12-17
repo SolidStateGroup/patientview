@@ -22,7 +22,10 @@
     }
 </style>
 <div class="modal-header">
-    <h3 class="modal-title">{{surveyResponse.survey.description}}</h3>
+    <h3 class="modal-title">{{surveyResponse.survey.description}}
+        <button class="btn btn-grey pull-right" data-ng-click="cancel()"
+                data-ng-if="surveyResponse.survey.type === 'IBD_FATIGUE'">Close</button>
+    </h3>
 </div>
 <div class="modal-body">
     <table class="table table-bordered" data-ng-if="surveyResponse">
