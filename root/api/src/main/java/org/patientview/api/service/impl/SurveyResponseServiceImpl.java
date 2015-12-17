@@ -552,36 +552,6 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL);
             }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOBBIES) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_HOBBIES);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CHILDREN) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_CHILDREN);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_LOW_MOOD) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_LOW_MOOD);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ISOLATED) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_ISOLATED);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MEMORY) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MEMORY);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_IRRITABLE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_IRRITABLE);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_MISTAKES);
-            }
-            if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_EMOTIONAL);
-            }
             if (questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.IBD_DAS_SEXUAL);
             }
