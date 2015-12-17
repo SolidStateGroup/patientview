@@ -390,6 +390,13 @@
     }
 }
 
+@media (max-width:$screen-xs-max){
+    .result-text{
+        display:none;
+    }
+}
+
+
 .select-result-type {
   width: 390px;
   margin-left: 10px;

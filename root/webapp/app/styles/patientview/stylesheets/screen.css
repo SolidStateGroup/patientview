@@ -2998,13 +2998,19 @@ textarea.form-control.article-content {
     padding: 10px;
   }
 }
-/* line 393, ../sass/_results.scss */
+@media (max-width: 767px) {
+  /* line 394, ../sass/_results.scss */
+  .result-text {
+    display: none;
+  }
+}
+/* line 400, ../sass/_results.scss */
 .select-result-type {
   width: 390px;
   margin-left: 10px;
 }
 
-/* line 399, ../sass/_results.scss */
+/* line 406, ../sass/_results.scss */
 .results-filter-list .feature-list-item {
   float: left;
   margin: 0 5px 5px 0;
