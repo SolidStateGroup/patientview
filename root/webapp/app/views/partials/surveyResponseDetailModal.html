@@ -10,6 +10,13 @@
         color: #368DE8;
         font-size: 14px;
     }
+    .question-group-description {
+        font-weight: normal;
+        color: #2a6496;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        font-size: 14px;
+    }
     .capitalize {
         text-transform:capitalize;
     }
@@ -49,7 +56,7 @@
         <h4>
             <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
             {{questionGroup.text}}
-            <div class="question-description">{{questionGroup.description}}</div>
+            <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
         </h4>
         <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
             <strong>{{question.text}}</strong>
@@ -57,8 +64,8 @@
                 <a href="{{question.helpLink}}" target="_blank">info</a>
             </span>
             <div class="question-description">{{question.description}}</div>
-            <p data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE'">{{responseMap[question.id].value}}</p>
-            <p data-ng-if="question.elementType === 'SINGLE_SELECT'">{{responseMap[question.id].questionOption.text}}</p>
+            <p data-ng-if="['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf(question.elementType) > -1">{{responseMap[question.id].value}}</p>
+            <p data-ng-if="['SINGLE_SELECT'].indexOf(question.elementType) > -1">{{responseMap[question.id].questionOption.text}}</p>
         </div>
     </div>
 

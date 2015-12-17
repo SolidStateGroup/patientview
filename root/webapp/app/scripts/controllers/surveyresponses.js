@@ -115,7 +115,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                     questionAnswer.questionOption = {};
                     questionAnswer.questionOption.id = answer;
                 }
-                if ($scope.questionTypeMap[i] === 'SINGLE_SELECT_RANGE') {
+                if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[i]) > -1) {
                     questionAnswer.value = answer;
                 }
                 questionAnswer.question = {};

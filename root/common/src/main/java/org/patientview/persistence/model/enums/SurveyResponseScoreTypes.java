@@ -8,6 +8,7 @@ public enum SurveyResponseScoreTypes {
     SYMPTOM_SCORE("Symptom Score"),
     IBD_CONTROL_EIGHT("Control Questions"),
     IBD_CONTROL_VAS("Self-Rating Scale"),
+    IBD_FATIGUE("IBD Fatigue"),
     UNKNOWN("Unknown");
 
     private String name;
