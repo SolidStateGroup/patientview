@@ -149,7 +149,7 @@
                 <div class="col-md-6 question-text">
                     <span data-ng-if="question.number">{{question.number}}. </span>
                     <span>{{question.text}}</span>
-                    <span class="required-question" data-ng-if="question.required">(required)</span>
+                    <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
                     <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>

@@ -75,12 +75,14 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         SurveyService.getByType(surveyType).then(function(survey) {
             $scope.survey = survey;
             $scope.questionTypeMap = [];
+            $scope.questionRequiredMap = [];
 
             // create map of question id to question type, used when creating object to send to backend
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
                     var question = survey.questionGroups[i].questions[j];
                     $scope.questionTypeMap[question.id] = question.elementType;
+                    $scope.questionRequiredMap[question.id] = question.required;
                 }
             }
 
@@ -98,6 +100,8 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     };
 
     $scope.save = function () {
+        var i;
+
         // build object to send to back end
         var surveyResponse = {};
         surveyResponse.user = {};
@@ -107,7 +111,10 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         surveyResponse.questionAnswers = [];
         surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
 
-        for (var i = 0; i < $scope.answers.length; i++) {
+        var requiredMap = $scope.questionRequiredMap.slice();
+        var containsAllRequired = true;
+
+        for (i = 0; i < $scope.answers.length; i++) {
             var answer = $scope.answers[i];
             if (answer !== null && answer !== undefined) {
                 var questionAnswer = {};
@@ -121,29 +128,41 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 questionAnswer.question = {};
                 questionAnswer.question.id = i;
                 surveyResponse.questionAnswers.push(questionAnswer);
+
+                requiredMap[i] = false;
             }
         }
 
-        // save, with heart symptom scoring specific code
-        SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function() {
-            if (surveyType === 'HEART_SYMPTOM_SCORE') {
-                $scope.enterResults = {};
-                $scope.showEnterResults = true;
-
-                ObservationHeadingService.getByCode('weight').then(function(observationHeading) {
-                    $scope.weightHeading = observationHeading;
-                });
-
-                ObservationHeadingService.getByCode('pulse').then(function(observationHeading) {
-                    $scope.pulseHeading = observationHeading;
-                });
-
-            } else {
-                $modalInstance.close();
+        for (i = 0; i < requiredMap.length; i++) {
+            if (requiredMap[i] !== null && requiredMap[i] !== undefined && requiredMap[i] && containsAllRequired) {
+                containsAllRequired = false;
             }
-        }, function (error) {
-            $scope.errorMessage = error.data;
-        });
+        }
+
+        if (containsAllRequired) {
+            // save, with heart symptom scoring specific code
+            SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function () {
+                if (surveyType === 'HEART_SYMPTOM_SCORE') {
+                    $scope.enterResults = {};
+                    $scope.showEnterResults = true;
+
+                    ObservationHeadingService.getByCode('weight').then(function (observationHeading) {
+                        $scope.weightHeading = observationHeading;
+                    });
+
+                    ObservationHeadingService.getByCode('pulse').then(function (observationHeading) {
+                        $scope.pulseHeading = observationHeading;
+                    });
+
+                } else {
+                    $modalInstance.close();
+                }
+            }, function (error) {
+                $scope.errorMessage = error.data;
+            });
+        } else {
+            alert('Please complete all required questions.');
+        }
     };
 
     $scope.saveResults = function () {
