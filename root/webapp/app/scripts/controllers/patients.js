@@ -554,11 +554,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.addDiagnosis = function (userId, selectedDiagnosis) {
-        DiagnosisService.add(userId, selectedDiagnosis.code).then(function() {
-            $scope.getUser($scope.editUser);
-        }, function() {
-            alert('Failed to add diagnosis with description "' + selectedDiagnosis.description + '"');
-        })
+        if (selectedDiagnosis !== undefined && selectedDiagnosis) {
+            var diag = JSON.parse(selectedDiagnosis);
+            DiagnosisService.add(userId, diag.code).then(function () {
+                $scope.getUser($scope.editUser);
+            }, function () {
+                alert('Failed to add ' + diag.description + ' diagnosis with code "' + diag.code + '"');
+            })
+        }
     };
 
     // delete user
@@ -693,14 +696,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                             $scope.editUser.staffEnteredDiagnosis = latest;
                         }
                     }
+
+                    $timeout(function() {
+                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                            sortField: 'text'
+                        });
+                    });
                 }, function () {
                     alert('Error retrieving staff entered condition information');
-                });
-
-                $timeout(function() {
-                    $('#select-diagnosis-' + $scope.editUser.id).selectize({
-                        sortField: 'text'
-                    });
                 });
             }
 

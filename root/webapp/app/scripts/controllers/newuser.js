@@ -19,9 +19,12 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         return false;
     };
 
-    $scope.addDiagnosis = function(diagnosis) {
-        if ($scope.editUser && $scope.addPatient) {
-            $scope.editUser.staffEnteredDiagnosis = diagnosis;
+    $scope.addDiagnosis = function(selectedDiagnosis) {
+        if (selectedDiagnosis !== undefined && selectedDiagnosis) {
+            var diagnosis = JSON.parse(selectedDiagnosis);
+            if ($scope.editUser && $scope.addPatient) {
+                $scope.editUser.staffEnteredDiagnosis = diagnosis;
+            }
         }
     };
 

@@ -208,9 +208,9 @@
                 Current Diagnosis:
             </div>
             <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
-                <strong>{{editUser.staffEnteredDiagnosis.description}}</strong>
-                &nbsp;&nbsp;&nbsp; (set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}}
-                by {{editUser.staffEnteredDiagnosis.asserter}})
+                <strong>{{editUser.staffEnteredDiagnosis.description}} ({{editUser.staffEnteredDiagnosis.code}})</strong>
+                &nbsp;&nbsp;&nbsp; set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}}
+                by {{editUser.staffEnteredDiagnosis.asserter}}
                 <a href="" data-ng-click="removeDiagnosis()">(remove)</a>
             </div>
             <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
@@ -222,9 +222,14 @@
                 Assign Diagnosis:
             </div>
             <div class="col-md-9">
-                <select data-ng-model="selectedDiagnosis"
-                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
-                        class="demo-default" id="select-diagnosis-{{editUser.id}}"></select>
+                <!-- must be regular repeat for selectize -->
+                <select class="demo-default" id="select-diagnosis-{{editUser.id}}" placeholder="Select a diagnosis..." data-ng-model="selectedDiagnosis">
+                    <option value="">Select a diagnosis...</option>
+                    <option data-ng-repeat="diagnosis in diagnosisCodes | orderBy:'description'" value="{{diagnosis}}"
+                            data-ng-selected="{{selectedDiagnosis == diagnosis}}">
+                        {{diagnosis.description}} ({{diagnosis.code}})
+                    </option>
+                </select>
             </div>
             <div class="col-md-1">
                 <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(editUser.id, selectedDiagnosis)">Save</button>
