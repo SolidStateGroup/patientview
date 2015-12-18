@@ -202,7 +202,8 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
         // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
         if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)
+                || survey.getType().equals(SurveyTypes.IBD_FATIGUE)) {
 
             // check if score warrants an alert sending
             boolean sendAlerts = false;
