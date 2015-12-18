@@ -86,6 +86,21 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 }
             }
 
+            // only certain survey types have hours & minutes
+            if ($scope.survey.type === 'IBD_FATIGUE') {
+                $scope.hours = UtilService.generateHours();
+                $scope.minutes = UtilService.generateMinutes();
+                for (i = 0; i < $scope.hours.length; i++) {
+                    if (parseInt($scope.hours[i]) === currentDate.getHours()) {
+                        $scope.date.hour = $scope.hours[i];
+                    }
+                }
+                for (i = 0; i < $scope.minutes.length; i++) {
+                    if (parseInt($scope.minutes[i]) === currentDate.getMinutes()) {
+                        $scope.date.minute = $scope.minutes[i];
+                    }
+                }
+            }
         }, function () {
             alert('error getting survey')
         });
@@ -109,7 +124,12 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         surveyResponse.survey = {};
         surveyResponse.survey.id = $scope.survey.id;
         surveyResponse.questionAnswers = [];
-        surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
+        if (!$scope.date.hour) {
+            surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
+        } else {
+            surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1,
+                $scope.date.day, $scope.date.hour, $scope.date.minute, 0, 0);
+        }
 
         var requiredMap = $scope.questionRequiredMap.slice();
         var containsAllRequired = true;

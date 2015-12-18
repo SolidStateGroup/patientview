@@ -32,11 +32,11 @@
         <tbody>
             <tr>
                 <td class="td-strong">Date</td>
-                <td>{{surveyResponse.date | date:'dd-MMM-yyyy'}}</td>
+                <td>{{(surveyResponse.date | date:'dd-MMM-yyyy HH:mm').replace(' 00:00','')}}</td>
             </tr>
             <tr data-ng-repeat="score in surveyResponse.surveyResponseScores">
                 <td class="td-strong">
-                    Score:
+                    Score
                     <span data-ng-if="surveyResponse.surveyResponseScores.length > 1" class="capitalize">
                         {{
                             score.type
