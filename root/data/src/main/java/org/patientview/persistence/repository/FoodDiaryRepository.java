@@ -16,7 +16,7 @@ import java.util.List;
  * Created on 21/12/2015
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.MANDATORY)
 public interface FoodDiaryRepository extends CrudRepository<FoodDiary, Long> {
 
     @Query("SELECT fd FROM FoodDiary fd WHERE fd.user = :user")

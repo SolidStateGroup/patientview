@@ -44,9 +44,10 @@ public class FoodDiaryRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
 
         FoodDiary foodDiary = new FoodDiary(user, "red meat", new Date());
-        foodDiaryRepository.save(foodDiary);
+        FoodDiary saved = foodDiaryRepository.save(foodDiary);
 
         List<FoodDiary> foodDiaries = foodDiaryRepository.findByUser(user);
+        Assert.assertNotNull("There should be a saved food diary", saved);
         Assert.assertEquals("There should be 1 food diary", 1, foodDiaries.size());
         Assert.assertTrue("The food diary should be the one created", foodDiaries.get(0).equals(foodDiary));
     }
