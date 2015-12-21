@@ -86,8 +86,8 @@ var UpdateFoodDiaryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         $scope.years = UtilService.generateYears2000();
         $scope.dateNutrition = {};
         var date = new Date($scope.editFoodDiary.dateNutrition);
-        $scope.dateNutrition.day = Number((date.getDate() < 10 ? "0" : "") + (date.getDate()));
-        $scope.dateNutrition.month = Number((date.getMonth()+1 < 10 ? "0" : "") + (date.getMonth()+1).toString());
+        $scope.dateNutrition.day = (date.getDate() < 10 ? "0" : null) + (date.getDate());
+        $scope.dateNutrition.month = (date.getMonth()+1 < 10 ? "0" : null) + (date.getMonth()+1);
         $scope.dateNutrition.year = date.getFullYear();
 
         $scope.save = function () {
