@@ -307,7 +307,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             message.setType(MessageTypes.MESSAGE);
 
                             StringBuilder msg = new StringBuilder();
-                            msg.append("A poor symptom score has been entered by a patient with details:<br/>");
+                            msg.append("An alert has been triggered by a poor score with details:<br/>");
                             msg.append("<br/>Name: ");
                             msg.append(user.getName());
                             msg.append("<br/>Username: ");
@@ -363,12 +363,15 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                                 Email email = new Email();
                                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));
                                 email.setSenderName(properties.getProperty("smtp.sender.name"));
-                                email.setSubject("PatientView - Poor Symptom Score Recorded");
+                                email.setSubject("PatientView - " + survey.getType().getName() + " Alert Recorded");
                                 email.setRecipients(new String[]{staffUser.getEmail()});
 
                                 email.setBody("Dear " + staffUser.getName()
-                                        + ", <br/><br/>A patient has recorded a poor symptom score on <a href=\""
-                                        + properties.getProperty("site.url") + "\">PatientView</a>"
+                                        + ", <br/><br/>A patient has recorded a poor "
+                                        + survey.getType().getName()
+                                        + "  on <a href=\""
+                                        + properties.getProperty("site.url")
+                                        + "\">PatientView</a>"
                                         + "<br/><br/>Please log in to view a message containing more details.<br/>");
 
                                 // try and send but ignore if exception and log
