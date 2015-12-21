@@ -272,7 +272,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             // patient details and score
                             Date now = new Date();
                             Conversation conversation = new Conversation();
-                            conversation.setTitle("Poor Symptom Score: " + user.getUsername());
+                            conversation.setTitle("Poor " + survey.getType().getName() + ": " + user.getUsername());
                             conversation.setType(ConversationTypes.MESSAGE);
                             conversation.setCreator(notificationUser);
                             conversation.setCreated(now);
