@@ -1,0 +1,35 @@
+<div class="modal-header">
+    <h3 class="modal-title">Delete Food Diary Entry</h3>
+</div>
+<div class="modal-body">
+    <div data-ng-show="!successMessage">
+        <p>
+            <strong>Date</strong>
+            <br/>{{foodDiary.dateNutrition | date:'dd-MMM-yyyy'}}
+        </p>
+        <p>
+            <strong>Food</strong>
+            <br/>{{foodDiary.food}}
+        </p>
+        <p>
+            <strong>Comments</strong>
+            <br/>
+            <span data-ng-if="foodDiary.comment">{{foodDiary.comment}}</span>
+            <span data-ng-if="!foodDiary.comment">No comments added for this Food Diary entry</span>
+        </p>
+        <p class="pull-right"><strong>Are you sure you want to delete this Food Diary entry?</strong></p>
+    </div>
+    <div class="alert alert-danger" data-ng-show="errorMessage">
+        <p>{{errorMessage}}</p>
+    </div>
+    <div class="alert alert-success" data-ng-show="successMessage">
+        <p>{{successMessage}}</p>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-danger" data-ng-click="remove()" data-ng-show="!successMessage">Delete Food Diary Entry</button>
+    <button class="btn btn-grey" data-ng-click="cancel()">
+        <span data-ng-if="!successMessage">Cancel</span>
+        <span data-ng-if="successMessage">Close</span>
+    </button>
+</div>

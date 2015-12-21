@@ -7,6 +7,7 @@ import org.patientview.persistence.model.FoodDiary;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FoodDiaryRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 21/12/2015
  */
+@Service
 public class FoodDiaryServiceImpl implements FoodDiaryService {
 
     @Inject

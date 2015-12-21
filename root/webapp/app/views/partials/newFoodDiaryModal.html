@@ -1,0 +1,58 @@
+<style>
+    .row-question {
+        margin: 2px 0 20px 0;
+    }
+</style>
+<form name="foodDetailsFormNew">
+    <div class="modal-header">
+        <h3 class="modal-title">Create a new Food Diary entry</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row row-question">
+            <div class="col-md-2">
+                <div class="question-text datetime">Date:</div>
+            </div>
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="dateNutrition.day"
+                                data-ng-options="day as day for day in days">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="dateNutrition.month"
+                                data-ng-options="month as month for month in months">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="dateNutrition.year"
+                                data-ng-options="year as year for year in years">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-question">
+            <div class="col-md-2">
+                <div class="question-text">Foods that disagree with me:</div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="editFoodDiary.food" class="form-control">
+            </div>
+        </div>
+        <div class="row row-question">
+            <div class="col-md-2">
+                <div class="question-text">Enter a comment on the food:</div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="editFoodDiary.comment" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!editFoodDiary.food">Save</button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+    </div>
+</form>

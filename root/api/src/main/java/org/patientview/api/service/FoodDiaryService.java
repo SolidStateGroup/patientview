@@ -4,8 +4,6 @@ import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FoodDiary;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,7 +13,6 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 21/12/2015
  */
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface FoodDiaryService {
 
     /**

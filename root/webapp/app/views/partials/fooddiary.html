@@ -1,0 +1,65 @@
+<style>
+    .date-th {
+        min-width: 100px;
+    }
+    .button-th {
+        min-width: 160px;
+    }
+</style>
+<div>
+    <div class="panel panel-default" data-ng-show="patient.myIbd">
+        <div class="panel-heading">
+            <h3>Food Diary
+                <button class="btn blue enter-symptoms" data-ng-click="openModalNewFoodDiary()">Add New Entry</button>
+            </h3>
+        </div>
+        <div class="row info">
+            <p>
+                This section is for you to keep a record of any foods that you think may upset your condition.
+            </p>
+            <p>
+                Make a list of the foods that you have eaten and what symptoms it may have caused (e.g. abdominal pain
+                or diarrhoea).
+            </p>
+            <p>
+                Stop eating this particular food for a few weeks and then try it again.
+            </p>
+        </div>
+
+        <table class="table" data-ng-show="foodDiarys.length">
+            <thead class="table-head">
+            <tr>
+                <th class="date-th"><a href="" data-ng-click="sortBy('dateNutrition');" class="sort-title">Date</a></th>
+                <th><a href="" class="sort-title">Food</a></th>
+                <th><a href="" class="sort-title">Comment</a></th>
+                <th class="button-th"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-ng-repeat="foodDiary in foodDiarys | orderBy: predicate :reverse
+                | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                <td>{{foodDiary.dateNutrition | date: 'dd-MMM-yyyy'}}</td>
+                <td>{{foodDiary.food}}</td>
+                <td>{{foodDiary.comment}}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="" class="btn blue" data-ng-click="updateFoodDiary(foodDiary)">Update</a>
+                        <a href="" class="btn btn-danger" data-ng-click="deleteFoodDiary(foodDiary)">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div data-ng-show="foodDiarys.length > 0">
+            <div pagination on-select-page="setPage(page)" total-items="foodDiarys.length"
+                 items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
+                 ng-hide="foodDiarys.length  < entryLimit "></div>
+        </div>
+
+        <div class="alert alert-warning" data-ng-show="!foodDiarys.length">
+            <p>There are currently no entries in your food diary</p>
+        </div>
+
+    </div>
+</div>

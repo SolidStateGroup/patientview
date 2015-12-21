@@ -34,6 +34,7 @@
             <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_FATIGUE'}"><a data-ng-click="activeTab = 'IBD_FATIGUE'">Fatigue</a></li>
+            <li data-ng-class="{active:activeTab === 'FOOD_DIARY'}"><a data-ng-click="activeTab = 'FOOD_DIARY'">Food Diary</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
@@ -63,6 +64,9 @@
                     <div class="panel-heading"><h3>Fatigue</h3></div>
                     <p class="no-data">Your details, required for use in the Fatigue Questionnaire have not yet been added to PatientView.</p>
                 </div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'FOOD_DIARY'}">
+                <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
         </div>
     </div>

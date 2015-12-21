@@ -728,6 +728,10 @@ CREATE TABLE PV_Food_Diary
   Food            TEXT NOT NULL,
   Comment         TEXT,
   Date_Nutrition  TIMESTAMP NOT NULL,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
