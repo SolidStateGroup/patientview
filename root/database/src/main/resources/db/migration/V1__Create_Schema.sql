@@ -721,6 +721,16 @@ CREATE TABLE PV_Question_Answer
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Food_Diary
+(
+  Id              BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL REFERENCES PV_User (Id),
+  Food            TEXT NOT NULL,
+  Comment         TEXT,
+  Date_Nutrition  TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
