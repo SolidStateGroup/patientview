@@ -371,10 +371,16 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.openObservationHeadingInformation = function (result) {
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            var modalsize = 'md';
+        } else {
+            modalsize = 'sm';
+        }
+
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
-            size: 'sm',
+            size: modalsize,
             resolve: {
                 result: function(){
                     return result;
