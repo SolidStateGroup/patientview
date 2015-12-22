@@ -16,6 +16,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -97,6 +98,23 @@ public class FoodDiaryControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/fooddiary"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testMigrate() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        MockMultipartFile file = new MockMultipartFile("csvFile", "1,2,3,4".getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders.fileUpload("/fooddiary/migrate").file(file))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

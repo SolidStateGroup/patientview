@@ -23,6 +23,13 @@
 
     <dependencies>
 
+        <!-- CSV handling, e.g. food diary migration -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>3.4</version>
+        </dependency>
+
         <!-- for extracting exif data from images -->
         <dependency>
             <groupId>com.drewnoakes</groupId>

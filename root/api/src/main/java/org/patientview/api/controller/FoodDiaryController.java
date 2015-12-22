@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -64,6 +67,11 @@ public class FoodDiaryController extends BaseController<FoodDiaryController> {
     public ResponseEntity<List<FoodDiary>> get(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(foodDiaryService.get(userId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/fooddiary/migrate", method = RequestMethod.POST)
+    public void migrate(@RequestParam MultipartFile csvFile) throws IOException {
+        foodDiaryService.migrate(csvFile);
     }
 
     /**

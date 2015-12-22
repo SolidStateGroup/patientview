@@ -1,10 +1,13 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FoodDiary;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -53,4 +56,7 @@ public interface FoodDiaryService {
      */
     @UserOnly
     FoodDiary update(Long userId, FoodDiary foodDiary) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly
+    void migrate(MultipartFile csvFile) throws IOException;
 }
