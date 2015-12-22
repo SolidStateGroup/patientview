@@ -50,6 +50,11 @@
         color: red;
     }
 
+    .datetime {
+        font-weight: bold;
+        padding-top: 0.5em;
+    }
+    
     .slider {
         display:     block;
         position:    relative;
@@ -110,30 +115,49 @@
     }
 </style>
 
-<form name="userFormNew" data-ng-show="!existingUser">
+<form name="userFormNew">
     <div class="modal-header">
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
         <div class="row row-question">
-            <div class="col-md-5">
-                <span class="question-text">Date</span>
+            <div class="col-md-1">
+                <div class="question-text datetime">Date:</div>
             </div>
-            <div class="col-md-7">
+            <div class="col-md-11">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <select class="form-control date-input" data-ng-model="date.day"
                                 data-ng-options="day as day for day in days">
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <select class="form-control date-input" data-ng-model="date.month"
                                 data-ng-options="month as month for month in months">
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <select class="form-control date-input" data-ng-model="date.year"
                                 data-ng-options="year as year for year in years">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-question" data-ng-if="date.hour">
+            <div class="col-md-1">
+                <div class="question-text datetime">Time:</div>
+            </div>
+            <div class="col-md-11">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.hour"
+                                data-ng-options="hour as hour for hour in hours">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.minute"
+                                data-ng-options="minute as minute for minute in minutes">
                         </select>
                     </div>
                 </div>
@@ -149,7 +173,7 @@
                 <div class="col-md-6 question-text">
                     <span data-ng-if="question.number">{{question.number}}. </span>
                     <span>{{question.text}}</span>
-                    <span class="required-question" data-ng-if="question.required">(required)</span>
+                    <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
                     <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>

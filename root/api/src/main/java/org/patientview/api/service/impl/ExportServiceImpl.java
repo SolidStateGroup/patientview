@@ -258,14 +258,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         List<QuestionTypes> questionTypes = new ArrayList<>();
         boolean includeScore = false;
+        boolean includeSeverity = false;
 
         // question types
         switch (survey.getType()) {
             case IBD_CONTROL:
-                questionTypes.add(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
-                questionTypes.add(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT);
-                questionTypes.add(QuestionTypes.IBD_NO_TREATMENT);
-                questionTypes.add(QuestionTypes.IBD_OVERALL_CONTROL);
+                includeScore = true;
                 break;
             case CROHNS_SYMPTOM_SCORE:
                 questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
@@ -274,6 +272,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 questionTypes.add(QuestionTypes.COMPLICATION);
                 questionTypes.add(QuestionTypes.MASS_IN_TUMMY);
                 includeScore = true;
+                includeSeverity = true;
                 break;
             case COLITIS_SYMPTOM_SCORE:
                 questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
@@ -283,9 +282,33 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 questionTypes.add(QuestionTypes.FEELING);
                 questionTypes.add(QuestionTypes.COMPLICATION);
                 includeScore = true;
+                includeSeverity = true;
+                break;
+            case IBD_FATIGUE:
+                // section 1
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_I")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 2
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_DAS")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 3
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_EXTRA")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                includeScore = true;
+                includeSeverity = true;
                 break;
             default:
                 includeScore = true;
+                includeSeverity = true;
                 break;
         }
 
@@ -307,7 +330,13 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         // set score header if required
         if (includeScore) {
-            document.addHeader("Score (severity)");
+            for (SurveyResponseScore score : surveyResponses.get(0).getSurveyResponseScores()) {
+                String header = score.getType().getName() + " Score";
+                if (includeSeverity) {
+                    header += " (severity)";
+                }
+                document.addHeader(header);
+            }
         }
 
         // order by date in survey desc
@@ -333,7 +362,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     }
                     // if is a ranged value then get value
                     if (questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.SINGLE_SELECT_RANGE)) {
+                            QuestionElementTypes.SINGLE_SELECT_RANGE)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }
@@ -366,7 +399,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             if (includeScore) {
                 for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
                     String scoreString = score.getScore().toString();
-                    if (score.getSeverity() != null) {
+                    if (includeSeverity) {
                         scoreString += " (" + score.getSeverity().getName() + ")";
                     }
                     document.addValueToNextCell(scoreString);

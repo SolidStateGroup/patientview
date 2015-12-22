@@ -98,10 +98,10 @@ public class ExportServiceTest {
         user.getIdentifiers().add(identifier);
 
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.IBD_CONTROL);
+        survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE);
 
         SurveyResponse surveyResponse
-            = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.IBD_CONTROL_EIGHT);
+            = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
         surveyResponse.setSurvey(survey);
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
@@ -109,14 +109,14 @@ public class ExportServiceTest {
         // questions
         {
             Question question = new Question();
-            question.setType(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
+            question.setType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
-            question.setText("two weeks");
+            question.setText("stools daytime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.YES);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
             questionOption.setQuestion(question);
-            questionOption.setText("yes");
+            questionOption.setText("0-3");
 
             QuestionAnswer questionAnswer = new QuestionAnswer();
             questionAnswer.setQuestion(question);
@@ -126,18 +126,18 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME)).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT);
+            question.setType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
-            question.setText("current treatment");
+            question.setText("stools nighttime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NOT_SURE);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
             questionOption.setQuestion(question);
-            questionOption.setText("not sure");
+            questionOption.setText("0-3");
 
             QuestionAnswer questionAnswer = new QuestionAnswer();
             questionAnswer.setQuestion(question);
@@ -147,18 +147,18 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME)).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.IBD_NO_TREATMENT);
+            question.setType(QuestionTypes.TOILET_TIMING);
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
-            question.setText("no treatment");
+            question.setText("toilet timing");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NO);
+            questionOption.setType(QuestionOptionTypes.DONT_NEED_TO_RUSH);
             questionOption.setQuestion(question);
-            questionOption.setText("no");
+            questionOption.setText("no rush");
 
             QuestionAnswer questionAnswer = new QuestionAnswer();
             questionAnswer.setQuestion(question);
@@ -168,32 +168,80 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.IBD_NO_TREATMENT)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.TOILET_TIMING)).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.IBD_OVERALL_CONTROL);
-            question.setElementType(QuestionElementTypes.SINGLE_SELECT_RANGE);
-            question.setText("ranged question");
+            question.setType(QuestionTypes.PRESENT_BLOOD);
+            question.setElementType(QuestionElementTypes.SINGLE_SELECT);
+            question.setText("toilet timing");
+
+            QuestionOption questionOption = new QuestionOption();
+            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setQuestion(question);
+            questionOption.setText("none");
 
             QuestionAnswer questionAnswer = new QuestionAnswer();
             questionAnswer.setQuestion(question);
-            questionAnswer.setValue("49");
+            questionAnswer.setQuestionOption(questionOption);
             surveyResponse.getQuestionAnswers().add(questionAnswer);
 
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.IBD_OVERALL_CONTROL)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.PRESENT_BLOOD)).thenReturn(questions);
+        }
+        {
+            Question question = new Question();
+            question.setType(QuestionTypes.COMPLICATION);
+            question.setElementType(QuestionElementTypes.SINGLE_SELECT);
+            question.setText("complication");
+
+            QuestionOption questionOption = new QuestionOption();
+            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setQuestion(question);
+            questionOption.setText("none");
+
+            QuestionAnswer questionAnswer = new QuestionAnswer();
+            questionAnswer.setQuestion(question);
+            questionAnswer.setQuestionOption(questionOption);
+            surveyResponse.getQuestionAnswers().add(questionAnswer);
+
+            List<Question> questions = new ArrayList<>();
+            questions.add(question);
+
+            when(questionRepository.findByType(QuestionTypes.COMPLICATION)).thenReturn(questions);
+        }
+        {
+            Question question = new Question();
+            question.setType(QuestionTypes.FEELING);
+            question.setElementType(QuestionElementTypes.SINGLE_SELECT);
+            question.setText("feeling");
+
+            QuestionOption questionOption = new QuestionOption();
+            questionOption.setType(QuestionOptionTypes.WELL);
+            questionOption.setQuestion(question);
+            questionOption.setText("well");
+
+            QuestionAnswer questionAnswer = new QuestionAnswer();
+            questionAnswer.setQuestion(question);
+            questionAnswer.setQuestionOption(questionOption);
+            surveyResponse.getQuestionAnswers().add(questionAnswer);
+
+            List<Question> questions = new ArrayList<>();
+            questions.add(question);
+
+            when(questionRepository.findByType(QuestionTypes.FEELING)).thenReturn(questions);
         }
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         when(surveyResponseRepository.findByUserAndSurveyType(eq(user), eq(survey.getType())))
                 .thenReturn(surveyResponses);
 
-        HttpEntity out = exportService.downloadSurveyResponses(user.getId(), SurveyTypes.IBD_CONTROL.toString());
+        HttpEntity out
+                = exportService.downloadSurveyResponses(user.getId(), SurveyTypes.COLITIS_SYMPTOM_SCORE.toString());
 
         Assert.assertNotNull("Should output byte array", out);
-        verify(questionRepository, Mockito.times(4)).findByType(any(QuestionTypes.class));
+        verify(questionRepository, Mockito.times(6)).findByType(any(QuestionTypes.class));
     }
 }

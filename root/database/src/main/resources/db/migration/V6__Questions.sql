@@ -32,18 +32,10 @@ VALUES (8, 4, '', null, null, 1);
 
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (9, 5, 'SECTION I - Fatigue Assessment Scale',
-        'This section of the questionnaire will identify fatigue, its severity, frequency and duration.
-        <br/>Sometimes people with inflammatory bowel disease feel fatigued. The term ‘fatigue’ is used throughout the
-        questionnaire. Fatigue has been defined as a sense of continuing tiredness, with periods of sudden and
-        overwhelming lack of energy or feeling of exhaustion that is not relieved following rest or sleep.
-        <br/>Please choose one number for each question, score from 0 - 4 with 0 = no fatigue, 4 = severe fatigue.', null, 1);
+        'This section of the questionnaire will identify fatigue, its severity, frequency and duration.<br/><br/>Sometimes people with inflammatory bowel disease feel fatigued. The term ‘fatigue’ is used throughout the questionnaire. Fatigue has been defined as a sense of continuing tiredness, with periods of sudden and overwhelming lack of energy or feeling of exhaustion that is not relieved following rest or sleep.<br/><br/>Please choose one number for each question, score from 0 - 4 with:<br/> 0 = no fatigue, 4 = severe fatigue.', null, 1);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (10, 5, 'SECTION II – IBD-Fatigue Impact on Daily Activities Scale',
-        'This section assesses the perceived impact of fatigue on your daily activities in the past two weeks.
-        <br/>Please answer all the questions. The possible answers to the questions are: None of the time - 0;
-        Some of the time – 1; Often - 2; Most of the time - 3; All of the time - 4.
-        <br/>If a particular activity does not apply to you, for example you do not drive, please select N/A.
-        <br/>Please tick only one answer for each question reflecting on the past two weeks.', null, 2);
+        'This section assesses the perceived impact of fatigue on your daily activities in the <strong>past two weeks.</strong><br/><br/>Please answer all the questions. The possible answers to the questions are:<br/>0 = None of the time, 1 = Some of the time, 2 = Often, 3 = Most of the time, 4 = All of the time.<br/><br/><strong>If a particular activity does not apply to you, for example you do not drive, please select N/A.</strong><br/>Please tick only one answer for each question reflecting on the past two weeks.', null, 2);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (11, 5, 'SECTION III – Additional Questions about your Fatigue', null, null, 3);
 
@@ -114,15 +106,15 @@ VALUES (30, 8, 'SINGLE_SELECT', 'RADIO', 'Over the past 2 weeks, on average how 
 
 /* IBD fatigue, section 1 */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
-VALUES (31, 9, 'SINGLE_SELECT', 'RADIO', 'What is your fatigue level right NOW?', null, 1, 1, null, null, 'IBD_FATIGUE_NOW', true);
+VALUES (31, 9, 'SINGLE_SELECT', 'RADIO', 'What is your fatigue level right NOW?', null, 1, 1, null, null, 'IBD_FATIGUE_I_NOW', true);
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
-VALUES (32, 9, 'SINGLE_SELECT', 'RADIO', 'What was your HIGHEST fatigue level in the past two weeks?', null, 2, 2, null, null, 'IBD_FATIGUE_HIGHEST_TWO_WEEKS', true);
+VALUES (32, 9, 'SINGLE_SELECT', 'RADIO', 'What was your HIGHEST fatigue level in the past two weeks?', null, 2, 2, null, null, 'IBD_FATIGUE_I_HIGHEST_TWO_WEEKS', true);
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
-VALUES (33, 9, 'SINGLE_SELECT', 'RADIO', 'What was your LOWEST fatigue level in the past two weeks?', null, 3, 3, null, null, 'IBD_FATIGUE_LOWEST_TWO_WEEKS', true);
+VALUES (33, 9, 'SINGLE_SELECT', 'RADIO', 'What was your LOWEST fatigue level in the past two weeks?', null, 3, 3, null, null, 'IBD_FATIGUE_I_LOWEST_TWO_WEEKS', true);
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
-VALUES (34, 9, 'SINGLE_SELECT', 'RADIO', 'What was your AVERAGE fatigue level in the past two weeks?', null, 4, 4, null, null, 'IBD_FATIGUE_AVERAGE_TWO_WEEKS', true);
+VALUES (34, 9, 'SINGLE_SELECT', 'RADIO', 'What was your AVERAGE fatigue level in the past two weeks?', null, 4, 4, null, null, 'IBD_FATIGUE_I_AVERAGE_TWO_WEEKS', true);
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
-VALUES (35, 9, 'SINGLE_SELECT', 'RADIO', 'How much of your waking time have you felt fatigued in the past two weeks?', null, 5, 5, null, null, 'IBD_FATIGUE_WAKING_TWO_WEEKS', true);
+VALUES (35, 9, 'SINGLE_SELECT', 'RADIO', 'How much of your waking time have you felt fatigued in the past two weeks?', null, 5, 5, null, null, 'IBD_FATIGUE_I_WAKING_TWO_WEEKS', true);
 /* IBD fatigue, section 2 */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type", "required")
 VALUES (36, 10, 'SINGLE_SELECT', 'RADIO', 'I had to nap during the day because of fatigue', null, 1, 1, null, null, 'IBD_DAS_NAP', true);

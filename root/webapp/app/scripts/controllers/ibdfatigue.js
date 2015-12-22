@@ -10,13 +10,21 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         $scope.loading = true;
         $scope.surveyType = 'IBD_FATIGUE';
 
-        $scope.plotLines1 = [{
+        $scope.plotLines = [{
+            color: '#FF8A8A',
+            width: 105,
+            value: 110
+        },{
+            color: '#FFB347',
+            width: 70,
+            value: 60
+        }, {
             color: '#77DD77',
-            width: 2,
-            value: 13
+            width: 70,
+            value: 20
         }];
 
-        $scope.max = 30;
+        $scope.max = 140;
         getSurveyResponses();
     };
 
@@ -46,7 +54,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             }
         }
 
-        $('#chart_IBD').highcharts('StockChart', {
+        $('#chart_IBD_FATIGUE').highcharts('StockChart', {
             rangeSelector : {
                 buttons: [{
                     type: 'month',
@@ -122,7 +130,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             },
             yAxis: [{
                 offset: 20,
-                plotLines: $scope.plotLines1,
+                plotLines: $scope.plotLines,
                 min: 0,
                 max: $scope.max,
                 floor: 0,

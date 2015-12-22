@@ -39,7 +39,7 @@
         <div class="col-md-7 result-container clearfix">
             <div class="content-panel chart-content-panel">
                 <div class="content-inner">
-                    <div id="chart_IBD"></div>
+                    <div id="chart_IBD_FATIGUE"></div>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
                 <div class="table-head accordion-title-row">
                     <div class="hidden">ID</div>
                     <div class="head-item accordion-title-text "><span>Date Taken</span></div>
-                    <div class="head-item accordion-title-text "><span>Score</span></div>
+                    <div class="head-item accordion-title-text "><span>Score (severity)</span></div>
                     <div class="head-item accordion-title-text "></div>
                 </div>
                 <div class="item-header">
@@ -60,14 +60,14 @@
                     <div class="faux-row" data-ng-repeat="surveyResponse in tableSurveyResponses">
                         <div class="row-item hidden">{{observation.id}}</div>
                         <div class="row-item accordion-heading-text">{{surveyResponse.date | date:'dd-MMM-yyyy'}}</div>
-                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[0].score}}</div>
+                        <div class="row-item accordion-heading-text">{{surveyResponse.surveyResponseScores[0].score}} ({{surveyResponse.surveyResponseScores[0].severity}})</div>
                         <div class="row-item accordion-heading-text" style="color: #428bca;" data-ng-click="openModalSurveyResponseDetail(surveyResponse.id)">View</div>
                     </div>
                 </div>
             </div>
             <div class="pull-right download-all">
                 <a href="../api/user/{{loggedInUser.id}}/export/survey/{{surveyType}}/download?token={{authToken}}"
-                   class="btn blue ">Download All Responses</a>
+                   class="btn blue ">Download</a>
             </div>
         </aside>
     </div>

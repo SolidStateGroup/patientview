@@ -2,6 +2,9 @@
     .content-panel {
         overflow: visible!important;
     }
+    .diagnosis-staff {
+        margin-bottom: 10px;
+    }
 </style>
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
@@ -173,7 +176,7 @@
                 Current Diagnosis:
             </div>
             <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
-                <strong>{{editUser.staffEnteredDiagnosis.description}}</strong>
+                <strong>{{editUser.staffEnteredDiagnosis.description}} ({{editUser.staffEnteredDiagnosis.code}})</strong>
                 <a href="" data-ng-click="removeDiagnosis()">(remove)</a>
             </div>
             <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
@@ -185,9 +188,14 @@
                 Assign Diagnosis:
             </div>
             <div class="col-md-8">
-                <select data-ng-model="selectedDiagnosis"
-                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
-                        class="demo-default" id="select-diagnosis"></select>
+                <!-- must be regular repeat for selectize -->
+                <select class="demo-default" id="select-diagnosis" placeholder="Select a diagnosis..." data-ng-model="selectedDiagnosis">
+                    <option value="">Select a diagnosis...</option>
+                    <option data-ng-repeat="diagnosis in diagnosisCodes | orderBy:'description'" value="{{diagnosis}}"
+                            data-ng-selected="{{selectedDiagnosis == diagnosis}}">
+                        {{diagnosis.description}} ({{diagnosis.code}})
+                    </option>
+                </select>
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(selectedDiagnosis)">Set Diagnosis</button>
