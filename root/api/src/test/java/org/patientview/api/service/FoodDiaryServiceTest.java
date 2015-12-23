@@ -21,9 +21,14 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FoodDiaryRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +53,9 @@ public class FoodDiaryServiceTest {
 
     @InjectMocks
     FoodDiaryService foodDiaryService = new FoodDiaryServiceImpl();
+
+    @Mock
+    IdentifierRepository identifierRepository;
 
     @Mock
     UserRepository userRepository;
@@ -145,6 +153,41 @@ public class FoodDiaryServiceTest {
 
         foodDiaryService.delete(user.getId(), foodDiary.getId());
         verify(foodDiaryRepository, times(1)).delete(eq(foodDiary));
+    }
+
+    @Test
+    public void testMigrate() throws IOException {
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        String csv = "1,foods,comment,1111111111,2015-05-23 00:00:00\n"
+                + "1,foods2,comment2,1111111111,2015-05-23 00:00:00\n"
+                + "1,foods,comment,2222222222,2015-05-23 00:00:00";
+
+        MultipartFile file = new MockMultipartFile("file", csv.getBytes());
+
+        foodDiaryService.migrate(file);
+        verify(foodDiaryRepository, times(2)).save(any(FoodDiary.class));
     }
 
     @Test
