@@ -18,3 +18,14 @@
         <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
     </div>
 </div>
+
+<div class="panel panel-default" data-ng-show="currentSpecialty.links">
+    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
+    <div class="panel-body">
+        <ul>
+            <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
+                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+            </li>
+        </ul>
+    </div>
+</div>
