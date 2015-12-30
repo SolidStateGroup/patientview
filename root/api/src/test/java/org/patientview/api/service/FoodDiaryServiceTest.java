@@ -158,19 +158,15 @@ public class FoodDiaryServiceTest {
     @Test
     public void testMigrate() throws IOException {
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
-        user.setIdentifiers(new HashSet<Identifier>());
-
         Group group = TestUtils.createGroup("testGroup");
         Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString());
         Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
-        user.getIdentifiers().add(identifier);
 
         // user and security
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
         user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
