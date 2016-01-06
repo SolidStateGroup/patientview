@@ -90,6 +90,10 @@ input.alert-checkbox {
 
 .filter-panel {
     overflow: visible;
+
+    .panel-footer{
+        padding:0;
+    }
 }
 
 .filter-tags-container{
