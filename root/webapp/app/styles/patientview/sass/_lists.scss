@@ -37,12 +37,23 @@
 .groups-list{
     li{
         color:$textdefault;
-        margin-right:5px;
+        margin:5px 5px 0 0;
 
         .light-text{
             font-size:1rem;
         }
 
+        .group-image {
+            width: 30px;
+        }
+        .group-description {
+            margin-left: 5px;
+        }
+        .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
+            text-decoration: none;
+            outline: none;
+            border: 0px none transparent;
+        }
     }
 }
 

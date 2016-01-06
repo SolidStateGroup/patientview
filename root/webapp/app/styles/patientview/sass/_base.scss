@@ -9,6 +9,12 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+/** Headers / headings **/
+
+h3 {
+    font-size: 22px;
+}
+
 hr{
     margin-top:15px;
     margin-bottom:10px;
@@ -143,13 +149,44 @@ hr{
 
     .panel-footer, .panel-intro {
         background: $lowlight;
-        border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+    .panel-footer {
+        border-top: 1px solid $border-default;
     }
 
     .panel-intro{
         padding:10px;
+
+        h3 {
+            padding-bottom: 5px;
+            margin:0;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        img {
+            margin-right: 5px;
+        }
+
+        .featured-news-heading {
+            font-size: 12px;
+            margin-bottom: 0px;
+            margin-top: 0px;
+
+        }
+
+        .featured-news-heading a {
+            font-size: 15px;
+        }
+
+        .featured-news-content {
+            color: grey;
+            margin-bottom: 5px;
+        }
     }
 }
 
@@ -778,6 +815,16 @@ i.icon-brand-pulse{
     width: 30px;
     display:block;
     margin-right:5px;
+}
+
+i.icon-forward-to{
+    background: url('../../../images/icons/forward-to.png') 0 0 no-repeat;
+    height: 22px;
+    width: 23px;
+    display:block;
+    margin-left:10px;
+    position: relative;
+    top: 4px;
 }
 
 

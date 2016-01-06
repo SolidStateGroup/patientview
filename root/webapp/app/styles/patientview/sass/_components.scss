@@ -33,7 +33,7 @@
     }
 
     .item-detail{
-        padding:20px;
+        padding:20px 20px 10px;
 
         .last-login{
             width:40%;
@@ -60,11 +60,19 @@
     }
 
     h4{
-        margin-bottom:5px;
+        margin:0 0 5px;
     }
 
     .news-actions{
       margin-bottom:10px;
+    }
+
+    .user-picture {
+        max-width: 50px;
+    }
+
+    ul{
+        margin-left:20px;
     }
 }
 

@@ -20,7 +20,7 @@
 }
 
 .panel-body{
-    padding:5px 15px 10px;
+    padding:15px 15px 10px;
     form{
 //        padding:10px;
     }
@@ -58,6 +58,12 @@ label{
     color:$textdefault;
 }
 
+.label{
+    a{
+        color:$white;
+    }
+}
+
 .disabled{
     cursor:not-allowed;
     background:$inputbg;
@@ -74,6 +80,9 @@ label{
     background:$white;
 }
 
+input.alert-checkbox {
+    margin-right: 7px;
+}
 
 .btn:active{
     @include bootstrap-box-shadow(none);

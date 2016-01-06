@@ -90,13 +90,12 @@
         &.active{
             position:relative;
             a{
-                background:#f8f8f8;
-                color:$primary;
-//                font-weight:bold;
+                color:#f8f8f8;
+                background:#368de8;
 
-                &:hover{
-                    background:#f8f8f8;
-                    color:$primary;
+                &:hover, &:focus{
+                    color:#f8f8f8;
+                    background:#368de8;
                 }
             }
 
