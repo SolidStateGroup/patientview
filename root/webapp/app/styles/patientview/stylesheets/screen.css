@@ -551,10 +551,13 @@ ul .news-item {
   padding: 4px;
 }
 
-/* line 390, ../sass/_base.scss */
+/* line 389, ../sass/_base.scss */
+.name-action-list {
+  margin-top: 10px;
+}
+/* line 391, ../sass/_base.scss */
 .name-action-list li {
-  height: 35px;
-  margin-right: 5px;
+  margin-right: 10px;
   height: auto;
 }
 /* line 395, ../sass/_base.scss */
