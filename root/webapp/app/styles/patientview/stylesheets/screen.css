@@ -1467,13 +1467,18 @@ html .clearFooter, body .clearFooter {
   width: 300px;
 }
 
-/** fake Tables **/
 /* line 10, ../sass/_tables.scss */
+table tr td .filetype-icon {
+  margin-right: 5px;
+}
+
+/** fake Tables **/
+/* line 20, ../sass/_tables.scss */
 .faux-table {
   margin-top: 20px;
   font-size: 1.5rem;
 }
-/* line 14, ../sass/_tables.scss */
+/* line 24, ../sass/_tables.scss */
 .faux-table .table-head {
   background: #f3f6f9;
   height: 40px;
@@ -1481,7 +1486,7 @@ html .clearFooter, body .clearFooter {
   width: 100%;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 21, ../sass/_tables.scss */
+/* line 31, ../sass/_tables.scss */
 .faux-table .table-head .head-item {
   height: 100%;
   border-right: 1px solid #e4e9f0;
@@ -1491,13 +1496,13 @@ html .clearFooter, body .clearFooter {
   padding: 0 10px;
   font-weight: bold;
 }
-/* line 30, ../sass/_tables.scss */
+/* line 40, ../sass/_tables.scss */
 .faux-table .table-head .head-item a {
   color: #585858;
   text-decoration: none;
   cursor: pointer;
 }
-/* line 38, ../sass/_tables.scss */
+/* line 48, ../sass/_tables.scss */
 .faux-table .panel-body {
   background: white;
   -webkit-border-radius: 0;
@@ -1508,51 +1513,51 @@ html .clearFooter, body .clearFooter {
   overflow: visible;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 45, ../sass/_tables.scss */
+/* line 55, ../sass/_tables.scss */
 .faux-table .panel-body .panel-heading {
   background: none;
 }
-/* line 49, ../sass/_tables.scss */
+/* line 59, ../sass/_tables.scss */
 .faux-table .panel-body .panel-heading {
   padding: 0;
 }
-/* line 54, ../sass/_tables.scss */
+/* line 64, ../sass/_tables.scss */
 .faux-table .panel-body .panel-collapse button {
   line-height: 20px;
   min-height: 30px;
 }
-/* line 59, ../sass/_tables.scss */
+/* line 69, ../sass/_tables.scss */
 .faux-table .panel-body .panel-collapse .link-list-item {
   clear: left;
   margin-top: 10px;
 }
-/* line 65, ../sass/_tables.scss */
+/* line 75, ../sass/_tables.scss */
 .faux-table .panel-body .link-list-item {
   margin-top: 5px;
 }
-/* line 70, ../sass/_tables.scss */
+/* line 80, ../sass/_tables.scss */
 .faux-table .panel-body .location-list-item div[class*='col-md-'], .faux-table .panel-body .add-location div[class*='col-md-'] {
   padding-left: 5px;
   padding-right: 5px;
   width: 160px;
 }
-/* line 75, ../sass/_tables.scss */
+/* line 85, ../sass/_tables.scss */
 .faux-table .panel-body .location-list-item div[class*='col-md-']:first-child, .faux-table .panel-body .location-list-item div[class*='col-md-'].first-child, .faux-table .panel-body .add-location div[class*='col-md-']:first-child, .faux-table .panel-body .add-location div[class*='col-md-'].first-child {
   padding-left: 15px;
 }
-/* line 79, ../sass/_tables.scss */
+/* line 89, ../sass/_tables.scss */
 .faux-table .panel-body .location-list-item div[class*='col-md-']:last-child, .faux-table .panel-body .add-location div[class*='col-md-']:last-child {
   margin-right: 10px;
 }
-/* line 86, ../sass/_tables.scss */
+/* line 96, ../sass/_tables.scss */
 .faux-table .accordion-toggle {
   text-decoration: none;
 }
-/* line 91, ../sass/_tables.scss */
+/* line 101, ../sass/_tables.scss */
 .faux-table .item-header.open {
   border: 2px solid #368de8;
 }
-/* line 96, ../sass/_tables.scss */
+/* line 106, ../sass/_tables.scss */
 .faux-table .faux-row {
   display: table;
   width: 100%;
@@ -1561,22 +1566,22 @@ html .clearFooter, body .clearFooter {
   background: #fff;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 104, ../sass/_tables.scss */
+/* line 114, ../sass/_tables.scss */
 .faux-table .faux-row.dull {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
-/* line 108, ../sass/_tables.scss */
+/* line 118, ../sass/_tables.scss */
 .faux-table .faux-row.highlight {
   opacity: 1;
   filter: alpha(opacity=100);
   background: #f5f5f5;
 }
-/* line 112, ../sass/_tables.scss */
+/* line 122, ../sass/_tables.scss */
 .faux-table .faux-row.highlight .row-item {
   font-weight: bold;
 }
-/* line 117, ../sass/_tables.scss */
+/* line 127, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
   display: table-cell;
   text-align: left;
@@ -1586,16 +1591,16 @@ html .clearFooter, body .clearFooter {
   vertical-align: middle;
   font-family: 'Lato', sans-serif;
 }
-/* line 126, ../sass/_tables.scss */
+/* line 136, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.plot-this {
   width: 40px;
 }
-/* line 130, ../sass/_tables.scss */
+/* line 140, ../sass/_tables.scss */
 .faux-table .faux-row .row-item span {
   display: block;
   float: left;
 }
-/* line 135, ../sass/_tables.scss */
+/* line 145, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.row-break {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -1611,55 +1616,55 @@ html .clearFooter, body .clearFooter {
   word-break: break-all;
   white-space: normal;
 }
-/* line 146, ../sass/_tables.scss */
+/* line 156, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
   padding: 0 10px;
 }
-/* line 150, ../sass/_tables.scss */
+/* line 160, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions .button-dropdown-group {
   width: 120px;
   margin: 0 auto;
 }
-/* line 156, ../sass/_tables.scss */
+/* line 166, ../sass/_tables.scss */
 .faux-table .faux-row .row-item ul {
   margin-bottom: 0;
 }
-/* line 163, ../sass/_tables.scss */
+/* line 173, ../sass/_tables.scss */
 .faux-table.three-col .row-item, .faux-table.three-col .head-item {
   width: 33.33%;
 }
-/* line 169, ../sass/_tables.scss */
+/* line 179, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 175, ../sass/_tables.scss */
+/* line 185, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-/* line 181, ../sass/_tables.scss */
+/* line 191, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
   width: 16.66%;
 }
-/* line 186, ../sass/_tables.scss */
+/* line 196, ../sass/_tables.scss */
 .faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
   width: 14.44%;
 }
-/* line 191, ../sass/_tables.scss */
+/* line 201, ../sass/_tables.scss */
 .faux-table.eight-col .row-item, .faux-table.eight-col .head-item {
   width: 12.5%;
 }
 
-/* line 197, ../sass/_tables.scss */
+/* line 207, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 199, ../sass/_tables.scss */
+/* line 209, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 203, ../sass/_tables.scss */
+/* line 213, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -1667,7 +1672,7 @@ html .clearFooter, body .clearFooter {
   width: auto;
 }
 
-/* line 212, ../sass/_tables.scss */
+/* line 222, ../sass/_tables.scss */
 .result-link a {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -1684,7 +1689,7 @@ html .clearFooter, body .clearFooter {
   white-space: normal;
 }
 
-/* line 224, ../sass/_tables.scss */
+/* line 234, ../sass/_tables.scss */
 .cleared-row {
   float: left;
   clear: left;
@@ -1692,17 +1697,17 @@ html .clearFooter, body .clearFooter {
   width: 100%;
 }
 
-/* line 230, ../sass/_tables.scss */
+/* line 240, ../sass/_tables.scss */
 .log-container {
   margin-top: 20px;
 }
-/* line 234, ../sass/_tables.scss */
+/* line 244, ../sass/_tables.scss */
 .log-container table thead {
   background: #f3f6f9;
   height: 40px;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 238, ../sass/_tables.scss */
+/* line 248, ../sass/_tables.scss */
 .log-container table thead th {
   height: 100%;
   border-right: 1px solid #e4e9f0;
@@ -1712,13 +1717,13 @@ html .clearFooter, body .clearFooter {
   padding: 10px;
   font-weight: bold;
 }
-/* line 247, ../sass/_tables.scss */
+/* line 257, ../sass/_tables.scss */
 .log-container table thead th a {
   color: #585858;
 }
 
 @media (max-width: 767px) {
-  /* line 259, ../sass/_tables.scss */
+  /* line 269, ../sass/_tables.scss */
   .details-container table tr td {
     width: 50%;
   }
