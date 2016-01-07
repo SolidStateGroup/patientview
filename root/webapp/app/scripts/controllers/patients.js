@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 // new conversation modal instance controller
 var NewPatientConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'ConversationUser',
     'UserService', 'ConversationService', 'UtilService',
@@ -542,12 +540,28 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.initFinished = false;
     $scope.selectedGroup = [];
 
+    $scope.canAddDiagnosis = function () {
+        // only Cardiol specialty
+        if ($scope.editUser) {
+            for (var i=0; i<$scope.editUser.groupRoles.length; i++) {
+                if ($scope.editUser.groupRoles[i].group.code === 'Cardiol') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
     $scope.addDiagnosis = function (userId, selectedDiagnosis) {
-        DiagnosisService.add(userId, selectedDiagnosis.code).then(function() {
-            alert('Added diagnosis with description "' + selectedDiagnosis.description + '"');
-        }, function() {
-            alert('Failed to add diagnosis with description "' + selectedDiagnosis.description + '"');
-        })
+        if (selectedDiagnosis !== undefined && selectedDiagnosis) {
+            var diag = JSON.parse(selectedDiagnosis);
+            DiagnosisService.add(userId, diag.code).then(function () {
+                $scope.getUser($scope.editUser);
+            }, function () {
+                alert('Failed to add ' + diag.description + ' diagnosis with code "' + diag.code + '"');
+            })
+        }
     };
 
     // delete user
@@ -628,6 +642,76 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }, function() {
             alert("Error retrieving users");
             delete $scope.loading;
+        });
+    };
+
+    $scope.getUser = function(openedUser) {
+        UserService.get(openedUser.id).then(function (user) {
+
+            $scope.editing = true;
+            user.roles = $scope.allowedRoles;
+
+            // create list of available features (all - users existing features)
+            user.availableFeatures = _.clone($scope.allFeatures);
+            if (user.userFeatures) {
+                for (var j = 0; j < user.userFeatures.length; j++) {
+                    for (var k = 0; k < user.availableFeatures.length; k++) {
+                        if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
+                            user.availableFeatures.splice(k, 1);
+                        }
+                    }
+                }
+            } else {
+                user.userFeatures = [];
+            }
+
+            // set date of birth dropdowns
+            if (user.dateOfBirth != null) {
+                user.selectedYear = user.dateOfBirth.split('-')[0].toString();
+                user.selectedMonth = user.dateOfBirth.split('-')[1].toString();
+                user.selectedDay = user.dateOfBirth.split('-')[2].toString();
+            } else {
+                user.selectedYear = '';
+                user.selectedMonth = '';
+                user.selectedDay = '';
+            }
+
+            // set the user being edited to a clone of the existing user (so only updated in UI on save)
+            $scope.editUser = _.clone(user);
+
+            // set role to first
+            $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
+            // set latest staff entered diagnosis if present
+            if ($scope.canAddDiagnosis()) {
+                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                    if (conditions.length) {
+                        var latest = conditions[0];
+                        for (var i = 0; i < conditions.length; i++) {
+                            if (conditions[i].date > latest.date) {
+                                latest = conditions[i];
+                            }
+                        }
+                        if (latest.status === 'confirmed') {
+                            $scope.editUser.staffEnteredDiagnosis = latest;
+                        }
+                    }
+
+                    $timeout(function() {
+                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                            sortField: 'text'
+                        });
+                    });
+                }, function () {
+                    alert('Error retrieving staff entered condition information');
+                });
+            }
+
+            openedUser.editLoading = false;
+        }, function(failureResult) {
+            openedUser.showEdit = false;
+            openedUser.editLoading = false;
+            alert('Cannot open patient: ' + failureResult.data);
         });
     };
 
@@ -718,7 +802,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     });
                 }
             });
-
         }
 
         // get patient type roles
@@ -849,61 +932,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             openedUser.showEdit = true;
             openedUser.editLoading = true;
 
-            // set latest staff entered diagnosis if present
-            /*DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
-                if (conditions.length) {
-                    var latest = conditions[0];
-                    for (var i=0; i<conditions.length; i++) {
-                        //console.log(conditions[i]);
-                    }
-                }
-            }, function() {
-                alert('Error retrieving staff entered condition information');
-            });*/
-
             // now using lightweight group list, do GET on id to get full group and populate editGroup
-            UserService.get(openedUser.id).then(function (user) {
-
-                $scope.editing = true;
-                user.roles = $scope.allowedRoles;
-
-                // create list of available features (all - users existing features)
-                user.availableFeatures = _.clone($scope.allFeatures);
-                if (user.userFeatures) {
-                    for (var j = 0; j < user.userFeatures.length; j++) {
-                        for (var k = 0; k < user.availableFeatures.length; k++) {
-                            if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
-                                user.availableFeatures.splice(k, 1);
-                            }
-                        }
-                    }
-                } else {
-                    user.userFeatures = [];
-                }
-
-                // set date of birth dropdowns
-                if (user.dateOfBirth != null) {
-                    user.selectedYear = user.dateOfBirth.split('-')[0].toString();
-                    user.selectedMonth = user.dateOfBirth.split('-')[1].toString();
-                    user.selectedDay = user.dateOfBirth.split('-')[2].toString();
-                } else {
-                    user.selectedYear = '';
-                    user.selectedMonth = '';
-                    user.selectedDay = '';
-                }
-
-                // set the user being edited to a clone of the existing user (so only updated in UI on save)
-                $scope.editUser = _.clone(user);
-
-                // set role to first
-                $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
-
-                openedUser.editLoading = false;
-            }, function(failureResult) {
-                openedUser.showEdit = false;
-                openedUser.editLoading = false;
-                alert('Cannot open patient: ' + failureResult.data);
-            });
+            $scope.getUser(openedUser)
         }
     };
 
@@ -1058,6 +1088,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.selectedGroup = newSelectedGroupList;
         $scope.currentPage = 0;
         $scope.getItems();
+    };
+
+    $scope.removeDiagnosis = function () {
+        DiagnosisService.removeStaffEntered($scope.editUser.id).then(function() {
+            $scope.getUser($scope.editUser);
+        }, function() {
+            alert('Failed to remove diagnosis.');
+        })
     };
 
     $scope.removeSelectedGroup = function (group) {

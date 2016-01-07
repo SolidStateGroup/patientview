@@ -29,20 +29,19 @@ public interface ConditionService {
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
 
     /**
-     * Get staff entered conditions for a patient if present
+     * Get staff entered Conditions for a patient if present
      * @param userId Long User ID of patient to get staff entered Conditions for
      * @return List of staff entered Conditions
      * @throws FhirResourceException
      * @throws ResourceForbiddenException
      * @throws ResourceNotFoundException
      */
-    List<Condition> getStaffEntered(Long userId)
+    List<FhirCondition> getStaffEntered(Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
     // used by migration
     void addCondition(FhirCondition fhirCondition, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
-
 
     /**
      * Add a condition for another user of type DIAGNOSIS_STAFF_ENTERED, when staff users enter diagnosis for patients
@@ -54,4 +53,12 @@ public interface ConditionService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void staffAddCondition(Long patientUserId, String code)
             throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Set the status of all a User's staff entered Conditions to "refuted", equivalent to deleting
+     * @param patientUserId User ID of user to set staff entered Conditions status to "refuted"
+     * @throws Exception
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void staffRemoveCondition(Long patientUserId) throws Exception;
 }

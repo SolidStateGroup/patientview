@@ -1,6 +1,33 @@
+<style>
+    .result-cluster-name{
+        color: #00adc6;
+    }
+    .row.inline-row .form-control.input-value {
+        margin-right: 5px;
+    }
+    .row.inline-row, .enter-results-row {
+        margin-bottom: 15px;
+    }
+    .date-input {
+        margin-right: 5px;
+    }
+    .instructions {
+        font-weight: normal;
+    }
+</style>
+
 <div data-ng-show="!loading">
     <h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h1>
 
+    <div class="row">
+        <div class="col-md-12">
+            <p>You can enter your own results and these will appear in the same places as those sent to
+                PatientView by your unit.<br/>
+                <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Entering_your_own_results" target="_blank">Explain how to do this.</a>
+            </p>
+
+        </div>
+    </div>
     <div class="content-panel" data-ng-show="resultClusters.length && !loading">
         <div class="content-inner">
 
@@ -9,8 +36,9 @@
             <!-- patient result entry form -->
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Step 1: Select the cluster of results you wish to enter and click Add
-                    <br/>For multiple results click Add multiple times</h4>
+                    <h4>Step 1:</h4>
+                    <p class="instructions">Select the cluster of results you wish to enter and click "Add"
+                    <br/>For multiple results click "Add" multiple times</p>
                 </div>
             </div>
             <div class="row">
@@ -24,22 +52,25 @@
                 </div>
             </div>
 
-            <div class="row" ng-show="userResultClusters.length">
+            <div class="row" data-ng-show="userResultClusters.length">
+                <hr/>
                 <div class="col-md-12">
-                    <h4>Step 2: Enter result(s) along with the date/time of each result.
-                        <br/>Not all values need to be entered if they aren't available.</h4>
+                    <h4>Step 2:</h4>
+                    <p class="instructions">Enter result(s) along with the date/time of each result.
+                        Not all values need to be entered if they aren't available.</p>
                 </div>
             </div>
 
             <div data-ng-repeat="userResultCluster in userResultClusters">
+                <hr/>
                 <div class="row">
                     <div class="col-md-12">
-                        <h5>{{userResultCluster.resultCluster.name}} &nbsp;
-                            <a href="" data-ng-click="removeUserResultCluster(userResultCluster)" class="btn negative">Remove</a>
-                        </h5>
+                        <h4>Now Entering: &nbsp;<span class="result-cluster-name">{{userResultCluster.resultCluster.name}}</span>
+                        <a href="" data-ng-click="removeUserResultCluster(userResultCluster)" class="btn negative pull-right">Remove this result</a>
+                        </h4>
                     </div>
                 </div>
-                <div class="row inline-row">
+                <div class="row inline-row enter-results-row">
                     <div class="col-md-12">
                         <span class="inline-span"> Date of result(s): &nbsp;</span>
                         <select class="form-control date-input" data-ng-model="userResultCluster.day"
@@ -60,7 +91,7 @@
                     </select>
                     </div>
                 </div>
-                <div class="row inline-row">
+                <div class="row inline-row enter-results-row">
                     <div class="col-md-12">
                         <span data-ng-repeat="clusterObservation in userResultCluster.resultCluster.resultClusterObservationHeadings" class="results-enter">
                             <span>{{getObservationHeadingPlaceholder(clusterObservation.observationHeading)}}: </span>
@@ -69,29 +100,33 @@
                         </span>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row enter-results-row">
                     <div class="col-md-12">
                         <span>Comments:</span>
                         <input type="text" data-ng-model="userResultCluster.comments" class="form-control input-comments"/>
                     </div>
                 </div>
             </div>
-            <br/>
-            <div class="row" ng-show="!userDataValid()">
+
+            <div class="row" data-ng-show="!userDataValid()">
+                <hr/>
                 <div class="col-md-12">
-                    <h4>Please make sure you have entered a correct date and at least one result for each set of results</h4>
+                    <h4 class="result-cluster-name">Please make sure you have entered a correct date and at least one result for each set of results</h4>
                 </div>
             </div>
 
-            <div class="row" ng-show="userResultClusters.length">
+            <div class="row" data-ng-show="userResultClusters.length">
                 <div class="col-md-12">
-                    <h4>Step 3: Once you have finished adding your results, you must click Save to submit your results
-                        or Cancel to discard them.</h4>
+                    <h4>Step 3:</h4>
+                    <p class="instructions">Once you have finished adding your results, you must click Save to submit your results
+                        or Cancel to discard them.</p>
                 </div>
+            </div>
+
+            <div class="row" data-ng-show="userResultClusters.length">
                 <div class="col-md-12">
                     <a href="" data-ng-click="save()" class="btn blue" data-ng-disabled="!userDataValid()">Save</a> &nbsp;
                     <a href="" data-ng-click="cancel()" class="btn negative">Cancel</a>
-
                 </div>
             </div>
 

@@ -389,6 +389,14 @@ and (min-width : 768px) and (max-width:1023px) {
                 }
             }
         }
+
+        .mobile-list{
+            padding-right:10px;
+        }
+    }
+
+    .navbar-header .temp-mobile-nav ul li.help-link{
+        right:85px;
     }
 
     .nav-account{

@@ -1,0 +1,87 @@
+<patientview>
+    <sequence>01</sequence>
+    <dateofreport>2015-04-14T12:00:00</dateofreport>
+    <flag>Follow-up-report</flag>
+    <centredetails>
+        <centrecode>RQR00</centrecode>
+        <centrename>Leeds - St James's Hospital</centrename>
+        <centreaddress1>Renal Unit</centreaddress1>
+        <centreaddress2>Beckett Street</centreaddress2>
+        <centreaddress3>Leeds</centreaddress3>
+        <centrepostcode>LS9 7TF</centrepostcode>
+        <centretelephone>01234 567890</centretelephone>
+    </centredetails>
+    <gpdetails>
+        <gpname>Dr Geraint Peer</gpname>
+        <gpaddress1>Sometown Medical Practice</gpaddress1>
+        <gpaddress2>456 Road</gpaddress2>
+        <gpaddress3>SometownLS9 7TF</gpaddress3>
+        <gppostcode>AB2 3EF</gppostcode>
+    </gpdetails>
+    <patient>
+        <personaldetails>
+            <surname>AtlantisHighRiskCDK1</surname>
+            <forename>AtlantisHighRiskCDK1</forename>
+            <dateofbirth>1998-04-16</dateofbirth>
+            <sex>Male</sex>
+            <nhsno>5556667778</nhsno>
+            <address1>123 street</address1>
+            <address2>Sometown</address2>
+            <postcode>AB1 2CD</postcode>
+            <telephone1>1234 567890</telephone1>
+            <mobile>09876 543210</mobile>
+        </personaldetails>
+        <testdetails>
+            <test>
+                <testname>BP sys</testname>
+                <testcode>bpsys</testcode>
+                <units>mm mg</units>
+                <daterange start="2015-04-03" stop="2015-04-04"/>
+                <result>
+                    <datestamp>2015-04-03T10:01:00</datestamp>
+                    <value>144</value>
+                </result>
+            </test>
+            <test>
+                <testname>BP dia</testname>
+                <testcode>bpdia</testcode>
+                <units>mm mg</units>
+                <daterange start="2015-04-04" stop="2015-04-05"/>
+                <result>
+                    <datestamp>2015-04-04T11:02:00</datestamp>
+                    <value>75</value>
+                </result>
+            </test>
+            <test>
+                <testname>eGFR</testname>
+                <testcode>egfr</testcode>
+                <units>ml/min/1.73m^2</units>
+                <daterange start="2015-04-05" stop="2015-04-06"/>
+                <result>
+                    <datestamp>2015-04-05T12:03:00</datestamp>
+                    <value>43</value>
+                </result>
+            </test>
+            <test>
+                <testname>ACR</testname>
+                <testcode>acr</testcode>
+                <units>mg/mmol</units>
+                <daterange start="2015-04-10" stop="2015-04-11"/>
+                <result>
+                    <datestamp>2015-04-10T21:11:00</datestamp>
+                    <value>22</value>
+                </result>
+            </test>
+            <test>
+                <testname>HbA1c</testname>
+                <testcode>hba1c</testcode>
+                <units>%</units>
+                <daterange start="2015-04-11" stop="2015-04-12"/>
+                <result>
+                    <datestamp>2015-04-11T22:12:00</datestamp>
+                    <value>4.9</value>
+                </result>
+            </test>
+        </testdetails>
+    </patient>
+</patientview>

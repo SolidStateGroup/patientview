@@ -1,3 +1,11 @@
+<style>
+    .content-panel {
+        overflow: visible!important;
+    }
+    .diagnosis-staff {
+        margin-bottom: 10px;
+    }
+</style>
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
         <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
@@ -152,6 +160,45 @@
                 <div class="pull-right col-sm-2"><button type="button" class="btn btn-primary pull-right identifier-add-button" data-ng-click="addIdentifier(userFormNew, editUser, newIdentifier)" data-ng-disabled="!(newIdentifier.identifier && newIdentifier.identifierType)">Add</button></div>
                 <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="Identifier" name="newIdentifier" data-ng-model="newIdentifier.identifier"></div>
                 <div class="col-sm-5"><select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType" data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- condition information (diagnosis) if in heart failure -->
+<div class="row" data-ng-show="canAddDiagnosis()">
+    <hr/>
+    <div class="col-md-12">
+        <label class="control-label">Condition Information</label>
+        <p>Please enter information related to the patient's condition below. This is necessary when the data is not sent automatically from the unit to PatientView.</p>
+        <div class="row diagnosis-staff">
+            <div class="col-md-2">
+                Current Diagnosis:
+            </div>
+            <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
+                <strong>{{editUser.staffEnteredDiagnosis.description}} ({{editUser.staffEnteredDiagnosis.code}})</strong>
+                <a href="" data-ng-click="removeDiagnosis()">(remove)</a>
+            </div>
+            <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
+                <strong>No diagnosis entered</strong>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                Assign Diagnosis:
+            </div>
+            <div class="col-md-8">
+                <!-- must be regular repeat for selectize -->
+                <select class="demo-default" id="select-diagnosis" placeholder="Select a diagnosis..." data-ng-model="selectedDiagnosis">
+                    <option value="">Select a diagnosis...</option>
+                    <option data-ng-repeat="diagnosis in diagnosisCodes | orderBy:'description'" value="{{diagnosis}}"
+                            data-ng-selected="{{selectedDiagnosis == diagnosis}}">
+                        {{diagnosis.description}} ({{diagnosis.code}})
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(selectedDiagnosis)">Set Diagnosis</button>
             </div>
         </div>
     </div>

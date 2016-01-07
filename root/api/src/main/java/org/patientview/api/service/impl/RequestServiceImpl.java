@@ -161,8 +161,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                                     requestRepository.save(request);
                                     count++;
                                 }
-                            }
-                            else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
+                            } else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
                                 // forgot login, so check if user has logged in since request created
                                 if ((user.getLastLogin() != null
                                         && user.getLastLogin().after(request.getCreated()))

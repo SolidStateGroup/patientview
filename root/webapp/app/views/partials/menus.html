@@ -1,21 +1,3 @@
-<!-- todo: move to main CSS -->
-<style>
-    .admin-header {
-        padding-left: 210px;
-        padding-top: 10px;
-        color: #940012;
-    }
-    .label-request {
-        margin-left: 10px;
-        position: relative;
-        top: -2px;
-    }
-    .user-header-picture {
-        max-height: 40px;
-        padding-right:10px;
-    }
-</style>
-
 <div class="alert alert-danger" id="timeout" data-ng-show="authToken">
     <p align="center">YOU ARE ABOUT TO BE LOGGED OUT FOR INACTIVITY</p>
     <p align="center">Please <a href="" data-ng-click="resetTimeoutTimers()">CLICK HERE</a> to stay logged in.</p>
@@ -28,7 +10,7 @@
         
 <div data-ng-show="previousAuthToken && !switchingUser" class="container" data-ng-cloak>
     <div class="back-to-admin clearfix">
-        <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> Back to Admin Area</a>
+        <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> <span class="hidden-xs">Back to Admin Area</span></a>
         <p class="admin-header">You are viewing as a patient. Caution with sending messages and entering results.</p>
     </div>
 </div>
@@ -39,7 +21,7 @@
             <a data-ng-hide="!loggedInUser" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
             <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
-                <ul class="unstyled" data-ng-hide="!loggedInUser">
+                <ul class="unstyled mobile-list" data-ng-hide="!loggedInUser">
                     <li class="help-link">
                         <a href="/#/help">
                             <i class="icon-help"></i>

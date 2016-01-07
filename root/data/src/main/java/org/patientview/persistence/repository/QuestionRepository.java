@@ -1,7 +1,10 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.enums.QuestionTypes;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,4 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRED)
 public interface QuestionRepository extends CrudRepository<Question, Long> {
 
+    @Query("SELECT q FROM Question q WHERE q.type = :questionType")
+    public Iterable<Question> findByType(@Param("questionType") QuestionTypes type);
 }

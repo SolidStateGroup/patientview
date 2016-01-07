@@ -6,7 +6,9 @@ package org.patientview.persistence.model.enums;
  */
 public enum QuestionElementTypes {
     SINGLE_SELECT("Single Select"),
-    SINGLE_SELECT_RANGE("Single Select Range");
+    SINGLE_SELECT_RANGE("Single Select Range"),
+    TEXT("Text"),
+    TEXT_NUMERIC("Text (numeric)");
 
     private String name;
     QuestionElementTypes(String name) { this.name = name; }

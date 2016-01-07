@@ -48,16 +48,6 @@
                 <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes' && currentSpecialty.code !== 'IBD' && currentSpecialty.code !== 'Cardiol'">
                     <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
                 </div>
-                <div class="panel panel-default" data-ng-show="currentSpecialty.links">
-                    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
-                    <div class="panel-body">
-                        <ul>
-                            <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
-                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
             <div data-ng-show="!currentSpecialty">
                 <p>We have not yet received records from any of your units.</p>

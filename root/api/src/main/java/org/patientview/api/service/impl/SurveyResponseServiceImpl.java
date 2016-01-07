@@ -183,6 +183,11 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(
                 new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+        } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE)) {
+            SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
+            Integer score = calculateScore(newSurveyResponse, type);
+            newSurveyResponse.getSurveyResponseScores().add(
+                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
         } else {
             newSurveyResponse.getSurveyResponseScores().add(
                 new SurveyResponseScore(newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN, 0, ScoreSeverity.UNKNOWN));
@@ -197,7 +202,8 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
         // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
         if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)
+                || survey.getType().equals(SurveyTypes.IBD_FATIGUE)) {
 
             // check if score warrants an alert sending
             boolean sendAlerts = false;
@@ -266,7 +272,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             // patient details and score
                             Date now = new Date();
                             Conversation conversation = new Conversation();
-                            conversation.setTitle("Poor Symptom Score: " + user.getUsername());
+                            conversation.setTitle("Poor " + survey.getType().getName() + ": " + user.getUsername());
                             conversation.setType(ConversationTypes.MESSAGE);
                             conversation.setCreator(notificationUser);
                             conversation.setCreated(now);
@@ -301,7 +307,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             message.setType(MessageTypes.MESSAGE);
 
                             StringBuilder msg = new StringBuilder();
-                            msg.append("A poor symptom score has been entered by a patient with details:<br/>");
+                            msg.append("An alert has been triggered by a poor score with details:<br/>");
                             msg.append("<br/>Name: ");
                             msg.append(user.getName());
                             msg.append("<br/>Username: ");
@@ -357,12 +363,15 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                                 Email email = new Email();
                                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));
                                 email.setSenderName(properties.getProperty("smtp.sender.name"));
-                                email.setSubject("PatientView - Poor Symptom Score Recorded");
+                                email.setSubject("PatientView - " + survey.getType().getName() + " Alert Recorded");
                                 email.setRecipients(new String[]{staffUser.getEmail()});
 
                                 email.setBody("Dear " + staffUser.getName()
-                                        + ", <br/><br/>A patient has recorded a poor symptom score on <a href=\""
-                                        + properties.getProperty("site.url") + "\">PatientView</a>"
+                                        + ", <br/><br/>A patient has recorded a poor "
+                                        + survey.getType().getName()
+                                        + "  on <a href=\""
+                                        + properties.getProperty("site.url")
+                                        + "\">PatientView</a>"
                                         + "<br/><br/>Please log in to view a message containing more details.<br/>");
 
                                 // try and send but ignore if exception and log
@@ -495,6 +504,14 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP);
             }
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
+            // section 1 & 2
+            for (QuestionTypes questionType : QuestionTypes.values()) {
+                if ((questionType.toString().contains("IBD_FATIGUE_I") || questionType.toString().contains("IBD_DAS"))
+                        && questionTypeScoreMap.get(questionType) != null) {
+                    score += questionTypeScoreMap.get(questionType);
+                }
+            }
         }
 
         return score;
@@ -518,7 +535,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     return ScoreSeverity.HIGH;
                 } else if (score >= 4) {
                     return ScoreSeverity.MEDIUM;
-                } else if (score < 8) {
+                } else if (score < 4) {
                     return ScoreSeverity.LOW;
                 }
             }
@@ -530,6 +547,16 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     return ScoreSeverity.MEDIUM;
                 } else if (score <= 8) {
                     return ScoreSeverity.HIGH;
+                }
+            }
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
+            if (score != null) {
+                if (score >= 80) {
+                    return ScoreSeverity.HIGH;
+                } else if (score >= 40) {
+                    return ScoreSeverity.MEDIUM;
+                } else if (score < 40) {
+                    return ScoreSeverity.LOW;
                 }
             }
         }

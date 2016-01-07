@@ -1,4 +1,8 @@
-
+<style>
+    .asserter {
+        font-weight: normal;
+    }
+</style>
 <div data-ng-show="!patientDetails.length">
     <br/>
     <p>Your conditions have not yet been added to PatientView by the {{currentSpecialty.name}} specialty.</p>
@@ -26,7 +30,10 @@
                     <tbody>
                     <tr><td colspan="2"><h4>Condition Information</h4></td></tr>
                     <tr>
-                        <td class="forced-width">Diagnosis</td>
+                        <td class="forced-width">
+                            Diagnosis
+                            <span data-ng-if="staffEnteredDiagnosis"> (from your unit)</span>
+                        </td>
                         <td>
                             <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
                                 <dt><h5>{{code.description}}</h5></dt>
@@ -34,6 +41,24 @@
                                     <span data-ng-repeat="link in code.links | orderBy:'displayOrder'">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                     </span>
+                                </dd>
+                            </dl>
+                        </td>
+                    </tr>
+                    <tr data-ng-if="staffEnteredDiagnosis">
+                        <td class="forced-width">
+                            Diagnosis (PatientView entered)
+                        </td>
+                        <td>
+                            <dl class="conditions-link-list unstyled">
+                                <dt>
+                                <h5>{{staffEnteredDiagnosis.description}}</h5>
+                                <span class="light-text asserter">Set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}}</span>
+                                </dt>
+                                <dd>
+                            <span data-ng-repeat="link in staffEnteredDiagnosis.links | orderBy:'displayOrder'">
+                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                            </span>
                                 </dd>
                             </dl>
                         </td>
@@ -154,5 +179,16 @@
                 </table>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="panel panel-default" data-ng-show="currentSpecialty.links">
+    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
+    <div class="panel-body">
+        <ul>
+            <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
+                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+            </li>
+        </ul>
     </div>
 </div>

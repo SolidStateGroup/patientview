@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * RESTful interface for patient letters, stored in FHIR and imported by multiple Groups.
+ * RESTful interface for exporting data as binary files
  * <p/>
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
@@ -58,8 +58,7 @@ public class ExportController extends BaseController<ExportController> {
     @ResponseBody
     public HttpEntity<byte[]> downloadLetters(@PathVariable("userId") Long userId,
                                               @PathVariable("fromDate") String fromDate,
-                                              @PathVariable("toDate") String toDate
-    )
+                                              @PathVariable("toDate") String toDate)
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadLetters(userId, fromDate, toDate);
     }
@@ -76,11 +75,22 @@ public class ExportController extends BaseController<ExportController> {
     @ResponseBody
     public HttpEntity<byte[]> downloadMedicines(@PathVariable("userId") Long userId,
                                                 @PathVariable("fromDate") String fromDate,
-                                                @PathVariable("toDate") String toDate
-    )
+                                                @PathVariable("toDate") String toDate)
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadMedicines(userId, fromDate, toDate);
     }
 
-
+    /**
+     * Produce byte array (CSV file) of survey responses based on user ID and survey type
+     * @param userId ID of user to download survey responses for
+     * @param type String of type SurveyTypes
+     * @return byte array CSV file containing responses
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/export/survey/{type}/download", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadSurveyResponses(@PathVariable("userId") Long userId,
+            @PathVariable("type") String type) throws ResourceNotFoundException {
+        return exportService.downloadSurveyResponses(userId, type);
+    }
 }

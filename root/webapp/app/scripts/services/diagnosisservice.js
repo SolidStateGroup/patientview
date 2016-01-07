@@ -21,6 +21,16 @@ angular.module('patientviewApp').factory('DiagnosisService', ['$q', 'Restangular
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        removeStaffEntered: function (userId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/diagnosis/staffentered
+            Restangular.one('user', userId).one('diagnosis/staffentered').remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

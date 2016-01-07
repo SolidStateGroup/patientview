@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 
 /**
@@ -71,6 +72,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleResourceInvalidException(ResourceInvalidException e) {
         LOG.info("Resource invalid");
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleIoException(Exception e) {
+        LOG.error("IO exception: ", e.getMessage());
         return e.getMessage();
     }
 

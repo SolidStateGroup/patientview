@@ -197,7 +197,8 @@
         </div>
     </div>
 </div>
-<div class="row hidden">
+<!-- condition information (diagnosis) if in heart failure -->
+<div class="row" data-ng-if="canAddDiagnosis()">
     <hr/>
     <div class="col-md-12">
         <label class="control-label">Condition Information</label>
@@ -206,8 +207,14 @@
             <div class="col-md-2">
                 Current Diagnosis:
             </div>
-            <div class="col-md-10">
-                <strong>SomeDiagnosis</strong> &nbsp;&nbsp;&nbsp; (set 12 Mar 2015 by globaladmin globaladmin)
+            <div class="col-md-10" data-ng-if="editUser.staffEnteredDiagnosis">
+                <strong>{{editUser.staffEnteredDiagnosis.description}} ({{editUser.staffEnteredDiagnosis.code}})</strong>
+                &nbsp;&nbsp;&nbsp; set {{editUser.staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}}
+                by {{editUser.staffEnteredDiagnosis.asserter}}
+                <a href="" data-ng-click="removeDiagnosis()">(remove)</a>
+            </div>
+            <div class="col-md-10" data-ng-if="!editUser.staffEnteredDiagnosis">
+                <strong>No diagnosis entered</strong>
             </div>
         </div>
         <div class="row">
@@ -215,9 +222,14 @@
                 Assign Diagnosis:
             </div>
             <div class="col-md-9">
-                <select data-ng-model="selectedDiagnosis"
-                        data-ng-options="diagnosis as diagnosis.description for diagnosis in diagnosisCodes | orderBy:'description'"
-                        class="form-control"></select>
+                <!-- must be regular repeat for selectize -->
+                <select class="demo-default" id="select-diagnosis-{{editUser.id}}" placeholder="Select a diagnosis..." data-ng-model="selectedDiagnosis">
+                    <option value="">Select a diagnosis...</option>
+                    <option data-ng-repeat="diagnosis in diagnosisCodes | orderBy:'description'" value="{{diagnosis}}"
+                            data-ng-selected="{{selectedDiagnosis == diagnosis}}">
+                        {{diagnosis.description}} ({{diagnosis.code}})
+                    </option>
+                </select>
             </div>
             <div class="col-md-1">
                 <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(editUser.id, selectedDiagnosis)">Save</button>

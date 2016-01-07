@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.patientview.api.builder.CSVDocumentBuilder;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
@@ -10,25 +11,41 @@ import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.Survey;
+import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
+import org.patientview.persistence.model.enums.QuestionTypes;
+import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.QuestionRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 /**
@@ -40,13 +57,6 @@ import java.util.TreeMap;
 @Service
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
-
-    @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private ObservationHeadingService observationHeadingService;
-
     @Inject
     private LetterService letterService;
 
@@ -54,8 +64,21 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private MedicationService medicationService;
 
     @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private QuestionRepository questionRepository;
+
+    @Inject
+    private SurveyResponseRepository surveyResponseRepository;
+
+    @Inject
     private UserRepository userRepository;
 
+    private static final int YEARS_RANGE = 999;
 
     @Override
     public HttpEntity<byte[]> downloadResults(Long userId,
@@ -214,8 +237,185 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
     }
 
+    @Override
+    public HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException {
+        if (!Util.isInEnum(type, SurveyTypes.class)) {
+            throw new ResourceNotFoundException("Survey type not found");
+        }
+
+        List<SurveyResponse> surveyResponses
+                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), SurveyTypes.valueOf(type));
+
+        if (CollectionUtils.isEmpty(surveyResponses)) {
+            throw new ResourceNotFoundException("No survey responses found");
+        }
+
+        // survey specific output with dates from and to based on survey response dates
+        Date fromDate = new DateTime().plusYears(YEARS_RANGE).toDate();
+        Date toDate = new DateTime().minusYears(YEARS_RANGE).toDate();
+        Survey survey = surveyResponses.get(0).getSurvey();
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+
+        List<QuestionTypes> questionTypes = new ArrayList<>();
+        boolean includeScore = false;
+        boolean includeSeverity = false;
+
+        // question types
+        switch (survey.getType()) {
+            case IBD_CONTROL:
+                includeScore = true;
+                break;
+            case CROHNS_SYMPTOM_SCORE:
+                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
+                questionTypes.add(QuestionTypes.OPEN_BOWELS);
+                questionTypes.add(QuestionTypes.FEELING);
+                questionTypes.add(QuestionTypes.COMPLICATION);
+                questionTypes.add(QuestionTypes.MASS_IN_TUMMY);
+                includeScore = true;
+                includeSeverity = true;
+                break;
+            case COLITIS_SYMPTOM_SCORE:
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
+                questionTypes.add(QuestionTypes.TOILET_TIMING);
+                questionTypes.add(QuestionTypes.PRESENT_BLOOD);
+                questionTypes.add(QuestionTypes.FEELING);
+                questionTypes.add(QuestionTypes.COMPLICATION);
+                includeScore = true;
+                includeSeverity = true;
+                break;
+            case IBD_FATIGUE:
+                // section 1
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_I")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 2
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_DAS")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                // section 3
+                for (QuestionTypes questionType : QuestionTypes.values()) {
+                    if (questionType.toString().contains("IBD_FATIGUE_EXTRA")) {
+                        questionTypes.add(questionType);
+                    }
+                }
+                includeScore = true;
+                includeSeverity = true;
+                break;
+            default:
+                includeScore = true;
+                includeSeverity = true;
+                break;
+        }
+
+        document.addHeader("Date Taken");
+
+        // set CSV headers
+        for (QuestionTypes questionType : questionTypes) {
+            try {
+                Question question = questionRepository.findByType(questionType).iterator().next();
+                if (StringUtils.isNotEmpty(question.getText())) {
+                    document.addHeader(question.getText());
+                } else {
+                    document.addHeader(question.getType().toString());
+                }
+            } catch (NoSuchElementException | NullPointerException nse) {
+                throw new ResourceNotFoundException("Error retrieving questions");
+            }
+        }
+
+        // set score header if required
+        if (includeScore) {
+            for (SurveyResponseScore score : surveyResponses.get(0).getSurveyResponseScores()) {
+                String header = score.getType().getName() + " Score";
+                if (includeSeverity) {
+                    header += " (severity)";
+                }
+                document.addHeader(header);
+            }
+        }
+
+        // order by date in survey desc
+        Collections.sort(surveyResponses, new Comparator<SurveyResponse>() {
+            @Override
+            public int compare(SurveyResponse s1, SurveyResponse s2) {
+                return s2.getDate().compareTo(s1.getDate());
+            }
+        });
+
+        for (SurveyResponse surveyResponse : surveyResponses) {
+            // create map of specific answers
+            List<QuestionAnswer> answers = surveyResponse.getQuestionAnswers();
+            Map<QuestionTypes, String> answerMap = new HashMap<>();
+
+            for (QuestionAnswer questionAnswer : answers) {
+                // only care about certain questions
+                if (questionTypes.contains(questionAnswer.getQuestion().getType())) {
+                    // if is a select, then get the text of the question option
+                    if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT)) {
+                        answerMap.put(questionAnswer.getQuestion().getType(),
+                                questionAnswer.getQuestionOption().getText());
+                    }
+                    // if is a ranged value then get value
+                    if (questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.SINGLE_SELECT_RANGE)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(
+                            QuestionElementTypes.TEXT_NUMERIC)) {
+                        answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
+                    }
+                }
+            }
+
+            // set from and to dates
+            if (surveyResponse.getDate().before(fromDate)) {
+                fromDate = surveyResponse.getDate();
+            }
+            if (surveyResponse.getDate().after(toDate)) {
+                toDate = surveyResponse.getDate();
+            }
+
+            // create CSV row
+            document.createNewRow();
+            document.resetCurrentPosition();
+
+            // set date column
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(surveyResponse.getDate()));
+
+            // set answer columns
+            for (QuestionTypes questionType : questionTypes) {
+                if (answerMap.containsKey(questionType)) {
+                    document.addValueToNextCell(answerMap.get(questionType));
+                } else {
+                    document.addValueToNextCell("");
+                }
+            }
+
+            if (includeScore) {
+                for (SurveyResponseScore score : surveyResponse.getSurveyResponseScores()) {
+                    String scoreString = score.getScore().toString();
+                    if (includeSeverity) {
+                        scoreString += " (" + score.getSeverity().getName() + ")";
+                    }
+                    document.addValueToNextCell(scoreString);
+                }
+            }
+        }
+
+        return getDownloadContent(survey.getType().toString(),
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")),
+                        userId,
+                        new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
+                        new SimpleDateFormat("dd-MMM-yyyy").format(toDate));
+    }
+
     /**
-     * Transforms a byle array into a download file
+     * Transforms a byte array into a download file
      *
      * @param fileName The name of the file to be downloaded
      * @param content  The file content (i.e. the CSV file)
@@ -227,35 +427,30 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                                                   String fromDate,
                                                   String toDate) {
         FileData fileData = new FileData();
-
         fileData.setType("text-csv");
         fileData.setContent(content);
 
-        if (fileData != null) {
-            User user = userRepository.findOne(userId);
-            Identifier identifier = user.getIdentifiers().iterator().next();
-            if (identifier.getIdentifier() != null) {
-                fileData.setName(String.format("%s-%s-%s-%s.csv",
-                        fileName,
-                        identifier.getIdentifier(),
-                        fromDate.replace("-", ""),
-                        toDate.replace("-", "")));
-            } else {
-                fileData.setName(String.format("%s-%s-%s.csv",
-                        fileName, fromDate, toDate));
-            }
-
-            HttpHeaders header = new HttpHeaders();
-            String[] contentTypeArr = fileData.getType().split("/");
-            if (contentTypeArr.length == 2) {
-                header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
-            }
-            header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
-            header.setContentLength(fileData.getContent().length);
-            return new HttpEntity<>(fileData.getContent(), header);
+        User user = userRepository.findOne(userId);
+        Identifier identifier = user.getIdentifiers().iterator().next();
+        if (identifier.getIdentifier() != null) {
+            fileData.setName(String.format("%s-%s-%s-%s.csv",
+                    fileName,
+                    identifier.getIdentifier(),
+                    fromDate.replace("-", ""),
+                    toDate.replace("-", "")));
+        } else {
+            fileData.setName(String.format("%s-%s-%s.csv",
+                    fileName, fromDate, toDate));
         }
 
-        return null;
+        HttpHeaders header = new HttpHeaders();
+        String[] contentTypeArr = fileData.getType().split("/");
+        if (contentTypeArr.length == 2) {
+            header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
+        }
+        header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
+        header.setContentLength(fileData.getContent().length);
+        return new HttpEntity<>(fileData.getContent(), header);
     }
 
     /**
@@ -284,6 +479,4 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
         return documentString;
     }
-
-
 }

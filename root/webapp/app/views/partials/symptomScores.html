@@ -16,7 +16,9 @@
     .content-panel {
         box-shadow: none;
     }
-
+    .download-all {
+        margin: 10px 10px 10px 0;
+    }
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
@@ -72,6 +74,10 @@
                          <div class="row-item accordion-heading-text" style="color: #428bca;" data-ng-click="openModalSurveyResponseDetail(surveyResponse.id)">View</div>
                      </div>
                 </div>
+            </div>
+            <div class="pull-right download-all">
+                <a href="../api/user/{{loggedInUser.id}}/export/survey/{{surveyType}}/download?token={{authToken}}"
+               class="btn blue ">Download</a>
             </div>
         </aside>
     </div>

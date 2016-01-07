@@ -82,12 +82,14 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyServiceImpl> 
                 allergyIntolerance.setRecorder(Util.createFhirResourceReference(fhirLink.getResourceId()));
             } else {
                 // todo
+                LOG.trace("Mapping non patient info source");
             }
         }
 
         // todo: fhir mapping for confidence level
         if (StringUtils.isNotEmpty(fhirAllergy.getConfidenceLevel())) {
             // todo
+            LOG.trace("Mapping confidence level");
         }
 
         allergyIntolerance.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));

@@ -22,6 +22,9 @@
     .content-panel .content-inner {
         padding: 0 10px 10px 10px;
     }
+    .download-all {
+        margin: 10px 10px 10px 0;
+    }
 </style>
 <div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
@@ -67,14 +70,18 @@
                     </div>
                 </div>
             </div>
+            <div class="pull-right download-all">
+                <a href="../api/user/{{loggedInUser.id}}/export/survey/{{surveyType}}/download?token={{authToken}}"
+                   class="btn blue ">Download</a>
+            </div>
         </aside>
     </div>
 
     <div class="alert-block" data-ng-show="!loading && !surveyResponses">
-        <h5>No Responses Found, you can answer the IBD Control Questionnaire by clicking the "Answer Questions" button</h5>
+        <h5>No Responses Found, you can answer the Disease Control Questionnaire by clicking the "Answer Questions" button</h5>
     </div>
     <div data-ng-show="loading" class="container">
-        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Symptom Scores</h3>
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Disease Control Scores</h3>
         <br/>
     </div>
 </div>

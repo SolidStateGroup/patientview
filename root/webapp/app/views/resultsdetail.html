@@ -1,6 +1,7 @@
 <style>
     .info-link {
         font-size: 16px;
+        color: #00adc6;
     }
 </style>
 <div class="header-select row">
@@ -24,10 +25,10 @@
             <div class="content-panel result-item">
                 <div class="result-header">
                     <a href="" data-ng-click="openObservationHeadingInformation(observationHeading)" class="pull-right">
-                        <span class="info-link pull-right">About</span>
+                        <span class="info-link pull-right">About test</span>
                     </a>
                     <ul class="unstyled info-list">
-                        <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
+                        <li><strong>Showing <span class="result-text">Result:</span></strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
                 <div class="result-value clearfix" data-ng-show="selectedCode !== 'resultcomment'">
@@ -88,7 +89,8 @@
                             data-ng-change="compareResults(compareCode)">
                         <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
                     </select>
-
+                    <br/>
+                    <a data-ng-if="observationHeadings.length && hasBloodPressure()" href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
                 </div>
             </div>
         </div>

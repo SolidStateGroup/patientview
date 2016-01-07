@@ -3,11 +3,11 @@
     <dateofreport>2015-04-14T12:00:00</dateofreport>
     <flag>Follow-up-report</flag>
     <centredetails>
-        <centrecode>RQR00</centrecode>
-        <centrename>Leeds - St James's Hospital</centrename>
+        <centrecode>SNC01</centrecode>
+        <centrename>Aberdeen</centrename>
         <centreaddress1>Renal Unit</centreaddress1>
         <centreaddress2>Beckett Street</centreaddress2>
-        <centreaddress3>Leeds</centreaddress3>
+        <centreaddress3>Basildon</centreaddress3>
         <centrepostcode>LS9 7TF</centrepostcode>
         <centretelephone>01234 567890</centretelephone>
     </centredetails>
@@ -20,11 +20,11 @@
     </gpdetails>
     <patient>
         <personaldetails>
-            <surname>AtlantisHighRiskCDK1</surname>
-            <forename>AtlantisHighRiskCDK1</forename>
-            <dateofbirth>1998-04-16</dateofbirth>
+            <surname>AHHRCKD16</surname>
+            <forename>AHHRCKD16</forename>
+            <dateofbirth>1955-08-17</dateofbirth>
             <sex>Male</sex>
-            <nhsno>5556667778</nhsno>
+            <nhsno>3334254544</nhsno>
             <address1>123 street</address1>
             <address2>Sometown</address2>
             <postcode>AB1 2CD</postcode>
@@ -63,46 +63,6 @@
                 </result>
             </test>
             <test>
-                <testname>Haemoglobin</testname>
-                <testcode>hb</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-06" stop="2015-04-07"/>
-                <result>
-                    <datestamp>2015-04-06T13:04:00</datestamp>
-                    <value>166</value>
-                </result>
-            </test>
-            <test>
-                <testname>Albumin</testname>
-                <testcode>albumin</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-07" stop="2015-04-08"/>
-                <result>
-                    <datestamp>2015-04-07T14:05:00</datestamp>
-                    <value>111</value>
-                </result>
-            </test>
-            <test>
-                <testname>Serum Creatinine</testname>
-                <testcode>creatinine</testcode>
-                <units>umol/l</units>
-                <daterange start="2015-04-08" stop="2015-04-09"/>
-                <result>
-                    <datestamp>2015-04-08T15:06:00</datestamp>
-                    <value>74</value>
-                </result>
-            </test>
-            <test>
-                <testname>eGFR</testname>
-                <testcode>egfr</testcode>
-                <units>ml/min/1.73m^2</units>
-                <daterange start="2015-04-09" stop="2015-04-10"/>
-                <result>
-                    <datestamp>2015-04-09T20:10:00</datestamp>
-                    <value>68</value>
-                </result>
-            </test>
-            <test>
                 <testname>ACR</testname>
                 <testcode>acr</testcode>
                 <units>mg/mmol</units>
@@ -110,6 +70,16 @@
                 <result>
                     <datestamp>2015-04-10T21:11:00</datestamp>
                     <value>22</value>
+                </result>
+            </test>
+            <test>
+                <testname>HbA1c</testname>
+                <testcode>hba1c</testcode>
+                <units>%</units>
+                <daterange start="2015-04-11" stop="2015-04-12"/>
+                <result>
+                    <datestamp>2015-04-11T22:12:00</datestamp>
+                    <value>4.9</value>
                 </result>
             </test>
         </testdetails>

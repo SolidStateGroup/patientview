@@ -20,11 +20,11 @@
     </gpdetails>
     <patient>
         <personaldetails>
-            <surname>AtlantisPV3</surname>
-            <forename>AtlantisPV3</forename>
-            <dateofbirth>1957-01-19</dateofbirth>
+            <surname>AtlantisPV3b</surname>
+            <forename>AtlantisPV3b</forename>
+            <dateofbirth>1945-10-02</dateofbirth>
             <sex>Male</sex>
-            <nhsno>6655443322</nhsno>
+            <nhsno>2434444462</nhsno>
             <address1>123 street</address1>
             <address2>Sometown</address2>
             <postcode>AB1 2CD</postcode>
@@ -50,46 +50,6 @@
                 <result>
                     <datestamp>2015-04-02T11:02:00</datestamp>
                     <value>81</value>
-                </result>
-            </test>
-            <test>
-                <testname>eGFR</testname>
-                <testcode>egfr</testcode>
-                <units>ml/min/1.73m^2</units>
-                <daterange start="2015-04-03" stop="2015-04-04"/>
-                <result>
-                    <datestamp>2015-04-03T12:03:00</datestamp>
-                    <value>66</value>
-                </result>
-            </test>
-            <test>
-                <testname>Haemoglobin</testname>
-                <testcode>hb</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-04" stop="2015-04-05"/>
-                <result>
-                    <datestamp>2015-04-04T13:04:00</datestamp>
-                    <value>136</value>
-                </result>
-            </test>
-            <test>
-                <testname>Albumin</testname>
-                <testcode>albumin</testcode>
-                <units>g/l</units>
-                <daterange start="2015-04-05" stop="2015-04-06"/>
-                <result>
-                    <datestamp>2015-04-05T14:05:00</datestamp>
-                    <value>111</value>
-                </result>
-            </test>
-            <test>
-                <testname>Serum Creatinine</testname>
-                <testcode>creatinine</testcode>
-                <units>umol/l</units>
-                <daterange start="2015-04-06" stop="2015-04-07"/>
-                <result>
-                    <datestamp>2015-04-06T15:06:00</datestamp>
-                    <value>74</value>
                 </result>
             </test>
         </testdetails>

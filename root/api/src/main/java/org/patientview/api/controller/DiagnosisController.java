@@ -1,11 +1,11 @@
 package org.patientview.api.controller;
 
-import org.hl7.fhir.instance.model.Condition;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ConditionService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirCondition;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,9 +45,27 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
         conditionService.staffAddCondition(userId, code);
     }
 
+    /**
+     * Get staff entered Conditions for a patient if present
+     * @param userId Long User ID of patient to get staff entered Conditions for
+     * @return List of staff entered Conditions
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.GET)
-    public ResponseEntity<List<Condition>> getStaffEntered(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirCondition>> getStaffEntered(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         return new ResponseEntity<>(conditionService.getStaffEntered(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Set the status of all a User's staff entered Conditions to "refuted", equivalent to deleting
+     * @param userId User ID of user to set staff entered Conditions status to "refuted"
+     * @throws Exception
+     */
+    @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.DELETE)
+    public void removeStaffEntered(@PathVariable("userId") Long userId) throws Exception {
+        conditionService.staffRemoveCondition(userId);
     }
 }

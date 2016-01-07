@@ -695,6 +695,7 @@ CREATE TABLE PV_Question
   Range_Start_Description          TEXT,
   Range_End_Description          TEXT,
   Help_Link       TEXT,
+  Required        BOOL      NOT NULL,
   PRIMARY KEY (Id)
 );
 
@@ -717,6 +718,20 @@ CREATE TABLE PV_Question_Answer
   Question_Option_Id     BIGINT REFERENCES PV_Question_Option (Id),
   Survey_Response_Id     BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
   Value            TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Food_Diary
+(
+  Id              BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL REFERENCES PV_User (Id),
+  Food            TEXT NOT NULL,
+  Comment         TEXT,
+  Date_Nutrition  TIMESTAMP NOT NULL,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

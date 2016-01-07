@@ -67,6 +67,7 @@ public class ImportControllerTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testFileImport() throws Exception {
         String content = getTestFile();
         assertTrue("The test file is not null", !StringUtils.isEmpty(content));
@@ -164,6 +165,54 @@ public class ImportControllerTest {
         }
     }
 
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_3_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_3/RQR00_01_667788990.xml");
+        files.add("data/xml/CKD_3/RQR00_01_5556667778.xml");
+        files.add("data/xml/CKD_3/RQR00_01_6655443322.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_4_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_4/RQR00_01_5312335683.xml");
+        files.add("data/xml/CKD_4/RQR00_01_6655443322.xml");
+        files.add("data/xml/CKD_4/RQR00_01_7531245791.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_5_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_5/RDDH0_01_3333445667.xml");
+        files.add("data/xml/CKD_5/RDDH0_01_8888777799.xml");
+        files.add("data/xml/CKD_5/RDDH0_01_9574444433.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_6_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_6/SNC01_01_3334254544.xml");
+        files.add("data/xml/CKD_6/SNC01_01_6665262218.xml");
+        files.add("data/xml/CKD_6/SNC01_01_7464644329.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // hfdemo
     @Test
     @Ignore("IntegrationTest")
@@ -231,7 +280,8 @@ public class ImportControllerTest {
 
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
-        String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        //String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
 
         // IBD
@@ -256,9 +306,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

@@ -6,15 +6,18 @@ import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ConditionServiceImpl;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
@@ -31,7 +34,11 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.persistence.util.DataUtils;
 import org.patientview.test.util.TestUtils;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +56,8 @@ import static org.mockito.Mockito.when;
  * Created by jamesr@solidstategroup.com
  * Created on 02/12/2015
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DataUtils.class)
 public class ConditionServiceTest {
 
     @Mock
@@ -84,6 +93,7 @@ public class ConditionServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(DataUtils.class);
     }
 
     @After
@@ -145,7 +155,7 @@ public class ConditionServiceTest {
                 + "WHERE content -> 'subject' ->> 'display' = '"
                 + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
 
-        List<Condition> conditionsList = conditionService.getStaffEntered(patient.getId());
+        List<FhirCondition> conditionsList = conditionService.getStaffEntered(patient.getId());
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"
@@ -392,5 +402,86 @@ public class ConditionServiceTest {
         // required when adding practitioner
         verify(fhirResource, times(1)).createEntity(
                 any(Practitioner.class), eq(ResourceType.Practitioner.name()), eq("practitioner"));
+    }
+
+    @Test
+    public void testStaffRemoveCondition() throws Exception {
+        String code = "00";
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User staffUser = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, staffUser);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staffUser.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(staffUser, groupRoles);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // patient identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        // staff entered results group
+        Group staffEntered = TestUtils.createGroup("staffEntered");
+        staffEntered.setCode(HiddenGroupCodes.STAFF_ENTERED.toString());
+
+        // fhir link
+        FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier);
+        fhirLink.setGroup(staffEntered);
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(fhirLink);
+
+        // returned conditions
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setTextSimple(code);
+        Condition condition = new Condition();
+        condition.setCode(codeableConcept);
+        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(condition);
+
+        // UUID for returned condition
+        UUID uuid = UUID.randomUUID();
+        List<UUID> uuids = new ArrayList<>();
+        uuids.add(uuid);
+
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(staffEntered), eq(identifier)))
+                .thenReturn(fhirLinks);
+        when(groupService.findByCode(eq(HiddenGroupCodes.STAFF_ENTERED.toString()))).thenReturn(staffEntered);
+        when(userService.get(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
+        when(fhirResource.findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
+                + "WHERE content -> 'subject' ->> 'display' = '"
+                + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
+
+        when(fhirResource.getLogicalIdsBySubjectId(
+                eq(ResourceType.Condition.getPath()), eq(fhirLinks.get(0).getResourceId()))).thenReturn(uuids);
+        when(DataUtils.getResource(any(JSONObject.class))).thenReturn(condition);
+
+        // get
+        List<FhirCondition> conditionsList = conditionService.getStaffEntered(patient.getId());
+
+        verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar FROM condition "
+                + "WHERE content -> 'subject' ->> 'display' = '"
+                + fhirLink.getResourceId() + "' "), eq(Condition.class));
+        Assert.assertEquals("There should be 1 condition", 1, conditionsList.size());
+
+        // remove
+        conditionService.staffRemoveCondition(patient.getId());
+        verify(fhirResource, times(1)).getLogicalIdsBySubjectId(
+                eq(ResourceType.Condition.getPath()), eq(fhirLinks.get(0).getResourceId()));
+        verify(fhirResource, times(1)).getResource(eq(uuid), eq(ResourceType.Condition));
+        verify(fhirResource, times(1)).updateEntity(eq(condition), eq(ResourceType.Condition.getPath()),
+                eq(ResourceType.Condition.getPath()), eq(uuid));
     }
 }

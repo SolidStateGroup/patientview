@@ -307,6 +307,20 @@
     }
 }
 
+.admin-header {
+    padding-left: 210px;
+    padding-top: 10px;
+}
+.label-request {
+    margin-left: 10px;
+    position: relative;
+    top: -2px;
+}
+.user-header-picture {
+    max-height: 40px;
+    padding-right:10px;
+}
+
 @media (max-width: $screen-xs-max) {
 
     .header-select{
@@ -351,7 +365,34 @@
                     margin-top:10px;
                 }
             }
+
+            .result-value{
+                float:none;
+                width:auto;
+            }
+
+            .result-comment{
+                width:auto;
+            }
         }
+    }
+
+    .admin-header{
+        padding-left: 60px;
+        padding-top: 0;
+        margin: 0;
+        font-size:12px;
+    }
+
+    .back-to-admin a{
+        width:auto;
+        padding:10px;
+    }
+}
+
+@media (max-width:$screen-xs-max){
+    .result-text{
+        display:none;
     }
 }
 
