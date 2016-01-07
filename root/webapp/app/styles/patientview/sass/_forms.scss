@@ -493,3 +493,15 @@ textarea.form-control{
 .form-control.no-float {
     float:none;
 }
+
+/** Selectize tweaks **/
+
+.optgroup-header {
+    font-weight: bold;
+}
+.selectize-input {
+    height: 40px;
+}
+.selectize-dropdown, .selectize-input, .selectize-input input {
+    font-size: inherit;
+}

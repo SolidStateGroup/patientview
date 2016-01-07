@@ -2273,6 +2273,22 @@ textarea.form-control.article-content {
   float: none;
 }
 
+/** Selectize tweaks **/
+/* line 499, ../sass/_forms.scss */
+.optgroup-header {
+  font-weight: bold;
+}
+
+/* line 502, ../sass/_forms.scss */
+.selectize-input {
+  height: 40px;
+}
+
+/* line 505, ../sass/_forms.scss */
+.selectize-dropdown, .selectize-input, .selectize-input input {
+  font-size: inherit;
+}
+
 /* line 1, ../sass/_lists.scss */
 .aside-actions {
   height: 140px;
@@ -2281,13 +2297,13 @@ textarea.form-control.article-content {
 /* line 7, ../sass/_lists.scss */
 .aside-actions li a {
   width: 70px;
-  height: 70px;
+  height: 75px;
   display: block;
   text-align: center;
   color: #909090;
   font-size: 1.125rem;
   text-decoration: none;
-  padding: 10px 10px;
+  padding: 20px 10px;
   background: #f3f6f9;
 }
 /* line 18, ../sass/_lists.scss */
@@ -2578,7 +2594,7 @@ textarea.form-control.article-content {
 
 /* line 57, ../sass/_messages.scss */
 .message-summary {
-  padding: 20px 20px 0;
+  padding: 15px;
   font-size: 1rem;
 }
 /* line 61, ../sass/_messages.scss */
@@ -2590,11 +2606,17 @@ textarea.form-control.article-content {
   max-width: 84%;
 }
 /* line 68, ../sass/_messages.scss */
+.message-summary .message-title .label-archived {
+  font-size: 11px;
+  position: relative;
+  top: -2px;
+}
+/* line 74, ../sass/_messages.scss */
 .message-summary .message-title a {
   padding-right: 10px;
   width: 94%;
 }
-/* line 73, ../sass/_messages.scss */
+/* line 79, ../sass/_messages.scss */
 .message-summary .message-title .recipient {
   color: #909090;
   font-size: 1.5rem;
@@ -2603,45 +2625,68 @@ textarea.form-control.article-content {
   clear: left;
   margin-bottom: 10px;
 }
-/* line 83, ../sass/_messages.scss */
+/* line 89, ../sass/_messages.scss */
+.message-summary .view-patient {
+  margin-left: 10px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+/* line 95, ../sass/_messages.scss */
 .message-summary .last-message {
   clear: left;
 }
-/* line 85, ../sass/_messages.scss */
+/* line 97, ../sass/_messages.scss */
 .message-summary .last-message h4 {
   color: #368de8;
   font-size: 1.5rem;
   margin-bottom: 0;
 }
-/* line 90, ../sass/_messages.scss */
+/* line 102, ../sass/_messages.scss */
 .message-summary .last-message .message-content {
   color: #353535;
   font-size: 1.5rem;
 }
-/* line 94, ../sass/_messages.scss */
+/* line 106, ../sass/_messages.scss */
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;
 }
+/* line 110, ../sass/_messages.scss */
+.message-summary .last-message .date-stamp ul {
+  margin-bottom: 0;
+  position: relative;
+  bottom: -5px;
+}
+/* line 115, ../sass/_messages.scss */
+.message-summary .last-message .date-stamp ul .archive-link {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+/* line 122, ../sass/_messages.scss */
+.message-summary .last-message .conversation-user-picture {
+  margin-right: 10px;
+  margin-top: 5px;
+  max-height: 50px;
+}
 
-/* line 102, ../sass/_messages.scss */
+/* line 131, ../sass/_messages.scss */
 .message-content > p {
   max-height: 40px;
   overflow: hidden;
 }
 
-/* line 108, ../sass/_messages.scss */
+/* line 137, ../sass/_messages.scss */
 .news-date {
   color: #a8a8a8;
 }
 
-/* line 112, ../sass/_messages.scss */
+/* line 141, ../sass/_messages.scss */
 .news-actions {
   text-align: center;
   margin-bottom: 10px;
 }
 
-/* line 117, ../sass/_messages.scss */
+/* line 146, ../sass/_messages.scss */
 .message-type-badge {
   clear: left;
   background: #00adc6;
@@ -2658,12 +2703,12 @@ textarea.form-control.article-content {
 }
 
 @media (max-width: 767px) {
-  /* line 132, ../sass/_messages.scss */
+  /* line 161, ../sass/_messages.scss */
   .message-summary .message-title {
     width: 80%;
   }
 
-  /* line 135, ../sass/_messages.scss */
+  /* line 164, ../sass/_messages.scss */
   .message-type-badge {
     position: relative;
     top: 0;

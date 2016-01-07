@@ -6,13 +6,13 @@
     li{
         a{
             width:70px;
-            height:70px;
+            height:75px;
             display:block;
             text-align:center;
             color:$messagetab;
             font-size:1.125rem;
             text-decoration:none;
-            padding:10px 10px;
+            padding:20px 10px;
             background:$lowlight;
 
             &.reply{
