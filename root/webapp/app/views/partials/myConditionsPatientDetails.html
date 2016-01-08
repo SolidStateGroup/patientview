@@ -14,6 +14,9 @@
                 <p><strong>{{staffEnteredDiagnosis.description}}</strong>
                     <span class="light-text">&nbsp;&nbsp;&nbsp; (set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}})</span>
                 </p>
+                <span data-ng-repeat="link in staffEnteredDiagnosis.links | orderBy:'displayOrder'">
+                    <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                </span>
             </div>
         </div>
         <br/>
