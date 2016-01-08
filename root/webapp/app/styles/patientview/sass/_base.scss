@@ -256,6 +256,33 @@ hr{
             }
         }
     }
+
+    .group-image {
+        width: 30px;
+        margin-right:5px;
+    }
+}
+
+.specialty-switcher{
+    .btn-group-switcher a{
+        border: 1px solid #dddddd;
+
+        &.active {
+            background: white;
+            color: #585858;
+            border: 1px solid #dddddd;
+            box-shadow: none;
+        }
+
+        &:first-of-type{
+            border-right:0;
+        }
+    }
+
+    .btn-group-switcher div, .btn-group-switcher div:hover {
+        background: #BEDAF7;
+        color: #585858;
+    }
 }
 
 .btn.btn-append {
