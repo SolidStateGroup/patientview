@@ -2279,44 +2279,64 @@ textarea.form-control.article-content {
 }
 
 /* line 475, ../sass/_forms.scss */
+.row.inline-row .form-control.input-value {
+  margin-right: 5px;
+}
+
+/* line 479, ../sass/_forms.scss */
+.row.inline-row, .enter-results-row {
+  margin-bottom: 15px;
+}
+
+/* line 482, ../sass/_forms.scss */
+.date-input {
+  margin-right: 5px;
+}
+
+/* line 485, ../sass/_forms.scss */
+.instructions {
+  font-weight: normal;
+}
+
+/* line 489, ../sass/_forms.scss */
 .date-input {
   float: left;
 }
 
-/* line 480, ../sass/_forms.scss */
+/* line 494, ../sass/_forms.scss */
 .row.inline-row .inline-span {
   width: 80px;
 }
-/* line 483, ../sass/_forms.scss */
+/* line 497, ../sass/_forms.scss */
 .row.inline-row .form-control {
   width: 80px;
 }
-/* line 486, ../sass/_forms.scss */
+/* line 500, ../sass/_forms.scss */
 .row.inline-row .form-control.input-value {
   width: 160px;
 }
-/* line 489, ../sass/_forms.scss */
+/* line 503, ../sass/_forms.scss */
 .row.inline-row .form-control.input-comments {
   width: 100%;
 }
 
-/* line 493, ../sass/_forms.scss */
+/* line 507, ../sass/_forms.scss */
 .form-control.no-float {
   float: none;
 }
 
 /** Selectize tweaks **/
-/* line 499, ../sass/_forms.scss */
+/* line 513, ../sass/_forms.scss */
 .optgroup-header {
   font-weight: bold;
 }
 
-/* line 502, ../sass/_forms.scss */
+/* line 516, ../sass/_forms.scss */
 .selectize-input {
   height: 40px;
 }
 
-/* line 505, ../sass/_forms.scss */
+/* line 519, ../sass/_forms.scss */
 .selectize-dropdown, .selectize-input, .selectize-input input {
   font-size: inherit;
 }

@@ -472,6 +472,20 @@ textarea.form-control{
     }
 }
 
+.row.inline-row .form-control.input-value {
+    margin-right: 5px;
+}
+
+.row.inline-row, .enter-results-row {
+    margin-bottom: 15px;
+}
+.date-input {
+    margin-right: 5px;
+}
+.instructions {
+    font-weight: normal;
+}
+
 .date-input {
     float:left;
 }
