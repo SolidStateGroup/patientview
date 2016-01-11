@@ -307,6 +307,10 @@
         height:50px;
         @include bootstrap-gradient-vertical(rgba(255,255,255, 0), rgba(255,255,255,1));
     }
+
+    .download-all {
+        margin: 10px 10px 10px 0;
+    }
 }
 
 .result-graph{

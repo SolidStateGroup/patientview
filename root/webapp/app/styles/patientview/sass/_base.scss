@@ -191,11 +191,20 @@ hr{
     }
 }
 
+.chart-content-panel {
+    box-shadow: none;
+    padding: 0 10px 10px 10px;
+}
+
 .panel-heading{
     h3{
         margin:0;
         font-weight:bold;
     }
+}
+
+.panel-info {
+    margin: 10px 0 10px 10px;
 }
 
 .patient-details{
@@ -261,6 +270,10 @@ hr{
         width: 30px;
         margin-right:5px;
     }
+}
+
+.enter-symptoms {
+    margin-left: 10px;
 }
 
 .specialty-switcher{

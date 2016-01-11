@@ -123,3 +123,9 @@ and (max-width : 1024px) {
         }
     }
 }
+
+@media all and (max-width: 600px) {
+    g.highcharts-input-group {
+        display:none;
+    }
+}
