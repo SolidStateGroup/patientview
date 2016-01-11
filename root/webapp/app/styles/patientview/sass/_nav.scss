@@ -254,6 +254,20 @@ html, body{
     cursor: pointer;
 }
 
+.nav-tabs {
+    border-bottom: none;
+}
+.image-colour-key-red {
+    width:15px;
+    height:15px;
+    border:none;
+    background-color: red;
+    float: left;
+    margin-right: 7px;
+    position: relative;
+    top: 2px;
+}
+
 
 @media only screen
 and (max-width : 1023px) {
