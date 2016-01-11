@@ -1356,16 +1356,21 @@ html .clearFooter, body .clearFooter {
   overflow: visible;
 }
 
+/* line 253, ../sass/_nav.scss */
+.nav-tabs li {
+  cursor: pointer;
+}
+
 @media only screen and (max-width: 1023px) {
-  /* line 257, ../sass/_nav.scss */
+  /* line 261, ../sass/_nav.scss */
   .navbar-header {
     position: relative;
   }
-  /* line 263, ../sass/_nav.scss */
+  /* line 267, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li a {
     text-align: right;
   }
-  /* line 267, ../sass/_nav.scss */
+  /* line 271, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link {
     position: absolute;
     height: 40px;
@@ -1373,131 +1378,131 @@ html .clearFooter, body .clearFooter {
     right: 70px;
     top: 10px;
   }
-  /* line 274, ../sass/_nav.scss */
+  /* line 278, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link a {
     height: 40px;
     width: 40px;
     display: block;
     text-align: center;
   }
-  /* line 280, ../sass/_nav.scss */
+  /* line 284, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link a i {
     display: block;
   }
-  /* line 294, ../sass/_nav.scss */
+  /* line 298, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav .nav-public .public {
     height: 70px;
     margin: 0;
   }
-  /* line 297, ../sass/_nav.scss */
+  /* line 301, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav .nav-public .public li {
     height: 100%;
     float: left;
     padding-top: 5px;
   }
 
-  /* line 308, ../sass/_nav.scss */
+  /* line 312, ../sass/_nav.scss */
   .navbar-brand .brand {
     height: auto;
   }
-  /* line 311, ../sass/_nav.scss */
+  /* line 315, ../sass/_nav.scss */
   .navbar-brand img {
     height: 28px;
     width: 160px;
   }
-  /* line 315, ../sass/_nav.scss */
+  /* line 319, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 50px;
     height: 20px;
   }
 
-  /* line 323, ../sass/_nav.scss */
+  /* line 327, ../sass/_nav.scss */
   .footer .legal-links {
     width: 20%;
   }
-  /* line 325, ../sass/_nav.scss */
+  /* line 329, ../sass/_nav.scss */
   .footer .legal-links li {
     display: block;
     text-align: right;
     line-height: 22px;
   }
-  /* line 331, ../sass/_nav.scss */
+  /* line 335, ../sass/_nav.scss */
   .footer .partner-info {
     width: 46%;
   }
 }
 @media only screen and (min-width: 768px) and (max-width: 1023px) {
-  /* line 340, ../sass/_nav.scss */
+  /* line 344, ../sass/_nav.scss */
   .footer .legal-links {
     width: 40%;
   }
-  /* line 342, ../sass/_nav.scss */
+  /* line 346, ../sass/_nav.scss */
   .footer .legal-links li {
     display: block;
     text-align: right;
     line-height: 22px;
   }
-  /* line 348, ../sass/_nav.scss */
+  /* line 352, ../sass/_nav.scss */
   .footer .partner-info {
     width: 60%;
   }
 }
 @media (max-width: 767px) {
-  /* line 357, ../sass/_nav.scss */
+  /* line 361, ../sass/_nav.scss */
   .navbar-brand .brand {
     height: auto;
   }
-  /* line 360, ../sass/_nav.scss */
+  /* line 364, ../sass/_nav.scss */
   .navbar-brand img {
     height: 28px;
     width: 130px;
   }
-  /* line 364, ../sass/_nav.scss */
+  /* line 368, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 40px;
     height: 15px;
     margin: 7px 0 0 5px;
   }
 
-  /* line 374, ../sass/_nav.scss */
+  /* line 378, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public {
     height: 70px;
     margin: 0;
   }
-  /* line 377, ../sass/_nav.scss */
+  /* line 381, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public li {
     height: 100%;
     float: left;
     padding-top: 5px;
   }
-  /* line 382, ../sass/_nav.scss */
+  /* line 386, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public li a {
     padding-left: 5px;
     padding-right: 5px;
     min-width: 60px;
     text-align: center;
   }
-  /* line 392, ../sass/_nav.scss */
+  /* line 396, ../sass/_nav.scss */
   .temp-mobile-nav .mobile-list {
     padding-right: 10px;
   }
 
-  /* line 397, ../sass/_nav.scss */
+  /* line 401, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link {
     right: 85px;
   }
 
-  /* line 401, ../sass/_nav.scss */
+  /* line 405, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
 
-  /* line 405, ../sass/_nav.scss */
+  /* line 409, ../sass/_nav.scss */
   .footer .legal-links {
     width: 40%;
   }
 
-  /* line 409, ../sass/_nav.scss */
+  /* line 413, ../sass/_nav.scss */
   .footer .partner-info {
     width: 100%;
     position: absolute;
@@ -3237,7 +3242,12 @@ textarea.form-control.article-content {
   width: 200px;
 }
 
-/* line 10, ../sass/_components.scss */
+/* line 9, ../sass/_components.scss */
+.article-content-small {
+  height: 4em;
+}
+
+/* line 14, ../sass/_components.scss */
 .tab-panel-item .aside-actions {
   height: 180px;
   position: absolute;
@@ -3245,108 +3255,108 @@ textarea.form-control.article-content {
   right: 0;
   bottom: 0;
 }
-/* line 17, ../sass/_components.scss */
+/* line 21, ../sass/_components.scss */
 .tab-panel-item .aside-actions.dashboard {
   height: 190px;
 }
-/* line 19, ../sass/_components.scss */
+/* line 23, ../sass/_components.scss */
 .tab-panel-item .aside-actions.dashboard li {
   height: 95px;
 }
-/* line 24, ../sass/_components.scss */
+/* line 28, ../sass/_components.scss */
 .tab-panel-item .aside-actions li {
   height: 75px;
 }
-/* line 27, ../sass/_components.scss */
+/* line 31, ../sass/_components.scss */
 .tab-panel-item .aside-actions li a {
   height: 100%;
   line-height: 15px;
   padding-top: 15px;
 }
-/* line 35, ../sass/_components.scss */
+/* line 39, ../sass/_components.scss */
 .tab-panel-item .item-detail {
   padding: 20px 20px 10px;
 }
-/* line 38, ../sass/_components.scss */
+/* line 42, ../sass/_components.scss */
 .tab-panel-item .item-detail .last-login {
   width: 40%;
   padding: 0;
 }
-/* line 43, ../sass/_components.scss */
+/* line 47, ../sass/_components.scss */
 .tab-panel-item .item-detail dl {
   margin-bottom: 10px;
 }
-/* line 48, ../sass/_components.scss */
+/* line 52, ../sass/_components.scss */
 .tab-panel-item .item-detail dl dd {
   color: #768696;
 }
 
-/* line 55, ../sass/_components.scss */
+/* line 59, ../sass/_components.scss */
 .user-details {
   padding: 20px 20px 0;
 }
-/* line 58, ../sass/_components.scss */
+/* line 62, ../sass/_components.scss */
 .user-details h3 {
   margin-top: 0;
 }
-/* line 62, ../sass/_components.scss */
+/* line 66, ../sass/_components.scss */
 .user-details h4 {
   margin: 0 0 5px;
 }
-/* line 66, ../sass/_components.scss */
+/* line 70, ../sass/_components.scss */
 .user-details .news-actions {
   margin-bottom: 10px;
 }
-/* line 70, ../sass/_components.scss */
+/* line 74, ../sass/_components.scss */
 .user-details .user-picture {
   max-width: 50px;
 }
-/* line 74, ../sass/_components.scss */
+/* line 78, ../sass/_components.scss */
 .user-details ul {
   margin-left: 20px;
 }
 
 /** MODALS **/
-/* line 81, ../sass/_components.scss */
+/* line 85, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
 }
-/* line 84, ../sass/_components.scss */
+/* line 88, ../sass/_components.scss */
 .modal-dialog label {
   font-size: 1.5rem;
 }
-/* line 88, ../sass/_components.scss */
+/* line 92, ../sass/_components.scss */
 .modal-dialog .added-container {
   margin-top: 30px;
 }
 
 /** GRAPHS **/
-/* line 98, ../sass/_components.scss */
+/* line 102, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 107, ../sass/_components.scss */
+  /* line 111, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 111, ../sass/_components.scss */
+  /* line 115, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 767px) {
-  /* line 119, ../sass/_components.scss */
+  /* line 123, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media all and (max-width: 600px) {
-  /* line 128, ../sass/_components.scss */
+  /* line 132, ../sass/_components.scss */
   g.highcharts-input-group {
     display: none;
   }
