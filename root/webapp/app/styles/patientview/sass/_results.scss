@@ -83,7 +83,7 @@
             line-height:26px;
 
             .info-link{
-                font-size:12px;
+                font-size:14px;
                 font-weight:normal;
                 color:$aqua;
                 text-decoration:none;
@@ -95,11 +95,14 @@
         margin:0;
 
         dt{
-            font-size:50px;
             float:left;
 
             span{
                 font-size:14px;
+
+                &.result-value{
+                    font-size:50px;
+                }
             }
         }
 
