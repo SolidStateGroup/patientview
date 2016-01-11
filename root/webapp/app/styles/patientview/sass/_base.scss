@@ -61,6 +61,15 @@ hr{
     }
 }
 
+.patient-detail{
+    .user-picture {
+        max-width: 150px;
+    }
+    .diagnosis-staff {
+        margin-bottom: 10px;
+    }
+}
+
 .row-question {
     margin: 2px 0 20px 0;
 }

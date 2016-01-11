@@ -1,18 +1,8 @@
-<!-- todo: move to main.css -->
-<style>
-    .user-picture {
-        max-width: 150px;
-    }
-    .diagnosis-staff {
-        margin-bottom: 10px;
-    }
-</style>
-
 <div data-ng-show="editUser.picture.length" class="row text-center edit-staff" data-ng-if="editUser.id">
     <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
 </div>
 
-<div class="form-horizontal row" role="form">
+<div class="form-horizontal row patient-detail" role="form">
     <div class="col-md-3">
         <label for="new-user-username" class="control-label">Username
             <span class="error" data-ng-show="userForm.userName.$error.required && !userForm.$pristine">*required</span>
