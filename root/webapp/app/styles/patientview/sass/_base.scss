@@ -473,6 +473,10 @@ ul {
     }
 }
 
+.asserter {
+    font-weight: normal;
+}
+
 .badge{
     @include bootstrap-border-radius(50%);
     height:30px;
