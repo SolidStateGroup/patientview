@@ -9,6 +9,8 @@ INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (4, 'HEART_SYMPTOM_SCORE', 'Heart Failure Symptom Score');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (5, 'IBD_FATIGUE', 'IBD Fatigue');
+INSERT INTO "pv_survey" ("id", "type", "description")
+VALUES (6, 'IBD_SELF_MANAGEMENT', 'IBD Self-Management Programme');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
@@ -38,6 +40,9 @@ VALUES (10, 5, 'SECTION II – IBD-Fatigue Impact on Daily Activities Scale',
         'This section assesses the perceived impact of fatigue on your daily activities in the <strong>past two weeks.</strong><br/><br/>Please answer all the questions. The possible answers to the questions are:<br/>0 = None of the time, 1 = Some of the time, 2 = Often, 3 = Most of the time, 4 = All of the time.<br/><br/><strong>If a particular activity does not apply to you, for example you do not drive, please select N/A.</strong><br/>Please tick only one answer for each question reflecting on the past two weeks.', null, 2);
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (11, 5, 'SECTION III – Additional Questions about your Fatigue', null, null, 3);
+
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (12, 6, '', null, null, 1);
 
 /* Questions, see QuestionTypes.java */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
@@ -189,6 +194,26 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (70, 11, 'TEXT_NUMERIC', 'TEXT_NUMERIC', 'How long have you experienced fatigue? (months)', null, null, 5, null, null, 'IBD_FATIGUE_EXTRA_LENGTH_MONTHS');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
 VALUES (71, 11, 'SINGLE_SELECT', 'RADIO', 'During this time has your fatigue been:', null, 5, 6, null, null, 'IBD_FATIGUE_EXTRA_STATUS');
+
+/* IBD self-management programme */
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (72, 12, 'TEXT', 'TEXT', 'My usual symptoms when I have a flare of my condition are:', null, null, 1, null, null, 'IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (73, 12, 'TEXT', 'TEXT', 'My medications when I am well are:', null, null, 2, null, null, 'IBD_SELF_MANAGEMENT_MEDICATIONS');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (74, 12, 'TEXT', 'TEXT', 'Last time I had a flare the medications I used were:', null, null, 3, null, null, 'IBD_SELF_MANAGEMENT_FLARE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (75, 12, 'TEXT', 'TEXT', 'When I have a flare, my plan of care is to:', null, null, 4, null, null, 'IBD_SELF_MANAGEMENT_PLAN_OF_CARE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (76, 12, 'TEXT_NUMERIC', 'TEXT_NUMERIC', 'My colorectal cancer surveillance colonoscopy will be due:', null, null, 5, null, null, 'IBD_SELF_MANAGEMENT_COLORECTAL');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (77, 12, 'TEXT_NUMERIC', 'TEXT_NUMERIC', 'My dexa scan will be due:', null, null, 6, null, null, 'IBD_SELF_MANAGEMENT_DEXA');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (78, 12, 'TEXT', 'TEXT', 'My next hospital appointment with the IBD Team will be:', null, null, 7, null, null, 'IBD_SELF_MANAGEMENT_HOSPITAL');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (79, 12, 'TEXT', 'TEXT', 'My GP will need to complete the following blood tests:', null, null, 8, null, null, 'IBD_SELF_MANAGEMENT_BLOOD');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")
+VALUES (80, 12, 'TEXT', 'TEXT', 'Every:', null, null, 9, null, null, 'IBD_SELF_MANAGEMENT_EVERY');
 
 /* Question Options, see QuestionOptionTypes.java */
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
