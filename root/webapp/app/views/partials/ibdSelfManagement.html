@@ -1,0 +1,150 @@
+<style>
+    .panel-questions {
+        margin: 0 10px 10px 10px;
+    }
+    .panel-questions .row {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>
+            Self-management programme for Inflammatory Bowel Disease
+        </h3>
+    </div>
+    <div class="panel-info">
+        <p>If you are a candidate for the IBD ‘self-management’ programme, a staff member will help fill this
+            form out with you. To find out more about the programme
+            <a href="/docs/self_management_patient_information.pdf" target="_blank">click here</a>.
+        </p>
+        <p>
+            (Note to staff: To submit this form you must have logged in and navigated to this screen via the
+            patient list. Otherwise the Save button will remain invisible)
+        </p>
+    </div>
+    <div class="panel-info">
+        <p>
+            <strong>Form last updated by:</strong> fullname, groups
+        </p>
+        <p>
+            <strong>Date:</strong> 12th march 2015
+        </p>
+    </div>
+
+    <div class="panel-questions">
+        <div class="row">
+            <div class="col-md-12">
+                <label for="usual-symptoms" class="control-label">
+                    My usual symptoms when I have a flare of my colitis are:
+                </label>
+                <div>
+                    <textarea id="usual-symptoms" data-ng-model="selfManagement.usualSymptoms" class="form-control"
+                              style="height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="medications" class="control-label">
+                    My medications when I am well are:
+                </label>
+                <div>
+                    <textarea id="medications" data-ng-model="selfManagement.medications" class="form-control"
+                              style="height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="flare-up" class="control-label">
+                    Last time I had a flare the medications I used were:
+                </label>
+                <div>
+                    <textarea id="flare-up" data-ng-model="selfManagement.flareUp" class="form-control"
+                              style="height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="plan-of-care" class="control-label">
+                    When I have a flare, my plan of care is to:
+                </label>
+                <div>
+                    <textarea id="plan-of-care" data-ng-model="selfManagement.planOfCare" class="form-control"
+                              style="height: 100px;" placeholder="1. Ensure that you are taking your medications regularly
+2. Ensure that you are taking the correct dose of medication, if you are not sure you should check with the IBD Nurse team">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p>
+                    If you have had no improvement in your symptoms after ten days, if you notice a marked
+                    deterioration or are otherwise concerned, you should
+                    <a href="/#/contact" target="_blank">contact your IBD team</a>.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="colorectal" class="control-label">
+                    My colorectal cancer surveillance colonoscopy will be due:
+                </label>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.colorectal">
+                        <option></option>
+                        <option data-ng-repeat="year in validYears">{{year}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="dexa" class="control-label">
+                    My dexa scan will be due:
+                </label>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <select class="form-control" id="dexa" data-ng-model="selfManagement.dexa">
+                        <option></option>
+                        <option data-ng-repeat="year in validYears">{{year}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="appointment" class="control-label">
+                    My next hospital appointment with the IBD Team will be:
+                </label>
+                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.appointment">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="blood" class="control-label">
+                    My GP will need to complete the following bloods tests:
+                </label>
+                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.blood">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="every" class="control-label">
+                    Every:
+                </label>
+                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.every">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn blue pull-right">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
