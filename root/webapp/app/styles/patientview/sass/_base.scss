@@ -9,6 +9,12 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+/** Headers / headings **/
+
+h3 {
+    font-size: 22px;
+}
+
 hr{
     margin-top:15px;
     margin-bottom:10px;
@@ -55,6 +61,21 @@ hr{
     }
 }
 
+.user-picture {
+    max-width: 150px;
+}
+.diagnosis-staff {
+    margin-bottom: 10px;
+}
+
+.content-panel.overflow {
+    overflow: visible!important;
+}
+
+.row-question {
+    margin: 2px 0 20px 0;
+}
+
 .panel-header {
     padding: 10px;
     margin-bottom: 20px;
@@ -93,6 +114,7 @@ hr{
     &.about{
         padding:15px;
         font-size:17px;
+        margin:0 0 10px 0;
     }
 
     &.navbar-default{
@@ -143,14 +165,50 @@ hr{
 
     .panel-footer, .panel-intro {
         background: $lowlight;
-        border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+    .panel-footer {
+        border-top: 1px solid $border-default;
     }
 
     .panel-intro{
         padding:10px;
+
+        h3 {
+            padding-bottom: 5px;
+            margin:0;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        img {
+            margin-right: 5px;
+        }
+
+        .featured-news-heading {
+            font-size: 12px;
+            margin-bottom: 0px;
+            margin-top: 0px;
+
+        }
+
+        .featured-news-heading a {
+            font-size: 15px;
+        }
+
+        .featured-news-content {
+            color: grey;
+            margin-bottom: 5px;
+        }
     }
+}
+
+.chart-content-panel {
+    box-shadow: none;
+    padding: 0 10px 10px 10px;
 }
 
 .panel-heading{
@@ -158,6 +216,10 @@ hr{
         margin:0;
         font-weight:bold;
     }
+}
+
+.panel-info {
+    margin: 10px 0 10px 10px;
 }
 
 .patient-details{
@@ -217,6 +279,37 @@ hr{
                 color:$white;
             }
         }
+    }
+
+    .group-image {
+        width: 30px;
+        margin-right:5px;
+    }
+}
+
+.enter-symptoms {
+    margin-left: 10px;
+}
+
+.specialty-switcher{
+    .btn-group-switcher a{
+        border: 1px solid #dddddd;
+
+        &.active {
+            background: white;
+            color: #585858;
+            border: 1px solid #dddddd;
+            box-shadow: none;
+        }
+
+        &:first-of-type{
+            border-right:0;
+        }
+    }
+
+    .btn-group-switcher div, .btn-group-switcher div:hover {
+        background: #BEDAF7;
+        color: #585858;
     }
 }
 
@@ -350,9 +443,9 @@ ul {
 }
 
 .name-action-list{
+    margin-top:10px;
     li{
-        height:35px;
-        margin-right:5px;
+        margin-right:10px;
         height:auto;
 
         & > div{
@@ -393,6 +486,10 @@ ul {
         }
 
     }
+}
+
+.asserter {
+    font-weight: normal;
 }
 
 .badge{
@@ -567,6 +664,63 @@ ul {
     }
 }
 
+.survey-modal {
+    .row-question {
+        margin: 2px 0 20px 0;
+    }
+    .question-text {
+        /*font-weight: bold;*/
+        color: black;
+        margin-bottom: 10px;
+    }
+    .question-description {
+        font-weight: normal;
+        color: #2a6496;
+    }
+    .question-group-description {
+        font-weight: normal;
+        color: #2a6496;
+        margin-bottom: 20px;
+    }
+    .question-group-description br {
+        margin-bottom: 10px;
+    }
+    .pull-right {
+        padding: 0;
+    }
+    .span-radio {
+        margin-right: 10px;
+    }
+    .div-question-group {
+        margin-bottom: 20px;
+    }
+    .help-link {
+        margin-left: 5px;
+    }
+
+    input[type="radio"], input[type="range"], .radio-label {
+        cursor: pointer;
+    }
+
+    .modal-dialog label {
+        font-weight: normal;
+        font-size: 1em;
+    }
+
+    .numeric-text {
+        width: 50%;
+    }
+
+    .required-question {
+        font-weight: normal;
+        color: red;
+    }
+
+    .datetime {
+        font-weight: bold;
+        padding-top: 0.5em;
+    }
+}
 
 /** TODO add this in more appropriate place **/
 
@@ -778,6 +932,16 @@ i.icon-brand-pulse{
     width: 30px;
     display:block;
     margin-right:5px;
+}
+
+i.icon-forward-to{
+    background: url('../../../images/icons/forward-to.png') 0 0 no-repeat;
+    height: 22px;
+    width: 23px;
+    display:block;
+    margin-left:10px;
+    position: relative;
+    top: 4px;
 }
 
 
