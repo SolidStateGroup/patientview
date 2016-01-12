@@ -30,7 +30,7 @@
             <strong>Date:</strong> 12th march 2015
         </p>
     </div>
-    <div data-ng-if="!selfManagement.created">
+    <div data-ng-if="!selfManagement.date">
         <div class="alert-block alert-warning">
             <h5>Your self-management programme has not been filled in yet.</h5>
         </div>
@@ -43,7 +43,7 @@
                     My usual symptoms when I have a flare of my condition are:
                 </label>
                 <div>
-                    <textarea id="usual-symptoms" data-ng-model="selfManagement.usualSymptoms" class="form-control"
+                    <textarea id="usual-symptoms" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS" class="form-control"
                               style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                     My medications when I am well are:
                 </label>
                 <div>
-                    <textarea id="medications" data-ng-model="selfManagement.medications" class="form-control"
+                    <textarea id="medications" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_MEDICATIONS" class="form-control"
                               style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     Last time I had a flare the medications I used were:
                 </label>
                 <div>
-                    <textarea id="flare" data-ng-model="selfManagement.flare" class="form-control"
+                    <textarea id="flare" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_FLARE" class="form-control"
                               style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                     When I have a flare, my plan of care is to:
                 </label>
                 <div>
-                    <textarea id="plan-of-care" data-ng-model="selfManagement.planOfCare" class="form-control"
+                    <textarea id="plan-of-care" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_PLAN_OF_CARE" class="form-control"
                               style="height: 100px;" data-ng-disabled="!isStaff">
                     </textarea>
                 </div>
@@ -99,7 +99,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.colorectal" data-ng-disabled="!isStaff">
+                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_COLORECTAL" data-ng-disabled="!isStaff">
                         <option></option>
                         <option data-ng-repeat="year in validYears">{{year}}</option>
                     </select>
@@ -114,7 +114,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <select class="form-control" id="dexa" data-ng-model="selfManagement.dexa" data-ng-disabled="!isStaff">
+                    <select class="form-control" id="dexa" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_DEXA" data-ng-disabled="!isStaff">
                         <option></option>
                         <option data-ng-repeat="year in validYears">{{year}}</option>
                     </select>
@@ -126,7 +126,7 @@
                 <label for="appointment" class="control-label">
                     My next hospital appointment with the IBD Team will be:
                 </label>
-                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.appointment" data-ng-disabled="!isStaff">
+                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_HOSPITAL" data-ng-disabled="!isStaff">
             </div>
         </div>
         <div class="row">
@@ -134,7 +134,7 @@
                 <label for="blood" class="control-label">
                     My GP will need to complete the following blood tests:
                 </label>
-                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.blood" data-ng-disabled="!isStaff">
+                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_BLOOD" data-ng-disabled="!isStaff">
             </div>
         </div>
         <div class="row">
@@ -142,12 +142,19 @@
                 <label for="every" class="control-label">
                     Every:
                 </label>
-                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.every" data-ng-disabled="!isStaff">
+                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_EVERY" data-ng-disabled="!isStaff">
+            </div>
+        </div>
+        <div class="row" data-ng-if="successMessage.length">
+            <div class="col-md-12">
+                <div class="alert alert-success">
+                    <h5>{{successMessage}}</h5>
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="btn blue pull-left" data-ng-click="download()" data-ng-if="selfManagement.created">
+                <button type="button" class="btn blue pull-left" data-ng-click="download()" data-ng-if="selfManagement.date">
                     Download as PDF
                 </button>
                 <div class="btn-group pull-right" data-ng-if="isStaff">
@@ -160,6 +167,6 @@
 </div>
 
 <div data-ng-show="loading" class="container">
-    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Self-Management Programme</h3>
+    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
     <br/>
 </div>
