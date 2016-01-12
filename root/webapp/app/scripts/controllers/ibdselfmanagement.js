@@ -34,14 +34,19 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
         $scope.loadingMessage = 'Loading Self-Management Programme';
         $scope.loading = true;
         SurveyResponseService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
-        .then(function(surveyResponses) {
+            .then(function(surveyResponses) {
             if (surveyResponses.length) {
                 surveyResponses = _.sortBy(surveyResponses, 'date').reverse();
                 var response = surveyResponses[0];
-                // build survey response object based on hardcoded survey responses
+                $scope.selfManagement.date = response.date;
+
+                for (var i=0; i<response.questionAnswers.length; i++) {
+                    var answer = response.questionAnswers[i];
+                    $scope.selfManagement[answer.question.type] = answer.value;
+                }
             } else {
                 // no existing survey responses, set defaults
-                $scope.selfManagement.IBD_SELF_MANAGEMENT_PLAN_OF_CARE = '1. Ensure that you are taking your medications regularly \n2. Ensure that you are taking the correct dose of medication, if you are not sure you should check with the IBD Nurse team \n3. \n4.';
+                $scope.selfManagement['IBD_SELF_MANAGEMENT_PLAN_OF_CARE'] = '1. Ensure that you are taking your medications regularly \n2. Ensure that you are taking the correct dose of medication, if you are not sure you should check with the IBD Nurse team \n3. \n4.';
             }
             $scope.loading = false;
         }, function() {
@@ -51,7 +56,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
     };
 
     $scope.init = function() {
-        $scope.selfManagement = {};
+        $scope.selfManagement = [];
         delete $scope.successMessage;
 
         // check if viewing as patient

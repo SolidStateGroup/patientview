@@ -22,12 +22,12 @@
             patient list. Otherwise the Save button will remain invisible)
         </p>
     </div>
-    <div class="panel-info" data-ng-if="selfManagement.created">
+    <div class="panel-info" data-ng-if="selfManagement.date">
         <p>
-            <strong>Form last updated by:</strong> fullname, groups
+            <strong>Form last updated by:</strong> {{selfManagement.staffUser.forename}} {{selfManagement.staffUser.surname}}
         </p>
         <p>
-            <strong>Date:</strong> 12th march 2015
+            <strong>Date:</strong> {{selfManagement.date | date:'dd-MMM-yyyy HH:mm'}}
         </p>
     </div>
     <div data-ng-if="!selfManagement.date">
