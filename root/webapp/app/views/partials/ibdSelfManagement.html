@@ -6,7 +6,7 @@
         margin-bottom: 20px;
     }
 </style>
-<div class="panel panel-default">
+<div class="panel panel-default" data-ng-show="!loading">
     <div class="panel-heading">
         <h3>
             Self-management programme for Inflammatory Bowel Disease
@@ -44,7 +44,7 @@
                 </label>
                 <div>
                     <textarea id="usual-symptoms" data-ng-model="selfManagement.usualSymptoms" class="form-control"
-                              style="height: 100px;"></textarea>
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
                 </label>
                 <div>
                     <textarea id="medications" data-ng-model="selfManagement.medications" class="form-control"
-                              style="height: 100px;"></textarea>
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@
                 </label>
                 <div>
                     <textarea id="flare" data-ng-model="selfManagement.flare" class="form-control"
-                              style="height: 100px;"></textarea>
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
                 </label>
                 <div>
                     <textarea id="plan-of-care" data-ng-model="selfManagement.planOfCare" class="form-control"
-                              style="height: 100px;">
+                              style="height: 100px;" data-ng-disabled="!isStaff">
                     </textarea>
                 </div>
             </div>
@@ -99,7 +99,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.colorectal">
+                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.colorectal" data-ng-disabled="!isStaff">
                         <option></option>
                         <option data-ng-repeat="year in validYears">{{year}}</option>
                     </select>
@@ -114,7 +114,7 @@
             </div>
             <div class="col-md-3">
                 <div>
-                    <select class="form-control" id="dexa" data-ng-model="selfManagement.dexa">
+                    <select class="form-control" id="dexa" data-ng-model="selfManagement.dexa" data-ng-disabled="!isStaff">
                         <option></option>
                         <option data-ng-repeat="year in validYears">{{year}}</option>
                     </select>
@@ -126,7 +126,7 @@
                 <label for="appointment" class="control-label">
                     My next hospital appointment with the IBD Team will be:
                 </label>
-                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.appointment">
+                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.appointment" data-ng-disabled="!isStaff">
             </div>
         </div>
         <div class="row">
@@ -134,7 +134,7 @@
                 <label for="blood" class="control-label">
                     My GP will need to complete the following bloods tests:
                 </label>
-                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.blood">
+                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.blood" data-ng-disabled="!isStaff">
             </div>
         </div>
         <div class="row">
@@ -142,12 +142,15 @@
                 <label for="every" class="control-label">
                     Every:
                 </label>
-                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.every">
+                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.every" data-ng-disabled="!isStaff">
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="btn-group pull-right">
+                <button type="button" class="btn blue pull-left" data-ng-click="download()" data-ng-if="selfManagement.created">
+                    Download as PDF
+                </button>
+                <div class="btn-group pull-right" data-ng-if="isStaff">
                     <button type="button" class="btn blue" data-ng-click="save()">Save</button>
                     <button type="button" class="btn" data-ng-click="cancel()">Cancel</button>
                 </div>

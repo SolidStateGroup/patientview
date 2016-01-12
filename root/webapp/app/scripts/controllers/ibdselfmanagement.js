@@ -1,8 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('IbdSelfManagementCtrl', ['$scope', '$routeParams', '$location',
-    'SurveyResponseService',
-function ($scope, $routeParams, $location, SurveyResponseService) {
+angular.module('patientviewApp').controller('IbdSelfManagementCtrl', ['$scope', '$rootScope', 'SurveyResponseService',
+function ($scope, $rootScope, SurveyResponseService) {
 
     $scope.cancel = function() {
         if (confirm("This will discard any changes you've made. Do you wish to continue?")) {
@@ -13,6 +12,9 @@ function ($scope, $routeParams, $location, SurveyResponseService) {
     $scope.init = function() {
         $scope.loading = true;
         $scope.selfManagement = {};
+
+        // check if viewing as patient
+        $scope.isStaff = $rootScope.previousLoggedInUser ? true : false;
 
         // set valid years 6 years in future
         var date = new Date();
