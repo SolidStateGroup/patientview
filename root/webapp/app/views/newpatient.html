@@ -10,7 +10,7 @@
         <a href="" class="print-success-message" data-ng-click="printSuccessMessageCompat()" data-ng-show="printSuccessMessage">Print</a>
     </div>
 
-    <div class="panel content-panel" data-ng-show="showForm">
+    <div class="panel content-panel overflow" data-ng-show="showForm">
         <div class="content-inner">
         <form name="userFormNew" data-ng-show="!existingUser">
             <div data-ng-include src="'views/partials/patientDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
