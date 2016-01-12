@@ -1,38 +1,10 @@
-<style>
-    .info {
-        margin: 10px 0 10px 10px;
-    }
-    .alert-block h5 {
-         color: #c09853;
-    }
-    .enter-symptoms {
-        margin-left: 10px;
-    }
-    @media all and (max-width: 600px) {
-        g.highcharts-input-group {
-            display:none;
-        }
-    }
-    .patient-details .content-panel {
-        margin-bottom: 0;
-    }
-    .chart-content-panel {
-        box-shadow: none;
-    }
-    .content-panel .content-inner {
-        padding: 0 10px 10px 10px;
-    }
-    .download-all {
-        margin: 10px 10px 10px 0;
-    }
-</style>
-<div class="panel panel-default" data-ng-show="patient.myIbd">
+<div class="panel panel-default">
     <div class="panel-heading">
         <h3>My Disease Control Rating
             <button class="btn blue enter-symptoms" data-ng-click="openModalEnterSurveyResponses()">Answer Questions</button>
         </h3>
     </div>
-    <div class="row info">
+    <div class="panel-info">
         <p>We would like to ask you some basic questions to find out whether your IBD has been well controlled over
            the last two weeks. These questions are general in nature. They were chosen with the help of IBD
            patients and can apply to anyone with ulcerative colitis or Crohn's disease. Your answers are intended
@@ -40,7 +12,7 @@
     </div>
     <div class="row result-detail-panel" data-ng-show="!loading && surveyResponses">
         <div class="col-md-7 result-container clearfix">
-            <div class="content-panel chart-content-panel">
+            <div class="chart-content-panel">
                 <div class="content-inner">
                     <div id="chart_IBD"></div>
                 </div>
@@ -77,7 +49,7 @@
         </aside>
     </div>
 
-    <div class="alert-block" data-ng-show="!loading && !surveyResponses">
+    <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
         <h5>No Responses Found, you can answer the Disease Control Questionnaire by clicking the "Answer Questions" button</h5>
     </div>
     <div data-ng-show="loading" class="container">

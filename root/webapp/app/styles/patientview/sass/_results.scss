@@ -41,6 +41,10 @@
             padding-top:7px;
         }
     }
+
+    .content-inner{
+        padding:10px 0 0;
+    }
 }
 
 .actions-row{
@@ -83,7 +87,7 @@
             line-height:26px;
 
             .info-link{
-                font-size:12px;
+                font-size:14px;
                 font-weight:normal;
                 color:$aqua;
                 text-decoration:none;
@@ -100,6 +104,10 @@
 
             span{
                 font-size:14px;
+
+                &.result-value{
+                    font-size:50px;
+                }
             }
         }
 
@@ -165,6 +173,30 @@
     .no-label{
         padding-top:29px;
     }
+}
+
+// SURVEY BITS //
+
+.td-strong {
+    font-weight: bold;
+}
+.row-question {
+    margin: 10px 0 0 15px;
+}
+.question-description {
+    font-weight: normal;
+    color: #368DE8;
+    font-size: 14px;
+}
+.question-group-description {
+    font-weight: normal;
+    color: #2a6496;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+.capitalize {
+    text-transform:capitalize;
 }
 
 /// RESULTS DETAIL //
@@ -298,6 +330,10 @@
         @include bootstrap-border-radius(4px);
         height:50px;
         @include bootstrap-gradient-vertical(rgba(255,255,255, 0), rgba(255,255,255,1));
+    }
+
+    .download-all {
+        margin: 10px 10px 10px 0;
     }
 }
 

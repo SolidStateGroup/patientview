@@ -20,7 +20,7 @@
 }
 
 .panel-body{
-    padding:5px 15px 10px;
+    padding:15px 15px 10px;
     form{
 //        padding:10px;
     }
@@ -58,6 +58,12 @@ label{
     color:$textdefault;
 }
 
+.label{
+    a{
+        color:$white;
+    }
+}
+
 .disabled{
     cursor:not-allowed;
     background:$inputbg;
@@ -74,6 +80,9 @@ label{
     background:$white;
 }
 
+input.alert-checkbox {
+    margin-right: 7px;
+}
 
 .btn:active{
     @include bootstrap-box-shadow(none);
@@ -81,6 +90,10 @@ label{
 
 .filter-panel {
     overflow: visible;
+
+    .panel-footer{
+        padding:0;
+    }
 }
 
 .filter-tags-container{
@@ -459,6 +472,20 @@ textarea.form-control{
     }
 }
 
+.row.inline-row .form-control.input-value {
+    margin-right: 5px;
+}
+
+.row.inline-row, .enter-results-row {
+    margin-bottom: 15px;
+}
+.date-input {
+    margin-right: 5px;
+}
+.instructions {
+    font-weight: normal;
+}
+
 .date-input {
     float:left;
 }
@@ -479,4 +506,16 @@ textarea.form-control{
 }
 .form-control.no-float {
     float:none;
+}
+
+/** Selectize tweaks **/
+
+.optgroup-header {
+    font-weight: bold;
+}
+.selectize-input {
+    height: 40px;
+}
+.selectize-dropdown, .selectize-input, .selectize-input input {
+    font-size: inherit;
 }

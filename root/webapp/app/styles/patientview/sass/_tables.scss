@@ -4,6 +4,16 @@
     width:300px;
 }
 
+table{
+    tr{
+        td{
+            .filetype-icon{
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
 
 /** fake Tables **/
 
@@ -206,6 +216,13 @@
         margin:7px 0 0 10px;
         width:auto;
     }
+}
+
+.date-th {
+    min-width: 100px;
+}
+.button-th {
+    min-width: 160px;
 }
 
 .result-link{

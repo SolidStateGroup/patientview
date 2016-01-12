@@ -1,110 +1,16 @@
-<!-- todo: move to main css -->
-<style>
-    input.alert-checkbox {
-        margin-right: 7px;
-    }
-
-    a.new-result-notification {
-        color: #fff;
-        cursor: pointer;
-    }
-
-    .user-picture {
-        max-width: 150px;
-    }
-
-    .news-actions {
-        text-align: left;
-    }
-
-    .panel-intro-statistics p {
-        margin: 0;
-    }
-
-    .panel-help-link {
-        font-size: 14px;
-        font-family: Lato, sans-serif;
-    }
-
-    .featured-news{
-        padding-bottom: 1px;
-    }
-
-    .featured-news h3 {
-        padding-bottom: 5px;
-    }
-
-    .featured-news img {
-        float: left;
-        margin-right: 5px;
-    }
-
-    .featured-news-heading {
-        font-size: 12px;
-        margin-bottom: 0px;
-        margin-top: 0px;
-
-    }
-
-    .featured-news-heading a {
-        font-size: 15px;
-    }
-
-    .featured-news-content {
-        color: grey;
-        margin-bottom: 5px;
-    }
-
-    h3 {
-        font-size: 22px;
-    }
-
-    .read-more {
-        padding-right: 7px;
-    }
-
-    .featured-section-content-inner {
-        padding: 0px;
-    }
-
-    i.icon-forward-to{
-        background: url('../images/icons/forward-to.png') 0 0 no-repeat;
-        height: 22px;
-        width: 23px;
-        display:block;
-        margin-left:10px;
-        position: relative;
-        top: 4px;
-    }
-
-    .group-li {
-        margin-top: 5px;
-    }
-    .group-image {
-        width: 30px;
-    }
-    .group-description {
-        margin-left: 5px;
-    }
-    .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
-        text-decoration: none;
-        outline: none;
-        border: 0px none transparent;
-    }
-
-</style>
-
 <div data-ng-show="!loading" data-ng-cloak>
     <br/>
     <div class="row">
         <div class="col-md-8">
             <div class="tab-panel-item" data-ng-show="featuredNewsItems">
                 <div class="content-panel chart-container">
-                    <div class="panel-intro featured-news" style="padding-bottom:1px;">
-                        <h3><img src="../../../images/icons/featured-news.png"/>
+                    <div class="panel-intro featured-news">
+                        <h3><img src="../../../images/icons/featured-news.png" class="pull-left"/>
                             Featured Notices</h3>
+                    </div>
+                    <div class="panel-body">
                         <ul class="unstyled">
-                            <li class="news-item content-panel" data-ng-repeat="news in featuredNewsItems">
+                            <li class="news-item" data-ng-repeat="news in featuredNewsItems">
                                 <div class="content-inner">
                                     <h4
                                         class="featured-news-heading">
@@ -219,10 +125,11 @@
             <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts">
                 <div class="content-panel chart-container">
                     <div class="panel-intro">
-                        <h3>Notifications<a
+                        <a
                                 href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard"
                                 target="_blank"
-                                class="pull-right panel-help-link">Help</a></h3>
+                                class="pull-right panel-help-link">Help</a>
+                        <h3>Notifications</h3>
 
 
                     </div>
@@ -525,7 +432,7 @@
                                                data-ng-change="updateAlert(alert)">Email</input>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-danger" data-ng-click="removeAlert(alert.id)">Remove
+                                        <a href="" class="btn btn-danger pull-right" data-ng-click="removeAlert(alert.id)">Remove
                                             Alert</a>
                                     </td>
                                 </tr>
@@ -582,7 +489,7 @@
             <div class="user-details content-panel">
                 <div data-ng-show="loggedInUser.picture.length">
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}"
-                         class="user-picture" src="">
+                         class="user-picture pull-left" src="">
                 </div>
                 <div data-ng-show="!loggedInUser.picture">
                     <h4>No Photo Uploaded</h4>
@@ -590,7 +497,7 @@
                     <p><a href="/#/settings">Upload a photo of yourself</a></p>
                     <br/>
                 </div>
-                <ul class="unstyled">
+                <ul class="unstyled pull-left">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
                     <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
                     <li data-ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
