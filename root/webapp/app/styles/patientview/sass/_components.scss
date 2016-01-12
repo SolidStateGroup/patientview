@@ -6,6 +6,10 @@
     }
 }
 
+.article-content-small {
+    height: 4em;
+}
+
 .tab-panel-item{
     .aside-actions{
         height:180px;
@@ -33,7 +37,7 @@
     }
 
     .item-detail{
-        padding:20px;
+        padding:20px 20px 10px;
 
         .last-login{
             width:40%;
@@ -60,11 +64,19 @@
     }
 
     h4{
-        margin-bottom:5px;
+        margin:0 0 5px;
     }
 
     .news-actions{
       margin-bottom:10px;
+    }
+
+    .user-picture {
+        max-width: 50px;
+    }
+
+    ul{
+        margin-left:20px;
     }
 }
 
@@ -93,6 +105,11 @@
     }
 }
 
+// Letters //
+.span-download {
+    margin-left: 10px;
+}
+
 @media only screen
 and (max-width : 1024px) {
 
@@ -113,5 +130,11 @@ and (max-width : 1024px) {
                 padding-right: 15px;
             }
         }
+    }
+}
+
+@media all and (max-width: 600px) {
+    g.highcharts-input-group {
+        display:none;
     }
 }

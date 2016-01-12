@@ -1,21 +1,3 @@
-<style>
-    .result-cluster-name{
-        color: #00adc6;
-    }
-    .row.inline-row .form-control.input-value {
-        margin-right: 5px;
-    }
-    .row.inline-row, .enter-results-row {
-        margin-bottom: 15px;
-    }
-    .date-input {
-        margin-right: 5px;
-    }
-    .instructions {
-        font-weight: normal;
-    }
-</style>
-
 <div data-ng-show="!loading">
     <h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h1>
 
@@ -111,7 +93,7 @@
             <div class="row" data-ng-show="!userDataValid()">
                 <hr/>
                 <div class="col-md-12">
-                    <h4 class="result-cluster-name">Please make sure you have entered a correct date and at least one result for each set of results</h4>
+                    <h4 class="blue-text">Please make sure you have entered a correct date and at least one result for each set of results</h4>
                 </div>
             </div>
 

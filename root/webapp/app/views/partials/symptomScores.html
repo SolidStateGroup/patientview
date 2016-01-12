@@ -1,33 +1,11 @@
-<style>
-    ul.symptom-info-list {
-        margin: 10px 0 10px 10px;
-    }
-    .alert-block h5 {
-         color: #c09853;
-    }
-    .enter-symptoms {
-        margin-left: 10px;
-    }
-    @media all and (max-width: 600px) {
-        g.highcharts-input-group {
-            display:none;
-        }
-    }
-    .content-panel {
-        box-shadow: none;
-    }
-    .download-all {
-        margin: 10px 10px 10px 0;
-    }
-</style>
-<div class="panel panel-default">
+<div class="panel panel-default" data-ng-show="patient.myIbd">
     <div class="panel-heading">
         <h3>Symptom Checker - {{$parent.patientDetails[0].myIbd.primaryDiagnosis}}
             <button class="btn blue enter-symptoms" data-ng-click="openModalEnterSurveyResponses()"
                     data-ng-if="!unknownPrimaryDiagnosis">Enter Symptoms</button>
         </h3>
     </div>
-    <div class="row" data-ng-if="!unknownPrimaryDiagnosis">
+    <div class="panel-body" data-ng-if="!unknownPrimaryDiagnosis">
         <ul class="symptom-info-list">
             <li data-ng-if="surveyType === 'CROHNS_SYMPTOM_SCORE' || surveyType === 'COLITIS_SYMPTOM_SCORE'">
                 The symptom checker can be used to keep a personal record of your symptoms over time.</li>
@@ -86,10 +64,10 @@
         </aside>
     </div>
 
-    <div class="alert-block" data-ng-show="!loading && !surveyResponses" data-ng-if="!unknownPrimaryDiagnosis">
+    <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses" data-ng-if="!unknownPrimaryDiagnosis">
         <h5>No Symptom Scores Found, you can enter your symptoms by clicking the "Enter Symptoms" button</h5>
     </div>
-    <div class="alert-block" data-ng-show="!loading && !symptomScores" data-ng-if="unknownPrimaryDiagnosis">
+    <div class="alert-block alert-warning" data-ng-show="!loading && !symptomScores" data-ng-if="unknownPrimaryDiagnosis">
         <h5>The Symptom Checker is not currently available for patients with your primary diagnosis</h5>
     </div>
     <div data-ng-show="loading" class="container">

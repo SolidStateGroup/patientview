@@ -6,13 +6,13 @@
     li{
         a{
             width:70px;
-            height:70px;
+            height:75px;
             display:block;
             text-align:center;
             color:$messagetab;
             font-size:1.125rem;
             text-decoration:none;
-            padding:10px 10px;
+            padding:20px 10px;
             background:$lowlight;
 
             &.reply{
@@ -37,12 +37,23 @@
 .groups-list{
     li{
         color:$textdefault;
-        margin-right:5px;
+        margin:5px 5px 0 0;
 
         .light-text{
             font-size:1rem;
         }
 
+        .group-image {
+            width: 30px;
+        }
+        .group-description {
+            margin-left: 5px;
+        }
+        .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
+            text-decoration: none;
+            outline: none;
+            border: 0px none transparent;
+        }
     }
 }
 

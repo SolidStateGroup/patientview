@@ -264,6 +264,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             controller: SurveyResponseDetailsNewModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
+            windowClass: 'survey-modal',
             resolve: {
                 ObservationService: function(){
                     return ObservationService;

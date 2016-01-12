@@ -90,13 +90,12 @@
         &.active{
             position:relative;
             a{
-                background:#f8f8f8;
-                color:$primary;
-//                font-weight:bold;
+                color:#f8f8f8;
+                background:#368de8;
 
-                &:hover{
-                    background:#f8f8f8;
-                    color:$primary;
+                &:hover, &:focus{
+                    color:#f8f8f8;
+                    background:#368de8;
                 }
             }
 
@@ -249,6 +248,24 @@ html, body{
     .content-panel{
         overflow:visible;
     }
+}
+
+.nav-tabs li {
+    cursor: pointer;
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+.image-colour-key-red {
+    width:15px;
+    height:15px;
+    border:none;
+    background-color: red;
+    float: left;
+    margin-right: 7px;
+    position: relative;
+    top: 2px;
 }
 
 
