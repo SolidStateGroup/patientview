@@ -175,6 +175,30 @@
     }
 }
 
+// SURVEY BITS //
+
+.td-strong {
+    font-weight: bold;
+}
+.row-question {
+    margin: 10px 0 0 15px;
+}
+.question-description {
+    font-weight: normal;
+    color: #368DE8;
+    font-size: 14px;
+}
+.question-group-description {
+    font-weight: normal;
+    color: #2a6496;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+.capitalize {
+    text-transform:capitalize;
+}
+
 /// RESULTS DETAIL //
 
 .result-detail-panel{
