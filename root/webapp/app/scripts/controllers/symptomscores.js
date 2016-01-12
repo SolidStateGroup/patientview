@@ -8,8 +8,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
 
     $scope.init = function() {
         $scope.loading = true;
-        if ($scope.$parent.patient.myIbd && $scope.$parent.patient.myIbd.primaryDiagnosis) {
-            var primaryDiagnosis = $scope.$parent.patient.myIbd.primaryDiagnosis;
+        if ($scope.$parent.patientDetails[0].myIbd && $scope.$parent.patientDetails[0].myIbd.primaryDiagnosis) {
+            var primaryDiagnosis = $scope.$parent.patientDetails[0].myIbd.primaryDiagnosis;
             if (primaryDiagnosis === 'Crohn\'s Disease') {
                 $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
 

@@ -28,7 +28,7 @@
     </div>
 </div>
 <div>
-    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-if="patient === patientDetails[0]">
+    <div>
         <ul class="nav nav-tabs">
             <li data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
             <li data-ng-class="{active:activeTab === 'FOOD_DIARY'}"><a data-ng-click="activeTab = 'FOOD_DIARY'">Food Diary</a></li>
@@ -38,8 +38,8 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
-                <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>
                     <p class="no-data">Your details for my IBD have not yet been added to PatientView.</p>
                 </div>
@@ -48,30 +48,29 @@
                 <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_CONTROL'}">
-                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>IBD Control</h3></div>
                     <p class="no-data">Your details, required for use in the IBD Control Questionnaire have not yet been added to PatientView.</p>
                 </div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}">
-                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>Symptom Checker</h3></div>
                     <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
                 </div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_FATIGUE'}">
-                <div data-ng-include src="'views/partials/ibdFatigue.html'" data-ng-controller="IbdFatigueCtrl" data-ng-if="patient.myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patient.myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/ibdFatigue.html'" data-ng-controller="IbdFatigueCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>Fatigue</h3></div>
                     <p class="no-data">Your details, required for use in the Fatigue Questionnaire have not yet been added to PatientView.</p>
                 </div>
             </div>
         </div>
 
-        <div class="panel panel-default" data-ng-if="currentSpecialty.links && (activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)
-                                                        && patient === patientDetails[0]">
+        <div class="panel panel-default" data-ng-if="currentSpecialty.links && (activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)">
             <div class="panel-heading"><h3>Other Helpful Information</h3></div>
             <div class="panel-body">
                 <ul class="helpful-links">
