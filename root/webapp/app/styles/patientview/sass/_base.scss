@@ -664,6 +664,123 @@ ul {
     }
 }
 
+.survey-modal{
+    .row-question {
+        margin: 2px 0 20px 0;
+    }
+    .question-text {
+        /*font-weight: bold;*/
+        color: black;
+        margin-bottom: 10px;
+    }
+    .question-description {
+        font-weight: normal;
+        color: #2a6496;
+    }
+    .question-group-description {
+        font-weight: normal;
+        color: #2a6496;
+        margin-bottom: 20px;
+    }
+    .question-group-description br {
+        margin-bottom: 10px;
+    }
+    .pull-right {
+        padding: 0;
+    }
+    .span-radio {
+        margin-right: 10px;
+    }
+    .div-question-group {
+        margin-bottom: 20px;
+    }
+    .help-link {
+        margin-left: 5px;
+    }
+
+    input[type="radio"], input[type="range"], .radio-label {
+        cursor: pointer;
+    }
+
+    .modal-dialog label {
+        font-weight: normal;
+        font-size: 1em;
+    }
+
+    .numeric-text {
+        width: 50%;
+    }
+
+    .required-question {
+        font-weight: normal;
+        color: red;
+    }
+
+    .datetime {
+        font-weight: bold;
+        padding-top: 0.5em;
+    }
+
+    .slider {
+        display:     block;
+        position:    relative;
+        height:      30px;
+        width:       100%;
+    }
+    .slider span.bar {
+        height:     50%;
+        z-index:    0;
+        background: #eee;
+        left:       0;
+        top:        25%;
+        cursor:     pointer;
+    }
+    .slider span.bar.selection, .slider span.bar.unselected {
+    }
+    .slider span.bar.selection {
+        background: #0a0;
+        opacity:    0.5;
+    }
+    .slider span.bar.unselected {
+        width:      auto;
+        background: #a00;
+        opacity:    0.5;
+    }
+    .slider span.pointer {
+        cursor:           pointer;
+        width:            15px;
+        top:              0;
+        bottom:           0;
+        background-color: #368DE8;
+    }
+    .slider span.pointer:hover {
+    }
+    .slider span.pointer.active {
+    }
+    .slider span.bubble {
+        font-size:   1em;
+        line-height: 1.4em;
+        font-family: sans-serif;
+        text-align:  center;
+        text-shadow: none;
+        top:         -1.3em;
+        cursor:      pointer;
+    }
+    .slider span.bubble.selection, .slider span.bubble.limit {
+        top: 25%;
+    }
+    .slider span.bubble.selection {
+    }
+    .slider span.bubble.limit {
+    }
+    .slider span.bubble.low, .slider span.bubble.high {
+    }
+
+    ::-ms-tooltip {
+        display: none;
+    }
+}
+
 
 /** TODO add this in more appropriate place **/
 
