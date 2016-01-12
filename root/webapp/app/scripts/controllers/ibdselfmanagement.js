@@ -4,8 +4,17 @@ angular.module('patientviewApp').controller('IbdSelfManagementCtrl', ['$scope', 
     'SurveyResponseService',
 function ($scope, $routeParams, $location, SurveyResponseService) {
 
+    $scope.cancel = function() {
+        if (confirm("This will discard any changes you've made. Do you wish to continue?")) {
+            getSurveyResponses();
+        }
+    };
+
     $scope.init = function() {
         $scope.loading = true;
+        $scope.selfManagement = {};
+
+        // set valid years 6 years in future
         var date = new Date();
         $scope.validYears = [];
 
@@ -19,13 +28,15 @@ function ($scope, $routeParams, $location, SurveyResponseService) {
 
     var getSurveyResponses = function() {
         $scope.loading = true;
-        $scope.chartLoading = true;
         SurveyResponseService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
         .then(function(surveyResponses) {
             if (surveyResponses.length) {
-                $scope.surveyResponses = _.sortBy(surveyResponses, 'date').reverse();
+                surveyResponses = _.sortBy(surveyResponses, 'date').reverse();
+
+                // build survey response object based on hardcoded survey responses
             } else {
-                delete $scope.surveyResponses;
+                // no existing survey responses, set defaults
+                $scope.selfManagement.planOfCare = '1. Ensure that you are taking your medications regularly \n2. Ensure that you are taking the correct dose of medication, if you are not sure you should check with the IBD Nurse team \n3. \n4.';
             }
             $scope.loading = false;
         }, function() {
@@ -34,6 +45,9 @@ function ($scope, $routeParams, $location, SurveyResponseService) {
         });
     };
 
+    var save = function() {
+        // create survey responses based on ui model
+    };
 
     $scope.init();
 }]);
