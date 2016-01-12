@@ -3534,26 +3534,31 @@ textarea.form-control.article-content {
   line-height: 35px;
 }
 
+/* line 109, ../sass/_components.scss */
+.span-download {
+  margin-left: 10px;
+}
+
 @media only screen and (max-width: 1024px) {
-  /* line 111, ../sass/_components.scss */
+  /* line 116, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 115, ../sass/_components.scss */
+  /* line 120, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 767px) {
-  /* line 123, ../sass/_components.scss */
+  /* line 128, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media all and (max-width: 600px) {
-  /* line 132, ../sass/_components.scss */
+  /* line 137, ../sass/_components.scss */
   g.highcharts-input-group {
     display: none;
   }
