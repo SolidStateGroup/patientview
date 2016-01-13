@@ -44,6 +44,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
                     var answer = response.questionAnswers[i];
                     $scope.selfManagement[answer.question.type] = answer.value;
                 }
+
+                $scope.selfManagement.staffUser = response.staffUser;
             } else {
                 // no existing survey responses, set defaults
                 $scope.selfManagement['IBD_SELF_MANAGEMENT_PLAN_OF_CARE'] = '1. Ensure that you are taking your medications regularly \n2. Ensure that you are taking the correct dose of medication, if you are not sure you should check with the IBD Nurse team \n3. \n4.';

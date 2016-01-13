@@ -617,13 +617,13 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         List<SurveyResponse> responses = surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
 
         // clean up and reduced info about staff user if present
-        if (CollectionUtils.isEmpty(responses)) {
+        if (!CollectionUtils.isEmpty(responses)) {
             List<SurveyResponse> reducedResponses = new ArrayList<>();
             for (SurveyResponse surveyResponse : responses) {
                 reducedResponses.add(reduceStaffUser(surveyResponse));
             }
 
-            return reducedResponses;
+            responses = reducedResponses;
         }
 
         return responses;
@@ -662,8 +662,12 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                 Group newGroup = new Group();
                 newGroup.setName(groupRole.getGroup().getName());
                 newGroup.setShortName(groupRole.getGroup().getShortName());
+                newGroup.setCode(groupRole.getGroup().getCode());
+                newGroup.setGroupType(groupRole.getGroup().getGroupType());
+
                 Role newRole = new Role();
                 newRole.setName(groupRole.getRole().getName());
+                newRole.setDescription(groupRole.getRole().getDescription());
 
                 // add to new reduced staff user
                 newGroupRole.setGroup(newGroup);
