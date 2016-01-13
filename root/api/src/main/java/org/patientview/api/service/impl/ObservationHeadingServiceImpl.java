@@ -115,7 +115,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
@@ -141,7 +141,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
@@ -166,7 +166,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
             && !Util.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }

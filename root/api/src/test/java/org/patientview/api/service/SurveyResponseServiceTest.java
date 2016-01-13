@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.impl.SurveyResponseServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.Email;
@@ -26,6 +27,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
@@ -44,6 +46,7 @@ import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -102,6 +105,12 @@ public class SurveyResponseServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    UserService userService;
+
+    @Mock
+    UserTokenRepository userTokenRepository;
+
     @InjectMocks
     SurveyResponseService surveyResponseService = new SurveyResponseServiceImpl();
 
@@ -117,7 +126,7 @@ public class SurveyResponseServiceTest {
     }
 
     @Test
-    public void testAdd() throws ResourceNotFoundException, MessagingException {
+    public void testAdd() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -211,7 +220,93 @@ public class SurveyResponseServiceTest {
     }
 
     @Test
-    public void testAdd_notHigh() throws ResourceNotFoundException, MessagingException {
+    public void testAdd_IBD_SELF_MANAGEMENT()
+            throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+
+        String staffToken = "1234567890";
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        user.setGroupRoles(groupRoles);
+
+        // staff user who has switched to patient and is filling in survey on their behalf
+        User staffUser = TestUtils.createUser("staffUser");
+        staffUser.setEmail("staffUser@patientview.org");
+        staffUser.setId(2L);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        staffUser.setGroupRoles(new HashSet<GroupRole>());
+        staffUser.getGroupRoles().add(TestUtils.createGroupRole(staffRole, group, staffUser));
+
+        Lookup specialtyGroupLookup
+            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+        List<Role> staffRoles = new ArrayList<>();
+        staffRoles.add(staffRole);
+
+        List<User> staffUsers = new ArrayList<>();
+        staffUsers.add(staffUser);
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(staffUser);
+        userToken.setToken(staffToken);
+
+        // survey
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.IBD_SELF_MANAGEMENT);
+        survey.setId(1L);
+
+        SurveyResponse surveyResponse = new SurveyResponse();
+        surveyResponse.setUser(user);
+        surveyResponse.setDate(new Date());
+        surveyResponse.setSurvey(survey);
+        surveyResponse.setStaffToken(staffToken);
+
+        Question question = new Question();
+        question.setId(1L);
+        question.setType(QuestionTypes.IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS);
+        question.setElementType(QuestionElementTypes.TEXT);
+
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+        questionAnswer.setQuestion(question);
+        questionAnswer.setValue("some usual symptoms");
+        surveyResponse.getQuestionAnswers().add(questionAnswer);
+
+        when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
+        when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userTokenRepository.findByToken(eq(staffToken))).thenReturn(userToken);
+        when(userService.userCanSwitchToUser(eq(staffUser), eq(user))).thenReturn(true);
+
+        // scoring alerts
+        when(lookupService.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.SPECIALTY.toString())))
+                .thenReturn(specialtyGroupLookup);
+        when(roleService.getRolesByType(eq(RoleType.STAFF))).thenReturn(staffRoles);
+        when(userRepository.findStaffByGroupsRolesFeatures(eq("%%"), any(List.class), any(List.class), any(List.class),
+                any(Pageable.class))).thenReturn(new PageImpl<>(staffUsers));
+
+        surveyResponseService.add(user.getId(), surveyResponse);
+
+        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
+    }
+
+    @Test
+    public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
 
         User user = TestUtils.createUser("testUser");
         user.setId(1L);

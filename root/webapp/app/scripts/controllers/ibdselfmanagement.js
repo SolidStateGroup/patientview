@@ -86,8 +86,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
         var surveyResponse = {};
         surveyResponse.user = {};
         surveyResponse.user.id = $scope.loggedInUser.id;
-        //surveyResponse.staffUser = {};
-        //surveyResponse.staffUser.id = $rootScope.previousLoggedInUser.id;
+        surveyResponse.staffToken = $rootScope.previousAuthToken;
         surveyResponse.survey = {};
         surveyResponse.survey.id = $scope.survey.id;
         surveyResponse.questionAnswers = [];

@@ -1,9 +1,7 @@
 package org.patientview.api.util;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
@@ -133,8 +131,9 @@ public class UtilTest {
 
         TestUtils.authenticateTest(TestUtils.createUser("testUser"), RoleName.PATIENT, RoleName.UNIT_ADMIN);
 
-        Assert.assertFalse("The list does not contain the following role", Util.doesContainRoles(RoleName.SPECIALTY_ADMIN));
-        Assert.assertTrue("The list does not contain the following role", Util.doesContainRoles(RoleName.PATIENT));
+        Assert.assertFalse("The list does not contain the following role",
+                Util.currentUserHasRole(RoleName.SPECIALTY_ADMIN));
+        Assert.assertTrue("The list does not contain the following role", Util.currentUserHasRole(RoleName.PATIENT));
 
     }
 }

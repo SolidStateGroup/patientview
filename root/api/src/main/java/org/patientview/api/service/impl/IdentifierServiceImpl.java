@@ -291,7 +291,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
     private boolean isMemberOfCurrentUsersGroups(User user) {
         for (GroupRole groupRole : user.getGroupRoles()) {
             if (!groupRole.getGroup().getCode().toUpperCase().equals(GENERIC_GROUP_CODE)) {
-                if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+                if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
                     return true;
                 }
             }

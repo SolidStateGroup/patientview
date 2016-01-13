@@ -33,13 +33,13 @@ import java.util.List;
 public class FoodDiaryServiceImpl implements FoodDiaryService {
 
     @Inject
-    FoodDiaryRepository foodDiaryRepository;
+    private FoodDiaryRepository foodDiaryRepository;
 
     @Inject
-    IdentifierRepository identifierRepository;
+    private IdentifierRepository identifierRepository;
 
     @Inject
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     public void add(Long userId, FoodDiary foodDiary) throws ResourceNotFoundException {
@@ -84,7 +84,8 @@ public class FoodDiaryServiceImpl implements FoodDiaryService {
     }
 
     @Override
-    public FoodDiary update(Long userId, FoodDiary foodDiary) throws ResourceNotFoundException, ResourceForbiddenException {
+    public FoodDiary update(Long userId, FoodDiary foodDiary)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
