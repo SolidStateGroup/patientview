@@ -1364,7 +1364,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // check current logged in user has rights to this group
-        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!(Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN_API))) {
             throw new ResourceForbiddenException("Failed group and role validation");
         }

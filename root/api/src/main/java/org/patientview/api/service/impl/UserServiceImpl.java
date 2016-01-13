@@ -238,7 +238,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // validate i can add to requested group (staff role)
-        if (!isCurrentUserMemberOfGroup(group)) {
+        if (!isUserMemberOfGroup(getCurrentUser(), group)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -372,7 +372,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // check if current user is a member of the group to be removed
-        if (checkGroupMembership && !isCurrentUserMemberOfGroup(entityGroup)) {
+        if (checkGroupMembership && !isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -560,7 +560,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
             }
-            if (!isCurrentUserMemberOfGroup(groupRepository.findOne(groupRole.getGroup().getId()))) {
+            if (!isUserMemberOfGroup(getCurrentUser(), groupRepository.findOne(groupRole.getGroup().getId()))) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }
@@ -613,7 +613,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // UNIT_ADMIN can get users from other groups (used when updating existing user) as long as not GLOBAL_ADMIN
         // or SPECIALTY_ADMIN
-        if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -626,7 +626,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // if i have staff group role in same groups
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+            if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
                 return true;
             }
         }
@@ -635,19 +635,24 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public boolean currentUserCanSwitchToUser(User user) {
-        // if i am trying to access myself
-        if (getCurrentUser().equals(user)) {
+        return userCanSwitchToUser(getCurrentUser(), user);
+    }
+
+    @Override
+    public boolean userCanSwitchToUser(User user, User switchUser) {
+        // if user trying to access themselves
+        if (user.equals(switchUser)) {
             return true;
         }
 
-        // if i am trying to access a non patient user
-        if (!isUserAPatient(user)) {
+        // if user trying to access a non patient user
+        if (!isUserAPatient(switchUser)) {
             return false;
         }
 
-        // if i have staff group role in same groups
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+        // if user has staff group role in same groups
+        for (GroupRole groupRole : switchUser.getGroupRoles()) {
+            if (isUserMemberOfGroup(user, groupRole.getGroup())) {
                 return true;
             }
         }
@@ -835,7 +840,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     if (entityGroup == null) {
                         throw new ResourceNotFoundException("Unknown Group");
                     }
-                    if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                    if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
                 }

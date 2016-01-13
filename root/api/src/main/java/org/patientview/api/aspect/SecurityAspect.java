@@ -79,7 +79,7 @@ public final class SecurityAspect {
 
         RoleName[] roles = Util.getRoles(joinPoint);
 
-        if (roles != null && (Util.doesContainRoles(RoleName.GLOBAL_ADMIN) || Util.doesContainRoles(roles))) {
+        if (roles != null && (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN) || Util.currentUserHasRole(roles))) {
             LOG.debug("User has passed role validation");
         } else {
             throw new ResourceForbiddenException("The user does not have the required role");
@@ -127,7 +127,7 @@ public final class SecurityAspect {
 
         RoleName[] roles = Util.getRoles(joinPoint);
 
-        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 || Util.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
                 || Util.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");

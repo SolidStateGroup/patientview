@@ -652,7 +652,8 @@ CREATE TABLE PV_Survey
 CREATE TABLE PV_Survey_Response
 (
   Id              BIGINT NOT NULL,
-  User_Id         BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL REFERENCES PV_User (Id) NOT NULL,
+  Staff_User_Id   BIGINT NOT NULL REFERENCES PV_User (Id),
   Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
   Date            TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)

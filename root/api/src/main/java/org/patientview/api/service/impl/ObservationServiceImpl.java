@@ -107,7 +107,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check current logged in user has rights to this group
-        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!(Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN_API))) {
             throw new ResourceForbiddenException("Failed group and role validation");
         }

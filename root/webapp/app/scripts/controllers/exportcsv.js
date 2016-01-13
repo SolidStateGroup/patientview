@@ -8,15 +8,18 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
          * @type {Date}
          */
         var today = new Date();
+        var todayDay = ("0" + today.getDate().toString()).slice(-2);
+        var todayMonth = (today.getMonth()+1 < 10 ? "0" : "") + (today.getMonth()+1).toString().slice(-2);
+
         var currentDateTo = {};
-        currentDateTo['day'] = ("0" + today.getDate().toString()).slice(-2);
-        currentDateTo['month'] = (today.getMonth+1 > 9 ? "0" : "") + (today.getMonth()+1).toString().slice(-2);
+        currentDateTo['day'] = todayDay;
+        currentDateTo['month'] = todayMonth;
         currentDateTo['year']= today.getFullYear().toString();
         $scope.to = currentDateTo;
 
         var currentDateFrom = {};
-        currentDateFrom['day']   = ("0" + today.getDate().toString()).slice(-2);
-        currentDateFrom['month'] = (today.getMonth+1 > 9 ? "0" : "") + (today.getMonth()+1).toString().slice(-2);
+        currentDateFrom['day']   = todayDay;
+        currentDateFrom['month'] = todayMonth;
         currentDateFrom['year']  = (today.getFullYear()-3).toString();
         $scope.from = currentDateFrom;
 
@@ -34,9 +37,9 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
             $scope.referrer = "/results";
             $scope.showResults = true;
             $scope.pgtitle = "Results";
-        } else if($scope.referrer == "/letters"){
+        } else if ($scope.referrer == "/letters"){
             $scope.pgtitle = "Letters";
-        } else if($scope.referrer == "/medicines") {
+        } else if ($scope.referrer == "/medicines") {
             $scope.pgtitle = "Medicines";
         }
 
@@ -66,7 +69,7 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
             if (!_.contains($scope.selectedGroup, observationHeading)) {
                 $scope.selectedGroup.push(observationHeading);
                 $scope.filterString = $scope.selectedGroup.toString();
-            }else{
+            } else{
                 $scope.selectedGroup = _.without($scope.selectedGroup, observationHeading);
                 $scope.filterString = $scope.selectedGroup.toString();
 

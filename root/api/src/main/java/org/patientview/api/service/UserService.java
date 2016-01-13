@@ -373,6 +373,14 @@ public interface UserService {
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Check if User has the permissions to switch to another User.
+     * @param user User doing the switching
+     * @param switchUser User being switched to
+     * @return True if User can switch to the other User
+     */
+    boolean userCanSwitchToUser(User user, User switchUser);
+
+    /**
      * Used when searching for existing Users in Create New Staff/Patient in UI, simple check to see if username is
      * already in use.
      * @param username String username to check if User already exists

@@ -6,7 +6,9 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Conversation;
@@ -14,6 +16,7 @@ import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
@@ -27,6 +30,7 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -47,6 +51,7 @@ import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.UserTokenRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
@@ -106,9 +111,16 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private UserTokenRepository userTokenRepository;
+
     @Override
     @Transactional
-    public void add(Long userId, SurveyResponse surveyResponse) throws ResourceNotFoundException {
+    public void add(Long userId, SurveyResponse surveyResponse)
+            throws ResourceForbiddenException, ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -123,10 +135,37 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("Must include symptom score date");
         }
 
+        // if survey type is IBD_SELF_MANAGEMENT then need to check that a staff user is viewing as another user
+        if (survey.getType().equals(SurveyTypes.IBD_SELF_MANAGEMENT)) {
+            // check survey response has a staff token
+            if (StringUtils.isEmpty(surveyResponse.getStaffToken())) {
+                throw new ResourceForbiddenException("Forbidden (must be staff)");
+            }
+
+            // check staff token exists in db
+            UserToken userToken = userTokenRepository.findByToken(surveyResponse.getStaffToken());
+            if (userToken == null) {
+                throw new ResourceForbiddenException("Forbidden (must be staff)");
+            }
+
+            // check userToken matches user
+            if (userToken.getUser() == null) {
+                throw new ResourceForbiddenException("Forbidden (must be staff)");
+            }
+
+            // check staff user can switch to current user
+            if (!userService.userCanSwitchToUser(userToken.getUser(), getCurrentUser())) {
+                throw new ResourceForbiddenException("Forbidden (must be staff)");
+            }
+
+            surveyResponse.setStaffUser(userToken.getUser());
+        }
+
         SurveyResponse newSurveyResponse = new SurveyResponse();
         newSurveyResponse.setSurvey(survey);
         newSurveyResponse.setUser(user);
         newSurveyResponse.setDate(surveyResponse.getDate());
+        newSurveyResponse.setStaffUser(surveyResponse.getStaffUser());
 
         for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             QuestionAnswer newQuestionAnswer = new QuestionAnswer();
@@ -575,7 +614,19 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("Must set survey type");
         }
 
-        return surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
+        List<SurveyResponse> responses = surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
+
+        // clean up and reduced info about staff user if present
+        if (!CollectionUtils.isEmpty(responses)) {
+            List<SurveyResponse> reducedResponses = new ArrayList<>();
+            for (SurveyResponse surveyResponse : responses) {
+                reducedResponses.add(reduceStaffUser(surveyResponse));
+            }
+
+            responses = reducedResponses;
+        }
+
+        return responses;
     }
 
     @Override
@@ -585,6 +636,48 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        return surveyResponseRepository.findOne(surveyResponseId);
+        return reduceStaffUser(surveyResponseRepository.findOne(surveyResponseId));
+    }
+
+    /**
+     * Reduce the information passed back to ui about staff user (only used when a staff member fills in survey when
+     * viewing as a patient
+     * @param surveyResponse SurveyResponse to reduce staff user information for
+     * @return SurveyResponse where staff user info has been reduced
+     */
+    private SurveyResponse reduceStaffUser(SurveyResponse surveyResponse) {
+        if (surveyResponse.getStaffUser() != null) {
+            // create new reduced staff user
+            User staffUser = surveyResponse.getStaffUser();
+            User newStaffUser = new User();
+            newStaffUser.setGroupRoles(new HashSet<GroupRole>());
+            newStaffUser.setForename(staffUser.getForename());
+            newStaffUser.setSurname(staffUser.getSurname());
+            newStaffUser.setId(staffUser.getId());
+
+            for (GroupRole groupRole : staffUser.getGroupRoles()) {
+                GroupRole newGroupRole = new GroupRole();
+
+                // generate cut down groups and roles
+                Group newGroup = new Group();
+                newGroup.setName(groupRole.getGroup().getName());
+                newGroup.setShortName(groupRole.getGroup().getShortName());
+                newGroup.setCode(groupRole.getGroup().getCode());
+                newGroup.setGroupType(groupRole.getGroup().getGroupType());
+
+                Role newRole = new Role();
+                newRole.setName(groupRole.getRole().getName());
+                newRole.setDescription(groupRole.getRole().getDescription());
+
+                // add to new reduced staff user
+                newGroupRole.setGroup(newGroup);
+                newGroupRole.setRole(newRole);
+                newStaffUser.getGroupRoles().add(newGroupRole);
+            }
+
+            surveyResponse.setStaffUser(newStaffUser);
+        }
+
+        return surveyResponse;
     }
 }

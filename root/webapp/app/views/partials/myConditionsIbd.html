@@ -19,38 +19,38 @@
             <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_FATIGUE'}"><a data-ng-click="activeTab = 'IBD_FATIGUE'">Fatigue</a></li>
+            <li data-ng-class="{active:activeTab === 'IBD_SELF_MANAGEMENT'}"><a data-ng-click="activeTab = 'IBD_SELF_MANAGEMENT'">Self Management</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
                 <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>
-                    <p class="no-data">Your details for my IBD have not yet been added to PatientView.</p>
+                    <div class="panel-info">
+                        <p class="no-data">Your details for My IBD have not yet been added to PatientView.</p>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'FOOD_DIARY'}">
                 <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_CONTROL'}">
-                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
-                    <div class="panel-heading"><h3>IBD Control</h3></div>
-                    <p class="no-data">Your details, required for use in the IBD Control Questionnaire have not yet been added to PatientView.</p>
-                </div>
+                <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}">
                 <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
                 <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
                     <div class="panel-heading"><h3>Symptom Checker</h3></div>
-                    <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
+                    <div class="panel-info">
+                        <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_FATIGUE'}">
-                <div data-ng-include src="'views/partials/ibdFatigue.html'" data-ng-controller="IbdFatigueCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
-                    <div class="panel-heading"><h3>Fatigue</h3></div>
-                    <p class="no-data">Your details, required for use in the Fatigue Questionnaire have not yet been added to PatientView.</p>
-                </div>
+                <div data-ng-include src="'views/partials/ibdFatigue.html'" data-ng-controller="IbdFatigueCtrl"></div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_SELF_MANAGEMENT'}">
+                <div data-ng-include src="'views/partials/ibdSelfManagement.html'" data-ng-controller="IbdSelfManagementCtrl"></div>
             </div>
         </div>
 

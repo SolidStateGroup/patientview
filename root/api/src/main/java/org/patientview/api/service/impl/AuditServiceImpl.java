@@ -157,10 +157,10 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
         // if specialty admin or group admin only return information relating to your groups
-        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             if (groupIds.isEmpty()) {
                 // haven't filtered on group, add list of user's group ids
-                List<GroupRole> groupRoles = Util.getGroupRoles();
+                List<GroupRole> groupRoles = Util.getCurrentUserGroupRoles();
 
                 for (GroupRole groupRole : groupRoles) {
                     if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -182,7 +182,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
                     if (entityGroup == null) {
                         throw new ResourceNotFoundException("Unknown Group");
                     }
-                    if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                    if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
                 }
@@ -253,7 +253,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
         } else {
             // include final check to see if global admin as others should have group ids
-            if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
                 throw new ResourceForbiddenException("Forbidden");
             }
 

@@ -20,6 +20,9 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         var logons = [];
                         var xAxisCategories = [];
 
+                        // remove last date (most recent month)
+                        statisticsArray.pop();
+
                         for (var i = 0; i < statisticsArray.length; i++) {
                             var statistics = statisticsArray[i];
 

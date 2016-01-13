@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.SurveyResponseService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.enums.SurveyTypes;
@@ -33,7 +34,7 @@ public class SurveyResponseController extends BaseController<SurveyResponseContr
     @RequestMapping(value = "/user/{userId}/surveyresponses", method = RequestMethod.POST)
     @ResponseBody
     public void add(@PathVariable("userId") Long userId, @RequestBody SurveyResponse surveyResponse)
-            throws ResourceNotFoundException {
+            throws ResourceForbiddenException, ResourceNotFoundException {
         surveyResponseService.add(userId, surveyResponse);
     }
 

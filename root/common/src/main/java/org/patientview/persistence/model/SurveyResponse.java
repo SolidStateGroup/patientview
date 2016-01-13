@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,14 @@ public class SurveyResponse extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // used for surveys filled in by staff user viewing patient e.g. IBD
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "staff_user_id")
+    private User staffUser;
+
+    @Transient
+    private String staffToken;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "survey_id", nullable = false)
@@ -70,6 +79,22 @@ public class SurveyResponse extends BaseModel {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public User getStaffUser() {
+        return staffUser;
+    }
+
+    public void setStaffUser(User staffUser) {
+        this.staffUser = staffUser;
+    }
+
+    public String getStaffToken() {
+        return staffToken;
+    }
+
+    public void setStaffToken(String staffToken) {
+        this.staffToken = staffToken;
     }
 
     public Survey getSurvey() {

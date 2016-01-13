@@ -1,0 +1,181 @@
+<style>
+    .panel-questions {
+        margin: 0 10px 10px 10px;
+    }
+    .panel-questions .row {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="panel panel-default" data-ng-show="!loading">
+    <div class="panel-heading">
+        <h3>
+            Self-management programme for Inflammatory Bowel Disease
+        </h3>
+    </div>
+    <div class="panel-info">
+        <p>If you are a candidate for the IBD ‘self-management’ programme, a staff member will help fill this
+            form out with you. To find out more about the programme
+            <a href="/docs/self_management_patient_information.pdf" target="_blank">click here</a>.
+        </p>
+        <p>
+            (Note to staff: To submit this form you must have logged in and navigated to this screen via the
+            patient list. Otherwise the Save button will remain invisible)
+        </p>
+    </div>
+    <div class="row" data-ng-if="successMessage.length">
+        <div class="col-md-12">
+            <div class="alert alert-success">
+                <h5>{{successMessage}}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="panel-info" data-ng-if="selfManagement.date">
+        <p>
+            <strong>Form last updated by:</strong> {{selfManagement.staffUser.forename}} {{selfManagement.staffUser.surname}}
+            &nbsp;
+            <span data-ng-repeat="groupRole in selfManagement.staffUser.groupRoles" data-ng-hide="groupRole.role.name === 'GLOBAL_ADMIN' || groupRole.group.groupType.value === 'SPECIALTY'">
+                <span class="label label-info">
+                    <span data-ng-show="groupRole.group">{{groupRole.group.name}}</span>
+                    (
+                    <span data-ng-show="groupRole.role">{{groupRole.role.description}}</span>
+                    )
+                </span> &nbsp;&nbsp;
+            </span>
+        </p>
+        <p>
+            <strong>Date:</strong> {{selfManagement.date | date:'dd-MMM-yyyy HH:mm'}}
+        </p>
+    </div>
+    <div data-ng-if="!selfManagement.date">
+        <div class="alert-block alert-warning">
+            <h5>Your self-management programme has not been filled in yet.</h5>
+        </div>
+    </div>
+
+    <div class="panel-questions">
+        <div class="row">
+            <div class="col-md-12">
+                <label for="usual-symptoms" class="control-label">
+                    My usual symptoms when I have a flare of my condition are:
+                </label>
+                <div>
+                    <textarea id="usual-symptoms" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS" class="form-control"
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="medications" class="control-label">
+                    My medications when I am well are:
+                </label>
+                <div>
+                    <textarea id="medications" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_MEDICATIONS" class="form-control"
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="flare" class="control-label">
+                    Last time I had a flare the medications I used were:
+                </label>
+                <div>
+                    <textarea id="flare" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_FLARE" class="form-control"
+                              style="height: 100px;" data-ng-disabled="!isStaff"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="plan-of-care" class="control-label">
+                    When I have a flare, my plan of care is to:
+                </label>
+                <div>
+                    <textarea id="plan-of-care" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_PLAN_OF_CARE" class="form-control"
+                              style="height: 100px;" data-ng-disabled="!isStaff">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p>
+                    If you have had no improvement in your symptoms after ten days, if you notice a marked
+                    deterioration or are otherwise concerned, you should
+                    <a href="/#/contact" target="_blank">contact your IBD team</a>.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <label for="colorectal" class="control-label">
+                    My colorectal cancer surveillance colonoscopy will be due:
+                </label>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <select class="form-control" id="colorectal" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_COLORECTAL" data-ng-disabled="!isStaff">
+                        <option></option>
+                        <option data-ng-repeat="year in validYears">{{year}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <label for="dexa" class="control-label">
+                    My dexa scan will be due:
+                </label>
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <select class="form-control" id="dexa" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_DEXA" data-ng-disabled="!isStaff">
+                        <option></option>
+                        <option data-ng-repeat="year in validYears">{{year}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="appointment" class="control-label">
+                    My next hospital appointment with the IBD Team will be:
+                </label>
+                <input type="text" class="form-control" id="appointment" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_HOSPITAL" data-ng-disabled="!isStaff">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="blood" class="control-label">
+                    My GP will need to complete the following blood tests:
+                </label>
+                <input type="text" class="form-control" id="blood" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_BLOOD" data-ng-disabled="!isStaff">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="every" class="control-label">
+                    Every:
+                </label>
+                <input type="text" class="form-control" id="every" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_EVERY" data-ng-disabled="!isStaff">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn blue pull-left" data-ng-click="download()" data-ng-if="selfManagement.date">
+                    Download as PDF
+                </button>
+                <div class="btn-group pull-right" data-ng-if="isStaff">
+                    <button type="button" class="btn blue" data-ng-click="save()">Save</button>
+                    <button type="button" class="btn" data-ng-click="cancel()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container">
+    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+    <br/>
+</div>

@@ -330,7 +330,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        if (!isCurrentUserMemberOfGroup(entityGroup)) {
+        if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -366,7 +366,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        if (!isCurrentUserMemberOfGroup(entityGroup)) {
+        if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -394,7 +394,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -463,12 +463,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
-        if (!isCurrentUserMemberOfGroup(entityGroup)) {
+        if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
         // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -520,7 +520,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     private boolean canModifyNewsLink(NewsLink newsLink) {
-        if (newsLink.getGroup() != null && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        if (newsLink.getGroup() != null && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             User currentUser = getCurrentUser();
             for (GroupRole groupRole : currentUser.getGroupRoles()) {
                 if (groupRole.getGroup().equals(newsLink.getGroup())) {
@@ -534,7 +534,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     private boolean canModifyNewsItem(NewsItem newsItem) {
 
-        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 
@@ -544,7 +544,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 if (newsLink.getRole().getName().equals(RoleName.PUBLIC)) {
                     return true;
                 }
-            } else if (isCurrentUserMemberOfGroup(newsLink.getGroup())) {
+            } else if (isUserMemberOfGroup(getCurrentUser(), newsLink.getGroup())) {
                 return true;
             }
         }
