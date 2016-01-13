@@ -633,7 +633,7 @@ ul {
     background-color: $white;
     color:$black;
 
-    &:active, &:focus {
+    &:active, &:focus, &:hover {
         color: $black;
         outline:0;
     }
