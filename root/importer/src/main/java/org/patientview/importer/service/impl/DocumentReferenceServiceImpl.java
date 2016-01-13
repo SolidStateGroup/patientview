@@ -105,156 +105,159 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
                 try {
-                    Date now = new Date();
-                    // set up Media and DocumentReference builders and build DocumentReference
-                    DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(letter, patientReference);
-                    MediaBuilder mediaBuilder = null;
-                    DocumentReference documentReference = docBuilder.build();
+                    // check content of letter is not null or empty (some xml comes without content)
+                    if (StringUtils.isNotEmpty(letter.getLettercontent())) {
+                        Date now = new Date();
+                        // set up Media and DocumentReference builders and build DocumentReference
+                        DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(letter, patientReference);
+                        MediaBuilder mediaBuilder = null;
+                        DocumentReference documentReference = docBuilder.build();
 
-                    // if binary file then build media
-                    if (letter.getLetterfilebody() != null) {
+                        // if binary file then build media
+                        if (letter.getLetterfilebody() != null) {
 
-                        // set filename and type if not set in XML
-                        if (StringUtils.isEmpty(letter.getLetterfilename())) {
-                            letter.setLetterfilename(String.valueOf(now.getTime()));
-                        }
-                        if (StringUtils.isEmpty(letter.getLetterfiletype())) {
-                            letter.setLetterfiletype("application/unknown");
-                        }
-                        mediaBuilder = new MediaBuilder(letter);
-                        mediaBuilder.build();
-
-                        // set title of DocumentReference if possible (overwrites type)
-                        if (StringUtils.isNotEmpty(letter.getLettertitle())) {
-                            documentReference.setDescriptionSimple(letter.getLettertitle());
-                        }
-                    }
-
-                    // delete existing document reference, media and binary data if present
-                    //List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
-                    //List<UUID> existingUuids = getExistingByDateAndContent(documentReference, existingMap);
-                    List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
-
-                    if (!existingUuids.isEmpty()) {
-                        for (UUID existingUuid : existingUuids) {
-                            if (verboseLogging) {
-                                if (documentReference.getCreated() != null) {
-                                    LOG.info(nhsno + ": Deleting DocumentReference with date "
-                                            + documentReference.getCreated().getValue().toString());
-                                } else {
-                                    LOG.info(nhsno + ": Deleting DocumentReference");
-                                }
+                            // set filename and type if not set in XML
+                            if (StringUtils.isEmpty(letter.getLetterfilename())) {
+                                letter.setLetterfilename(String.valueOf(now.getTime()));
                             }
+                            if (StringUtils.isEmpty(letter.getLetterfiletype())) {
+                                letter.setLetterfiletype("application/unknown");
+                            }
+                            mediaBuilder = new MediaBuilder(letter);
+                            mediaBuilder.build();
 
-                            String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+                            // set title of DocumentReference if possible (overwrites type)
+                            if (StringUtils.isNotEmpty(letter.getLettertitle())) {
+                                documentReference.setDescriptionSimple(letter.getLettertitle());
+                            }
+                        }
 
-                            if (locationUuid != null) {
-                                // delete associated media and binary data if present
-                                Media media
-                                        = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
-                                if (media != null) {
-                                    // delete media
-                                    fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
+                        // delete existing document reference, media and binary data if present
+                        //List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
+                        //List<UUID> existingUuids = getExistingByDateAndContent(documentReference, existingMap);
+                        List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
 
-                                    // delete binary data
-                                    try {
-                                        if (fileDataRepository.exists(Long.valueOf(
-                                                media.getContent().getUrlSimple()))) {
-                                            fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
-                                        }
-                                    } catch (NumberFormatException nfe) {
-                                        LOG.info("Error deleting existing binary data, " +
-                                                "Media reference to binary data is not Long, ignoring");
+                        if (!existingUuids.isEmpty()) {
+                            for (UUID existingUuid : existingUuids) {
+                                if (verboseLogging) {
+                                    if (documentReference.getCreated() != null) {
+                                        LOG.info(nhsno + ": Deleting DocumentReference with date "
+                                                + documentReference.getCreated().getValue().toString());
+                                    } else {
+                                        LOG.info(nhsno + ": Deleting DocumentReference");
                                     }
                                 }
-                            }
 
-                            fhirResource.deleteEntity(existingUuid, "documentreference");
-                        }
-                    }
+                                String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
 
-                    boolean failed = false;
-                    FileData fileData = null;
+                                if (locationUuid != null) {
+                                    // delete associated media and binary data if present
+                                    Media media
+                                            = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+                                    if (media != null) {
+                                        // delete media
+                                        fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
 
-                    // create new binary file and Media if letter has file body (base64 binary)
-                    if (letter.getLetterfilebody() != null) {
-                        Media media = mediaBuilder.getMedia();
-
-                        // create binary file
-                        fileData = new FileData();
-                        fileData.setCreated(now);
-                        if (media.getContent().getTitle() != null) {
-                            fileData.setName(media.getContent().getTitleSimple());
-                        } else {
-                            fileData.setName(String.valueOf(now.getTime()));
-                        }
-                        if (media.getContent().getContentType() != null) {
-                            fileData.setType(media.getContent().getContentTypeSimple());
-                        } else {
-                            fileData.setType("application/unknown");
-                        }
-                        // convert base64 string to binary
-                        byte[] content = CommonUtils.base64ToByteArray(letter.getLetterfilebody());
-                        fileData.setContent(content);
-                        fileData.setSize(Long.valueOf(content.length));
-                        fileData = fileDataRepository.save(fileData);
-
-                        media = mediaBuilder.setFileDataId(media, fileData.getId());
-                        media = mediaBuilder.setFileSize(media, content.length);
-
-                        // create Media and set DocumentReference location to newly created Media logicalId
-                        try {
-                            FhirDatabaseEntity createdMedia
-                                    = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
-                            documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
-                        } catch (FhirResourceException e) {
-                            LOG.error(nhsno + ": Unable to create Media");
-                            failed = true;
-                        }
-                    }
-
-                    // create new DocumentReference
-                    if (!failed) {
-                        try {
-                            if (verboseLogging) {
-                                if (documentReference.getCreated() != null) {
-                                    LOG.info(nhsno + ": Adding DocumentReference with date "
-                                            + documentReference.getCreated().getValue().toString());
-                                } else {
-                                    LOG.info(nhsno + ": Adding DocumentReference");
+                                        // delete binary data
+                                        try {
+                                            if (fileDataRepository.exists(Long.valueOf(
+                                                    media.getContent().getUrlSimple()))) {
+                                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                            }
+                                        } catch (NumberFormatException nfe) {
+                                            LOG.info("Error deleting existing binary data, " +
+                                                    "Media reference to binary data is not Long, ignoring");
+                                        }
+                                    }
                                 }
-                            }
-                            fhirResource.createEntity(
-                                    documentReference, ResourceType.DocumentReference.name(), "documentreference");
-                        } catch (FhirResourceException e) {
-                            LOG.error(nhsno + ": Unable to create DocumentReference");
-                            failed = true;
-                        }
-                    }
 
-                    // if any object creation failed, clean up binary data
-                    if (failed) {
-                        if (fileData != null) {
-                            fileDataRepository.delete(fileData);
-                            LOG.error(nhsno + ": Had to clean up binary data");
+                                fhirResource.deleteEntity(existingUuid, "documentreference");
+                            }
                         }
-                    } else {
-                        success++;
-                        if (alert != null) {
-                            if (alert.getLatestDate() == null) {
-                                alert.setLatestDate(CommonUtils.getDateFromString(letter.getLetterdate()));
-                                alert.setLatestValue(letter.getLettertype());
-                                alert.setEmailAlertSent(false);
-                                alert.setWebAlertViewed(false);
-                                alert.setUpdated(true);
+
+                        boolean failed = false;
+                        FileData fileData = null;
+
+                        // create new binary file and Media if letter has file body (base64 binary)
+                        if (letter.getLetterfilebody() != null) {
+                            Media media = mediaBuilder.getMedia();
+
+                            // create binary file
+                            fileData = new FileData();
+                            fileData.setCreated(now);
+                            if (media.getContent().getTitle() != null) {
+                                fileData.setName(media.getContent().getTitleSimple());
                             } else {
-                                if (alert.getLatestDate().getTime()
-                                        < CommonUtils.getDateFromString(letter.getLetterdate()).getTime()) {
+                                fileData.setName(String.valueOf(now.getTime()));
+                            }
+                            if (media.getContent().getContentType() != null) {
+                                fileData.setType(media.getContent().getContentTypeSimple());
+                            } else {
+                                fileData.setType("application/unknown");
+                            }
+                            // convert base64 string to binary
+                            byte[] content = CommonUtils.base64ToByteArray(letter.getLetterfilebody());
+                            fileData.setContent(content);
+                            fileData.setSize(Long.valueOf(content.length));
+                            fileData = fileDataRepository.save(fileData);
+
+                            media = mediaBuilder.setFileDataId(media, fileData.getId());
+                            media = mediaBuilder.setFileSize(media, content.length);
+
+                            // create Media and set DocumentReference location to newly created Media logicalId
+                            try {
+                                FhirDatabaseEntity createdMedia
+                                        = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+                                documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
+                            } catch (FhirResourceException e) {
+                                LOG.error(nhsno + ": Unable to create Media");
+                                failed = true;
+                            }
+                        }
+
+                        // create new DocumentReference
+                        if (!failed) {
+                            try {
+                                if (verboseLogging) {
+                                    if (documentReference.getCreated() != null) {
+                                        LOG.info(nhsno + ": Adding DocumentReference with date "
+                                                + documentReference.getCreated().getValue().toString());
+                                    } else {
+                                        LOG.info(nhsno + ": Adding DocumentReference");
+                                    }
+                                }
+                                fhirResource.createEntity(
+                                        documentReference, ResourceType.DocumentReference.name(), "documentreference");
+                            } catch (FhirResourceException e) {
+                                LOG.error(nhsno + ": Unable to create DocumentReference");
+                                failed = true;
+                            }
+                        }
+
+                        // if any object creation failed, clean up binary data
+                        if (failed) {
+                            if (fileData != null) {
+                                fileDataRepository.delete(fileData);
+                                LOG.error(nhsno + ": Had to clean up binary data");
+                            }
+                        } else {
+                            success++;
+                            if (alert != null) {
+                                if (alert.getLatestDate() == null) {
                                     alert.setLatestDate(CommonUtils.getDateFromString(letter.getLetterdate()));
                                     alert.setLatestValue(letter.getLettertype());
                                     alert.setEmailAlertSent(false);
                                     alert.setWebAlertViewed(false);
                                     alert.setUpdated(true);
+                                } else {
+                                    if (alert.getLatestDate().getTime()
+                                            < CommonUtils.getDateFromString(letter.getLetterdate()).getTime()) {
+                                        alert.setLatestDate(CommonUtils.getDateFromString(letter.getLetterdate()));
+                                        alert.setLatestValue(letter.getLettertype());
+                                        alert.setEmailAlertSent(false);
+                                        alert.setWebAlertViewed(false);
+                                        alert.setUpdated(true);
+                                    }
                                 }
                             }
                         }
