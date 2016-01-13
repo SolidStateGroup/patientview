@@ -19,7 +19,7 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
 
         var currentDateFrom = {};
         currentDateFrom['day']   = todayDay;
-        currentDateFrom['month'] = todayMonth
+        currentDateFrom['month'] = todayMonth;
         currentDateFrom['year']  = (today.getFullYear()-3).toString();
         $scope.from = currentDateFrom;
 
