@@ -109,7 +109,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
         }
 
         SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function () {
-            $scope.successMessage = 'Saved updated self-management programme';
+            $scope.successMessage = 'The form has been saved';
             getSurveyResponses();
         }, function () {
             $scope.loading = false;
