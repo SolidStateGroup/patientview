@@ -36,7 +36,7 @@
         <p>
             <strong>Identifier(s):</strong>
             <span data-ng-repeat="identifier in loggedInUser.identifiers">
-                {{identifier.identifier}}
+                {{identifier.identifier}} ({{identifier.identifierType.description}})
             </span>
         </p>
         <p>

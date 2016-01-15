@@ -254,14 +254,18 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             throw new ResourceNotFoundException("Not found");
         }
 
+        // create new itext pdf document
         Document document = new Document();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, baos);
-        // step 3
         document.open();
-        // step 4
+
+        // add header
         document.add(new Paragraph("hello"));
-        // step 5
+
+        // add content
+
+        // close document and return in correct format
         document.close();
 
         return getDownloadContent(
