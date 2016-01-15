@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import com.itextpdf.text.DocumentException;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -59,6 +60,18 @@ public interface ExportService {
     @UserOnly
     HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Produce byte array (PDF) of survey response given user ID and survey response ID
+     * @param userId ID of user
+     * @param surveyResponseId ID of survey response
+     * @return byte array PDF file of survey response
+     * @throws DocumentException
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    HttpEntity<byte[]> downloadSurveyResponsePdf(Long userId, Long surveyResponseId)
+            throws DocumentException, ResourceNotFoundException;
 
     /**
      * Produce byte array (CSV file) of survey responses based on user ID and survey type

@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.itextpdf.text.DocumentException;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ExportService;
 import org.patientview.config.exception.FhirResourceException;
@@ -78,6 +79,22 @@ public class ExportController extends BaseController<ExportController> {
                                                 @PathVariable("toDate") String toDate)
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadMedicines(userId, fromDate, toDate);
+    }
+
+    /**
+     * Export a survey response as PDF
+     * @param userId ID of user to export survey response for
+     * @param surveyResponseId ID of survey response to export
+     * @return byte array PDF file
+     * @throws DocumentException
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/export/surveyresponse/{surveyResponseId}/pdf", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadSurveyResponsePdf(@PathVariable("userId") Long userId,
+                                                      @PathVariable("surveyResponseId") Long surveyResponseId)
+            throws DocumentException, ResourceNotFoundException {
+        return exportService.downloadSurveyResponsePdf(userId, surveyResponseId);
     }
 
     /**

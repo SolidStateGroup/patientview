@@ -1,11 +1,16 @@
 package org.patientview.api.service.impl;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.builder.CSVDocumentBuilder;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.enums.FileTypes;
 import org.patientview.api.service.ExportService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
@@ -36,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -171,7 +177,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToCellCascade(1, StringUtils.join(unitNames, ","));
         }
         return getDownloadContent("Results",
-                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -200,7 +207,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(medicationStatement.getGroup().getName());
         }
         return getDownloadContent("Medicines",
-                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -233,8 +241,31 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(content);
         }
         return getDownloadContent("Letters",
-                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate);
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
 
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadSurveyResponsePdf(Long userId, Long surveyResponseId)
+            throws DocumentException, ResourceNotFoundException {
+        SurveyResponse surveyResponse = surveyResponseRepository.findOne(surveyResponseId);
+        if (surveyResponse == null) {
+            throw new ResourceNotFoundException("Not found");
+        }
+
+        Document document = new Document();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, baos);
+        // step 3
+        document.open();
+        // step 4
+        document.add(new Paragraph("hello"));
+        // step 5
+        document.close();
+
+        return getDownloadContent(
+                surveyResponse.getSurvey().getDescription(), baos.toByteArray(), userId, null, null, FileTypes.PDF);
     }
 
     @Override
@@ -408,10 +439,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         return getDownloadContent(survey.getType().toString(),
-                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")),
-                        userId,
+                makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId,
                         new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
-                        new SimpleDateFormat("dd-MMM-yyyy").format(toDate));
+                        new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);
     }
 
     /**
@@ -425,23 +455,35 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                                                   byte[] content,
                                                   Long userId,
                                                   String fromDate,
-                                                  String toDate) {
+                                                  String toDate, FileTypes fileType) {
         FileData fileData = new FileData();
-        fileData.setType("text-csv");
+        if (fileType.equals(FileTypes.CSV)) {
+            fileData.setType("text-csv");
+        } else if (fileType.equals(FileTypes.PDF)) {
+            fileData.setType("application/pdf");
+        }
         fileData.setContent(content);
 
         User user = userRepository.findOne(userId);
         Identifier identifier = user.getIdentifiers().iterator().next();
+
+        StringBuilder sb = new StringBuilder(fileName);
+
         if (identifier.getIdentifier() != null) {
-            fileData.setName(String.format("%s-%s-%s-%s.csv",
-                    fileName,
-                    identifier.getIdentifier(),
-                    fromDate.replace("-", ""),
-                    toDate.replace("-", "")));
-        } else {
-            fileData.setName(String.format("%s-%s-%s.csv",
-                    fileName, fromDate, toDate));
+            sb.append("-");
+            sb.append(identifier.getIdentifier());
         }
+
+        if (fromDate != null && toDate != null) {
+            sb.append("-");
+            sb.append(fromDate.replace("-", ""));
+            sb.append("-");
+            sb.append(toDate.replace("-", ""));
+        }
+
+        sb.append(".");
+        sb.append(fileType.getName());
+        fileData.setName(sb.toString());
 
         HttpHeaders header = new HttpHeaders();
         String[] contentTypeArr = fileData.getType().split("/");

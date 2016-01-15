@@ -39,6 +39,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService) {
                 surveyResponses = _.sortBy(surveyResponses, 'date').reverse();
                 var response = surveyResponses[0];
                 $scope.selfManagement.date = response.date;
+                $scope.selfManagement.id = response.id;
 
                 for (var i=0; i<response.questionAnswers.length; i++) {
                     var answer = response.questionAnswers[i];

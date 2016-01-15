@@ -23,6 +23,13 @@
 
     <dependencies>
 
+        <!-- PDF export support -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.8</version>
+        </dependency>
+
         <!-- CSV handling, e.g. food diary migration -->
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -285,7 +292,7 @@
                 </executions>
                 <configuration>
                     <outxml>true</outxml>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
                     <showWeaveInfo>true</showWeaveInfo>
                     <complianceLevel>1.7</complianceLevel>
                     <aspectLibraries>

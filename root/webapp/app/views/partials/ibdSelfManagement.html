@@ -163,9 +163,8 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="btn blue pull-left" data-ng-click="download()" data-ng-if="selfManagement.date">
-                    Download as PDF
-                </button>
+                <a href="../api/user/{{loggedInUser.id}}/export/surveyresponse/{{selfManagement.id}}/pdf?token={{authToken}}"
+                   class="btn blue pull-left" data-ng-if="selfManagement.date">Download as PDF</a>
                 <div class="btn-group pull-right" data-ng-if="isStaff">
                     <button type="button" class="btn blue" data-ng-click="save()">Save</button>
                     <button type="button" class="btn" data-ng-click="cancel()">Cancel</button>
