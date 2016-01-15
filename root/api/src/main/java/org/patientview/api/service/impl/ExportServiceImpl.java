@@ -320,6 +320,21 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.add(date);
 
         // add content
+        document.add(new Paragraph(" "));
+
+        List<QuestionAnswer> questionAnswers = new ArrayList<>(surveyResponse.getQuestionAnswers());
+        Collections.sort(questionAnswers, new Comparator<QuestionAnswer>() {
+            @Override
+            public int compare(QuestionAnswer qa1, QuestionAnswer qa2) {
+                return qa1.getQuestion().getDisplayOrder().compareTo(qa2.getQuestion().getDisplayOrder());
+            }
+        });
+
+        for (QuestionAnswer answer : questionAnswers) {
+            document.add(new Paragraph(new Chunk(answer.getQuestion().getText(), bold)));
+            document.add(new Paragraph(new Chunk(answer.getValue())));
+            document.add(new Paragraph(" "));
+        }
 
         // close document and return in correct format
         document.close();
