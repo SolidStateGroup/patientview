@@ -5,9 +5,9 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -49,6 +49,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -272,8 +273,15 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // add header
         Font large = new Font(Font.FontFamily.HELVETICA, 24, Font.NORMAL, BaseColor.BLACK);
         Font bold = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
-        Chunk largeText = new Chunk("PatientView", large);
-        document.add(new Paragraph(largeText));
+
+        // patientview image
+        try {
+            Image image = Image.getInstance(this.getClass().getClassLoader().getResource("images/pv-logo.png"));
+            document.add(image);
+        } catch (IOException e) {
+            document.add(new Chunk("PatientView", large));
+        }
+
         document.add(new Paragraph(surveyResponse.getSurvey().getDescription()));
         document.add(new Chunk(new LineSeparator()));
 
