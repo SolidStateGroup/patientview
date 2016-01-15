@@ -276,7 +276,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         // patientview image
         try {
-            Image image = Image.getInstance(this.getClass().getClassLoader().getResource("images/pv-logo.png"));
+            Image image = Image.getInstance(this.getClass().getClassLoader().getResource("images/pv-logo-large.png"));
+            float w  = image.getPlainWidth();
+            w *= 0.1;
+            float h  = image.getPlainHeight();
+            h *= 0.1;
+            image.scaleAbsolute(w, h);
             document.add(image);
         } catch (IOException e) {
             document.add(new Chunk("PatientView", large));
