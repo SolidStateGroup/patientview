@@ -31,6 +31,15 @@
     </div>
     <div class="panel-info" data-ng-if="selfManagement.date">
         <p>
+            <strong>Name:</strong> {{loggedInUser.forename}} {{loggedInUser.surname}}
+        </p>
+        <p>
+            <strong>Identifier(s):</strong>
+            <span data-ng-repeat="identifier in loggedInUser.identifiers">
+                {{identifier.identifier}}
+            </span>
+        </p>
+        <p>
             <strong>Form last updated by:</strong> {{selfManagement.staffUser.forename}} {{selfManagement.staffUser.surname}}
             &nbsp;
             <span data-ng-repeat="groupRole in selfManagement.staffUser.groupRoles" data-ng-hide="groupRole.role.name === 'GLOBAL_ADMIN' || groupRole.group.groupType.value === 'SPECIALTY'">
