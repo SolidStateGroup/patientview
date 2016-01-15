@@ -1,9 +1,14 @@
 package org.patientview.api.service.impl;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.DottedLineSeparator;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.builder.CSVDocumentBuilder;
@@ -20,6 +25,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Question;
@@ -28,6 +34,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
@@ -254,6 +261,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             throw new ResourceNotFoundException("Not found");
         }
 
+        User user = userRepository.getOne(userId);
+
         // create new itext pdf document
         Document document = new Document();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -261,7 +270,54 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.open();
 
         // add header
-        document.add(new Paragraph("hello"));
+        Font large = new Font(Font.FontFamily.HELVETICA, 24, Font.NORMAL, BaseColor.BLACK);
+        Font bold = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
+        Chunk largeText = new Chunk("PatientView", large);
+        document.add(new Paragraph(largeText));
+        document.add(new Paragraph(surveyResponse.getSurvey().getDescription()));
+        document.add(new Chunk(new LineSeparator()));
+
+        // name
+        Paragraph name = new Paragraph();
+        name.add(new Chunk("Name: ", bold));
+        name.add(new Chunk(user.getName()));
+        document.add(name);
+
+        // identifiers
+        Paragraph identifiers = new Paragraph();
+        identifiers.add(new Chunk("Identifier(s): ", bold));
+        for (Identifier identifier : user.getIdentifiers()) {
+            identifiers.add(new Chunk(
+                    identifier.getIdentifier() + " (" + identifier.getIdentifierType().getDescription() + ")"));
+        }
+        document.add(identifiers);
+
+        // staff user (and group roles) if present
+        if (surveyResponse.getStaffUser() != null) {
+            Paragraph staffUser = new Paragraph();
+            staffUser.add(new Chunk("Form last updated by: ", bold));
+            staffUser.add(new Chunk(surveyResponse.getStaffUser().getName()));
+
+            StringBuilder sb = new StringBuilder();
+            for (GroupRole groupRole : surveyResponse.getStaffUser().getGroupRoles()) {
+                if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+                    sb.append(", ");
+                    sb.append(groupRole.getGroup().getName());
+                    sb.append(" (");
+                    sb.append(groupRole.getRole().getDescription());
+                    sb.append(") ");
+                }
+            }
+
+            staffUser.add(new Chunk(sb.toString()));
+            document.add(staffUser);
+        }
+
+        // date
+        Paragraph date = new Paragraph();
+        date.add(new Chunk("Date: ", bold));
+        date.add(new Chunk(new SimpleDateFormat("dd-MMM-yyyy").format(surveyResponse.getDate())));
+        document.add(date);
 
         // add content
 
