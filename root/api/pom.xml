@@ -23,6 +23,13 @@
 
     <dependencies>
 
+        <!-- parsing atom XML feeds for NHS choices -->
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-parser</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
         <!-- PDF export support -->
         <dependency>
             <groupId>com.itextpdf</groupId>

@@ -3,8 +3,9 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
+import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.config.TestCommonConfig;
 import org.patientview.api.service.impl.NhsChoicesServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -12,7 +13,14 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,12 +28,14 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 18/01/2016
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {TestCommonConfig.class, NhsChoicesServiceImpl.class})
 public class NhsChoicesServiceTest {
 
     User creator;
 
-    @InjectMocks
-    NhsChoicesService nhsChoicesService = new NhsChoicesServiceImpl();
+    @Autowired
+    NhsChoicesServiceImpl nhsChoicesService;
 
     @Before
     public void setup() {
@@ -39,7 +49,8 @@ public class NhsChoicesServiceTest {
     }
 
     @Test
-    public void testOrganisationsUpdate() {
+    public void testOrganisationsUpdate()
+            throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
