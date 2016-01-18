@@ -43,7 +43,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         String apiKey = properties.getProperty("nhschoices.api.key");
         String urlString
-            = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
+        //    = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
+            = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/postcode/W67HY.xml?range=1&apikey="
+                + apiKey;
 
         System.out.println("url: " + urlString);
 
@@ -62,22 +64,27 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Feed feed = doc.getRoot();
 
         for (Entry entry : feed.getEntries()) {
+            System.out.println("link: " + entry.getLink("alternate").getHref());
+
             org.w3c.dom.Document content = documentBuilderFactory.newDocumentBuilder().parse(
                     new InputSource(new StringReader(entry.getContent())));
             NamespaceContext context = new NamespaceContextMap("s", "http://syndication.nhschoices.nhs.uk/services");
             XPath xpath = XPathFactory.newInstance().newXPath();
             xpath.setNamespaceContext(context);
 
+            //String base = "/s:overview";
+            String base = "s:organisationSummary";
+
             String name = (String) xpath.compile(
-                    "/s:overview/s:name").evaluate(content, XPathConstants.STRING);
+                    base + "/s:name").evaluate(content, XPathConstants.STRING);
             String odsCode = (String) xpath.compile(
-                    "/s:overview/s:odsCode").evaluate(content, XPathConstants.STRING);
+                    base + "/s:odsCode").evaluate(content, XPathConstants.STRING);
             NodeList addressLines = (NodeList) xpath.compile(
-                    "/s:overview/s:address/s:addressLine").evaluate(content, XPathConstants.NODESET);
+                    base + "/s:address/s:addressLine").evaluate(content, XPathConstants.NODESET);
             String postcode = (String) xpath.compile(
-                    "/s:overview/s:address/s:postcode").evaluate(content, XPathConstants.STRING);
+                    base + "/s:address/s:postcode").evaluate(content, XPathConstants.STRING);
             String telephone = (String) xpath.compile(
-                    "/s:overview/s:contact[1]/s:telephone").evaluate(content, XPathConstants.STRING);
+                    base + "/s:contact[1]/s:telephone").evaluate(content, XPathConstants.STRING);
 
             System.out.println("name: " + name);
             System.out.println("ods code: " + odsCode);
@@ -88,6 +95,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             System.out.println("postcode: " + postcode);
             System.out.println("telephone: " + telephone);
+            System.out.println("");
         }
     }
 }
