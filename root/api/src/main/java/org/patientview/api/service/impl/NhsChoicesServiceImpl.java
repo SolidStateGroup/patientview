@@ -8,6 +8,7 @@ import org.apache.abdera.parser.Parser;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.patientview.api.service.NhsChoicesService;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -31,8 +32,12 @@ import java.util.Properties;
 @Service
 public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesServiceImpl> implements NhsChoicesService {
 
+    private Abdera abdera;
+
+    private DocumentBuilderFactory documentBuilderFactory;
+
     @Inject
-    Properties properties;
+    private Properties properties;
 
     public void updateOrganisations()
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
@@ -42,7 +47,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         System.out.println("url: " + urlString);
 
-        Abdera abdera = new Abdera();
+        if (abdera == null) {
+            abdera = new Abdera();
+        }
+
+        if (documentBuilderFactory == null) {
+            documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        }
+
         Parser parser = abdera.getParser();
 
         URL url = new URL(urlString);
@@ -50,17 +62,32 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Feed feed = doc.getRoot();
 
         for (Entry entry : feed.getEntries()) {
-            org.w3c.dom.Document content = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
+            org.w3c.dom.Document content = documentBuilderFactory.newDocumentBuilder().parse(
                     new InputSource(new StringReader(entry.getContent())));
             NamespaceContext context = new NamespaceContextMap("s", "http://syndication.nhschoices.nhs.uk/services");
             XPath xpath = XPathFactory.newInstance().newXPath();
             xpath.setNamespaceContext(context);
 
-            String name = (String) xpath.compile("/s:overview/s:name").evaluate(content, XPathConstants.STRING);
-            String odsCode = (String) xpath.compile("/s:overview/s:odsCode").evaluate(content, XPathConstants.STRING);
+            String name = (String) xpath.compile(
+                    "/s:overview/s:name").evaluate(content, XPathConstants.STRING);
+            String odsCode = (String) xpath.compile(
+                    "/s:overview/s:odsCode").evaluate(content, XPathConstants.STRING);
+            NodeList addressLines = (NodeList) xpath.compile(
+                    "/s:overview/s:address/s:addressLine").evaluate(content, XPathConstants.NODESET);
+            String postcode = (String) xpath.compile(
+                    "/s:overview/s:address/s:postcode").evaluate(content, XPathConstants.STRING);
+            String telephone = (String) xpath.compile(
+                    "/s:overview/s:contact[1]/s:telephone").evaluate(content, XPathConstants.STRING);
 
             System.out.println("name: " + name);
             System.out.println("ods code: " + odsCode);
+
+            for (int i = 0; i < addressLines.getLength(); i++) {
+                System.out.println("address line " + i + ": " + addressLines.item(i).getTextContent());
+            }
+
+            System.out.println("postcode: " + postcode);
+            System.out.println("telephone: " + telephone);
         }
     }
 }
