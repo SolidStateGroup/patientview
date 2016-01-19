@@ -28,26 +28,17 @@
         <div class="col-md-12">
             <label>Links</label>
         </div>
-        <div class="clearfix">
-            <div class="col-md-3">
-                <label>URL</label>
-            </div>
-            <div class="col-md-3">
-                <label>Description</label>
-            </div>
-            <div class="col-md-3">
-                <label data-ng-show="editCode.links.length > 0">Order</label>
-            </div>
-            <div class="col-md-3"></div>
-        </div>
         <div class="link-list-item" data-ng-repeat="link in editCode.links | orderBy:'displayOrder'">
             <div class="col-md-3">
+                <label>URL</label>
                 <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="URL" name="link" data-ng-model="link.link" required>
             </div>
             <div class="col-md-3">
+                <label>Description</label>
                 <input type="text" class="form-control" id="code-link-name-{{link.id}}" placeholder="Description" name="name" data-ng-model="link.name" required>
             </div>
             <div class="col-md-3">
+                <label data-ng-show="editCode.links.length > 0">Order</label>
                 <select id="code-link-displayOrder-{{link.id}}" class="form-control" data-ng-model="link.displayOrder">
                     <option data-ng-repeat="link in editCode.links">{{$index + 1}}</option>
                 </select>
@@ -60,18 +51,21 @@
 
         <div class="add-link" data-ng-model="newLink">
             <div class="col-md-3">
+                <label>URL</label>
                 <input type="text" class="form-control" id="code-newLink-link" placeholder="URL" name="newLink" data-ng-model="newLink.link">
             </div>
             <div class="col-md-3">
+                <label>Description</label>
                 <input type="text" class="form-control" id="code-newLink-name" placeholder="Description" name="newLink" data-ng-model="newLink.name">
             </div>
             <div class="col-md-3 hidden">
+                <label data-ng-show="editCode.links.length > 0">Order</label>
                 <select id="code-newLink-displayOrder" class="form-control" data-ng-model="newLink.displayOrder" data-ng-init="newLink.displayOrder='1'" >
                     <option data-ng-show="newLink.displayOrder" data-ng-repeat="link in editCode.links">{{$index + 1}}</option>
                     <option >{{editCode.links.length + 1}}</option>
                 </select>
             </div>
-            <div><button type="button" class="btn blue link-add-button" data-ng-click="addLink(codeFormNew, editCode, newLink)" data-ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+            <div class="col-md-12"><br/><button type="button" class="btn blue link-add-button" data-ng-click="addLink(codeFormNew, editCode, newLink)" data-ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
         </div>
     </div>
 </div>
