@@ -48,7 +48,7 @@
         <div class="clearFooter"></div>
         <div class="footer">
             <div class="container">
-                <div class="brand hidden-md hidden-sm hidden-xs col-md-4">
+                <div class="brand hidden-md hidden-sm hidden-xs col-md-2">
                     <a href="#/dashboard" data-ng-show="authToken">
                         <img src="images/pv-logo-trans.png" alt="patient view"/>
                     </a>
@@ -62,7 +62,7 @@
                     <li>Patient View {{getCurrentTime().getFullYear()}} &copy;</li>
                     <li>Version: {{buildDateTime | date:'yyyy.MM.dd.HH.ss'}}</li>
                 </ul>
-                <div class="partner-info col-md-4">
+                <div class="partner-info col-md-6">
                     <h5 class="key-partners hidden-xs"><strong>Key Partners</strong></h5>
                     <div class="partner-links">
                         <a href="https://www.gov.uk/government/organisations/department-of-health" title="Department of Health" target="_blank">
@@ -73,6 +73,9 @@
                         </a>
                         <a href="http://www.renal.org/" title="Renal Association" target="_blank">
                             <img src="images/renalassoc.png" alt="Renal Association">
+                        </a>
+                        <a href="http://www.crohnsandcolitis.org.uk/" title="Crohn's and Colitis" target="_blank">
+                            <img src="images/secondary-ccuk-logo_green_rgb_50px.png" alt="Crohn's and Colitis">
                         </a>
                         <a class="other-partners" href="http://rixg.org/patientview2/about/supporters/"
                                 target="_blank">
