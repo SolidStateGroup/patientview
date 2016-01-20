@@ -76,7 +76,7 @@
     }
 
     ul{
-        margin-left:20px;
+        margin-left:10px;
     }
 }
 
@@ -183,7 +183,7 @@ and (max-width : 1024px) {
     }
 }
 
-@media (max-width: $screen-xs-max) {
+@media (max-width: $screen-md-max) {
     .tab-panel-item {
         .item-detail {
             .last-login {

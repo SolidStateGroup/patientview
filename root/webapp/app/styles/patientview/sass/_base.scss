@@ -297,9 +297,10 @@ hr{
 
         &.active {
             background: white;
-            color: #585858;
+            color: #368de8;
             border: 1px solid #dddddd;
             box-shadow: none;
+            font-weight: bold;
         }
 
         &:first-of-type{

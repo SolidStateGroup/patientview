@@ -252,6 +252,30 @@ html, body{
 
 .nav-tabs li {
     cursor: pointer;
+
+    &.active{
+        a{
+            color:#368de8;
+            font-weight: bold;
+
+            &:hover{
+                color:#368de8;
+                font-weight: bold;
+            }
+        }
+    }
+
+    a{
+        border:1px solid #dddddd;
+        background:#f5f5f5;
+        color:#585858;
+
+        &:hover{
+            border:1px solid #dddddd;
+            color:#368de8;
+            background:#f5f5f5;
+        }
+    }
 }
 
 .nav-tabs {
