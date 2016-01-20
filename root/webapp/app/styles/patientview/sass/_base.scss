@@ -105,6 +105,17 @@ hr{
     font-size:17px;
 }
 
+.featured-news-heading{
+    margin:5px 0;
+    a{
+        margin-right:20px;
+    }
+
+    .news-date{
+        font-size:14px;
+    }
+}
+
 .content-panel {
     background: $white;
     @include bootstrap-border-radius(4px);

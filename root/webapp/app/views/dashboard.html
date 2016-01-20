@@ -11,12 +11,11 @@
                     <div class="panel-body">
                         <ul class="unstyled">
                             <li class="news-item" data-ng-repeat="news in featuredNewsItems">
-                                <div class="content-inner">
+                                <div class="">
                                     <h4
                                         class="featured-news-heading">
-                                        <a href="" data-ng-click="viewNewsItem(news)">{{news.heading}} </a>
-                                        <br/>
-                                        {{news.created | date:'dd-MMM-yyyy HH:mm'}} - {{listNewsLinkGroupNames(news)}}
+                                        <a href="" data-ng-click="viewNewsItem(news)" class="pull-left">{{news.heading}} </a>
+                                        <span class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}} - {{listNewsLinkGroupNames(news)}}</span>
                                     </h4>
 
                                     <p class="featured-news-content">{{stripHTML(news.story) | limitTo:200}}
