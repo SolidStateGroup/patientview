@@ -57,7 +57,7 @@
                         </h4>
                     </div>
 
-                    <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                    <a href="/#/resultsdetail?code={{result.code}}&r={{currentPage}}" data-ng-show="result.latestObservation">
                         <div class="result-value">
                             <dl class="result-change">
                                 <dt>
@@ -90,7 +90,7 @@
                     </ul>
                     
                     <div class="result-footer">
-                        <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                        <a href="/#/resultsdetail?code={{result.code}}&r={{currentPage}}" data-ng-show="result.latestObservation">
                             <i class="icon-circle-arrow pull-right"></i>
                             View Chart
                         </a>

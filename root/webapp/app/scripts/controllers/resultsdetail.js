@@ -8,6 +8,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.init = function() {
         $scope.loading = true;
 
+        // return parameter (currentPage on results page)
+        $scope.r = $routeParams.r;
+
         // if query parameters not set redirect to results
         if ($routeParams.code === undefined) {
             $location.path('/results');
