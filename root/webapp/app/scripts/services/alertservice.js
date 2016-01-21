@@ -32,6 +32,16 @@ angular.module('patientviewApp').factory('AlertService', ['$q', 'Restangular', f
             });
             return deferred.promise;
         },
+        getImportAlerts: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/importalerts
+            Restangular.one('user', userId).one('importalerts').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         removeAlert: function(userId, alertId) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/alerts/{alertId}

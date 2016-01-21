@@ -170,6 +170,18 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
                                                       @Param("groupIds") List<Long> groupIds,
                                                       @Param("actions") List<AuditActions> actions, Pageable pageable);
 
+    @Query("SELECT a.group.id, count(a.group.id) " +
+            "FROM Audit a " +
+            "WHERE a.group.id IN (:groupIds) " +
+            "AND a.auditActions IN (:actions) " +
+            "AND (a.creationDate >= :since) " +
+            "GROUP BY a.group.id " +
+            "ORDER BY a.group.id " +
+            "")
+    List<Object[]> findAllByCountGroupAction(@Param("groupIds") List<Long> groupIds,
+                                       @Param("since") Date since,
+                                       @Param("actions") List<AuditActions> actions);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Audit a SET a.xml = NULL WHERE a.creationDate <= :date")
     void removeOldAuditXml(@Param("date") Date date);

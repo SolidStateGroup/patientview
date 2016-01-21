@@ -4,6 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.Alert;
 import org.patientview.api.model.ContactAlert;
+import org.patientview.api.model.ImportAlert;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -56,6 +57,15 @@ public interface AlertService {
     @UserOnly
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     List<ContactAlert> getContactAlerts(Long userId) throws ResourceNotFoundException;
+
+    /**
+     * Get alerts per group with count of failed imports, used on dashboard.
+     * @param userId ID of User to get import alerts for
+     * @return List of ImportAlert objects
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    List<ImportAlert> getImportAlerts(Long userId) throws ResourceNotFoundException;
 
     /**
      * Remove a User's Alert.

@@ -209,22 +209,38 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             });
         };
 
-        $scope.getContactAlertsAndOldSubmissionDateGroups = function () {
+        $scope.getAlerts = function () {
             // get contact alerts for admin users
             if ($scope.permissions.showStaffAlerts) {
                 $scope.showStaffGroupAlerts = true;
+                $scope.importAlerts = [];
                 $scope.contactAlerts = [];
                 $scope.oldSubmissionDateGroups = [];
+
+                // get import alerts
+                $scope.importAlertsLoading = true;
+                AlertService.getImportAlerts($scope.loggedInUser.id).then(function (importAlerts) {
+                    for (var i = 0; i < importAlerts.length; i++) {
+                        if (importAlerts[i].group.groupType.value === 'UNIT') {
+                            $scope.importAlerts.push(importAlerts[i]);
+                        }
+                    }
+
+                    $scope.importAlertsLoading = false;
+                }, function () {
+                    alert("Error getting import alerts");
+                    $scope.importAlertsLoading = false;
+                });
 
                 // get contact alerts
                 $scope.contactAlertsLoading = true;
                 AlertService.getContactAlerts($scope.loggedInUser.id).then(function (contactAlerts) {
-                    $scope.contactAlertsLoading = false;
                     for (var i = 0; i < contactAlerts.length; i++) {
                         if (contactAlerts[i].group.groupType.value === 'UNIT') {
                             $scope.contactAlerts.push(contactAlerts[i]);
                         }
                     }
+                    $scope.contactAlertsLoading = false;
                 }, function () {
                     alert("Error getting contact alerts");
                     $scope.contactAlertsLoading = false;

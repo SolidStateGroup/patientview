@@ -51,8 +51,7 @@
                         </dl>
                         <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
-                            <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy
-                                HH:mm'}}
+                            <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
                                 <span class="sub-text" data-ng-show="loggedInUser.lastLoginIpAddress">from {{loggedInUser.lastLoginIpAddress}}</span>
                             </dd>
                             <dd data-ng-show="!loggedInUser.lastLogin">
@@ -144,14 +143,28 @@
                             </li>
                         </ul>
 
-                        <p><a href="" data-ng-click="getContactAlertsAndOldSubmissionDateGroups()"
-                              data-ng-show="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
+                        <p><a href="" data-ng-click="getAlerts()"
+                              data-ng-if="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
 
-                        <div data-ng-show="showStaffGroupAlerts">
+                        <div data-ng-if="showStaffGroupAlerts">
                             <a href=""
                                data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
                                data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
-                            <br/>
+                            <br/><br/>
+                            <strong>Failed Imports in Last Week</strong>
+                            <ul>
+                                <li data-ng-show="importAlertsLoading">
+                                    Checking failed imports for the last week
+                                </li>
+                                <li data-ng-repeat="importAlert in importAlerts | orderBy:'group.shortName'"
+                                    data-ng-show="!importAlertsLoading">
+                                    {{importAlert.group.shortName}} had {{importAlert.failedImports}} failed import<span data-ng-if="importAlert.failedImports > 1">s</span>
+                                    <span class="sub-text">(since {{importAlert.since | date:'dd-MMM-yyyy'}})</span>
+                                </li>
+                                <li data-ng-show="!importAlertsLoading && !importAlerts.length > 0">
+                                    There are no failed imports to report
+                                </li>
+                            </ul>
                             <strong>Missing Contact Alerts</strong>
                             <ul>
                                 <li data-ng-show="contactAlertsLoading">

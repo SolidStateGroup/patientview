@@ -1,10 +1,12 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.Group;
+import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
@@ -21,10 +23,12 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -41,8 +45,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -55,6 +61,9 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Inject
     private AlertRepository alertRepository;
+
+    @Inject
+    private AuditRepository auditRepository;
 
     @Inject
     private EmailService emailService;
@@ -128,6 +137,53 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         }
 
         return contactAlerts;
+    }
+
+    @Override
+    public List<ImportAlert> getImportAlerts(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<Group> groups = groupService.getUserGroups(userId, new GetParameters()).getContent();
+        List<Long> groupIds = new ArrayList<>();
+        Map<Long, Group> groupMap = new HashMap<>();
+        List<ImportAlert> importAlerts = new ArrayList<>();
+
+        for (Group group : groups) {
+            if (group.getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+                groupIds.add(group.getId());
+                groupMap.put(group.getId(), group);
+            }
+        }
+
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return importAlerts;
+        }
+
+        Date oneWeekAgo = new DateTime(new Date()).minusWeeks(1).toDate();
+        List<AuditActions> auditActions = new ArrayList<>();
+        auditActions.add(AuditActions.PATIENT_DATA_FAIL);
+        auditActions.add(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+
+        List<Object[]> audits = auditRepository.findAllByCountGroupAction(groupIds, oneWeekAgo, auditActions);
+
+        if (CollectionUtils.isEmpty(audits)) {
+            return importAlerts;
+        }
+
+        for (Object[] obj : audits) {
+            if (obj[0] != null) {
+                Group group = groupMap.get(obj[0]);
+                if (group != null) {
+                    ImportAlert importAlert = new ImportAlert(groupMap.get((Long) obj[0]), (Long) obj[1], oneWeekAgo);
+                    importAlerts.add(importAlert);
+                }
+            }
+        }
+
+        return importAlerts;
     }
 
     private boolean groupIsMissingUserWithFeature(Group group, FeatureType featureType) {
