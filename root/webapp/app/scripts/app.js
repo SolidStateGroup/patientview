@@ -296,7 +296,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             $rootScope.setSubmittedRequestCount();
         });
 
-        $rootScope.logout = function () {
+        $rootScope.logout = function (timeout) {
             $timeout(function () {
                 delete $rootScope.routes;
                 delete $rootScope.loggedInUser;
@@ -306,7 +306,11 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 delete $rootScope.previousLocation;
                 delete $cookies.authToken;
                 localStorageService.clearAll();
-                $location.path('/');
+                if (timeout) {
+                    $location.path('/login').search('timeout', 'true');
+                } else {
+                    $location.path('/');
+                }
             });
         };
 
@@ -448,7 +452,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
         // Logout the user.
         var idleTimeout = function IdleTimeout() {
-            window.location = '/#/logout';
+            window.location = '/#/logout?timeout=true';
         };
 
         // Start timers.

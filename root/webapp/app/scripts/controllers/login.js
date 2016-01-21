@@ -5,6 +5,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
     function (localStorageService, $scope, $rootScope, $routeParams, $location, $cookies, AuthService, RouteService) {
 
         $scope.login = function () {
+            delete $scope.timeout;
             $scope.errorMessage = '';
             $scope.showGpLoginMessage = false;
             $scope.loading = true;
@@ -104,6 +105,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                 $scope.keyPressCount++;
             });
 
+            $scope.timeout = $routeParams.timeout;
         };
 
         init();

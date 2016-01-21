@@ -45,6 +45,10 @@
             <p align="center">THIS IS A COPY OF PATIENTVIEW USED FOR TESTING - PLEASE LOG IN AT THE MAIN SITE</p>
             <p align="center">Please visit <a href="https://www.patientview.org">www.patientview.org</a></p>
         </div>
+
+        <div class="alert alert-danger" data-ng-show="timeout">
+            <p align="center">Your PatientView login session has expired. Please log in again.</p>
+        </div>
     </div>
     <div class="content-inner" data-ng-show="loading">
         <div class="container"><br/><br/>
