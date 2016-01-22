@@ -45,6 +45,12 @@ public class StatisticsTask {
 
             // set start date to one month ago
             calendar.roll(Calendar.MONTH, -1);
+
+            // if january need to set to previous year (december)
+            if (calendar.get(Calendar.MONTH) == Calendar.JANUARY) {
+                calendar.roll(Calendar.YEAR, -1);
+            }
+
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
