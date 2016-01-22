@@ -103,7 +103,7 @@ public class AlertServiceTest {
         TestUtils.removeAuthentication();
     }
 
-    @Ignore("Security issue, todo")
+    @Ignore("Security issue on live deploy, can be tested locally")
     @Test
     public void testGetContactAlerts() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup("GROUP1");
@@ -145,6 +145,7 @@ public class AlertServiceTest {
         Assert.assertEquals("Should return 0 contact alerts", 0, contactAlerts.size());
     }
 
+    @Ignore("Security issue on live deploy, can be tested locally")
     @Test
     public void testGetImportAlerts() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup("GROUP1");
