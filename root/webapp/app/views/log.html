@@ -30,7 +30,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='UNIT'">
-                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                    <a data-ng-click="setSelectedGroup(group.id)" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>
@@ -53,7 +53,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
-                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                    <a data-ng-click="setSelectedGroup(group.id)" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>

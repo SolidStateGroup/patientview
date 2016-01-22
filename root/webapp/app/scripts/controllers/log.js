@@ -9,8 +9,8 @@ function ($scope, $modalInstance, audit) {
     };
 }];
 
-angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', '$modal', 'AuditService',
-function ($scope, $timeout, $modal, AuditService) {
+angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', '$modal', 'AuditService', '$routeParams',
+function ($scope, $timeout, $modal, AuditService, $routeParams) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -62,8 +62,7 @@ function ($scope, $timeout, $modal, AuditService) {
 
     // filter by group
     $scope.selectedGroup = [];
-    $scope.setSelectedGroup = function () {
-        var id = this.group.id;
+    $scope.setSelectedGroup = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
             $scope.selectedGroup = _.without($scope.selectedGroup, id);
         } else {
@@ -196,7 +195,7 @@ function ($scope, $timeout, $modal, AuditService) {
         $scope.diseaseGroupsAvailable = false;
         $scope.unitsAvailable = false;
 
-        // set up datepicker
+        // set up datepicker, with one week ago
         $scope.todayEnd();
         var oneWeek = 604800000;
         $scope.dateStart = new Date(new Date().getTime() - oneWeek);
@@ -220,6 +219,28 @@ function ($scope, $timeout, $modal, AuditService) {
                 if (group.groupType.value === 'UNIT') {
                     $scope.unitsAvailable = true;
                 }
+            }
+        }
+
+        // handle group id parameter
+        if ($routeParams.groupId != undefined) {
+            if (Array.isArray($routeParams.groupId)) {
+                for (i = 0; i < $routeParams.groupId.length; i++) {
+                    $scope.selectedGroup.push(Number($routeParams.groupId[i]));
+                }
+            } else {
+                $scope.selectedGroup.push(Number($routeParams.groupId));
+            }
+        }
+
+        // handle audit action parameter
+        if ($routeParams.auditActions != undefined) {
+            if (Array.isArray($routeParams.auditActions)) {
+                for (i = 0; i < $routeParams.auditActions.length; i++) {
+                    $scope.selectedAuditAction.push($routeParams.auditActions[i]);
+                }
+            } else {
+                $scope.selectedAuditAction.push($routeParams.auditActions);
             }
         }
     };
