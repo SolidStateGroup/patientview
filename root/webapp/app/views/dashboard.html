@@ -146,7 +146,7 @@
                         <p><a href="" data-ng-click="getAlerts()"
                               data-ng-if="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
 
-                        <div data-ng-if="showStaffGroupAlerts">
+                        <div data-ng-show="showStaffGroupAlerts">
                             <a href=""
                                data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
                                data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
