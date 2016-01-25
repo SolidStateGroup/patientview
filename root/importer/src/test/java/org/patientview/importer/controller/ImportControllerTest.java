@@ -278,6 +278,20 @@ public class ImportControllerTest {
         }
     }
 
+    // IBD importer testing
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestIBDtest() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/IBD_test/import-ibdtest.xml");
+        files.add("data/xml/IBD_test/importfail1.xml");
+        files.add("data/xml/IBD_test/importfail2.xml");
+        files.add("data/xml/IBD_test/importfail3.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";

@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<patientview>
+    <sequence>2249</sequence>
+    <centredetails>
+        <centrecode>IBDTest</centrecode>
+        <centrename>Salford Royal NHS Trust</centrename>
+        <centreaddress1>Hope Hospital</centreaddress1>
+        <centreaddress2>Stott Lane</centreaddress2>
+        <centreaddress3>Salford</centreaddress3>
+        <centreaddress4>Salford</centreaddress4>
+        <centrepostcode>M6 6HD</centrepostcode>
+        <centretelephone>0161 206 4023</centretelephone>
+        <centreemail></centreemail>
+    </centredetails>
+    <gpdetails>
+        <gpname>B Somebody</gpname>
+        <gpaddress1>The Consulting Rooms</gpaddress1>
+        <gpaddress2>Somewhere</gpaddress2>
+        <gpaddress3>Up Country</gpaddress3>
+        <gppostcode>BZ4 7XY</gppostcode>
+        <gptelephone></gptelephone>
+        <gpemail></gpemail>
+    </gpdetails>
+    <patient>
+        <personaldetails>
+            <surname>TEST</surname>
+            <forename>PV-IBD</forename>
+            <dateofbirth>1950-03-16</dateofbirth>
+            <sex>F</sex>
+            <nhsno>201011956Z</nhsno>
+            <ethnicorigin></ethnicorigin>
+            <hospitalnumber>541586</hospitalnumber>
+            <address1>41 LONG AVENUE</address1>
+            <address2>IRLAM</address2>
+            <address3>MANCHESTER</address3>
+            <address4>UK</address4>
+            <postcode>M44 333</postcode>
+            <telephone1>0161873723</telephone1>
+        </personaldetails>
+        <clinicaldetails>
+            <tpstatus></tpstatus>
+            <diagnosisdate>2011-05-01</diagnosisdate>
+            <diagnosis>Ulcerative Colitis</diagnosis>
+            <ibddiseaseextent>Left-sided Colitis</ibddiseaseextent>
+            <ibddiseasecomplications>None</ibddiseasecomplications>
+            <ibdeimanifestations>None</ibdeimanifestations>
+            <familyhistory>Ulcerative Colitis</familyhistory>
+            <smokinghistory>Never smoked</smokinghistory>
+            <surgicalhistory>No Previous operations</surgicalhistory>
+            <vaccinationrecord></vaccinationrecord>
+            <colonoscopysurveillance>2021-01-01</colonoscopysurveillance>
+            <namedconsultant>Dr Robinson</namedconsultant>
+            <ibdnurse>Jane Connard; Justine Newberry</ibdnurse>
+        </clinicaldetails>
+        <testdetails>
+            <test>
+                <testname>albumin</testname>
+                <testcode>albumin</testcode>
+                <units>g/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>45</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>44</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>44</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>41</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>45</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>43</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>42</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>45</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>46</value>
+                </result>
+            </test>
+            <test>
+                <testname>alp</testname>
+                <testcode>alp</testcode>
+                <units>U/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>61</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>59</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>54</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>51</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>43</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>38</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>58</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>56</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>67</value>
+                </result>
+            </test>
+            <test>
+                <testname>alt</testname>
+                <testcode>alt</testcode>
+                <units>U/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>44</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>48</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>71</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>56</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>59</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>60</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>42</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>44</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>50</value>
+                </result>
+            </test>
+            <test>
+                <testname>bili</testname>
+                <testcode>bili</testcode>
+                <units>umol/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>11</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>5</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>10</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>8</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>7</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>6</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>6</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>8</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>6</value>
+                </result>
+            </test>
+            <test>
+                <testname>creatinine</testname>
+                <testcode>creatinine</testcode>
+                <units>umol/L</units>
+                <daterange start="2015-04-13" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>54</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>54</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>59</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>59</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>64</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>64</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>54</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>56</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>61</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>63</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>66</value>
+                </result>
+            </test>
+            <test>
+                <testname>crp</testname>
+                <testcode>crp</testcode>
+                <units>mg/L</units>
+                <daterange start="2015-06-05" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>&amp;lt;4.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>&amp;lt;4.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>&amp;lt;4.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>&amp;lt;4.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>&amp;lt;4.0</value>
+                </result>
+            </test>
+            <test>
+                <testname>hb</testname>
+                <testcode>hb</testcode>
+                <units>g/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>137</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>133</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>140</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>140</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>147</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>141</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>139</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>142</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>137</value>
+                </result>
+            </test>
+            <test>
+                <testname>platelets</testname>
+                <testcode>platelets</testcode>
+                <units>x10^9/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>166</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>139</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>146</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>147</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>188</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>169</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>167</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>165</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>178</value>
+                </result>
+            </test>
+            <test>
+                <testname>potassium</testname>
+                <testcode>potassium</testcode>
+                <units>mmol/L</units>
+                <daterange start="2015-04-13" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>4.8</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>3.8</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>3.6</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>3.8</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>3.7</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>3.8</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>3.9</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>4.1</value>
+                </result>
+            </test>
+            <test>
+                <testname>sodium</testname>
+                <testcode>sodium</testcode>
+                <units>mmol/L</units>
+                <daterange start="2015-04-13" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>141</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>143</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>140</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>139</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>142</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>141</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>141</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>138</value>
+                </result>
+            </test>
+            <test>
+                <testname>tpmt</testname>
+                <testcode>tpmt</testcode>
+                <units>mU/L</units>
+                <daterange start="2015-08-10" stop="2015-08-10"/>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>103</value>
+                </result>
+            </test>
+            <test>
+                <testname>urea</testname>
+                <testcode>urea</testcode>
+                <units>mmol/L</units>
+                <daterange start="2015-04-13" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>4.7</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>4.7</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>4.3</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>5.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>4.9</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>3.7</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>4.5</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>4.2</value>
+                </result>
+            </test>
+            <test>
+                <testname>wbc</testname>
+                <testcode>wbc</testcode>
+                <units>x10^9/L</units>
+                <daterange start="2015-03-31" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-03-31T11:01</datestamp>
+                    <value>5.0</value>
+                </result>
+                <result>
+                    <datestamp>2015-04-13T10:12</datestamp>
+                    <value>7.6</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-05T12:14</datestamp>
+                    <value>8.5</value>
+                </result>
+                <result>
+                    <datestamp>2015-06-29T12:13</datestamp>
+                    <value>5.1</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T16:21</datestamp>
+                    <value>13.4</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T14:32</datestamp>
+                    <value>9.5</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:47</datestamp>
+                    <value>6.1</value>
+                </result>
+                <result>
+                    <datestamp>2015-11-16T15:57</datestamp>
+                    <value>6.1</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T16:35</datestamp>
+                    <value>7.4</value>
+                </result>
+            </test>
+            <test>
+                <testname>weight</testname>
+                <testcode>weight</testcode>
+                <units>Kg</units>
+                <daterange start="2015-04-11" stop="2015-12-30"/>
+                <result>
+                    <datestamp>2015-04-11T12:40</datestamp>
+                    <value>61.2</value>
+                </result>
+                <result>
+                    <datestamp>2015-08-10T15:23</datestamp>
+                    <value>62.8</value>
+                </result>
+                <result>
+                    <datestamp>2015-09-07T13:59</datestamp>
+                    <value>63.6</value>
+                </result>
+                <result>
+                    <datestamp>2015-10-19T14:26</datestamp>
+                    <value>63.6</value>
+                </result>
+                <result>
+                    <datestamp>2015-12-30T15:44</datestamp>
+                    <value>63.4</value>
+                </result>
+            </test>
+        </testdetails>
+        <letterdetails>
+            <letter>
+                <letterdate>2011-04-05T09:39</letterdate>
+                <lettertype>Gastroenterology</lettertype>
+                <lettercontent>Our Ref: AC/DW/00541586
+
+Date Typed: 31/03/2011
+
+
+PRIVATE  CONFIDENTIAL
+
+Dr Test GP
+TestGP Address
+
+Dear Dr Test
+
+Test Patient	D.O.B.            16/03/1990
+22 Nowhere Road	Hospital No.   00541586
+Irlam, Manchester M44 6BU	NHS No.         620 823 5588
+
+Date/Time of Appt:	30 March 2011 at 15:00
+Clinic:	POOLED GASTRO
+Type of Appt:	New
+
+Many thanks for referring this 44-year old lady to clinic.  She was accompanied by her mother.  In total she describes a 2-year history of alteration in her bowel habit that has worsened over the last 4 months, but over the last week has improved.  She describes generalised abdominal pain with cramping exacerbations.  She feels urgency with the pain, but there is no relief with defaecation.  Her bowels have been moving between 1-7 times in 24 hours, and have tended to alternate between feeling constipated and passing diarrhoea.
+
+Over the last 4 months she has noticed fresh red bleeding on the toilet paper on wiping and in the toilet pan also mixed with stools with every bowel motion.  She has also noticed mucus per rectum.  The bleeding and mucus has resolved over the last week.
+
+Past medical history:
+
+Factor V deficiency
+Thalassaemia trait
+Anaemia
+Hypothyroidism
+
+Drug history:
+
+No known drug allergies
+125mcg Levothyroxine
+
+
+
+
+
+
+
+Social history:
+
+Non-smoker, alcohol - one drink at the weekend.  She is currently a nursing student and lives with her parents.  Her maternal grandfather has Crohn's disease, a paternal cousin has bowel problems.
+
+On examination today Test Patient weighed 55.4 kgs and appeared thin.  Her abdomen was soft and non-tender with no organomegaly and normal bowel sounds.
+
+Test Patient clearly needs investigation and may well have inflammatory bowel disease.  I have organised a series of routine bloods tests, including full blood count, U and E's, LFT's, CRP and haeamatinics.  She will have a colonoscopy and we will see her in clinic with her results.
+
+Many thanks.
+
+Yours sincerely
+
+
+
+
+Dr A Conlin
+Specialist Registrar in Gastroenterology
+
+
+
+
+
+
+
+Copy to:
+
+PRIVATE  CONFIDENTIAL
+
+Miss Test Patient
+22 Nowhere Road
+Irlam
+Manchester
+M44 6BU
+
+
+
+
+
+
+
+
+Medisec ref: 3615988 - Page 1 of 2
+
+Stout Lane, Someclinic M3 888 Tel: 0163-734-7373
+
+
+
+</lettercontent>
+            </letter>
+            <letter>
+                <letterdate>2011-04-08T15:32</letterdate>
+                <lettertype>Gastroenterology Dept Letter</lettertype>
+                <lettercontent>Our Ref: AC/SLW/00541586
+
+Date Dictd: 06/04/2011
+Date Typed: 08/04/2011
+
+
+PRIVATE  CONFIDENTIAL
+
+Dr M Test GP
+Liverpool Rd M/prac
+52 Derby Road
+Irlam, Manchester
+( 53 )
+
+
+Dear Dr Test GP
+
+Test Patient	D.O.B.            16/03/1990
+22 Nowhere Road	Hospital No.   00541586
+Irlam, Manchester M44 6BU	NHS No.         620 823 5588
+
+I saw this lady in the Gastroenterology clinic on the 30th March.  Blood tests demonstrate a microcytic hypochromic anaemia with a low Ferritin level (Hb 94g/l, MCV 72.6, haematocrit 0.32, Ferritin on the 11th March 7)  Her UE's, Lft's and CRP were all normal.  She awaits endoscopic investigations and has a review appointment in clinic.
+
+Many thanks
+
+Yours sincerely
+
+
+
+
+Dr A Conlin
+Specialist Registrar in Gastroenterology
+
+
+
+Copy to:
+
+PRIVATE  CONFIDENTIAL
+
+Miss Test Patient
+22 Nowhere Road
+Irlam
+Manchester
+M44 6BU
+
+
+
+
+
+
+
+
+Medisec ref: 3627996 - Page 1 of 2
+
+Stout Lane, Someclinic M3 888 Tel: 0163-734-7373
+
+
+
+</lettercontent>
+            </letter>
+            <letter>
+                <letterdate>2011-05-10T14:32</letterdate>
+                <lettertype>Gastroenterology Dept Letter</lettertype>
+                <lettercontent>Our Ref: AA/DW/00541586
+
+Date Typed: 09/05/2011
+
+
+
+PRIVATE  CONFIDENTIAL
+
+Dr M Test GP
+Liverpool Rd M/prac
+52 Derby Road
+Irlam, Manchester
+( 53 )
+
+
+Dear Dr Test GP
+
+Test Patient	D.O.B.            16/03/1950
+22 Nowhere Road	Hospital No.   00541586
+Irlam, Manchester M44 444	NHS No.         620 823 4444
+
+The colonic biopsies of Miss Test Patient confirmed inflammatory bowel disease.  The features are not specific for ulcerative colitis or Crohn's but she definitely has IBD and colitis.  As she is asymptomatic I would be grateful if you could start her on Pentasa 2g bd sachets and we will see her in the Outpatient clinic in due course.
+
+Best wishes.
+
+Yours sincerely
+
+
+
+
+Dr A Todd MRCP
+Consultant Gastroenterologist  Hepatologist
+
+
+
+Copy to:
+
+PRIVATE  CONFIDENTIAL
+
+Miss Test Patient
+22 Nowhere Road
+Irlam
+Manchester
+M44 6BU
+
+
+
+
+
+
+
+c.c.
+
+Sr Jane Connard
+Specialist IBD Nurse
+Salford Royal Hospital
+
+Dear Jane -
+
+Can you please take on the follow up of this patient with a new diagnosis of IBD.
+
+Many thanks.
+
+
+
+
+
+Medisec ref: 3663434 - Page 1 of 2
+
+Stout Lane, Someclinic M3 888 Tel: 0163-734-7373
+
+
+
+</lettercontent>
+            </letter>
+            <letter>
+                <letterdate>2011-06-28T15:33</letterdate>
+                <lettertype>Gastroenterology</lettertype>
+                <lettercontent>Our Ref: CS/cc/00541586
+
+Date Dictd: 27/06/2011
+Date Typed: 28/06/2011
+
+PRIVATE  CONFIDENTIAL
+
+Dr M Test GP
+Liverpool Rd M/prac
+52 Derby Road
+Irlam, Manchester
+( 53 )
+
+
+Dear Dr Test GP
+
+Test Patient	D.O.B.            16/03/1950
+22 Nowhere Road	Hospital No.   00541586
+Irlam, Manchester M44 6BU	NHS No.         620 823 4444
+
+Date/Time of Appt:	27 June 2011 at 18:00
+Clinic:	GASTRO IBD NURSE
+Type of Appt:	Follow_Up
+
+I reviewed Test Patient today in clinic following referral from Dr Algo.  She has a new diagnosis of Crohn's disease, following her colonoscopy in April which showed left-sided inflammation with a normal looking terminal ileum.  The inflammation was noted to be very mild at this time.  Biopsies at this point have confirmed active chronic inflammatory bowel disease but was unable to differentiate between Crohn's or colitis.
+
+She is currently having her bowels open once every two days passing no blood or mucus and no abdominal pain.  She is eating well and her weight is stable.
+
+She is currently on Pentasa 1 g twice daily.
+
+Following review today I have checked full blood count, UEs, LFTs, CRP and ESR and I have arranged further review for her in three months time.
+
+Yours sincerely
+
+
+
+
+Sr C Connard MSc, BSc (Hons) RN
+Inflammatory Bowel Disease Nurse Specialist
+
+
+
+Copy to:
+
+PRIVATE  CONFIDENTIAL
+
+Miss Test Patient
+22 Nowhere Road
+Irlam
+Manchester
+M44 6BU
+
+
+
+
+
+
+
+
+Medisec ref: 3743494 - Page 1 of 2
+
+Stout Lane, Someclinic M3 888 Tel: 0163-734-7373
+
+
+
+</lettercontent>
+            </letter>
+            <letter>
+                <letterdate>2011-07-01T15:33</letterdate>
+                <lettertype>Gastroenterology Dept Letter</lettertype>
+                <lettercontent>Our Ref: CS/ch/00541586
+
+Date Typed: 29/06/2011
+
+
+
+PRIVATE  CONFIDENTIAL
+
+Dr M Test GP
+Liverpool Rd M/prac
+52 Derby Road
+Irlam, Manchester
+( 53 )
+
+
+Dear Dr Test GP
+
+Test Patient	D.O.B.            16/03/1950
+22 Nowhere Road	Hospital No.   00541586
+Irlam, Manchester M44 6BU	NHS No.         620 823 4444
+
+Following Test Patient's recent clinic review I can confirm UE's, LFT's are normal.   With regards to her full blood count I note she has a microcytic anaemia with a haemoglobin of 104 and MCV of 66.9.   I would appreciate if you could check her serum iron, folate and B12 levels.
+
+Yours sincerely
+
+
+
+
+Sr C Connard MSc, BSc (Hons) RN
+Inflammatory Bowel Disease Nurse Specialist
+
+
+
+Copy to:
+
+PRIVATE  CONFIDENTIAL
+
+Miss Test Patient
+22 Nowhere Road
+Irlam
+Manchester
+M44 6BU
+
+
+
+
+
+
+
+
+Medisec ref: 3744320 - Page 1 of 2
+
+Stout Lane, Someclinic M3 888 Tel: 0163-734-7373
+
+
+
+</lettercontent>
+            </letter> </letterdetails>
+    </patient>
+</patientview>
