@@ -68,7 +68,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             this.existing.put(gpMaster.getPracticeCode(), gpMaster);
         }
 
-        //updateEngland();
+        updateEngland();
         updateScotland();
 
         // save objects to db
@@ -192,28 +192,81 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         while (iterator.hasNext()) {
             Row nextRow = iterator.next();
 
-            if (count > 6) {
+            if (count > 5) {
                 Iterator<Cell> cellIterator = nextRow.cellIterator();
+                int cellCount = 0;
+                String practiceCode = null;
+                String practiceName = null;
+                String address1 = null;
+                String address2 = null;
+                String address3 = null;
+                String address4 = null;
+                String postcode = null;
+                String telephone = null;
 
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
 
+                    String cellContent = null;
+
                     switch (cell.getCellType()) {
                         case Cell.CELL_TYPE_STRING:
-                            System.out.print(cell.getStringCellValue());
+                            cellContent = cell.getStringCellValue();
                             break;
                         case Cell.CELL_TYPE_BOOLEAN:
-                            System.out.print(cell.getBooleanCellValue());
+                            cellContent = Boolean.toString(cell.getBooleanCellValue());
                             break;
                         case Cell.CELL_TYPE_NUMERIC:
-                            System.out.print(cell.getNumericCellValue());
+                            cellContent = String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue());
                             break;
                     }
-                    System.out.print(" - ");
+                    if (StringUtils.isNotEmpty(cellContent)) {
+                        practiceCode = cellCount == 1 ? cellContent : practiceCode;
+                        practiceName = cellCount == 3 ? cellContent : practiceName;
+                        address1 = cellCount == 4 ? cellContent : address1;
+                        address2 = cellCount == 5 ? cellContent : address2;
+                        address3 = cellCount == 6 ? cellContent : address3;
+                        address4 = cellCount == 7 ? cellContent : address4;
+                        postcode = cellCount == 8 ? cellContent : postcode;
+                        telephone = cellCount == 9 ? cellContent : telephone;
+                    }
+                    cellCount++;
                 }
-                System.out.println();
-            }
 
+                GpMaster gpMaster;
+
+                if (practiceCode != null) {
+                    // check if entry already exists for this practice code
+                    if (!this.existing.containsKey(practiceCode)) {
+                        // new
+                        gpMaster = new GpMaster();
+                        gpMaster.setPracticeCode(practiceCode);
+                        gpMaster.setCreator(currentUser);
+                        gpMaster.setCreated(this.now);
+                        newGp++;
+                    } else {
+                        // update
+                        gpMaster = this.existing.get(practiceCode);
+                        gpMaster.setLastUpdater(currentUser);
+                        gpMaster.setLastUpdate(this.now);
+                        existingGp++;
+                    }
+
+                    // set properties
+                    gpMaster.setPracticeName(practiceName);
+                    gpMaster.setCountry(GpCountries.SCOT);
+                    gpMaster.setAddress1(StringUtils.isNotEmpty(address1) ? address1 : null);
+                    gpMaster.setAddress2(StringUtils.isNotEmpty(address2) ? address2 : null);
+                    gpMaster.setAddress3(StringUtils.isNotEmpty(address3) ? address3 : null);
+                    gpMaster.setAddress4(StringUtils.isNotEmpty(address4) ? address4 : null);
+                    gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode : null);
+                    gpMaster.setTelephone(StringUtils.isNotEmpty(telephone) ? telephone : null);
+
+                    // add to map of GPs to save
+                    gpToSave.put(practiceCode, gpMaster);
+                    total++;
+                }
+            }
             count++;
         }
 
