@@ -1,6 +1,9 @@
 package org.patientview.api.service;
 
+import net.lingala.zip4j.exception.ZipException;
 import org.patientview.api.annotation.RoleOnly;
+
+import java.io.IOException;
 
 /**
  * GP Service, for managing master table of GPs from external sources
@@ -11,5 +14,5 @@ import org.patientview.api.annotation.RoleOnly;
 public interface GpService {
 
     @RoleOnly
-    void updateMasterTable();
+    String updateMasterTable() throws IOException, ZipException;
 }

@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import net.lingala.zip4j.exception.ZipException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -46,7 +47,7 @@ public abstract class BaseController<T extends BaseController> {
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public String handleEntityException(ResourceNotFoundException e) {
+    public String handleNotFoundException(ResourceNotFoundException e) {
         LOG.info("Could not find resource: " + e.getMessage());
         return e.getMessage();
     }
@@ -154,5 +155,13 @@ public abstract class BaseController<T extends BaseController> {
     public String handleNumberFormatException(NumberFormatException e) {
         LOG.error("NumberFormatException exception {}", e);
         return "Number format exception";
+    }
+
+    @ExceptionHandler(ZipException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleZipException(ZipException e) {
+        LOG.error("ZipException exception {}", e);
+        return "Zip exception";
     }
 }

@@ -3,13 +3,16 @@
 angular.module('patientviewApp').controller('AdminCtrl', ['$scope', 'GpService', function ($scope, GpService) {
     $scope.updateGPs = function() {
         delete $scope.gpErrorMessage;
-        $scope.gpSuccessMessage = 'Updating master GP table';
+        $scope.updateGpRunning = true;
+        $scope.gpSuccessMessage = 'Updating master GP table - Please wait';
 
-        GpService.updateMasterTable().then(function() {
-            $scope.gpSuccessMessage = 'Updating master GP table - job started';
+        GpService.updateMasterTable().then(function(status) {
+            delete $scope.updateGpRunning;
+            $scope.gpSuccessMessage = 'Updating master GP table - Done, ' + status;
         }, function(result) {
+            delete $scope.updateGpRunning;
             delete $scope.gpSuccessMessage;
-            $scope.gpErrorMessage = result;
+            $scope.gpErrorMessage = result.data;
         });
     }
 }]);

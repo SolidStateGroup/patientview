@@ -738,7 +738,6 @@ CREATE TABLE PV_Food_Diary
 
 CREATE TABLE PV_Gp_Master
 (
-  Id                          BIGINT       NOT NULL,
   Practice_Code               TEXT         NOT NULL,
   Practice_Name               TEXT         NOT NULL,
   Address_1                   TEXT,
@@ -753,7 +752,7 @@ CREATE TABLE PV_Gp_Master
   Creation_Date               TIMESTAMP    NOT NULL,
   Last_Update_Date            TIMESTAMP,
   Last_Updated_By             BIGINT       REFERENCES PV_User (Id),
-  PRIMARY KEY (Id)
+  PRIMARY KEY (Practice_Code)
 );
 
 CREATE SEQUENCE hibernate_sequence

@@ -22,6 +22,12 @@
     </properties>
 
     <dependencies>
+        <!-- extracting ZIP files -->
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>1.3.2</version>
+        </dependency>
 
         <!-- parsing atom XML feeds for NHS choices -->
         <dependency>

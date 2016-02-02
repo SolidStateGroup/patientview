@@ -1,8 +1,11 @@
 package org.patientview.api.service;
 
+import net.lingala.zip4j.exception.ZipException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -12,8 +15,10 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -31,8 +36,14 @@ public class GpServiceTest {
     @Mock
     Properties properties;
 
+    @Mock
+    GpMasterRepository gpMasterRepository;
+
     @InjectMocks
     GpService gpService = new GpServiceImpl();
+
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Before
     public void setup() {
@@ -46,11 +57,10 @@ public class GpServiceTest {
     }
 
     @Test
-    public void testUpdateMasterTable() {
-
+    public void testUpdateMasterTable() throws IOException, ZipException {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -58,7 +68,10 @@ public class GpServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(properties.getProperty("nhschoices.api.key")).thenReturn("123456");
+        when(properties.getProperty("gp.master.temp.directory")).thenReturn(testFolder.getRoot().getAbsolutePath());
+        when(properties.getProperty("gp.master.url.england"))
+                .thenReturn("file://" + getClass().getResource("/gp").getPath().concat("/epraccur.zip"));
+        when(properties.getProperty("gp.master.filename.england")).thenReturn("epraccur.csv");
 
         gpService.updateMasterTable();
     }

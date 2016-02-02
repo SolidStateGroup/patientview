@@ -6,7 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -14,8 +22,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "pv_gp_master")
-public class GpMaster extends AuditModel {
+public class GpMaster implements Serializable, Comparable {
 
+    @Id
     @Column(name = "practice_code", nullable = false)
     private String practiceCode;
 
@@ -46,6 +55,22 @@ public class GpMaster extends AuditModel {
 
     @Column(name = "status_code")
     private String statusCode;
+
+    @Column(name = "last_update_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdate;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_updated_by")
+    private User lastUpdater;
+
+    @Column(name = "creation_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created = new Date();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User creator;
 
     public GpMaster() {
     }
@@ -128,5 +153,65 @@ public class GpMaster extends AuditModel {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public User getLastUpdater() {
+        return lastUpdater;
+    }
+
+    public void setLastUpdater(User lastUpdater) {
+        this.lastUpdater = lastUpdater;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(this.getClass().isAssignableFrom(o.getClass()))) {
+            return false;
+        }
+
+        GpMaster model = (GpMaster) o;
+        return practiceCode != null && practiceCode.equals(model.practiceCode);
+    }
+
+    @Override
+    public int hashCode() {
+        if (practiceCode != null) {
+            return practiceCode.hashCode();
+        } else {
+            return -1;
+        }
+    }
+
+    public int compareTo(Object o) {
+        GpMaster model = (GpMaster) o;
+        return this.practiceCode.compareTo(model.getPracticeCode());
     }
 }

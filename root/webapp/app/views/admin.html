@@ -19,12 +19,12 @@
 
             <div class="form-group">
                 <div class="col-md-4">
-                    <button data-ng-click="updateGPs()" class="btn blue">Update master GP table</button>
+                    <button data-ng-click="updateGPs()" class="btn blue" data-ng-disabled="updateGpRunning">Update master GP table</button>
                 </div>
             </div>
             <div class="form-group" data-ng-show="gpErrorMessage">
                 <div class="col-sm-12 alert alert-danger">
-                    <p><strong>Error updating master GP table</strong> {{gpErrorMessage}}</p>
+                    <p><strong>Error updating master GP table:</strong> {{gpErrorMessage}}</p>
                 </div>
             </div>
             <div class="form-group" data-ng-show="gpSuccessMessage">
