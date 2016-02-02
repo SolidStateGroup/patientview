@@ -51,36 +51,41 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private String tempDirectory;
     private int total, newGp, existingGp;
 
-    // retrieve files from various web services to temp directory
-    public Map<String, String> updateMasterTable() throws IOException, ZipException {
-        this.now = new Date();
-        this.currentUser = getCurrentUser();
+    private void addToSaveMap(String practiceCode, String practiceName, String address1, String address2,
+                              String address3, String address4, String postcode, String statusCode, String telephone,
+                              GpCountries country) {
+        GpMaster gpMaster;
 
-        this.total = 0;
-        this.newGp = 0;
-        this.existingGp = 0;
-        this.gpToSave = new HashMap<>();
-        this.tempDirectory = properties.getProperty("gp.master.temp.directory");
-
-        // get existing and put into map, used to see if any have changed
-        this.existing = new HashMap<>();
-        for (GpMaster gpMaster : gpMasterRepository.findAll()) {
-            this.existing.put(gpMaster.getPracticeCode(), gpMaster);
+        // check if entry already exists for this practice code
+        if (!this.existing.containsKey(practiceCode)) {
+            // new
+            gpMaster = new GpMaster();
+            gpMaster.setPracticeCode(practiceCode);
+            gpMaster.setCreator(currentUser);
+            gpMaster.setCreated(this.now);
+            newGp++;
+        } else {
+            // update
+            gpMaster = this.existing.get(practiceCode);
+            gpMaster.setLastUpdater(currentUser);
+            gpMaster.setLastUpdate(this.now);
+            existingGp++;
         }
 
-        updateEngland();
-        updateScotland();
+        // set properties
+        gpMaster.setPracticeName(practiceName);
+        gpMaster.setCountry(country);
+        gpMaster.setAddress1(StringUtils.isNotEmpty(address1) ? address1 : null);
+        gpMaster.setAddress2(StringUtils.isNotEmpty(address2) ? address2 : null);
+        gpMaster.setAddress3(StringUtils.isNotEmpty(address3) ? address3 : null);
+        gpMaster.setAddress4(StringUtils.isNotEmpty(address4) ? address4 : null);
+        gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode : null);
+        gpMaster.setStatusCode(StringUtils.isNotEmpty(statusCode) ? statusCode : null);
+        gpMaster.setTelephone(StringUtils.isNotEmpty(telephone) ? telephone : null);
 
-        // save objects to db
-        gpMasterRepository.save(gpToSave.values());
-
-        // output info on new/changed
-        Map<String, String> status = new HashMap<>();
-        status.put("total", String.valueOf(total));
-        status.put("existing", String.valueOf(existingGp));
-        status.put("new", String.valueOf(newGp));
-        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
-        return status;
+        // add to map of GPs to save
+        gpToSave.put(practiceCode, gpMaster);
+        total++;
     }
 
     private void updateEngland() throws IOException, ZipException {
@@ -116,38 +121,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             String statusCode = nextLine[12];
             String telephone = nextLine[17];
 
-            GpMaster gpMaster;
-
-            // check if entry already exists for this practice code
-            if (!this.existing.containsKey(practiceCode)) {
-                // new
-                gpMaster = new GpMaster();
-                gpMaster.setPracticeCode(practiceCode);
-                gpMaster.setCreator(currentUser);
-                gpMaster.setCreated(this.now);
-                newGp++;
-            } else {
-                // update
-                gpMaster = this.existing.get(practiceCode);
-                gpMaster.setLastUpdater(currentUser);
-                gpMaster.setLastUpdate(this.now);
-                existingGp++;
-            }
-
-            // set properties
-            gpMaster.setPracticeName(practiceName);
-            gpMaster.setCountry(GpCountries.ENG);
-            gpMaster.setAddress1(StringUtils.isNotEmpty(address1) ? address1 : null);
-            gpMaster.setAddress2(StringUtils.isNotEmpty(address2) ? address2 : null);
-            gpMaster.setAddress3(StringUtils.isNotEmpty(address3) ? address3 : null);
-            gpMaster.setAddress4(StringUtils.isNotEmpty(address4) ? address4 : null);
-            gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode : null);
-            gpMaster.setStatusCode(StringUtils.isNotEmpty(statusCode) ? statusCode : null);
-            gpMaster.setTelephone(StringUtils.isNotEmpty(telephone) ? telephone : null);
-
-            // add to map of GPs to save
-            gpToSave.put(practiceCode, gpMaster);
-            total++;
+            addToSaveMap(practiceCode, practiceName, address1, address2, address3,
+                    address4, postcode, statusCode, telephone, GpCountries.ENG);
         }
 
         reader.close();
@@ -162,11 +137,43 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         FileUtils.deleteDirectory(zipFolder);
     }
 
+    // retrieve files from various web services to temp directory
+    public Map<String, String> updateMasterTable() throws IOException, ZipException {
+        this.now = new Date();
+        this.currentUser = getCurrentUser();
+
+        this.total = 0;
+        this.newGp = 0;
+        this.existingGp = 0;
+        this.gpToSave = new HashMap<>();
+        this.tempDirectory = properties.getProperty("gp.master.temp.directory");
+
+        // get existing and put into map, used to see if any have changed
+        this.existing = new HashMap<>();
+        for (GpMaster gpMaster : gpMasterRepository.findAll()) {
+            this.existing.put(gpMaster.getPracticeCode(), gpMaster);
+        }
+
+        updateEngland();
+        updateScotland();
+
+        // save objects to db
+        gpMasterRepository.save(gpToSave.values());
+
+        // output info on new/changed
+        Map<String, String> status = new HashMap<>();
+        status.put("total", String.valueOf(total));
+        status.put("existing", String.valueOf(existingGp));
+        status.put("new", String.valueOf(newGp));
+        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
+        return status;
+    }
+
     private void updateScotland() throws IOException, ZipException {
         // get properties
         String url = properties.getProperty("gp.master.url.scotland");
 
-        // download from url to temp zip file
+        // download from url to temp file
         File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.SCOT.toString()));
         zipFolder.mkdir();
         File extractedDataFile = new File(this.tempDirectory.concat(
@@ -186,7 +193,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         Workbook workbook = new HSSFWorkbook(inputStream);
         Sheet firstSheet = workbook.getSheetAt(1);
         Iterator<Row> iterator = firstSheet.iterator();
-
         int count = 0;
 
         while (iterator.hasNext()) {
@@ -206,7 +212,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-
                     String cellContent = null;
 
                     switch (cell.getCellType()) {
@@ -220,6 +225,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                             cellContent = String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue());
                             break;
                     }
+
                     if (StringUtils.isNotEmpty(cellContent)) {
                         practiceCode = cellCount == 1 ? cellContent : practiceCode;
                         practiceName = cellCount == 3 ? cellContent : practiceName;
@@ -230,41 +236,13 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                         postcode = cellCount == 8 ? cellContent : postcode;
                         telephone = cellCount == 9 ? cellContent : telephone;
                     }
+
                     cellCount++;
                 }
 
-                GpMaster gpMaster;
-
                 if (practiceCode != null) {
-                    // check if entry already exists for this practice code
-                    if (!this.existing.containsKey(practiceCode)) {
-                        // new
-                        gpMaster = new GpMaster();
-                        gpMaster.setPracticeCode(practiceCode);
-                        gpMaster.setCreator(currentUser);
-                        gpMaster.setCreated(this.now);
-                        newGp++;
-                    } else {
-                        // update
-                        gpMaster = this.existing.get(practiceCode);
-                        gpMaster.setLastUpdater(currentUser);
-                        gpMaster.setLastUpdate(this.now);
-                        existingGp++;
-                    }
-
-                    // set properties
-                    gpMaster.setPracticeName(practiceName);
-                    gpMaster.setCountry(GpCountries.SCOT);
-                    gpMaster.setAddress1(StringUtils.isNotEmpty(address1) ? address1 : null);
-                    gpMaster.setAddress2(StringUtils.isNotEmpty(address2) ? address2 : null);
-                    gpMaster.setAddress3(StringUtils.isNotEmpty(address3) ? address3 : null);
-                    gpMaster.setAddress4(StringUtils.isNotEmpty(address4) ? address4 : null);
-                    gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode : null);
-                    gpMaster.setTelephone(StringUtils.isNotEmpty(telephone) ? telephone : null);
-
-                    // add to map of GPs to save
-                    gpToSave.put(practiceCode, gpMaster);
-                    total++;
+                    addToSaveMap(practiceCode, practiceName, address1, address2, address3, address4, postcode, null,
+                            telephone, GpCountries.SCOT);
                 }
             }
             count++;
