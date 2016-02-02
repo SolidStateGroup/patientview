@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * RESTful interface for handling GP logins and managing required data, including GP data from external sources
@@ -31,7 +32,7 @@ public class GpController extends BaseController<GpController> {
      */
     @RequestMapping(value = "/gp/updatemastertable", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<String> updateMasterTable() throws IOException, ZipException {
+    public ResponseEntity<Map<String, String>> updateMasterTable() throws IOException, ZipException {
         return new ResponseEntity<>(gpService.updateMasterTable(), HttpStatus.OK);
     }
 }

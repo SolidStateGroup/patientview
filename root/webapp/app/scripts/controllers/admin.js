@@ -8,7 +8,8 @@ angular.module('patientviewApp').controller('AdminCtrl', ['$scope', 'GpService',
 
         GpService.updateMasterTable().then(function(status) {
             delete $scope.updateGpRunning;
-            $scope.gpSuccessMessage = 'Updating master GP table - Done, ' + status;
+            $scope.gpSuccessMessage = 'Updating master GP table - Done, total: '
+                + status.total + ', existing: ' + status.existing + ', new: ' + status.new;
         }, function(result) {
             delete $scope.updateGpRunning;
             delete $scope.gpSuccessMessage;

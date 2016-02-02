@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -36,7 +37,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private Properties properties;
 
     // retrieve files from various web services to temp directory
-    public String updateMasterTable() throws IOException, ZipException {
+    public Map<String, String> updateMasterTable() throws IOException, ZipException {
         Date now = new Date();
         User currentUser = getCurrentUser();
 
@@ -130,8 +131,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         FileUtils.deleteDirectory(zipFolder);
 
         // output info on new/changed
-        String status = "total: " + total + ", existing: " + existingGp + ", new: " + newGp;
-        System.out.println(status);
+        Map<String, String> status = new HashMap<>();
+        status.put("total", String.valueOf(total));
+        status.put("existing", String.valueOf(existingGp));
+        status.put("new", String.valueOf(newGp));
+        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
         return status;
     }
 }
