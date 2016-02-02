@@ -5,6 +5,11 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.patientview.api.service.GpService;
 import org.patientview.persistence.model.GpMaster;
@@ -15,11 +20,14 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,37 +44,63 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     @Inject
     private Properties properties;
 
+    private User currentUser;
+    private Map<String, GpMaster> existing;
+    private Map<String, GpMaster> gpToSave;
+    private Date now;
+    private String tempDirectory;
+    private int total, newGp, existingGp;
+
     // retrieve files from various web services to temp directory
     public Map<String, String> updateMasterTable() throws IOException, ZipException {
-        Date now = new Date();
-        User currentUser = getCurrentUser();
+        this.now = new Date();
+        this.currentUser = getCurrentUser();
 
+        this.total = 0;
+        this.newGp = 0;
+        this.existingGp = 0;
+        this.gpToSave = new HashMap<>();
+        this.tempDirectory = properties.getProperty("gp.master.temp.directory");
+
+        // get existing and put into map, used to see if any have changed
+        this.existing = new HashMap<>();
+        for (GpMaster gpMaster : gpMasterRepository.findAll()) {
+            this.existing.put(gpMaster.getPracticeCode(), gpMaster);
+        }
+
+        //updateEngland();
+        updateScotland();
+
+        // save objects to db
+        gpMasterRepository.save(gpToSave.values());
+
+        // output info on new/changed
+        Map<String, String> status = new HashMap<>();
+        status.put("total", String.valueOf(total));
+        status.put("existing", String.valueOf(existingGp));
+        status.put("new", String.valueOf(newGp));
+        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
+        return status;
+    }
+
+    private void updateEngland() throws IOException, ZipException {
         // get properties
-        String tempDirectory = properties.getProperty("gp.master.temp.directory");
-        String urlEngland = properties.getProperty("gp.master.url.england");
-        String filenameEngland = properties.getProperty("gp.master.filename.england");
+        String url = properties.getProperty("gp.master.url.england");
+        String filename = properties.getProperty("gp.master.filename.england");
 
         // download from url to temp zip file
-        File zipFolder = new File(tempDirectory.concat("/" + GpCountries.ENG.toString()));
+        File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.ENG.toString()));
         zipFolder.mkdir();
-        File zipLocation = new File(tempDirectory.concat(
+        File zipLocation = new File(this.tempDirectory.concat(
                 "/" + GpCountries.ENG.toString() + "/" + GpCountries.ENG.toString() + ".zip"));
-        FileUtils.copyURLToFile(new URL(urlEngland), zipLocation);
+        FileUtils.copyURLToFile(new URL(url), zipLocation);
 
         // extract zip file
         ZipFile zipFile = new ZipFile(zipLocation);
         zipFile.extractAll(zipFolder.getPath());
-        File extractedDataFile = new File(zipFolder.getPath().concat("/" + filenameEngland));
-
-        // get existing and put into map to see if changed
-        HashMap<String, GpMaster> existing = new HashMap<>();
-        for (GpMaster gpMaster : gpMasterRepository.findAll()) {
-            existing.put(gpMaster.getPracticeCode(), gpMaster);
-        }
+        File extractedDataFile = new File(zipFolder.getPath().concat("/" + filename));
 
         // read CSV file line by line, extracting data to populate GpMaster objects
-        int total = 0, newGp = 0, existingGp = 0;
-        HashMap<String, GpMaster> gpToSave = new HashMap<>();
         CSVReader reader = new CSVReader(new FileReader(extractedDataFile));
         String[] nextLine;
 
@@ -85,18 +119,18 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             GpMaster gpMaster;
 
             // check if entry already exists for this practice code
-            if (!existing.containsKey(practiceCode)) {
+            if (!this.existing.containsKey(practiceCode)) {
                 // new
                 gpMaster = new GpMaster();
                 gpMaster.setPracticeCode(practiceCode);
                 gpMaster.setCreator(currentUser);
-                gpMaster.setCreated(now);
+                gpMaster.setCreated(this.now);
                 newGp++;
             } else {
                 // update
-                gpMaster = existing.get(practiceCode);
+                gpMaster = this.existing.get(practiceCode);
                 gpMaster.setLastUpdater(currentUser);
-                gpMaster.setLastUpdate(now);
+                gpMaster.setLastUpdate(this.now);
                 existingGp++;
             }
 
@@ -118,24 +152,81 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
         reader.close();
 
-        // save objects to db
-        gpMasterRepository.save(gpToSave.values());
-
         // archive csv file to new archive directory
-        File archiveDir = new File(tempDirectory.concat(
-                "/archive/" + new DateTime(now).toString("YYYMMddhhmmss") + "/" + GpCountries.ENG.toString()));
+        File archiveDir = new File(this.tempDirectory.concat(
+                "/archive/" + new DateTime(this.now).toString("YYYMMddhhmmss") + "/" + GpCountries.ENG.toString()));
         archiveDir.mkdirs();
         FileUtils.copyFileToDirectory(extractedDataFile, archiveDir);
 
         // delete temp directory
         FileUtils.deleteDirectory(zipFolder);
+    }
 
-        // output info on new/changed
-        Map<String, String> status = new HashMap<>();
-        status.put("total", String.valueOf(total));
-        status.put("existing", String.valueOf(existingGp));
-        status.put("new", String.valueOf(newGp));
-        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
-        return status;
+    private void updateScotland() throws IOException, ZipException {
+        // get properties
+        String url = properties.getProperty("gp.master.url.scotland");
+
+        // download from url to temp zip file
+        File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.SCOT.toString()));
+        zipFolder.mkdir();
+        File extractedDataFile = new File(this.tempDirectory.concat(
+                "/" + GpCountries.SCOT.toString() + "/" + GpCountries.SCOT.toString() + ".xls"));
+
+        // needs user agent setting to avoid 403 when retrieving
+        URL urlObj = new URL(url);
+        URLConnection conn = urlObj.openConnection();
+        conn.setRequestProperty("User-Agent",
+                "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0");
+        conn.connect();
+        FileUtils.copyInputStreamToFile(conn.getInputStream(), extractedDataFile);
+
+        // read XLS file line by line, extracting data to populate GpMaster objects
+        FileInputStream inputStream = new FileInputStream(new File(extractedDataFile.getAbsolutePath()));
+
+        Workbook workbook = new HSSFWorkbook(inputStream);
+        Sheet firstSheet = workbook.getSheetAt(1);
+        Iterator<Row> iterator = firstSheet.iterator();
+
+        int count = 0;
+
+        while (iterator.hasNext()) {
+            Row nextRow = iterator.next();
+
+            if (count > 6) {
+                Iterator<Cell> cellIterator = nextRow.cellIterator();
+
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+
+                    switch (cell.getCellType()) {
+                        case Cell.CELL_TYPE_STRING:
+                            System.out.print(cell.getStringCellValue());
+                            break;
+                        case Cell.CELL_TYPE_BOOLEAN:
+                            System.out.print(cell.getBooleanCellValue());
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:
+                            System.out.print(cell.getNumericCellValue());
+                            break;
+                    }
+                    System.out.print(" - ");
+                }
+                System.out.println();
+            }
+
+            count++;
+        }
+
+        workbook.close();
+        inputStream.close();
+
+        // archive csv file to new archive directory
+        File archiveDir = new File(this.tempDirectory.concat(
+                "/archive/" + new DateTime(this.now).toString("YYYMMddhhmmss") + "/" + GpCountries.SCOT.toString()));
+        archiveDir.mkdirs();
+        FileUtils.copyFileToDirectory(extractedDataFile, archiveDir);
+
+        // delete temp directory
+        FileUtils.deleteDirectory(zipFolder);
     }
 }
