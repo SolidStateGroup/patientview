@@ -736,6 +736,26 @@ CREATE TABLE PV_Food_Diary
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Gp_Master
+(
+  Id                          BIGINT       NOT NULL,
+  Practice_Code               TEXT         NOT NULL,
+  Practice_Name               TEXT         NOT NULL,
+  Address_1                   TEXT,
+  Address_2                   TEXT,
+  Address_3                   TEXT,
+  Address_4                   TEXT,
+  Postcode                    TEXT,
+  Country                     TEXT,
+  Telephone                   TEXT,
+  Status_Code                 TEXT,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT       REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
