@@ -8,6 +8,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.UUID;
 
@@ -50,6 +51,10 @@ public class FhirLink extends BaseModel {
 
     @Column(name = "active")
     private Boolean active;
+
+    // used when importing patients, to see if new patient for this GP and if GP letter table should be updated
+    @Transient
+    private boolean isNew;
 
     public User getUser() {
         return user;
@@ -124,4 +129,11 @@ public class FhirLink extends BaseModel {
         this.active = active;
     }
 
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
 }

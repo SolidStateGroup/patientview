@@ -12,6 +12,8 @@ import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.service.EncounterService;
+import org.patientview.importer.service.GpLetterService;
+import org.patientview.importer.service.GroupRoleService;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.OrganizationService;
@@ -19,13 +21,17 @@ import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -37,25 +43,13 @@ import java.util.concurrent.TimeUnit;
 public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implements ImportManager {
 
     @Inject
-    private PatientService patientService;
+    private AllergyService allergyService;
 
     @Inject
-    private ObservationService observationService;
+    private AuditService auditService;
 
     @Inject
     private ConditionService conditionService;
-
-    @Inject
-    private PractitionerService practitionerService;
-
-    @Inject
-    private OrganizationService organizationService;
-
-    @Inject
-    private EncounterService encounterService;
-
-    @Inject
-    private MedicationService medicationService;
 
     @Inject
     private DiagnosticService diagnosticService;
@@ -64,13 +58,31 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private DocumentReferenceService documentReferenceService;
 
     @Inject
-    private AllergyService allergyService;
+    private EncounterService encounterService;
 
     @Inject
-    private AuditService auditService;
-    
+    private GpLetterService gpLetterService;
+
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private GroupRoleService groupRoleService;
+
+    @Inject
+    private MedicationService medicationService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private OrganizationService organizationService;
+
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private PractitionerService practitionerService;
 
     @Override
     public void validate(Patientview patientview) throws ImportResourceException {
@@ -116,6 +128,37 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // update core Patient object based on <nhsno>
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);
+
+            // check FhirLink is new and GP details are suitable for using in GP letter table
+            if (fhirLink.isNew() && gpLetterService.hasValidGpDetails(patientview)) {
+                 // check if any entries exist matching GP details in GP letter table
+                List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
+
+                if (!CollectionUtils.isEmpty(gpLetters)) {
+                    // match exists, check if first entry is claimed (all will be claimed if so)
+                    if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getGroup() != null) {
+                        // add GroupRole for this patient and GP group
+                        groupRoleService.add(
+                                fhirLink.getUser().getId(), gpLetters.get(0).getGroup().getId(), RoleType.PATIENT);
+                    } else {
+                        // entries exist but not claimed, check GP name against existing GP letter entries
+                        boolean gpNameExists = false;
+                        for (GpLetter gpLetter : gpLetters) {
+                            if (gpLetter.getGpName().equals(patientview.getGpdetails().getGpname())) {
+                                gpNameExists = true;
+                            }
+                        }
+
+                        if (!gpNameExists) {
+                            // no entry for this specific GP name, create new entry
+                            gpLetterService.add(patientview);
+                        }
+                    }
+                } else {
+                    // GP details do not match any in GP letter table, create new entry
+                    gpLetterService.add(patientview);
+                }
+            }
 
             // add other practitioners, only used by IBD for named consultant and nurse
             practitionerService.addOtherPractitionersToPatient(patientview, fhirLink);
