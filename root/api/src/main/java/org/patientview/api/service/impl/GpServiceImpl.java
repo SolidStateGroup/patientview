@@ -106,6 +106,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     private void initialise() {
+        LOG.info(properties.getProperty("site.url"));
         LOG.info("initialise()");
         this.now = new Date();
         this.currentUser = getCurrentUser();
