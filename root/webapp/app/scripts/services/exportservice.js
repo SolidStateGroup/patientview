@@ -7,10 +7,11 @@ angular.module('patientviewApp').factory('ExportService', ['$q', 'Restangular', 
 
         },
         // result table
-        download: function(userId, resultsParamters) {
+        download: function(userId, resultsParamaters) {
             var deferred = $q.defer();
             //GET /user/{userId}/export/download
-            Restangular.one('user', userId).one('code').one('export', 'download').get(resultsParamters).then(function(successResult) {
+            Restangular.one('user', userId).one('code').one('export', 'download').get(resultsParamaters)
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

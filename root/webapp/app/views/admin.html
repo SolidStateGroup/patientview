@@ -18,8 +18,9 @@
             <p>NI: <a href="http://www.hscbusiness.hscni.net/services/1816.htm">Northern_Ireland_GP_List_010116.xls</a></p>
 
             <div class="form-group">
-                <div class="col-md-4">
+                <div class="col-md-12">
                     <button data-ng-click="updateGPs()" class="btn blue" data-ng-disabled="updateGpRunning">Update master GP table</button>
+                    <a href="../api/gp/mastertable/download?token={{authToken}}" class="btn blue">Download</a>
                 </div>
             </div>
             <div class="form-group" data-ng-show="gpErrorMessage">

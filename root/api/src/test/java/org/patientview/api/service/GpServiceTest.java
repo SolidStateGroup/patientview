@@ -72,7 +72,6 @@ public class GpServiceTest {
         when(properties.getProperty("gp.master.url.england"))
                 .thenReturn("file://" + getClass().getResource("/gp").getPath().concat("/epraccur.zip"));
         when(properties.getProperty("gp.master.filename.england")).thenReturn("epraccur.csv");
-
         gpService.updateMasterTable();
     }
 }

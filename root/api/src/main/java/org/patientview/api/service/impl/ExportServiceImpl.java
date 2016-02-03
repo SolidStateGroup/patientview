@@ -25,6 +25,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
@@ -38,9 +39,11 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -72,6 +75,9 @@ import java.util.TreeMap;
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
     @Inject
+    private GpMasterRepository gpMasterRepository;
+
+    @Inject
     private LetterService letterService;
 
     @Inject
@@ -93,6 +99,117 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private UserRepository userRepository;
 
     private static final int YEARS_RANGE = 999;
+
+    @Override
+    public HttpEntity<byte[]> downloadGpMaster() {
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Practice Code");
+        document.addHeader("Practice Name");
+        document.addHeader("Address 1");
+        document.addHeader("Address 2");
+        document.addHeader("Address 3");
+        document.addHeader("Address 4");
+        document.addHeader("Postcode");
+        document.addHeader("Country");
+        document.addHeader("Telephone");
+        document.addHeader("Status Code");
+        document.addHeader("Created Date");
+        document.addHeader("Update Date");
+
+        List<GpMaster> gpMasters
+                = gpMasterRepository.findAll(new Sort(new Sort.Order(Sort.Direction.ASC, "practiceCode")));
+
+        for (GpMaster gp : gpMasters) {
+            document.createNewRow();
+            document.resetCurrentPosition();
+
+            document.addValueToNextCell(gp.getPracticeCode());
+            document.addValueToNextCell(gp.getPracticeName());
+            document.addValueToNextCell(gp.getAddress1());
+            document.addValueToNextCell(gp.getAddress2());
+            document.addValueToNextCell(gp.getAddress3());
+            document.addValueToNextCell(gp.getAddress4());
+            document.addValueToNextCell(gp.getPostcode());
+            document.addValueToNextCell(gp.getCountry().toString());
+            document.addValueToNextCell(gp.getTelephone());
+            document.addValueToNextCell(gp.getStatusCode());
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss").format(gp.getCreated()));
+            if (gp.getLastUpdate() != null) {
+                document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss").format(gp.getLastUpdate()));
+            } else {
+                document.addValueToNextCell("");
+            }
+        }
+
+        return getDownloadContent("GP Master List",
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException {
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Date");
+        document.addHeader("Source");
+        document.addHeader("Type");
+        document.addHeader("Content (expand row to view)");
+
+        //Order letters based on date
+        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
+        TreeMap<String, FhirDocumentReference> orderedfhirDocuments = new TreeMap<>(Collections.reverseOrder());
+        for (FhirDocumentReference fhirDocumentReference : orderedfhirDocuments.values()) {
+            //Add current size to stop any issues with multiple letters on same date
+            orderedfhirDocuments.put(fhirDocumentReference.getDate().getTime() + ""
+                    + orderedfhirDocuments.size(), fhirDocumentReference);
+        }
+
+        for (FhirDocumentReference fhirDoc : fhirDocuments) {
+            document.createNewRow();
+            document.resetCurrentPosition();
+
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(fhirDoc.getDate()));
+            document.addValueToNextCell(fhirDoc.getGroup().getName());
+            document.addValueToNextCell(fhirDoc.getType());
+            //Limitation of CSV cannot display some characters, so replace
+            String content = fhirDoc.getContent().replaceAll("&#\\d*;", "");
+            document.addValueToNextCell(content);
+        }
+        return getDownloadContent("Letters",
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadMedicines(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException {
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Date");
+        document.addHeader("Medicine Name");
+        document.addHeader("Dose");
+        document.addHeader("Source");
+
+        List<FhirMedicationStatement> medicationStatements = medicationService.getByUserId(userId, fromDate, toDate);
+        TreeMap<String, FhirMedicationStatement> orderedMedicationStatement = new TreeMap<>(Collections.reverseOrder());
+        for (FhirMedicationStatement fhirMedicationStatement : medicationStatements) {
+            //Add current size in case multiple for that day
+            orderedMedicationStatement.put(fhirMedicationStatement.getStartDate().getTime() + ""
+                    + orderedMedicationStatement.size(), fhirMedicationStatement);
+        }
+
+        for (FhirMedicationStatement medicationStatement : orderedMedicationStatement.values()) {
+            document.createNewRow();
+            document.resetCurrentPosition();
+            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(medicationStatement.getStartDate()));
+            document.addValueToNextCell(medicationStatement.getName());
+            document.addValueToNextCell(medicationStatement.getDose());
+            document.addValueToNextCell(medicationStatement.getGroup().getName());
+        }
+        return getDownloadContent("Medicines",
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+    }
 
     @Override
     public HttpEntity<byte[]> downloadResults(Long userId,
@@ -187,71 +304,6 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         return getDownloadContent("Results",
             makeCSVString(
                 document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
-    }
-
-    @Override
-    public HttpEntity<byte[]> downloadMedicines(Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException {
-        CSVDocumentBuilder document = new CSVDocumentBuilder();
-        document.addHeader("Date");
-        document.addHeader("Medicine Name");
-        document.addHeader("Dose");
-        document.addHeader("Source");
-
-        List<FhirMedicationStatement> medicationStatements = medicationService.getByUserId(userId, fromDate, toDate);
-        TreeMap<String, FhirMedicationStatement> orderedMedicationStatement = new TreeMap<>(Collections.reverseOrder());
-        for (FhirMedicationStatement fhirMedicationStatement : medicationStatements) {
-            //Add current size in case multiple for that day
-            orderedMedicationStatement.put(fhirMedicationStatement.getStartDate().getTime() + ""
-                    + orderedMedicationStatement.size(), fhirMedicationStatement);
-        }
-
-        for (FhirMedicationStatement medicationStatement : orderedMedicationStatement.values()) {
-            document.createNewRow();
-            document.resetCurrentPosition();
-            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(medicationStatement.getStartDate()));
-            document.addValueToNextCell(medicationStatement.getName());
-            document.addValueToNextCell(medicationStatement.getDose());
-            document.addValueToNextCell(medicationStatement.getGroup().getName());
-        }
-        return getDownloadContent("Medicines",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
-    }
-
-    @Override
-    public HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException {
-        CSVDocumentBuilder document = new CSVDocumentBuilder();
-        document.addHeader("Date");
-        document.addHeader("Source");
-        document.addHeader("Type");
-        document.addHeader("Content (expand row to view)");
-
-        //Order letters based on date
-        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
-        TreeMap<String, FhirDocumentReference> orderedfhirDocuments = new TreeMap<>(Collections.reverseOrder());
-        for (FhirDocumentReference fhirDocumentReference : orderedfhirDocuments.values()) {
-            //Add current size to stop any issues with multiple letters on same date
-            orderedfhirDocuments.put(fhirDocumentReference.getDate().getTime() + ""
-                    + orderedfhirDocuments.size(), fhirDocumentReference);
-        }
-
-        for (FhirDocumentReference fhirDoc : fhirDocuments) {
-            document.createNewRow();
-            document.resetCurrentPosition();
-
-            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(fhirDoc.getDate()));
-            document.addValueToNextCell(fhirDoc.getGroup().getName());
-            document.addValueToNextCell(fhirDoc.getType());
-            //Limitation of CSV cannot display some characters, so replace
-            String content = fhirDoc.getContent().replaceAll("&#\\d*;", "");
-            document.addValueToNextCell(content);
-        }
-        return getDownloadContent("Letters",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
-
     }
 
     @Override
@@ -552,14 +604,16 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
         fileData.setContent(content);
 
-        User user = userRepository.findOne(userId);
-        Identifier identifier = user.getIdentifiers().iterator().next();
-
         StringBuilder sb = new StringBuilder(fileName);
 
-        if (identifier.getIdentifier() != null) {
-            sb.append("-");
-            sb.append(identifier.getIdentifier());
+        if (userId != null) {
+            User user = userRepository.findOne(userId);
+            Identifier identifier = user.getIdentifiers().iterator().next();
+
+            if (identifier.getIdentifier() != null) {
+                sb.append("-");
+                sb.append(identifier.getIdentifier());
+            }
         }
 
         if (fromDate != null && toDate != null) {

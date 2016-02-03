@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import com.itextpdf.text.DocumentException;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -18,20 +19,27 @@ import java.util.List;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ExportService {
+
     /**
-     * Download the results for a specified user and specified result codes.
-     * If no codes are specified, all results are returned
+     * Download the entire GP master list (global admin only)
+     * @return CSV file
+     */
+    @RoleOnly
+    HttpEntity<byte[]> downloadGpMaster();
+
+    /**
+     * Gets all letters within a specified period
      *
      * @param userId   The user requesting the download
-     * @param fromDate The inital date to search on
+     * @param fromDate The initial date to search on
      * @param toDate   The last date to search on
-     * @return byte array CSV file containing results
+     * @return A CSV file
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
-    HttpEntity<byte[]> downloadResults(Long userId, String fromDate, String toDate, List<String> resultCodes)
-            throws ResourceNotFoundException, FhirResourceException;
+    HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
+    throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Download all medicines for a specified period
@@ -48,18 +56,19 @@ public interface ExportService {
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
-     * Gets all letters within a specified period
+     * Download the results for a specified user and specified result codes.
+     * If no codes are specified, all results are returned
      *
      * @param userId   The user requesting the download
-     * @param fromDate The initial date to search on
+     * @param fromDate The inital date to search on
      * @param toDate   The last date to search on
-     * @return A CSV file
+     * @return byte array CSV file containing results
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
-    HttpEntity<byte[]> downloadLetters(Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException;
+    HttpEntity<byte[]> downloadResults(Long userId, String fromDate, String toDate, List<String> resultCodes)
+    throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Produce byte array (PDF) of survey response given user ID and survey response ID
