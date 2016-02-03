@@ -186,7 +186,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         status.put("total", String.valueOf(total));
         status.put("existing", String.valueOf(existingGp));
         status.put("new", String.valueOf(newGp));
-        System.out.println("total: " + total + ", existing: " + existingGp + ", new: " + newGp);
         return status;
     }
 
