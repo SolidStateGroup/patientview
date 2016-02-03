@@ -50,7 +50,7 @@ public class GpControllerTest {
     public void testUpdateMasterTable() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
