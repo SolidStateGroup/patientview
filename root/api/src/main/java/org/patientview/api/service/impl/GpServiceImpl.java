@@ -106,6 +106,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     private void initialise() {
+        LOG.info("initialise()");
         this.now = new Date();
         this.currentUser = getCurrentUser();
 
@@ -115,6 +116,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         this.gpToSave = new HashMap<>();
         this.tempDirectory = properties.getProperty("gp.master.temp.directory");
 
+        LOG.info(this.tempDirectory);
+
         // get existing and put into map, used to see if any have changed
         this.existing = new HashMap<>();
         for (GpMaster gpMaster : gpMasterRepository.findAll()) {
@@ -123,22 +126,31 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     private void updateEngland() throws IOException, ZipException {
+        LOG.info("updateEngland()");
+
         // get properties
         String url = properties.getProperty("gp.master.url.england");
         String filename = properties.getProperty("gp.master.filename.england");
+        LOG.info(url);
+        LOG.info(filename);
 
         if (StringUtils.isNotEmpty(url) && StringUtils.isNotEmpty(filename)) {
+
             // download from url to temp zip file
+            LOG.info("Download from url");
             File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.ENG.toString()));
             zipFolder.mkdir();
             File zipLocation = new File(this.tempDirectory.concat(
                     "/" + GpCountries.ENG.toString() + "/" + GpCountries.ENG.toString() + ".zip"));
             FileUtils.copyURLToFile(new URL(url), zipLocation);
+            LOG.info("Download from url done");
 
             // extract zip file
+            LOG.info("Extract zip");
             ZipFile zipFile = new ZipFile(zipLocation);
             zipFile.extractAll(zipFolder.getPath());
             File extractedDataFile = new File(zipFolder.getPath().concat("/" + filename));
+            LOG.info("Extract zip done");
 
             // read CSV file line by line, extracting data to populate GpMaster objects
             CSVReader reader = new CSVReader(new FileReader(extractedDataFile));
@@ -160,6 +172,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                         address4, postcode, statusCode, telephone, GpCountries.ENG);
             }
 
+            LOG.info("Object create done");
             reader.close();
 
             // archive csv file to new archive directory
@@ -167,9 +180,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                     "/archive/" + new DateTime(this.now).toString("YYYMMddhhmmss") + "/" + GpCountries.ENG.toString()));
             archiveDir.mkdirs();
             FileUtils.copyFileToDirectory(extractedDataFile, archiveDir);
+            LOG.info("Archive done");
 
             // delete temp directory
             FileUtils.deleteDirectory(zipFolder);
+            LOG.info("Delete temp directory done");
         }
     }
 
@@ -181,7 +196,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         updateNorthernIreland();
 
         // save objects to db
+        LOG.info("Saving " + gpToSave.values().size());
         gpMasterRepository.save(gpToSave.values());
+        LOG.info("Saved");
 
         // output info on new/changed
         Map<String, String> status = new HashMap<>();
