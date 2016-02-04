@@ -84,25 +84,39 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     @Inject
     private PractitionerService practitionerService;
 
-    @Override
-    public void validate(Patientview patientview) throws ImportResourceException {
+    public void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException {
+        // check FhirLink is new and GP details are suitable for using in GP letter table (either enough details
+        // or only have postcode but no more than one in Gp master table)
+        if (fhirLink.isNew()
+                && (gpLetterService.hasValidPracticeDetails(patientview)
+                    || gpLetterService.hasValidPracticeDetailsCheckMaster(patientview))) {
+            // check if any entries exist matching GP details in GP letter table
+            List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
 
-        // Patient exists with this identifier
-        try {
-            patientService.matchPatientByIdentifierValue(patientview);
-        } catch (ResourceNotFoundException rnf) {
-            String errorMessage =  "Patient with identifier '" 
-                    + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView";
-            LOG.error(errorMessage);
-            throw new ImportResourceException(errorMessage);
-        }
+            if (!CollectionUtils.isEmpty(gpLetters)) {
+                // match exists, check if first entry is claimed (all will be claimed if so)
+                if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getGroup() != null) {
+                    // add GroupRole for this patient and GP group
+                    groupRoleService.add(
+                            fhirLink.getUser().getId(), gpLetters.get(0).getGroup().getId(), RoleType.PATIENT);
+                } else {
+                    // entries exist but not claimed, check GP name against existing GP letter entries
+                    boolean gpNameExists = false;
+                    for (GpLetter gpLetter : gpLetters) {
+                        if (gpLetter.getGpName().equals(patientview.getGpdetails().getGpname())) {
+                            gpNameExists = true;
+                        }
+                    }
 
-        // Group exists
-        if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
-            String errorMessage = "Group with code '" + patientview.getCentredetails().getCentrecode() 
-                    + "' does not exist in PatientView";
-            LOG.error(errorMessage);
-            throw new ImportResourceException(errorMessage);
+                    if (!gpNameExists) {
+                        // no entry for this specific GP name, create new entry
+                        gpLetterService.add(patientview);
+                    }
+                }
+            } else {
+                // GP details do not match any in GP letter table, create new entry
+                gpLetterService.add(patientview);
+            }
         }
     }
 
@@ -129,35 +143,10 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             // update core Patient object based on <nhsno>
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);
 
-            // check FhirLink is new and GP details are suitable for using in GP letter table
-            if (fhirLink.isNew() && gpLetterService.hasValidPracticeDetails(patientview)) {
-                 // check if any entries exist matching GP details in GP letter table
-                List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
-
-                if (!CollectionUtils.isEmpty(gpLetters)) {
-                    // match exists, check if first entry is claimed (all will be claimed if so)
-                    if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getGroup() != null) {
-                        // add GroupRole for this patient and GP group
-                        groupRoleService.add(
-                                fhirLink.getUser().getId(), gpLetters.get(0).getGroup().getId(), RoleType.PATIENT);
-                    } else {
-                        // entries exist but not claimed, check GP name against existing GP letter entries
-                        boolean gpNameExists = false;
-                        for (GpLetter gpLetter : gpLetters) {
-                            if (gpLetter.getGpName().equals(patientview.getGpdetails().getGpname())) {
-                                gpNameExists = true;
-                            }
-                        }
-
-                        if (!gpNameExists) {
-                            // no entry for this specific GP name, create new entry
-                            gpLetterService.add(patientview);
-                        }
-                    }
-                } else {
-                    // GP details do not match any in GP letter table, create new entry
-                    gpLetterService.add(patientview);
-                }
+            try {
+                createGpLetter(fhirLink, patientview);
+            } catch (ResourceNotFoundException rnf) {
+                LOG.info("Could not create GP letter: " + rnf.getMessage());
             }
 
             // add other practitioners, only used by IBD for named consultant and nurse
@@ -189,10 +178,10 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.info(patientview.getPatient().getPersonaldetails().getNhsno()
                     + ": Finished Import. Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
-            auditService.createAudit(AuditActions.PATIENT_DATA_SUCCESS, 
+            auditService.createAudit(AuditActions.PATIENT_DATA_SUCCESS,
                     patientview.getPatient().getPersonaldetails().getNhsno(),
                     patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);
-            
+
             updateGroupLastImportDate(patientview.getCentredetails().getCentrecode());
 
         } catch (Exception e) {
@@ -201,6 +190,28 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             throw new ImportResourceException(patientview.getPatient().getPersonaldetails().getNhsno()
                     + ": Error, " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void validate(Patientview patientview) throws ImportResourceException {
+
+        // Patient exists with this identifier
+        try {
+            patientService.matchPatientByIdentifierValue(patientview);
+        } catch (ResourceNotFoundException rnf) {
+            String errorMessage =  "Patient with identifier '"
+                    + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView";
+            LOG.error(errorMessage);
+            throw new ImportResourceException(errorMessage);
+        }
+
+        // Group exists
+        if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
+            String errorMessage = "Group with code '" + patientview.getCentredetails().getCentrecode()
+                    + "' does not exist in PatientView";
+            LOG.error(errorMessage);
+            throw new ImportResourceException(errorMessage);
         }
     }
 

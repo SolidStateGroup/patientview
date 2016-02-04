@@ -4,8 +4,10 @@ import generated.Patientview;
 import org.apache.commons.lang3.StringUtils;
 import org.patientview.importer.service.GpLetterService;
 import org.patientview.persistence.model.GpLetter;
+import org.patientview.persistence.repository.GpMasterRepository;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -14,6 +16,9 @@ import java.util.List;
  */
 @Service
 public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl> implements GpLetterService {
+
+    @Inject
+    GpMasterRepository gpMasterRepository;
 
     @Override
     public void add(Patientview patientview) {
@@ -47,6 +52,24 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         }
 
         return fieldCount > 1;
+    }
+
+    @Override
+    public boolean hasValidPracticeDetailsCheckMaster(Patientview patientview) {
+        // check gpdetails section is present
+        if (patientview.getGpdetails() == null) {
+            return false;
+        }
+
+        Patientview.Gpdetails gp = patientview.getGpdetails();
+
+        // check postcode is set
+        if (StringUtils.isEmpty(gp.getGppostcode())) {
+            return false;
+        }
+
+        // validate postcode exists in GP master table and only one record
+        return gpMasterRepository.findByPostcode(gp.getGppostcode()).size() == 1;
     }
 
     @Override
