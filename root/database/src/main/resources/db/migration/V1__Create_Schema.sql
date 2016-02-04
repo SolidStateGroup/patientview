@@ -755,6 +755,29 @@ CREATE TABLE PV_Gp_Master
   PRIMARY KEY (Practice_Code)
 );
 
+CREATE TABLE PV_Gp_Letter
+(
+  Id                          BIGINT NOT NULL,
+  Claimed_Date                TIMESTAMP,
+  Claimed_Email               TEXT,
+  Claimed_Group               BIGINT REFERENCES PV_Group (Id),
+  Claimed_Practice_Code       TEXT,
+  Creation_Date               TIMESTAMP NOT NULL,
+  Gp_Address1                 TEXT,
+  Gp_Address2                 TEXT,
+  Gp_Address3                 TEXT,
+  Gp_Address4                 TEXT,
+  Gp_Name                     TEXT,
+  Gp_Postcode                 TEXT NOT NULL,
+  Letter_Content              TEXT,
+  Patient_Forename            TEXT,
+  Patient_Identifier          TEXT,
+  Patient_Surname             TEXT,
+  Patient_Date_Of_Birth       DATE,
+  Signup_Key                  TEXT,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

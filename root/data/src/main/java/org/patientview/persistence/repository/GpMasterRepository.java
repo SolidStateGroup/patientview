@@ -26,5 +26,5 @@ public interface GpMasterRepository extends JpaRepository<GpMaster, Long> {
     @Query("SELECT   gm " +
             "FROM    GpMaster gm " +
             "WHERE   gm.postcode = :postcode ")
-    List<GpMaster> findByPostcode(@Param("postcode") String gppostcode);
+    List<GpMaster> findByPostcode(@Param("postcode") String postcode);
 }

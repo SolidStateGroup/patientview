@@ -95,10 +95,10 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             if (!CollectionUtils.isEmpty(gpLetters)) {
                 // match exists, check if first entry is claimed (all will be claimed if so)
-                if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getGroup() != null) {
+                if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getClaimedGroup() != null) {
                     // add GroupRole for this patient and GP group
                     groupRoleService.add(
-                            fhirLink.getUser().getId(), gpLetters.get(0).getGroup().getId(), RoleType.PATIENT);
+                            fhirLink.getUser().getId(), gpLetters.get(0).getClaimedGroup().getId(), RoleType.PATIENT);
                 } else {
                     // entries exist but not claimed, check GP name against existing GP letter entries
                     boolean gpNameExists = false;

@@ -183,7 +183,7 @@ public class ImportManagerTest extends BaseTest {
 
         GpLetter gpLetter = new GpLetter();
         gpLetter.setGpName(gpdetails.getGpname());
-        gpLetter.setGroup(group);
+        gpLetter.setClaimedGroup(group);
         gpLetter.setClaimedDate(new Date());
 
         List<GpLetter> gpLetters = new ArrayList<>();
