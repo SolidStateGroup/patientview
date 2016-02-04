@@ -151,7 +151,6 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
                     matchedGpLetters.add(gpLetter);
                 }
             }
-
         }
 
         if (hasValidPracticeDetailsCheckMaster(patientview)) {

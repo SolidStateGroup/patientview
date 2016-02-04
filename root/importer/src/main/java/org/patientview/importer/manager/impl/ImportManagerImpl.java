@@ -84,6 +84,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     @Inject
     private PractitionerService practitionerService;
 
+    @Override
     public void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException {
         // check FhirLink is new and GP details are suitable for using in GP letter table (either enough details
         // or only have postcode but no more than one in Gp master table)
