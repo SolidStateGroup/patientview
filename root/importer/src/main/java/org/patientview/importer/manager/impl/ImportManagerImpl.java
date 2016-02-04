@@ -130,7 +130,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);
 
             // check FhirLink is new and GP details are suitable for using in GP letter table
-            if (fhirLink.isNew() && gpLetterService.hasValidGpDetails(patientview)) {
+            if (fhirLink.isNew() && gpLetterService.hasValidPracticeDetails(patientview)) {
                  // check if any entries exist matching GP details in GP letter table
                 List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
 

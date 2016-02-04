@@ -16,7 +16,7 @@ public interface GpLetterService {
 
     void add(Patientview patientview);
 
-    boolean hasValidGpDetails(Patientview patientview);
+    boolean hasValidPracticeDetails(Patientview patientview);
 
     List<GpLetter> matchByGpDetails(Patientview patientview);
 }

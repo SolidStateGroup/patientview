@@ -93,6 +93,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             FhirDatabaseEntity patientEntity
                     = fhirResource.createEntity(newFhirPatient, ResourceType.Patient.name(), "patient");
             fhirLink = addLink(identifier, group, patientEntity);
+
+            // set isNew for use when creating GP letter entries
+            fhirLink.setIsNew(true);
         }
 
         // update User date of birth, forename, surname (if present in imported data)
