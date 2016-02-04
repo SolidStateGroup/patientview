@@ -10,7 +10,9 @@ import org.mockito.Mock;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.service.impl.GpLetterServiceImpl;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -24,6 +26,9 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Util.class)
 public class GpLetterServiceTest extends BaseTest {
+
+    @Mock
+    GpLetterRepository gpLetterRepository;
 
     @Mock
     GpMasterRepository gpMasterRepository;
@@ -143,4 +148,212 @@ public class GpLetterServiceTest extends BaseTest {
                 gpLetterService.hasValidPracticeDetailsCheckMaster(patientview));
     }
 
+    @Test
+    public void testMatchByGpDetails_checkDetails() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter.setGpAddress1(gpdetails.getGpaddress1());
+        gpLetter.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter.setGpAddress3(gpdetails.getGpaddress3());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have one match", 1, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkDetailsMultiple1() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter.setGpAddress1(gpdetails.getGpaddress1());
+        gpLetter.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter.setGpAddress3(gpdetails.getGpaddress3());
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter2.setGpAddress1(gpdetails.getGpaddress1() + "2");
+        gpLetter2.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter2.setGpAddress3(gpdetails.getGpaddress3() + "2");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+        gpLetters.add(gpLetter2);
+
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have one match", 1, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkDetailsMultiple2() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter.setGpAddress1(gpdetails.getGpaddress1());
+        gpLetter.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter.setGpAddress3(gpdetails.getGpaddress3());
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter2.setGpAddress1(gpdetails.getGpaddress1() + "2");
+        gpLetter2.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter2.setGpAddress3(gpdetails.getGpaddress3());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+        gpLetters.add(gpLetter2);
+
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have two matches", 2, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkMaster() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have one match", 1, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkMasterMultiple() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpPostcode(gpdetails.getGppostcode());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+        gpLetters.add(gpLetter2);
+
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have two matches", 2, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkBoth() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter.setGpAddress1(gpdetails.getGpaddress1());
+        gpLetter.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter.setGpAddress3(gpdetails.getGpaddress3());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have one match", 1, found.size());
+    }
+
+    @Test
+    public void testMatchByGpDetails_checkBothMultiple() {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter.setGpAddress1(gpdetails.getGpaddress1());
+        gpLetter.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter.setGpAddress3(gpdetails.getGpaddress3());
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpPostcode(gpdetails.getGppostcode());
+        gpLetter2.setGpAddress1(gpdetails.getGpaddress1() + "2");
+        gpLetter2.setGpAddress2(gpdetails.getGpaddress2());
+        gpLetter2.setGpAddress3(gpdetails.getGpaddress3());
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+        gpLetters.add(gpLetter2);
+
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
+
+        Assert.assertEquals("Should have two matches", 2, found.size());
+    }
 }
