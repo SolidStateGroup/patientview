@@ -74,6 +74,10 @@ public class GpLetter  extends BaseModel {
     @Column(name = "signup_key")
     private String signupKey;
 
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @JoinColumn(name = "source_group")
+    private Group sourceGroup;
+
     public GpLetter() { }
 
     public Date getClaimedDate() {
@@ -210,5 +214,13 @@ public class GpLetter  extends BaseModel {
 
     public void setSignupKey(String signupKey) {
         this.signupKey = signupKey;
+    }
+
+    public Group getSourceGroup() {
+        return sourceGroup;
+    }
+
+    public void setSourceGroup(Group sourceGroup) {
+        this.sourceGroup = sourceGroup;
     }
 }

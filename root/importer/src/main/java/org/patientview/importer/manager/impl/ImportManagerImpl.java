@@ -111,12 +111,12 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
                     if (!gpNameExists) {
                         // no entry for this specific GP name, create new entry
-                        gpLetterService.add(patientview);
+                        gpLetterService.add(patientview, fhirLink.getGroup());
                     }
                 }
             } else {
                 // GP details do not match any in GP letter table, create new entry
-                gpLetterService.add(patientview);
+                gpLetterService.add(patientview, fhirLink.getGroup());
             }
         }
     }
@@ -146,8 +146,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             try {
                 createGpLetter(fhirLink, patientview);
-            } catch (ResourceNotFoundException rnf) {
-                LOG.info("Could not create GP letter: " + rnf.getMessage());
+            } catch (Exception e) {
+                LOG.info("Could not create GP letter, continuing: " + e.getMessage());
             }
 
             // add other practitioners, only used by IBD for named consultant and nurse

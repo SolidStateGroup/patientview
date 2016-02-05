@@ -2,6 +2,7 @@ package org.patientview.importer.service;
 
 import generated.Patientview;
 import org.patientview.persistence.model.GpLetter;
+import org.patientview.persistence.model.Group;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GpLetterService {
 
-    void add(Patientview patientview);
+    void add(Patientview patientview, Group sourceGroup);
 
     boolean hasValidPracticeDetails(Patientview patientview);
 

@@ -775,6 +775,7 @@ CREATE TABLE PV_Gp_Letter
   Patient_Surname             TEXT,
   Patient_Date_Of_Birth       DATE,
   Signup_Key                  TEXT,
+  Source_Group                BIGINT REFERENCES PV_Group (Id),
   PRIMARY KEY (Id)
 );
 

@@ -86,7 +86,7 @@ public class ImportManagerTest extends BaseTest {
         verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
 
         // will add GP letter
-        verify(gpLetterService, Mockito.times(1)).add(patientview);
+        verify(gpLetterService, Mockito.times(1)).add(patientview, any(Group.class));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ImportManagerTest extends BaseTest {
         verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
 
         // will not add GP letter
-        verify(gpLetterService, Mockito.times(0)).add(patientview);
+        verify(gpLetterService, Mockito.times(0)).add(patientview, any(Group.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ImportManagerTest extends BaseTest {
         verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
 
         // will not add new Gp letter
-        verify(gpLetterService, Mockito.times(0)).add(patientview);
+        verify(gpLetterService, Mockito.times(0)).add(patientview, any(Group.class));
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ImportManagerTest extends BaseTest {
         verify(groupRoleService, Mockito.times(1)).add(eq(user.getId()), eq(group.getId()), eq(RoleType.PATIENT));
 
         // will not add new Gp letter
-        verify(gpLetterService, Mockito.times(0)).add(patientview);
+        verify(gpLetterService, Mockito.times(0)).add(patientview, any(Group.class));
     }
 
     @Test
@@ -237,6 +237,6 @@ public class ImportManagerTest extends BaseTest {
         verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
 
         // will add new Gp letter
-        verify(gpLetterService, Mockito.times(1)).add(patientview);
+        verify(gpLetterService, Mockito.times(1)).add(patientview, any(Group.class));
     }
 }

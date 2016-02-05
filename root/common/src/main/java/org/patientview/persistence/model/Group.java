@@ -83,7 +83,7 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Location> locations;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ContactPoint> contactPoints;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
