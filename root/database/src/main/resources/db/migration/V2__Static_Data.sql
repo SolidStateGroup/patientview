@@ -66,6 +66,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (61, now(), 'REGULAR','Regular News Item','1','11');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (62, now(), 'DASHBOARD','Dashboard News Item','1','11');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (63, now(), 'ALL','All News Items','1','11');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (64, now(), 'GENERAL_PRACTICE','General Practice','1', '1');
 
 /* Group Statistics (see AuditActions.java) */
 
@@ -162,12 +163,12 @@ INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id,
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (3, 'Diabetes', 'Diabetes', 'Diabetes', null, 2, true, now(), 1, true);
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (4, 'IBD', 'IBD', 'IBD', null, 2, true, now(), 1, true);
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (5, 'ECS', 'ECS', 'ECS', null, 1, false, now(), 1, false);
-
 /* used for storing user entered results */
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (6, 'Patient Entered Data', 'PATIENT_ENTERED', null, 2, false, now(), 1, false, 'Patient Entered');
-
 /* used for storing staff entered results */
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (7, 'Staff Entered Data', 'STAFF_ENTERED', null, 2, false, now(), 1, false, 'Staff Entered');
+/* General Practice specialty, used as parent for all groups of type GENERAL_PRACTICE */
+INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (8, 'General Practice', 'GP', 'GENERAL_PRACTICE', null, 2, false, now(),1 , false);
 
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '2', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', true, 'Unit Admin', now(), '1');
@@ -178,6 +179,7 @@ INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creatio
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (8, 'PUBLIC', '7', '1', false, 'Non-Logged on Visitors', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (9, 'DISEASE_GROUP_ADMIN', '6', '1', true, 'Disease Group Admin', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (10, 'UNIT_ADMIN_API', '6', '4', false, 'Unit Admin (API)', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (11, 'GP_ADMIN', '6', '4', true, 'GP Admin', now(), '1');
 
 /* global admin */
 INSERT INTO pv_user_group_role VALUES(1, 3, 1, 5, now(), null, now(), 1, null, null);
@@ -350,3 +352,25 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 /* site administration */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (47, 27, null, 5, null, now(), 1 );
+
+/* GP admins, similar to unit admins */
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (48, 1, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (49, 2, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (50, 3, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (51, 5, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (52, 14, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (53, 16, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (54, 18, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (55, 23, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (56, 25, null, 11, null, now(), 1);
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (57, 26, null, 11, null, now(), 1);

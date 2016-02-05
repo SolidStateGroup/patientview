@@ -1,6 +1,5 @@
 package org.patientview.importer.service.impl;
 
-import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.service.AuditService;
 import org.patientview.importer.service.GroupRoleService;
@@ -11,6 +10,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -45,7 +45,7 @@ public class GroupRoleServiceImpl extends AbstractServiceImpl<GroupRoleServiceIm
 
     @Override
     public void add(Long userId, Long groupId, RoleType roleType) throws ResourceNotFoundException {
-        /*User creator = getCurrentUser();
+        User importerUser = userRepository.getOne(auditService.getImporterUserId());
         User user = userRepository.getOne(userId);
         Group group = groupRepository.findOne(groupId);
         Role role = roleRepository.findByRoleType(roleType).get(0);
@@ -58,15 +58,28 @@ public class GroupRoleServiceImpl extends AbstractServiceImpl<GroupRoleServiceIm
             throw new EntityExistsException();
         }
 
-        GroupRole groupRole = new GroupRole();
-        groupRole.setUser(user);
-        groupRole.setGroup(group);
-        groupRole.setRole(role);
-        groupRole.setCreator(creator);
+        GroupRole groupRole = new GroupRole(user, group, role);
+        groupRole.setCreator(importerUser);
         groupRoleRepository.save(groupRole);
 
+        // add audit entry
         auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
-                getCurrentUser(), userId, AuditObjectTypes.User, group);*/
+                importerUser, userId, AuditObjectTypes.User, group);
 
+        // check if group being added is GENERAL_PRACTICE type
+        if (group.getGroupType().getValue().equals(GroupTypes.GENERAL_PRACTICE.toString())) {
+            // check General Practice specialty exists (should always be true)
+            Group gpSpecialty = groupRepository.findByCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+
+            if (gpSpecialty != null) {
+                // check if user already a member of the General Practice specialty, if not then add
+                if (!groupRoleRepository.userGroupRoleExists(user.getId(), gpSpecialty.getId(), role.getId())) {
+                    // not already a member, add to General Practice specialty
+                    GroupRole specialtyGroupRole = new GroupRole(user, group, role);
+                    specialtyGroupRole.setCreator(importerUser);
+                    groupRoleRepository.save(specialtyGroupRole);
+                }
+            }
+        }
     }
 }

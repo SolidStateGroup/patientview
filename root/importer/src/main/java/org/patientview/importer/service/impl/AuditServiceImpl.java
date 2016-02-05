@@ -88,4 +88,27 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         auditRepository.save(audit);
     }
+
+    @Override
+    public void createAudit(AuditActions auditActions, String username, User actor, Long sourceObjectId,
+                            AuditObjectTypes sourceObjectType, Group group) {
+        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
+        audit.setAuditActions(auditActions);
+        audit.setUsername(username);
+
+        if (actor != null) {
+            audit.setActorId(actor.getId());
+        }
+
+        if (group != null) {
+            audit.setGroup(groupRepository.findOne(group.getId()));
+        }
+
+        audit.setSourceObjectId(sourceObjectId);
+        if (sourceObjectType != null) {
+            audit.setSourceObjectType(sourceObjectType);
+        }
+
+        auditRepository.save(audit);
+    }
 }

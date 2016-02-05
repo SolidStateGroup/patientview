@@ -8,9 +8,10 @@ package org.patientview.persistence.model.enums;
  */
 public enum HiddenGroupCodes {
 
+    ECS("ECS"),                                 // used for GP provided medication
+    GENERAL_PRACTICE("General Practice"),       // specialty covering all groups of type GENERAL_PRACTICE
     PATIENT_ENTERED("Patient Entered Data"),
-    STAFF_ENTERED("Staff Entered Data"),
-    ECS("ECS");
+    STAFF_ENTERED("Staff Entered Data");
 
     private String name;
     HiddenGroupCodes(String name) { this.name = name; }

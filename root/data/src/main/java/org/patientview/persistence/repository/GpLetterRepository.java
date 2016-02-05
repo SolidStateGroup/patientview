@@ -20,6 +20,6 @@ public interface GpLetterRepository extends JpaRepository<GpLetter, Long> {
 
     @Query("SELECT   gl " +
             "FROM    GpLetter gl " +
-            "WHERE   gl.postcode = :postcode ")
-    List<GpLetter> findByPostcode(@Param("postcode") String postcode);
+            "WHERE   gl.gpPostcode = :gpPostcode ")
+    List<GpLetter> findByPostcode(@Param("gpPostcode") String gpPostcode);
 }
