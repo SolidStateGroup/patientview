@@ -213,6 +213,16 @@ public class ImportControllerTest {
         }
     }
 
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_7_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_7/RAL01_01_8217326543.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // hfdemo
     @Test
     @Ignore("IntegrationTest")
