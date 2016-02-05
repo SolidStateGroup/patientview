@@ -109,7 +109,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         document.add(new Paragraph(" "));
 
         // GP name
-        document.add(new Paragraph(new Chunk(gpLetter.getGpName(), bold)));
+        document.add(new Paragraph(new Chunk(gpLetter.getGpName())));
 
         // GP address
         if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
