@@ -13,6 +13,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.patientview.api.model.GpDetails;
+import org.patientview.api.model.GpPatient;
+import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.GpService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.VerificationException;
@@ -337,7 +339,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     @Override
-    public void validateDetails(GpDetails gpDetails) throws VerificationException {
+    public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
         // check all fields present
         if (StringUtils.isEmpty(gpDetails.getForename())) {
             throw new VerificationException("forename must be set");
@@ -377,5 +379,35 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("signup key and patient identifier either not found or do not match," +
                     " please make sure there are no spaces or unwanted characters in either");
         }
+
+        // example...
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setName("Some practice");
+        gpPractice.setCode("EG12345");
+        gpPractice.setUrl("http://www.msn.com");
+        gpDetails.getPractices().add(gpPractice);
+
+        // example...
+        GpPractice gpPractice2 = new GpPractice();
+        gpPractice2.setName("Another practice");
+        gpPractice2.setCode("EG00012");
+        gpPractice2.setUrl("http://www.google.com");
+        gpDetails.getPractices().add(gpPractice2);
+
+        // example...
+        GpPatient gpPatient = new GpPatient();
+        gpPatient.setId(1L);
+        gpPatient.setGpName("Dr Someone");
+        gpPatient.getIdentifiers().add("1234567890");
+        gpDetails.getPatients().add(gpPatient);
+
+        // example...
+        GpPatient gpPatient2 = new GpPatient();
+        gpPatient2.setId(2L);
+        gpPatient2.setGpName("Dr Someone");
+        gpPatient2.getIdentifiers().add("986123764");
+        gpDetails.getPatients().add(gpPatient2);
+
+        return gpDetails;
     }
 }

@@ -42,7 +42,7 @@ public class GpController extends BaseController<GpController> {
 
     @RequestMapping(value = "/gp/validatedetails", method = RequestMethod.POST)
     @ResponseBody
-    public void validateDetails(@RequestBody GpDetails gpDetails) throws VerificationException {
-        gpService.validateDetails(gpDetails);
+    public ResponseEntity<GpDetails> validateDetails(@RequestBody GpDetails gpDetails) throws VerificationException {
+        return new ResponseEntity<>(gpService.validateDetails(gpDetails), HttpStatus.OK);
     }
 }

@@ -16,22 +16,24 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
             delete $scope.detailsErrorMessage;
             $scope.validatingDetails = true;
 
-            GpService.validateDetails($scope.details).then(function () {
+            GpService.validateDetails($scope.details).then(function (data) {
                 // details provided are correct
                 $scope.validatingDetails = false;
                 $scope.validDetails = true;
 
+                // data returned has practices and patients associated with postcode
+
                 // get practices
-                $scope.practices = [];
-                $scope.practices.push({'name': 'First Practice', 'code': 'E012456', 'url': 'http://www.msn.com'});
-                $scope.practices.push({'name': 'Second Practice', 'code': 'E987235', 'url': 'http://www.google.com'});
+                $scope.practices = data.practices;
+                //$scope.practices.push({'name': 'First Practice', 'code': 'E012456', 'url': 'http://www.msn.com'});
+                //$scope.practices.push({'name': 'Second Practice', 'code': 'E987235', 'url': 'http://www.google.com'});
                 $scope.selectedPractice = $scope.practices[0];
 
                 // get patients
-                $scope.patients = [];
-                $scope.patients.push({'id': 1, 'identifier': '123456789', 'gpName': 'Dr John Smith'});
-                $scope.patients.push({'id': 2, 'identifier': '564736783', 'gpName': 'Dr John Smith'});
-                $scope.patients.push({'id': 3, 'identifier': '826823147', 'gpName': 'Dr Paul Robson'});
+                $scope.patients = data.patients;
+                //$scope.patients.push({'id': 1, 'identifier': '123456789', 'gpName': 'Dr John Smith'});
+                //$scope.patients.push({'id': 2, 'identifier': '564736783', 'gpName': 'Dr John Smith'});
+                //$scope.patients.push({'id': 3, 'identifier': '826823147', 'gpName': 'Dr Paul Robson'});
 
                 $scope.selectedPatients = [];
                 $scope.selectedPatients.push($scope.patients[0]);

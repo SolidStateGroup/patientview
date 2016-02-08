@@ -111,7 +111,7 @@
                                data-ng-click="togglePatient(patient)">
                     </td>
                     <td>
-                        <span>{{patient.identifier}}</span>
+                        <span data-ng-repeat="identifier in patient.identifiers">{{identifier}} </span>
                     </td>
                     <td>
                         <span>{{patient.gpName}}</span>

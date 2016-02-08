@@ -19,5 +19,5 @@ public interface GpService {
     @RoleOnly
     Map<String, String> updateMasterTable() throws IOException, ZipException;
 
-    void validateDetails(GpDetails gpDetails) throws VerificationException;
+    GpDetails validateDetails(GpDetails gpDetails) throws VerificationException;
 }
