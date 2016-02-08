@@ -1,0 +1,131 @@
+<h1>GP Practices - Claim your PatientView login here</h1>
+
+<p>
+    If you have recently received an invite letter for your practice to join PatientView, you are a few simple
+    steps away from being able to view your patients’ hospital and other records online. Before proceeding, please
+    ensure that your practice does not have an existing account.
+</p>
+
+<div class="content-panel" data-ng-show="step === 1">
+    <div class="content-inner">
+        <h2>Step 1</h2>
+        <p>Please enter your full name:</p>
+        <div class="form-group row">
+            <label for="forename" class="col-sm-3 control-label">Forename(s)</label>
+            <div class="col-sm-9">
+                <input id="forename" data-ng-model="forename" name="forename" type="text" class="form-control" required=""/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="surname" class="col-sm-3 control-label">Surname</label>
+            <div class="col-sm-9">
+                <input id="surname" data-ng-model="surname" name="surname" type="text" class="form-control" required=""/>
+            </div>
+        </div>
+        <p>Now enter the following details for security purposes:</p>
+        <div class="form-group row">
+            <label for="signupKey" class="col-sm-3 control-label">The one-time signup key in your letter</label>
+            <div class="col-sm-9">
+                <input id="signupKey" data-ng-model="signupKey" name="signupKey" type="text" class="form-control" required=""/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="email" class="col-sm-3 control-label">Your NHS email (nhs.net or nhs.uk only)</label>
+            <div class="col-sm-9">
+                <input id="email" data-ng-model="email" name="email" type="text" class="form-control" required=""/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="identifier" class="col-sm-3 control-label">The NHS number of the patient that your letter
+                refers to (not in the letter)</label>
+            <div class="col-sm-9">
+                <input id="identifier" data-ng-model="identifier" name="identifier" type="text" class="form-control" required=""/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <button data-ng-click="selectStep(2)" class="btn blue">
+                    Proceed to Step 2
+                    <i class="icon-forward-to pull-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-panel" data-ng-show="step === 2">
+    <div class="content-inner">
+        <h2>Step 2</h2>
+
+        <div data-ng-if="practices.length > 1">
+            <p>Thank you for verifying your signup information! Please select your practice from the list below:</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Practice Name</th>
+                        <th>Practice Code</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="practice in practices">
+                        <td>
+                            <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
+                        </td>
+                        <td>
+                            <span>{{practice.name}}</span>
+                        </td>
+                        <td>
+                            <span>{{practice.code}}</span>
+                        </td>
+                        <td>
+                            <a href="{{practice.url}}" target="_blank">Page on NHS Choices</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>As a final step, below are the NHS numbers of patients found on PatientView who we think might belong
+            to your practice (matched by postcode). Please check or uncheck the boxes to indicate which are current
+            patients who should be included in your list.</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Add to my list</th>
+                    <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
+                    <th>GP as recorded on PatientView</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="patient in patients">
+                    <td>
+                        <input type="checkbox" id="patient-{{patient.id}}"
+                               data-ng-checked="selectedPatients.indexOf(patient) != -1"
+                               data-ng-click="togglePatient(patient)">
+                    </td>
+                    <td>
+                        <span>{{patient.identifier}}</span>
+                    </td>
+                    <td>
+                        <span>{{patient.gpName}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
+            button below to complete the registration process.</p>
+
+        <div class="row">
+            <div class="col-md-12">
+                <button data-ng-click="selectStep(2)" class="btn blue">Create My PatientView Account</button>
+                <button data-ng-click="selectStep(1)" class="btn">Back to Step 1</button>
+            </div>
+        </div>
+    </div>
+</div>

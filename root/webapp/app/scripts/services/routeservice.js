@@ -205,6 +205,23 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                     }
                 }
             };
+        },
+        getGpLoginRoute: function() {
+            return {
+                'url': '/gplogin',
+                'templateUrl': 'views/gplogin.html',
+                'controller': 'GpLoginCtrl',
+                'title': 'GP Practices - Claim your PatientView login here',
+                'lookup': {
+                    'id': 103,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
         }
     };
 }]);
