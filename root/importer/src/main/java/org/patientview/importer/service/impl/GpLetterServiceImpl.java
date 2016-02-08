@@ -9,6 +9,8 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
 import generated.Patientview;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.patientview.importer.service.GpLetterService;
@@ -24,13 +26,14 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
-import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -45,6 +48,9 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
 
     @Inject
     private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    Properties properties;
 
     @Override
     @Transactional
@@ -212,14 +218,43 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         document.add(new Paragraph(new Chunk("If you think this letter has been sent incorrectly and the patient is " +
                 "not in your practice, please contact the hospital’s unit administrator" + adminEmail, small)));
 
-        // close document and return in correct format
+        // close document
         document.close();
+        byte[] bytes = baos.toByteArray();
 
-        return Base64.encodeBytes(baos.toByteArray());
+        // save document to folder with suitable filename
+        String outputDirectory = properties.getProperty("gp.letter.output.directory");
+        if (StringUtils.isNotEmpty(outputDirectory)) {
+            StringBuilder path = new StringBuilder(outputDirectory + "/"
+                    + gpLetter.getGpName().replace(" ", "_") + "-"
+                    + gpLetter.getGpPostcode().replace(" ", "_") + "-"
+                    + gpLetter.getPatientForename().replace(" ", "_") + "-"
+                    + gpLetter.getPatientSurname().replace(" ", "_") + "-");
+
+            if (gpLetter.getPatientDateOfBirth() != null) {
+                path.append(new SimpleDateFormat("dd-MMM-yyyy").format(gpLetter.getPatientDateOfBirth()));
+            }
+
+            path.append(".pdf");
+
+            try {
+                FileUtils.writeByteArrayToFile(new File(path.toString()), bytes);
+                LOG.info("Wrote GP letter to file '" + path.toString() + "'");
+            } catch (IOException ioe) {
+                LOG.error("Could not write GP letter to file (IOException: " + ioe.getMessage() + "), continuing");
+            }
+        } else {
+            LOG.error("Could not write GP letter to file (gp.letter.output.directory not set), continuing");
+        }
+
+        // return as base64
+        return Base64.encodeBytes(bytes);
     }
 
     private String generateSignupKey() {
-        return new BigInteger(130, new SecureRandom()).toString(32).subSequence(0, 7).toString();
+        return RandomStringUtils.randomAlphanumeric(7)
+                .replace("o", "p").replace("0", "2").replace("1", "3").replace("l", "m").replace("i", "j")
+                .toUpperCase();
     }
 
     @Override
