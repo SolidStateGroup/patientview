@@ -1,11 +1,13 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -13,6 +15,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -26,6 +29,8 @@ import java.util.Set;
  * Created on 02/02/2016
  */
 public class GpControllerTest {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
     GpService gpService;
@@ -58,6 +63,15 @@ public class GpControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/gp/updatemastertable"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testValidateDetails() throws Exception {
+        GpDetails gpDetails = new GpDetails();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/gp/validatedetails")
+                .content(mapper.writeValueAsString(gpDetails)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

@@ -5,18 +5,25 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
+import org.patientview.api.model.GpDetails;
 import org.patientview.api.service.GpService;
+import org.patientview.api.service.UserService;
+import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GpCountries;
+import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -28,6 +35,7 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,7 +47,13 @@ import java.util.Properties;
 public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements GpService {
 
     @Inject
+    private GpLetterRepository gpLetterRepository;
+
+    @Inject
     private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private Properties properties;
@@ -319,6 +333,49 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
             // delete temp directory
             FileUtils.deleteDirectory(zipFolder);
+        }
+    }
+
+    @Override
+    public void validateDetails(GpDetails gpDetails) throws VerificationException {
+        // check all fields present
+        if (StringUtils.isEmpty(gpDetails.getForename())) {
+            throw new VerificationException("forename must be set");
+        }
+        if (StringUtils.isEmpty(gpDetails.getSurname())) {
+            throw new VerificationException("surname must be set");
+        }
+        if (StringUtils.isEmpty(gpDetails.getSignupKey())) {
+            throw new VerificationException("signup key must be set");
+        }
+        if (StringUtils.isEmpty(gpDetails.getEmail())) {
+            throw new VerificationException("email must be set");
+        }
+        if (StringUtils.isEmpty(gpDetails.getPatientIdentifier())) {
+            throw new VerificationException("patient identifier must be set");
+        }
+
+        // validate no existing users with this email
+        if (userService.getByEmail(gpDetails.getEmail()) != null) {
+            throw new VerificationException("a user already exists with this email address");
+        }
+
+        // is an email
+        if (!EmailValidator.getInstance().isValid(gpDetails.getEmail()) || !gpDetails.getEmail().contains(".")) {
+            throw new VerificationException("not a valid email address");
+        }
+
+        // is a NHS email (ending with .nhs.net or .nhs.uk)
+        if (!(gpDetails.getEmail().endsWith(".nhs.net") || gpDetails.getEmail().endsWith(".nhs.uk"))) {
+            throw new VerificationException("not a correct NHS email address, must end with .nhs.net or .nhs.uk");
+        }
+
+        // find by signup key and nhs number, should only return one
+        List<GpLetter> gpLetters = gpLetterRepository.findBySignupKeyAndIdentifier(
+                gpDetails.getSignupKey(), gpDetails.getPatientIdentifier());
+        if (CollectionUtils.isEmpty(gpLetters)) {
+            throw new VerificationException("signup key and patient identifier either not found or do not match," +
+                    " please make sure there are no spaces or unwanted characters in either");
         }
     }
 }

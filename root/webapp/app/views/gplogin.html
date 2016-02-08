@@ -13,39 +13,41 @@
         <div class="form-group row">
             <label for="forename" class="col-sm-3 control-label">Forename(s)</label>
             <div class="col-sm-9">
-                <input id="forename" data-ng-model="forename" name="forename" type="text" class="form-control" required=""/>
+                <input id="forename" data-ng-model="details.forename" name="forename" type="text" class="form-control" required=""/>
             </div>
         </div>
         <div class="form-group row">
             <label for="surname" class="col-sm-3 control-label">Surname</label>
             <div class="col-sm-9">
-                <input id="surname" data-ng-model="surname" name="surname" type="text" class="form-control" required=""/>
+                <input id="surname" data-ng-model="details.surname" name="surname" type="text" class="form-control" required=""/>
             </div>
         </div>
         <p>Now enter the following details for security purposes:</p>
         <div class="form-group row">
             <label for="signupKey" class="col-sm-3 control-label">The one-time signup key in your letter</label>
             <div class="col-sm-9">
-                <input id="signupKey" data-ng-model="signupKey" name="signupKey" type="text" class="form-control" required=""/>
+                <input id="signupKey" data-ng-model="details.signupKey" name="signupKey" type="text" class="form-control" required=""/>
             </div>
         </div>
         <div class="form-group row">
             <label for="email" class="col-sm-3 control-label">Your NHS email (nhs.net or nhs.uk only)</label>
             <div class="col-sm-9">
-                <input id="email" data-ng-model="email" name="email" type="text" class="form-control" required=""/>
+                <input id="email" data-ng-model="details.email" name="email" type="text" class="form-control" required=""/>
             </div>
         </div>
         <div class="form-group row">
-            <label for="identifier" class="col-sm-3 control-label">The NHS number of the patient that your letter
+            <label for="identifier" class="col-sm-3 control-label">The Identifier (NHS/CHI/H&SC) number) of the patient that your letter
                 refers to (not in the letter)</label>
             <div class="col-sm-9">
-                <input id="identifier" data-ng-model="identifier" name="identifier" type="text" class="form-control" required=""/>
+                <input id="identifier" data-ng-model="details.patientIdentifier" name="patientIdentifier" type="text" class="form-control" required=""/>
             </div>
         </div>
 
+        <div class="alert alert-danger" data-ng-show="!validDetails && !validatingDetails">Please check your details, {{detailsErrorMessage}}</div>
+
         <div class="row">
             <div class="col-sm-12">
-                <button data-ng-click="selectStep(2)" class="btn blue">
+                <button data-ng-click="selectStep(2)" class="btn blue" data-ng-disabled="validatingDetails">
                     Proceed to Step 2
                     <i class="icon-forward-to pull-right"></i>
                 </button>
@@ -123,7 +125,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <button data-ng-click="selectStep(2)" class="btn blue">Create My PatientView Account</button>
+                <button data-ng-click="createAccount()" class="btn blue">Create My PatientView Account</button>
                 <button data-ng-click="selectStep(1)" class="btn">Back to Step 1</button>
             </div>
         </div>

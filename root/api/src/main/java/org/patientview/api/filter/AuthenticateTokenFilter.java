@@ -81,6 +81,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/lookinglocal/home");
         publicUrls.add("/lookinglocal/auth");
 
+        // GP account creation
+        publicUrls.add("/gp/validatedetails");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }
