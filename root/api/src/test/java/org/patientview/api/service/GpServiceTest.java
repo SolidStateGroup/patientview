@@ -16,13 +16,18 @@ import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
 import java.io.IOException;
@@ -43,6 +48,9 @@ import static org.mockito.Mockito.when;
 public class GpServiceTest {
 
     User creator;
+
+    @Mock
+    FhirResource fhirResource;
 
     @Mock
     GpLetterRepository gpLetterRepository;
@@ -117,12 +125,25 @@ public class GpServiceTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
 
+        User user = TestUtils.createUser("patientUser");
+
+        GpPatient patient = new GpPatient();
+        patient.setId(1L);
+        patient.setGpName(gpMaster.getPracticeName());
+        patient.setIdentifiers(new HashSet<Identifier>());
+        patient.getIdentifiers().add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), user, "1111111111"));
+        List<GpPatient> patients = new ArrayList<>();
+        patients.add(patient);
+
         String url = "http://nhswebsite.com/somepractice.aspx";
 
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
         when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
         when(nhsChoicesService.getUrlByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(url);
+        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
 
         GpDetails out = gpService.validateDetails(details);
 

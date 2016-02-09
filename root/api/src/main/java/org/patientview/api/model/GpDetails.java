@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.GpPatient;
+
 import java.util.ArrayList;
 import java.util.List;
 

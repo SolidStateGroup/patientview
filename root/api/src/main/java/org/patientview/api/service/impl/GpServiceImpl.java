@@ -13,7 +13,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.patientview.api.model.GpDetails;
-import org.patientview.api.model.GpPatient;
 import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.GpService;
 import org.patientview.api.service.NhsChoicesService;
@@ -25,6 +24,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GpCountries;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -50,6 +50,9 @@ import java.util.Properties;
  */
 @Service
 public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements GpService {
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private GpLetterRepository gpLetterRepository;
@@ -368,12 +371,12 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("a user already exists with this email address");
         }
 
-        // is an email
+        // check email is a valid email string
         if (!EmailValidator.getInstance().isValid(gpDetails.getEmail()) || !gpDetails.getEmail().contains(".")) {
             throw new VerificationException("not a valid email address");
         }
 
-        // is a NHS email (ending with .nhs.net or .nhs.uk)
+        // check email is a NHS email (ending with nhs.net, nhs.uk, hscni.net)
         if (!(gpDetails.getEmail().endsWith("nhs.net")
                 || gpDetails.getEmail().endsWith("nhs.uk")
                 || gpDetails.getEmail().endsWith("hscni.net"))) {
@@ -421,33 +424,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("could not retrieve your practice details");
         }
 
-        // example...
-        /*GpPractice gpPractice = new GpPractice();
-        gpPractice.setName("Some practice");
-        gpPractice.setCode("EG12345");
-        gpPractice.setUrl("http://www.msn.com");
-        gpDetails.getPractices().add(gpPractice);
-
-        // example...
-        GpPractice gpPractice2 = new GpPractice();
-        gpPractice2.setName("Another practice");
-        gpPractice2.setCode("EG00012");
-        gpPractice2.setUrl("http://www.google.com");
-        gpDetails.getPractices().add(gpPractice2);*/
-
-        // example...
-        GpPatient gpPatient = new GpPatient();
-        gpPatient.setId(1L);
-        gpPatient.setGpName("Dr Someone");
-        gpPatient.getIdentifiers().add("1234567890");
-        gpDetails.getPatients().add(gpPatient);
-
-        // example...
-        GpPatient gpPatient2 = new GpPatient();
-        gpPatient2.setId(2L);
-        gpPatient2.setGpName("Dr Someone");
-        gpPatient2.getIdentifiers().add("986123764");
-        gpDetails.getPatients().add(gpPatient2);
+        // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
+        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(firstGpLetter.getGpPostcode()));
+        if (gpDetails.getPatients().isEmpty()) {
+            throw new VerificationException("could not retrieve any patients for your practice");
+        }
 
         return gpDetails;
     }

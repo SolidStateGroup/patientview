@@ -1,7 +1,7 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * GpPatient, reduced set of data provided when creating a GP account
@@ -11,7 +11,7 @@ import java.util.List;
 public class GpPatient {
 
     private Long id;
-    private List<String> identifiers = new ArrayList<>();
+    private Set<Identifier> identifiers = new HashSet<>();
     private String gpName;
 
     public GpPatient() {}
@@ -24,11 +24,11 @@ public class GpPatient {
         this.id = id;
     }
 
-    public List<String> getIdentifiers() {
+    public Set<Identifier> getIdentifiers() {
         return identifiers;
     }
 
-    public void setIdentifiers(List<String> identifiers) {
+    public void setIdentifiers(Set<Identifier> identifiers) {
         this.identifiers = identifiers;
     }
 
