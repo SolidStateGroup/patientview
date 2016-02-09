@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.GpDetails;
+import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GpLetter;
@@ -102,6 +103,64 @@ public class GpServiceTest {
                 .thenReturn("file://" + getClass().getResource("/gp").getPath().concat("/epraccur.zip"));
         when(properties.getProperty("gp.master.filename.england")).thenReturn("epraccur.csv");
         gpService.updateMasterTable();
+    }
+
+    @Test
+    public void testClaim() throws VerificationException {
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        User user = TestUtils.createUser("patientUser");
+
+        GpPatient patient = new GpPatient();
+        patient.setId(1L);
+        patient.setGpName(gpMaster.getPracticeName());
+        patient.setIdentifiers(new HashSet<Identifier>());
+        patient.getIdentifiers().add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), user, "1111111111"));
+        List<GpPatient> patients = new ArrayList<>();
+        patients.add(patient);
+
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(nhsChoicesService.getUrlByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(url);
+        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
+
+        // selected practice and patients
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setUrl(url);
+        gpPractice.setName(gpMaster.getPracticeName());
+        gpPractice.setCode(gpMaster.getPracticeCode());
+        details.getPractices().add(gpPractice);
+
+        details.getPatients().add(patient);
+
+        GpDetails out = gpService.claim(details);
+
+        Assert.assertEquals("should return one practice", 1, out.getPractices().size());
+        Assert.assertEquals("should return correct practice name",
+                gpMaster.getPracticeName(), out.getPractices().get(0).getName());
+        Assert.assertEquals("should return correct practice url", url, out.getPractices().get(0).getUrl());
     }
 
     @Test

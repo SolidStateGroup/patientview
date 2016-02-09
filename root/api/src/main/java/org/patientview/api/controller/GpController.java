@@ -31,6 +31,12 @@ public class GpController extends BaseController<GpController> {
     @Inject
     private GpService gpService;
 
+    @RequestMapping(value = "/gp/claim", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<GpDetails> claim(@RequestBody GpDetails gpDetails) throws VerificationException {
+        return new ResponseEntity<>(gpService.claim(gpDetails), HttpStatus.OK);
+    }
+
     /**
      * Update the GP master table from external sources (XLS files)
      */

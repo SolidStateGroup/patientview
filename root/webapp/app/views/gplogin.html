@@ -44,7 +44,6 @@
         </div>
 
         <div class="alert alert-danger" data-ng-show="!validDetails && !validatingDetails">Please check your details, {{detailsErrorMessage}}</div>
-
         <div class="alert alert-success" data-ng-show="validatingDetails">Validating your details, please wait</div>
 
         <div class="row">
@@ -87,7 +86,7 @@
                             <span>{{practice.code}}</span>
                         </td>
                         <td>
-                            <a href="{{practice.url}}" target="_blank">Page on NHS Choices</a>
+                            <a href="{{practice.url}}" target="_blank" data-ng-if="practice.url">Page on NHS Choices</a>
                         </td>
                     </tr>
                 </tbody>
@@ -122,10 +121,44 @@
         </table>
         <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
             button below to complete the registration process.</p>
+
+        <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">There has been an error, {{claimErrorMessage}}</div>
+        <div class="alert alert-success" data-ng-show="validatingClaim">Validating your details, please wait</div>
+
         <div class="row">
             <div class="col-md-12">
-                <button data-ng-click="createAccount()" class="btn blue">Create My PatientView Account</button>
+                <button data-ng-click="claim()" class="btn blue">Create My PatientView Account</button>
                 <button data-ng-click="selectStep(1)" class="btn">Back to Step 1</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-panel" data-ng-show="step === 3">
+    <div class="content-inner">
+        <h2>Account Created, Welcome to PatientView</h2>
+        <p>You have successfully claimed your PatientView account, your details are below.
+            Please make sure to remember these details as they will not be available when you leave this page.</p>
+        <p>Click "Log in to PatientView" to log in, you will leave this page.</p>
+        <div class="form-group row">
+            <div class="col-sm-offset-2 col-sm-2">
+                Username:
+            </div>
+            <div class="col-sm-8">
+                <strong>{{details.username}}</strong>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-offset-2 col-sm-2">
+                Password:
+            </div>
+            <div class="col-sm-8">
+                <strong>{{details.password}}</strong>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <a href="#/login" class="btn blue">Log in to PatientView</a>
             </div>
         </div>
     </div>

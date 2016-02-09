@@ -14,9 +14,11 @@ public class GpDetails {
 
     private String email;
     private String forename;
+    private String password;
     private String patientIdentifier;
     private String signupKey;
     private String surname;
+    private String username;
 
     // reduced information on practices associated with GP, found from GP master table
     private List<GpPractice> practices = new ArrayList<>();
@@ -42,6 +44,14 @@ public class GpDetails {
         this.forename = forename;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getPatientIdentifier() {
         return patientIdentifier;
     }
@@ -64,6 +74,14 @@ public class GpDetails {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<GpPractice> getPractices() {

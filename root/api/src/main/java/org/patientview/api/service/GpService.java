@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public interface GpService {
 
+    GpDetails claim(GpDetails gpDetails) throws VerificationException;
+
     @RoleOnly
     Map<String, String> updateMasterTable() throws IOException, ZipException;
 

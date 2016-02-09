@@ -52,6 +52,15 @@ public class GpControllerTest {
     }
 
     @Test
+    public void testClaim() throws Exception {
+        GpDetails gpDetails = new GpDetails();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/gp/claim")
+                .content(mapper.writeValueAsString(gpDetails)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
     public void testUpdateMasterTable() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");

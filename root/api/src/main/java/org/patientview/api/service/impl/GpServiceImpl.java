@@ -113,6 +113,18 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         total++;
     }
 
+    @Override
+    public GpDetails claim(GpDetails gpDetails) throws VerificationException {
+        // validate again
+        validateGpDetails(gpDetails);
+
+        // testing
+        gpDetails.setUsername("someusername");
+        gpDetails.setPassword("ABC123456");
+
+        return gpDetails;
+    }
+
     private String getCellContent(Cell cell) {
         if (cell == null) {
             return null;
@@ -128,6 +140,43 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             default:
                 return null;
         }
+    }
+
+    private List<GpPractice> getGpPracticesFromMasterTable(String gpPostcode) {
+        List<GpPractice> gpPractices = new ArrayList<>();
+
+        // search for GP practices in GP master table by postcode
+        List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpPostcode);
+        for (GpMaster gpMaster : gpMasters) {
+            // only add GP practices with either null or A status
+            if (StringUtils.isEmpty(gpMaster.getStatusCode()) || gpMaster.getStatusCode().equals("A")) {
+                GpPractice gpPractice = new GpPractice();
+                gpPractice.setCode(gpMaster.getPracticeCode());
+                gpPractice.setName(gpMaster.getPracticeName());
+
+                // set the url based on retrieval from NHS choices
+                if (StringUtils.isNotEmpty(gpMaster.getUrl())) {
+                    // already has url
+                    gpPractice.setUrl(gpMaster.getUrl());
+                } else {
+                    // need to update URL from NHS choices, do this here to avoid hitting API limits
+                    String url = nhsChoicesService.getUrlByPracticeCode(gpMaster.getPracticeCode());
+
+                    if (StringUtils.isNotEmpty(url)) {
+                        // url found
+                        gpPractice.setUrl(url);
+
+                        // save updated GP master
+                        gpMaster.setUrl(url);
+                        gpMasterRepository.save(gpMaster);
+                    }
+                }
+
+                gpPractices.add(gpPractice);
+            }
+        }
+
+        return gpPractices;
     }
 
     private void initialise() {
@@ -349,6 +398,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Override
     public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
+        addPracticesAndPatients(gpDetails, validateGpDetails(gpDetails));
+        return gpDetails;
+    }
+
+    private GpLetter validateGpDetails(GpDetails gpDetails) throws VerificationException {
         // check all fields present
         if (StringUtils.isEmpty(gpDetails.getForename())) {
             throw new VerificationException("forename must be set");
@@ -418,52 +472,20 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException(sb.toString());
         }
 
+        return firstGpLetter;
+    }
+
+    private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
         // get practices from GP master table by postcode, must return at least one
-        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(firstGpLetter.getGpPostcode()));
+        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(gpLetter.getGpPostcode()));
         if (gpDetails.getPractices().isEmpty()) {
             throw new VerificationException("could not retrieve your practice details");
         }
 
         // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
-        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(firstGpLetter.getGpPostcode()));
+        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(gpLetter.getGpPostcode()));
         if (gpDetails.getPatients().isEmpty()) {
             throw new VerificationException("could not retrieve any patients for your practice");
         }
-
-        return gpDetails;
-    }
-
-    private List<GpPractice> getGpPracticesFromMasterTable(String gpPostcode) {
-        List<GpPractice> gpPractices = new ArrayList<>();
-
-        // search for GP practices in GP master table by postcode
-        List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpPostcode);
-        for (GpMaster gpMaster : gpMasters) {
-            GpPractice gpPractice = new GpPractice();
-            gpPractice.setCode(gpMaster.getPracticeCode());
-            gpPractice.setName(gpMaster.getPracticeName());
-
-            // set the url based on retrieval from NHS choices
-            if (StringUtils.isNotEmpty(gpMaster.getUrl())) {
-                // already has url
-                gpPractice.setUrl(gpMaster.getUrl());
-            } else {
-                // need to update URL from NHS choices, do this here to avoid hitting API limits
-                String url = nhsChoicesService.getUrlByPracticeCode(gpMaster.getPracticeCode());
-
-                if (StringUtils.isNotEmpty(url)) {
-                    // url found
-                    gpPractice.setUrl(url);
-
-                    // save updated GP master
-                    gpMaster.setUrl(url);
-                    gpMasterRepository.save(gpMaster);
-                }
-            }
-
-            gpPractices.add(gpPractice);
-        }
-
-        return gpPractices;
     }
 }

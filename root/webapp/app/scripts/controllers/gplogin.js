@@ -5,6 +5,8 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         $scope.details = {};
         $scope.validDetails = true;
         $scope.validatingDetails = false;
+        $scope.validClaim = true;
+        $scope.validatingClaim = false;
         $scope.step = 1;
     };
 
@@ -21,20 +23,12 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
                 $scope.validatingDetails = false;
                 $scope.validDetails = true;
 
-                // data returned has practices and patients associated with postcode
-
                 // get practices
                 $scope.practices = data.practices;
-                //$scope.practices.push({'name': 'First Practice', 'code': 'E012456', 'url': 'http://www.msn.com'});
-                //$scope.practices.push({'name': 'Second Practice', 'code': 'E987235', 'url': 'http://www.google.com'});
                 $scope.selectedPractice = $scope.practices[0];
 
                 // get patients
                 $scope.patients = data.patients;
-                //$scope.patients.push({'id': 1, 'identifier': '123456789', 'gpName': 'Dr John Smith'});
-                //$scope.patients.push({'id': 2, 'identifier': '564736783', 'gpName': 'Dr John Smith'});
-                //$scope.patients.push({'id': 3, 'identifier': '826823147', 'gpName': 'Dr Paul Robson'});
-
                 $scope.selectedPatients = [];
                 $scope.selectedPatients.push($scope.patients[0]);
 
@@ -48,8 +42,29 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         }
     };
 
-    $scope.createAccount = function() {
+    $scope.claim = function() {
+        delete $scope.claimErrorMessage;
+        $scope.validatingClaim = true;
+
+        $scope.details.practices = [];
+        $scope.details.practices.push($scope.selectedPractice);
+        $scope.details.patients = $scope.selectedPatients;
+
         // create account with patient details
+        GpService.claim($scope.details).then(function (data) {
+            console.log(data);
+            delete $scope.claimErrorMessage;
+            $scope.validatingClaim = false;
+
+            $scope.details = data;
+
+            $scope.step = 3;
+        }, function (failure) {
+            // details invalid
+            $scope.validatingDetails = false;
+            $scope.validClaim = false;
+            $scope.claimErrorMessage = failure.data;
+        });
     };
 
     $scope.togglePatient = function (patient) {
