@@ -60,8 +60,11 @@
     <div class="content-inner">
         <h2>Step 2</h2>
 
-        <div data-ng-if="practices.length > 1">
-            <p>Thank you for verifying your signup information! Please select your practice from the list below:</p>
+        <div>
+            <p>Thank you for verifying your signup information!
+                <span data-ng-if="practices.length === 1">Your practice is shown below:</span>
+                <span data-ng-if="practices.length > 1">Please select your practice from the list below:</span>
+            </p>
 
             <table class="table">
                 <thead>
