@@ -45,19 +45,15 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
     $scope.claim = function() {
         delete $scope.claimErrorMessage;
         $scope.validatingClaim = true;
-
         $scope.details.practices = [];
         $scope.details.practices.push($scope.selectedPractice);
         $scope.details.patients = $scope.selectedPatients;
 
         // create account with patient details
         GpService.claim($scope.details).then(function (data) {
-            console.log(data);
             delete $scope.claimErrorMessage;
             $scope.validatingClaim = false;
-
             $scope.details = data;
-
             $scope.step = 3;
         }, function (failure) {
             // details invalid

@@ -115,8 +115,38 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Override
     public GpDetails claim(GpDetails gpDetails) throws VerificationException {
-        // validate again
+        // validate user entered details again
         validateGpDetails(gpDetails);
+
+        // validate selected practice
+        if (CollectionUtils.isEmpty(gpDetails.getPractices())) {
+            throw new VerificationException("no practice selected");
+        }
+        if (gpDetails.getPractices().size() != 1) {
+            throw new VerificationException("more than one practice selected");
+        }
+        if (StringUtils.isEmpty(gpDetails.getPractices().get(0).getCode())) {
+            throw new VerificationException("selected practice data incorrect");
+        }
+
+        // get details from gp master table (should only be one)
+        List<GpMaster> gpMasters = gpMasterRepository.findByPracticeCode(gpDetails.getPractices().get(0).getCode());
+        if (CollectionUtils.isEmpty(gpMasters)) {
+            throw new VerificationException("selected practice not found in PatientView");
+        }
+
+        GpMaster gpMaster = gpMasters.get(0);
+
+        // validate patients
+        if (CollectionUtils.isEmpty(gpDetails.getPatients())) {
+            throw new VerificationException("no patients selected, please select at least one");
+        }
+
+        // create group
+
+        // add patients to group
+
+        // create email to user
 
         // testing
         gpDetails.setUsername("someusername");
