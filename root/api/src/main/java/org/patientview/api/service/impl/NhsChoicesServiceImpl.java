@@ -1,13 +1,22 @@
 package org.patientview.api.service.impl;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.abdera.Abdera;
+import org.apache.abdera.i18n.iri.IRI;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.model.Link;
+import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.parser.Parser;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.patientview.api.service.NhsChoicesService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -39,6 +48,88 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Inject
     private Properties properties;
 
+    @Override
+    public String getUrlByPracticeCode(String practiceCode) {
+        if (StringUtils.isEmpty(practiceCode)) {
+            return null;
+        }
+
+        try {
+            String apiKey = properties.getProperty("nhschoices.api.key");
+
+            // get organisation ID from NHS choices
+            URL practiceUrl = new URL("http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/odscode/"
+                    + practiceCode
+                    + ".json?apikey="
+                    + apiKey);
+
+            // get JSON for organisation from NHS choices
+            JsonParser jp = new JsonParser();
+            JsonElement root = jp.parse(IOUtils.toString(practiceUrl));
+            JsonObject rootobj = root.getAsJsonObject();
+
+            // must be an object
+            if (!rootobj.isJsonObject()) {
+                return null;
+            }
+
+            // must have organisation id
+            JsonElement organisationIdObj = rootobj.get("OrganisationId");
+            if (organisationIdObj == null) {
+                return null;
+            }
+
+            String organisationId = organisationIdObj.getAsString();
+            if (StringUtils.isEmpty(organisationId)) {
+                return null;
+            }
+
+            // generate overview URL from found organisationId
+            URL overviewUrl = new URL(
+                "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/"
+                        + organisationId
+                        + "/overview.xml?apikey="
+                        + apiKey);
+
+            if (abdera == null) {
+                abdera = new Abdera();
+            }
+
+            if (documentBuilderFactory == null) {
+                documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            }
+
+            // try and read overview XML (atom format)
+            Parser parser = abdera.getParser();
+            Document<Feed> doc = parser.parse(overviewUrl.openStream(), overviewUrl.toString());
+            Feed feed = doc.getRoot();
+            if (CollectionUtils.isEmpty(feed.getEntries())) {
+                return null;
+            }
+
+            // NHS choices url stored in first entry under alternate link
+            Entry firstEntry = feed.getEntries().get(0);
+            Link link = firstEntry.getAlternateLink();
+            if (link == null) {
+                return null;
+            }
+
+            IRI iri = link.getHref();
+            if (iri == null) {
+                return null;
+            }
+
+            // return full path
+            return iri.toString();
+        } catch (IOException | ParseException e) {
+            LOG.error("Could not retrieve practice overview url from NHS choices: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // testing only
+    @Override
     public void updateOrganisations()
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         String apiKey = properties.getProperty("nhschoices.api.key");

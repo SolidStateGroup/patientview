@@ -68,7 +68,9 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             gpLetter.setPatientDateOfBirth(
                     patient.getPersonaldetails().getDateofbirth().toGregorianCalendar().getTime());
         }
-        gpLetter.setPatientIdentifier(patient.getPersonaldetails().getNhsno());
+
+        // set identifier trimmed without spaces
+        gpLetter.setPatientIdentifier(patient.getPersonaldetails().getNhsno().trim().replace(" ", ""));
 
         // gp details
         gpLetter.setGpName(gp.getGpname());

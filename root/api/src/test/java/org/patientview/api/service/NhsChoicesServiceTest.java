@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,5 +66,13 @@ public class NhsChoicesServiceTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         nhsChoicesService.updateOrganisations();
+    }
+
+    @Test
+    @Ignore("fails on build, test locally")
+    public void testGetUrlByPracticeCode() {
+        String url = nhsChoicesService.getUrlByPracticeCode("P91017");
+        Assert.assertNotNull(url);
+        System.out.println(url);
     }
 }

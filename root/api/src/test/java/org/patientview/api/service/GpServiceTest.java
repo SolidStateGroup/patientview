@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import junit.framework.Assert;
 import net.lingala.zip4j.exception.ZipException;
 import org.junit.After;
 import org.junit.Before;
@@ -10,20 +11,29 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.GpDetails;
 import org.patientview.api.service.impl.GpServiceImpl;
+import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.GpLetter;
+import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -35,10 +45,19 @@ public class GpServiceTest {
     User creator;
 
     @Mock
-    Properties properties;
+    GpLetterRepository gpLetterRepository;
 
     @Mock
     GpMasterRepository gpMasterRepository;
+
+    @Mock
+    NhsChoicesService nhsChoicesService;
+
+    @Mock
+    Properties properties;
+
+    @Mock
+    UserService userService;
 
     @InjectMocks
     GpService gpService = new GpServiceImpl();
@@ -75,5 +94,64 @@ public class GpServiceTest {
                 .thenReturn("file://" + getClass().getResource("/gp").getPath().concat("/epraccur.zip"));
         when(properties.getProperty("gp.master.filename.england")).thenReturn("epraccur.csv");
         gpService.updateMasterTable();
+    }
+
+    @Test
+    public void testValidateDetails() throws VerificationException {
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(nhsChoicesService.getUrlByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(url);
+
+        GpDetails out = gpService.validateDetails(details);
+
+        Assert.assertEquals("should return one practice", 1, out.getPractices().size());
+        Assert.assertEquals("should return correct practice name",
+                gpMaster.getPracticeName(), out.getPractices().get(0).getName());
+        Assert.assertEquals("should return correct practice url", url, out.getPractices().get(0).getUrl());
+    }
+
+    @Test (expected = VerificationException.class)
+    public void testValidateDetails_alreadyClaimed() throws VerificationException {
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode("ABC 12DE");
+        gpLetter.setClaimedDate(new Date());
+        gpLetter.setClaimedEmail("someoneelse@nhs.uk");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        when(properties.getProperty("central.support.contact.email")).thenReturn("centralsupport@nhs.uk");
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+
+        gpService.validateDetails(details);
     }
 }

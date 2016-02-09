@@ -56,6 +56,9 @@ public class GpMaster implements Serializable, Comparable {
     @Column(name = "status_code")
     private String statusCode;
 
+    @Column(name = "url")
+    private String url;
+
     @Column(name = "last_update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdate;
@@ -153,6 +156,14 @@ public class GpMaster implements Serializable, Comparable {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Date getLastUpdate() {

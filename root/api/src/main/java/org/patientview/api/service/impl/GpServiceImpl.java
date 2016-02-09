@@ -16,6 +16,7 @@ import org.patientview.api.model.GpDetails;
 import org.patientview.api.model.GpPatient;
 import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.GpService;
+import org.patientview.api.service.NhsChoicesService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GpLetter;
@@ -34,6 +35,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,6 +56,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Inject
     private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private NhsChoicesService nhsChoicesService;
 
     @Inject
     private UserService userService;
@@ -368,20 +374,55 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // is a NHS email (ending with .nhs.net or .nhs.uk)
-        if (!(gpDetails.getEmail().endsWith(".nhs.net") || gpDetails.getEmail().endsWith(".nhs.uk"))) {
-            throw new VerificationException("not a correct NHS email address, must end with .nhs.net or .nhs.uk");
+        if (!(gpDetails.getEmail().endsWith("nhs.net")
+                || gpDetails.getEmail().endsWith("nhs.uk")
+                || gpDetails.getEmail().endsWith("hscni.net"))) {
+            throw new VerificationException(
+                    "not a correct NHS email address, must end with nhs.net, nhs.uk or hscni.net");
         }
 
-        // find by signup key and nhs number, should only return one
+        // find by signup key and nhs number (trimmed with whitespace removed), should only return one
         List<GpLetter> gpLetters = gpLetterRepository.findBySignupKeyAndIdentifier(
-                gpDetails.getSignupKey(), gpDetails.getPatientIdentifier());
+                gpDetails.getSignupKey().trim().replace(" ", ""),
+                gpDetails.getPatientIdentifier().trim().replace(" ", ""));
         if (CollectionUtils.isEmpty(gpLetters)) {
             throw new VerificationException("signup key and patient identifier either not found or do not match," +
                     " please make sure there are no spaces or unwanted characters in either");
         }
 
+        // validate not already claimed
+        GpLetter firstGpLetter = gpLetters.get(0);
+        if (firstGpLetter.getClaimedDate() != null) {
+            StringBuilder sb = new StringBuilder("Someone at your practice is already managing this group (");
+
+            if (StringUtils.isNotEmpty(firstGpLetter.getClaimedEmail())) {
+                sb.append("claimed by ");
+                sb.append(firstGpLetter.getClaimedEmail());
+                sb.append(" on ");
+            }
+
+            sb.append(new SimpleDateFormat("dd-MMM-yyyy").format(firstGpLetter.getClaimedDate()));
+            sb.append(")");
+
+            if (StringUtils.isNotEmpty(firstGpLetter.getClaimedEmail())
+                    && StringUtils.isNotEmpty(properties.getProperty("central.support.contact.email"))) {
+                sb.append(". Please contact this person to be added as an admin user. ");
+                sb.append("If you wish to query this, please <a href=\"mailto:");
+                sb.append(properties.getProperty("central.support.contact.email"));
+                sb.append("\">click here</a> to email the PatientView support desk with details of your request.");
+            }
+
+            throw new VerificationException(sb.toString());
+        }
+
+        // get practices from GP master table by postcode, must return at least one
+        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(firstGpLetter.getGpPostcode()));
+        if (gpDetails.getPractices().isEmpty()) {
+            throw new VerificationException("could not retrieve your practice details");
+        }
+
         // example...
-        GpPractice gpPractice = new GpPractice();
+        /*GpPractice gpPractice = new GpPractice();
         gpPractice.setName("Some practice");
         gpPractice.setCode("EG12345");
         gpPractice.setUrl("http://www.msn.com");
@@ -392,7 +433,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpPractice2.setName("Another practice");
         gpPractice2.setCode("EG00012");
         gpPractice2.setUrl("http://www.google.com");
-        gpDetails.getPractices().add(gpPractice2);
+        gpDetails.getPractices().add(gpPractice2);*/
 
         // example...
         GpPatient gpPatient = new GpPatient();
@@ -409,5 +450,39 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpDetails.getPatients().add(gpPatient2);
 
         return gpDetails;
+    }
+
+    private List<GpPractice> getGpPracticesFromMasterTable(String gpPostcode) {
+        List<GpPractice> gpPractices = new ArrayList<>();
+
+        // search for GP practices in GP master table by postcode
+        List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpPostcode);
+        for (GpMaster gpMaster : gpMasters) {
+            GpPractice gpPractice = new GpPractice();
+            gpPractice.setCode(gpMaster.getPracticeCode());
+            gpPractice.setName(gpMaster.getPracticeName());
+
+            // set the url based on retrieval from NHS choices
+            if (StringUtils.isNotEmpty(gpMaster.getUrl())) {
+                // already has url
+                gpPractice.setUrl(gpMaster.getUrl());
+            } else {
+                // need to update URL from NHS choices, do this here to avoid hitting API limits
+                String url = nhsChoicesService.getUrlByPracticeCode(gpMaster.getPracticeCode());
+
+                if (StringUtils.isNotEmpty(url)) {
+                    // url found
+                    gpPractice.setUrl(url);
+
+                    // save updated GP master
+                    gpMaster.setUrl(url);
+                    gpMasterRepository.save(gpMaster);
+                }
+            }
+
+            gpPractices.add(gpPractice);
+        }
+
+        return gpPractices;
     }
 }

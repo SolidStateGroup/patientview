@@ -748,6 +748,7 @@ CREATE TABLE PV_Gp_Master
   Country                     TEXT,
   Telephone                   TEXT,
   Status_Code                 TEXT,
+  Url                         TEXT,
   Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Creation_Date               TIMESTAMP    NOT NULL,
   Last_Update_Date            TIMESTAMP,

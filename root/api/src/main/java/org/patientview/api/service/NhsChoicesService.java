@@ -15,6 +15,9 @@ import java.io.IOException;
  */
 public interface NhsChoicesService {
 
+    String getUrlByPracticeCode(String practiceCode);
+
+    // testing only
     @RoleOnly
     void updateOrganisations() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException;
 }
