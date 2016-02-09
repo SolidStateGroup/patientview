@@ -15,11 +15,11 @@
     <div>
         <ul class="nav nav-tabs">
             <li data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
-            <li data-ng-class="{active:activeTab === 'FOOD_DIARY'}"><a data-ng-click="activeTab = 'FOOD_DIARY'">Food Diary</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_FATIGUE'}"><a data-ng-click="activeTab = 'IBD_FATIGUE'">Fatigue</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_SELF_MANAGEMENT'}"><a data-ng-click="activeTab = 'IBD_SELF_MANAGEMENT'">Self Management</a></li>
+            <li data-ng-class="{active:activeTab === 'FOOD_DIARY'}"><a data-ng-click="activeTab = 'FOOD_DIARY'">Food Diary</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD' || activeTab === null || activeTab === undefined)}">
@@ -30,9 +30,6 @@
                         <p class="no-data">Your details for My IBD have not yet been added to PatientView.</p>
                     </div>
                 </div>
-            </div>
-            <div class="tab-pane" data-ng-class="{active:activeTab === 'FOOD_DIARY'}">
-                <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_CONTROL'}">
                 <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl"></div>
@@ -51,6 +48,9 @@
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'IBD_SELF_MANAGEMENT'}">
                 <div data-ng-include src="'views/partials/ibdSelfManagement.html'" data-ng-controller="IbdSelfManagementCtrl"></div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'FOOD_DIARY'}">
+                <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
         </div>
 
