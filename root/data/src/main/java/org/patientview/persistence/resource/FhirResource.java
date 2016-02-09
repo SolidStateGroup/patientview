@@ -856,10 +856,11 @@ public class FhirResource {
      */
     public List<GpPatient> getGpPatientsFromPostcode(String gpPostcode) {
         List<GpPatient> gpPatients = new ArrayList<>();
+        Connection connection = null;
 
         try {
             // get logical_id and name of GP from FHIR practitioners where postcode matches
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(
                     "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
@@ -912,8 +913,15 @@ public class FhirResource {
                     }
                 }
             }
-        } catch (Exception e) {
-            LOG.error("Error getting patients", e);
+        } catch (SQLException e) {
+            LOG.error("SQL exception:", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection:", e2);
+            }
         }
 
         return gpPatients;
