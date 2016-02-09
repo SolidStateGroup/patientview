@@ -78,7 +78,7 @@
                 <tbody>
                     <tr data-ng-repeat="practice in practices">
                         <td>
-                            <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
+                            <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}" data-ng-show="practices.length > 1">
                         </td>
                         <td>
                             <span>{{practice.name}}</span>
