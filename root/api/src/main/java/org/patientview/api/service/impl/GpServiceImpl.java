@@ -868,12 +868,14 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         // validate not already claimed
         GpLetter firstGpLetter = gpLetters.get(0);
         if (firstGpLetter.getClaimedDate() != null) {
-            StringBuilder sb = new StringBuilder("Someone at your practice is already managing this group (");
+            StringBuilder sb = new StringBuilder("someone at your practice is already managing this group (");
 
             if (StringUtils.isNotEmpty(firstGpLetter.getClaimedEmail())) {
-                sb.append("claimed by ");
+                sb.append("claimed by <a href=\"mailto:");
                 sb.append(firstGpLetter.getClaimedEmail());
-                sb.append(" on ");
+                sb.append("\">");
+                sb.append(firstGpLetter.getClaimedEmail());
+                sb.append("</a> on ");
             }
 
             sb.append(new SimpleDateFormat("dd-MMM-yyyy").format(firstGpLetter.getClaimedDate()));
