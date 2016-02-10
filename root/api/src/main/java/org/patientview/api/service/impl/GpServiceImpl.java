@@ -47,7 +47,6 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
-import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
@@ -210,8 +209,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // GP_ADMIN role used when creating group roles
-        Role role = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.GP_ADMIN);
-        if (role == null) {
+        Role gpAdminRole = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.GP_ADMIN);
+        if (gpAdminRole == null) {
             throw new VerificationException("suitable Role does not exist");
         }
 
@@ -221,15 +220,54 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("required MESSAGING feature not found");
         }
 
+        if (groupRepository.findByCode(gpMaster.getPracticeCode()) != null) {
+            throw new VerificationException("group already created");
+        }
+
+        // build user
+        String password = CommonUtils.generatePassword();
+        User user = createGpAdminUser(gpDetails, password, messagingFeature);
+
+        // build GENERAL_PRACTICE group
+        Group group = createGpGroup(gpDetails, gpMaster, user, messagingFeature, generalPracticeSpecialty);
+
+        // create gp admin GroupRole for newly created GENERAL_PRACTICE group
+        GroupRole groupRole = new GroupRole(user, group, gpAdminRole);
+        user.getGroupRoles().add(groupRole);
+
+        // create gp admin GroupRole for GENERAL_PRACTICE specialty
+        GroupRole groupRoleSpecialty = new GroupRole(user, generalPracticeSpecialty, gpAdminRole);
+        user.getGroupRoles().add(groupRoleSpecialty);
+
+        // add patients to group
+
+
+        // claim GP letter
+
+        // persist
+        userRepository.save(user);
+        userFeatureRepository.save(user.getUserFeatures());
+        groupRoleRepository.save(user.getGroupRoles());
+        groupRepository.save(group);
+        groupFeatureRepository.save(group.getGroupFeatures());
+
+        // send email to user
+
+        // add created username and password
+        gpDetails.setUsername(user.getUsername());
+        gpDetails.setPassword(password);
+
+        return gpDetails;
+    }
+
+    private User createGpAdminUser(GpDetails gpDetails, String password, Feature messagingFeature)
+            throws VerificationException {
+
         // DEFAULT_MESSAGING_CONTACT feature, added to user
         Feature defaultMessagingContactFeature
                 = featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
         if (defaultMessagingContactFeature == null) {
             throw new VerificationException("required DEFAULT_MESSAGING_CONTACT feature not found");
-        }
-
-        if (groupRepository.findByCode(gpMaster.getPracticeCode()) != null) {
-            throw new VerificationException("group already created");
         }
 
         // create new user, with basic details from user entered data
@@ -246,8 +284,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         user.setGroupRoles(new HashSet<GroupRole>());
         user.setUserFeatures(new HashSet<UserFeature>());
 
-        // generate password
-        String password = CommonUtils.generatePassword();
+        // add password
         try {
             String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
@@ -267,6 +304,12 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         userDefaultMessagingContactFeature.setCreator(user);
         userDefaultMessagingContactFeature.setUser(user);
         user.getUserFeatures().add(userDefaultMessagingContactFeature);
+
+        return user;
+    }
+
+    private Group createGpGroup(GpDetails gpDetails, GpMaster gpMaster, User user,
+            Feature messagingFeature, Group generalPracticeSpecialty) throws VerificationException {
 
         // group basic details
         Group group = new Group();
@@ -359,32 +402,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         parentRelationship.setCreator(user);
         group.getGroupRelationships().add(parentRelationship);
 
-        // create GroupRole for newly created GENERAL_PRACTICE group
-        GroupRole groupRole = new GroupRole(user, group, role);
-        user.getGroupRoles().add(groupRole);
-
-        // create GroupRole for GENERAL_PRACTICE specialty
-        GroupRole groupRoleSpecialty = new GroupRole(user, generalPracticeSpecialty, role);
-        user.getGroupRoles().add(groupRoleSpecialty);
-
-        // persist
-        userRepository.save(user);
-        userFeatureRepository.save(user.getUserFeatures());
-        groupRoleRepository.save(user.getGroupRoles());
-        groupRepository.save(group);
-        groupFeatureRepository.save(group.getGroupFeatures());
-
-        // add patients to group
-
-        // claim GP letter
-
-        // send email to user
-
-        // add created username and password
-        gpDetails.setUsername(user.getUsername());
-        gpDetails.setPassword(password);
-
-        return gpDetails;
+        return group;
     }
 
     private String getCellContent(Cell cell) {
