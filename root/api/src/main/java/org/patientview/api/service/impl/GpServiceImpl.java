@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.patientview.api.model.GpDetails;
 import org.patientview.api.model.GpPractice;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GpService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.api.service.UserService;
@@ -22,6 +23,7 @@ import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
@@ -55,11 +57,13 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -87,6 +91,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Inject
     private ContactPointTypeRepository contactPointTypeRepository;
+
+    @Inject
+    private EmailService emailService;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -280,25 +287,31 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // persist
-        userRepository.save(gpAdminUser);
-        if (!gpAdminUser.getUserFeatures().isEmpty()) {
-            userFeatureRepository.save(gpAdminUser.getUserFeatures());
-        }
-        if (!gpAdminUser.getGroupRoles().isEmpty()) {
-            groupRoleRepository.save(gpAdminUser.getGroupRoles());
-        }
-        groupRepository.save(gpGroup);
-        if (!gpGroup.getGroupFeatures().isEmpty()) {
-            groupFeatureRepository.save(gpGroup.getGroupFeatures());
-        }
-        if (!patientGroupRoles.isEmpty()) {
-            groupRoleRepository.save(patientGroupRoles);
-        }
-        if (!matchedGpLetters.isEmpty()) {
-            gpLetterRepository.save(matchedGpLetters);
+        try {
+            userRepository.save(gpAdminUser);
+            if (!gpAdminUser.getUserFeatures().isEmpty()) {
+                userFeatureRepository.save(gpAdminUser.getUserFeatures());
+            }
+            if (!gpAdminUser.getGroupRoles().isEmpty()) {
+                groupRoleRepository.save(gpAdminUser.getGroupRoles());
+            }
+            groupRepository.save(gpGroup);
+            if (!gpGroup.getGroupFeatures().isEmpty()) {
+                groupFeatureRepository.save(gpGroup.getGroupFeatures());
+            }
+            if (!patientGroupRoles.isEmpty()) {
+                groupRoleRepository.save(patientGroupRoles);
+            }
+            if (!matchedGpLetters.isEmpty()) {
+                gpLetterRepository.save(matchedGpLetters);
+            }
+        } catch (Exception e) {
+            // failed to persist
+            throw new VerificationException("error saving");
         }
 
         // send email to user
+        sendGpAdminWelcomeEmail(gpAdminUser);
 
         // add created username and password
         gpDetails.setUsername(gpAdminUser.getUsername());
@@ -606,6 +619,31 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         return new ArrayList<>(matchedGpLetters);
+    }
+
+    private void sendGpAdminWelcomeEmail(User user) {
+        Email email = new Email();
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
+        email.setSubject("PatientView - Welcome to PatientView");
+        email.setRecipients(new String[]{user.getEmail()});
+
+        email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>" +
+            "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
+            "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
+            "read the information there to be sure that governance and confidentiality principles are " +
+            "maintained. Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> (top right) " +
+            "with the username below and the password generated when you claimed your account. You will be " +
+            "forced to change this password when you first log in so that only you know it. It is very important " +
+            "that it is difficult to guess, and kept secret." +
+            "<br/><br/><strong>Username:</strong> " + user.getUsername());
+
+        // try and send but ignore if exception and log
+        try {
+            emailService.sendEmail(email);
+        } catch (MailException | MessagingException me) {
+            LOG.error("Cannot send welcome email, continuing", me);
+        }
     }
 
     private void updateEngland() throws IOException, ZipException {

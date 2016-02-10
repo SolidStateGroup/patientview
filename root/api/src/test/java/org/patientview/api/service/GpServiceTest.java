@@ -17,6 +17,7 @@ import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
@@ -49,6 +50,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,6 +76,9 @@ public class GpServiceTest {
 
     @Mock
     ContactPointTypeRepository contactPointTypeRepository;
+
+    @Mock
+    EmailService emailService;
 
     @Mock
     FeatureRepository featureRepository;
@@ -155,7 +160,7 @@ public class GpServiceTest {
     }
 
     @Test
-    public void testClaim() throws VerificationException {
+    public void testClaim() throws VerificationException, MessagingException {
         String url = "http://nhswebsite.com/somepractice.aspx";
 
         GpDetails details = new GpDetails();
@@ -266,6 +271,7 @@ public class GpServiceTest {
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
         verify(groupRepository, Mockito.times(1)).save(any(Group.class));
