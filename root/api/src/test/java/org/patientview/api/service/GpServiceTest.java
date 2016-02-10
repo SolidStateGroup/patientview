@@ -184,7 +184,8 @@ public class GpServiceTest {
         gpMasters.add(gpMaster);
 
         User user = TestUtils.createUser("patientUser");
-        Role role = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
+        Role gpAdminRole = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
 
         GpPatient patient = new GpPatient();
         patient.setId(1L);
@@ -195,13 +196,6 @@ public class GpServiceTest {
                         IdentifierTypes.NHS_NUMBER.toString()), user, "1111111111"));
         List<GpPatient> patients = new ArrayList<>();
         patients.add(patient);
-
-        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
-        when(gpLetterRepository.findBySignupKeyAndIdentifier(
-                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(roleRepository.findByRoleTypeAndName(
-                eq(role.getRoleType().getValue()), eq(role.getName()))).thenReturn(role);
 
         // selected practice
         GpPractice gpPractice = new GpPractice();
@@ -243,24 +237,32 @@ public class GpServiceTest {
 
         when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.PV_ADMIN_EMAIL))).thenReturn(types1);
         when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.UNIT_ENQUIRIES_PHONE))).thenReturn(types2);
-        when(groupRepository.findByCode(eq(generalPracticeSpecialty.getCode()))).thenReturn(generalPracticeSpecialty);
-        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
-        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
-                .thenReturn(generalPracticeLookup);
         when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
         when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
                 .thenReturn(defaultMessagingContactFeature);
+        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
+        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
+                .thenReturn(generalPracticeLookup);
+        when(groupRepository.findByCode(eq(generalPracticeSpecialty.getCode()))).thenReturn(generalPracticeSpecialty);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
 
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
-        verify(userRepository, Mockito.times(1)).save(any(User.class));
-        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
-        verify(groupRoleRepository, Mockito.times(1)).save(any(Set.class));
-        verify(groupRepository, Mockito.times(1)).save(any(Group.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRepository, Mockito.times(1)).save(any(Group.class));
+        verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
+        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(userRepository, Mockito.times(1)).save(any(User.class));
     }
 
     @Test

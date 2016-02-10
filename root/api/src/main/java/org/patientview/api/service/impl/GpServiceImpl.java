@@ -25,6 +25,7 @@ import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -208,10 +209,16 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("general practice specialty does not exist");
         }
 
-        // GP_ADMIN role used when creating group roles
+        // GP_ADMIN role used when creating group roles for new gp user
         Role gpAdminRole = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.GP_ADMIN);
         if (gpAdminRole == null) {
-            throw new VerificationException("suitable Role does not exist");
+            throw new VerificationException("suitable admin Role does not exist");
+        }
+
+        // PATIENT role used when creating group roles for existing patient users
+        Role patientRole = roleRepository.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
+        if (patientRole == null) {
+            throw new VerificationException("suitable patient Role does not exist");
         }
 
         // MESSAGING feature, added to group and user
@@ -226,35 +233,57 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
         // build user
         String password = CommonUtils.generatePassword();
-        User user = createGpAdminUser(gpDetails, password, messagingFeature);
+        User gpAdminUser = createGpAdminUser(gpDetails, password, messagingFeature);
 
         // build GENERAL_PRACTICE group
-        Group group = createGpGroup(gpDetails, gpMaster, user, messagingFeature, generalPracticeSpecialty);
+        Group gpGroup = createGpGroup(gpDetails, gpMaster, gpAdminUser, messagingFeature, generalPracticeSpecialty);
 
         // create gp admin GroupRole for newly created GENERAL_PRACTICE group
-        GroupRole groupRole = new GroupRole(user, group, gpAdminRole);
-        user.getGroupRoles().add(groupRole);
+        GroupRole adminGroupRole = new GroupRole(gpAdminUser, gpGroup, gpAdminRole);
+        gpAdminUser.getGroupRoles().add(adminGroupRole);
 
         // create gp admin GroupRole for GENERAL_PRACTICE specialty
-        GroupRole groupRoleSpecialty = new GroupRole(user, generalPracticeSpecialty, gpAdminRole);
-        user.getGroupRoles().add(groupRoleSpecialty);
+        GroupRole adminSpecialtyGroupRole = new GroupRole(gpAdminUser, generalPracticeSpecialty, gpAdminRole);
+        gpAdminUser.getGroupRoles().add(adminSpecialtyGroupRole);
 
-        // add patients to group
+        // add patients to group by creating group roles, including GENERAL_PRACTICE specialty group role if not present
+        List<GroupRole> patientGroupRoles = new ArrayList<>();
 
+        for (GpPatient gpPatient : gpDetails.getPatients()) {
+            User patientUser = userRepository.findOne(gpPatient.getId());
+            if (patientUser != null) {
+                // check does not already have group role for GENERAL_PRACTICE specialty, if not then add
+                if (groupRoleRepository.findByUserGroupRole(
+                        patientUser, generalPracticeSpecialty, patientRole) == null) {
+                    GroupRole specialtyGroupRole = new GroupRole(patientUser, generalPracticeSpecialty, patientRole);
+                    specialtyGroupRole.setCreator(gpAdminUser);
+                    patientGroupRoles.add(specialtyGroupRole);
+                }
+
+                // add new group role for newly created gp group
+                GroupRole patientGroupRole = new GroupRole(patientUser, gpGroup, patientRole);
+                patientGroupRole.setCreator(gpAdminUser);
+                patientGroupRoles.add(patientGroupRole);
+                patientUser.getGroupRoles().add(patientGroupRole);
+            }
+        }
 
         // claim GP letter
 
         // persist
-        userRepository.save(user);
-        userFeatureRepository.save(user.getUserFeatures());
-        groupRoleRepository.save(user.getGroupRoles());
-        groupRepository.save(group);
-        groupFeatureRepository.save(group.getGroupFeatures());
+        userRepository.save(gpAdminUser);
+        userFeatureRepository.save(gpAdminUser.getUserFeatures());
+
+        groupRoleRepository.save(gpAdminUser.getGroupRoles());
+        groupRepository.save(gpGroup);
+        groupFeatureRepository.save(gpGroup.getGroupFeatures());
+
+        groupRoleRepository.save(patientGroupRoles);
 
         // send email to user
 
         // add created username and password
-        gpDetails.setUsername(user.getUsername());
+        gpDetails.setUsername(gpAdminUser.getUsername());
         gpDetails.setPassword(password);
 
         return gpDetails;
