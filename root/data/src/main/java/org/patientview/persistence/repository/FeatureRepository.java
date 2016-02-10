@@ -25,11 +25,11 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
            "JOIN    u.userFeatures uf " +
            "JOIN    uf.feature f " +
            "WHERE   u = :user ")
-    public List<Feature> findByUser(@Param("user") User user);
+    List<Feature> findByUser(@Param("user") User user);
 
     @Query("SELECT fea FROM Feature fea WHERE :featureType MEMBER OF fea.featureTypes")
-    public Iterable<Feature> findByType(@Param("featureType") Lookup featureType);
+    Iterable<Feature> findByType(@Param("featureType") Lookup featureType);
 
     @Query("SELECT fea FROM Feature fea WHERE fea.name = :featureName")
-    public Feature findByName(@Param("featureName") String featureName);
+    Feature findByName(@Param("featureName") String featureName);
 }

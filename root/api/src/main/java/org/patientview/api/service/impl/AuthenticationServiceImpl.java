@@ -196,7 +196,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         //Salt password
         if (user.getSalt() == null) {
             try {
-                String salt = userService.generateSalt();
+                String salt = CommonUtils.generateSalt();
                 user.setSalt(salt);
                 user.setPassword(DigestUtils.sha256Hex(password + salt));
             } catch (Exception e) {

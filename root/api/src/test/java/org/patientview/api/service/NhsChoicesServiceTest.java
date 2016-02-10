@@ -24,6 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -70,9 +71,10 @@ public class NhsChoicesServiceTest {
 
     @Test
     @Ignore("fails on build, test locally")
-    public void testGetUrlByPracticeCode() {
-        String url = nhsChoicesService.getUrlByPracticeCode("P91017");
-        Assert.assertNotNull(url);
-        System.out.println(url);
+    public void testGetDetailsByPracticeCode() {
+        Map<String, String> details = nhsChoicesService.getDetailsByPracticeCode("P91017");
+        Assert.assertNotNull(details);
+        Assert.assertNotNull(details.get("url"));
+        System.out.println(details.get("url"));
     }
 }

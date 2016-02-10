@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import com.opencsv.CSVReader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -18,14 +19,44 @@ import org.patientview.api.service.GpService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRelationship;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpCountries;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.ContactPointTypeRepository;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GroupFeatureRepository;
+import org.patientview.persistence.repository.GroupRelationshipRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.UserFeatureRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -35,10 +66,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +85,12 @@ import java.util.Properties;
 public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements GpService {
 
     @Inject
+    private ContactPointTypeRepository contactPointTypeRepository;
+
+    @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
     private FhirResource fhirResource;
 
     @Inject
@@ -61,7 +100,28 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private GpMasterRepository gpMasterRepository;
 
     @Inject
+    private GroupFeatureRepository groupFeatureRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    private LookupRepository lookupRepository;
+
+    @Inject
     private NhsChoicesService nhsChoicesService;
+
+    @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private UserFeatureRepository userFeatureRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Inject
     private UserService userService;
@@ -114,6 +174,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     @Override
+    @Transactional
     public GpDetails claim(GpDetails gpDetails) throws VerificationException {
         // validate user entered details again
         validateGpDetails(gpDetails);
@@ -142,15 +203,186 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             throw new VerificationException("no patients selected, please select at least one");
         }
 
-        // create group
+        // check GENERAL_PRACTICE specialty exists
+        Group generalPracticeSpecialty = groupRepository.findByCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        if (generalPracticeSpecialty == null) {
+            throw new VerificationException("general practice specialty does not exist");
+        }
+
+        // GP_ADMIN role used when creating group roles
+        Role role = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.GP_ADMIN);
+        if (role == null) {
+            throw new VerificationException("suitable Role does not exist");
+        }
+
+        // MESSAGING feature, added to group and user
+        Feature messagingFeature = featureRepository.findByName(FeatureType.MESSAGING.toString());
+        if (messagingFeature == null) {
+            throw new VerificationException("required MESSAGING feature not found");
+        }
+
+        // DEFAULT_MESSAGING_CONTACT feature, added to user
+        Feature defaultMessagingContactFeature
+                = featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+        if (defaultMessagingContactFeature == null) {
+            throw new VerificationException("required DEFAULT_MESSAGING_CONTACT feature not found");
+        }
+
+        if (groupRepository.findByCode(gpMaster.getPracticeCode()) != null) {
+            throw new VerificationException("group already created");
+        }
+
+        // create new user, with basic details from user entered data
+        User user = new User();
+        user.setForename(gpDetails.getForename());
+        user.setSurname(gpDetails.getSurname());
+        user.setEmail(gpDetails.getEmail());
+        user.setUsername(gpDetails.getEmail());
+        user.setChangePassword(true);
+        user.setLocked(false);
+        user.setDummy(false);
+        user.setEmailVerified(false);
+        user.setDeleted(false);
+        user.setGroupRoles(new HashSet<GroupRole>());
+        user.setUserFeatures(new HashSet<UserFeature>());
+
+        // generate password
+        String password = CommonUtils.generatePassword();
+        try {
+            String salt = CommonUtils.generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(password + salt));
+        } catch (NoSuchAlgorithmException nsa) {
+            throw new VerificationException("could not generate password");
+        }
+
+        // add user MESSAGING feature
+        UserFeature userMessagingFeature = new UserFeature(messagingFeature);
+        userMessagingFeature.setCreator(user);
+        userMessagingFeature.setUser(user);
+        user.getUserFeatures().add(userMessagingFeature);
+
+        // add user DEFAULT_MESSAGING_CONTACT feature
+        UserFeature userDefaultMessagingContactFeature = new UserFeature(defaultMessagingContactFeature);
+        userDefaultMessagingContactFeature.setCreator(user);
+        userDefaultMessagingContactFeature.setUser(user);
+        user.getUserFeatures().add(userDefaultMessagingContactFeature);
+
+        // group basic details
+        Group group = new Group();
+        group.setVisible(true);
+        group.setVisibleToJoin(false);
+        group.setContactPoints(new HashSet<ContactPoint>());
+        group.setLinks(new HashSet<Link>());
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.setGroupRelationships(new HashSet<GroupRelationship>());
+
+        // name from GP master practice name, shortname from GP practice code with "GP-"
+        group.setName(gpMaster.getPracticeName());
+        group.setShortName("GP-" + gpMaster.getPracticeCode());
+
+        // address from GP master address, combining address3 and address4 if present
+        group.setAddress1(gpMaster.getAddress1());
+        group.setAddress2(gpMaster.getAddress2());
+        group.setCreator(user);
+
+        if (StringUtils.isNotEmpty(gpMaster.getAddress3())) {
+            group.setAddress3(gpMaster.getAddress3());
+            if (StringUtils.isNotEmpty(gpMaster.getAddress4())) {
+                group.setAddress3(group.getAddress3() + ", " + gpMaster.getAddress4());
+            }
+        }
+        group.setPostcode(gpMaster.getPostcode());
+
+        // code from GP master code
+        group.setCode(gpMaster.getPracticeCode());
+
+        // group type, set as GENERAL_PRACTICE
+        group.setGroupType(
+                lookupRepository.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.GENERAL_PRACTICE.toString()));
+
+        // pv admin email contact point, from user's entered email address
+        ContactPoint pvAdminEmail = new ContactPoint();
+        pvAdminEmail.setGroup(group);
+        pvAdminEmail.setContent(gpDetails.getEmail());
+        pvAdminEmail.setCreator(user);
+        List<ContactPointType> pvAdminEmailType
+                = contactPointTypeRepository.findByValue(ContactPointTypes.PV_ADMIN_EMAIL);
+        if (!pvAdminEmailType.isEmpty()) {
+            pvAdminEmail.setContactPointType(pvAdminEmailType.get(0));
+            group.getContactPoints().add(pvAdminEmail);
+        }
+
+        // unit enquiries phone contact point, from GP master telephone
+        if (StringUtils.isNotEmpty(gpMaster.getTelephone())) {
+            ContactPoint unitEnquiriesPhone = new ContactPoint();
+            unitEnquiriesPhone.setGroup(group);
+            unitEnquiriesPhone.setContent(gpMaster.getTelephone());
+            unitEnquiriesPhone.setCreator(user);
+            List<ContactPointType> unitEnquiriesType
+                    = contactPointTypeRepository.findByValue(ContactPointTypes.UNIT_ENQUIRIES_PHONE);
+            if (!unitEnquiriesType.isEmpty()) {
+                unitEnquiriesPhone.setContactPointType(unitEnquiriesType.get(0));
+                group.getContactPoints().add(unitEnquiriesPhone);
+            }
+        }
+
+        // web link, from GP master url (found from NHS choices when validating)
+        if (StringUtils.isNotEmpty(gpMaster.getUrl())) {
+            Link link = new Link();
+            link.setGroup(group);
+            link.setDisplayOrder(0);
+            link.setLink(gpMaster.getUrl());
+            link.setCreator(user);
+            group.getLinks().add(link);
+        }
+
+        // add group MESSAGING feature
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setFeature(messagingFeature);
+        groupFeature.setGroup(group);
+        groupFeature.setCreator(user);
+        group.getGroupFeatures().add(groupFeature);
+
+        // set group parent to GENERAL_PRACTICE
+        GroupRelationship childRelationship = new GroupRelationship();
+        childRelationship.setSourceGroup(generalPracticeSpecialty);
+        childRelationship.setObjectGroup(group);
+        childRelationship.setRelationshipType(RelationshipTypes.CHILD);
+        childRelationship.setCreator(user);
+        group.getGroupRelationships().add(childRelationship);
+
+        GroupRelationship parentRelationship = new GroupRelationship();
+        parentRelationship.setSourceGroup(group);
+        parentRelationship.setObjectGroup(generalPracticeSpecialty);
+        parentRelationship.setRelationshipType(RelationshipTypes.PARENT);
+        parentRelationship.setCreator(user);
+        group.getGroupRelationships().add(parentRelationship);
+
+        // create GroupRole for newly created GENERAL_PRACTICE group
+        GroupRole groupRole = new GroupRole(user, group, role);
+        user.getGroupRoles().add(groupRole);
+
+        // create GroupRole for GENERAL_PRACTICE specialty
+        GroupRole groupRoleSpecialty = new GroupRole(user, generalPracticeSpecialty, role);
+        user.getGroupRoles().add(groupRoleSpecialty);
+
+        // persist
+        userRepository.save(user);
+        userFeatureRepository.save(user.getUserFeatures());
+        groupRoleRepository.save(user.getGroupRoles());
+        groupRepository.save(group);
+        groupFeatureRepository.save(group.getGroupFeatures());
 
         // add patients to group
 
-        // create email to user
+        // claim GP letter
 
-        // testing
-        gpDetails.setUsername("someusername");
-        gpDetails.setPassword("ABC123456");
+        // send email to user
+
+        // add created username and password
+        gpDetails.setUsername(user.getUsername());
+        gpDetails.setPassword(password);
 
         return gpDetails;
     }
@@ -190,14 +422,23 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                     gpPractice.setUrl(gpMaster.getUrl());
                 } else {
                     // need to update URL from NHS choices, do this here to avoid hitting API limits
-                    String url = nhsChoicesService.getUrlByPracticeCode(gpMaster.getPracticeCode());
+                    Map<String, String> details
+                            = nhsChoicesService.getDetailsByPracticeCode(gpMaster.getPracticeCode());
 
-                    if (StringUtils.isNotEmpty(url)) {
-                        // url found
-                        gpPractice.setUrl(url);
+                    boolean updateGpMaster = false;
 
-                        // save updated GP master
-                        gpMaster.setUrl(url);
+                    if (details != null) {
+                        if (StringUtils.isNotEmpty(details.get("url"))) {
+                            // url found
+                            gpPractice.setUrl(details.get("url"));
+
+                            // save updated GP master url
+                            updateGpMaster = true;
+                            gpMaster.setUrl(details.get("url"));
+                        }
+                    }
+
+                    if (updateGpMaster) {
                         gpMasterRepository.save(gpMaster);
                     }
                 }
@@ -453,6 +694,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         // validate no existing users with this email
         if (userService.getByEmail(gpDetails.getEmail()) != null) {
             throw new VerificationException("a user already exists with this email address");
+        }
+
+        // validate no existing users with this email as username (as email is used for generated username)
+        if (userService.getByUsername(gpDetails.getEmail()) != null) {
+            throw new VerificationException("a user already exists with this email address (used for username)");
         }
 
         // check email is a valid email string

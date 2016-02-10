@@ -549,7 +549,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
         try {
-            String salt = generateSalt();
+            String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword() + salt));
         } catch (NoSuchAlgorithmException e) {
@@ -1271,7 +1271,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = findUser(userId);
         try {
             user.setChangePassword(Boolean.FALSE);
-            String salt = generateSalt();
+            String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
             user.setPassword(DigestUtils.sha256Hex(password + salt));
             user.setLocked(Boolean.FALSE);
@@ -1302,7 +1302,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
         try {
-            String salt = generateSalt();
+            String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
             user.setPassword(DigestUtils.sha256Hex(password + salt));
             user.setChangePassword(Boolean.TRUE);
@@ -1402,7 +1402,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
 
             try {
-                String salt = generateSalt();
+                String salt = CommonUtils.generateSalt();
                 user.setSalt(salt);
 
                 // Hash the password and save user
@@ -1706,15 +1706,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public String generateSalt() throws NoSuchAlgorithmException {
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-        byte[] salt = new byte[16];
-        sr.nextBytes(salt);
-
-        return toHex(salt);
-    }
-
-    @Override
     public void moveUsersGroup(final Long groupFromId, final Long groupToId, final Long roleId,
         final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
 
@@ -1796,22 +1787,5 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         LOG.info("Moving Users: " + countDelete + " deleted GroupRole");
         LOG.info("Moving Users: " + count + " added GroupRole");
         LOG.info("Moving Users: " + (countDelete - count) + " already in new group");
-    }
-
-    /**
-     * Converts a byte array into a hexadecimal string.
-     *
-     * @param array the byte array to convert
-     * @return a length*2 character string encoding the byte array
-     */
-    private static String toHex(byte[] array) {
-        BigInteger bi = new BigInteger(1, array);
-        String hex = bi.toString(16);
-        int paddingLength = (array.length * 2) - hex.length();
-        if (paddingLength > 0) {
-            return String.format("%0" + paddingLength + "d", 0) + hex;
-        } else {
-            return hex;
-        }
     }
 }

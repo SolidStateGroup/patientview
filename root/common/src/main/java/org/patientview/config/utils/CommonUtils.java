@@ -9,6 +9,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Date;
 
 /**
@@ -86,6 +89,14 @@ public final class CommonUtils {
         return input.replace("'","''");
     }
 
+    public static String generateSalt() throws NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+
+        return toHex(salt);
+    }
+
     public static Date getDateFromString(String text) {
 
         try {
@@ -119,5 +130,22 @@ public final class CommonUtils {
         DateTime dateTime = new DateTime(date);
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy HH:mm");
         return fmt.print(dateTime).replace(" 00:00","");
+    }
+
+    /**
+     * Converts a byte array into a hexadecimal string.
+     *
+     * @param array the byte array to convert
+     * @return a length*2 character string encoding the byte array
+     */
+    private static String toHex(byte[] array) {
+        BigInteger bi = new BigInteger(1, array);
+        String hex = bi.toString(16);
+        int paddingLength = (array.length * 2) - hex.length();
+        if (paddingLength > 0) {
+            return String.format("%0" + paddingLength + "d", 0) + hex;
+        } else {
+            return hex;
+        }
     }
 }

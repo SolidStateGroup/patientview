@@ -32,6 +32,8 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -49,12 +51,13 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     private Properties properties;
 
     @Override
-    public String getUrlByPracticeCode(String practiceCode) {
+    public Map<String, String> getDetailsByPracticeCode(String practiceCode) {
         if (StringUtils.isEmpty(practiceCode)) {
             return null;
         }
 
         try {
+            Map<String, String> details = new HashMap<>();
             String apiKey = properties.getProperty("nhschoices.api.key");
 
             // get organisation ID from NHS choices
@@ -84,6 +87,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 return null;
             }
 
+            JsonElement telephoneObj = rootobj.get("Telephone");
+            if (telephoneObj != null) {
+                String telephone = telephoneObj.getAsString();
+                if (StringUtils.isNotEmpty(telephone)) {
+                    details.put("telephone", telephone);
+                }
+            }
+
             // generate overview URL from found organisationId
             URL overviewUrl = new URL(
                 "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/"
@@ -110,17 +121,15 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             // NHS choices url stored in first entry under alternate link
             Entry firstEntry = feed.getEntries().get(0);
             Link link = firstEntry.getAlternateLink();
-            if (link == null) {
-                return null;
-            }
-
-            IRI iri = link.getHref();
-            if (iri == null) {
-                return null;
+            if (link != null) {
+                IRI iri = link.getHref();
+                if (iri != null) {
+                    details.put("url", iri.toString());
+                }
             }
 
             // return full path
-            return iri.toString();
+            return details;
         } catch (IOException | ParseException e) {
             LOG.info("Could not retrieve overview url from NHS choices for practice with code "
                     + practiceCode + ", continuing");

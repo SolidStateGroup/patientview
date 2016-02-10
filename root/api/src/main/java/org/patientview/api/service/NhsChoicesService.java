@@ -6,6 +6,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * NHS Choices service, for retrieving data from NHS Choices
@@ -15,7 +16,7 @@ import java.io.IOException;
  */
 public interface NhsChoicesService {
 
-    String getUrlByPracticeCode(String practiceCode);
+    Map<String, String> getDetailsByPracticeCode(String practiceCode);
 
     // testing only
     @RoleOnly

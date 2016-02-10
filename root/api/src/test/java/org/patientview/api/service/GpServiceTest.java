@@ -10,36 +10,58 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.GpDetails;
 import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.ContactPointTypeRepository;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GroupFeatureRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.UserFeatureRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -51,6 +73,12 @@ public class GpServiceTest {
     User creator;
 
     @Mock
+    ContactPointTypeRepository contactPointTypeRepository;
+
+    @Mock
+    FeatureRepository featureRepository;
+
+    @Mock
     FhirResource fhirResource;
 
     @Mock
@@ -60,10 +88,31 @@ public class GpServiceTest {
     GpMasterRepository gpMasterRepository;
 
     @Mock
+    GroupFeatureRepository groupFeatureRepository;
+
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
+    GroupRoleRepository groupRoleRepository;
+
+    @Mock
+    LookupRepository lookupRepository;
+
+    @Mock
     NhsChoicesService nhsChoicesService;
 
     @Mock
     Properties properties;
+
+    @Mock
+    RoleRepository roleRepository;
+
+    @Mock
+    UserFeatureRepository userFeatureRepository;
+
+    @Mock
+    UserRepository userRepository;
 
     @Mock
     UserService userService;
@@ -107,6 +156,8 @@ public class GpServiceTest {
 
     @Test
     public void testClaim() throws VerificationException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
         GpDetails details = new GpDetails();
         details.setForename("fore");
         details.setSurname("sur");
@@ -123,10 +174,17 @@ public class GpServiceTest {
         gpMaster.setPracticeName("Some Practice");
         gpMaster.setPracticeCode("P123456");
         gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
 
         User user = TestUtils.createUser("patientUser");
+        Role role = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
 
         GpPatient patient = new GpPatient();
         patient.setId(1L);
@@ -138,29 +196,71 @@ public class GpServiceTest {
         List<GpPatient> patients = new ArrayList<>();
         patients.add(patient);
 
-        String url = "http://nhswebsite.com/somepractice.aspx";
-
+        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
         when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(nhsChoicesService.getUrlByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(url);
-        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(role.getRoleType().getValue()), eq(role.getName()))).thenReturn(role);
 
-        // selected practice and patients
+        // selected practice
         GpPractice gpPractice = new GpPractice();
         gpPractice.setUrl(url);
         gpPractice.setName(gpMaster.getPracticeName());
         gpPractice.setCode(gpMaster.getPracticeCode());
         details.getPractices().add(gpPractice);
 
+        // selected patients
         details.getPatients().add(patient);
+
+        // contact point types
+        ContactPointType pvAdminEmail = new ContactPointType();
+        pvAdminEmail.setValue(ContactPointTypes.PV_ADMIN_EMAIL);
+        ContactPointType unitEnquriesTelephone = new ContactPointType();
+        unitEnquriesTelephone.setValue(ContactPointTypes.UNIT_ENQUIRIES_PHONE);
+
+        List<ContactPointType> types1 = new ArrayList<>();
+        types1.add(pvAdminEmail);
+        List<ContactPointType> types2 = new ArrayList<>();
+        types2.add(unitEnquriesTelephone);
+
+        Lookup generalPracticeLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.GENERAL_PRACTICE.toString());
+        Lookup specialtyLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+
+        // GENERAL_PRACTICE specialty
+        Group generalPracticeSpecialty = new Group();
+        generalPracticeSpecialty.setCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        generalPracticeSpecialty.setGroupType(specialtyLookup);
+
+        // MESSAGING feature
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+
+        // DEFAULT_MESSAGING_CONTACT feature
+        Feature defaultMessagingContactFeature
+                = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.PV_ADMIN_EMAIL))).thenReturn(types1);
+        when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.UNIT_ENQUIRIES_PHONE))).thenReturn(types2);
+        when(groupRepository.findByCode(eq(generalPracticeSpecialty.getCode()))).thenReturn(generalPracticeSpecialty);
+        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
+        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
+                .thenReturn(generalPracticeLookup);
+        when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
+        when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
+                .thenReturn(defaultMessagingContactFeature);
 
         GpDetails out = gpService.claim(details);
 
-        Assert.assertEquals("should return one practice", 1, out.getPractices().size());
-        Assert.assertEquals("should return correct practice name",
-                gpMaster.getPracticeName(), out.getPractices().get(0).getName());
-        Assert.assertEquals("should return correct practice url", url, out.getPractices().get(0).getUrl());
+        Assert.assertNotNull("should set username", out.getUsername());
+        Assert.assertNotNull("should set password", out.getPassword());
+
+        verify(userRepository, Mockito.times(1)).save(any(User.class));
+        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRoleRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRepository, Mockito.times(1)).save(any(Group.class));
+        verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
     }
 
     @Test
@@ -197,11 +297,13 @@ public class GpServiceTest {
         patients.add(patient);
 
         String url = "http://nhswebsite.com/somepractice.aspx";
+        Map<String, String> gpMasterDetails = new HashMap<>();
+        gpMasterDetails.put("url", url);
 
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
         when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(nhsChoicesService.getUrlByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(url);
+        when(nhsChoicesService.getDetailsByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(gpMasterDetails);
         when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
 
         GpDetails out = gpService.validateDetails(details);

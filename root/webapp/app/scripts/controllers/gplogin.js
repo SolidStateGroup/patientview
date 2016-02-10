@@ -57,7 +57,7 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
             $scope.step = 3;
         }, function (failure) {
             // details invalid
-            $scope.validatingDetails = false;
+            $scope.validatingClaim = false;
             $scope.validClaim = false;
             $scope.claimErrorMessage = failure.data;
         });

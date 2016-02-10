@@ -400,6 +400,4 @@ public interface UserService {
      */
     @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
-
-    String generateSalt() throws NoSuchAlgorithmException;
 }
