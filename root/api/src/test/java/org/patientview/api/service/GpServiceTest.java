@@ -165,6 +165,7 @@ public class GpServiceTest {
         details.setEmail("someone@nhs.uk");
         details.setPatientIdentifier("1234567890");
 
+        // gp letter, only has postcode so will be checking against gp master table when claiming similar
         GpLetter gpLetter = new GpLetter();
         gpLetter.setGpPostcode("ABC 12DE");
         List<GpLetter> gpLetters = new ArrayList<>();
@@ -183,9 +184,14 @@ public class GpServiceTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
 
-        User user = TestUtils.createUser("patientUser");
+        User patientUser = TestUtils.createUser("patientUser");
+
         Role gpAdminRole = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
         Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        Group otherGroup = TestUtils.createGroup("someOtherGroup");
+        GroupRole otherGroupRole = TestUtils.createGroupRole(patientRole, otherGroup, patientUser);
+        patientUser.getGroupRoles().add(otherGroupRole);
 
         GpPatient patient = new GpPatient();
         patient.setId(1L);
@@ -193,7 +199,7 @@ public class GpServiceTest {
         patient.setIdentifiers(new HashSet<Identifier>());
         patient.getIdentifiers().add(TestUtils.createIdentifier(
                 TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
-                        IdentifierTypes.NHS_NUMBER.toString()), user, "1111111111"));
+                        IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111"));
         List<GpPatient> patients = new ArrayList<>();
         patients.add(patient);
 
@@ -241,6 +247,7 @@ public class GpServiceTest {
         when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
                 .thenReturn(defaultMessagingContactFeature);
         when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
         when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
@@ -252,12 +259,14 @@ public class GpServiceTest {
                 eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
         when(roleRepository.findByRoleTypeAndName(
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
+        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
+        verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
         verify(groupRepository, Mockito.times(1)).save(any(Group.class));
         verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));

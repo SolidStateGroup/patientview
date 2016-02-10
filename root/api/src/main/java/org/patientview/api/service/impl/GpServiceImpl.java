@@ -76,6 +76,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -177,7 +178,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     @Transactional
     public GpDetails claim(GpDetails gpDetails) throws VerificationException {
         // validate user entered details again
-        validateGpDetails(gpDetails);
+        GpLetter gpLetter = validateGpDetails(gpDetails);
 
         // validate selected practice
         if (CollectionUtils.isEmpty(gpDetails.getPractices())) {
@@ -268,17 +269,34 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             }
         }
 
-        // claim GP letter
+        // claim all GP letters with same details
+        List<GpLetter> matchedGpLetters = matchByGpDetails(gpLetter);
+        Date now = new Date();
+        for (GpLetter matchedGpLetter : matchedGpLetters) {
+            matchedGpLetter.setClaimedEmail(gpAdminUser.getEmail());
+            matchedGpLetter.setClaimedDate(now);
+            matchedGpLetter.setClaimedPracticeCode(gpGroup.getCode());
+            matchedGpLetter.setClaimedGroup(gpGroup);
+        }
 
         // persist
         userRepository.save(gpAdminUser);
-        userFeatureRepository.save(gpAdminUser.getUserFeatures());
-
-        groupRoleRepository.save(gpAdminUser.getGroupRoles());
+        if (!gpAdminUser.getUserFeatures().isEmpty()) {
+            userFeatureRepository.save(gpAdminUser.getUserFeatures());
+        }
+        if (!gpAdminUser.getGroupRoles().isEmpty()) {
+            groupRoleRepository.save(gpAdminUser.getGroupRoles());
+        }
         groupRepository.save(gpGroup);
-        groupFeatureRepository.save(gpGroup.getGroupFeatures());
-
-        groupRoleRepository.save(patientGroupRoles);
+        if (!gpGroup.getGroupFeatures().isEmpty()) {
+            groupFeatureRepository.save(gpGroup.getGroupFeatures());
+        }
+        if (!patientGroupRoles.isEmpty()) {
+            groupRoleRepository.save(patientGroupRoles);
+        }
+        if (!matchedGpLetters.isEmpty()) {
+            gpLetterRepository.save(matchedGpLetters);
+        }
 
         // send email to user
 
@@ -497,6 +515,37 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return gpPractices;
     }
 
+    private boolean hasValidPracticeDetails(GpLetter gpLetter) {
+        // check postcode is set
+        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+            return false;
+        }
+
+        // validate at least 2 of address1, address2, address3 is present
+        int fieldCount = 0;
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())) {
+            fieldCount++;
+        }
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
+            fieldCount++;
+        }
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
+            fieldCount++;
+        }
+
+        return fieldCount > 1;
+    }
+
+    private boolean hasValidPracticeDetailsCheckMaster(GpLetter gpLetter) {
+        // check postcode is set
+        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+            return false;
+        }
+
+        // validate postcode exists in GP master table and only one record
+        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()).size() == 1;
+    }
+
     private void initialise() {
         this.now = new Date();
         this.currentUser = getCurrentUser();
@@ -512,6 +561,51 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         for (GpMaster gpMaster : gpMasterRepository.findAll()) {
             this.existing.put(gpMaster.getPracticeCode(), gpMaster);
         }
+    }
+
+    private List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
+        Set<GpLetter> matchedGpLetters = new HashSet<>();
+
+        if (hasValidPracticeDetails(gpLetter)) {
+            // match using postcode and at least 2 of address1, address2, address3
+            List<GpLetter> gpLetters = gpLetterRepository.findByPostcode(gpLetter.getGpPostcode());
+
+            for (GpLetter gpLetterEntity : gpLetters) {
+                int fieldCount = 0;
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress1())) {
+                    if (gpLetter.getGpAddress1().equals(gpLetterEntity.getGpAddress1())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress2())) {
+                    if (gpLetter.getGpAddress2().equals(gpLetterEntity.getGpAddress2())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress3())) {
+                    if (gpLetter.getGpAddress3().equals(gpLetterEntity.getGpAddress3())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (fieldCount > 1) {
+                    matchedGpLetters.add(gpLetterEntity);
+                }
+            }
+        }
+
+        if (hasValidPracticeDetailsCheckMaster(gpLetter)) {
+            // match using postcode (already checked only 1 practice with this postcode in GP master table)
+            matchedGpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+        }
+
+        return new ArrayList<>(matchedGpLetters);
     }
 
     private void updateEngland() throws IOException, ZipException {
@@ -716,7 +810,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Override
     public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
-        addPracticesAndPatients(gpDetails, validateGpDetails(gpDetails));
+        GpLetter gpLetter = validateGpDetails(gpDetails);
+        addPracticesAndPatients(gpDetails, gpLetter);
         return gpDetails;
     }
 
