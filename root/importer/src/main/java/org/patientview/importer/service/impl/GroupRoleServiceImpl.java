@@ -78,6 +78,10 @@ public class GroupRoleServiceImpl extends AbstractServiceImpl<GroupRoleServiceIm
                     GroupRole specialtyGroupRole = new GroupRole(user, gpSpecialty, role);
                     specialtyGroupRole.setCreator(importerUser);
                     groupRoleRepository.save(specialtyGroupRole);
+
+                    // add audit entry
+                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
+                            importerUser, userId, AuditObjectTypes.User, gpSpecialty);
                 }
             }
         }
