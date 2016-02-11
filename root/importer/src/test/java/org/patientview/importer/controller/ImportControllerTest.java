@@ -302,6 +302,25 @@ public class ImportControllerTest {
         }
     }
 
+    // GP logins, letter generation testing, db needs clearing manually after each test
+    /*
+        DELETE FROM pv_contact_point WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user_group_role WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group_relationship WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_feature_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_feature_user WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
+
+        DELETE FROM pv_fhir_link WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
+    */
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestGpLogins() throws Exception {
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";

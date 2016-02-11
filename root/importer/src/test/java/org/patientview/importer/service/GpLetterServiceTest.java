@@ -243,6 +243,7 @@ public class GpLetterServiceTest extends BaseTest {
         Patientview patientview = new Patientview();
         Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
 
+        gpdetails.setGpname("Dr Someone");
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
 

@@ -59,13 +59,11 @@ public class ImportManagerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateGpLetter_noneExisting() throws ResourceNotFoundException {
+    public void testCreateGpLetter_noneExistingCheckMaster() throws ResourceNotFoundException {
         Patientview patientview = new Patientview();
         Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
 
-        gpdetails.setGpaddress1("address1");
-        gpdetails.setGpaddress2("address2");
-        gpdetails.setGpaddress3("address3");
+        gpdetails.setGpname("gpName");
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
 
@@ -78,7 +76,8 @@ public class ImportManagerTest extends BaseTest {
         FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
         fhirLink.setIsNew(true);
 
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(true);
+        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(false);
+        when(gpLetterService.hasValidPracticeDetailsCheckMaster(eq(patientview))).thenReturn(true);
 
         importManager.createGpLetter(fhirLink, patientview);
 
