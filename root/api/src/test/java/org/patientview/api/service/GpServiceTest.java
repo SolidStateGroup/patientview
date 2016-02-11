@@ -172,6 +172,375 @@ public class GpServiceTest {
 
         // gp letter, only has postcode so will be checking against gp master table when claiming similar
         GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        // another gp letter, to confirm that all are claimed at once
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpName("Dr Another GP");
+        gpLetter2.setGpPostcode("ABC 12DE");
+        gpLetters.add(gpLetter2);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        User patientUser = TestUtils.createUser("patientUser");
+
+        Role gpAdminRole = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        Group otherGroup = TestUtils.createGroup("someOtherGroup");
+        GroupRole otherGroupRole = TestUtils.createGroupRole(patientRole, otherGroup, patientUser);
+        patientUser.getGroupRoles().add(otherGroupRole);
+
+        GpPatient patient = new GpPatient();
+        patient.setId(1L);
+        patient.setGpName(gpMaster.getPracticeName());
+        patient.setIdentifiers(new HashSet<Identifier>());
+        patient.getIdentifiers().add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111"));
+        List<GpPatient> patients = new ArrayList<>();
+        patients.add(patient);
+
+        // selected practice
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setUrl(url);
+        gpPractice.setName(gpMaster.getPracticeName());
+        gpPractice.setCode(gpMaster.getPracticeCode());
+        details.getPractices().add(gpPractice);
+
+        // selected patients
+        details.getPatients().add(patient);
+
+        // contact point types
+        ContactPointType pvAdminEmail = new ContactPointType();
+        pvAdminEmail.setValue(ContactPointTypes.PV_ADMIN_EMAIL);
+        ContactPointType unitEnquriesTelephone = new ContactPointType();
+        unitEnquriesTelephone.setValue(ContactPointTypes.UNIT_ENQUIRIES_PHONE);
+
+        List<ContactPointType> types1 = new ArrayList<>();
+        types1.add(pvAdminEmail);
+        List<ContactPointType> types2 = new ArrayList<>();
+        types2.add(unitEnquriesTelephone);
+
+        Lookup generalPracticeLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.GENERAL_PRACTICE.toString());
+        Lookup specialtyLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+
+        // GENERAL_PRACTICE specialty
+        Group generalPracticeSpecialty = new Group();
+        generalPracticeSpecialty.setCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        generalPracticeSpecialty.setGroupType(specialtyLookup);
+
+        // MESSAGING feature
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+
+        // DEFAULT_MESSAGING_CONTACT feature
+        Feature defaultMessagingContactFeature
+                = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.PV_ADMIN_EMAIL))).thenReturn(types1);
+        when(contactPointTypeRepository.findByValue(eq(ContactPointTypes.UNIT_ENQUIRIES_PHONE))).thenReturn(types2);
+        when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
+        when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
+                .thenReturn(defaultMessagingContactFeature);
+        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
+        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
+                .thenReturn(generalPracticeLookup);
+        when(groupRepository.findByCode(eq(generalPracticeSpecialty.getCode()))).thenReturn(generalPracticeSpecialty);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
+        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
+
+        GpDetails out = gpService.claim(details);
+
+        Assert.assertNotNull("should set username", out.getUsername());
+        Assert.assertNotNull("should set password", out.getPassword());
+
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
+        verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRepository, Mockito.times(1)).save(any(Group.class));
+        verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
+        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(userRepository, Mockito.times(1)).save(any(User.class));
+    }
+
+    @Test (expected = VerificationException.class)
+    public void testClaim_failsGroupAlreadyCreated() throws VerificationException, MessagingException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        // gp letter, only has postcode so will be checking against gp master table when claiming similar
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        User patientUser = TestUtils.createUser("patientUser");
+
+        GpPatient patient = new GpPatient();
+        patient.setId(1L);
+        patient.setGpName(gpMaster.getPracticeName());
+        patient.setIdentifiers(new HashSet<Identifier>());
+        patient.getIdentifiers().add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111"));
+        List<GpPatient> patients = new ArrayList<>();
+        patients.add(patient);
+
+        // selected patients
+        details.getPatients().add(patient);
+
+        // selected practice
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setUrl(url);
+        gpPractice.setName(gpMaster.getPracticeName());
+        gpPractice.setCode(gpMaster.getPracticeCode());
+        details.getPractices().add(gpPractice);
+
+        // GENERAL_PRACTICE specialty
+        Lookup specialtyLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+
+        Group generalPracticeSpecialty = new Group();
+        generalPracticeSpecialty.setCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        generalPracticeSpecialty.setGroupType(specialtyLookup);
+
+        // already created group of type GENERAL_PRACTICE
+        Lookup unitLookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.GENERAL_PRACTICE.toString());
+
+        Group unit = new Group();
+        unit.setCode(gpMaster.getPracticeCode());
+        unit.setGroupType(unitLookup);
+
+        // Roles
+        Role gpAdminRole = TestUtils.createRole(RoleName.GP_ADMIN, RoleType.STAFF);
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        // MESSAGING feature
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+
+        // DEFAULT_MESSAGING_CONTACT feature
+        Feature defaultMessagingContactFeature
+                = TestUtils.createFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
+                .thenReturn(defaultMessagingContactFeature);
+        when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
+        when(groupRepository.findByCode(eq(generalPracticeSpecialty.getCode()))).thenReturn(generalPracticeSpecialty);
+        when(groupRepository.findByCode(eq(gpMaster.getPracticeCode()))).thenReturn(unit);
+        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
+        when(roleRepository.findByRoleTypeAndName(
+                eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
+
+        gpService.claim(details);
+    }
+
+    @Test (expected = VerificationException.class)
+    public void testClaim_failsNoPatientsSelected() throws VerificationException, MessagingException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        // gp letter, only has postcode so will be checking against gp master table when claiming similar
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        // selected practice
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setUrl(url);
+        gpPractice.setName(gpMaster.getPracticeName());
+        gpPractice.setCode(gpMaster.getPracticeCode());
+        details.getPractices().add(gpPractice);
+
+        when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+
+        gpService.claim(details);
+    }
+
+    @Test (expected = VerificationException.class)
+    public void testClaim_failsPracticeNotInGpMaster() throws VerificationException, MessagingException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        // gp letter, only has postcode so will be checking against gp master table when claiming similar
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
+
+        // selected practice
+        GpPractice gpPractice = new GpPractice();
+        gpPractice.setUrl(url);
+        gpPractice.setName(gpMaster.getPracticeName());
+        gpPractice.setCode(gpMaster.getPracticeCode());
+        details.getPractices().add(gpPractice);
+
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+
+        gpService.claim(details);
+    }
+
+    @Test (expected = VerificationException.class)
+    public void testClaim_failsNoPracticeSelected() throws VerificationException, MessagingException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        // gp letter, only has postcode so will be checking against gp master table when claiming similar
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpPostcode("ABC 12DE");
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        // another gp letter, to confirm that all are claimed at once
+        GpLetter gpLetter2 = new GpLetter();
+        gpLetter2.setGpName("Dr Another GP");
+        gpLetter2.setGpPostcode("ABC 12DE");
+        gpLetters.add(gpLetter2);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("Some Practice");
+        gpMaster.setPracticeCode("P123456");
+        gpMaster.setPostcode("ABC 12DE");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setTelephone("01234 567890123");
+        gpMaster.setUrl(url);
+
+        User patientUser = TestUtils.createUser("patientUser");
+
+        GpPatient patient = new GpPatient();
+        patient.setId(1L);
+        patient.setGpName(gpMaster.getPracticeName());
+        patient.setIdentifiers(new HashSet<Identifier>());
+        patient.getIdentifiers().add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111"));
+
+        // selected patients
+        details.getPatients().add(patient);
+
+        when(gpLetterRepository.findBySignupKeyAndIdentifier(
+                eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
+
+        gpService.claim(details);
+    }
+
+    @Test
+    public void testClaim_fullGpLetterDetails() throws VerificationException, MessagingException {
+        String url = "http://nhswebsite.com/somepractice.aspx";
+
+        GpDetails details = new GpDetails();
+        details.setForename("fore");
+        details.setSurname("sur");
+        details.setSignupKey("ABC123");
+        details.setEmail("someone@nhs.uk");
+        details.setPatientIdentifier("1234567890");
+
+        // gp letter, has address details so will match against others in Gp letter table when claiming similar
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("Dr Some GP");
+        gpLetter.setGpAddress1("address1");
+        gpLetter.setGpAddress2("address2");
+        gpLetter.setGpAddress3("address3");
         gpLetter.setGpPostcode("ABC 12DE");
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetter);

@@ -286,6 +286,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             matchedGpLetter.setClaimedGroup(gpGroup);
         }
 
+        if (matchedGpLetters.isEmpty()) {
+            throw new VerificationException("could not match details with existing practice details");
+        }
+
         // persist
         try {
             userRepository.save(gpAdminUser);
@@ -302,9 +306,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             if (!patientGroupRoles.isEmpty()) {
                 groupRoleRepository.save(patientGroupRoles);
             }
-            if (!matchedGpLetters.isEmpty()) {
-                gpLetterRepository.save(matchedGpLetters);
-            }
+            gpLetterRepository.save(matchedGpLetters);
         } catch (Exception e) {
             // failed to persist
             throw new VerificationException("error saving");
