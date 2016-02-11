@@ -16,6 +16,7 @@ import org.hibernate.Hibernate;
 import org.patientview.importer.service.GpLetterService;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GpLetter;
+import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.repository.GpLetterRepository;
@@ -88,7 +89,17 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
 
         // letter (generated)
         try {
-            gpLetter.setLetterContent(generateLetter(gpLetter));
+            // if not enough information to produce letter address then use gp master
+            if (!hasValidPracticeDetails(patientview)) {
+                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gp.getGppostcode());
+                if (!gpMasters.isEmpty()) {
+                    gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0)));
+                } else {
+                    gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0)));
+                }
+            } else {
+                gpLetter.setLetterContent(generateLetter(gpLetter, null));
+            }
         } catch (DocumentException de) {
             LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
             gpLetter.setLetterContent(null);
@@ -97,7 +108,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         gpLetterRepository.save(gpLetter);
     }
 
-    private String generateLetter(GpLetter gpLetter) throws DocumentException {
+    private String generateLetter(GpLetter gpLetter, GpMaster gpMaster) throws DocumentException {
         // create new itext pdf document
         Document document = new Document();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -120,18 +131,36 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         document.add(new Paragraph(new Chunk(gpLetter.getGpName())));
 
         // GP address
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
-                && !gpLetter.getGpAddress1().equals(gpLetter.getGpName())) {
-            document.add(new Paragraph(new Chunk(gpLetter.getGpAddress1())));
-        }
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
-            document.add(new Paragraph(new Chunk(gpLetter.getGpAddress2())));
-        }
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
-            document.add(new Paragraph(new Chunk(gpLetter.getGpAddress3())));
-        }
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress4())) {
-            document.add(new Paragraph(new Chunk(gpLetter.getGpAddress4())));
+        if (gpMaster == null) {
+            // enough information to set address based on gp letter
+            if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
+                    && !gpLetter.getGpAddress1().equals(gpLetter.getGpName())) {
+                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress1())));
+            }
+            if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
+                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress2())));
+            }
+            if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
+                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress3())));
+            }
+            if (StringUtils.isNotEmpty(gpLetter.getGpAddress4())) {
+                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress4())));
+            }
+        } else {
+            // not enough information for address, use gp master information instead
+            if (StringUtils.isNotEmpty(gpMaster.getAddress1())
+                    && !gpMaster.getAddress1().equals(gpMaster.getPracticeName())) {
+                document.add(new Paragraph(new Chunk(gpMaster.getAddress1())));
+            }
+            if (StringUtils.isNotEmpty(gpMaster.getAddress2())) {
+                document.add(new Paragraph(new Chunk(gpMaster.getAddress2())));
+            }
+            if (StringUtils.isNotEmpty(gpMaster.getAddress3())) {
+                document.add(new Paragraph(new Chunk(gpMaster.getAddress3())));
+            }
+            if (StringUtils.isNotEmpty(gpMaster.getAddress4())) {
+                document.add(new Paragraph(new Chunk(gpMaster.getAddress4())));
+            }
         }
 
         // GP postcode
@@ -208,10 +237,9 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         String adminEmail = ".";
 
         Hibernate.initialize(gpLetter.getSourceGroup().getContactPoints());
-        List<ContactPoint> contactPoints = new ArrayList<>(gpLetter.getSourceGroup().getContactPoints());
 
-        if (!CollectionUtils.isEmpty(contactPoints)) {
-            for (ContactPoint contactPoint : contactPoints) {
+        if (!CollectionUtils.isEmpty(gpLetter.getSourceGroup().getContactPoints())) {
+            for (ContactPoint contactPoint : gpLetter.getSourceGroup().getContactPoints()) {
                 if (contactPoint.getContactPointType().getValue().equals(ContactPointTypes.PV_ADMIN_EMAIL)) {
                     adminEmail = " (" + contactPoint.getContent() + ").";
                 }

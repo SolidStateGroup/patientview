@@ -7,20 +7,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.service.impl.GpLetterServiceImpl;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.test.util.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -36,10 +43,89 @@ public class GpLetterServiceTest extends BaseTest {
     @InjectMocks
     GpLetterService gpLetterService = new GpLetterServiceImpl();
 
+    @Mock
+    Properties properties;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
         PowerMockito.mockStatic(Util.class);
+    }
+
+    @Test
+    public void testAdd_fullAddress() {
+        Group sourceGroup = TestUtils.createGroup("sourceGroup");
+
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpname("gpName");
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+
+        gpLetterService.add(patientview, sourceGroup);
+
+        verify(gpMasterRepository, Mockito.times(1)).findByPostcode(eq(gpdetails.getGppostcode()));
+        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testAdd_incompleteAddress() {
+        Group sourceGroup = TestUtils.createGroup("sourceGroup");
+
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpname("gpName");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("practiceName");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+
+        gpLetterService.add(patientview, sourceGroup);
+
+        verify(gpMasterRepository, Mockito.times(2)).findByPostcode(eq(gpdetails.getGppostcode()));
+        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
     }
 
     @Test
@@ -58,7 +144,7 @@ public class GpLetterServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
@@ -91,7 +177,7 @@ public class GpLetterServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
@@ -111,7 +197,7 @@ public class GpLetterServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
@@ -141,7 +227,7 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpMaster> gps = new ArrayList<>();
         gps.add(gp);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gps);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gps);
 
         Assert.assertTrue("Should be valid practice details",
                 gpLetterService.hasValidPracticeDetailsSingleMaster(patientview));
@@ -163,7 +249,7 @@ public class GpLetterServiceTest extends BaseTest {
         gps.add(gp);
         gps.add(gp2);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gps);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gps);
 
         Assert.assertFalse("Should be invalid practice details",
                 gpLetterService.hasValidPracticeDetailsSingleMaster(patientview));
@@ -188,14 +274,14 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetter);
 
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpdetails.getGppostcode());
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -227,7 +313,7 @@ public class GpLetterServiceTest extends BaseTest {
         gpLetters.add(gpLetter);
         gpLetters.add(gpLetter2);
 
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpdetails.getGppostcode());
@@ -240,7 +326,7 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
         gpMasters.add(gpMaster2);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -272,7 +358,7 @@ public class GpLetterServiceTest extends BaseTest {
         gpLetters.add(gpLetter);
         gpLetters.add(gpLetter2);
 
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpdetails.getGppostcode());
@@ -285,7 +371,7 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
         gpMasters.add(gpMaster2);
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -311,8 +397,8 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetter);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -340,8 +426,8 @@ public class GpLetterServiceTest extends BaseTest {
         gpLetters.add(gpLetter);
         gpLetters.add(gpLetter2);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -369,8 +455,8 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetter);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
@@ -404,8 +490,8 @@ public class GpLetterServiceTest extends BaseTest {
         gpLetters.add(gpLetter);
         gpLetters.add(gpLetter2);
 
-        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 

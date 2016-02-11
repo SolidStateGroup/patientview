@@ -316,12 +316,12 @@ public class ImportControllerTest {
     */
     @Test
     @Ignore("IntegrationTest")
-    public void importIntegrationTestGpLogins() throws Exception {
+    public void importIntegrationTestGpLogins_local() throws Exception {
         // all data, single match in gp master - creates letter
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
 
         // only name and postcode, single match in gp master for postcode - creates letter
-        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
 
         // only name and postcode, multiple matches (2) in gp master for postcode - no letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_ME20_7SE_name_postcode_duplicate_master.xml"));
@@ -372,9 +372,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="http://localhost:8081/importer/import";
+        String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
