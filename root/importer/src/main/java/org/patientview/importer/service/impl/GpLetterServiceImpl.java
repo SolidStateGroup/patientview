@@ -148,8 +148,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             }
         } else {
             // not enough information for address, use gp master information instead
-            if (StringUtils.isNotEmpty(gpMaster.getAddress1())
-                    && !gpMaster.getAddress1().equals(gpMaster.getPracticeName())) {
+            if (StringUtils.isNotEmpty(gpMaster.getAddress1())) {
                 document.add(new Paragraph(new Chunk(gpMaster.getAddress1())));
             }
             if (StringUtils.isNotEmpty(gpMaster.getAddress2())) {
