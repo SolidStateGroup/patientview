@@ -53,6 +53,13 @@ public class GpLetterServiceTest extends BaseTest {
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
 
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
 
@@ -79,6 +86,13 @@ public class GpLetterServiceTest extends BaseTest {
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
 
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
 
@@ -91,6 +105,13 @@ public class GpLetterServiceTest extends BaseTest {
         gpdetails.setGpaddress3("address3");
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(patientview));
     }
@@ -169,6 +190,13 @@ public class GpLetterServiceTest extends BaseTest {
 
         when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
 
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
         Assert.assertEquals("Should have one match", 1, found.size());
@@ -201,6 +229,19 @@ public class GpLetterServiceTest extends BaseTest {
 
         when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
 
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeName("name1");
+        gpMaster.setPracticeCode("A1234");
+        GpMaster gpMaster2 = new GpMaster();
+        gpMaster2.setPostcode(gpdetails.getGppostcode());
+        gpMaster2.setPracticeName("name2");
+        gpMaster2.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        gpMasters.add(gpMaster2);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
+
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
         Assert.assertEquals("Should have one match", 1, found.size());
@@ -232,6 +273,19 @@ public class GpLetterServiceTest extends BaseTest {
         gpLetters.add(gpLetter2);
 
         when(gpLetterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpLetters);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeName("name1");
+        gpMaster.setPracticeCode("A1234");
+        GpMaster gpMaster2 = new GpMaster();
+        gpMaster2.setPostcode(gpdetails.getGppostcode());
+        gpMaster2.setPracticeName("name2");
+        gpMaster2.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+        gpMasters.add(gpMaster2);
+        when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(patientview);
 
