@@ -342,7 +342,11 @@ public class ImportControllerTest {
     public void importIntegrationTestGpLogins_staging() throws Exception {
         //post(getFileFromString("data/xml/gplogin_test/p1.xml"));
         //post(getFileFromString("data/xml/gplogin_test/p1-2.xml"));
-        post(getFileFromString("data/xml/gplogin_test/p1-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p1-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-3.xml"));
+        post(getFileFromString("data/xml/gplogin_test/p11.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
