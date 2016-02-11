@@ -318,7 +318,7 @@ public class ImportControllerTest {
     @Ignore("IntegrationTest")
     public void importIntegrationTestGpLogins() throws Exception {
         // all data, single match in gp master - creates letter
-        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
 
         // only name and postcode, single match in gp master for postcode - creates letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
@@ -333,7 +333,7 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_no_postcode.xml"));
 
         // wrong postcode, no match in gp master - no letter
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {

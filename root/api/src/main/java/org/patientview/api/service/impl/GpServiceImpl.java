@@ -21,6 +21,7 @@ import org.patientview.api.service.NhsChoicesService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
@@ -36,6 +37,8 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpCountries;
@@ -45,6 +48,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.ContactPointTypeRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
@@ -88,6 +92,9 @@ import java.util.Set;
  */
 @Service
 public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements GpService {
+
+    @Inject
+    private AuditRepository auditRepository;
 
     @Inject
     private ContactPointTypeRepository contactPointTypeRepository;
@@ -298,13 +305,26 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             }
             if (!gpAdminUser.getGroupRoles().isEmpty()) {
                 groupRoleRepository.save(gpAdminUser.getGroupRoles());
+
+                for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
+                    createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
+                        groupRole.getGroup(), gpAdminUser.getId(), AuditObjectTypes.User);
+                }
             }
+
             groupRepository.save(gpGroup);
+            createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
+
             if (!gpGroup.getGroupFeatures().isEmpty()) {
                 groupFeatureRepository.save(gpGroup.getGroupFeatures());
             }
             if (!patientGroupRoles.isEmpty()) {
                 groupRoleRepository.save(patientGroupRoles);
+
+                for (GroupRole groupRole : patientGroupRoles) {
+                    createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
+                        groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
+                }
             }
             gpLetterRepository.save(matchedGpLetters);
         } catch (Exception e) {
@@ -320,6 +340,22 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpDetails.setPassword(password);
 
         return gpDetails;
+    }
+
+    private void createAudit(AuditActions action, String username, User actor, Group group,
+                             Long sourceObjectId, AuditObjectTypes sourceObjectType) {
+        Audit audit = new Audit();
+        audit.setAuditActions(action);
+        audit.setUsername(username);
+        audit.setActorId(actor.getId());
+        audit.setSourceObjectId(sourceObjectId);
+        audit.setSourceObjectType(sourceObjectType);
+
+        if (group != null) {
+            audit.setGroup(group);
+        }
+
+        auditRepository.save(audit);
     }
 
     private User createGpAdminUser(GpDetails gpDetails, String password, Feature messagingFeature)
@@ -854,6 +890,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     @Override
+    @Transactional
     public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
         GpLetter gpLetter = validateGpDetails(gpDetails);
         addPracticesAndPatients(gpDetails, gpLetter);

@@ -16,6 +16,7 @@ import org.patientview.api.model.GpDetails;
 import org.patientview.api.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
@@ -36,6 +37,7 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.ContactPointTypeRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
@@ -73,6 +75,9 @@ import static org.mockito.Mockito.when;
 public class GpServiceTest {
 
     User creator;
+
+    @Mock
+    AuditRepository auditRepository;
 
     @Mock
     ContactPointTypeRepository contactPointTypeRepository;
@@ -278,6 +283,7 @@ public class GpServiceTest {
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
+        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
@@ -640,6 +646,7 @@ public class GpServiceTest {
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
+        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
