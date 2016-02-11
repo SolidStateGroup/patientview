@@ -52,11 +52,73 @@ public class GpMasterRepositoryTest {
         gp.setPostcode("AB12CDE");
         gp.setCountry(GpCountries.ENG);
         gp.setTelephone("0123456789");
-        gp.setStatusCode("active");
+        gp.setStatusCode("A");
 
         gpMasterRepository.save(gp);
 
         List<GpMaster> gps = gpMasterRepository.findByPracticeCode(gp.getPracticeCode());
+        Assert.assertEquals("There should be 1 gp", 1, gps.size());
+        Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gp));
+    }
+
+    @Test
+    public void testFindByPostCode() {
+        GpMaster gp = new GpMaster();
+        gp.setPracticeCode("123456");
+        gp.setPracticeName("practice name");
+        gp.setAddress1("address 1");
+        gp.setAddress2("address 2");
+        gp.setAddress3("address 3");
+        gp.setAddress4("address 4");
+        gp.setPostcode("AB12CDE");
+        gp.setCountry(GpCountries.ENG);
+        gp.setTelephone("0123456789");
+        gp.setStatusCode("A");
+
+        gpMasterRepository.save(gp);
+
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
+        Assert.assertEquals("There should be 1 gp", 1, gps.size());
+        Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gp));
+    }
+
+    @Test
+    public void testFindByPostCode_inactive() {
+        GpMaster gp = new GpMaster();
+        gp.setPracticeCode("123456");
+        gp.setPracticeName("practice name");
+        gp.setAddress1("address 1");
+        gp.setAddress2("address 2");
+        gp.setAddress3("address 3");
+        gp.setAddress4("address 4");
+        gp.setPostcode("AB12CDE");
+        gp.setCountry(GpCountries.ENG);
+        gp.setTelephone("0123456789");
+        gp.setStatusCode("D");
+
+        gpMasterRepository.save(gp);
+
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
+        Assert.assertEquals("There should be 0 gp", 0, gps.size());
+    }
+
+    @Test
+    public void testFindByPostCode_statusCodeNull() {
+        GpMaster gp = new GpMaster();
+        gp.setPracticeCode("123456");
+        gp.setPracticeName("practice name");
+        gp.setAddress1("address 1");
+        gp.setAddress2("address 2");
+        gp.setAddress3("address 3");
+        gp.setAddress4("address 4");
+        gp.setPostcode("AB12CDE");
+        gp.setCountry(GpCountries.ENG);
+        gp.setTelephone("0123456789");
+        gp.setStatusCode(null);
+
+        gpMasterRepository.save(gp);
+
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
         Assert.assertEquals("There should be 1 gp", 1, gps.size());
         Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gp));
     }

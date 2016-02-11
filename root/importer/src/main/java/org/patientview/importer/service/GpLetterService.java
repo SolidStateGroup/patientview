@@ -19,7 +19,7 @@ public interface GpLetterService {
 
     boolean hasValidPracticeDetails(Patientview patientview);
 
-    boolean hasValidPracticeDetailsCheckMaster(Patientview patientview);
+    boolean hasValidPracticeDetailsSingleMaster(Patientview patientview);
 
     List<GpLetter> matchByGpDetails(Patientview patientview);
 }

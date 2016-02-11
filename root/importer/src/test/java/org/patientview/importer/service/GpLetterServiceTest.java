@@ -123,7 +123,7 @@ public class GpLetterServiceTest extends BaseTest {
         when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gps);
 
         Assert.assertTrue("Should be valid practice details",
-                gpLetterService.hasValidPracticeDetailsCheckMaster(patientview));
+                gpLetterService.hasValidPracticeDetailsSingleMaster(patientview));
     }
 
     @Test
@@ -145,7 +145,7 @@ public class GpLetterServiceTest extends BaseTest {
         when(gpMasterRepository.findByPostcode(gpdetails.getGppostcode())).thenReturn(gps);
 
         Assert.assertFalse("Should be invalid practice details",
-                gpLetterService.hasValidPracticeDetailsCheckMaster(patientview));
+                gpLetterService.hasValidPracticeDetailsSingleMaster(patientview));
     }
 
     @Test

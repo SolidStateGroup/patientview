@@ -157,7 +157,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
                         + ")"));
             }
             p.add(new Chunk(" has been given access to their records via PatientView ("));
-            p.add(new Chunk("www.patientview.org", bold));
+            p.add(new Chunk(properties.getProperty("site.url").replace("http://", "").replace("https://", ""), bold));
             p.add(new Chunk("). It is recorded that they are registered with your practice. PatientView is explained " +
                     "in the enclosed leaflet; more information is available at "));
             p.add(new Chunk("www.rixg.org/patientview2", bold));
@@ -171,7 +171,8 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             Paragraph p = new Paragraph();
             p.add(new Chunk("If PatientView is not yet set up for staff access in your practice, you can obtain a " +
                     "free login to see the records of patients who are members by going to "));
-            p.add(new Chunk("www.patientview.org/gplogin", bold));
+            p.add(new Chunk(properties.getProperty("site.url").replace("http://", "").replace("https://", ""), bold));
+            p.add(new Chunk("/gplogin", bold));
             p.add(new Chunk(" and entering the following details:"));
             document.add(p);
         }
@@ -273,6 +274,11 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             return false;
         }
 
+        // check at least one gp in master table
+        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gp.getGppostcode()))) {
+            return false;
+        }
+
         // validate at least 2 of address1, address2, address3 is present
         int fieldCount = 0;
         if (StringUtils.isNotEmpty(gp.getGpaddress1())) {
@@ -289,7 +295,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
     }
 
     @Override
-    public boolean hasValidPracticeDetailsCheckMaster(Patientview patientview) {
+    public boolean hasValidPracticeDetailsSingleMaster(Patientview patientview) {
         // check gpdetails section is present
         if (patientview.getGpdetails() == null) {
             return false;
@@ -342,7 +348,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             }
         }
 
-        if (hasValidPracticeDetailsCheckMaster(patientview)) {
+        if (hasValidPracticeDetailsSingleMaster(patientview)) {
             // match using postcode (already checked only 1 practice with this postcode in GP master table)
             matchedGpLetters.addAll(gpLetterRepository.findByPostcode(patientview.getGpdetails().getGppostcode()));
         }

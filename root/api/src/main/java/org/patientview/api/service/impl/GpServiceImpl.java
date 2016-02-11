@@ -536,6 +536,11 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             return false;
         }
 
+        // check at least one gp in master table
+        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()))) {
+            return false;
+        }
+
         // validate at least 2 of address1, address2, address3 is present
         int fieldCount = 0;
         if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())) {
@@ -551,7 +556,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return fieldCount > 1;
     }
 
-    private boolean hasValidPracticeDetailsCheckMaster(GpLetter gpLetter) {
+    private boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
         // check postcode is set
         if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
             return false;
@@ -615,7 +620,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             }
         }
 
-        if (hasValidPracticeDetailsCheckMaster(gpLetter)) {
+        if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
             // match using postcode (already checked only 1 practice with this postcode in GP master table)
             matchedGpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
         }

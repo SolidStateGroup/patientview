@@ -75,7 +75,7 @@ public class GroupRoleServiceImpl extends AbstractServiceImpl<GroupRoleServiceIm
                 // check if user already a member of the General Practice specialty, if not then add
                 if (!groupRoleRepository.userGroupRoleExists(user.getId(), gpSpecialty.getId(), role.getId())) {
                     // not already a member, add to General Practice specialty
-                    GroupRole specialtyGroupRole = new GroupRole(user, group, role);
+                    GroupRole specialtyGroupRole = new GroupRole(user, gpSpecialty, role);
                     specialtyGroupRole.setCreator(importerUser);
                     groupRoleRepository.save(specialtyGroupRole);
                 }

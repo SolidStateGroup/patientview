@@ -90,7 +90,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         // or only have postcode but no more than one in Gp master table)
         if (fhirLink.isNew()
                 && (gpLetterService.hasValidPracticeDetails(patientview)
-                    || gpLetterService.hasValidPracticeDetailsCheckMaster(patientview))) {
+                    || gpLetterService.hasValidPracticeDetailsSingleMaster(patientview))) {
             // check if any entries exist matching GP details in GP letter table
             List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
 

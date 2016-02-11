@@ -1,0 +1,40 @@
+<patientview>
+    <sequence>01436</sequence>
+    <dateofreport>2013-11-13T16:38:18</dateofreport>
+    <datereportprocessed>2013-10-12T15:38:18</datereportprocessed>
+    <flag>Follow-up-report</flag>
+    <centredetails>
+        <centrecode>RENALB</centrecode>
+        <centrename>Renal' B</centrename>
+        <centreaddress1>Renal Unit</centreaddress1>
+        <centreaddress2>14 Lister Street</centreaddress2>
+        <centreaddress3>Kilmarnock</centreaddress3>
+        <centreaddress4>Ayrshire</centreaddress4>
+        <centrepostcode>KA2 0BE</centrepostcode>
+        <centretelephone>01563 521133</centretelephone>
+    </centredetails>
+    <gpdetails>
+        <gpname>THE SANDHURST GROUP PRACTICE</gpname>
+        <gpaddress1>SANDHURST GROUP PRACTICE</gpaddress1>
+        <gpaddress2>1 CAMBRIDGE RD,OWLSMOOR</gpaddress2>
+        <gpaddress3>SANDHURST</gpaddress3>
+        <gpaddress4>BERKSHIRE</gpaddress4>
+        <gppostcode>AB12 3CD</gppostcode>
+        <gptelephone>01344 751184</gptelephone>
+    </gpdetails>
+    <patient>
+        <personaldetails>
+            <surname>patbs'ur</surname>
+            <forename>patbfore</forename>
+            <dateofbirth>1952-10-31</dateofbirth>
+            <sex>Female</sex>
+            <nhsno>1111111111</nhsno>
+            <hospitalnumber>125634</hospitalnumber>
+            <address1>1 street road</address1>
+            <address2>townsville</address2>
+            <postcode>BS10 5NB</postcode>
+            <telephone1>0118 999881</telephone1>
+            <mobile>018118181</mobile>
+        </personaldetails>
+    </patient>
+</patientview>

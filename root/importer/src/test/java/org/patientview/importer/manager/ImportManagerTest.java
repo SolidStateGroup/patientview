@@ -77,7 +77,7 @@ public class ImportManagerTest extends BaseTest {
         fhirLink.setIsNew(true);
 
         when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(false);
-        when(gpLetterService.hasValidPracticeDetailsCheckMaster(eq(patientview))).thenReturn(true);
+        when(gpLetterService.hasValidPracticeDetailsSingleMaster(eq(patientview))).thenReturn(true);
 
         importManager.createGpLetter(fhirLink, patientview);
 

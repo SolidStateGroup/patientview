@@ -309,16 +309,31 @@ public class ImportControllerTest {
         DELETE FROM pv_group_relationship WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_feature_group WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_feature_user WHERE creation_date > '2016-02-10 00:00:00.000';
-        DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
-        DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
-
         DELETE FROM pv_fhir_link WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
     */
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTestGpLogins() throws Exception {
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        // all data, single match in gp master - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+
+        // only name and postcode, single match in gp master for postcode - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
+
+        // only name and postcode, multiple matches (2) in gp master for postcode - no letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_ME20_7SE_name_postcode_duplicate_master.xml"));
+
+        // two blank addresses, single match in gp master - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_two_blank_address.xml"));
+
+        // no postcode, no match in gp master - no letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_no_postcode.xml"));
+
+        // wrong postcode, no match in gp master - no letter
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
