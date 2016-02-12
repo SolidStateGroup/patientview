@@ -115,7 +115,7 @@ public interface UserService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
