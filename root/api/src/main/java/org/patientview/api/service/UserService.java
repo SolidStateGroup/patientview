@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -205,7 +204,7 @@ public interface UserService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 

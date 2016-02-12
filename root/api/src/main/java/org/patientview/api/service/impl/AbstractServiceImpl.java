@@ -122,6 +122,15 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
+        if (Util.userHasRole(user, RoleName.GP_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        }
+
         if (Util.userHasRole(user, RoleName.STAFF_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {

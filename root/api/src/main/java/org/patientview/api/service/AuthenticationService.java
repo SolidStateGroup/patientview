@@ -85,7 +85,7 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     String switchToUser(Long userId) throws AuthenticationServiceException;
 
     /**

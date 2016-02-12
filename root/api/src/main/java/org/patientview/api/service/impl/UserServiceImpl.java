@@ -611,9 +611,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return true;
         }
 
-        // UNIT_ADMIN can get users from other groups (used when updating existing user) as long as not GLOBAL_ADMIN
-        // or SPECIALTY_ADMIN
-        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        // UNIT_ADMIN can get users from other groups (used when updating existing user)
+        // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
+        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN) || Util.currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
