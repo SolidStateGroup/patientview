@@ -283,7 +283,7 @@ public class GpServiceTest {
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
-        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
+        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
@@ -646,7 +646,7 @@ public class GpServiceTest {
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
-        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
+        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
