@@ -229,7 +229,7 @@ public interface UserService {
      * @param username String username used to search for Users
      * @return User object
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
 
     /**
@@ -386,7 +386,7 @@ public interface UserService {
      * @return True or false if username belongs to User that already exists
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     boolean usernameExists(String username);
 
     /**
