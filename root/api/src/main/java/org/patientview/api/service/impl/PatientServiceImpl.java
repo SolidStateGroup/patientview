@@ -658,13 +658,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // make sure group links are displayed on screen, even if no fhirlink exists for the patient's groups, ignore
-        // specialty groups
+        // specialty groups and general practices
         for (GroupRole groupRole : user.getGroupRoles()) {
             Group group = groupRole.getGroup();
             if ((restrictGroups && filteredGroupIds.contains(group.getId())) || (!restrictGroups)) {
                 if (!foundFhirLinkGroupIds.contains(group.getId())
                         && group.getVisible()
-                        && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                        && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
+                        && !group.getGroupType().getValue().equals(HiddenGroupCodes.GENERAL_PRACTICE.toString())) {
                     org.patientview.api.model.Patient p = new org.patientview.api.model.Patient();
                     p.setFhirPatient(new FhirPatient());
                     p.setGroup(new org.patientview.api.model.Group(group));
