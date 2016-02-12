@@ -314,16 +314,20 @@ public class ImportControllerTest {
         DELETE FROM pv_audit WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_user_token WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_message_read_receipt WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_message WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_conversation_user_label WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_conversation_user WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
     */
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTestGpLogins_local() throws Exception {
         // all data, single match in gp master - creates letter
-        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
 
         // only name and postcode, single match in gp master for postcode - creates letter
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
 
         // only name and postcode, multiple matches (2) in gp master for postcode - no letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_ME20_7SE_name_postcode_duplicate_master.xml"));

@@ -25,7 +25,11 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
 
                 // get practices
                 $scope.practices = data.practices;
-                $scope.selectedPractice = $scope.practices[0];
+                if ($scope.practices.length == 1) {
+                    $scope.selectedPractice = $scope.practices[0];
+                } else {
+                    delete $scope.selectedPractice;
+                }
 
                 // get patients
                 $scope.patients = data.patients;
@@ -69,6 +73,10 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         } else {
             $scope.selectedPatients.splice($scope.selectedPatients.indexOf(patient), 1);
         }
+    };
+
+    $scope.togglePractice = function (practice) {
+        $scope.selectedPractice = practice;
     };
 
     init();

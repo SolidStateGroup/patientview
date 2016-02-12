@@ -151,6 +151,21 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private String tempDirectory;
     private int total, newGp, existingGp;
 
+    private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
+        // get practices from GP master table by postcode, must return at least one
+        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(gpLetter.getGpPostcode()));
+        if (gpDetails.getPractices().isEmpty()) {
+            throw new VerificationException("Could not retrieve your practice details");
+        }
+
+        // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
+        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(gpLetter.getGpPostcode()));
+
+        if (gpDetails.getPatients().isEmpty()) {
+            throw new VerificationException("Could not retrieve any patients for your practice");
+        }
+    }
+
     private void addToSaveMap(String practiceCode, String practiceName, String address1, String address2,
                               String address3, String address4, String postcode, String statusCode, String telephone,
                               GpCountries country) {
@@ -684,14 +699,14 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         email.setRecipients(new String[]{user.getEmail()});
 
         email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>" +
-            "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
-            "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
-            "read the information there to be sure that governance and confidentiality principles are " +
-            "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> " +
-            "(top right) with the username below and the password generated when you claimed your account. You " +
-            "will be forced to change this password when you first log in so that only you know it. " +
-            "It is very important that it is difficult to guess, and kept secret." +
-            "<br/><br/><strong>Username:</strong> " + user.getUsername());
+                "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
+                "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
+                "read the information there to be sure that governance and confidentiality principles are " +
+                "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> " +
+                "(top right) with the username below and the password generated when you claimed your account. You " +
+                "will be forced to change this password when you first log in so that only you know it. " +
+                "It is very important that it is difficult to guess, and kept secret." +
+                "<br/><br/><strong>Username:</strong> " + user.getUsername());
 
         // try and send but ignore if exception and log
         try {
@@ -987,19 +1002,5 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         return firstGpLetter;
-    }
-
-    private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
-        // get practices from GP master table by postcode, must return at least one
-        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(gpLetter.getGpPostcode()));
-        if (gpDetails.getPractices().isEmpty()) {
-            throw new VerificationException("Could not retrieve your practice details");
-        }
-
-        // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
-        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(gpLetter.getGpPostcode()));
-        if (gpDetails.getPatients().isEmpty()) {
-            throw new VerificationException("Could not retrieve any patients for your practice");
-        }
     }
 }

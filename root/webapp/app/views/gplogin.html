@@ -78,7 +78,7 @@
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="practice in practices">
-                        <td data-ng-show="practices.length > 1">
+                        <td data-ng-show="practices.length > 1" data-ng-click="togglePractice(practice)">
                             <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
                         </td>
                         <td>
@@ -94,36 +94,38 @@
                 </tbody>
             </table>
         </div>
-        <p>As a final step, below are the NHS numbers of patients found on PatientView who we think might belong
-            to your practice (matched by postcode). Please check or uncheck the boxes to indicate which are current
-            patients who should be included in the practice's list.</p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Add to my list</th>
-                    <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
-                    <th>GP as recorded on PatientView</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-ng-repeat="patient in patients">
-                    <td>
-                        <input type="checkbox" id="patient-{{patient.id}}"
-                               data-ng-checked="selectedPatients.indexOf(patient) != -1"
-                               data-ng-click="togglePatient(patient)">
-                    </td>
-                    <td>
-                        <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
-                    </td>
-                    <td>
-                        <span>{{patient.gpName}}</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
-            button below to complete the registration process.</p>
-
+        <div data-ng-show="selectedPractice">
+            <h2 data-ng-if="practices.length > 1">Step 3</h2>
+            <p>As a final step, below are the NHS numbers of patients found on PatientView who we think might belong
+                to your practice (matched by postcode). Please check or uncheck the boxes to indicate which are current
+                patients who should be included in the practice's list.</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Add to my list</th>
+                        <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
+                        <th>GP as recorded on PatientView</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="patient in patients">
+                        <td>
+                            <input type="checkbox" id="patient-{{patient.id}}"
+                                   data-ng-checked="selectedPatients.indexOf(patient) != -1"
+                                   data-ng-click="togglePatient(patient)">
+                        </td>
+                        <td>
+                            <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
+                        </td>
+                        <td>
+                            <span>{{patient.gpName}}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
+                button below to complete the registration process.</p>
+        </div>
         <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
             <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
         </div>
@@ -131,7 +133,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <button data-ng-click="claim()" class="btn blue">Create My PatientView Account</button>
+                <button data-ng-click="claim()" class="btn blue" data-ng-show="selectedPractice">Create My PatientView Account</button>
                 <button data-ng-click="selectStep(1)" class="btn">Back to Step 1</button>
             </div>
         </div>
