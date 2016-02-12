@@ -687,10 +687,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
             "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
             "read the information there to be sure that governance and confidentiality principles are " +
-            "maintained. Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> (top right) " +
-            "with the username below and the password generated when you claimed your account. You will be " +
-            "forced to change this password when you first log in so that only you know it. It is very important " +
-            "that it is difficult to guess, and kept secret." +
+            "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> " +
+            "(top right) with the username below and the password generated when you claimed your account. You " +
+            "will be forced to change this password when you first log in so that only you know it. " +
+            "It is very important that it is difficult to guess, and kept secret." +
             "<br/><br/><strong>Username:</strong> " + user.getUsername());
 
         // try and send but ignore if exception and log
