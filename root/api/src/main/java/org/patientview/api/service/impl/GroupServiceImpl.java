@@ -702,6 +702,12 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceForbiddenException("Unit Admin cannot change group type");
         }
 
+        // gp admin cannot change group type
+        if (Util.doesContainGroupAndRole(entityGroup.getId(), RoleName.GP_ADMIN)
+                && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
+            throw new ResourceForbiddenException("GP Admin cannot change group type");
+        }
+
         entityGroup.setCode(group.getCode());
         entityGroup.setName(group.getName());
         entityGroup.setShortName(group.getShortName());

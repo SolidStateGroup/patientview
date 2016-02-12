@@ -299,34 +299,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
         // persist
         try {
-            userRepository.save(gpAdminUser);
-            if (!gpAdminUser.getUserFeatures().isEmpty()) {
-                userFeatureRepository.save(gpAdminUser.getUserFeatures());
-            }
-            if (!gpAdminUser.getGroupRoles().isEmpty()) {
-                groupRoleRepository.save(gpAdminUser.getGroupRoles());
-
-                for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
-                    createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
-                        groupRole.getGroup(), gpAdminUser.getId(), AuditObjectTypes.User);
-                }
-            }
-
-            groupRepository.save(gpGroup);
-            createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
-
-            if (!gpGroup.getGroupFeatures().isEmpty()) {
-                groupFeatureRepository.save(gpGroup.getGroupFeatures());
-            }
-            if (!patientGroupRoles.isEmpty()) {
-                groupRoleRepository.save(patientGroupRoles);
-
-                for (GroupRole groupRole : patientGroupRoles) {
-                    createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
-                        groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
-                }
-            }
-            gpLetterRepository.save(matchedGpLetters);
+            claimPersist(gpAdminUser, gpGroup, patientGroupRoles, matchedGpLetters);
         } catch (Exception e) {
             // failed to persist
             throw new VerificationException("error saving");
@@ -340,6 +313,43 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpDetails.setPassword(password);
 
         return gpDetails;
+    }
+
+    @Transactional
+    private void claimPersist(User gpAdminUser, Group gpGroup, List<GroupRole> patientGroupRoles,
+                              List<GpLetter> matchedGpLetters) throws Exception {
+
+        userRepository.save(gpAdminUser);
+        createAudit(AuditActions.ADMIN_ADD, gpAdminUser.getUsername(), gpAdminUser,
+                null, gpAdminUser.getId(), AuditObjectTypes.User);
+
+        if (!gpAdminUser.getUserFeatures().isEmpty()) {
+            userFeatureRepository.save(gpAdminUser.getUserFeatures());
+        }
+        if (!gpAdminUser.getGroupRoles().isEmpty()) {
+            groupRoleRepository.save(gpAdminUser.getGroupRoles());
+
+            for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
+                createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
+                        groupRole.getGroup(), gpAdminUser.getId(), AuditObjectTypes.User);
+            }
+        }
+
+        groupRepository.save(gpGroup);
+        createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
+
+        if (!gpGroup.getGroupFeatures().isEmpty()) {
+            groupFeatureRepository.save(gpGroup.getGroupFeatures());
+        }
+        if (!patientGroupRoles.isEmpty()) {
+            groupRoleRepository.save(patientGroupRoles);
+
+            for (GroupRole groupRole : patientGroupRoles) {
+                createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
+                        groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
+            }
+        }
+        gpLetterRepository.save(matchedGpLetters);
     }
 
     private void createAudit(AuditActions action, String username, User actor, Group group,
@@ -402,6 +412,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         userDefaultMessagingContactFeature.setCreator(user);
         userDefaultMessagingContactFeature.setUser(user);
         user.getUserFeatures().add(userDefaultMessagingContactFeature);
+
+        user.setCreator(user);
 
         return user;
     }

@@ -311,7 +311,9 @@ public class ImportControllerTest {
         DELETE FROM pv_feature_user WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_fhir_link WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_audit WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user_token WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
     */
     @Test
@@ -380,9 +382,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="http://localhost:8081/importer/import";
+        String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
