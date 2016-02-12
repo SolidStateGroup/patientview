@@ -910,7 +910,7 @@ public class FhirResource {
                         // add relevant details from patient users to list of GpPatient to return with GpDetails
                         GpPatient patient = new GpPatient();
                         patient.setId(user.getId());
-                        patient.setGpName(practitionerMap.get(practitionerLogicalId).get("name"));
+                        patient.setGpName(practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
                         patient.setIdentifiers(user.getIdentifiers());
                         gpPatients.add(patient);
                     }
