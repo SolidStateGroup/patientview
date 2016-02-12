@@ -862,11 +862,12 @@ public class FhirResource {
             // get logical_id and name of GP from FHIR practitioners where postcode matches
             connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(
-                    "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
-                            "FROM practitioner " +
-                            "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
-                            "GROUP BY logical_id");
+            String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
+                    "FROM practitioner " +
+                    "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
+                    "GROUP BY logical_id";
+            LOG.info(query);
+            ResultSet results = statement.executeQuery(query);
 
             Map<String, Map<String, String>> practitionerMap = new HashMap<>();
 
@@ -892,10 +893,10 @@ public class FhirResource {
                     // now have map of practitioners, get list of all patients with that practitioner
                     connection = dataSource.getConnection();
                     statement = connection.createStatement();
-                    results = statement.executeQuery(
-                            "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
-                                    practitionerLogicalId + "' GROUP BY logical_id");
-
+                    query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
+                            practitionerLogicalId + "' GROUP BY logical_id";
+                    results = statement.executeQuery(query);
+                    LOG.info(query);
                     while ((results.next())) {
                         patientResourceIds.add(UUID.fromString(results.getString(1)));
                     }

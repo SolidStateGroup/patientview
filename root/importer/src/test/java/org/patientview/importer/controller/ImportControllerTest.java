@@ -346,7 +346,10 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin_test/p2.xml"));
         //post(getFileFromString("data/xml/gplogin_test/p2-2.xml"));
         //post(getFileFromString("data/xml/gplogin_test/p2-3.xml"));
-        post(getFileFromString("data/xml/gplogin_test/p11.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p11.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-4.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-5.xml"));
+        post(getFileFromString("data/xml/gplogin_test/p2-6.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
