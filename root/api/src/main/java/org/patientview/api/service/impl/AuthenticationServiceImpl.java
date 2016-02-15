@@ -431,9 +431,16 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setUserGroups(new ArrayList<BaseGroup>());
         userToken.setGroupMessagingEnabled(false);
 
+        // global admin can also get general practice specialty
+        List<String> extraGroupCodes = new ArrayList<>();
+        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        }
+
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results
-            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)) {
+            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
+                    || extraGroupCodes.contains(userGroup.getCode())) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 
                 // if group has MESSAGING feature then set in transportUserToken
