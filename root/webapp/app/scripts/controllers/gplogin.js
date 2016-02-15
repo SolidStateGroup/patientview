@@ -22,6 +22,7 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
                 // details provided are correct
                 $scope.validatingDetails = false;
                 $scope.validDetails = true;
+                $scope.centralSupportEmail = data.centralSupportEmail;
 
                 // get practices
                 $scope.practices = data.practices;

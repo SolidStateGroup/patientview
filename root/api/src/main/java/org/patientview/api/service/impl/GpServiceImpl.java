@@ -932,6 +932,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
         GpLetter gpLetter = validateGpDetails(gpDetails);
         addPracticesAndPatients(gpDetails, gpLetter);
+
+        // set central support email, for use in ui
+        gpDetails.setCentralSupportEmail(properties.getProperty("central.support.contact.email"));
+
         return gpDetails;
     }
 

@@ -1,10 +1,16 @@
-<h1>GP Practices - Claim your PatientView login here</h1>
-
-<p>
-    If you have recently received an invite letter for your practice to join PatientView, you are a few simple
-    steps away from being able to view your patients’ hospital and other records online. Before proceeding, please
-    ensure that your practice does not have an existing account.
-</p>
+<div data-ng-show="step !== 3">
+    <h1>GP Practices - Claim your PatientView login here</h1>
+    <p>
+        If you have recently received an invite letter for your practice to join PatientView, you are a few simple
+        steps away from being able to view your patients’ hospital and other records online.
+    </p>
+    <p>
+        <a href="/#/whatcanitdo/#top" target="_blank">What can PatientView do?</a>
+    </p>
+    <p>
+        Before proceeding, please ensure that your practice does not have an existing account.
+    </p>
+</div>
 
 <div class="content-panel" data-ng-show="step === 1">
     <div class="content-inner">
@@ -63,7 +69,8 @@
     <div class="content-inner">
         <h2>Step 2</h2>
         <div>
-            <p>Thank you for verifying your signup information!
+            <p>
+                Thank you for verifying your signup information!
                 <span data-ng-if="practices.length === 1">Your practice is shown below:</span>
                 <span data-ng-if="practices.length > 1">Please select your practice from the list below:</span>
             </p>
@@ -93,6 +100,14 @@
                     </tr>
                 </tbody>
             </table>
+            <p>
+                Note: If you don't see your practice listed above, it may have already been claimed.
+                <span data-ng-if="centralSupportEmail">
+                    Please
+                    <a href="mailto:{{centralSupportEmail}}">contact the PatientView support desk</a>
+                    if this has occurred.
+                </span>
+            </p>
         </div>
         <div data-ng-show="selectedPractice">
             <h2 data-ng-if="practices.length > 1">Step 3</h2>
