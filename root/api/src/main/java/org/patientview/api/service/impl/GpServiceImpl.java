@@ -153,9 +153,20 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
         // get practices from GP master table by postcode, must return at least one
-        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(gpLetter.getGpPostcode()));
+        List<GpPractice> masterTablePractices = getGpPracticesFromMasterTable(gpLetter.getGpPostcode());
+
+        // validate that practice code is not the same as any already claimed gp letter (for multi postcode)
+        for (GpPractice gpPractice : masterTablePractices) {
+            if (CollectionUtils.isEmpty(gpLetterRepository.findByClaimedPracticeCode(gpPractice.getCode()))) {
+                gpDetails.getPractices().add(gpPractice);
+            }
+        }
+
         if (gpDetails.getPractices().isEmpty()) {
-            throw new VerificationException("Could not retrieve your practice details");
+            throw new VerificationException("Could not retrieve your practice details, it may have already "
+                    + "been claimed. Please <a href=\"mailto:"
+                    + properties.getProperty("central.support.contact.email")
+                    + "\">click here</a> to email the PatientView support desk with details of your request.");
         }
 
         // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
