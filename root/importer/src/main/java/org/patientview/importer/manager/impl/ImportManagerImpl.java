@@ -106,10 +106,15 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             if (!CollectionUtils.isEmpty(gpLetters)) {
                 // match exists, check if first entry is claimed (all will be claimed if so)
                 if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getClaimedGroup() != null) {
+                    LOG.info("gpLetters(0) is claimed, add group role for group "
+                            + gpLetters.get(0).getClaimedGroup().getCode());
+
                     // add GroupRole for this patient and GP group
                     groupRoleService.add(
                             fhirLink.getUser().getId(), gpLetters.get(0).getClaimedGroup().getId(), RoleType.PATIENT);
                 } else {
+                    LOG.info("gpLetters(0) is not claimed, checking gp name is unique");
+
                     // entries exist but not claimed, check GP name against existing GP letter entries
                     boolean gpNameExists = false;
                     for (GpLetter gpLetter : gpLetters) {
@@ -119,11 +124,14 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     }
 
                     if (!gpNameExists) {
+                        LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
                         // no entry for this specific GP name, create new entry
                         gpLetterService.add(patientview, fhirLink.getGroup());
                     }
                 }
             } else {
+                LOG.info("gpLetters is empty, create new letter");
+
                 // GP details do not match any in GP letter table, create new entry
                 gpLetterService.add(patientview, fhirLink.getGroup());
             }
