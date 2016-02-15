@@ -34,7 +34,15 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
                 // get patients
                 $scope.patients = data.patients;
                 $scope.selectedPatients = [];
-                $scope.selectedPatients.push($scope.patients[0]);
+
+                // set selected based on identifier
+                for (var i=0; i<$scope.patients.length; i++) {
+                    for (var j = 0; j < $scope.patients[i].identifiers.length; j++) {
+                        if ($scope.patients[i].identifiers[j].identifier == $scope.details.patientIdentifier) {
+                            $scope.selectedPatients.push($scope.patients[i]);
+                        }
+                    }
+                }
 
                 $scope.step = 2;
             }, function (failure) {
