@@ -86,6 +86,12 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Override
     public void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException {
+        // verbose logging
+        LOG.info("fhirLink.isNew(): " + fhirLink.isNew());
+        LOG.info("hasValidPracticeDetails(): " + gpLetterService.hasValidPracticeDetails(patientview));
+        LOG.info("hasValidPracticeDetailsSingleMaster(): "
+                + gpLetterService.hasValidPracticeDetailsSingleMaster(patientview));
+
         // check FhirLink is new and GP details are suitable for using in GP letter table (either enough details
         // or only have postcode but no more than one in Gp master table)
         if (fhirLink.isNew()
@@ -93,6 +99,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     || gpLetterService.hasValidPracticeDetailsSingleMaster(patientview))) {
             // check if any entries exist matching GP details in GP letter table
             List<GpLetter> gpLetters = gpLetterService.matchByGpDetails(patientview);
+
+            // verbose logging
+            LOG.info("gpLetters.size(): " + gpLetters.size());
 
             if (!CollectionUtils.isEmpty(gpLetters)) {
                 // match exists, check if first entry is claimed (all will be claimed if so)
