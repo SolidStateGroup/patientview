@@ -256,7 +256,8 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         String outputDirectory = properties.getProperty("gp.letter.output.directory");
         if (StringUtils.isNotEmpty(outputDirectory)) {
             StringBuilder path = new StringBuilder(outputDirectory + "/"
-                    + gpLetter.getGpName().replace(" ", "_") + "-"
+                    + gpLetter.getGpName().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("&", "_")
+                    + "-"
                     + gpLetter.getGpPostcode().replace(" ", "_") + "-"
                     + gpLetter.getPatientForename().replace(" ", "_") + "-"
                     + gpLetter.getPatientSurname().replace(" ", "_") + "-");

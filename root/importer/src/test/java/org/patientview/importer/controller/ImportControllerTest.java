@@ -312,6 +312,7 @@ public class ImportControllerTest {
         DELETE FROM pv_fhir_link WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_audit WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group_statistic WHERE id > 4731630;
         DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_user_token WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_message_read_receipt WHERE creation_date > '2016-02-10 00:00:00.000';
@@ -324,7 +325,7 @@ public class ImportControllerTest {
     @Ignore("IntegrationTest")
     public void importIntegrationTestGpLogins_local() throws Exception {
         // all data, single match in gp master - creates letter
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
 
         // only name and postcode, single match in gp master for postcode - creates letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
@@ -340,6 +341,9 @@ public class ImportControllerTest {
 
         // wrong postcode, no match in gp master - no letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
+
+        // bad gp name, should rename file when saving
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_bad_name_postcode.xml"));
     }
 
     // GP logins on staging
@@ -369,6 +373,10 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin_test_2/p3-3.xml"));
         //post(getFileFromString("data/xml/gplogin_test_2/p4-2.xml"));
         //post(getFileFromString("data/xml/gplogin_test_2/p4-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-4.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
@@ -399,9 +407,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="http://localhost:8081/importer/import";
+        String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
