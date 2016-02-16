@@ -908,13 +908,16 @@ public class FhirResource {
                     connection.close();
 
                     // get Users from FhirLinks based on patient resource ids
-                    for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
-                        // add relevant details from patient users to list of GpPatient to return with GpDetails
-                        GpPatient patient = new GpPatient();
-                        patient.setId(user.getId());
-                        patient.setGpName(practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
-                        patient.setIdentifiers(user.getIdentifiers());
-                        gpPatients.add(patient);
+                    if (!patientResourceIds.isEmpty()) {
+                        for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
+                            // add relevant details from patient users to list of GpPatient to return with GpDetails
+                            GpPatient patient = new GpPatient();
+                            patient.setId(user.getId());
+                            patient.setGpName(
+                                    practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
+                            patient.setIdentifiers(user.getIdentifiers());
+                            gpPatients.add(patient);
+                        }
                     }
                 }
             }
