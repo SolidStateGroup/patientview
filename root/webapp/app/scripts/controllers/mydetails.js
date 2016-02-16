@@ -1,12 +1,16 @@
 'use strict';
 
 // invite GP modal instance controller
-var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance','practitioner', 'GpService',
-    function ($rootScope, $scope, $modalInstance, practitioner, GpService) {
-        $scope.practitioner = practitioner;
+var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance', 'patient', 'GpService',
+    function ($rootScope, $scope, $modalInstance, patient, GpService) {
+        $scope.practitioner = patient.practitioners[0];
         $scope.inviteGp = function () {
-            GpService.inviteGp($rootScope.loggedInUser.id, practitioner).then(function() {
+            delete $scope.errorMessage;
+            GpService.inviteGp($rootScope.loggedInUser.id, patient).then(function() {
                 $modalInstance.close();
+            },
+            function(error) {
+                $scope.errorMessage = error.data;
             });
         };
         $scope.cancel = function () {
@@ -71,13 +75,26 @@ function ($scope, PatientService, UserService, $modal, GpService) {
         });
     };
 
-    $scope.inviteGp = function(practitioner) {
+    $scope.inviteGp = function(fhirPatient, practitioner, groupId) {
+
+        // build simple object to send to back end
+        var patient = {};
+        patient.forename = fhirPatient.forename;
+        patient.surname = fhirPatient.surname;
+        patient.dateOfBirth = new Date(fhirPatient.dateOfBirthNoTime);
+        patient.practitioners = [];
+        patient.practitioners.push(practitioner);
+        patient.identifiers = [];
+        patient.identifiers.push(fhirPatient.identifiers[0]);
+        patient.group = {};
+        patient.group.id = groupId;
+
         var modalInstance = $modal.open({
             templateUrl: 'inviteGpModal.html',
             controller: InviteGpModalInstanceCtrl,
             resolve: {
-                practitioner: function(){
-                    return practitioner;
+                patient: function(){
+                    return patient;
                 },
                 GpService: function(){
                     return GpService;

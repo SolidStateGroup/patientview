@@ -11,10 +11,10 @@ angular.module('patientviewApp').factory('GpService', ['$q', 'Restangular', func
             });
             return deferred.promise;
         },
-        inviteGp: function(userId, practitioner) {
+        inviteGp: function(userId, patient) {
             var deferred = $q.defer();
             // POST /user/{userId}/gp/invite
-            Restangular.one('user', userId).all('gp/invite').customPOST(practitioner).then(function(successResult) {
+            Restangular.one('user', userId).all('gp/invite').customPOST(patient).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

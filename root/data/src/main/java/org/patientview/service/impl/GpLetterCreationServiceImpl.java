@@ -9,22 +9,30 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.repository.GpLetterRepository;
+import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.service.GpLetterCreationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -34,6 +42,96 @@ import java.text.SimpleDateFormat;
 public class GpLetterCreationServiceImpl implements GpLetterCreationService {
 
     protected final Logger LOG = LoggerFactory.getLogger(GpLetterCreationService.class);
+
+    @Inject
+    private GpLetterRepository gpLetterRepository;
+
+    @Inject
+    private GpMasterRepository gpMasterRepository;
+
+    @Override
+    public boolean hasValidPracticeDetails(GpLetter gpLetter) {
+        // check postcode is set
+        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+            return false;
+        }
+
+        // check at least one gp in master table
+        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()))) {
+            return false;
+        }
+
+        // validate at least 2 of address1, address2, address3 is present
+        int fieldCount = 0;
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())) {
+            fieldCount++;
+        }
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
+            fieldCount++;
+        }
+        if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
+            fieldCount++;
+        }
+
+        return fieldCount > 1;
+    }
+
+    @Override
+    public boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
+        // check postcode is set
+        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+            return false;
+        }
+
+        // validate postcode exists in GP master table and only one record
+        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()).size() == 1;
+    }
+
+    @Override
+    public List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
+        Set<GpLetter> matchedGpLetters = new HashSet<>();
+
+        if (hasValidPracticeDetails(gpLetter)) {
+            // match using postcode and at least 2 of address1, address2, address3
+            List<GpLetter> gpLetters = gpLetterRepository.findByPostcode(gpLetter.getGpPostcode());
+
+            for (GpLetter gpLetterEntity : gpLetters) {
+                int fieldCount = 0;
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress1())) {
+                    if (gpLetter.getGpAddress1().equals(gpLetterEntity.getGpAddress1())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress2())) {
+                    if (gpLetter.getGpAddress2().equals(gpLetterEntity.getGpAddress2())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress3())) {
+                    if (gpLetter.getGpAddress3().equals(gpLetterEntity.getGpAddress3())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (fieldCount > 1) {
+                    matchedGpLetters.add(gpLetterEntity);
+                }
+            }
+        }
+
+        if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
+            // match using postcode (already checked only 1 practice with this postcode in GP master table)
+            matchedGpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+        }
+
+        return new ArrayList<>(matchedGpLetters);
+    }
 
     @Override
     public String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
@@ -209,5 +307,12 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
 
         // return as base64
         return Base64.encodeBytes(bytes);
+    }
+
+    @Override
+    public String generateSignupKey() {
+        return RandomStringUtils.randomAlphanumeric(7)
+                .replace("o", "p").replace("0", "2").replace("1", "3").replace("l", "m").replace("i", "j")
+                .toUpperCase();
     }
 }

@@ -88,6 +88,7 @@ import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.GpLetterCreationService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -140,10 +141,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private FileDataService fileDataService;
 
     @Inject
-    private GpMasterRepository gpMasterRepository;
-
-    @Inject
-    private GpService gpService;
+    private GpLetterCreationService gpLetterCreationService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -1370,12 +1368,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     gpLetter.setGpAddress3(fhirPractitioner.getAddress3());
                     gpLetter.setGpAddress4(fhirPractitioner.getAddress4());
                     gpLetter.setGpPostcode(fhirPractitioner.getPostcode());
-                    List<GpLetter> gpLetters = gpService.matchByGpDetails(gpLetter);
+                    List<GpLetter> gpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
 
                     if (gpLetters.isEmpty()) {
                         // no current gp letter, check gp letter is valid
-                        if (gpService.hasValidPracticeDetails(gpLetter)
-                                || gpService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
+                        if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
+                                || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
                             fhirPractitioner.setAllowInviteGp(true);
                         }
                     }

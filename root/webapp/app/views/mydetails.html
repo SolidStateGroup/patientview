@@ -38,6 +38,7 @@
         </p>
     </div>
     <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
         <button class="btn btn-primary" data-ng-click="inviteGp(practitioner)">Invite GP to PatientView</button>
     </div>
@@ -139,7 +140,7 @@
                                     <td>
                                         {{practitioner.name}}
                                         <div data-ng-if="practitioner.allowInviteGp" class="pull-right">
-                                            <button data-ng-click="inviteGp(practitioner)" class="btn blue">Invite GP to PatientView</button>
+                                            <button data-ng-click="inviteGp(patient.fhirPatient, practitioner, patient.group.id)" class="btn blue">Invite GP to PatientView</button>
                                             &nbsp;&nbsp;&nbsp;
                                             <a href="http://www.rixg.org/xxxxx">What is this?</a>
                                         </div>

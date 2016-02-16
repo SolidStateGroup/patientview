@@ -2,10 +2,10 @@ package org.patientview.api.controller;
 
 import net.lingala.zip4j.exception.ZipException;
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.config.exception.VerificationException;
-import org.patientview.persistence.model.FhirPractitioner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,9 +41,9 @@ public class GpController extends BaseController<GpController> {
 
     @RequestMapping(value = "/user/{userId}/gp/invite", method = RequestMethod.POST)
     @ResponseBody
-    public void claim(@PathVariable("userId") Long userId, @RequestBody FhirPractitioner practitioner)
+    public void claim(@PathVariable("userId") Long userId, @RequestBody FhirPatient fhirPatient)
             throws VerificationException {
-        gpService.invite(userId, practitioner);
+        gpService.invite(userId, fhirPatient);
     }
 
     /**

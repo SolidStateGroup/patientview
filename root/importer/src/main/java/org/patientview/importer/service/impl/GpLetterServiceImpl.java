@@ -2,8 +2,6 @@ package org.patientview.importer.service.impl;
 
 import com.itextpdf.text.DocumentException;
 import generated.Patientview;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.patientview.importer.service.GpLetterService;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
@@ -12,16 +10,12 @@ import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.service.GpLetterCreationService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -71,7 +65,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         gpLetter.setGpPostcode(gp.getGppostcode());
 
         // signup key (generated)
-        gpLetter.setSignupKey(generateSignupKey());
+        gpLetter.setSignupKey(gpLetterCreationService.generateSignupKey());
 
         // source group (provided the xml, from fhirlink)
         gpLetter.setSourceGroup(sourceGroup);
@@ -102,11 +96,6 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
 
         gpLetterRepository.save(gpLetter);
     }
-    private String generateSignupKey() {
-        return RandomStringUtils.randomAlphanumeric(7)
-                .replace("o", "p").replace("0", "2").replace("1", "3").replace("l", "m").replace("i", "j")
-                .toUpperCase();
-    }
 
     @Override
     public boolean hasValidPracticeDetails(Patientview patientview) {
@@ -117,29 +106,15 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
 
         Patientview.Gpdetails gp = patientview.getGpdetails();
 
-        // check postcode is set
-        if (StringUtils.isEmpty(gp.getGppostcode())) {
-            return false;
-        }
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
 
-        // check at least one gp in master table
-        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gp.getGppostcode()))) {
-            return false;
-        }
-
-        // validate at least 2 of address1, address2, address3 is present
-        int fieldCount = 0;
-        if (StringUtils.isNotEmpty(gp.getGpaddress1())) {
-            fieldCount++;
-        }
-        if (StringUtils.isNotEmpty(gp.getGpaddress2())) {
-            fieldCount++;
-        }
-        if (StringUtils.isNotEmpty(gp.getGpaddress3())) {
-            fieldCount++;
-        }
-
-        return fieldCount > 1;
+        return gpLetterCreationService.hasValidPracticeDetails(gpLetter);
     }
 
     @Override
@@ -151,56 +126,27 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
 
         Patientview.Gpdetails gp = patientview.getGpdetails();
 
-        // check postcode is set
-        if (StringUtils.isEmpty(gp.getGppostcode())) {
-            return false;
-        }
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
 
-        // validate postcode exists in GP master table and only one record
-        return gpMasterRepository.findByPostcode(gp.getGppostcode()).size() == 1;
+        return gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter);
     }
 
     @Override
     public List<GpLetter> matchByGpDetails(Patientview patientview) {
-        Set<GpLetter> matchedGpLetters = new HashSet<>();
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(patientview.getGpdetails().getGpname());
+        gpLetter.setGpAddress1(patientview.getGpdetails().getGpaddress1());
+        gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
+        gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
+        gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
 
-        if (hasValidPracticeDetails(patientview)) {
-            // match using postcode and at least 2 of address1, address2, address3
-            List<GpLetter> gpLetters = gpLetterRepository.findByPostcode(patientview.getGpdetails().getGppostcode());
-            Patientview.Gpdetails gp = patientview.getGpdetails();
-
-            for (GpLetter gpLetter : gpLetters) {
-                int fieldCount = 0;
-
-                if (StringUtils.isNotEmpty(gp.getGpaddress1()) && StringUtils.isNotEmpty(gpLetter.getGpAddress1())) {
-                    if (gp.getGpaddress1().equals(gpLetter.getGpAddress1())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (StringUtils.isNotEmpty(gp.getGpaddress2()) && StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
-                    if (gp.getGpaddress2().equals(gpLetter.getGpAddress2())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (StringUtils.isNotEmpty(gp.getGpaddress3()) && StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
-                    if (gp.getGpaddress3().equals(gpLetter.getGpAddress3())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (fieldCount > 1) {
-                    matchedGpLetters.add(gpLetter);
-                }
-            }
-        }
-
-        if (hasValidPracticeDetailsSingleMaster(patientview)) {
-            // match using postcode (already checked only 1 practice with this postcode in GP master table)
-            matchedGpLetters.addAll(gpLetterRepository.findByPostcode(patientview.getGpdetails().getGppostcode()));
-        }
-
-        return new ArrayList<>(matchedGpLetters);
+        return gpLetterCreationService.matchByGpDetails(gpLetter);
     }
 }

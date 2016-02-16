@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.persistence.model.FhirIdentifier;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.GpDetails;
 import org.patientview.persistence.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
@@ -51,6 +53,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.GpLetterCreationService;
 import org.patientview.test.util.TestUtils;
 
 import javax.mail.MessagingException;
@@ -91,6 +94,9 @@ public class GpServiceTest {
 
     @Mock
     FhirResource fhirResource;
+
+    @Mock
+    GpLetterCreationService gpLetterCreationService;
 
     @Mock
     GpLetterRepository gpLetterRepository;
@@ -278,6 +284,8 @@ public class GpServiceTest {
         when(roleRepository.findByRoleTypeAndName(
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
+
+        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
 
         GpDetails out = gpService.claim(details);
 
@@ -642,6 +650,8 @@ public class GpServiceTest {
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
+        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
+
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
@@ -673,6 +683,13 @@ public class GpServiceTest {
         practitioner.setName("Practitioner Name");
         practitioner.setPostcode("AB1 23C");
 
+        FhirIdentifier fhirIdentifier = new FhirIdentifier(IdentifierTypes.NHS_NUMBER.toString(), "1111111111");
+
+        FhirPatient patient = new FhirPatient();
+        patient.getPractitioners().add(practitioner);
+        patient.getIdentifiers().add(fhirIdentifier);
+        patient.setGroup(group);
+
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPracticeName(practitioner.getName());
         gpMaster.setPostcode(practitioner.getPostcode());
@@ -680,10 +697,11 @@ public class GpServiceTest {
         gpMasters.add(gpMaster);
 
         when(gpMasterRepository.findByPostcode(eq(practitioner.getPostcode()))).thenReturn(gpMasters);
+        when(gpLetterCreationService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
 
-        gpService.invite(user.getId(), practitioner);
+        gpService.invite(user.getId(), patient);
 
-        //verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
     }
 
     @Test
