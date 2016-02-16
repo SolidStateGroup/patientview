@@ -22,6 +22,8 @@ CREATE TABLE PV_User
   Last_Login_Ip_Address    VARCHAR(50),
   Deleted          BOOLEAN      NOT NULL DEFAULT FALSE,
   Picture          TEXT,
+  Hide_Secret_Word_Notification          BOOLEAN NOT NULL DEFAULT FALSE,
+  Secret_Word      TEXT,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,

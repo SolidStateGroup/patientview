@@ -82,7 +82,13 @@ public class User extends RangeModel implements UserDetails {
     // image data stored in base64
     @Column(name = "picture")
     private String picture;
-    
+
+    @Column(name = "hide_secret_word_notification")
+    private boolean hideSecretWordNotification = false;
+
+    @Column(name = "secret_word")
+    private String secretWord;
+
     @Transient
     private String name;
 
@@ -409,5 +415,21 @@ public class User extends RangeModel implements UserDetails {
 
     public void setCanSwitchUser(boolean canSwitchUser) {
         this.canSwitchUser = canSwitchUser;
+    }
+
+    public boolean isHideSecretWordNotification() {
+        return hideSecretWordNotification;
+    }
+
+    public void setHideSecretWordNotification(boolean hideSecretWordNotification) {
+        this.hideSecretWordNotification = hideSecretWordNotification;
+    }
+
+    public String getSecretWord() {
+        return secretWord;
+    }
+
+    public void setSecretWord(String secretWord) {
+        this.secretWord = secretWord;
     }
 }

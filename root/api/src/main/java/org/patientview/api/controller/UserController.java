@@ -148,6 +148,7 @@ public class UserController extends BaseController<UserController> {
             throws ResourceInvalidException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
+
     /**
      * Change the picture associated with a User account.
      * @param userId ID of User to change picture

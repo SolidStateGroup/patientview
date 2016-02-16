@@ -1,14 +1,17 @@
 package org.patientview.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.model.SecretWordInput;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
@@ -49,10 +52,13 @@ import org.springframework.mail.MailException;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -139,6 +145,115 @@ public class UserServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testChangeSecretWord() throws ResourceNotFoundException, ResourceForbiddenException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        SecretWordInput secretWordInput = new SecretWordInput("ABC1234", "ABC1234");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        userService.changeSecretWord(user.getId(), secretWordInput);
+
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testCheckSecretWord()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i=0; i<word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "C");
+        entered.put("6", "4");
+
+        userService.checkSecretWord(user.getId(), entered);
+    }
+
+    @Test (expected = ResourceForbiddenException.class)
+    public void testCheckSecretWord_incorrect()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i=0; i<word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "X");
+        entered.put("6", "4");
+
+        userService.checkSecretWord(user.getId(), entered);
+    }
+
+    @Test (expected = ResourceForbiddenException.class)
+    public void testCheckSecretWord_notSet()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "X");
+        entered.put("6", "4");
+
+        userService.checkSecretWord(user.getId(), entered);
     }
 
     @Test
