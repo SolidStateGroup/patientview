@@ -1,3 +1,48 @@
+<!-- invite GP modal -->
+<script type="text/ng-template" id="inviteGpModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Invite GP to PatientView</h3>
+    </div>
+    <div class="modal-body">
+        <p>The details of your GP are shown below:</p>
+        <table>
+            <tbody>
+            <tr>
+                <td class="forced-width">Name</td>
+                <td>{{practitioner.name}}</td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td>
+                    <span data-ng-show="practitioner.address1">{{practitioner.address1}}<br/></span>
+                    <span data-ng-show="practitioner.address2">{{practitioner.address2}}<br/></span>
+                    <span data-ng-show="practitioner.address3">{{practitioner.address3}}<br/></span>
+                    <span data-ng-show="practitioner.address4">{{practitioner.address4}}<br/></span>
+                    <span data-ng-show="practitioner.postcode">{{practitioner.postcode}}</span>
+                </td>
+            </tr>
+            <tr data-ng-if="practitioner.contacts">
+                <td class="forced-width">Phone Number(s)</td>
+                <td>
+                    <span data-ng-repeat="contact in practitioner.contacts">
+                        {{contact.value}}<br/>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/>
+        <p>
+            You are about to create an invite letter to be sent to your GP Practice to join PatientView.
+            Once signed up, your GP will be able to view your records. Do you wish to continue?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn btn-primary" data-ng-click="inviteGp(practitioner)">Invite GP to PatientView</button>
+    </div>
+</script>
+
 <h1 data-ng-show="!loading">My Details</h1>
 
 <div class="patient-details" data-ng-show="!loading">
@@ -93,10 +138,11 @@
                                     <td class="forced-width">Name</td>
                                     <td>
                                         {{practitioner.name}}
-                                        <span data-ng-if="practitioner.allowInviteGp">
-                                            <button onclick="alert('GP invited to PatientView')" class="btn blue">Invite GP to PatientView</button>
+                                        <div data-ng-if="practitioner.allowInviteGp" class="pull-right">
+                                            <button data-ng-click="inviteGp(practitioner)" class="btn blue">Invite GP to PatientView</button>
+                                            &nbsp;&nbsp;&nbsp;
                                             <a href="http://www.rixg.org/xxxxx">What is this?</a>
-                                        </span>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>

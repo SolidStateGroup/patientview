@@ -1,7 +1,21 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService',
-function ($scope, PatientService, UserService) {
+// invite GP modal instance controller
+var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance','practitioner', 'GpService',
+    function ($rootScope, $scope, $modalInstance, practitioner, GpService) {
+        $scope.practitioner = practitioner;
+        $scope.inviteGp = function () {
+            GpService.inviteGp($rootScope.loggedInUser.id, practitioner).then(function() {
+                $modalInstance.close();
+            });
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService', '$modal', 'GpService',
+function ($scope, PatientService, UserService, $modal, GpService) {
 
     $scope.init = function(){
         var i;
@@ -54,6 +68,27 @@ function ($scope, PatientService, UserService) {
             $scope.moreAboutMeMessage = 'Saved your information';
         }, function () {
             $scope.moreAboutMeMessage = 'Error saving your information';
+        });
+    };
+
+    $scope.inviteGp = function(practitioner) {
+        var modalInstance = $modal.open({
+            templateUrl: 'inviteGpModal.html',
+            controller: InviteGpModalInstanceCtrl,
+            resolve: {
+                practitioner: function(){
+                    return practitioner;
+                },
+                GpService: function(){
+                    return GpService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok
+        }, function () {
+            // closed
         });
     };
 

@@ -5,8 +5,10 @@ import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,6 +37,13 @@ public class GpController extends BaseController<GpController> {
     @ResponseBody
     public ResponseEntity<GpDetails> claim(@RequestBody GpDetails gpDetails) throws VerificationException {
         return new ResponseEntity<>(gpService.claim(gpDetails), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/gp/invite", method = RequestMethod.POST)
+    @ResponseBody
+    public void claim(@PathVariable("userId") Long userId, @RequestBody FhirPractitioner practitioner)
+            throws VerificationException {
+        gpService.invite(userId, practitioner);
     }
 
     /**

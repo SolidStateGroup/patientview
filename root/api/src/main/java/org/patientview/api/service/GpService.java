@@ -2,8 +2,10 @@ package org.patientview.api.service;
 
 import net.lingala.zip4j.exception.ZipException;
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.GpDetails;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 
 import java.io.IOException;
@@ -19,6 +21,13 @@ import java.util.Map;
 public interface GpService {
 
     GpDetails claim(GpDetails gpDetails) throws VerificationException;
+
+    boolean hasValidPracticeDetails(GpLetter gpLetter);
+
+    boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter);
+
+    @UserOnly
+    void invite(Long userId, FhirPractitioner practitioner) throws VerificationException;
 
     List<GpLetter> matchByGpDetails(GpLetter gpLetter);
 

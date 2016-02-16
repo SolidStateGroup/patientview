@@ -20,6 +20,7 @@ import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GpPatient;
@@ -654,6 +655,35 @@ public class GpServiceTest {
         verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
         verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
         verify(userRepository, Mockito.times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testInvite() throws VerificationException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        FhirPractitioner practitioner = new FhirPractitioner();
+        practitioner.setName("Practitioner Name");
+        practitioner.setPostcode("AB1 23C");
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName(practitioner.getName());
+        gpMaster.setPostcode(practitioner.getPostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpMasterRepository.findByPostcode(eq(practitioner.getPostcode()))).thenReturn(gpMasters);
+
+        gpService.invite(user.getId(), practitioner);
+
+        //verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
     }
 
     @Test

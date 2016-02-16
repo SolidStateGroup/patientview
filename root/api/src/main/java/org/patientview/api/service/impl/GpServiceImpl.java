@@ -26,6 +26,7 @@ import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GpPatient;
@@ -341,6 +342,59 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return gpDetails;
     }
 
+    @Override
+    public void invite(Long userId, FhirPractitioner practitioner) throws VerificationException {
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(practitioner.getName());
+        gpLetter.setGpAddress1(practitioner.getAddress1());
+        gpLetter.setGpAddress2(practitioner.getAddress2());
+        gpLetter.setGpAddress3(practitioner.getAddress3());
+        gpLetter.setGpAddress4(practitioner.getAddress4());
+        gpLetter.setGpPostcode(practitioner.getPostcode());
+
+        // same logic to check if ok as importer
+        if (hasValidPracticeDetails(gpLetter) || hasValidPracticeDetailsSingleMaster(gpLetter)) {
+            // check if any entries exist matching GP details in GP letter table
+            List<GpLetter> existingGpLetters = matchByGpDetails(gpLetter);
+
+            // verbose logging
+            LOG.info("existingGpLetters.size(): " + existingGpLetters.size());
+
+            if (!CollectionUtils.isEmpty(existingGpLetters)) {
+                // match exists, check if first entry is claimed (all will be claimed if so)
+                if (existingGpLetters.get(0).getClaimedDate() == null) {
+                    LOG.info("gpLetters(0) is not claimed, checking gp name is unique");
+
+                    // entries exist but not claimed, check GP name against existing GP letter entries
+                    boolean gpNameExists = false;
+                    for (GpLetter existingGpLetter : existingGpLetters) {
+                        if (existingGpLetter.getGpName().equals(gpLetter.getGpName())) {
+                            gpNameExists = true;
+                        }
+                    }
+
+                    if (!gpNameExists) {
+                        LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
+                        // no entry for this specific GP name, create new entry
+                        //add(patientview, fhirLink.getGroup());
+                    } else {
+                        throw new VerificationException("Your GP has already been invited to PatientView");
+                    }
+                } else {
+                    throw new VerificationException("Your GP has already been invited to PatientView");
+                }
+            } else {
+                LOG.info("gpLetters is empty, create new letter");
+
+                // GP details do not match any in GP letter table, create new entry
+                //gpLetterService.add(patientview, fhirLink.getGroup());
+            }
+        } else {
+            throw new VerificationException("Your GP details are incorrect, your GP cannot be invited");
+        }
+    }
+
     @Transactional
     private void claimPersist(User gpAdminUser, Group gpGroup, List<GroupRole> patientGroupRoles,
                               List<GpLetter> matchedGpLetters) throws Exception {
@@ -604,7 +658,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return gpPractices;
     }
 
-    private boolean hasValidPracticeDetails(GpLetter gpLetter) {
+    @Override
+    public boolean hasValidPracticeDetails(GpLetter gpLetter) {
         // check postcode is set
         if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
             return false;
@@ -630,7 +685,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return fieldCount > 1;
     }
 
-    private boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
+    @Override
+    public boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
         // check postcode is set
         if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
             return false;

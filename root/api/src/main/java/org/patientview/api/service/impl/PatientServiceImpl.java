@@ -1373,10 +1373,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     List<GpLetter> gpLetters = gpService.matchByGpDetails(gpLetter);
 
                     if (gpLetters.isEmpty()) {
-                        // no current gp letter, check at least one gp in master that can be claimed by postcode
-                        if (!CollectionUtils.isEmpty(
-                                gpMasterRepository.findByPostcode(fhirPractitioner.getPostcode()))) {
-                            // at least one gp exists, allow invite button
+                        // no current gp letter, check gp letter is valid
+                        if (gpService.hasValidPracticeDetails(gpLetter)
+                                || gpService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
                             fhirPractitioner.setAllowInviteGp(true);
                         }
                     }
