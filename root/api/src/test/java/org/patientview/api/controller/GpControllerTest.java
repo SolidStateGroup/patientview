@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.model.GpDetails;
+import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;

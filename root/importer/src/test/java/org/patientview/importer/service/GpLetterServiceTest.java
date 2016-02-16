@@ -1,5 +1,6 @@
 package org.patientview.importer.service;
 
+import com.itextpdf.text.DocumentException;
 import generated.Patientview;
 import junit.framework.Assert;
 import org.junit.Before;
@@ -16,6 +17,7 @@ import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.service.GpLetterCreationService;
 import org.patientview.test.util.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -27,6 +29,7 @@ import java.util.Properties;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +47,9 @@ public class GpLetterServiceTest extends BaseTest {
     GpLetterService gpLetterService = new GpLetterServiceImpl();
 
     @Mock
+    GpLetterCreationService gpLetterCreationService;
+
+    @Mock
     Properties properties;
 
     @Before
@@ -53,7 +59,7 @@ public class GpLetterServiceTest extends BaseTest {
     }
 
     @Test
-    public void testAdd_fullAddress() {
+    public void testAdd_fullAddress() throws DocumentException {
         Group sourceGroup = TestUtils.createGroup("sourceGroup");
 
         Patientview patientview = new Patientview();
@@ -82,15 +88,18 @@ public class GpLetterServiceTest extends BaseTest {
 
         when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
         when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+        when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
 
         gpLetterService.add(patientview, sourceGroup);
 
         verify(gpMasterRepository, Mockito.times(1)).findByPostcode(eq(gpdetails.getGppostcode()));
         verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterCreationService, Mockito.times(1)).generateLetter(
+                any(GpLetter.class), isNull(GpMaster.class), any(String.class), any(String.class));
     }
 
     @Test
-    public void testAdd_incompleteAddress() {
+    public void testAdd_incompleteAddress() throws DocumentException {
         Group sourceGroup = TestUtils.createGroup("sourceGroup");
 
         Patientview patientview = new Patientview();
@@ -126,6 +135,8 @@ public class GpLetterServiceTest extends BaseTest {
 
         verify(gpMasterRepository, Mockito.times(2)).findByPostcode(eq(gpdetails.getGppostcode()));
         verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterCreationService, Mockito.times(1)).generateLetter(
+                any(GpLetter.class), eq(gpMaster), any(String.class), any(String.class));
     }
 
     @Test

@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import net.lingala.zip4j.exception.ZipException;
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.model.GpDetails;
+import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.FhirPractitioner;
