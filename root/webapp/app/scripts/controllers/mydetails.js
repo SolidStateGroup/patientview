@@ -4,10 +4,12 @@
 var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance', 'patient', 'GpService',
     function ($rootScope, $scope, $modalInstance, patient, GpService) {
         $scope.practitioner = patient.practitioners[0];
+        delete $scope.completed;
+
         $scope.inviteGp = function () {
             delete $scope.errorMessage;
             GpService.inviteGp($rootScope.loggedInUser.id, patient).then(function() {
-                $modalInstance.close();
+                $scope.completed = true;
             },
             function(error) {
                 $scope.errorMessage = error.data;
@@ -103,9 +105,10 @@ function ($scope, PatientService, UserService, $modal, GpService) {
         });
 
         modalInstance.result.then(function () {
-            // ok
+
         }, function () {
             // closed
+            $scope.init();
         });
     };
 
