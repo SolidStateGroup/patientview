@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.persistence.model.FhirPractitioner;
@@ -72,10 +73,10 @@ public class GpControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        FhirPractitioner practitioner = new FhirPractitioner();
+        FhirPatient patient = new FhirPatient();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/gp/invite")
-                .content(mapper.writeValueAsString(practitioner)).contentType(MediaType.APPLICATION_JSON))
+                .content(mapper.writeValueAsString(patient)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
