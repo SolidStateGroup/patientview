@@ -91,7 +91,13 @@
                                 <tr><td colspan="2"><h4>GP Details</h4></td></tr>
                                 <tr>
                                     <td class="forced-width">Name</td>
-                                    <td>{{practitioner.name}}</td>
+                                    <td>
+                                        {{practitioner.name}}
+                                        <span data-ng-if="practitioner.allowInviteGp">
+                                            <button onclick="alert('GP invited to PatientView')" class="btn blue">Invite GP to PatientView</button>
+                                            <a href="http://www.rixg.org/xxxxx">What is this?</a>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>

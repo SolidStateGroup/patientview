@@ -26,6 +26,7 @@ import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.FileDataService;
+import org.patientview.api.service.GpService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
@@ -55,6 +56,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -76,6 +78,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
@@ -135,6 +138,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private FileDataService fileDataService;
+
+    @Inject
+    private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private GpService gpService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -1351,7 +1360,28 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             for (ResourceReference practitionerReference : fhirPatient.getCareProvider()) {
                 Practitioner practitioner = getPractitioner(UUID.fromString(practitionerReference.getDisplaySimple()));
                 if (practitioner != null) {
-                    patient.getFhirPractitioners().add(new FhirPractitioner(practitioner));
+                    FhirPractitioner fhirPractitioner = new FhirPractitioner(practitioner);
+
+                    // check if practitioner has been claimed already using gp letter table
+                    GpLetter gpLetter = new GpLetter();
+                    gpLetter.setGpName(fhirPractitioner.getName());
+                    gpLetter.setGpAddress1(fhirPractitioner.getAddress1());
+                    gpLetter.setGpAddress2(fhirPractitioner.getAddress2());
+                    gpLetter.setGpAddress3(fhirPractitioner.getAddress3());
+                    gpLetter.setGpAddress4(fhirPractitioner.getAddress4());
+                    gpLetter.setGpPostcode(fhirPractitioner.getPostcode());
+                    List<GpLetter> gpLetters = gpService.matchByGpDetails(gpLetter);
+
+                    if (gpLetters.isEmpty()) {
+                        // no current gp letter, check at least one gp in master that can be claimed by postcode
+                        if (!CollectionUtils.isEmpty(
+                                gpMasterRepository.findByPostcode(fhirPractitioner.getPostcode()))) {
+                            // at least one gp exists, allow invite button
+                            fhirPractitioner.setAllowInviteGp(true);
+                        }
+                    }
+
+                    patient.getFhirPractitioners().add(fhirPractitioner);
                 }
             }
         }

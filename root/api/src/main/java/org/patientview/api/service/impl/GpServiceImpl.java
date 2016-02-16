@@ -657,7 +657,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
-    private List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
+    @Override
+    public List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
         Set<GpLetter> matchedGpLetters = new HashSet<>();
 
         if (hasValidPracticeDetails(gpLetter)) {

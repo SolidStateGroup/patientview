@@ -25,6 +25,9 @@ public class FhirPractitioner extends BaseModel {
     private List<FhirContact> contacts;
     private String role;
 
+    // used when existing patients trigger gp invite letter
+    private boolean allowInviteGp = false;
+
     public FhirPractitioner() {}
 
     public FhirPractitioner(Practitioner practitioner) {
@@ -140,5 +143,13 @@ public class FhirPractitioner extends BaseModel {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isAllowInviteGp() {
+        return allowInviteGp;
+    }
+
+    public void setAllowInviteGp(boolean allowInviteGp) {
+        this.allowInviteGp = allowInviteGp;
     }
 }
