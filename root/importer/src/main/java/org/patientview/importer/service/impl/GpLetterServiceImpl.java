@@ -256,11 +256,10 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         String outputDirectory = properties.getProperty("gp.letter.output.directory");
         if (StringUtils.isNotEmpty(outputDirectory)) {
             StringBuilder path = new StringBuilder(outputDirectory + "/"
-                    + gpLetter.getGpName().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("&", "_")
-                    + "-"
-                    + gpLetter.getGpPostcode().replace(" ", "_") + "-"
-                    + gpLetter.getPatientForename().replace(" ", "_") + "-"
-                    + gpLetter.getPatientSurname().replace(" ", "_") + "-");
+                    + gpLetter.getGpName() + "-"
+                    + gpLetter.getGpPostcode() + "-"
+                    + gpLetter.getPatientForename() + "-"
+                    + gpLetter.getPatientSurname() + "-");
 
             if (gpLetter.getPatientDateOfBirth() != null) {
                 path.append(new SimpleDateFormat("dd-MMM-yyyy").format(gpLetter.getPatientDateOfBirth()));
@@ -269,7 +268,9 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
             path.append(".pdf");
 
             try {
-                FileUtils.writeByteArrayToFile(new File(path.toString()), bytes);
+                String cleanPath =
+                        path.toString().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("&", "_");
+                FileUtils.writeByteArrayToFile(new File(cleanPath), bytes);
                 LOG.info("Wrote GP letter to file '" + path.toString() + "'");
             } catch (IOException ioe) {
                 LOG.error("Could not write GP letter to file (IOException: " + ioe.getMessage() + "), continuing");
