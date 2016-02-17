@@ -148,37 +148,38 @@
                 </span>
                 </p>
             </div>
-            <h4>Please check or uncheck the boxes to indicate which are current
-                patients who should be included in your list:</h4>
-            <p class="italic for">These are the NHS numbers of patients found on PatientView who we think might belong
-                to your practice (matched by postcode). </p>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Add to my list</th>
-                    <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
-                    <th>GP as recorded on PatientView</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr data-ng-repeat="patient in patients">
-                    <td>
-                        <input type="checkbox" id="patient-{{patient.id}}"
-                               data-ng-checked="selectedPatients.indexOf(patient) != -1"
-                               data-ng-click="togglePatient(patient)">
-                    </td>
-                    <td>
-                        <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
-                    </td>
-                    <td>
-                        <span>{{patient.gpName}}</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
-                button below to complete the registration process.</h4>
-
+            <div data-ng-show="selectedPractice">
+                <h4>Please check or uncheck the boxes to indicate which are current
+                    patients who should be included in your list:</h4>
+                <p class="italic for">These are the NHS numbers of patients found on PatientView who we think might belong
+                    to your practice (matched by postcode). </p>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Add to my list</th>
+                        <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
+                        <th>GP as recorded on PatientView</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-ng-repeat="patient in patients">
+                        <td>
+                            <input type="checkbox" id="patient-{{patient.id}}"
+                                   data-ng-checked="selectedPatients.indexOf(patient) != -1"
+                                   data-ng-click="togglePatient(patient)">
+                        </td>
+                        <td>
+                            <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
+                        </td>
+                        <td>
+                            <span>{{patient.gpName}}</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
+                    button below to complete the registration process.</h4>
+            </div>
             <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
                 <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
             </div>
