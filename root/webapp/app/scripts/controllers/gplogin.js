@@ -59,7 +59,9 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         delete $scope.claimErrorMessage;
         $scope.validatingClaim = true;
         $scope.details.practices = [];
-        $scope.details.practices.push($scope.selectedPractice);
+        if ($scope.selectedPractice !== null) {
+            $scope.details.practices.push($scope.selectedPractice);
+        }
         $scope.details.patients = $scope.selectedPatients;
 
         // create account with patient details

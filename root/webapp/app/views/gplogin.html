@@ -124,7 +124,7 @@
                     </thead>
                     <tbody>
                     <tr data-ng-repeat="practice in practices">
-                        <td data-ng-show="practices.length > 1">
+                        <td data-ng-show="practices.length > 1" data-ng-click="togglePractice(practice)">
                             <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
                         </td>
                         <td>
