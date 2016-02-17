@@ -42,7 +42,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (r)");
         }
 
         if (CollectionUtils.isEmpty(authentication.getAuthorities())) {
