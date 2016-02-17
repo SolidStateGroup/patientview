@@ -63,4 +63,16 @@ public class GpLetterRepositoryTest {
         Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gpLetter));
     }
 
+    @Test
+    public void testFindByPostcodeAndName() {
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpPostcode("ABC 123");
+        gpLetter.setGpName("Dr Something");
+
+        gpLetterRepository.save(gpLetter);
+
+        List<GpLetter> gps = gpLetterRepository.findByPostcodeAndName(gpLetter.getGpPostcode(), gpLetter.getGpName());
+        Assert.assertEquals("There should be 1 gp letter", 1, gps.size());
+        Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gpLetter));
+    }
 }

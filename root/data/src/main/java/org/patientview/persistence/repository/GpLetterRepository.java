@@ -30,6 +30,12 @@ public interface GpLetterRepository extends JpaRepository<GpLetter, Long> {
 
     @Query("SELECT   gl " +
             "FROM    GpLetter gl " +
+            "WHERE   gl.gpPostcode = :gpPostcode " +
+            "AND     gl.gpName = :gpName")
+    List<GpLetter> findByPostcodeAndName(@Param("gpPostcode") String gpPostcode, @Param("gpName") String gpName);
+
+    @Query("SELECT   gl " +
+            "FROM    GpLetter gl " +
             "WHERE   gl.signupKey = :signupKey " +
             "AND     gl.patientIdentifier = :patientIdentifier")
     List<GpLetter> findBySignupKeyAndIdentifier(

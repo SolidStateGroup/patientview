@@ -5,13 +5,17 @@ var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance', 'pati
     function ($rootScope, $scope, $modalInstance, patient, GpService) {
         $scope.practitioner = patient.practitioners[0];
         delete $scope.completed;
+        delete $scope.loading;
 
         $scope.inviteGp = function () {
+            $scope.loading = true;
             delete $scope.errorMessage;
             GpService.inviteGp($rootScope.loggedInUser.id, patient).then(function() {
+                delete $scope.loading;
                 $scope.completed = true;
             },
             function(error) {
+                delete $scope.loading;
                 $scope.errorMessage = error.data;
             });
         };
@@ -83,7 +87,9 @@ function ($scope, PatientService, UserService, $modal, GpService) {
         var patient = {};
         patient.forename = fhirPatient.forename;
         patient.surname = fhirPatient.surname;
-        patient.dateOfBirth = new Date(fhirPatient.dateOfBirthNoTime);
+        if (fhirPatient.dateOfBirthNoTime) {
+            patient.dateOfBirth = new Date(fhirPatient.dateOfBirthNoTime);
+        }
         patient.practitioners = [];
         patient.practitioners.push(practitioner);
         patient.identifiers = [];

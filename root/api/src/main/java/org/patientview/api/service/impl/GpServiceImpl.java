@@ -668,6 +668,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Override
     public void invite(Long userId, FhirPatient patient) throws VerificationException {
+        LOG.info("Started GP invite process");
         if (CollectionUtils.isEmpty(patient.getPractitioners())) {
             throw new VerificationException("Practitioner not set");
         }

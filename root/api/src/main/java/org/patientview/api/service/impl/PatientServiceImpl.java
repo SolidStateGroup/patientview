@@ -78,7 +78,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
-import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
@@ -142,6 +142,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private GpLetterCreationService gpLetterCreationService;
+
+    @Inject
+    private GpLetterRepository gpLetterRepository;
 
     @Inject
     private GroupRepository groupRepository;
@@ -1368,10 +1371,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     gpLetter.setGpAddress3(fhirPractitioner.getAddress3());
                     gpLetter.setGpAddress4(fhirPractitioner.getAddress4());
                     gpLetter.setGpPostcode(fhirPractitioner.getPostcode());
-                    List<GpLetter> gpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
+
+                    // check existing gp letter does not exist for postcode and gp name (claimed or unclaimed)
+                    List<GpLetter> gpLetters = gpLetterRepository.findByPostcodeAndName(
+                            gpLetter.getGpPostcode(), gpLetter.getGpName());
 
                     if (gpLetters.isEmpty()) {
-                        // no current gp letter, check gp letter is valid
+                        // no current gp letter, check gp details are suitable for creating gp letter
                         if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
                                 || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
                             fhirPractitioner.setAllowInviteGp(true);
