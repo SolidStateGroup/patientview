@@ -114,10 +114,6 @@ public interface UserService {
     void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    @UserOnly
-    void checkSecretWord(Long userId, Map<String, String> letterMap)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
     /**
      * Create a new User, encrypting their password.
      * @param user User object containing all required information

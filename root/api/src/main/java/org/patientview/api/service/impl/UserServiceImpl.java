@@ -1321,42 +1321,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    @Override
-    public void checkSecretWord(Long userId, Map<String, String> letterMap)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        if (letterMap.isEmpty()) {
-            throw new ResourceForbiddenException("Letters must be chosen");
-        }
-        if (userId == null) {
-            throw new ResourceForbiddenException("User not set");
-        }
-
-        User user = findUser(userId);
-        if (StringUtils.isEmpty(user.getSecretWord())) {
-            throw new ResourceForbiddenException("Secret word is not set");
-        }
-
-        // convert from JSON string to map
-        Map<String, String> secretWordMap = new Gson().fromJson(
-                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
-
-        if (secretWordMap.isEmpty()) {
-            throw new ResourceForbiddenException("Secret word not found");
-        }
-        if (StringUtils.isEmpty(secretWordMap.get("salt"))) {
-            throw new ResourceForbiddenException("Secret word salt not found");
-        }
-
-        String salt = secretWordMap.get("salt");
-
-        // check entered letters against salted values
-        for (String toCheck : letterMap.keySet()) {
-            if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
-                throw new ResourceForbiddenException("Letters do not match");
-            }
-        }
-    }
-
     /**
      * On a password reset the user should change on login
      */

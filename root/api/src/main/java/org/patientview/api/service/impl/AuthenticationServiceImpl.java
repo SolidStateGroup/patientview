@@ -253,6 +253,45 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Override
+    public void checkSecretWord(Long userId, Map<String, String> letterMap)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (letterMap.isEmpty()) {
+            throw new ResourceForbiddenException("Letters must be chosen");
+        }
+        if (userId == null) {
+            throw new ResourceForbiddenException("User not set");
+        }
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceForbiddenException("User not found");
+        }
+        if (StringUtils.isEmpty(user.getSecretWord())) {
+            throw new ResourceForbiddenException("Secret word is not set");
+        }
+
+        // convert from JSON string to map
+        Map<String, String> secretWordMap = new Gson().fromJson(
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+
+        if (secretWordMap.isEmpty()) {
+            throw new ResourceForbiddenException("Secret word not found");
+        }
+        if (StringUtils.isEmpty(secretWordMap.get("salt"))) {
+            throw new ResourceForbiddenException("Secret word salt not found");
+        }
+
+        String salt = secretWordMap.get("salt");
+
+        // check entered letters against salted values
+        for (String toCheck : letterMap.keySet()) {
+            if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
+                throw new ResourceForbiddenException("Letters do not match");
+            }
+        }
+    }
+
+    @Override
     public org.patientview.api.model.User getBasicUserInformation(String token) throws ResourceForbiddenException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -298,7 +337,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             return transportUserToken;
         } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord && secretWordIncludedInUserToken) {
             // user has a secret word and has included their chosen characters, check that they match
-            userService.checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
+            checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
 
             // passed secret word check so set check to false and return user information
             foundUserToken.setCheckSecretWord(false);

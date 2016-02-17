@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -12,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 /**
  * Authentication service, used for authenticate Users, login, logout and switch between Users.
@@ -40,6 +43,11 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
+
+
+    @UserOnly
+    void checkSecretWord(Long userId, Map<String, String> letterMap)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Get basic user information given the token produced when a user successfully logs in. Performed after login.

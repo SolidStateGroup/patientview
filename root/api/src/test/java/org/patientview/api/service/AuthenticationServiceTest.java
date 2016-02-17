@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -20,6 +22,7 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -32,11 +35,14 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -268,6 +274,96 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
+    }
+
+
+
+    @Test
+    public void testCheckSecretWord()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i=0; i<word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "C");
+        entered.put("6", "4");
+
+        authenticationService.checkSecretWord(user.getId(), entered);
+    }
+
+    @Test (expected = ResourceForbiddenException.class)
+    public void testCheckSecretWord_incorrect()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i=0; i<word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "X");
+        entered.put("6", "4");
+
+        authenticationService.checkSecretWord(user.getId(), entered);
+    }
+
+    @Test (expected = ResourceForbiddenException.class)
+    public void testCheckSecretWord_notSet()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "X");
+        entered.put("6", "4");
+
+        authenticationService.checkSecretWord(user.getId(), entered);
     }
 
     @Test
