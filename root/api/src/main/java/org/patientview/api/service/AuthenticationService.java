@@ -44,9 +44,7 @@ public interface AuthenticationService extends UserDetailsService {
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
 
-
-    @UserOnly
-    void checkSecretWord(Long userId, Map<String, String> letterMap)
+    void checkSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

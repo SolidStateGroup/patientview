@@ -253,16 +253,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Override
-    public void checkSecretWord(Long userId, Map<String, String> letterMap)
+    public void checkSecretWord(User user, Map<String, String> letterMap)
             throws ResourceNotFoundException, ResourceForbiddenException {
         if (letterMap.isEmpty()) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
-        if (userId == null) {
-            throw new ResourceForbiddenException("User not set");
-        }
-
-        User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceForbiddenException("User not found");
         }
@@ -337,7 +332,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             return transportUserToken;
         } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord && secretWordIncludedInUserToken) {
             // user has a secret word and has included their chosen characters, check that they match
-            checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
+            checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
 
             // passed secret word check so set check to false and return user information
             foundUserToken.setCheckSecretWord(false);

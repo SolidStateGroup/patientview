@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="alert alert-danger" data-ng-show="!validDetails && !validatingDetails">
-                    Please check your details, <span data-ng-bind-html="parseHTMLText(detailsErrorMessage)"></span>
+                    <span data-ng-bind-html="parseHTMLText(detailsErrorMessage)"></span>
                 </div>
                 <div class="alert alert-success" data-ng-show="validatingDetails">Validating your details, please wait</div>
             </div>
@@ -180,7 +180,7 @@
                 button below to complete the registration process.</h4>
 
             <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
-                There has been an error, <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
+                <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
             </div>
             <div class="alert alert-success" data-ng-show="validatingClaim">Validating your details, please wait</div>
         </div>
