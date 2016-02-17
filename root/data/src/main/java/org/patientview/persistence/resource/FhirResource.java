@@ -866,7 +866,7 @@ public class FhirResource {
                     "FROM practitioner " +
                     "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
                     "GROUP BY logical_id";
-            LOG.info(query);
+            //LOG.info(query);
             ResultSet results = statement.executeQuery(query);
 
             Map<String, Map<String, String>> practitionerMap = new HashMap<>();
@@ -898,7 +898,7 @@ public class FhirResource {
                     query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
                             practitionerLogicalId + "' GROUP BY logical_id";
                     results = statement.executeQuery(query);
-                    LOG.info(query);
+                    //LOG.info(query);
                     while ((results.next())) {
                         if (StringUtils.isNotEmpty(results.getString(1))) {
                             patientResourceIds.add(UUID.fromString(results.getString(1)));
