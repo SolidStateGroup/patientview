@@ -16,7 +16,6 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             $scope.password = $('#password').val();
             AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (userToken) {
                 var authToken = userToken.token;
-                console.log(authToken);
                 $scope.loadingMessage = 'Loading Your Information';
 
                 AuthService.getUserInformation(authToken).then(function (userInformation) {
