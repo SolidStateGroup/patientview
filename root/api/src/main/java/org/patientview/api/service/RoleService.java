@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.patientview.api.annotation.UserOnly;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -44,6 +43,5 @@ public interface RoleService {
      * @param userId ID of User to retrieve available Roles
      * @return List of Role objects
      */
-    @UserOnly
     List<Role> getUserRoles(Long userId);
 }
