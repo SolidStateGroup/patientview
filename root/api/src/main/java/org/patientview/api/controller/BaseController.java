@@ -56,7 +56,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleSecurityException(SecurityException e) {
-        LOG.info("Authentication failed for this resource");
+        LOG.info("Authentication failed for this resource", e);
         return e.getMessage();
     }
 
