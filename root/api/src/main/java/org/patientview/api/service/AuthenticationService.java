@@ -4,6 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -50,12 +51,12 @@ public interface AuthenticationService extends UserDetailsService {
     /**
      * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.
      * Performed after login.
-     * @param token String token associated with a successfully logged in user
+     * @param userToken UserToken object containing token associated with a successfully logged in user
      * @return UserToken object containing relevant user information and static data
      * @throws AuthenticationServiceException
      * @throws ResourceForbiddenException
      */
-    UserToken getUserInformation(String token) throws ResourceForbiddenException;
+    UserToken getUserInformation(UserToken userToken) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Log out User, clearing their session and deleting the token associated with their account, invalidating all

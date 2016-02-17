@@ -48,10 +48,8 @@ public class AuthControllerTest {
 
     @Before
     public void setup() {
-
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-
     }
 
     /**
@@ -61,7 +59,6 @@ public class AuthControllerTest {
      */
     @Test
     public void testAuthenticate() {
-
         Credentials credentials = new Credentials();
         credentials.setUsername("testUser");
         credentials.setPassword("doNotShow");
@@ -77,9 +74,7 @@ public class AuthControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
     }
-
 
     /**
      * Test: The url for resetting a password from a Username and Email
@@ -106,8 +101,5 @@ public class AuthControllerTest {
         verify(userService, Mockito.times(1))
                 .resetPasswordByUsernameAndEmail(
                         Matchers.eq(forgottenCredentials.getUsername()), Matchers.eq(forgottenCredentials.getEmail()));
-
     }
-
-
 }

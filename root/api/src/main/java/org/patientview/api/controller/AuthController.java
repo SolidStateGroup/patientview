@@ -123,7 +123,6 @@ public class AuthController extends BaseController<AuthController> {
     /**
      * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.
      * Performed after login.
-     * @param token String token associated with a successfully logged in user
      * @return UserToken object containing relevant user information and static data
      * @throws AuthenticationServiceException
      * @throws ResourceForbiddenException
@@ -131,10 +130,10 @@ public class AuthController extends BaseController<AuthController> {
     @ExcludeFromApiDoc
     @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
             + "information and static data used by front end")
-    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
-            throws AuthenticationServiceException, ResourceForbiddenException {
-        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
+    @RequestMapping(value = "/auth/userinformation", method = RequestMethod.POST)
+    public ResponseEntity<UserToken> getUserInformation(@RequestBody UserToken userToken)
+            throws AuthenticationServiceException, ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(authenticationService.getUserInformation(userToken), HttpStatus.OK);
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
@@ -44,6 +46,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -53,9 +56,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -251,14 +257,51 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     // retrieve static data and user specific data to avoid requerying
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
-    public org.patientview.api.model.UserToken getUserInformation(String token) throws ResourceForbiddenException {
-        UserToken userToken = userTokenRepository.findByToken(token);
+    public org.patientview.api.model.UserToken getUserInformation(org.patientview.api.model.UserToken userToken)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        UserToken foundUserToken = userTokenRepository.findByToken(userToken.getToken());
 
-        if (userToken == null) {
+        if (foundUserToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
 
-        org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
+        boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
+        boolean secretWordIncludedInUserToken = !CollectionUtils.isEmpty(userToken.getSecretWordChoices());
+
+        // check if User has secret word set, if so then send back minimal details for further authentication
+        if (userHasSecretWord && !secretWordIncludedInUserToken) {
+            // user has a secret word but has not included it in POST
+            org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken();
+            transportUserToken.setToken(userToken.getToken());
+
+            // choose two characters to check
+            Map<String, String> secretWordMap = new Gson().fromJson(
+                    foundUserToken.getUser().getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                    }.getType());
+
+            Random ran = new Random();
+            transportUserToken.setSecretWordIndexes(new ArrayList<String>());
+            transportUserToken.getSecretWordIndexes()
+                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
+            transportUserToken.getSecretWordIndexes()
+                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
+
+            // return simple UserToken which will prompt user to enter two characters from secret word
+            return transportUserToken;
+        } else if (userHasSecretWord && secretWordIncludedInUserToken) {
+            // user has a secret word and has included their chosen characters, check that they match
+            userService.checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
+            return createApiUserToken(foundUserToken);
+        } else {
+            // standard login with no secret word
+            return createApiUserToken(foundUserToken);
+        }
+    }
+
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
+            throws ResourceForbiddenException {
+        org.patientview.api.model.UserToken transportUserToken
+                = new org.patientview.api.model.UserToken(userToken);
 
         // get information about user's available roles and groups as used in staff and patient views
         transportUserToken = setUserGroups(transportUserToken);

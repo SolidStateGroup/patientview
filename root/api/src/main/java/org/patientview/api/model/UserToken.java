@@ -6,11 +6,13 @@ import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * UserToken, representing a large amount of User and static information, retrieved after a User has authenticated
  * successfully and has retrieved their authentication token.
+ * Minimal version returned when User has a secret word set for further multi-factor authentication.
  * Created by jamesr@solidstategroup.com
  * Created on 25/09/2014
  */
@@ -34,6 +36,10 @@ public class UserToken {
     private List<PatientMessagingFeatureType> patientMessagingFeatureTypes;
     private List<String> auditActions;
     private boolean groupMessagingEnabled;
+
+    // used with multi factor authentication
+    private List<String> secretWordIndexes;
+    private Map<String, String> secretWordChoices;
 
     public UserToken() {
     }
@@ -173,5 +179,21 @@ public class UserToken {
 
     public void setGroupMessagingEnabled(boolean groupMessagingEnabled) {
         this.groupMessagingEnabled = groupMessagingEnabled;
+    }
+
+    public List<String> getSecretWordIndexes() {
+        return secretWordIndexes;
+    }
+
+    public void setSecretWordIndexes(List<String> secretWordIndexes) {
+        this.secretWordIndexes = secretWordIndexes;
+    }
+
+    public Map<String, String> getSecretWordChoices() {
+        return secretWordChoices;
+    }
+
+    public void setSecretWordChoices(Map<String, String> secretWordChoices) {
+        this.secretWordChoices = secretWordChoices;
     }
 }

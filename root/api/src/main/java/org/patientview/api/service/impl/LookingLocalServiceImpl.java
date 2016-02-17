@@ -156,8 +156,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         UserToken userToken;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 
@@ -492,8 +494,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         List<Patient> patientDetails;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 
@@ -688,8 +692,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         UserToken userToken;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 
@@ -796,8 +802,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         UserToken userToken;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 
@@ -907,8 +915,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         UserToken userToken;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 
@@ -1104,8 +1114,10 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         UserToken userToken;
 
         try {
-            userToken = authenticationService.getUserInformation(token);
-        } catch (ResourceForbiddenException rfe) {
+            UserToken basicUserToken = new UserToken();
+            basicUserToken.setToken(token);
+            userToken = authenticationService.getUserInformation(basicUserToken);
+        } catch (ResourceForbiddenException | ResourceNotFoundException rfe) {
             return getErrorXml("Forbidden");
         }
 

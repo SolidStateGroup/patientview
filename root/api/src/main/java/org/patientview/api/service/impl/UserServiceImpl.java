@@ -1327,6 +1327,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (letterMap.isEmpty()) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
+        if (userId == null) {
+            throw new ResourceForbiddenException("User not set");
+        }
 
         User user = findUser(userId);
         if (StringUtils.isEmpty(user.getSecretWord())) {
