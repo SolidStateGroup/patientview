@@ -15,6 +15,10 @@ h3 {
     font-size: 22px;
 }
 
+.italic{
+    font-style: italic;
+}
+
 hr{
     margin-top:15px;
     margin-bottom:10px;
@@ -70,6 +74,52 @@ hr{
 
 .content-panel.overflow {
     overflow: visible!important;
+}
+
+.page-head{
+    margin-bottom:20px;
+    .badge{
+        margin:20px 20px 0;
+    }
+
+}
+
+.content-panel{
+    &.gp-login{
+        position: relative;
+
+        .content-inner{
+            padding:0 50px 50px;
+        }
+
+        table{
+            margin-bottom:50px;
+        }
+        h4{
+            margin:30px 0 20px;
+        }
+
+        .for{
+            margin-top:-20px;
+        }
+        .panel-footer{
+            padding:20px 0;
+        }
+    }
+}
+
+.success-badge{
+    position:absolute;
+    right:20px;
+    top:20px;
+
+    p{
+        float: right;
+        margin-right: 110px;
+        margin-top: 30px;
+        font-size: 18px;
+        font-weight: bold;
+    }
 }
 
 .row-question {
@@ -340,7 +390,12 @@ hr{
     width:85px;
 }
 
-
+.btn{
+    .icon-back-to{
+        position: relative;
+        top:3px;
+    }
+}
 
 .edit-code-input{
     margin-bottom:10px;
@@ -939,7 +994,7 @@ i.icon-back-to{
     height: 22px;
     width: 23px;
     display:block;
-    margin-right:5px;
+    margin-right:10px;
 }
 
 i.icon-brand-pulse{
