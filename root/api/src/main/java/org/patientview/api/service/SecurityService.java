@@ -18,7 +18,7 @@ public interface SecurityService {
 
     /**
      * This method collates the routes for a user from three different paths. This has been split
-     * into 3 seperate queries to avoid hibernate altering the query.
+     * into 3 separate queries to avoid hibernate altering the query.
      *
      * User -> Group -> Routes
      * User -> Features -> Routes
@@ -27,6 +27,5 @@ public interface SecurityService {
      * @param userId ID of User to retrieve Routes for
      * @return Set of Routes
      */
-    @UserOnly
     Set<Route> getUserRoutes(Long userId);
 }

@@ -380,16 +380,19 @@ public class GroupServiceTest {
      */
     @Test
     public void testGetUserGroupsWithSuperAdmin() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
-        GetParameters getParameters = new GetParameters();
-        User testUser = TestUtils.createUser("testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
-        when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
-        TestUtils.authenticateTest(testUser, RoleName.GLOBAL_ADMIN);
-        groupService.getUserGroups(testUser.getId(), getParameters);
+        groupService.getUserGroups(user.getId(), new GetParameters());
 
         String filterText = "%%";
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
@@ -405,18 +408,23 @@ public class GroupServiceTest {
     @Test
     public void testGetUserGroups() {
         GetParameters getParameters = new GetParameters();
-        User testUser = TestUtils.createUser("testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
-        when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
-        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
-        groupService.getUserGroups(testUser.getId(), getParameters);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        groupService.getUserGroups(user.getId(), getParameters);
 
         String filterText = "%%";
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
-        verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, testUser, pageable);
+        verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, user, pageable);
     }
     
     @Test

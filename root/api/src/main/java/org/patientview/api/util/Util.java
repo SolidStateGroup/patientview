@@ -263,7 +263,7 @@ public final class Util {
     public static List<GroupRole> getCurrentUserGroupRoles() {
         if (SecurityContextHolder.getContext() == null
                 || SecurityContextHolder.getContext().getAuthentication() == null) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (gr)");
         }
         return convertAuthorities(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
     }
@@ -275,7 +275,7 @@ public final class Util {
     public static User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (u)");
         }
         return (User) authentication.getPrincipal();
     }

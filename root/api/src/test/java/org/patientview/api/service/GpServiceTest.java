@@ -12,14 +12,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.model.GpDetails;
-import org.patientview.api.model.GpPractice;
+import org.patientview.persistence.model.FhirIdentifier;
+import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.GpDetails;
+import org.patientview.persistence.model.GpPractice;
 import org.patientview.api.service.impl.GpServiceImpl;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GpPatient;
@@ -50,6 +53,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.GpLetterCreationService;
 import org.patientview.test.util.TestUtils;
 
 import javax.mail.MessagingException;
@@ -90,6 +94,9 @@ public class GpServiceTest {
 
     @Mock
     FhirResource fhirResource;
+
+    @Mock
+    GpLetterCreationService gpLetterCreationService;
 
     @Mock
     GpLetterRepository gpLetterRepository;
@@ -278,12 +285,14 @@ public class GpServiceTest {
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
+        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
+
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
-        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
+        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
@@ -641,12 +650,14 @@ public class GpServiceTest {
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
+        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
+
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
         Assert.assertNotNull("should set password", out.getPassword());
 
-        verify(auditRepository, Mockito.times(5)).save(any(Audit.class));
+        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
@@ -654,6 +665,43 @@ public class GpServiceTest {
         verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
         verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
         verify(userRepository, Mockito.times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testInvite() throws VerificationException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        FhirPractitioner practitioner = new FhirPractitioner();
+        practitioner.setName("Practitioner Name");
+        practitioner.setPostcode("AB1 23C");
+
+        FhirIdentifier fhirIdentifier = new FhirIdentifier(IdentifierTypes.NHS_NUMBER.toString(), "1111111111");
+
+        FhirPatient patient = new FhirPatient();
+        patient.getPractitioners().add(practitioner);
+        patient.getIdentifiers().add(fhirIdentifier);
+        patient.setGroup(group);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName(practitioner.getName());
+        gpMaster.setPostcode(practitioner.getPostcode());
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpMasterRepository.findByPostcode(eq(practitioner.getPostcode()))).thenReturn(gpMasters);
+        when(gpLetterCreationService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
+
+        gpService.invite(user.getId(), patient);
+
+        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
     }
 
     @Test

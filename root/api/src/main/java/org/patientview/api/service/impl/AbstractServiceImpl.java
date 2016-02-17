@@ -42,7 +42,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (r)");
         }
 
         if (CollectionUtils.isEmpty(authentication.getAuthorities())) {
@@ -117,6 +117,15 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        }
+
+        if (Util.userHasRole(user, RoleName.GP_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }

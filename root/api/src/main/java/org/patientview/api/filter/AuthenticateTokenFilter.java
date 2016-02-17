@@ -53,6 +53,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/auth/login");
         publicUrls.add("/auth/logout");
         publicUrls.add("/auth/forgottenpassword");
+        publicUrls.add("/auth/userinformation");
         publicUrls.add("/error");
 
         // public news
@@ -119,6 +120,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         // TODO Fix for Spring Boot bug with using delegating proxy
         setAuthenticationManager(request);
+
+        //LOG.info(path);
+        //LOG.info(String.valueOf(isPublicPath(path)));
 
         // Fix for CORS not required for PROD
         if (httpRequest.getMethod().equalsIgnoreCase("options")) {

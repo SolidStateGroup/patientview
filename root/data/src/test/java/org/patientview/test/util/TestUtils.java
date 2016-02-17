@@ -355,7 +355,7 @@ public final class TestUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (p)");
         }
 
         return (User) authentication.getPrincipal();

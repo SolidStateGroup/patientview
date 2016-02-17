@@ -22,15 +22,28 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
                 // details provided are correct
                 $scope.validatingDetails = false;
                 $scope.validDetails = true;
+                $scope.centralSupportEmail = data.centralSupportEmail;
 
                 // get practices
                 $scope.practices = data.practices;
-                $scope.selectedPractice = $scope.practices[0];
+                if ($scope.practices.length == 1) {
+                    $scope.selectedPractice = $scope.practices[0];
+                } else {
+                    delete $scope.selectedPractice;
+                }
 
                 // get patients
                 $scope.patients = data.patients;
                 $scope.selectedPatients = [];
-                $scope.selectedPatients.push($scope.patients[0]);
+
+                // set selected based on identifier
+                for (var i=0; i<$scope.patients.length; i++) {
+                    for (var j = 0; j < $scope.patients[i].identifiers.length; j++) {
+                        if ($scope.patients[i].identifiers[j].identifier == $scope.details.patientIdentifier) {
+                            $scope.selectedPatients.push($scope.patients[i]);
+                        }
+                    }
+                }
 
                 $scope.step = 2;
             }, function (failure) {
@@ -69,6 +82,10 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         } else {
             $scope.selectedPatients.splice($scope.selectedPatients.indexOf(patient), 1);
         }
+    };
+
+    $scope.togglePractice = function (practice) {
+        $scope.selectedPractice = practice;
     };
 
     init();

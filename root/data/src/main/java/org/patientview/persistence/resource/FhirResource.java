@@ -862,11 +862,12 @@ public class FhirResource {
             // get logical_id and name of GP from FHIR practitioners where postcode matches
             connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(
-                    "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
-                            "FROM practitioner " +
-                            "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
-                            "GROUP BY logical_id");
+            String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
+                    "FROM practitioner " +
+                    "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
+                    "GROUP BY logical_id";
+            //LOG.info(query);
+            ResultSet results = statement.executeQuery(query);
 
             Map<String, Map<String, String>> practitionerMap = new HashMap<>();
 
@@ -875,10 +876,12 @@ public class FhirResource {
                 String logicalId = results.getString(1);
                 String name = results.getString(2);
 
-                Map<String, String> practitioner = new HashMap<>();
-                practitioner.put("logicalId", logicalId);
-                practitioner.put("name", name);
-                practitionerMap.put(logicalId, practitioner);
+                if (StringUtils.isNotEmpty(logicalId) && StringUtils.isNotEmpty(name)) {
+                    Map<String, String> practitioner = new HashMap<>();
+                    practitioner.put("logicalId", logicalId);
+                    practitioner.put("name", name);
+                    practitionerMap.put(logicalId, practitioner);
+                }
             }
 
             connection.close();
@@ -892,24 +895,29 @@ public class FhirResource {
                     // now have map of practitioners, get list of all patients with that practitioner
                     connection = dataSource.getConnection();
                     statement = connection.createStatement();
-                    results = statement.executeQuery(
-                            "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
-                                    practitionerLogicalId + "' GROUP BY logical_id");
-
+                    query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
+                            practitionerLogicalId + "' GROUP BY logical_id";
+                    results = statement.executeQuery(query);
+                    //LOG.info(query);
                     while ((results.next())) {
-                        patientResourceIds.add(UUID.fromString(results.getString(1)));
+                        if (StringUtils.isNotEmpty(results.getString(1))) {
+                            patientResourceIds.add(UUID.fromString(results.getString(1)));
+                        }
                     }
 
                     connection.close();
 
                     // get Users from FhirLinks based on patient resource ids
-                    for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
-                        // add relevant details from patient users to list of GpPatient to return with GpDetails
-                        GpPatient patient = new GpPatient();
-                        patient.setId(user.getId());
-                        patient.setGpName(practitionerMap.get(practitionerLogicalId).get("name"));
-                        patient.setIdentifiers(user.getIdentifiers());
-                        gpPatients.add(patient);
+                    if (!patientResourceIds.isEmpty()) {
+                        for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
+                            // add relevant details from patient users to list of GpPatient to return with GpDetails
+                            GpPatient patient = new GpPatient();
+                            patient.setId(user.getId());
+                            patient.setGpName(
+                                    practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
+                            patient.setIdentifiers(user.getIdentifiers());
+                            gpPatients.add(patient);
+                        }
                     }
                 }
             }

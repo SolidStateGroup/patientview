@@ -7,8 +7,10 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.model.GpDetails;
+import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -57,6 +59,24 @@ public class GpControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/gp/claim")
                 .content(mapper.writeValueAsString(gpDetails)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testInvite() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        FhirPatient patient = new FhirPatient();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/gp/invite")
+                .content(mapper.writeValueAsString(patient)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

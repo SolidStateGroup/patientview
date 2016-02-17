@@ -61,6 +61,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -648,31 +649,41 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     private SurveyResponse reduceStaffUser(SurveyResponse surveyResponse) {
         if (surveyResponse.getStaffUser() != null) {
             // create new reduced staff user
-            User staffUser = surveyResponse.getStaffUser();
             User newStaffUser = new User();
-            newStaffUser.setGroupRoles(new HashSet<GroupRole>());
-            newStaffUser.setForename(staffUser.getForename());
-            newStaffUser.setSurname(staffUser.getSurname());
-            newStaffUser.setId(staffUser.getId());
 
-            for (GroupRole groupRole : staffUser.getGroupRoles()) {
-                GroupRole newGroupRole = new GroupRole();
+            try {
+                User staffUser = userRepository.getOne(surveyResponse.getStaffUser().getId());
 
-                // generate cut down groups and roles
-                Group newGroup = new Group();
-                newGroup.setName(groupRole.getGroup().getName());
-                newGroup.setShortName(groupRole.getGroup().getShortName());
-                newGroup.setCode(groupRole.getGroup().getCode());
-                newGroup.setGroupType(groupRole.getGroup().getGroupType());
+                if (staffUser != null) {
+                    newStaffUser.setGroupRoles(new HashSet<GroupRole>());
+                    newStaffUser.setForename(staffUser.getForename());
+                    newStaffUser.setSurname(staffUser.getSurname());
+                    newStaffUser.setId(staffUser.getId());
 
-                Role newRole = new Role();
-                newRole.setName(groupRole.getRole().getName());
-                newRole.setDescription(groupRole.getRole().getDescription());
+                    if (!CollectionUtils.isEmpty(staffUser.getGroupRoles())) {
+                        for (GroupRole groupRole : staffUser.getGroupRoles()) {
+                            GroupRole newGroupRole = new GroupRole();
 
-                // add to new reduced staff user
-                newGroupRole.setGroup(newGroup);
-                newGroupRole.setRole(newRole);
-                newStaffUser.getGroupRoles().add(newGroupRole);
+                            // generate cut down groups and roles
+                            Group newGroup = new Group();
+                            newGroup.setName(groupRole.getGroup().getName());
+                            newGroup.setShortName(groupRole.getGroup().getShortName());
+                            newGroup.setCode(groupRole.getGroup().getCode());
+                            newGroup.setGroupType(groupRole.getGroup().getGroupType());
+
+                            Role newRole = new Role();
+                            newRole.setName(groupRole.getRole().getName());
+                            newRole.setDescription(groupRole.getRole().getDescription());
+
+                            // add to new reduced staff user
+                            newGroupRole.setGroup(newGroup);
+                            newGroupRole.setRole(newRole);
+                            newStaffUser.getGroupRoles().add(newGroupRole);
+                        }
+                    }
+                }
+            } catch (EntityNotFoundException enf) {
+                newStaffUser.setName("Unknown");
             }
 
             surveyResponse.setStaffUser(newStaffUser);

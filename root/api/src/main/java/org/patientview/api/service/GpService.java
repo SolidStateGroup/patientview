@@ -2,8 +2,10 @@ package org.patientview.api.service;
 
 import net.lingala.zip4j.exception.ZipException;
 import org.patientview.api.annotation.RoleOnly;
-import org.patientview.api.model.GpDetails;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.GpDetails;
 
 import java.io.IOException;
 import java.util.Map;
@@ -17,6 +19,9 @@ import java.util.Map;
 public interface GpService {
 
     GpDetails claim(GpDetails gpDetails) throws VerificationException;
+
+    @UserOnly
+    void invite(Long userId, FhirPatient fhirPatient) throws VerificationException;
 
     @RoleOnly
     Map<String, String> updateMasterTable() throws IOException, ZipException;

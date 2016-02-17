@@ -3,11 +3,15 @@ package org.patientview.api.service.impl;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -83,9 +87,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -181,6 +183,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int ONE_HUNDRED_AND_EIGHTY = 180;
     private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
+    private static final int SECRET_WORD_MIN_LENGTH = 7;
     private Group genericGroup;
     private Role memberRole;
 
@@ -611,9 +614,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return true;
         }
 
-        // UNIT_ADMIN can get users from other groups (used when updating existing user) as long as not GLOBAL_ADMIN
-        // or SPECIALTY_ADMIN
-        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        // UNIT_ADMIN can get users from other groups (used when updating existing user)
+        // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
+        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN) || Util.currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -1279,6 +1282,78 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             userRepository.save(user);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void changeSecretWord(Long userId, SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {
+            throw new ResourceForbiddenException("Secret word must be set");
+        }
+        if (StringUtils.isEmpty(secretWordInput.getSecretWord2())) {
+            throw new ResourceForbiddenException("You must confirm your secret word");
+        }
+        if (!secretWordInput.getSecretWord1().equals(secretWordInput.getSecretWord2())) {
+            throw new ResourceForbiddenException("Secret words do not match");
+        }
+        if (secretWordInput.getSecretWord1().length() < SECRET_WORD_MIN_LENGTH) {
+            throw new ResourceForbiddenException("Secret word must be minimum " + SECRET_WORD_MIN_LENGTH + " letters");
+        }
+
+        User user = findUser(userId);
+        try {
+            String salt = CommonUtils.generateSalt();
+
+            // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+            Map<String, String> letters = new HashMap<>();
+            letters.put("salt", salt);
+            for (int i=0; i<secretWordInput.getSecretWord1().length(); i++) {
+                letters.put(String.valueOf(i), DigestUtils.sha256Hex(
+                        String.valueOf(secretWordInput.getSecretWord1().charAt(i)) + salt));
+            }
+
+            user.setSecretWord(new JSONObject(letters).toString());
+            user.setHideSecretWordNotification(true);
+            userRepository.save(user);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ResourceForbiddenException("Error saving");
+        }
+    }
+
+    @Override
+    public void checkSecretWord(Long userId, Map<String, String> letterMap)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (letterMap.isEmpty()) {
+            throw new ResourceForbiddenException("Letters must be chosen");
+        }
+        if (userId == null) {
+            throw new ResourceForbiddenException("User not set");
+        }
+
+        User user = findUser(userId);
+        if (StringUtils.isEmpty(user.getSecretWord())) {
+            throw new ResourceForbiddenException("Secret word is not set");
+        }
+
+        // convert from JSON string to map
+        Map<String, String> secretWordMap = new Gson().fromJson(
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+
+        if (secretWordMap.isEmpty()) {
+            throw new ResourceForbiddenException("Secret word not found");
+        }
+        if (StringUtils.isEmpty(secretWordMap.get("salt"))) {
+            throw new ResourceForbiddenException("Secret word salt not found");
+        }
+
+        String salt = secretWordMap.get("salt");
+
+        // check entered letters against salted values
+        for (String toCheck : letterMap.keySet()) {
+            if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
+                throw new ResourceForbiddenException("Letters do not match");
+            }
         }
     }
 

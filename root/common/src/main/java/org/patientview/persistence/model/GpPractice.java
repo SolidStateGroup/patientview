@@ -1,4 +1,4 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 /**
  * GpPractice, reduced set of data provided when creating a GP account

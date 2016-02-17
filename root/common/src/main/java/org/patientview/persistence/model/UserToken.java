@@ -39,6 +39,9 @@ public class UserToken extends BaseModel {
     @Column(name = "creation_date")
     private Date created;
 
+    @Column(name = "check_secret_word")
+    private boolean checkSecretWord;
+
     public User getUser() {
         return user;
     }
@@ -77,5 +80,13 @@ public class UserToken extends BaseModel {
 
     public void setCreated(final Date created) {
         this.created = created;
+    }
+
+    public boolean isCheckSecretWord() {
+        return checkSecretWord;
+    }
+
+    public void setCheckSecretWord(boolean checkSecretWord) {
+        this.checkSecretWord = checkSecretWord;
     }
 }

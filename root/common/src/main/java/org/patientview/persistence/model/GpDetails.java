@@ -1,6 +1,4 @@
-package org.patientview.api.model;
-
-import org.patientview.persistence.model.GpPatient;
+package org.patientview.persistence.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +23,9 @@ public class GpDetails {
 
     // reduced information on users, with gp name from FHIR
     private List<GpPatient> patients = new ArrayList<>();
+
+    // used in step 2 ui
+    private String centralSupportEmail;
 
     public GpDetails() {}
 
@@ -98,5 +99,13 @@ public class GpDetails {
 
     public void setPatients(List<GpPatient> patients) {
         this.patients = patients;
+    }
+
+    public String getCentralSupportEmail() {
+        return centralSupportEmail;
+    }
+
+    public void setCentralSupportEmail(String centralSupportEmail) {
+        this.centralSupportEmail = centralSupportEmail;
     }
 }

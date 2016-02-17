@@ -147,7 +147,7 @@ public interface GroupService {
      * @return Group object
      * @throws ResourceForbiddenException
      */
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Group get(Long id) throws ResourceForbiddenException;
 
     /**
@@ -168,7 +168,6 @@ public interface GroupService {
      * @param userId ID of User to find Groups for
      * @return List of Groups
      */
-    @UserOnly
     List<Group> getAllUserGroupsAllDetails(Long userId);
 
     /**

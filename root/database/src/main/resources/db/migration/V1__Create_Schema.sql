@@ -22,6 +22,8 @@ CREATE TABLE PV_User
   Last_Login_Ip_Address    VARCHAR(50),
   Deleted          BOOLEAN      NOT NULL DEFAULT FALSE,
   Picture          TEXT,
+  Hide_Secret_Word_Notification          BOOLEAN NOT NULL DEFAULT FALSE,
+  Secret_Word      TEXT,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,
@@ -214,6 +216,7 @@ CREATE TABLE PV_User_Token
   User_Id         BIGINT      NOT NULL REFERENCES PV_User (Id),
   Token           VARCHAR(50) NOT NULL UNIQUE,
   Parent_Token_Id BIGINT      REFERENCES PV_User_Token (Id),
+  Check_Secret_Word BOOLEAN NOT NULL DEFAULT FALSE,
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   PRIMARY KEY (Id)

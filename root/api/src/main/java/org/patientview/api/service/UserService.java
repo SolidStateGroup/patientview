@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -23,8 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User service, for managing Users, User information, resetting passwords etc.
@@ -109,6 +110,14 @@ public interface UserService {
     @UserOnly
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
+    @UserOnly
+    void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @UserOnly
+    void checkSecretWord(Long userId, Map<String, String> letterMap)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
     /**
      * Create a new User, encrypting their password.
      * @param user User object containing all required information
@@ -116,7 +125,7 @@ public interface UserService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
@@ -205,7 +214,7 @@ public interface UserService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -230,7 +239,7 @@ public interface UserService {
      * @param username String username used to search for Users
      * @return User object
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
 
     /**
@@ -387,7 +396,7 @@ public interface UserService {
      * @return True or false if username belongs to User that already exists
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     boolean usernameExists(String username);
 
     /**

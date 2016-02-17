@@ -3,8 +3,13 @@
     <h1>GP Practices - Claim your PatientView login here</h1>
     <p>
         If you have recently received an invite letter for your practice to join PatientView, you are a few simple
-        steps away from being able to view your patients’ hospital and other records online. Before proceeding, please
-        ensure that your practice does not have an existing account.
+        steps away from being able to view your patients’ hospital and other records online.
+    </p>
+    <p>
+        <a href="/#/whatcanitdo/#top" target="_blank">What can PatientView do?</a>
+    </p>
+    <p>
+        Before proceeding, please ensure that your practice does not have an existing account.
     </p>
 </div>
 
@@ -23,13 +28,13 @@
                 <div class="form-group row">
                     <label for="forename" class="col-sm-3 control-label">Forename(s)</label>
                     <div class="col-sm-9">
-                        <input id="forename" data-ng-model="details.forename" name="forename" type="text" class="form-control" required=""/>
+                        <input id="forename" data-ng-model="details.forename" name="forename" type="text" class="form-control" required="" maxlength="100"/>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="surname" class="col-sm-3 control-label">Surname</label>
                     <div class="col-sm-9">
-                        <input id="surname" data-ng-model="details.surname" name="surname" type="text" class="form-control" required=""/>
+                        <input id="surname" data-ng-model="details.surname" name="surname" type="text" class="form-control" required="" maxlength="100"/>
                     </div>
                 </div>
                 <h4 class="form-section">Now enter the following details for security purposes:</h4>
@@ -110,30 +115,38 @@
                 </h4>
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th data-ng-show="practices.length > 1"></th>
-                            <th>Practice Name</th>
-                            <th>Practice Code</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th data-ng-show="practices.length > 1"></th>
+                        <th>Practice Name</th>
+                        <th>Practice Code</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr data-ng-repeat="practice in practices">
-                            <td data-ng-show="practices.length > 1">
-                                <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
-                            </td>
-                            <td>
-                                <span>{{practice.name}}</span>
-                            </td>
-                            <td>
-                                <span>{{practice.code}}</span>
-                            </td>
-                            <td>
-                                <a href="{{practice.url}}" target="_blank" data-ng-if="practice.url">Page on NHS Choices</a>
-                            </td>
-                        </tr>
+                    <tr data-ng-repeat="practice in practices">
+                        <td data-ng-show="practices.length > 1">
+                            <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
+                        </td>
+                        <td>
+                            <span>{{practice.name}}</span>
+                        </td>
+                        <td>
+                            <span>{{practice.code}}</span>
+                        </td>
+                        <td>
+                            <a href="{{practice.url}}" target="_blank" data-ng-if="practice.url">Page on NHS Choices</a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
+                <p>
+                    Note: If you don't see your practice listed above, it may have already been claimed.
+                <span data-ng-if="centralSupportEmail">
+                    Please
+                    <a href="mailto:{{centralSupportEmail}}">contact the PatientView support desk</a>
+                    if this has occurred.
+                </span>
+                </p>
             </div>
             <h4>Please check or uncheck the boxes to indicate which are current
                 patients who should be included in your list:</h4>
@@ -141,26 +154,26 @@
                 to your practice (matched by postcode). </p>
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>Add to my list</th>
-                        <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
-                        <th>GP as recorded on PatientView</th>
-                    </tr>
+                <tr>
+                    <th>Add to my list</th>
+                    <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
+                    <th>GP as recorded on PatientView</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr data-ng-repeat="patient in patients">
-                        <td>
-                            <input type="checkbox" id="patient-{{patient.id}}"
-                                   data-ng-checked="selectedPatients.indexOf(patient) != -1"
-                                   data-ng-click="togglePatient(patient)">
-                        </td>
-                        <td>
-                            <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
-                        </td>
-                        <td>
-                            <span>{{patient.gpName}}</span>
-                        </td>
-                    </tr>
+                <tr data-ng-repeat="patient in patients">
+                    <td>
+                        <input type="checkbox" id="patient-{{patient.id}}"
+                               data-ng-checked="selectedPatients.indexOf(patient) != -1"
+                               data-ng-click="togglePatient(patient)">
+                    </td>
+                    <td>
+                        <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
+                    </td>
+                    <td>
+                        <span>{{patient.gpName}}</span>
+                    </td>
+                </tr>
                 </tbody>
             </table>
             <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’

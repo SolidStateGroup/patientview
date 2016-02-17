@@ -27,7 +27,7 @@ import java.util.Properties;
  */
 @Configuration
 @ComponentScan(basePackages = { "org.patientview.api.service", "org.patientview.api.aspect", "org.patientview.api.job",
-        "org.patientview.persistence.resource" })
+        "org.patientview.persistence.resource", "org.patientview.service.*" })
 @EnableWebMvc
 @EnableScheduling
 @EnableAsync

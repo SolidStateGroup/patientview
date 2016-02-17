@@ -14,14 +14,14 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             // workaround for https://github.com/angular/angular.js/issues/1460
             $scope.username = $('#username').val();
             $scope.password = $('#password').val();
-            AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (authToken) {
-
-                $rootScope.authToken = authToken;
-                localStorageService.set('authToken', authToken);
-                $cookies.authToken = authToken;
+            AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (userToken) {
+                var authToken = userToken.token;
                 $scope.loadingMessage = 'Loading Your Information';
 
                 AuthService.getUserInformation(authToken).then(function (userInformation) {
+                    $rootScope.authToken = authToken;
+                    localStorageService.set('authToken', authToken);
+                    $cookies.authToken = authToken;
 
                     // get user information (securityroles, userGroups), store in session
                     var user = userInformation.user;

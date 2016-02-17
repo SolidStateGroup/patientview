@@ -65,20 +65,20 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="groupRole.role.name !== 'MEMBER'"
+                                        data-ng-if="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE'"
                                         class="group-li">
 
                                         <!-- renal, diabetes, heart failure, ibd -->
                                         <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
                                             groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
                                             <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
-                                                <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
+                                                <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
                                                 <span class="group-description">
                                                     {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                                     <span class="light-text">({{groupRole.role.description}})</span>
                                                 </span>
                                             </a>
-                                            <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
+                                            <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
                                             <span class="group-description" data-ng-if="!permissions.isPatient">
                                                 {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                                 <span class="light-text">({{groupRole.role.description}})</span>
@@ -87,7 +87,12 @@
 
                                         <!-- units & Generic specialties-->
                                         <img class="group-image" src="../images/icons/pv-units.png"
-                                             data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
+                                             data-ng-if="
+                                             groupRole.group.groupType.value === 'UNIT'
+                                                || groupRole.group.groupType.value === 'GENERAL_PRACTICE'
+                                                || groupRole.group.code === 'Generic'
+                                                || groupRole.group.code === 'GENERAL_PRACTICE'
+                                                "/>
 
                                         <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
                                             && groupRole.group.code !== 'Diabetes' &&
@@ -220,7 +225,10 @@
                 </div>
                 <div data-ng-hide="permissions.isPatient">
                     <div class="content-inner">
-                        <div id="chart_div"></div>
+                        <div class="alert alert-warning" data-ng-if="!statisticsDate">
+                            Your group statistics will show here after they have been collected (this takes one month from group creation).
+                        </div>
+                        <div id="chart_div" data-ng-hide="!statisticsDate"></div>
                     </div>
                 </div>
             </div>

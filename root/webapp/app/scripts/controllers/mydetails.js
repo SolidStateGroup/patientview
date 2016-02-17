@@ -1,7 +1,31 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService',
-function ($scope, PatientService, UserService) {
+// invite GP modal instance controller
+var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance', 'patient', 'GpService',
+    function ($rootScope, $scope, $modalInstance, patient, GpService) {
+        $scope.practitioner = patient.practitioners[0];
+        delete $scope.completed;
+        delete $scope.loading;
+
+        $scope.inviteGp = function () {
+            $scope.loading = true;
+            delete $scope.errorMessage;
+            GpService.inviteGp($rootScope.loggedInUser.id, patient).then(function() {
+                delete $scope.loading;
+                $scope.completed = true;
+            },
+            function(error) {
+                delete $scope.loading;
+                $scope.errorMessage = error.data;
+            });
+        };
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService', '$modal', 'GpService',
+function ($scope, PatientService, UserService, $modal, GpService) {
 
     $scope.init = function(){
         var i;
@@ -54,6 +78,43 @@ function ($scope, PatientService, UserService) {
             $scope.moreAboutMeMessage = 'Saved your information';
         }, function () {
             $scope.moreAboutMeMessage = 'Error saving your information';
+        });
+    };
+
+    $scope.inviteGp = function(fhirPatient, practitioner, groupId) {
+
+        // build simple object to send to back end
+        var patient = {};
+        patient.forename = fhirPatient.forename;
+        patient.surname = fhirPatient.surname;
+        if (fhirPatient.dateOfBirthNoTime) {
+            patient.dateOfBirth = new Date(fhirPatient.dateOfBirthNoTime);
+        }
+        patient.practitioners = [];
+        patient.practitioners.push(practitioner);
+        patient.identifiers = [];
+        patient.identifiers.push(fhirPatient.identifiers[0]);
+        patient.group = {};
+        patient.group.id = groupId;
+
+        var modalInstance = $modal.open({
+            templateUrl: 'inviteGpModal.html',
+            controller: InviteGpModalInstanceCtrl,
+            resolve: {
+                patient: function(){
+                    return patient;
+                },
+                GpService: function(){
+                    return GpService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+
+        }, function () {
+            // closed
+            $scope.init();
         });
     };
 

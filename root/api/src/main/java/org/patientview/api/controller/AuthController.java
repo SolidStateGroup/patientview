@@ -68,14 +68,14 @@ public class AuthController extends BaseController<AuthController> {
      * Log in User, authenticate using username and password. Returns a token, which must be added to X-Auth-Token in
      * the header of all future requests.
      * @param credentials Credentials object containing only username and password
-     * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
+     * @return UserToken with token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
      * @throws UsernameNotFoundException
      * @throws AuthenticationServiceException
      */
     @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns "
             + "token, which must be added to X-Auth-Token in header of all future requests")
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> logIn(@RequestBody Credentials credentials)
+    public ResponseEntity<UserToken> logIn(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
@@ -123,7 +123,6 @@ public class AuthController extends BaseController<AuthController> {
     /**
      * Get user information (security roles, groups etc) given the token produced when a user successfully logs in.
      * Performed after login.
-     * @param token String token associated with a successfully logged in user
      * @return UserToken object containing relevant user information and static data
      * @throws AuthenticationServiceException
      * @throws ResourceForbiddenException
@@ -131,10 +130,10 @@ public class AuthController extends BaseController<AuthController> {
     @ExcludeFromApiDoc
     @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
             + "information and static data used by front end")
-    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
-            throws AuthenticationServiceException, ResourceForbiddenException {
-        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
+    @RequestMapping(value = "/auth/userinformation", method = RequestMethod.POST)
+    public ResponseEntity<UserToken> getUserInformation(@RequestBody UserToken userToken)
+            throws AuthenticationServiceException, ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(authenticationService.getUserInformation(userToken), HttpStatus.OK);
     }
 
     /**

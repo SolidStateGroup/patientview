@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import com.itextpdf.text.DocumentException;
 import com.opencsv.CSVReader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -13,8 +14,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
-import org.patientview.api.model.GpDetails;
-import org.patientview.api.model.GpPractice;
+import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.GpDetails;
+import org.patientview.persistence.model.GpPractice;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GpService;
 import org.patientview.api.service.NhsChoicesService;
@@ -26,6 +28,7 @@ import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GpPatient;
@@ -61,6 +64,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.GpLetterCreationService;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +88,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -107,6 +110,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private GpLetterCreationService gpLetterCreationService;
 
     @Inject
     private GpLetterRepository gpLetterRepository;
@@ -150,6 +156,32 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private Date now;
     private String tempDirectory;
     private int total, newGp, existingGp;
+
+    private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
+        // get practices from GP master table by postcode, must return at least one
+        List<GpPractice> masterTablePractices = getGpPracticesFromMasterTable(gpLetter.getGpPostcode());
+
+        // validate that practice code is not the same as any already claimed gp letter (for multi postcode)
+        for (GpPractice gpPractice : masterTablePractices) {
+            if (CollectionUtils.isEmpty(gpLetterRepository.findByClaimedPracticeCode(gpPractice.getCode()))) {
+                gpDetails.getPractices().add(gpPractice);
+            }
+        }
+
+        if (gpDetails.getPractices().isEmpty()) {
+            throw new VerificationException("Could not retrieve your practice details, it may have already "
+                    + "been claimed. Please <a href=\"mailto:"
+                    + properties.getProperty("central.support.contact.email")
+                    + "\">click here</a> to email the PatientView support desk with details of your request.");
+        }
+
+        // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
+        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(gpLetter.getGpPostcode()));
+
+        if (gpDetails.getPatients().isEmpty()) {
+            throw new VerificationException("Could not retrieve any patients for your practice");
+        }
+    }
 
     private void addToSaveMap(String practiceCode, String practiceName, String address1, String address2,
                               String address3, String address4, String postcode, String statusCode, String telephone,
@@ -196,54 +228,54 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
         // validate selected practice
         if (CollectionUtils.isEmpty(gpDetails.getPractices())) {
-            throw new VerificationException("no practice selected");
+            throw new VerificationException("No practice selected");
         }
         if (gpDetails.getPractices().size() != 1) {
-            throw new VerificationException("more than one practice selected");
+            throw new VerificationException("More than one practice selected");
         }
         if (StringUtils.isEmpty(gpDetails.getPractices().get(0).getCode())) {
-            throw new VerificationException("selected practice data incorrect");
+            throw new VerificationException("Selected practice data incorrect");
         }
 
         // get details from gp master table (should only be one)
         List<GpMaster> gpMasters = gpMasterRepository.findByPracticeCode(gpDetails.getPractices().get(0).getCode());
         if (CollectionUtils.isEmpty(gpMasters)) {
-            throw new VerificationException("selected practice not found in PatientView");
+            throw new VerificationException("Selected practice not found in PatientView");
         }
 
         GpMaster gpMaster = gpMasters.get(0);
 
         // validate patients
         if (CollectionUtils.isEmpty(gpDetails.getPatients())) {
-            throw new VerificationException("no patients selected, please select at least one");
+            throw new VerificationException("No patients selected, please select at least one");
         }
 
         // check GENERAL_PRACTICE specialty exists
         Group generalPracticeSpecialty = groupRepository.findByCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
         if (generalPracticeSpecialty == null) {
-            throw new VerificationException("general practice specialty does not exist");
+            throw new VerificationException("General practice specialty does not exist");
         }
 
         // GP_ADMIN role used when creating group roles for new gp user
         Role gpAdminRole = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.GP_ADMIN);
         if (gpAdminRole == null) {
-            throw new VerificationException("suitable admin Role does not exist");
+            throw new VerificationException("Suitable admin Role does not exist");
         }
 
         // PATIENT role used when creating group roles for existing patient users
         Role patientRole = roleRepository.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
         if (patientRole == null) {
-            throw new VerificationException("suitable patient Role does not exist");
+            throw new VerificationException("Suitable patient Role does not exist");
         }
 
         // MESSAGING feature, added to group and user
         Feature messagingFeature = featureRepository.findByName(FeatureType.MESSAGING.toString());
         if (messagingFeature == null) {
-            throw new VerificationException("required MESSAGING feature not found");
+            throw new VerificationException("Required MESSAGING feature not found");
         }
 
         if (groupRepository.findByCode(gpMaster.getPracticeCode()) != null) {
-            throw new VerificationException("group already created");
+            throw new VerificationException("Group already created");
         }
 
         // build user
@@ -284,7 +316,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // claim all GP letters with same details
-        List<GpLetter> matchedGpLetters = matchByGpDetails(gpLetter);
+        List<GpLetter> matchedGpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
         Date now = new Date();
         for (GpLetter matchedGpLetter : matchedGpLetters) {
             matchedGpLetter.setClaimedEmail(gpAdminUser.getEmail());
@@ -294,42 +326,15 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         if (matchedGpLetters.isEmpty()) {
-            throw new VerificationException("could not match details with existing practice details");
+            throw new VerificationException("Could not match details with existing practice details");
         }
 
         // persist
         try {
-            userRepository.save(gpAdminUser);
-            if (!gpAdminUser.getUserFeatures().isEmpty()) {
-                userFeatureRepository.save(gpAdminUser.getUserFeatures());
-            }
-            if (!gpAdminUser.getGroupRoles().isEmpty()) {
-                groupRoleRepository.save(gpAdminUser.getGroupRoles());
-
-                for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
-                    createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
-                        groupRole.getGroup(), gpAdminUser.getId(), AuditObjectTypes.User);
-                }
-            }
-
-            groupRepository.save(gpGroup);
-            createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
-
-            if (!gpGroup.getGroupFeatures().isEmpty()) {
-                groupFeatureRepository.save(gpGroup.getGroupFeatures());
-            }
-            if (!patientGroupRoles.isEmpty()) {
-                groupRoleRepository.save(patientGroupRoles);
-
-                for (GroupRole groupRole : patientGroupRoles) {
-                    createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
-                        groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
-                }
-            }
-            gpLetterRepository.save(matchedGpLetters);
+            claimPersist(gpAdminUser, gpGroup, patientGroupRoles, matchedGpLetters);
         } catch (Exception e) {
             // failed to persist
-            throw new VerificationException("error saving");
+            throw new VerificationException("Error saving");
         }
 
         // send email to user
@@ -340,6 +345,43 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpDetails.setPassword(password);
 
         return gpDetails;
+    }
+
+    @Transactional
+    private void claimPersist(User gpAdminUser, Group gpGroup, List<GroupRole> patientGroupRoles,
+                              List<GpLetter> matchedGpLetters) throws Exception {
+
+        userRepository.save(gpAdminUser);
+        createAudit(AuditActions.ADMIN_ADD, gpAdminUser.getUsername(), gpAdminUser,
+                null, gpAdminUser.getId(), AuditObjectTypes.User);
+
+        if (!gpAdminUser.getUserFeatures().isEmpty()) {
+            userFeatureRepository.save(gpAdminUser.getUserFeatures());
+        }
+        if (!gpAdminUser.getGroupRoles().isEmpty()) {
+            groupRoleRepository.save(gpAdminUser.getGroupRoles());
+
+            for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
+                createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
+                        groupRole.getGroup(), gpAdminUser.getId(), AuditObjectTypes.User);
+            }
+        }
+
+        groupRepository.save(gpGroup);
+        createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
+
+        if (!gpGroup.getGroupFeatures().isEmpty()) {
+            groupFeatureRepository.save(gpGroup.getGroupFeatures());
+        }
+        if (!patientGroupRoles.isEmpty()) {
+            groupRoleRepository.save(patientGroupRoles);
+
+            for (GroupRole groupRole : patientGroupRoles) {
+                createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
+                        groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
+            }
+        }
+        gpLetterRepository.save(matchedGpLetters);
     }
 
     private void createAudit(AuditActions action, String username, User actor, Group group,
@@ -365,7 +407,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         Feature defaultMessagingContactFeature
                 = featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
         if (defaultMessagingContactFeature == null) {
-            throw new VerificationException("required DEFAULT_MESSAGING_CONTACT feature not found");
+            throw new VerificationException("Required DEFAULT_MESSAGING_CONTACT feature not found");
         }
 
         // create new user, with basic details from user entered data
@@ -388,7 +430,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             user.setSalt(salt);
             user.setPassword(DigestUtils.sha256Hex(password + salt));
         } catch (NoSuchAlgorithmException nsa) {
-            throw new VerificationException("could not generate password");
+            throw new VerificationException("Could not generate password");
         }
 
         // add user MESSAGING feature
@@ -402,6 +444,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         userDefaultMessagingContactFeature.setCreator(user);
         userDefaultMessagingContactFeature.setUser(user);
         user.getUserFeatures().add(userDefaultMessagingContactFeature);
+
+        user.setCreator(user);
 
         return user;
     }
@@ -566,42 +610,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         return gpPractices;
     }
 
-    private boolean hasValidPracticeDetails(GpLetter gpLetter) {
-        // check postcode is set
-        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
-            return false;
-        }
-
-        // check at least one gp in master table
-        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()))) {
-            return false;
-        }
-
-        // validate at least 2 of address1, address2, address3 is present
-        int fieldCount = 0;
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())) {
-            fieldCount++;
-        }
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
-            fieldCount++;
-        }
-        if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
-            fieldCount++;
-        }
-
-        return fieldCount > 1;
-    }
-
-    private boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
-        // check postcode is set
-        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
-            return false;
-        }
-
-        // validate postcode exists in GP master table and only one record
-        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()).size() == 1;
-    }
-
     private void initialise() {
         this.now = new Date();
         this.currentUser = getCurrentUser();
@@ -619,49 +627,120 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
-    private List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
-        Set<GpLetter> matchedGpLetters = new HashSet<>();
+    private void add(GpLetter gpLetter, Group sourceGroup) {
+        gpLetter.setCreated(new Date());
 
-        if (hasValidPracticeDetails(gpLetter)) {
-            // match using postcode and at least 2 of address1, address2, address3
-            List<GpLetter> gpLetters = gpLetterRepository.findByPostcode(gpLetter.getGpPostcode());
+        // set identifier trimmed without spaces
+        gpLetter.setPatientIdentifier(gpLetter.getPatientIdentifier().trim().replace(" ", ""));
 
-            for (GpLetter gpLetterEntity : gpLetters) {
-                int fieldCount = 0;
+        // signup key (generated)
+        gpLetter.setSignupKey(gpLetterCreationService.generateSignupKey());
 
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress1())) {
-                    if (gpLetter.getGpAddress1().equals(gpLetterEntity.getGpAddress1())) {
-                        fieldCount++;
-                    }
+        // source group (provided the xml, from fhirlink)
+        gpLetter.setSourceGroup(sourceGroup);
+
+        // letter (generated)
+        try {
+            // if not enough information to produce letter address then use gp master
+            if (!gpLetterCreationService.hasValidPracticeDetails(gpLetter)) {
+                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode());
+                if (!gpMasters.isEmpty()) {
+                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                            gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
+                } else {
+                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                            gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
                 }
-
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress2())) {
-                    if (gpLetter.getGpAddress2().equals(gpLetterEntity.getGpAddress2())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress3())) {
-                    if (gpLetter.getGpAddress3().equals(gpLetterEntity.getGpAddress3())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (fieldCount > 1) {
-                    matchedGpLetters.add(gpLetterEntity);
-                }
+            } else {
+                gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                        gpLetter, null, properties.getProperty("site.url"),
+                        properties.getProperty("gp.letter.output.directory")));
             }
+        } catch (DocumentException de) {
+            LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
+            gpLetter.setLetterContent(null);
         }
 
-        if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
-            // match using postcode (already checked only 1 practice with this postcode in GP master table)
-            matchedGpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+        gpLetterRepository.save(gpLetter);
+    }
+
+    @Override
+    public void invite(Long userId, FhirPatient patient) throws VerificationException {
+        LOG.info("Started GP invite process");
+        if (CollectionUtils.isEmpty(patient.getPractitioners())) {
+            throw new VerificationException("Practitioner not set");
+        }
+        if (CollectionUtils.isEmpty(patient.getIdentifiers())) {
+            throw new VerificationException("Identifier not set");
+        }
+        if (patient.getGroup() == null) {
+            throw new VerificationException("Group not set");
         }
 
-        return new ArrayList<>(matchedGpLetters);
+        // set source group
+        Group sourceGroup = groupRepository.findOne(patient.getGroup().getId());
+
+        // set practitioner (will only be one)
+        FhirPractitioner practitioner = patient.getPractitioners().get(0);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(practitioner.getName());
+        gpLetter.setGpAddress1(practitioner.getAddress1());
+        gpLetter.setGpAddress2(practitioner.getAddress2());
+        gpLetter.setGpAddress3(practitioner.getAddress3());
+        gpLetter.setGpAddress4(practitioner.getAddress4());
+        gpLetter.setGpPostcode(practitioner.getPostcode());
+
+        gpLetter.setPatientForename(patient.getForename());
+        gpLetter.setPatientSurname(patient.getSurname());
+        gpLetter.setPatientDateOfBirth(patient.getDateOfBirth());
+
+        // set patient identifier as first patient identifier
+        gpLetter.setPatientIdentifier(patient.getIdentifiers().get(0).getValue());
+
+        // same logic to check if ok as importer
+        if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
+                || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
+            // check if any entries exist matching GP details in GP letter table
+            List<GpLetter> existingGpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
+
+            // verbose logging
+            LOG.info("existingGpLetters.size(): " + existingGpLetters.size());
+
+            if (!CollectionUtils.isEmpty(existingGpLetters)) {
+                // match exists, check if first entry is claimed (all will be claimed if so)
+                if (existingGpLetters.get(0).getClaimedDate() == null) {
+                    LOG.info("gpLetters(0) is not claimed, checking gp name is unique");
+
+                    // entries exist but not claimed, check GP name against existing GP letter entries
+                    boolean gpNameExists = false;
+                    for (GpLetter existingGpLetter : existingGpLetters) {
+                        if (existingGpLetter.getGpName().equals(gpLetter.getGpName())) {
+                            gpNameExists = true;
+                        }
+                    }
+
+                    if (!gpNameExists) {
+                        LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
+                        // no entry for this specific GP name, create new entry
+                        add(gpLetter, sourceGroup);
+                    } else {
+                        throw new VerificationException("Your GP has already been invited to PatientView");
+                    }
+                } else {
+                    throw new VerificationException("Your GP has already been invited to PatientView");
+                }
+            } else {
+                LOG.info("gpLetters is empty, create new letter");
+
+                // GP details do not match any in GP letter table, create new entry
+                add(gpLetter, sourceGroup);
+            }
+        } else {
+            throw new VerificationException("Your GP details are incorrect, your GP cannot be invited");
+        }
     }
 
     private void sendGpAdminWelcomeEmail(User user) {
@@ -672,14 +751,14 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         email.setRecipients(new String[]{user.getEmail()});
 
         email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>" +
-            "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
-            "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
-            "read the information there to be sure that governance and confidentiality principles are " +
-            "maintained. Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> (top right) " +
-            "with the username below and the password generated when you claimed your account. You will be " +
-            "forced to change this password when you first log in so that only you know it. It is very important " +
-            "that it is difficult to guess, and kept secret." +
-            "<br/><br/><strong>Username:</strong> " + user.getUsername());
+                "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
+                "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
+                "read the information there to be sure that governance and confidentiality principles are " +
+                "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> " +
+                "(top right) with the username below and the password generated when you claimed your account. You " +
+                "will be forced to change this password when you first log in so that only you know it. " +
+                "It is very important that it is difficult to guess, and kept secret." +
+                "<br/><br/><strong>Username:</strong> " + user.getUsername());
 
         // try and send but ignore if exception and log
         try {
@@ -894,40 +973,44 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     public GpDetails validateDetails(GpDetails gpDetails) throws VerificationException {
         GpLetter gpLetter = validateGpDetails(gpDetails);
         addPracticesAndPatients(gpDetails, gpLetter);
+
+        // set central support email, for use in ui
+        gpDetails.setCentralSupportEmail(properties.getProperty("central.support.contact.email"));
+
         return gpDetails;
     }
 
     private GpLetter validateGpDetails(GpDetails gpDetails) throws VerificationException {
         // check all fields present
         if (StringUtils.isEmpty(gpDetails.getForename())) {
-            throw new VerificationException("forename must be set");
+            throw new VerificationException("Forename must be set");
         }
         if (StringUtils.isEmpty(gpDetails.getSurname())) {
-            throw new VerificationException("surname must be set");
+            throw new VerificationException("Surname must be set");
         }
         if (StringUtils.isEmpty(gpDetails.getSignupKey())) {
-            throw new VerificationException("signup key must be set");
+            throw new VerificationException("Signup key must be set");
         }
         if (StringUtils.isEmpty(gpDetails.getEmail())) {
-            throw new VerificationException("email must be set");
+            throw new VerificationException("Email must be set");
         }
         if (StringUtils.isEmpty(gpDetails.getPatientIdentifier())) {
-            throw new VerificationException("patient identifier must be set");
+            throw new VerificationException("Patient identifier must be set");
         }
 
         // validate no existing users with this email
         if (userService.getByEmail(gpDetails.getEmail()) != null) {
-            throw new VerificationException("a user already exists with this email address");
+            throw new VerificationException("A user already exists with this email address");
         }
 
         // validate no existing users with this email as username (as email is used for generated username)
         if (userRepository.findByUsernameCaseInsensitive(gpDetails.getEmail()) != null) {
-            throw new VerificationException("a user already exists with this email address (used for username)");
+            throw new VerificationException("A user already exists with this email address (used for username)");
         }
 
         // check email is a valid email string
         if (!EmailValidator.getInstance().isValid(gpDetails.getEmail()) || !gpDetails.getEmail().contains(".")) {
-            throw new VerificationException("not a valid email address");
+            throw new VerificationException("Not a valid email address");
         }
 
         // check email is a NHS email (ending with nhs.net, nhs.uk, hscni.net)
@@ -935,7 +1018,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 || gpDetails.getEmail().endsWith("nhs.uk")
                 || gpDetails.getEmail().endsWith("hscni.net"))) {
             throw new VerificationException(
-                    "not a correct NHS email address, must end with nhs.net, nhs.uk or hscni.net");
+                    "Not a correct NHS email address, must end with nhs.net, nhs.uk or hscni.net");
         }
 
         // find by signup key and nhs number (trimmed with whitespace removed), should only return one
@@ -943,14 +1026,14 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 gpDetails.getSignupKey().trim().replace(" ", ""),
                 gpDetails.getPatientIdentifier().trim().replace(" ", ""));
         if (CollectionUtils.isEmpty(gpLetters)) {
-            throw new VerificationException("signup key and patient identifier either not found or do not match," +
+            throw new VerificationException("Signup key and patient identifier either not found or do not match," +
                     " please make sure there are no spaces or unwanted characters in either");
         }
 
         // validate not already claimed
         GpLetter firstGpLetter = gpLetters.get(0);
         if (firstGpLetter.getClaimedDate() != null) {
-            StringBuilder sb = new StringBuilder("someone at your practice is already managing this group (");
+            StringBuilder sb = new StringBuilder("Someone at your practice is already managing this group (");
 
             if (StringUtils.isNotEmpty(firstGpLetter.getClaimedEmail())) {
                 sb.append("claimed by <a href=\"mailto:");
@@ -975,19 +1058,5 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         return firstGpLetter;
-    }
-
-    private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
-        // get practices from GP master table by postcode, must return at least one
-        gpDetails.getPractices().addAll(getGpPracticesFromMasterTable(gpLetter.getGpPostcode()));
-        if (gpDetails.getPractices().isEmpty()) {
-            throw new VerificationException("could not retrieve your practice details");
-        }
-
-        // add patients, found via postcodes of practitioners in FHIR linked to user accounts using fhir link
-        gpDetails.getPatients().addAll(fhirResource.getGpPatientsFromPostcode(gpLetter.getGpPostcode()));
-        if (gpDetails.getPatients().isEmpty()) {
-            throw new VerificationException("could not retrieve any patients for your practice");
-        }
     }
 }

@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
@@ -44,6 +46,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -53,9 +56,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -140,9 +146,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String authenticate(String username, String password)
+    public org.patientview.api.model.UserToken authenticate(String username, String password)
             throws UsernameNotFoundException, AuthenticationServiceException {
-
         LOG.debug("Authenticating user: {}", username);
 
         if (username == null || password == null) {
@@ -156,11 +161,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user == null) {
             throw new UsernameNotFoundException("Incorrect username or password");
         }
-
         if (user.getLocked()) {
             throw new AuthenticationServiceException("This account is locked");
         }
-
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
@@ -189,6 +192,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setToken(CommonUtils.getAuthToken());
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
+
+        // if user has a secret word set then set check secret word to true, informs ui and is used as second part
+        // of multi factor authentication
+        if (!StringUtils.isEmpty(user.getSecretWord())) {
+            userToken.setCheckSecretWord(true);
+        }
+
         userToken = userTokenRepository.save(userToken);
 
         user.setFailedLogonAttempts(0);
@@ -235,7 +245,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User, null);
 
-        return userToken.getToken();
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+        toReturn.setToken(userToken.getToken());
+        toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
+
+        return toReturn;
     }
 
     @Override
@@ -251,27 +265,68 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     // retrieve static data and user specific data to avoid requerying
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
-    public org.patientview.api.model.UserToken getUserInformation(String token) throws ResourceForbiddenException {
-        UserToken userToken = userTokenRepository.findByToken(token);
+    public org.patientview.api.model.UserToken getUserInformation(org.patientview.api.model.UserToken userToken)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        UserToken foundUserToken = userTokenRepository.findByToken(userToken.getToken());
 
-        if (userToken == null) {
-            throw new AuthenticationServiceException("User is not currently logged in");
+        if (foundUserToken == null) {
+            throw new AuthenticationServiceException("Forbidden");
         }
 
-        org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
+        boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
+        boolean secretWordIncludedInUserToken = !CollectionUtils.isEmpty(userToken.getSecretWordChoices());
+
+        // check if User has secret word set, if so then send back minimal details for further authentication
+        if (foundUserToken.isCheckSecretWord() && userHasSecretWord && !secretWordIncludedInUserToken) {
+            // user has a secret word but has not included it in POST
+            org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken();
+            transportUserToken.setToken(userToken.getToken());
+
+            // choose two characters to check
+            Map<String, String> secretWordMap = new Gson().fromJson(
+                    foundUserToken.getUser().getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                    }.getType());
+
+            Random ran = new Random();
+            transportUserToken.setSecretWordIndexes(new ArrayList<String>());
+            transportUserToken.getSecretWordIndexes()
+                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
+            transportUserToken.getSecretWordIndexes()
+                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
+
+            // return simple UserToken which will prompt user to enter two characters from secret word
+            return transportUserToken;
+        } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord && secretWordIncludedInUserToken) {
+            // user has a secret word and has included their chosen characters, check that they match
+            userService.checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
+
+            // passed secret word check so set check to false and return user information
+            foundUserToken.setCheckSecretWord(false);
+            userTokenRepository.save(foundUserToken);
+            return createApiUserToken(foundUserToken);
+        } else {
+            // standard login with no secret word
+            return createApiUserToken(foundUserToken);
+        }
+    }
+
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
+            throws ResourceForbiddenException {
+        org.patientview.api.model.UserToken transportUserToken
+                = new org.patientview.api.model.UserToken(userToken);
 
         // get information about user's available roles and groups as used in staff and patient views
         transportUserToken = setUserGroups(transportUserToken);
         transportUserToken = setUserFeatures(transportUserToken);
         transportUserToken = setRoutes(transportUserToken);
 
-        if (doesContainRoles(RoleName.PATIENT)) {
+        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
             transportUserToken.setGroupMessagingEnabled(true);
         }
 
-        if (!doesContainRoles(RoleName.PATIENT)) {
+        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             transportUserToken = setSecurityRoles(transportUserToken);
             transportUserToken = setPatientRoles(transportUserToken);
             transportUserToken = setStaffRoles(transportUserToken);
@@ -431,9 +486,16 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setUserGroups(new ArrayList<BaseGroup>());
         userToken.setGroupMessagingEnabled(false);
 
+        // global admin can also get general practice specialty
+        List<String> extraGroupCodes = new ArrayList<>();
+        if (Util.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
+            extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+        }
+
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results
-            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)) {
+            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
+                    || extraGroupCodes.contains(userGroup.getCode())) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 
                 // if group has MESSAGING feature then set in transportUserToken

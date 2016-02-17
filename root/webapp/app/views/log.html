@@ -183,7 +183,7 @@
                 <td>
                     <span data-ng-show="audit.sourceObjectType === 'User'">
                         <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
-                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'">
+                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.group.code === 'GENERAL_PRACTICE' || groupRole.role.name === 'MEMBER'">
                             {{groupRole.group.shortName}} ({{groupRole.role.description}})
                             <br/>
                         </span>
