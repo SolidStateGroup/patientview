@@ -1,168 +1,210 @@
-<h1>GP Practices - Claim your PatientView login here</h1>
+<div class="page-head container">
+    <span class="badge gp pull-left">GP</span>
+    <h1>GP Practices - Claim your PatientView login here</h1>
+    <p>
+        If you have recently received an invite letter for your practice to join PatientView, you are a few simple
+        steps away from being able to view your patients’ hospital and other records online. Before proceeding, please
+        ensure that your practice does not have an existing account.
+    </p>
+</div>
 
-<p>
-    If you have recently received an invite letter for your practice to join PatientView, you are a few simple
-    steps away from being able to view your patients’ hospital and other records online. Before proceeding, please
-    ensure that your practice does not have an existing account.
-</p>
+<div class="container">
 
-<div class="content-panel" data-ng-show="step === 1">
-    <div class="content-inner">
-        <h2>Step 1</h2>
-        <p>Please enter your full name:</p>
-        <div class="form-group row">
-            <label for="forename" class="col-sm-3 control-label">Forename(s)</label>
-            <div class="col-sm-9">
-                <input id="forename" data-ng-model="details.forename" name="forename" type="text" class="form-control" required=""/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="surname" class="col-sm-3 control-label">Surname</label>
-            <div class="col-sm-9">
-                <input id="surname" data-ng-model="details.surname" name="surname" type="text" class="form-control" required=""/>
-            </div>
-        </div>
-        <p>Now enter the following details for security purposes:</p>
-        <div class="form-group row">
-            <label for="signupKey" class="col-sm-3 control-label">The one-time signup key in your letter</label>
-            <div class="col-sm-9">
-                <input id="signupKey" data-ng-model="details.signupKey" name="signupKey" type="text" class="form-control" required=""/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="email" class="col-sm-3 control-label">Your NHS email<br/> (nhs.net, nhs.uk or hscni.net only)</label>
-            <div class="col-sm-9">
-                <input id="email" data-ng-model="details.email" name="email" type="text" class="form-control" required=""/>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="identifier" class="col-sm-3 control-label">The Identifier (NHS/CHI/H&SC number) of the patient that your letter
-                refers to (not in the letter)</label>
-            <div class="col-sm-9">
-                <input id="identifier" data-ng-model="details.patientIdentifier" name="patientIdentifier" type="text" class="form-control" required=""/>
-            </div>
-        </div>
+    <div class="content-panel gp-login" data-ng-show="step === 1">
+        <div class="content-inner">
+            <ul class="step-markers unstyled inline text-center">
+                <li class="active"></li>
+                <li></li>
+            </ul>
+            <h3 class="step-title text-center">Step 1</h3>
+            <!--<hr class="solid"/>-->
+            <div class="form-group">
+                <h4>Please enter your full name:</h4>
+                <div class="form-group row">
+                    <label for="forename" class="col-sm-3 control-label">Forename(s)</label>
+                    <div class="col-sm-9">
+                        <input id="forename" data-ng-model="details.forename" name="forename" type="text" class="form-control" required=""/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="surname" class="col-sm-3 control-label">Surname</label>
+                    <div class="col-sm-9">
+                        <input id="surname" data-ng-model="details.surname" name="surname" type="text" class="form-control" required=""/>
+                    </div>
+                </div>
+                <h4 class="form-section">Now enter the following details for security purposes:</h4>
+                <div class="form-group row">
+                    <label for="signupKey" class="col-sm-3 control-label">The one-time signup key in your letter</label>
+                    <div class="col-sm-9">
+                        <input id="signupKey" data-ng-model="details.signupKey" name="signupKey" type="text" class="form-control" required=""/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="email" class="col-sm-3 control-label">Your NHS email<br/> (nhs.net, nhs.uk or hscni.net only)</label>
+                    <div class="col-sm-9">
+                        <input id="email" data-ng-model="details.email" name="email" type="text" class="form-control" required=""/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="identifier" class="col-sm-3 control-label">The Identifier (NHS/CHI/H&SC number) of the patient that your letter
+                        refers to (not in the letter)</label>
+                    <div class="col-sm-9">
+                        <input id="identifier" data-ng-model="details.patientIdentifier" name="patientIdentifier" type="text" class="form-control" required=""/>
+                    </div>
+                </div>
 
-        <div class="alert alert-danger" data-ng-show="!validDetails && !validatingDetails">
-            Please check your details, <span data-ng-bind-html="parseHTMLText(detailsErrorMessage)"></span>
+                <div class="alert alert-danger" data-ng-show="!validDetails && !validatingDetails">
+                    Please check your details, <span data-ng-bind-html="parseHTMLText(detailsErrorMessage)"></span>
+                </div>
+                <div class="alert alert-success" data-ng-show="validatingDetails">Validating your details, please wait</div>
+            </div>
         </div>
-        <div class="alert alert-success" data-ng-show="validatingDetails">Validating your details, please wait</div>
-
-        <div class="row">
+        <div class="panel-footer clearfix">
             <div class="col-sm-12">
-                <button data-ng-click="selectStep(2)" class="btn blue" data-ng-disabled="validatingDetails">
+                <button data-ng-click="selectStep(2)" class="btn blue pull-right" data-ng-disabled="validatingDetails">
                     Proceed to Step 2
                     <i class="icon-forward-to pull-right"></i>
                 </button>
             </div>
         </div>
     </div>
-</div>
 
-<div class="content-panel" data-ng-show="step === 2">
-    <div class="content-inner">
-        <h2>Step 2</h2>
-        <div>
-            <p>Thank you for verifying your signup information!
-                <span data-ng-if="practices.length === 1">Your practice is shown below:</span>
-                <span data-ng-if="practices.length > 1">Please select your practice from the list below:</span>
-            </p>
+
+    <div class="content-panel gp-login" data-ng-show="step === 2">
+        <div class="success-badge" data-ng-show="step === 2">
+            <div class="sweet-alert showSweetAlert visible" data-custom-class="" data-has-cancel-button="false"
+                 data-has-confirm-button="true" data-allow-outside-click="false" data-has-done-function="false"
+                 data-animation="pop" data-timer="null" style="display: block;">
+                <div class="sa-icon sa-error" style="display: none;">
+                <span class="sa-x-mark">
+                <span class="sa-line sa-left"></span>
+                <span class="sa-line sa-right"></span>
+                </span>
+                </div>
+                <div class="sa-icon sa-warning pulseWarning" style="display: none;">
+                    <span class="sa-body pulseWarningIns"></span>
+                    <span class="sa-dot pulseWarningIns"></span>
+                </div>
+                <div class="sa-icon sa-info" style="display: none;"></div>
+                <div class="sa-icon sa-success animate" style="display: block;">
+                    <span class="sa-line sa-tip animateSuccessTip"></span>
+                    <span class="sa-line sa-long animateSuccessLong"></span>
+
+                    <div class="sa-placeholder"></div>
+                    <div class="sa-fix"></div>
+                </div>
+            </div>
+            <p>Information Verified</p>
+        </div>
+        <div class="content-inner">
+            <ul class="step-markers unstyled inline text-center">
+                <li></li>
+                <li class="active"></li>
+            </ul>
+            <h3 class="step-title text-center">Step 2</h3>
+            <!--<hr class="solid"/>-->
+            <div>
+                <h4>
+                    <span data-ng-if="practices.length === 1">Your practice is shown below:</span>
+                    <span data-ng-if="practices.length > 1">Please select your practice from the list below:</span>
+                </h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th data-ng-show="practices.length > 1"></th>
+                            <th>Practice Name</th>
+                            <th>Practice Code</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="practice in practices">
+                            <td data-ng-show="practices.length > 1">
+                                <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
+                            </td>
+                            <td>
+                                <span>{{practice.name}}</span>
+                            </td>
+                            <td>
+                                <span>{{practice.code}}</span>
+                            </td>
+                            <td>
+                                <a href="{{practice.url}}" target="_blank" data-ng-if="practice.url">Page on NHS Choices</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4>Please check or uncheck the boxes to indicate which are current
+                patients who should be included in your list:</h4>
+            <p class="italic for">These are the NHS numbers of patients found on PatientView who we think might belong
+                to your practice (matched by postcode). </p>
             <table class="table">
                 <thead>
                     <tr>
-                        <th data-ng-show="practices.length > 1"></th>
-                        <th>Practice Name</th>
-                        <th>Practice Code</th>
-                        <th></th>
+                        <th>Add to my list</th>
+                        <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
+                        <th>GP as recorded on PatientView</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr data-ng-repeat="practice in practices">
-                        <td data-ng-show="practices.length > 1">
-                            <input type="radio" name="practice" data-ng-model="selectedPractice" data-ng-value="practice" id="practice-{{practice.code}}">
+                    <tr data-ng-repeat="patient in patients">
+                        <td>
+                            <input type="checkbox" id="patient-{{patient.id}}"
+                                   data-ng-checked="selectedPatients.indexOf(patient) != -1"
+                                   data-ng-click="togglePatient(patient)">
                         </td>
                         <td>
-                            <span>{{practice.name}}</span>
+                            <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
                         </td>
                         <td>
-                            <span>{{practice.code}}</span>
-                        </td>
-                        <td>
-                            <a href="{{practice.url}}" target="_blank" data-ng-if="practice.url">Page on NHS Choices</a>
+                            <span>{{patient.gpName}}</span>
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <p>As a final step, below are the NHS numbers of patients found on PatientView who we think might belong
-            to your practice (matched by postcode). Please check or uncheck the boxes to indicate which are current
-            patients who should be included in your list.</p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Add to my list</th>
-                    <th>Patient identifier (NHS, CHI, H&SC number or other)</th>
-                    <th>GP as recorded on PatientView</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-ng-repeat="patient in patients">
-                    <td>
-                        <input type="checkbox" id="patient-{{patient.id}}"
-                               data-ng-checked="selectedPatients.indexOf(patient) != -1"
-                               data-ng-click="togglePatient(patient)">
-                    </td>
-                    <td>
-                        <span data-ng-repeat="identifier in patient.identifiers">{{identifier.identifier}} </span>
-                    </td>
-                    <td>
-                        <span>{{patient.gpName}}</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
-            button below to complete the registration process.</p>
+            <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
+                button below to complete the registration process.</h4>
 
-        <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
-            There has been an error, <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
+            <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
+                There has been an error, <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
+            </div>
+            <div class="alert alert-success" data-ng-show="validatingClaim">Validating your details, please wait</div>
         </div>
-        <div class="alert alert-success" data-ng-show="validatingClaim">Validating your details, please wait</div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <button data-ng-click="claim()" class="btn blue">Create My PatientView Account</button>
-                <button data-ng-click="selectStep(1)" class="btn">Back to Step 1</button>
+        <div class="panel-footer clearfix">
+            <div class="col-sm-12">
+                <button data-ng-click="claim()" class="btn blue pull-right">Create My PatientView Account</button>
+                <button data-ng-click="selectStep(1)" class="btn"><i class="icon-back-to pull-left"></i> Back to Step 1</button>
             </div>
         </div>
     </div>
-</div>
 
-<div class="content-panel" data-ng-show="step === 3">
-    <div class="content-inner">
-        <h2>Account Created, Welcome to PatientView</h2>
-        <p>You have successfully claimed your PatientView account, your details are below.
-            Please make sure to remember these details as they will not be available when you leave this page.</p>
-        <p>Click "Log in to PatientView" to log in, you will leave this page.</p>
-        <div class="form-group row">
-            <div class="col-sm-offset-2 col-sm-2">
-                Username:
+    <div class="content-panel" data-ng-show="step === 3">
+        <div class="content-inner">
+            <h2>Account Created, Welcome to PatientView</h2>
+            <p>You have successfully claimed your PatientView account, your details are below.
+                Please make sure to remember these details as they will not be available when you leave this page.</p>
+            <p>Click "Log in to PatientView" to log in, you will leave this page.</p>
+            <div class="form-group row">
+                <div class="col-sm-offset-2 col-sm-2">
+                    Username:
+                </div>
+                <div class="col-sm-8">
+                    <strong>{{details.username}}</strong>
+                </div>
             </div>
-            <div class="col-sm-8">
-                <strong>{{details.username}}</strong>
+            <div class="form-group row">
+                <div class="col-sm-offset-2 col-sm-2">
+                    Password:
+                </div>
+                <div class="col-sm-8">
+                    <strong>{{details.password}}</strong>
+                </div>
             </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-sm-offset-2 col-sm-2">
-                Password:
-            </div>
-            <div class="col-sm-8">
-                <strong>{{details.password}}</strong>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <a href="#/login" class="btn blue">Log in to PatientView</a>
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="#/login" class="btn blue">Log in to PatientView</a>
+                </div>
             </div>
         </div>
     </div>
