@@ -146,9 +146,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String authenticate(String username, String password)
+    public org.patientview.api.model.UserToken authenticate(String username, String password)
             throws UsernameNotFoundException, AuthenticationServiceException {
-
         LOG.debug("Authenticating user: {}", username);
 
         if (username == null || password == null) {
@@ -162,11 +161,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user == null) {
             throw new UsernameNotFoundException("Incorrect username or password");
         }
-
         if (user.getLocked()) {
             throw new AuthenticationServiceException("This account is locked");
         }
-
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
@@ -195,6 +192,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setToken(CommonUtils.getAuthToken());
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
+
+        // if user has a secret word set then set check secret word to true, informs ui and is used as second part
+        // of multi factor authentication
+        if (!StringUtils.isEmpty(user.getSecretWord())) {
+            userToken.setCheckSecretWord(true);
+        }
+
         userToken = userTokenRepository.save(userToken);
 
         user.setFailedLogonAttempts(0);
@@ -241,7 +245,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User, null);
 
-        return userToken.getToken();
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+        toReturn.setToken(userToken.getToken());
+        toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
+
+        return toReturn;
     }
 
     @Override
@@ -262,14 +270,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         UserToken foundUserToken = userTokenRepository.findByToken(userToken.getToken());
 
         if (foundUserToken == null) {
-            throw new AuthenticationServiceException("User is not currently logged in");
+            throw new AuthenticationServiceException("Forbidden");
         }
 
         boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
         boolean secretWordIncludedInUserToken = !CollectionUtils.isEmpty(userToken.getSecretWordChoices());
 
         // check if User has secret word set, if so then send back minimal details for further authentication
-        if (userHasSecretWord && !secretWordIncludedInUserToken) {
+        if (foundUserToken.isCheckSecretWord() && userHasSecretWord && !secretWordIncludedInUserToken) {
             // user has a secret word but has not included it in POST
             org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken();
             transportUserToken.setToken(userToken.getToken());
@@ -288,9 +296,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             // return simple UserToken which will prompt user to enter two characters from secret word
             return transportUserToken;
-        } else if (userHasSecretWord && secretWordIncludedInUserToken) {
+        } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord && secretWordIncludedInUserToken) {
             // user has a secret word and has included their chosen characters, check that they match
             userService.checkSecretWord(foundUserToken.getUser().getId(), userToken.getSecretWordChoices());
+
+            // passed secret word check so set check to false and return user information
+            foundUserToken.setCheckSecretWord(false);
+            userTokenRepository.save(foundUserToken);
             return createApiUserToken(foundUserToken);
         } else {
             // standard login with no secret word
@@ -308,13 +320,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         transportUserToken = setUserFeatures(transportUserToken);
         transportUserToken = setRoutes(transportUserToken);
 
-        if (doesContainRoles(RoleName.PATIENT)) {
+        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
             transportUserToken.setGroupMessagingEnabled(true);
         }
 
-        if (!doesContainRoles(RoleName.PATIENT)) {
+        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             transportUserToken = setSecurityRoles(transportUserToken);
             transportUserToken = setPatientRoles(transportUserToken);
             transportUserToken = setStaffRoles(transportUserToken);
@@ -476,7 +488,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // global admin can also get general practice specialty
         List<String> extraGroupCodes = new ArrayList<>();
-        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+        if (Util.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
             extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
         }
 

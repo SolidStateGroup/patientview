@@ -644,13 +644,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         User user = userRepository.findOne(userId);
         boolean groupTypesNotEmpty = ArrayUtils.isNotEmpty(groupTypes);
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             if (groupTypesNotEmpty) {
                 groupPage = groupRepository.findAllByGroupType(filterText, groupTypesList, pageable);
             } else {
                 groupPage = groupRepository.findAll(filterText, pageable);
             }
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        } else if (Util.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
             if (groupTypesNotEmpty) {
                 groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType(filterText, groupTypesList,
                         user, pageable);

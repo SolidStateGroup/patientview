@@ -45,7 +45,7 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "password", required = false) String password) {
         try {
             try {
-                String token = authenticationService.authenticate(username, password);
+                String token = authenticationService.authenticate(username, password).getToken();
                 try {
                     return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
                 } catch (Exception e) {

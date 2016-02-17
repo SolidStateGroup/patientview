@@ -168,7 +168,6 @@ public interface GroupService {
      * @param userId ID of User to find Groups for
      * @return List of Groups
      */
-    @UserOnly
     List<Group> getAllUserGroupsAllDetails(Long userId);
 
     /**

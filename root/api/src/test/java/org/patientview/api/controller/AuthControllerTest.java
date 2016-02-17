@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.ForgottenCredentials;
+import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -65,7 +66,7 @@ public class AuthControllerTest {
 
         try {
             when(authenticationService.authenticate(eq(credentials.getUsername()),
-                    eq(credentials.getPassword()))).thenReturn("");
+                    eq(credentials.getPassword()))).thenReturn(new UserToken("1234"));
             mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());

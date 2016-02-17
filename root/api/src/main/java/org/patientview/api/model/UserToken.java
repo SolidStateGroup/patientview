@@ -40,8 +40,13 @@ public class UserToken {
     // used with multi factor authentication
     private List<String> secretWordIndexes;
     private Map<String, String> secretWordChoices;
+    private boolean checkSecretWord;
 
     public UserToken() {
+    }
+
+    public UserToken(String token) {
+        setToken(token);
     }
 
     public UserToken(org.patientview.persistence.model.UserToken userToken) {
@@ -51,6 +56,7 @@ public class UserToken {
         setToken(userToken.getToken());
         setExpiration(userToken.getExpiration());
         setCreated(userToken.getCreated());
+        setCheckSecretWord(userToken.isCheckSecretWord());
     }
 
     public User getUser() {
@@ -195,5 +201,13 @@ public class UserToken {
 
     public void setSecretWordChoices(Map<String, String> secretWordChoices) {
         this.secretWordChoices = secretWordChoices;
+    }
+
+    public boolean isCheckSecretWord() {
+        return checkSecretWord;
+    }
+
+    public void setCheckSecretWord(boolean checkSecretWord) {
+        this.checkSecretWord = checkSecretWord;
     }
 }

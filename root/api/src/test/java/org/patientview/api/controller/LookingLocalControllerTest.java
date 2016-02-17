@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
@@ -30,7 +31,7 @@ public class LookingLocalControllerTest {
 
     private static final String username = "username";
     private static final String password = "password";
-    private static final String token = "1234567890";
+    private static final UserToken token = new UserToken("1234567890");
 
     @Mock
     private AuthenticationService authenticationService;
@@ -72,7 +73,7 @@ public class LookingLocalControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(authenticationService, Mockito.times(1)).authenticate(eq(username), eq(password));
-        verify(lookingLocalService, Mockito.times(1)).getLoginSuccessfulXml(eq(token));
+        verify(lookingLocalService, Mockito.times(1)).getLoginSuccessfulXml(eq(token.getToken()));
     }
 
     @Test
@@ -107,10 +108,11 @@ public class LookingLocalControllerTest {
 
     @Test
     public void testMain() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_MAIN + "?token=" + token))
+        mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_MAIN
+                + "?token=" + token.getToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(lookingLocalService, Mockito.times(1)).getMainXml(eq(token));
+        verify(lookingLocalService, Mockito.times(1)).getMainXml(eq(token.getToken()));
     }
 }
 

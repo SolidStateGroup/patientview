@@ -53,6 +53,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/auth/login");
         publicUrls.add("/auth/logout");
         publicUrls.add("/auth/forgottenpassword");
+        publicUrls.add("/auth/userinformation");
         publicUrls.add("/error");
 
         // public news

@@ -26,11 +26,11 @@ public interface AuthenticationService extends UserDetailsService {
      * Authenticate a User given username and password.
      * @param username String username
      * @param password String password
-     * @return String authentication token, used in all future authenticated requests
+     * @return UserToken containing authentication token, used in all future authenticated requests
      * @throws AuthenticationServiceException
      * @throws UsernameNotFoundException
      */
-    String authenticate(String username, String password)
+    UserToken authenticate(String username, String password)
             throws AuthenticationServiceException, UsernameNotFoundException;
 
     /**

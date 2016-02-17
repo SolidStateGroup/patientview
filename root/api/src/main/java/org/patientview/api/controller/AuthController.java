@@ -68,14 +68,14 @@ public class AuthController extends BaseController<AuthController> {
      * Log in User, authenticate using username and password. Returns a token, which must be added to X-Auth-Token in
      * the header of all future requests.
      * @param credentials Credentials object containing only username and password
-     * @return String token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
+     * @return UserToken with token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
      * @throws UsernameNotFoundException
      * @throws AuthenticationServiceException
      */
     @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns "
             + "token, which must be added to X-Auth-Token in header of all future requests")
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> logIn(@RequestBody Credentials credentials)
+    public ResponseEntity<UserToken> logIn(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
