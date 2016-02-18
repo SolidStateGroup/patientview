@@ -180,7 +180,7 @@
                 <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
                     button below to complete the registration process.</h4>
             </div>
-            <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim">
+            <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim && claimErrorMessage">
                 <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
             </div>
             <div class="alert alert-success" data-ng-show="validatingClaim">Validating your details, please wait</div>
