@@ -64,7 +64,7 @@
                     Proceed to Step 2
                     <i class="icon-forward-to pull-right"></i>
                 </button>
-                <p class="pull-right italic">Before proceeding, please ensure that your practice does not have an existing account.</p>
+                <p class="pull-right note">Before proceeding, please ensure that your practice does not have an existing account.</p>
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@
                     <div class="sa-fix"></div>
                 </div>
             </div>
-            <p>Information Verified</p>
+            <p>Step 1 of 2 Complete</p>
         </div>
         <div class="content-inner">
             <ul class="step-markers unstyled inline text-center">
@@ -134,7 +134,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <p>
+                <p class="note">
                     Note: If you don't see your practice listed above, it may have already been claimed.
                 <span data-ng-if="centralSupportEmail">
                     Please
@@ -142,11 +142,12 @@
                     if this has occurred.
                 </span>
                 </p>
+                <hr/>
             </div>
             <div data-ng-show="selectedPractice">
-                <h4>Please check or uncheck the boxes to indicate which are current
-                    patients who should be included in your list:</h4>
-                <p class="italic for">These are the NHS numbers of patients found on PatientView who we think might belong
+                <h4>Select Practice</h4>
+                <p class="for">Please check or uncheck the boxes to indicate which are current
+                    patients who should be included in your list.  These are the NHS numbers of patients found on PatientView who we think might belong
                     to your practice (matched by postcode). </p>
                 <table class="table">
                     <thead>
@@ -172,8 +173,8 @@
                     </tr>
                     </tbody>
                 </table>
-                <h4>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
-                    button below to complete the registration process.</h4>
+                <p>Once you are satisfied that the selection above is accurate, click the ‘Create My PatientView Account’
+                    button below to complete the registration process.</p>
             </div>
             <div class="alert alert-danger" data-ng-show="!validClaim && !validatingClaim && claimErrorMessage">
                 <span data-ng-bind-html="parseHTMLText(claimErrorMessage)"></span>
@@ -188,31 +189,53 @@
         </div>
     </div>
 
-    <div class="content-panel" data-ng-show="step === 3">
+    <div class="content-panel gp-login" data-ng-show="step === 3">
         <div class="content-inner">
             <h2>Account Created, Welcome to PatientView</h2>
             <p>You have successfully claimed your PatientView account, your details are below.
                 Please make sure to remember these details as they will not be available when you leave this page.</p>
-            <p>Click "Log in to PatientView" to log in, you will leave this page.</p>
             <div class="form-group row">
-                <div class="col-sm-offset-2 col-sm-2">
-                    Username:
+                <div class="col-sm-12 text-center">
+                    <label class="for"><strong>Username:</strong></label>
+                    <!--<strong>{{details.username}}</strong>-->
+                    wanker
                 </div>
-                <div class="col-sm-8">
-                    <strong>{{details.username}}</strong>
+
+                <div class="col-sm-12 text-center">
+                    <label class="for"><strong>Password:</strong></label>
+                    <!--<strong>{{details.password}}</strong>-->
+                    wanker
                 </div>
             </div>
-            <div class="form-group row">
-                <div class="col-sm-offset-2 col-sm-2">
-                    Password:
-                </div>
-                <div class="col-sm-8">
-                    <strong>{{details.password}}</strong>
+            <div class="success-container text-center">
+                <div class="sweet-alert showSweetAlert visible" data-custom-class="" data-has-cancel-button="false"
+                     data-has-confirm-button="true" data-allow-outside-click="false" data-has-done-function="false"
+                     data-animation="pop" data-timer="null" style="display: block;">
+                    <div class="sa-icon sa-error" style="display: none;">
+                    <span class="sa-x-mark">
+                    <span class="sa-line sa-left"></span>
+                    <span class="sa-line sa-right"></span>
+                    </span>
+                    </div>
+                    <div class="sa-icon sa-warning pulseWarning" style="display: none;">
+                        <span class="sa-body pulseWarningIns"></span>
+                        <span class="sa-dot pulseWarningIns"></span>
+                    </div>
+                    <div class="sa-icon sa-info" style="display: none;"></div>
+                    <div class="sa-icon sa-success animate" style="display: block;">
+                        <span class="sa-line sa-tip animateSuccessTip"></span>
+                        <span class="sa-line sa-long animateSuccessLong"></span>
+
+                        <div class="sa-placeholder"></div>
+                        <div class="sa-fix"></div>
+                    </div>
+                    <h2>Success</h2>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 text-center actions-footer">
                     <a href="#/login" class="btn blue">Log in to PatientView</a>
+                    <p class="note">(Clicking this button will leave this page)</p>
                 </div>
             </div>
         </div>
