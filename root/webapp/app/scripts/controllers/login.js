@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService', '$scope', '$rootScope', '$routeParams',
-    '$location', '$cookies', 'AuthService', 'RouteService',
-    function (localStorageService, $scope, $rootScope, $routeParams, $location, $cookies, AuthService, RouteService) {
+    '$location', '$cookies', 'AuthService', 'RouteService', 'UtilService',
+    function (localStorageService, $scope, $rootScope, $routeParams, $location, $cookies, AuthService, RouteService, UtilService) {
 
         var getUserInformation = function(userToken) {
             AuthService.getUserInformation(userToken).then(function (userInformation) {
@@ -70,11 +70,12 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                 delete $scope.checkSecretWord;
 
                 if (userToken.checkSecretWord) {
-                    $scope.loading = false;
                     $scope.checkSecretWord = true;
                     $scope.secretWordIndexes = userToken.secretWordIndexes;
                     $scope.secretWordChoices = {};
                     $scope.secretWordToken = userToken.secretWordToken;
+                    $scope.alphabet = UtilService.generateAlphabet();
+                    $scope.loading = false;
                 } else {
                     $scope.loadingMessage = 'Loading Your Information';
                     getUserInformation(userToken);

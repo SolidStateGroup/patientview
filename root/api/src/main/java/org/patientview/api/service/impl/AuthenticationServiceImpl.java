@@ -285,7 +285,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // check entered letters against salted values
         for (String toCheck : letterMap.keySet()) {
             if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
-                throw new ResourceForbiddenException("Letters do not match");
+                throw new ResourceForbiddenException("Letters do not match your secret word");
             }
         }
     }
@@ -361,6 +361,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 // passed secret word check so set check to false and return user information
                 foundUserToken.setCheckSecretWord(false);
                 foundUserToken.setSecretWordToken(null);
+                foundUserToken.setToken(CommonUtils.getAuthToken());
                 userTokenRepository.save(foundUserToken);
 
                 updateUserAndAuditLogin(foundUserToken.getUser(), null);
