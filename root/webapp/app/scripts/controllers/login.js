@@ -74,7 +74,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                     $scope.checkSecretWord = true;
                     $scope.secretWordIndexes = userToken.secretWordIndexes;
                     $scope.secretWordChoices = {};
-                    $scope.token = userToken.token;
+                    $scope.secretWordToken = userToken.secretWordToken;
                 } else {
                     $scope.loadingMessage = 'Loading Your Information';
                     getUserInformation(userToken);
@@ -112,7 +112,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             $scope.loadingMessage = 'Logging In';
 
             var userToken = {};
-            userToken.token = $scope.token;
+            userToken.secretWordToken = $scope.secretWordToken;
             userToken.secretWordChoices = $scope.secretWordChoices;
 
             getUserInformation(userToken);

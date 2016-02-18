@@ -217,6 +217,7 @@ CREATE TABLE PV_User_Token
   Token           VARCHAR(50) NOT NULL UNIQUE,
   Parent_Token_Id BIGINT      REFERENCES PV_User_Token (Id),
   Check_Secret_Word BOOLEAN NOT NULL DEFAULT FALSE,
+  Secret_Word_Token VARCHAR(50),
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   PRIMARY KEY (Id)

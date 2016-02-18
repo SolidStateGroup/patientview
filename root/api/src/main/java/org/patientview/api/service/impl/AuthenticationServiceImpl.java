@@ -195,7 +195,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
-        userToken.setToken(CommonUtils.getAuthToken());
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
 
@@ -204,6 +203,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
         // of multi factor authentication
         if (!StringUtils.isEmpty(user.getSecretWord())) {
+            // has secret word
             userToken.setCheckSecretWord(true);
 
             // choose two characters to check and add to secret word indexes for ui
@@ -228,59 +228,27 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 possibleIndexes.remove(randomInt);
                 randomInt = ran.nextInt(possibleIndexes.size() - 1);
                 toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+                toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
+
+                // set temporary token
+                userToken.setSecretWordToken(CommonUtils.getAuthToken());
+                toReturn.setSecretWordToken(userToken.getSecretWordToken());
+
+                // set user token (must not be null)
+                userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
+
+                userTokenRepository.save(userToken);
             } catch (JsonSyntaxException jse) {
                 throw new AuthenticationServiceException("Error retrieving secret word");
             }
-        }
-
-        userToken = userTokenRepository.save(userToken);
-
-        user.setFailedLogonAttempts(0);
-
-        //Salt password
-        if (user.getSalt() == null) {
-            try {
-                String salt = CommonUtils.generateSalt();
-                user.setSalt(salt);
-                user.setPassword(DigestUtils.sha256Hex(password + salt));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // handle current and last login time and IP, updating last login with current then setting new current
-        if (user.getCurrentLogin() != null) {
-            user.setLastLogin(user.getCurrentLogin());
-        }
-
-        if (StringUtils.isNotEmpty(user.getCurrentLoginIpAddress())) {
-            user.setLastLoginIpAddress(user.getCurrentLoginIpAddress());
-        }
-
-        user.setCurrentLogin(now);
-
-        // set last login IP address from headers if present
-        HttpServletRequest request
-                = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        String realIp = request.getHeader("X-Real-IP");
-
-        if (StringUtils.isNotEmpty(forwardedFor)) {
-            user.setCurrentLoginIpAddress(forwardedFor.split(",")[0]);
-        } else if (StringUtils.isNotEmpty(realIp)) {
-            user.setCurrentLoginIpAddress(realIp);
         } else {
-            user.setCurrentLoginIpAddress(request.getRemoteAddr());
+            // no secret word, log in as usual
+            userToken.setToken(CommonUtils.getAuthToken());
+            userToken = userTokenRepository.save(userToken);
+            toReturn.setToken(userToken.getToken());
+
+            updateUserAndAuditLogin(user, password);
         }
-
-        userRepository.save(user);
-
-        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
-                user.getId(), AuditObjectTypes.User, null);
-
-        toReturn.setToken(userToken.getToken());
-        toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
 
         return toReturn;
     }
@@ -370,25 +338,48 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         UserToken foundUserToken = userTokenRepository.findByToken(userToken.getToken());
 
         if (foundUserToken == null) {
-            throw new AuthenticationServiceException("Forbidden");
-        }
-        if (foundUserToken.getUser() == null) {
-            throw new AuthenticationServiceException("Forbidden, User not found");
-        }
+            if (StringUtils.isEmpty(userToken.getSecretWordToken())) {
+                throw new AuthenticationServiceException("Forbidden, secret word token not found");
+            }
 
-        boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
+            // not found, user token could have secret word, check if can get by temporary secret word token
+            foundUserToken = userTokenRepository.findBySecretWordToken(userToken.getSecretWordToken());
+            if (foundUserToken == null) {
+                throw new AuthenticationServiceException("Forbidden, Token not found");
+            }
+            if (foundUserToken.getUser() == null) {
+                throw new AuthenticationServiceException("Forbidden, User not found");
+            }
 
-        // check if the secret word needs to be checked
-        if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
-            // user has a secret word and has included their chosen characters, check that they match
-            checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
+            boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
 
-            // passed secret word check so set check to false and return user information
-            foundUserToken.setCheckSecretWord(false);
-            userTokenRepository.save(foundUserToken);
-            return createApiUserToken(foundUserToken);
+            // check if the secret word needs to be checked
+            if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
+                // user has a secret word and has included their chosen characters, check that they match
+                checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
+
+                // passed secret word check so set check to false and return user information
+                foundUserToken.setCheckSecretWord(false);
+                foundUserToken.setSecretWordToken(null);
+                userTokenRepository.save(foundUserToken);
+
+                updateUserAndAuditLogin(foundUserToken.getUser(), null);
+
+                return createApiUserToken(foundUserToken);
+            } else {
+                // standard login with no secret word
+                throw new AuthenticationServiceException("Forbidden, failed checking secret word");
+            }
         } else {
-            // standard login with no secret word
+            // standard get user information
+            if (foundUserToken.getUser() == null) {
+                throw new AuthenticationServiceException("Forbidden, User not found");
+            }
+            if (StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord())
+                    && StringUtils.isEmpty(userToken.getSecretWordToken())) {
+                throw new AuthenticationServiceException("Forbidden, secret word token not found");
+            }
+
             return createApiUserToken(foundUserToken);
         }
     }
@@ -587,5 +578,51 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 user.getId(), AuditObjectTypes.User, null);
 
         return userToken.getToken();
+    }
+
+    private void updateUserAndAuditLogin(User user, String password) {
+        user.setFailedLogonAttempts(0);
+
+        // Salt password
+        if (user.getSalt() == null && password != null) {
+            try {
+                String salt = CommonUtils.generateSalt();
+                user.setSalt(salt);
+                user.setPassword(DigestUtils.sha256Hex(password + salt));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // handle current and last login time and IP, updating last login with current then setting new current
+        if (user.getCurrentLogin() != null) {
+            user.setLastLogin(user.getCurrentLogin());
+        }
+
+        if (StringUtils.isNotEmpty(user.getCurrentLoginIpAddress())) {
+            user.setLastLoginIpAddress(user.getCurrentLoginIpAddress());
+        }
+
+        user.setCurrentLogin(new Date());
+
+        // set last login IP address from headers if present
+        HttpServletRequest request
+                = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        String realIp = request.getHeader("X-Real-IP");
+
+        if (StringUtils.isNotEmpty(forwardedFor)) {
+            user.setCurrentLoginIpAddress(forwardedFor.split(",")[0]);
+        } else if (StringUtils.isNotEmpty(realIp)) {
+            user.setCurrentLoginIpAddress(realIp);
+        } else {
+            user.setCurrentLoginIpAddress(request.getRemoteAddr());
+        }
+
+        userRepository.save(user);
+
+        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
+                user.getId(), AuditObjectTypes.User, null);
     }
 }

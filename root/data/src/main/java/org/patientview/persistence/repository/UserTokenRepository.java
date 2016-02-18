@@ -19,6 +19,8 @@ import java.util.Date;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
 
+    UserToken findBySecretWordToken(String secretWordToken);
+
     UserToken findByToken(String token);
 
     @Query("SELECT CASE WHEN (userToken.expiration < CURRENT_TIMESTAMP ) THEN TRUE ELSE FALSE END " +

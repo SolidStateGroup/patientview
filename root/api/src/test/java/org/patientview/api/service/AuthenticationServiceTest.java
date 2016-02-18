@@ -182,16 +182,15 @@ public class AuthenticationServiceTest {
         user.setGroupRoles(groupRoles);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(foundUserToken.getToken()))).thenReturn(foundUserToken);
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
         org.patientview.api.model.UserToken returned = authenticationService.authenticate(user.getUsername(), password);
 
-        Assert.assertNotNull("token must not be null", returned.getToken());
+        Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
         Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
 
-        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+        verify(auditService, Mockito.times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
@@ -454,6 +453,7 @@ public class AuthenticationServiceTest {
     public void testGetUserInformation_enteredSecretWord()
             throws ResourceNotFoundException, ResourceForbiddenException {
         String token = "abc123456";
+        String secretWordToken = "secretabc123456";
 
         User user = TestUtils.createUser("testUser");
         String salt = "saltsaltsalt";
@@ -482,14 +482,16 @@ public class AuthenticationServiceTest {
         input.setSecretWordChoices(new HashMap<String, String>());
         input.getSecretWordChoices().put("0", "A");
         input.getSecretWordChoices().put("2", "C");
+        input.setSecretWordToken(secretWordToken);
 
         UserToken foundUserToken = new UserToken();
         foundUserToken.setUser(user);
         foundUserToken.setToken(token);
         foundUserToken.setCheckSecretWord(true);
+        foundUserToken.setSecretWordToken(secretWordToken);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
@@ -499,12 +501,14 @@ public class AuthenticationServiceTest {
 
         verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
         verify(userTokenRepository, Mockito.times(1)).save(eq(foundUserToken));
+        verify(userRepository, Mockito.times(1)).save(any(User.class));
     }
 
     @Test (expected = ResourceForbiddenException.class)
     public void testGetUserInformation_enteredWrongSecretWord()
             throws ResourceNotFoundException, ResourceForbiddenException {
         String token = "abc123456";
+        String secretWordToken = "secretabc123456";
 
         User user = TestUtils.createUser("testUser");
         String salt = "saltsaltsalt";
@@ -533,17 +537,19 @@ public class AuthenticationServiceTest {
         input.setSecretWordChoices(new HashMap<String, String>());
         input.getSecretWordChoices().put("0", "A");
         input.getSecretWordChoices().put("3", "X");
+        input.setSecretWordToken(secretWordToken);
 
         UserToken foundUserToken = new UserToken();
         foundUserToken.setUser(user);
         foundUserToken.setToken(token);
         foundUserToken.setCheckSecretWord(true);
+        foundUserToken.setSecretWordToken(secretWordToken);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
-        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+        authenticationService.getUserInformation(input);
     }
 
     /**
