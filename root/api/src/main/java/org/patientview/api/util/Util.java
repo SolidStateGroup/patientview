@@ -243,6 +243,9 @@ public final class Util {
     }
 
     public static boolean userHasRole(User user, RoleName... roleNames) throws SecurityException {
+        if (user == null) {
+            return false;
+        }
         if (CollectionUtils.isEmpty(user.getGroupRoles())) {
             return false;
         }

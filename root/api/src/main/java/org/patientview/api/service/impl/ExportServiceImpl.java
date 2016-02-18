@@ -207,8 +207,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(medicationStatement.getGroup().getName());
         }
         return getDownloadContent("Medicines",
-                makeCSVString(
-                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+            makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override

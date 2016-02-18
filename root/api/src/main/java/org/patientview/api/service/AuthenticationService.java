@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
-import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;

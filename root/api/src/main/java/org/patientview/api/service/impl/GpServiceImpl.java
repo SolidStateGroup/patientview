@@ -753,15 +753,15 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         email.setSubject("PatientView - Welcome to PatientView");
         email.setRecipients(new String[]{user.getEmail()});
 
-        email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>" +
-                "Your Unit Admin role has been created as requested.<br/>There is information about this role at " +
-                "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you " +
-                "read the information there to be sure that governance and confidentiality principles are " +
-                "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> " +
-                "(top right) with the username below and the password generated when you claimed your account. You " +
-                "will be forced to change this password when you first log in so that only you know it. " +
-                "It is very important that it is difficult to guess, and kept secret." +
-                "<br/><br/><strong>Username:</strong> " + user.getUsername());
+        email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>"
+                + "Your Unit Admin role has been created as requested.<br/>There is information about this role at "
+                + "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you "
+                + "read the information there to be sure that governance and confidentiality principles are "
+                + "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> "
+                + "(top right) with the username below and the password generated when you claimed your account. You "
+                + "will be forced to change this password when you first log in so that only you know it. "
+                + "It is very important that it is difficult to guess, and kept secret."
+                + "<br/><br/><strong>Username:</strong> " + user.getUsername());
 
         // try and send but ignore if exception and log
         try {
@@ -1029,8 +1029,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 gpDetails.getSignupKey().trim().replace(" ", ""),
                 gpDetails.getPatientIdentifier().trim().replace(" ", ""));
         if (CollectionUtils.isEmpty(gpLetters)) {
-            throw new VerificationException("Signup key and patient identifier either not found or do not match," +
-                    " please make sure there are no spaces or unwanted characters in either");
+            throw new VerificationException("Signup key and patient identifier either not found or do not match,"
+                    + " please make sure there are no spaces or unwanted characters in either");
         }
 
         // validate not already claimed

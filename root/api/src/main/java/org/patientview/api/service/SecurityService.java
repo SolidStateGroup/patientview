@@ -1,7 +1,7 @@
 package org.patientview.api.service;
 
-import org.patientview.api.annotation.UserOnly;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +24,8 @@ public interface SecurityService {
      * User -> Features -> Routes
      * User -> Roles -> Routes
      *
-     * @param userId ID of User to retrieve Routes for
+     * @param user User to retrieve Routes for
      * @return Set of Routes
      */
-    Set<Route> getUserRoutes(Long userId);
+    Set<Route> getUserRoutes(User user);
 }

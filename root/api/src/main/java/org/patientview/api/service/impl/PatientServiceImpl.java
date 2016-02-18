@@ -26,7 +26,6 @@ import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.FileDataService;
-import org.patientview.api.service.GpService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;

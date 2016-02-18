@@ -3,8 +3,6 @@ package org.patientview.api.service.impl;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -78,8 +76,7 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -1308,7 +1305,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
             Map<String, String> letters = new HashMap<>();
             letters.put("salt", salt);
-            for (int i=0; i<secretWordInput.getSecretWord1().length(); i++) {
+            for (int i = 0; i < secretWordInput.getSecretWord1().length(); i++) {
                 letters.put(String.valueOf(i), DigestUtils.sha256Hex(
                         String.valueOf(secretWordInput.getSecretWord1().charAt(i)) + salt));
             }

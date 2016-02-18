@@ -1,7 +1,5 @@
 package org.patientview.api.service;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,12 +9,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.config.utils.CommonUtils;
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -52,13 +49,10 @@ import org.springframework.mail.MailException;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -134,12 +128,9 @@ public class UserServiceTest {
     @Mock
     private UserTokenRepository userTokenRepository;
 
-    private User creator;
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
     }
 
     @After
