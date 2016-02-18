@@ -233,6 +233,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         if (gpDetails.getPractices().size() != 1) {
             throw new VerificationException("More than one practice selected");
         }
+        if (gpDetails.getPractices().get(0) == null) {
+            throw new VerificationException("No practice selected");
+        }
         if (StringUtils.isEmpty(gpDetails.getPractices().get(0).getCode())) {
             throw new VerificationException("Selected practice data incorrect");
         }

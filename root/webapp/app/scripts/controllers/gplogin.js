@@ -16,6 +16,7 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         }
         if (step === 2) {
             delete $scope.detailsErrorMessage;
+            delete $scope.claimErrorMessage;
             $scope.validatingDetails = true;
 
             GpService.validateDetails($scope.details).then(function (data) {
