@@ -61,6 +61,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // Change user's secret word
+        changeSecretWord: function (userId, secretWordInput) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/changeSecretWord
+            Restangular.one('user', userId).post('changeSecretWord', secretWordInput).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Send user a verification email
         sendVerificationEmail: function (user) {
             var deferred = $q.defer();

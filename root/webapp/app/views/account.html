@@ -6,6 +6,7 @@
 
             <a href="/#/settings/#change-contact-details">Change Contact Details</a> |
             <a href="/#/settings/#change-password">Change Password</a> |
+            <a href="/#/settings/#change-secret-word">Change Secret Word</a> |
             <a href="/#/settings/#change-photo">Add or Change Photo</a>
             <br/><br/>
 
@@ -127,6 +128,49 @@
             <div class="form-group" data-ng-show="passwordSuccessMessage">
                 <div class="col-sm-8 col-sm-offset-2 alert alert-success">
                     <p>{{passwordSuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+
+        <a name="change-secret-word"></a>
+        <form class="form-horizontal" data-ng-cloak id="account-secret_word-form">
+            <h4>Change Secret Word</h4>
+            <p>A secret word adds an extra level of security when you login. You can create or update your secret word
+                below, one that is easily remembered.</p>
+            <p><strong>The minimum length for a secret word is 7 characters, must be letters not numbers.</strong></p>
+
+            <div class="form-group">
+                <label for="secretWord1" class="col-sm-2 control-label">Secret Word:</label>
+                <div class="col-sm-4">
+                    <input id="secretWord1" data-ng-model="secretWord1" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="secretWord2" class="col-sm-2 control-label">Confirm Secret Word:</label>
+                <div class="col-sm-4">
+                    <input id="secretWord2" data-ng-model="secretWord2" type="text" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <button data-ng-click="saveSecretWord()" class="btn blue"
+                            data-ng-disabled="!(secretWord1.length > 6
+                            && secretWord2.length > 6
+                            && (secretWord1 === secretWord2))">
+                        Update Secret Word
+                    </button>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="secretWordErrorMessage">
+                <div class="alert alert-danger">
+                    <p><strong>Error changing secret word</strong> {{secretWordErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="secretWordSuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{secretWordSuccessMessage}}</p>
                 </div>
             </div>
         </form>

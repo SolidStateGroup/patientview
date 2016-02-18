@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -161,6 +162,13 @@ public class UserController extends BaseController<UserController> {
     public void changePicture(@PathVariable("userId") Long userId, @RequestBody String base64)
             throws ResourceInvalidException {
         userService.addPicture(userId, base64);
+    }
+
+    @RequestMapping(value = "/user/{userId}/changeSecretWord", method = RequestMethod.POST)
+    @ResponseBody
+    public void changeSecretWord(@PathVariable("userId") Long userId, @RequestBody SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.changeSecretWord(userId, secretWordInput);
     }
 
     /**
