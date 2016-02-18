@@ -199,10 +199,38 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
 
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
         // of multi factor authentication
         if (!StringUtils.isEmpty(user.getSecretWord())) {
             userToken.setCheckSecretWord(true);
+
+            // choose two characters to check and add to secret word indexes for ui
+            try {
+                Map<String, String> secretWordMap = new Gson().fromJson(
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+
+                if (secretWordMap == null || secretWordMap.isEmpty()) {
+                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
+                }
+
+                Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
+                secretWordMapNoSalt.remove("salt");
+
+                List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
+
+                Random ran = new Random();
+                int randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                toReturn.setSecretWordIndexes(new ArrayList<String>());
+                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+
+                possibleIndexes.remove(randomInt);
+                randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+            } catch (JsonSyntaxException jse) {
+                throw new AuthenticationServiceException("Error retrieving secret word");
+            }
         }
 
         userToken = userTokenRepository.save(userToken);
@@ -251,7 +279,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User, null);
 
-        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
         toReturn.setToken(userToken.getToken());
         toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
 
@@ -261,6 +288,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Override
     public void checkSecretWord(User user, Map<String, String> letterMap)
             throws ResourceNotFoundException, ResourceForbiddenException {
+        if (letterMap == null) {
+            throw new ResourceForbiddenException("Letters must be chosen");
+        }
         if (letterMap.isEmpty()) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
@@ -347,37 +377,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
-        boolean secretWordIncludedInUserToken = !CollectionUtils.isEmpty(userToken.getSecretWordChoices());
 
         // check if the secret word needs to be checked
-        if (foundUserToken.isCheckSecretWord() && userHasSecretWord && !secretWordIncludedInUserToken) {
-            // user has a secret word but has not included it in POST
-            org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken();
-            transportUserToken.setToken(userToken.getToken());
-
-            // choose two characters to check
-            try {
-                Map<String, String> secretWordMap = new Gson().fromJson(
-                        foundUserToken.getUser().getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                        }.getType());
-
-                if (secretWordMap.isEmpty()) {
-                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
-                }
-
-                Random ran = new Random();
-                transportUserToken.setSecretWordIndexes(new ArrayList<String>());
-                transportUserToken.getSecretWordIndexes()
-                        .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
-                transportUserToken.getSecretWordIndexes()
-                        .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
-
-                // return simple UserToken which will prompt user to enter two characters from secret word
-                return transportUserToken;
-            } catch (JsonSyntaxException jse) {
-                throw new AuthenticationServiceException("Error retrieving secret word");
-            }
-        } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
+        if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
             // user has a secret word and has included their chosen characters, check that they match
             checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
 

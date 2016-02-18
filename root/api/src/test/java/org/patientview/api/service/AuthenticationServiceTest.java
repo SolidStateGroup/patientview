@@ -147,6 +147,54 @@ public class AuthenticationServiceTest {
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
+    @Test
+    public void testAuthenticate_secretWord() {
+        String password = "doNotShow";
+        String token = "abc123456";
+        String salt = "saltsaltsalt";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findByToken(eq(foundUserToken.getToken()))).thenReturn(foundUserToken);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
+        org.patientview.api.model.UserToken returned = authenticationService.authenticate(user.getUsername(), password);
+
+        Assert.assertNotNull("token must not be null", returned.getToken());
+        Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
+        Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
+
+        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
     /**
      * Test: Test that the authentication service and handled the password match.
      * Fail: The method cannot validation the user.
@@ -389,6 +437,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setUser(user);
         foundUserToken.setToken(token);
 
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
@@ -402,52 +451,6 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void testGetUserInformation_checkSecretWord() throws ResourceNotFoundException, ResourceForbiddenException {
-        String token = "abc123456";
-
-        User user = TestUtils.createUser("testUser");
-        String salt = "saltsaltsalt";
-        user.setSecretWord("{"
-                + "\"salt\" : \"" + salt + "\", "
-                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
-                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
-                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
-                + "}");
-
-        Group group = TestUtils.createGroup("testGroup");
-        group.getGroupFeatures().add(
-                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        user.setGroupRoles(groupRoles);
-
-        List<Group> userGroups = new ArrayList<>();
-        userGroups.add(group);
-
-        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
-        input.setToken(token);
-
-        UserToken foundUserToken = new UserToken();
-        foundUserToken.setUser(user);
-        foundUserToken.setToken(token);
-        foundUserToken.setCheckSecretWord(true);
-
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
-        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
-
-        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
-
-        Assert.assertNotNull("UserToken must not be null", userToken);
-        Assert.assertNotNull("token must not be null", userToken.getToken());
-        Assert.assertNotNull("secret word indexes should be set", userToken.getSecretWordIndexes());
-        Assert.assertEquals("secret word indexes should contain 2 entries", 2, userToken.getSecretWordIndexes().size());
-    }
-
-    @Test
     public void testGetUserInformation_enteredSecretWord()
             throws ResourceNotFoundException, ResourceForbiddenException {
         String token = "abc123456";
@@ -456,10 +459,10 @@ public class AuthenticationServiceTest {
         String salt = "saltsaltsalt";
         user.setSecretWord("{"
                     + "\"salt\" : \"" + salt + "\", "
-                    + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
-                    + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
-                    + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                    + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
 
         Group group = TestUtils.createGroup("testGroup");
@@ -507,10 +510,10 @@ public class AuthenticationServiceTest {
         String salt = "saltsaltsalt";
         user.setSecretWord("{"
                     + "\"salt\" : \"" + salt + "\", "
-                    + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
-                    + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
-                    + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                    + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
 
         Group group = TestUtils.createGroup("testGroup");
@@ -541,12 +544,6 @@ public class AuthenticationServiceTest {
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
-
-        Assert.assertNotNull("UserToken must not be null", userToken);
-        Assert.assertNotNull("token must not be null", userToken.getToken());
-
-        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
-        verify(userTokenRepository, Mockito.times(1)).save(eq(foundUserToken));
     }
 
     /**

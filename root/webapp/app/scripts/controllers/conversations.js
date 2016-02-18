@@ -644,7 +644,7 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             localStorageService.set('authToken', authToken);
 
             // get user information, store in session
-            AuthService.getUserInformation(authToken).then(function (userInformation) {
+            AuthService.getUserInformation({'token' : authToken}).then(function (userInformation) {
 
                 var user = userInformation.user;
                 delete userInformation.user;

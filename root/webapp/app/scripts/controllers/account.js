@@ -36,7 +36,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
                 } else {
                     UserService.saveOwnSettings($scope.loggedInUser.id, $scope.userdetails).then(function () {
                         $scope.settingsSuccessMessage = 'The settings have been saved';
-                        AuthService.getUserInformation($scope.loggedInUser.userInformation.token)
+                        AuthService.getUserInformation({'token' : $scope.loggedInUser.userInformation.token})
                             .then(function (userInformation) {
 
                             // get user information, store in session

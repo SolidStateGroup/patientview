@@ -329,7 +329,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                     localStorageService.set('authToken', authToken);
 
                     // get user information, store in session
-                    AuthService.getUserInformation(authToken).then(function (userInformation) {
+                    AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
 
                         var user = userInformation.user;
                         delete userInformation.user;
@@ -410,7 +410,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             // Safari private browsing does not support local storage fully so retrieve user info if not present
             if ($cookies.authToken && !$rootScope.authToken) {
                 $rootScope.authToken = $cookies.authToken;
-                AuthService.getUserInformation($cookies.authToken).then(function (userInformation) {
+
+                AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
                     var user = userInformation.user;
                     delete userInformation.user;
                     user.userInformation = userInformation;

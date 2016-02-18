@@ -3,10 +3,7 @@
 angular.module('patientviewApp').factory('AuthService', ['$q', 'Restangular',
     function ($q, Restangular) {
     return {
-        getUserInformation: function (authToken) {
-            var userToken = {};
-            userToken.token = authToken;
-
+        getUserInformation: function (userToken) {
             var deferred = $q.defer();
             Restangular.all('auth/userinformation').customPOST(userToken).then(function(res) {
                 deferred.resolve(res);

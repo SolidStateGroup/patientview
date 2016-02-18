@@ -1270,7 +1270,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             localStorageService.set('authToken', authToken);
 
             // get user information, store in session
-            AuthService.getUserInformation(authToken).then(function (userInformation) {
+            AuthService.getUserInformation({'token' : authToken}).then(function (userInformation) {
 
                 var user = userInformation.user;
                 delete userInformation.user;

@@ -30,7 +30,7 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                     // successfully changed user password
                     $scope.successMessage = 'The password has been changed';
 
-                    AuthService.getUserInformation(authToken).then(function (userInformation) {
+                    AuthService.getUserInformation({'token' : authToken}).then(function (userInformation) {
 
                         // get user information (securityroles, userGroups), store in session
                         var user = userInformation.user;
