@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User service, for managing Users, User information, resetting passwords etc.

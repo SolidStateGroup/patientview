@@ -161,7 +161,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Parser parser = abdera.getParser();
 
         URL url = new URL(urlString);
-        Document<Feed> doc = parser.parse(url.openStream(),url.toString());
+        Document<Feed> doc = parser.parse(url.openStream(), url.toString());
         Feed feed = doc.getRoot();
 
         for (Entry entry : feed.getEntries()) {

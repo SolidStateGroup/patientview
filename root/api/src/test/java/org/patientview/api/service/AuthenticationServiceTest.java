@@ -21,9 +21,12 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
@@ -58,25 +61,43 @@ import static org.mockito.Mockito.when;
 public class AuthenticationServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private AuditRepository auditRepository;
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private FeatureRepository featureRepository;
+
+    @Mock
+    private GroupRepository groupRepository;
+
+    @Mock
+    private GroupService groupService;
+
+    @Mock
+    private Properties properties;
+
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private RoleService roleService;
+
+    @Mock
+    private SecurityService securityService;
+
+    @Mock
+    private StaticDataManager staticDataManager;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private UserService userService;
 
     @Mock
     private UserTokenRepository userTokenRepository;
-
-    @Mock
-    private RoleRepository roleRepository;
-
-    @Mock
-    private AuditRepository auditRepository;
-
-    @Mock
-    private Properties properties;
 
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
@@ -121,6 +142,54 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         authenticationService.authenticate(user.getUsername(), password);
+
+        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
+    @Test
+    public void testAuthenticate_secretWord() {
+        String password = "doNotShow";
+        String token = "abc123456";
+        String salt = "saltsaltsalt";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findByToken(eq(foundUserToken.getToken()))).thenReturn(foundUserToken);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
+        org.patientview.api.model.UserToken returned = authenticationService.authenticate(user.getUsername(), password);
+
+        Assert.assertNotNull("token must not be null", returned.getToken());
+        Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
+        Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
 
         verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
@@ -238,25 +307,6 @@ public class AuthenticationServiceTest {
     }
 
     /**
-     * Test: Try and authenticate against an account that's locked
-     * Fail: An exception is not raised
-     */
-    @Test(expected = AuthenticationServiceException.class)
-    public void testLockAccount() throws AuthenticationServiceException {
-        String password = "doNotShow";
-
-        User user = new User();
-        user.setUsername("testUsername");
-        user.setPassword(DigestUtils.sha256Hex(password));
-        user.setEmailVerified(Boolean.TRUE);
-        user.setLocked(Boolean.TRUE);
-        user.setDeleted(false);
-
-        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
-        authenticationService.authenticate(user.getUsername(), password);
-    }
-
-    /**
      * Test: Try and authenticate against when 2 attempts have already been made
      * Fail: An exception is not raised
      */
@@ -275,8 +325,6 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
     }
-
-
 
     @Test
     public void testCheckSecretWord()
@@ -364,6 +412,157 @@ public class AuthenticationServiceTest {
         entered.put("6", "4");
 
         authenticationService.checkSecretWord(user, entered);
+    }
+
+    @Test
+    public void testGetUserInformation() throws ResourceNotFoundException, ResourceForbiddenException {
+        String token = "abc123456";
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+
+        Assert.assertNotNull("UserToken must not be null", userToken);
+        Assert.assertNotNull("token must not be null", userToken.getToken());
+        Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
+
+        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+    }
+
+    @Test
+    public void testGetUserInformation_enteredSecretWord()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        String token = "abc123456";
+
+        User user = TestUtils.createUser("testUser");
+        String salt = "saltsaltsalt";
+        user.setSecretWord("{"
+                    + "\"salt\" : \"" + salt + "\", "
+                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+        input.setSecretWordChoices(new HashMap<String, String>());
+        input.getSecretWordChoices().put("0", "A");
+        input.getSecretWordChoices().put("2", "C");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+
+        Assert.assertNotNull("UserToken must not be null", userToken);
+        Assert.assertNotNull("token must not be null", userToken.getToken());
+
+        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(userTokenRepository, Mockito.times(1)).save(eq(foundUserToken));
+    }
+
+    @Test (expected = ResourceForbiddenException.class)
+    public void testGetUserInformation_enteredWrongSecretWord()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        String token = "abc123456";
+
+        User user = TestUtils.createUser("testUser");
+        String salt = "saltsaltsalt";
+        user.setSecretWord("{"
+                    + "\"salt\" : \"" + salt + "\", "
+                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+        input.setSecretWordChoices(new HashMap<String, String>());
+        input.getSecretWordChoices().put("0", "A");
+        input.getSecretWordChoices().put("3", "X");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+    }
+
+    /**
+     * Test: Try and authenticate against an account that's locked
+     * Fail: An exception is not raised
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testLockAccount() throws AuthenticationServiceException {
+        String password = "doNotShow";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(Boolean.TRUE);
+        user.setLocked(Boolean.TRUE);
+        user.setDeleted(false);
+
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        authenticationService.authenticate(user.getUsername(), password);
     }
 
     @Test

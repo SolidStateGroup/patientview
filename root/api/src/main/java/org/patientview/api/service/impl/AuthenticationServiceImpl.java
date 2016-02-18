@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -77,37 +78,37 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private static Integer sessionLength;
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
+    private AuditService auditService;
 
     @Inject
     private FeatureRepository featureRepository;
 
     @Inject
-    private UserTokenRepository userTokenRepository;
-
-    @Inject
-    private SecurityService securityService;
-
-    @Inject
-    private RoleService roleService;
+    private GroupRepository groupRepository;
 
     @Inject
     private GroupService groupService;
 
     @Inject
-    private UserService userService;
+    private Properties properties;
 
     @Inject
-    private AuditService auditService;
+    private RoleService roleService;
+
+    @Inject
+    private SecurityService securityService;
 
     @Inject
     private StaticDataManager staticDataManager;
 
     @Inject
-    private Properties properties;
+    private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private UserTokenRepository userTokenRepository;
 
     @PostConstruct
     public void setParameter() {
@@ -115,6 +116,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         LOG.debug("Setting the maximum failed logons attempts to {}", maximumLoginAttempts);
         sessionLength = Integer.parseInt(properties.getProperty("session.length"));
         LOG.debug("Setting the session length to {}", sessionLength);
+    }
+
+    private GroupRole addChildGroupsToGroupRole(GroupRole groupRole) throws ResourceNotFoundException {
+        groupRole.getGroup().setChildGroups(groupService.findChildren(groupRole.getGroup().getId()));
+        return groupRole;
     }
 
     @Cacheable(value = "authenticateOnToken")
@@ -193,10 +199,38 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
 
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
         // of multi factor authentication
         if (!StringUtils.isEmpty(user.getSecretWord())) {
             userToken.setCheckSecretWord(true);
+
+            // choose two characters to check and add to secret word indexes for ui
+            try {
+                Map<String, String> secretWordMap = new Gson().fromJson(
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+
+                if (secretWordMap == null || secretWordMap.isEmpty()) {
+                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
+                }
+
+                Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
+                secretWordMapNoSalt.remove("salt");
+
+                List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
+
+                Random ran = new Random();
+                int randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                toReturn.setSecretWordIndexes(new ArrayList<String>());
+                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+
+                possibleIndexes.remove(randomInt);
+                randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+            } catch (JsonSyntaxException jse) {
+                throw new AuthenticationServiceException("Error retrieving secret word");
+            }
         }
 
         userToken = userTokenRepository.save(userToken);
@@ -245,7 +279,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User, null);
 
-        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
         toReturn.setToken(userToken.getToken());
         toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
 
@@ -255,6 +288,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Override
     public void checkSecretWord(User user, Map<String, String> letterMap)
             throws ResourceNotFoundException, ResourceForbiddenException {
+        if (letterMap == null) {
+            throw new ResourceForbiddenException("Letters must be chosen");
+        }
         if (letterMap.isEmpty()) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
@@ -267,7 +303,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
-                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
 
         if (secretWordMap.isEmpty()) {
             throw new ResourceForbiddenException("Secret word not found");
@@ -284,6 +320,36 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 throw new ResourceForbiddenException("Letters do not match");
             }
         }
+    }
+
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
+            throws ResourceForbiddenException {
+        org.patientview.api.model.UserToken transportUserToken
+                = new org.patientview.api.model.UserToken(userToken);
+
+        // get information about user's available roles and groups as used in staff and patient views
+        setUserGroups(transportUserToken);
+        transportUserToken.setUserFeatures(featureRepository.findByUser(userToken.getUser()));
+        transportUserToken.setRoutes(securityService.getUserRoutes(userToken.getUser()));
+
+        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+            setFhirInformation(transportUserToken, userToken.getUser());
+            transportUserToken.setPatientMessagingFeatureTypes(
+                    new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
+            transportUserToken.setGroupMessagingEnabled(true);
+        }
+
+        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+            setSecurityRoles(transportUserToken);
+            setPatientRoles(transportUserToken);
+            setStaffRoles(transportUserToken);
+            transportUserToken.setGroupFeatures(staticDataManager.getFeaturesByType("GROUP"));
+            transportUserToken.setPatientFeatures(staticDataManager.getFeaturesByType("PATIENT"));
+            transportUserToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
+            setAuditActions(transportUserToken);
+        }
+
+        return transportUserToken;
     }
 
     @Override
@@ -306,31 +372,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (foundUserToken == null) {
             throw new AuthenticationServiceException("Forbidden");
         }
+        if (foundUserToken.getUser() == null) {
+            throw new AuthenticationServiceException("Forbidden, User not found");
+        }
 
         boolean userHasSecretWord = StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord());
-        boolean secretWordIncludedInUserToken = !CollectionUtils.isEmpty(userToken.getSecretWordChoices());
 
-        // check if User has secret word set, if so then send back minimal details for further authentication
-        if (foundUserToken.isCheckSecretWord() && userHasSecretWord && !secretWordIncludedInUserToken) {
-            // user has a secret word but has not included it in POST
-            org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken();
-            transportUserToken.setToken(userToken.getToken());
-
-            // choose two characters to check
-            Map<String, String> secretWordMap = new Gson().fromJson(
-                    foundUserToken.getUser().getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                    }.getType());
-
-            Random ran = new Random();
-            transportUserToken.setSecretWordIndexes(new ArrayList<String>());
-            transportUserToken.getSecretWordIndexes()
-                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
-            transportUserToken.getSecretWordIndexes()
-                    .add(String.valueOf(ran.nextInt(secretWordMap.keySet().size() - 1)));
-
-            // return simple UserToken which will prompt user to enter two characters from secret word
-            return transportUserToken;
-        } else if (foundUserToken.isCheckSecretWord() && userHasSecretWord && secretWordIncludedInUserToken) {
+        // check if the secret word needs to be checked
+        if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
             // user has a secret word and has included their chosen characters, check that they match
             checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
 
@@ -344,33 +393,21 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
-            throws ResourceForbiddenException {
-        org.patientview.api.model.UserToken transportUserToken
-                = new org.patientview.api.model.UserToken(userToken);
+    private void incrementFailedLogon(User user) {
+        Integer failedLogonAttempts = user.getFailedLogonAttempts();
+        if (failedLogonAttempts == null) {
+            failedLogonAttempts = 0;
+        }
+        ++failedLogonAttempts;
+        if (failedLogonAttempts > maximumLoginAttempts) {
+            user.setLocked(Boolean.TRUE);
 
-        // get information about user's available roles and groups as used in staff and patient views
-        transportUserToken = setUserGroups(transportUserToken);
-        transportUserToken = setUserFeatures(transportUserToken);
-        transportUserToken = setRoutes(transportUserToken);
-
-        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
-            transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
-            transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
-            transportUserToken.setGroupMessagingEnabled(true);
+            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
         }
 
-        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
-            transportUserToken = setSecurityRoles(transportUserToken);
-            transportUserToken = setPatientRoles(transportUserToken);
-            transportUserToken = setStaffRoles(transportUserToken);
-            transportUserToken = setGroupFeatures(transportUserToken);
-            transportUserToken = setPatientFeatures(transportUserToken);
-            transportUserToken = setStaffFeatures(transportUserToken);
-            transportUserToken = setAuditActions(transportUserToken);
-        }
-
-        return transportUserToken;
+        user.setFailedLogonAttempts(failedLogonAttempts);
+        userRepository.save(user);
     }
 
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
@@ -416,61 +453,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
-
-        LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
-        }
-
-        UserToken userToken = getToken(token);
-
-        if (userToken == null) {
-            throw new AuthenticationServiceException("Cannot switch user, token not found");
-        }
-
-        return userToken.getToken();
-    }
-
-    @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String switchToUser(Long userId) throws AuthenticationServiceException {
-
-        LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
-        }
-
-        if (!userService.currentUserCanSwitchToUser(user)) {
-            throw new AuthenticationServiceException("Forbidden");
-        }
-
-        Date now = new Date();
-        UserToken userToken = new UserToken();
-        userToken.setUser(user);
-        userToken.setToken(CommonUtils.getAuthToken());
-        userToken.setCreated(now);
-        userToken.setExpiration(new Date(now.getTime() + sessionLength));
-        userToken = userTokenRepository.save(userToken);
-        userRepository.save(user);
-
-        auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
-                user.getId(), AuditObjectTypes.User, null);
-
-        return userToken.getToken();
-    }
-
-    private GroupRole addChildGroupsToGroupRole(GroupRole groupRole) throws ResourceNotFoundException {
-        groupRole.getGroup().setChildGroups(groupService.findChildren(groupRole.getGroup().getId()));
-        return groupRole;
-    }
-
-    private org.patientview.api.model.UserToken setFhirInformation(org.patientview.api.model.UserToken userToken,
-                                                                   User user) {
+    private void setFhirInformation(org.patientview.api.model.UserToken userToken, User user) {
         // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy (ignore PATIENT_ENTERED)
         if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
             Date latestDataReceivedDate = new Date(1, 1, 1);
@@ -492,10 +475,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 userToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
             }
         }
-        return userToken;
     }
 
-    private org.patientview.api.model.UserToken setSecurityRoles(org.patientview.api.model.UserToken userToken) {
+    private void setSecurityRoles(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Role> availableRoles
                 = Util.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
 
@@ -504,16 +486,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         for (org.patientview.persistence.model.Role availableRole : availableRoles) {
             userToken.getSecurityRoles().add(new Role(availableRole));
         }
-        return userToken;
     }
 
-    private org.patientview.api.model.UserToken setUserFeatures(org.patientview.api.model.UserToken userToken) {
-        userToken.setUserFeatures(featureRepository.findByUser(userRepository.findOne(userToken.getUser().getId())));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken)
-            throws ResourceForbiddenException {
+    private void setUserGroups(org.patientview.api.model.UserToken userToken) throws ResourceForbiddenException {
         List<org.patientview.persistence.model.Group> userGroups
                 = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 
@@ -541,89 +516,76 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 }
             }
         }
-        return userToken;
     }
 
-    private org.patientview.api.model.UserToken setRoutes(org.patientview.api.model.UserToken userToken) {
-        userToken.setRoutes(securityService.getUserRoutes(userToken.getUser().getId()));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setPatientRoles(org.patientview.api.model.UserToken userToken) {
+    private void setPatientRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> patientRoles = new ArrayList<>();
-        List<org.patientview.persistence.model.Role> fullPatientRoles = roleService.getRolesByType(RoleType.PATIENT);
-
-        for (org.patientview.persistence.model.Role role : fullPatientRoles) {
+        for (org.patientview.persistence.model.Role role : roleService.getRolesByType(RoleType.PATIENT)) {
             patientRoles.add(new Role(role));
         }
-
         userToken.setPatientRoles(patientRoles);
-        return userToken;
     }
 
-    private org.patientview.api.model.UserToken setStaffRoles(org.patientview.api.model.UserToken userToken) {
+    private void setStaffRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> staffRoles = new ArrayList<>();
-        List<org.patientview.persistence.model.Role> fullStaffRoles = roleService.getRolesByType(RoleType.STAFF);
-
-        for (org.patientview.persistence.model.Role role : fullStaffRoles) {
+        for (org.patientview.persistence.model.Role role : roleService.getRolesByType(RoleType.STAFF)) {
             staffRoles.add(new Role(role));
         }
-
         userToken.setStaffRoles(staffRoles);
-        return userToken;
     }
 
-    private org.patientview.api.model.UserToken setGroupFeatures(org.patientview.api.model.UserToken userToken) {
-        userToken.setGroupFeatures(staticDataManager.getFeaturesByType("GROUP"));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setPatientFeatures(org.patientview.api.model.UserToken userToken) {
-        userToken.setPatientFeatures(staticDataManager.getFeaturesByType("PATIENT"));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setStaffFeatures(org.patientview.api.model.UserToken userToken) {
-        userToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setPatientMessagingFeatureTypes(
-            org.patientview.api.model.UserToken userToken) {
-        userToken.setPatientMessagingFeatureTypes(new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
-        return userToken;
-    }
-
-    private org.patientview.api.model.UserToken setAuditActions(
-            org.patientview.api.model.UserToken userToken) {
-
+    private void setAuditActions(org.patientview.api.model.UserToken userToken) {
         // use name of AuditActions for nicer UI in front end
         List<String> auditActions = new ArrayList<>();
         for (AuditActions auditAction : AuditActions.class.getEnumConstants()) {
             auditActions.add(auditAction.getName());
         }
         userToken.setAuditActions(auditActions);
-        return userToken;
     }
 
-    private UserToken getToken(String token) {
-        return userTokenRepository.findByToken(token);
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
+        }
+
+        UserToken userToken = userTokenRepository.findByToken(token);
+
+        if (userToken == null) {
+            throw new AuthenticationServiceException("Cannot switch user, token not found");
+        }
+
+        return userToken.getToken();
     }
 
-    private void incrementFailedLogon(User user) {
-        Integer failedLogonAttempts = user.getFailedLogonAttempts();
-        if (failedLogonAttempts == null) {
-            failedLogonAttempts = 0;
-        }
-        ++failedLogonAttempts;
-        if (failedLogonAttempts > maximumLoginAttempts) {
-            user.setLocked(Boolean.TRUE);
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public String switchToUser(Long userId) throws AuthenticationServiceException {
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
 
-            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, user.getUsername(), user,
-                    user.getId(), AuditObjectTypes.User, null);
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
         }
 
-        user.setFailedLogonAttempts(failedLogonAttempts);
+        if (!userService.currentUserCanSwitchToUser(user)) {
+            throw new AuthenticationServiceException("Forbidden");
+        }
+
+        Date now = new Date();
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + sessionLength));
+        userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
+
+        auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
+                user.getId(), AuditObjectTypes.User, null);
+
+        return userToken.getToken();
     }
 }

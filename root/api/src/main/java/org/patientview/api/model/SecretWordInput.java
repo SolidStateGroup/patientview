@@ -10,7 +10,7 @@ public class SecretWordInput {
     private String secretWord1;
     private String secretWord2;
 
-    public SecretWordInput() {}
+    public SecretWordInput() { }
 
     public SecretWordInput(String secretWord1, String secretWord2) {
         this.secretWord1 = secretWord1;
