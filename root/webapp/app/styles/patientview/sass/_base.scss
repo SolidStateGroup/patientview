@@ -15,7 +15,7 @@ h3 {
     font-size: 22px;
 }
 
-.italic{
+.note{
     font-style: italic;
 }
 
@@ -101,12 +101,26 @@ hr{
 
         .for{
             margin-top:-20px;
+            font-size: 16px;
         }
         .panel-footer{
             padding:20px 0;
+
+            p{
+                margin:10px 20px;
+            }
+        }
+
+        .actions-footer{
+            margin-top:20px;
+
+            .note{
+                margin-top:2px;
+            }
         }
     }
 }
+
 
 .success-badge{
     position:absolute;
@@ -119,6 +133,25 @@ hr{
         margin-top: 30px;
         font-size: 18px;
         font-weight: bold;
+    }
+}
+
+.success-container{
+    height:150px;
+    position:relative;
+    width:100%;
+
+    .sweet-alert{
+        position: absolute;
+        left:calc(50% - 60px);
+        top:0;
+        right:auto;
+        margin: auto;
+        padding:17px 17px 0;
+
+        h2{
+            margin:0 -15px;
+        }
     }
 }
 
