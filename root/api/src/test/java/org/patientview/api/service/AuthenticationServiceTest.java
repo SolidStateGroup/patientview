@@ -480,8 +480,8 @@ public class AuthenticationServiceTest {
         org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
         input.setToken(token);
         input.setSecretWordChoices(new HashMap<String, String>());
-        input.getSecretWordChoices().put("1", "A");
-        input.getSecretWordChoices().put("3", "C");
+        input.getSecretWordChoices().put("0", "A");
+        input.getSecretWordChoices().put("2", "C");
 
         UserToken foundUserToken = new UserToken();
         foundUserToken.setUser(user);
@@ -531,7 +531,7 @@ public class AuthenticationServiceTest {
         org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
         input.setToken(token);
         input.setSecretWordChoices(new HashMap<String, String>());
-        input.getSecretWordChoices().put("1", "A");
+        input.getSecretWordChoices().put("0", "A");
         input.getSecretWordChoices().put("3", "X");
 
         UserToken foundUserToken = new UserToken();
