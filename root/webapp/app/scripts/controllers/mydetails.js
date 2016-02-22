@@ -24,14 +24,17 @@ var InviteGpModalInstanceCtrl = ['$rootScope', '$scope', '$modalInstance', 'pati
         };
     }];
 
-angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService', '$modal', 'GpService',
-function ($scope, PatientService, UserService, $modal, GpService) {
+angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientService', 'UserService', '$modal', 'GpService', '$rootScope',
+function ($scope, PatientService, UserService, $modal, GpService, $rootScope) {
 
     $scope.init = function(){
         var i;
         $scope.moreAboutMeMessage = '';
         $scope.loading = true;
         $scope.moreAboutMe = {};
+
+        // check if viewing as patient
+        $scope.isStaff = $rootScope.previousLoggedInUser ? true : false;
 
         // get latest user information
         UserService.getInformation($scope.loggedInUser.id).then(function(userInformation) {

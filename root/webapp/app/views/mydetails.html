@@ -154,7 +154,7 @@
                                     <td class="forced-width">Name</td>
                                     <td>
                                         {{practitioner.name}}
-                                        <div data-ng-if="practitioner.allowInviteGp" class="pull-right">
+                                        <div data-ng-if="practitioner.allowInviteGp && isStaff" class="pull-right">
                                             <button data-ng-click="inviteGp(patient.fhirPatient, practitioner, patient.group.id)" class="btn blue">Invite GP to PatientView</button>
                                             &nbsp;&nbsp;&nbsp;
                                             <a href="http://www.rixg.org/xxxxx">What is this?</a>
