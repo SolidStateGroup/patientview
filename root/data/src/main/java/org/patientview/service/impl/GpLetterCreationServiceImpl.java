@@ -57,7 +57,7 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
         }
 
         // check at least one gp in master table
-        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()))) {
+        if (CollectionUtils.isEmpty(gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")))) {
             return false;
         }
 
@@ -84,7 +84,7 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
         }
 
         // validate postcode exists in GP master table and only one record
-        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode()).size() == 1;
+        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")).size() == 1;
     }
 
     @Override
@@ -93,7 +93,9 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
 
         if (hasValidPracticeDetails(gpLetter)) {
             // match using postcode and at least 2 of address1, address2, address3
-            List<GpLetter> gpLetters = gpLetterRepository.findByPostcode(gpLetter.getGpPostcode());
+            // handle postcodes with and without spaces
+            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
 
             for (GpLetter gpLetterEntity : gpLetters) {
                 int fieldCount = 0;
@@ -127,7 +129,10 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
 
         if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
             // match using postcode (already checked only 1 practice with this postcode in GP master table)
-            matchedGpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+            // handle with and without spaces in postcode
+            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
+            matchedGpLetters.addAll(gpLetters);
         }
 
         return new ArrayList<>(matchedGpLetters);

@@ -74,7 +74,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         try {
             // if not enough information to produce letter address then use gp master
             if (!hasValidPracticeDetails(patientview)) {
-                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gp.getGppostcode());
+                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gp.getGppostcode().replace(" ", ""));
                 if (!gpMasters.isEmpty()) {
                     gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
                             gpLetter, gpMasters.get(0),

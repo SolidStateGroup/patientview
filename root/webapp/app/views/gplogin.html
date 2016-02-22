@@ -1,4 +1,4 @@
-<div class="page-head container">
+<div class="page-head container" data-ng-if="step !== 3">
     <span class="badge gp pull-left">GP</span>
     <h1>GP Practices - Claim your PatientView login here</h1>
     <p>
@@ -7,8 +7,7 @@
     </p>
 </div>
 
-<div class="container">
-
+<div>
     <div class="content-panel gp-login" data-ng-show="step === 1">
         <div class="content-inner">
             <ul class="step-markers unstyled inline text-center">
@@ -196,15 +195,17 @@
                 Please make sure to remember these details as they will not be available when you leave this page.</p>
             <div class="form-group row">
                 <div class="col-sm-12 text-center">
-                    <label class="for"><strong>Username:</strong></label>
-                    <!--<strong>{{details.username}}</strong>-->
-                    wanker
+                    <dl>
+                        <dt><strong>Username:</strong></dt>
+                        <dd>{{details.username}}</dd>
+                    </dl>
                 </div>
 
                 <div class="col-sm-12 text-center">
-                    <label class="for"><strong>Password:</strong></label>
-                    <!--<strong>{{details.password}}</strong>-->
-                    wanker
+                    <dl>
+                        <dt><strong>Password:</strong></dt>
+                        <dd>{{details.password}}</dd>
+                    </dl>
                 </div>
             </div>
             <div class="success-container text-center">
