@@ -148,10 +148,12 @@ hr.solid{
     text-align: center;
     font-weight: bold;
 
-    .small{
+    &.small{
         height:30px;
         width:30px;
-        font-size:20px;
+        font-size:16px;
+        line-height:23px;
+        padding:5px 5px;
     }
 }
 
