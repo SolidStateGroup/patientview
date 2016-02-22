@@ -3669,8 +3669,14 @@ hr.solid {
   text-align: center;
   font-weight: bold;
 }
+/* line 151, ../sass/_components.scss */
+.badge.gp .small {
+  height: 30px;
+  width: 30px;
+  font-size: 20px;
+}
 
-/* line 154, ../sass/_components.scss */
+/* line 160, ../sass/_components.scss */
 .slider {
   display: block;
   position: relative;
@@ -3678,7 +3684,7 @@ hr.solid {
   width: 100%;
 }
 
-/* line 160, ../sass/_components.scss */
+/* line 166, ../sass/_components.scss */
 .slider span.bar {
   height: 50%;
   z-index: 0;
@@ -3688,20 +3694,20 @@ hr.solid {
   cursor: pointer;
 }
 
-/* line 170, ../sass/_components.scss */
+/* line 176, ../sass/_components.scss */
 .slider span.bar.selection {
   background: #0a0;
   opacity: 0.5;
 }
 
-/* line 174, ../sass/_components.scss */
+/* line 180, ../sass/_components.scss */
 .slider span.bar.unselected {
   width: auto;
   background: #a00;
   opacity: 0.5;
 }
 
-/* line 179, ../sass/_components.scss */
+/* line 185, ../sass/_components.scss */
 .slider span.pointer {
   cursor: pointer;
   width: 15px;
@@ -3710,7 +3716,7 @@ hr.solid {
   background-color: #368DE8;
 }
 
-/* line 190, ../sass/_components.scss */
+/* line 196, ../sass/_components.scss */
 .slider span.bubble {
   font-size: 1em;
   line-height: 1.4em;
@@ -3721,36 +3727,36 @@ hr.solid {
   cursor: pointer;
 }
 
-/* line 199, ../sass/_components.scss */
+/* line 205, ../sass/_components.scss */
 .slider span.bubble.selection, .slider span.bubble.limit {
   top: 25%;
 }
 
-/* line 209, ../sass/_components.scss */
+/* line 215, ../sass/_components.scss */
 ::-ms-tooltip {
   display: none;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 216, ../sass/_components.scss */
+  /* line 222, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 220, ../sass/_components.scss */
+  /* line 226, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 1199px) {
-  /* line 228, ../sass/_components.scss */
+  /* line 234, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media all and (max-width: 600px) {
-  /* line 237, ../sass/_components.scss */
+  /* line 243, ../sass/_components.scss */
   g.highcharts-input-group {
     display: none;
   }
