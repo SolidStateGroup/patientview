@@ -91,6 +91,24 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         }
     };
 
+    $scope.saveSecretWord = function () {
+        $scope.secretWordSuccessMessage = null;
+        $scope.secretWordErrorMessage = null;
+
+        if ($scope.secretWord1 !== $scope.secretWord2) {
+            $scope.secretWordErrorMessage = 'The secret words do not match';
+        } else {
+            var secretWordInput = {};
+            secretWordInput.secretWord1 = $scope.secretWord1;
+            secretWordInput.secretWord2 = $scope.secretWord2;
+            UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
+                $scope.secretWordSuccessMessage = 'Your secret word has been saved';
+            }, function () {
+                $scope.secretWordErrorMessage = 'There was an error changing your secret word';
+            });
+        }
+    };
+
     // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter

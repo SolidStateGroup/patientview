@@ -17,6 +17,10 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
         if (step === 2) {
             delete $scope.detailsErrorMessage;
             delete $scope.claimErrorMessage;
+            delete $scope.selectedPractice;
+            delete $scope.practices;
+            delete $scope.selectedPatients;
+            delete $scope.patients;
             $scope.validatingDetails = true;
 
             GpService.validateDetails($scope.details).then(function (data) {
@@ -40,7 +44,8 @@ angular.module('patientviewApp').controller('GpLoginCtrl', ['$scope', 'GpService
                 // set selected based on identifier
                 for (var i=0; i<$scope.patients.length; i++) {
                     for (var j = 0; j < $scope.patients[i].identifiers.length; j++) {
-                        if ($scope.patients[i].identifiers[j].identifier == $scope.details.patientIdentifier) {
+                        if (($scope.patients[i].identifiers[j].identifier == $scope.details.patientIdentifier)
+                                || $scope.practices.length == 1) {
                             $scope.selectedPatients.push($scope.patients[i]);
                         }
                     }

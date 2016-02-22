@@ -18,6 +18,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return code;
         },
+        generateAlphabet: function () {
+            var arr = [];
+            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var i=0; i<letters.length; i++) {
+                arr.push(letters[i])
+            }
+            return letters;
+        },
 
         validateEmail: function (email)
         {

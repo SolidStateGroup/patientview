@@ -41,6 +41,7 @@ public class UserToken {
     private List<String> secretWordIndexes;
     private Map<String, String> secretWordChoices;
     private boolean checkSecretWord;
+    private String secretWordToken;
 
     public UserToken() {
     }
@@ -57,6 +58,7 @@ public class UserToken {
         setExpiration(userToken.getExpiration());
         setCreated(userToken.getCreated());
         setCheckSecretWord(userToken.isCheckSecretWord());
+        setSecretWordToken(userToken.getSecretWordToken());
     }
 
     public User getUser() {
@@ -209,5 +211,13 @@ public class UserToken {
 
     public void setCheckSecretWord(boolean checkSecretWord) {
         this.checkSecretWord = checkSecretWord;
+    }
+
+    public String getSecretWordToken() {
+        return secretWordToken;
+    }
+
+    public void setSecretWordToken(String secretWordToken) {
+        this.secretWordToken = secretWordToken;
     }
 }

@@ -42,6 +42,9 @@ public class UserToken extends BaseModel {
     @Column(name = "check_secret_word")
     private boolean checkSecretWord;
 
+    @Column(name = "secret_word_token")
+    private String secretWordToken;
+
     public User getUser() {
         return user;
     }
@@ -88,5 +91,13 @@ public class UserToken extends BaseModel {
 
     public void setCheckSecretWord(boolean checkSecretWord) {
         this.checkSecretWord = checkSecretWord;
+    }
+
+    public String getSecretWordToken() {
+        return secretWordToken;
+    }
+
+    public void setSecretWordToken(String secretWordToken) {
+        this.secretWordToken = secretWordToken;
     }
 }

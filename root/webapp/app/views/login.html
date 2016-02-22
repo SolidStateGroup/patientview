@@ -1,4 +1,4 @@
-<h1 data-ng-hide="authToken || loading" data-ng-cloak>Login</h1>
+<h1 data-ng-hide="authToken || loading" data-ng-cloak>Login <span data-ng-if="checkSecretWord">- Step 2</span> </h1>
 <div class="content-panel user-settings">
 
     <div class="content-inner" data-ng-show="!loading && !checkSecretWord">
@@ -53,13 +53,16 @@
     </div>
 
     <div class="content-inner" data-ng-show="!loading && checkSecretWord">
-        <h2>Please enter the requested letters from your secret word</h2>
+        <p>You have extra security enabled on your account. Please enter the requested letters of your memorable word</p>
         <form class="form-horizontal" data-ng-cloak id="secret-word-form" autocomplete="off" >
             <div data-ng-repeat="index in secretWordIndexes track by $index">
                 <div class="form-group">
-                    <label for="letter{{index}}" class="col-sm-2 control-label">Letter {{(index*1) + 1}}:</label>
+                    <label for="letter{{index}}" class="col-sm-2 control-label">Letter {{(index*1) + 1}}</label>
                     <div class="col-sm-4">
-                        <input id="letter{{index}}" name="letter{{index}}" data-ng-model="secretWordChoices[index]" type="text" class="form-control"/>
+                        <!--<input id="letter{{index}}" name="letter{{index}}" data-ng-model="secretWordChoices[index]" type="text" class="form-control"/>-->
+                        <select class="form-control" data-ng-model="secretWordChoices[index]"  id="letter{{index}}"
+                                data-ng-options="letter as letter for letter in alphabet">
+                        </select>
                     </div>
                 </div>
             </div>
