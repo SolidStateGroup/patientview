@@ -1384,6 +1384,17 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                                 || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
                             fhirPractitioner.setAllowInviteGp(true);
                         }
+                    } else {
+                        // get correct gp letter associated with this patient's identifier
+                        if (!CollectionUtils.isEmpty(fhirPatient.getIdentifier())) {
+                            for (org.hl7.fhir.instance.model.Identifier identifier : fhirPatient.getIdentifier()) {
+                                for (GpLetter gpLetter1 : gpLetters) {
+                                    if (gpLetter1.getPatientIdentifier().equals(identifier.getValueSimple())) {
+                                        fhirPractitioner.setInviteDate(gpLetter1.getCreated());
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     patient.getFhirPractitioners().add(fhirPractitioner);

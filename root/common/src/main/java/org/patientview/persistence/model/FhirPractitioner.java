@@ -7,6 +7,7 @@ import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class FhirPractitioner extends BaseModel {
 
     // used when existing patients trigger gp invite letter
     private boolean allowInviteGp = false;
+    private Date inviteDate;
 
     public FhirPractitioner() {}
 
@@ -151,5 +153,13 @@ public class FhirPractitioner extends BaseModel {
 
     public void setAllowInviteGp(boolean allowInviteGp) {
         this.allowInviteGp = allowInviteGp;
+    }
+
+    public Date getInviteDate() {
+        return inviteDate;
+    }
+
+    public void setInviteDate(Date inviteDate) {
+        this.inviteDate = inviteDate;
     }
 }

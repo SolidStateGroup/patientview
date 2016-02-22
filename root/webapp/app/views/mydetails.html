@@ -153,7 +153,10 @@
                                 <tr>
                                     <td class="forced-width">Name</td>
                                     <td>
-                                        {{practitioner.name}}
+                                        {{practitioner.name}} &nbsp;&nbsp;
+                                        <span data-ng-if="practitioner.inviteDate" class="sub-text">
+                                            (Invited to join PatientView on {{ practitioner.inviteDate | date:'dd-MMM-yyyy' }})
+                                        </span>
                                         <div data-ng-if="practitioner.allowInviteGp && isStaff" class="pull-right">
                                             <button data-ng-click="inviteGp(patient.fhirPatient, practitioner, patient.group.id)" class="btn blue">Invite GP to PatientView</button>
                                             &nbsp;&nbsp;&nbsp;
