@@ -358,13 +358,15 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.tableObservations = [];
         $scope.tableObservationsKey = [];
 
-        for (var i=0;i<$scope.observations[$scope.selectedCode].length;i++) {
-            var observation = $scope.observations[$scope.selectedCode][i];
-            if (start <= observation.applies && end >= observation.applies) {
-                observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
-                observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');
-                $scope.tableObservations.push(observation);
-                $scope.tableObservationsKey[observation.applies] = $scope.tableObservations.length - 1;
+        if ($scope.observations[$scope.selectedCode] !== undefined) {
+            for (var i = 0; i < $scope.observations[$scope.selectedCode].length; i++) {
+                var observation = $scope.observations[$scope.selectedCode][i];
+                if (start <= observation.applies && end >= observation.applies) {
+                    observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
+                    observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');
+                    $scope.tableObservations.push(observation);
+                    $scope.tableObservationsKey[observation.applies] = $scope.tableObservations.length - 1;
+                }
             }
         }
 

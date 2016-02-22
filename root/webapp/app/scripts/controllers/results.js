@@ -21,12 +21,15 @@ function ($scope, $modal, ObservationService, $routeParams) {
 
             if (summary.length) {
                 $scope.groupIndex = 0;
-
-                $scope.currentPage = $routeParams.r !== undefined ? $routeParams.r : 1;
-
                 $scope.summary = summary;
                 $scope.group = summary[$scope.groupIndex].group;
                 $scope.panels = summary[$scope.groupIndex].panels;
+
+                // validate that r param points to a correct page
+                if ($routeParams.r !== undefined) {
+                    $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
+                }
+
                 $scope.panel = $scope.panels[$scope.currentPage];
 
                 // set up group switcher
