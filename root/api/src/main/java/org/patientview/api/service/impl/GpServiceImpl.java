@@ -157,6 +157,45 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private String tempDirectory;
     private int total, newGp, existingGp;
 
+    private void add(GpLetter gpLetter, Group sourceGroup) {
+        gpLetter.setCreated(new Date());
+
+        // set identifier trimmed without spaces
+        gpLetter.setPatientIdentifier(gpLetter.getPatientIdentifier().trim().replace(" ", ""));
+
+        // signup key (generated)
+        gpLetter.setSignupKey(gpLetterCreationService.generateSignupKey());
+
+        // source group (provided the xml, from fhirlink)
+        gpLetter.setSourceGroup(sourceGroup);
+
+        // letter (generated)
+        try {
+            // if not enough information to produce letter address then use gp master
+            if (!gpLetterCreationService.hasValidPracticeDetails(gpLetter)) {
+                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", ""));
+                if (!gpMasters.isEmpty()) {
+                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                            gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
+                } else {
+                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                            gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
+                }
+            } else {
+                gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
+                        gpLetter, null, properties.getProperty("site.url"),
+                        properties.getProperty("gp.letter.output.directory")));
+            }
+        } catch (DocumentException de) {
+            LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
+            gpLetter.setLetterContent(null);
+        }
+
+        gpLetterRepository.save(gpLetter);
+    }
+
     private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
         // get practices from GP master table by postcode, must return at least one
         List<GpPractice> masterTablePractices = getGpPracticesFromMasterTable(gpLetter.getGpPostcode());
@@ -211,7 +250,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpMaster.setAddress2(StringUtils.isNotEmpty(address2) ? address2 : null);
         gpMaster.setAddress3(StringUtils.isNotEmpty(address3) ? address3 : null);
         gpMaster.setAddress4(StringUtils.isNotEmpty(address4) ? address4 : null);
-        gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode : null);
+        gpMaster.setPostcode(StringUtils.isNotEmpty(postcode) ? postcode.replace(" ", "") : null);
+        gpMaster.setPostcodeOriginal(StringUtils.isNotEmpty(postcode) ? postcode : null);
         gpMaster.setStatusCode(StringUtils.isNotEmpty(statusCode) ? statusCode : null);
         gpMaster.setTelephone(StringUtils.isNotEmpty(telephone) ? telephone : null);
 
@@ -571,7 +611,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         List<GpPractice> gpPractices = new ArrayList<>();
 
         // search for GP practices in GP master table by postcode
-        List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpPostcode);
+        List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpPostcode.replace(" ", ""));
         for (GpMaster gpMaster : gpMasters) {
             // only add GP practices with either null or A status
             if (StringUtils.isEmpty(gpMaster.getStatusCode()) || gpMaster.getStatusCode().equals("A")) {
@@ -630,45 +670,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
-    private void add(GpLetter gpLetter, Group sourceGroup) {
-        gpLetter.setCreated(new Date());
-
-        // set identifier trimmed without spaces
-        gpLetter.setPatientIdentifier(gpLetter.getPatientIdentifier().trim().replace(" ", ""));
-
-        // signup key (generated)
-        gpLetter.setSignupKey(gpLetterCreationService.generateSignupKey());
-
-        // source group (provided the xml, from fhirlink)
-        gpLetter.setSourceGroup(sourceGroup);
-
-        // letter (generated)
-        try {
-            // if not enough information to produce letter address then use gp master
-            if (!gpLetterCreationService.hasValidPracticeDetails(gpLetter)) {
-                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode());
-                if (!gpMasters.isEmpty()) {
-                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                            gpLetter, gpMasters.get(0),
-                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
-                } else {
-                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                            gpLetter, gpMasters.get(0),
-                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
-                }
-            } else {
-                gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                        gpLetter, null, properties.getProperty("site.url"),
-                        properties.getProperty("gp.letter.output.directory")));
-            }
-        } catch (DocumentException de) {
-            LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
-            gpLetter.setLetterContent(null);
-        }
-
-        gpLetterRepository.save(gpLetter);
-    }
-
     @Override
     public void invite(Long userId, FhirPatient patient) throws VerificationException {
         LOG.info("Started GP invite process");
@@ -694,7 +695,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpLetter.setGpAddress2(practitioner.getAddress2());
         gpLetter.setGpAddress3(practitioner.getAddress3());
         gpLetter.setGpAddress4(practitioner.getAddress4());
-        gpLetter.setGpPostcode(practitioner.getPostcode());
+        gpLetter.setGpPostcode(practitioner.getPostcode().replace(" ", ""));
 
         gpLetter.setPatientForename(patient.getForename());
         gpLetter.setPatientSurname(patient.getSurname());
@@ -821,6 +822,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
             // delete temp directory
             FileUtils.deleteDirectory(zipFolder);
+        } else {
+            LOG.info("gp.master.url.england not set, continuing");
         }
     }
 
@@ -879,18 +882,17 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                     String address2 = getCellContent(nextRow.getCell(4));
                     String address3 = getCellContent(nextRow.getCell(5));
                     String postcode = getCellContent(nextRow.getCell(6));
-
-                    // handle errors in postcode field
-                    String[] postcodeSplit = postcode.split(" ");
-                    if (postcodeSplit.length == 4) {
-                        postcode = postcodeSplit[2] + " " + postcodeSplit[3];
-                    }
-
                     String telephone = getCellContent(nextRow.getCell(7));
 
                     if (practiceCode != null) {
-                        addToSaveMap(practiceCode, practiceName, address1, address2, address3, null, postcode, null,
-                                telephone, GpCountries.NI);
+                        // handle errors in postcode field
+                        String[] postcodeSplit = postcode.split(" ");
+                        if (postcodeSplit.length == 4) {
+                            postcode = postcodeSplit[2] + " " + postcodeSplit[3];
+                        }
+
+                        addToSaveMap(practiceCode, practiceName, address1, address2, address3, null,
+                                postcode, null, telephone, GpCountries.NI);
                     }
                 }
                 count++;
@@ -907,6 +909,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
             // delete temp directory
             FileUtils.deleteDirectory(zipFolder);
+        } else {
+            LOG.info("gp.master.url.northernireland not set, continuing");
         }
     }
 
@@ -969,6 +973,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
             // delete temp directory
             FileUtils.deleteDirectory(zipFolder);
+        } else {
+            LOG.info("gp.master.url.scotland not set, continuing");
         }
     }
 

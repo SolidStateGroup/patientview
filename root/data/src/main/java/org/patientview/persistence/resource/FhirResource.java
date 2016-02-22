@@ -865,6 +865,7 @@ public class FhirResource {
             String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
                     "FROM practitioner " +
                     "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
+                    "OR CONTENT -> 'address' ->> 'zip' = '" + gpPostcode.replace(" ", "")  + "' " +
                     "GROUP BY logical_id";
             //LOG.info(query);
             ResultSet results = statement.executeQuery(query);

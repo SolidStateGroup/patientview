@@ -749,6 +749,7 @@ CREATE TABLE PV_Gp_Master
   Address_3                   TEXT,
   Address_4                   TEXT,
   Postcode                    TEXT,
+  Postcode_Original           TEXT,
   Country                     TEXT,
   Telephone                   TEXT,
   Status_Code                 TEXT,

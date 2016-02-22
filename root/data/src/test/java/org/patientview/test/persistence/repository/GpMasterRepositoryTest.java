@@ -77,7 +77,7 @@ public class GpMasterRepositoryTest {
 
         gpMasterRepository.save(gp);
 
-        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode().replace(" ", ""));
         Assert.assertEquals("There should be 1 gp", 1, gps.size());
         Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gp));
     }
@@ -98,7 +98,7 @@ public class GpMasterRepositoryTest {
 
         gpMasterRepository.save(gp);
 
-        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode().replace(" ", ""));
         Assert.assertEquals("There should be 0 gp", 0, gps.size());
     }
 
@@ -118,7 +118,7 @@ public class GpMasterRepositoryTest {
 
         gpMasterRepository.save(gp);
 
-        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode());
+        List<GpMaster> gps = gpMasterRepository.findByPostcode(gp.getPostcode().replace(" ", ""));
         Assert.assertEquals("There should be 1 gp", 1, gps.size());
         Assert.assertTrue("The GP should be the one created", gps.get(0).equals(gp));
     }

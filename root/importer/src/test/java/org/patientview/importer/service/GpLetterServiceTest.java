@@ -85,7 +85,7 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
 
-        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
         when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
         when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
         when(gpLetterCreationService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
@@ -127,7 +127,7 @@ public class GpLetterServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
 
-        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
         when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
         when(gpLetterCreationService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(false);
         when(gpLetterCreationService.hasValidPracticeDetailsSingleMaster(any(GpLetter.class))).thenReturn(true);

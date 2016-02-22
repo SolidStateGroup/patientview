@@ -46,6 +46,9 @@ public class GpMaster implements Serializable, Comparable {
     @Column(name = "postcode")
     private String postcode;
 
+    @Column(name = "postcode_original")
+    private String postcodeOriginal;
+
     @Column(name = "country", nullable = false)
     @Enumerated(EnumType.STRING)
     private GpCountries country;
@@ -132,6 +135,14 @@ public class GpMaster implements Serializable, Comparable {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    public String getPostcodeOriginal() {
+        return postcodeOriginal;
+    }
+
+    public void setPostcodeOriginal(String postcodeOriginal) {
+        this.postcodeOriginal = postcodeOriginal;
     }
 
     public GpCountries getCountry() {

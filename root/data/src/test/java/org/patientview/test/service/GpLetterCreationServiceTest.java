@@ -55,7 +55,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(gpLetter));
     }
@@ -83,7 +83,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(gpLetter));
     }
@@ -100,7 +100,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         Assert.assertTrue("Should be valid practice details", gpLetterService.hasValidPracticeDetails(gpLetter));
     }
@@ -116,7 +116,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         Assert.assertFalse("Should be invalid practice details", gpLetterService.hasValidPracticeDetails(gpLetter));
     }
@@ -132,7 +132,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpMaster> gps = new ArrayList<>();
         gps.add(gp);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gps);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gps);
 
         Assert.assertTrue("Should be valid practice details",
                 gpLetterService.hasValidPracticeDetailsSingleMaster(gpLetter));
@@ -151,7 +151,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gps.add(gp);
         gps.add(gp2);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gps);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gps);
 
         Assert.assertFalse("Should be invalid practice details",
                 gpLetterService.hasValidPracticeDetailsSingleMaster(gpLetter));
@@ -174,14 +174,14 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetter);
 
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpLetter.getGpPostcode());
         gpMaster.setPracticeCode("A1234");
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -211,7 +211,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpLetters.add(gpLetterFound);
         gpLetters.add(gpLetterFound2);
 
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpLetter.getGpPostcode());
@@ -224,7 +224,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
         gpMasters.add(gpMaster2);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -254,7 +254,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpLetters.add(gpLetterFound);
         gpLetters.add(gpLetterFound2);
 
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         GpMaster gpMaster = new GpMaster();
         gpMaster.setPostcode(gpLetter.getGpPostcode());
@@ -267,7 +267,7 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpMaster> gpMasters = new ArrayList<>();
         gpMasters.add(gpMaster);
         gpMasters.add(gpMaster2);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -290,8 +290,8 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetterFound);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -316,8 +316,8 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpLetters.add(gpLetterFound);
         gpLetters.add(gpLetterFound2);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -342,8 +342,8 @@ public class GpLetterCreationServiceTest extends BaseTest {
         List<GpLetter> gpLetters = new ArrayList<>();
         gpLetters.add(gpLetterFound);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 
@@ -374,8 +374,8 @@ public class GpLetterCreationServiceTest extends BaseTest {
         gpLetters.add(gpLetterFound);
         gpLetters.add(gpLetterFound2);
 
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpLetters);
 
         List<GpLetter> found = gpLetterService.matchByGpDetails(gpLetter);
 

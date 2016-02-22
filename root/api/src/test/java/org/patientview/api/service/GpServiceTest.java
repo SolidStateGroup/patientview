@@ -270,11 +270,8 @@ public class GpServiceTest {
         when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
         when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
                 .thenReturn(defaultMessagingContactFeature);
-        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
         when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
         when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
                 .thenReturn(generalPracticeLookup);
@@ -635,11 +632,8 @@ public class GpServiceTest {
         when(featureRepository.findByName(eq(FeatureType.MESSAGING.toString()))).thenReturn(messagingFeature);
         when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString())))
                 .thenReturn(defaultMessagingContactFeature);
-        when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
-        when(gpLetterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpLetters);
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
         when(gpMasterRepository.findByPracticeCode(eq(details.getPractices().get(0).getCode()))).thenReturn(gpMasters);
         when(lookupRepository.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.GENERAL_PRACTICE.toString())))
                 .thenReturn(generalPracticeLookup);
@@ -743,7 +737,7 @@ public class GpServiceTest {
 
         when(gpLetterRepository.findBySignupKeyAndIdentifier(
                 eq(details.getSignupKey()), eq(details.getPatientIdentifier()))).thenReturn(gpLetters);
-        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode()))).thenReturn(gpMasters);
+        when(gpMasterRepository.findByPostcode(eq(gpLetter.getGpPostcode().replace(" ", "")))).thenReturn(gpMasters);
         when(nhsChoicesService.getDetailsByPracticeCode(eq(gpMaster.getPracticeCode()))).thenReturn(gpMasterDetails);
         when(fhirResource.getGpPatientsFromPostcode(eq(gpMaster.getPostcode()))).thenReturn(patients);
 
