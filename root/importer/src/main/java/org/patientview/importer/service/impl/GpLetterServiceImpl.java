@@ -113,6 +113,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         gpLetter.setGpAddress2(gp.getGpaddress2());
         gpLetter.setGpAddress3(gp.getGpaddress3());
         gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
 
         return gpLetterCreationService.hasValidPracticeDetails(gpLetter);
     }
@@ -133,6 +134,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         gpLetter.setGpAddress2(gp.getGpaddress2());
         gpLetter.setGpAddress3(gp.getGpaddress3());
         gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
 
         return gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter);
     }
@@ -146,6 +148,7 @@ public class GpLetterServiceImpl extends AbstractServiceImpl<GpLetterServiceImpl
         gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
         gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
         gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
+        gpLetter.setGpPostcode(patientview.getGpdetails().getGppostcode());
 
         return gpLetterCreationService.matchByGpDetails(gpLetter);
     }

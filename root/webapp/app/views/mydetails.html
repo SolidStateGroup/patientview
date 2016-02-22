@@ -34,7 +34,7 @@
             </table>
             <br/>
             <p>
-                You are about to create an invite letter to be sent to your GP Practice to join PatientView.
+                An invite letter will be sent to your GP Practice to join PatientView.
                 Once signed up, your GP will be able to view your records. Do you wish to continue?
             </p>
         </div>
@@ -50,8 +50,8 @@
     <div class="modal-footer">
         <div data-ng-if="!completed && !loading">
             <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="inviteGp(practitioner)">Invite GP to PatientView</button>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
         </div>
         <div data-ng-if="completed || loading">
             <button class="btn btn-grey" data-ng-click="cancel()">Close</button>

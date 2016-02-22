@@ -325,7 +325,10 @@ public class ImportControllerTest {
     @Ignore("IntegrationTest")
     public void importIntegrationTestGpLogins_local() throws Exception {
         // all data, single match in gp master - creates letter
-        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+
+        // all data, multi match in gp master - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_B11_4AN.xml"));
 
         // only name and postcode, single match in gp master for postcode - creates letter
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
@@ -343,7 +346,7 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
 
         // bad gp name, should rename file when saving
-        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_bad_name_postcode.xml"));
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_bad_name_postcode.xml"));
     }
 
     // GP logins on staging

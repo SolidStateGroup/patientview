@@ -755,7 +755,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
         email.setBody("Dear " + user.getName() + "<br/><br/>Welcome to PatientView<br/><br/>"
                 + "Your Unit Admin role has been created as requested.<br/>There is information about this role at "
-                + "<a href=\"http://www.rixg.com/xxxxxxxx\">http://www.rixg.com/xxxxxxxx</a>. It is important that you "
+                + "<a href=\"http://rixg.org/patientview2/admin-and-technical/gp-guide/\">"
+                + "http://rixg.org/patientview2/admin-and-technical/gp-guide/</a>. It is important that you "
                 + "read the information there to be sure that governance and confidentiality principles are "
                 + "maintained. <br/><br/>Log in at <a href=\"http://www.patientview.org\">www.patientview.org</a> "
                 + "(top right) with the username below and the password generated when you claimed your account. You "
