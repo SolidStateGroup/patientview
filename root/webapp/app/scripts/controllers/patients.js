@@ -832,10 +832,17 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 $scope.filterUnitGroups = [];
                 $scope.filterDiseaseGroupGroups = [];
                 $scope.filterSpecialtyGroups = [];
+                $scope.filterGeneralPracticeGroups = [];
 
                 // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                 for (i = 0; i < groups.length; i++) {
                     group = groups[i];
+
+                    // global admin can see all groups
+                    if ($scope.permissions.isSuperAdmin) {
+                        group.visible = true;
+                    }
+
                     if (group.visible === true) {
                         var minimalGroup = {};
                         minimalGroup.id = group.id;
@@ -857,6 +864,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         } else if (group.groupType.value === 'SPECIALTY') {
                             $scope.showSpecialtyFilter = true;
                             $scope.filterSpecialtyGroups.push(minimalGroup);
+                        } else if (group.groupType.value === 'GENERAL_PRACTICE') {
+                            $scope.showGeneralPracticeFilter = true;
+                            $scope.filterGeneralPracticeGroups.push(minimalGroup);
                         }
                     }
                 }
