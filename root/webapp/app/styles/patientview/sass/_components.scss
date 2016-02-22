@@ -147,6 +147,12 @@ hr.solid{
     width:85px;
     text-align: center;
     font-weight: bold;
+
+    .small{
+        height:30px;
+        width:30px;
+        font-size:20px;
+    }
 }
 
 // angular slider component //
