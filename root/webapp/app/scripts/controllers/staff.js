@@ -362,7 +362,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     group.visible = true;
                 }
 
-                if (group.visible === true) {
+                if (group.visible === true && group.code !== 'Generic') {
                     var minimalGroup = {};
                     minimalGroup.id = group.id;
                     minimalGroup.shortName = group.shortName;
