@@ -277,6 +277,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 groupTypes.SPECIALTY = 1;
                 groupTypes.UNIT = 2;
                 groupTypes.DISEASE_GROUP = 3;
+                groupTypes.GENERAL_PRACTICE = 4;
 
                 if (groupTypes[groupRole.group.groupType.value]) {
                     return groupTypes[groupRole.group.groupType.value];

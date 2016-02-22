@@ -87,12 +87,13 @@
 
                                         <!-- units & Generic specialties-->
                                         <img class="group-image" src="../images/icons/pv-units.png"
-                                             data-ng-if="
-                                             groupRole.group.groupType.value === 'UNIT'
-                                                || groupRole.group.groupType.value === 'GENERAL_PRACTICE'
+                                             data-ng-if="groupRole.group.groupType.value === 'UNIT'
                                                 || groupRole.group.code === 'Generic'
-                                                || groupRole.group.code === 'GENERAL_PRACTICE'
-                                                "/>
+                                                || groupRole.group.code === 'GENERAL_PRACTICE'"/>
+
+                                        <!-- GP units -->
+                                        <span class="badge gp pull-left small"
+                                              data-ng-if="groupRole.group.groupType.value === 'GENERAL_PRACTICE'">GP</span>
 
                                         <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
                                             && groupRole.group.code !== 'Diabetes' &&
