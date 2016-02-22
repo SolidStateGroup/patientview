@@ -1723,6 +1723,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException{
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        user.setHideSecretWordNotification(true);
+        userRepository.save(user);
+    }
+
+    @Override
     public boolean usernameExists(String username) {
         if (StringUtils.isEmpty(username)) {
             return false;

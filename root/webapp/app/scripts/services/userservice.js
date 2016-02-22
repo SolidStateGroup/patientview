@@ -36,6 +36,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // hide notification for secret word
+        hideSecretWordNotification: function (userId) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/hideSecretWordNotification
+            Restangular.one('user', userId).post('hideSecretWordNotification').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Reset user's password
         resetPassword: function (user) {
             var deferred = $q.defer();

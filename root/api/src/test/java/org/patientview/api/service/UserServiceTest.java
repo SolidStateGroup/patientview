@@ -253,6 +253,25 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testHideSecretWordNotification() throws ResourceNotFoundException, ResourceForbiddenException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        userService.hideSecretWordNotification(user.getId());
+
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
     public void testUpdateUser() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
 
         // current user and security

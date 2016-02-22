@@ -2,9 +2,9 @@
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
     'NewsService', 'UtilService', 'StaticDataService', 'MedicationService', 'ObservationService',
-    'ObservationHeadingService', 'AlertService',
+    'ObservationHeadingService', 'AlertService', '$rootScope',
     function (UserService, $modal, $scope, GroupService, NewsService, UtilService, StaticDataService, MedicationService,
-              ObservationService, ObservationHeadingService, AlertService) {
+              ObservationService, ObservationHeadingService, AlertService, $rootScope) {
 
         // get graph every time group is changed
         $scope.$watch('graphGroupId', function (newValue) {
@@ -267,6 +267,23 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             }
         };
 
+        $scope.hideAlertNotification = function (alert) {
+            alert.webAlertViewed = true;
+            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
+                getAlerts();
+            }, function () {
+                alert('Error updating alert');
+            });
+        };
+
+        $scope.hideSecretWordNotification = function () {
+            UserService.hideSecretWordNotification($rootScope.loggedInUser.id).then(function () {
+                $rootScope.loggedInUser.hideSecretWordNotification = true;
+            }, function () {
+                alert("Error hiding secret word notification");
+            });
+        };
+
         $scope.viewNewsItem = function (news) {
             var modalInstance = $modal.open({
                 templateUrl: 'views/partials/viewNewsModal.html',
@@ -424,15 +441,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     alert('Error updating alert');
                 });
             }
-        };
-
-        $scope.hideAlertNotification = function (alert) {
-            alert.webAlertViewed = true;
-            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
-                getAlerts();
-            }, function () {
-                alert('Error updating alert');
-            });
         };
 
         var getAvailableObservationHeadings = function () {

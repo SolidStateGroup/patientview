@@ -287,6 +287,15 @@ public interface UserService {
     byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Hide secret word notification
+     * @param userId Id of User to hide secret word notification for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Set up service with generic Group and member Role.
      */
     @RoleOnly

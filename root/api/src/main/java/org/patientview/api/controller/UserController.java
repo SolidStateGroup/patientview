@@ -385,6 +385,19 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getApiUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
+    /**
+     * Hide secret word notification
+     * @param userId Id of User to hide secret word notification for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/hideSecretWordNotification", method = RequestMethod.POST)
+    @ResponseBody
+    public void hideSecretWordNotification(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.hideSecretWordNotification(userId);
+    }
+
     // Migration Only, are migrating passwords so create user with no password encryption
     @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

@@ -296,6 +296,15 @@ public class UserControllerTest {
                 eq(staffUser.getId()), eq(group.getId()), eq(staffRole.getId()));
     }
 
+    @Test
+    public void testHideSecretWordNotification() throws Exception {
+        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + testUser.getId() + "/hideSecretWordNotification"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
     /**
      * Test: The url to reset a password
      * Fail: The service method does not get called
