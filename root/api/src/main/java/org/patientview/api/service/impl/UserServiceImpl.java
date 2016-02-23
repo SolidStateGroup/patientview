@@ -1594,6 +1594,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 user.setLocked(Boolean.FALSE);
                 user.setFailedLogonAttempts(0);
                 user.setPassword(DigestUtils.sha256Hex(password + salt));
+
+                // remove secret word
+                user.setHideSecretWordNotification(false);
+                user.setSecretWord(null);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
