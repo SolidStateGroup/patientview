@@ -59,7 +59,6 @@
                 <div class="form-group">
                     <label for="letter{{index}}" class="col-sm-2 control-label">Letter {{(index*1) + 1}}</label>
                     <div class="col-sm-4">
-                        <!--<input id="letter{{index}}" name="letter{{index}}" data-ng-model="secretWordChoices[index]" type="text" class="form-control"/>-->
                         <select class="form-control" data-ng-model="secretWordChoices[index]"  id="letter{{index}}"
                                 data-ng-options="letter as letter for letter in alphabet">
                         </select>
@@ -73,6 +72,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-offset-2">
+                    <a class="pull-right" href="#/forgottenpassword">Forgotten your secret word?</a>
                     <ul class="unstyled inline">
                         <li><button data-ng-click="loginWithSecretWord()" class="btn blue">Log In</button></li>
                     </ul>
