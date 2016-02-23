@@ -551,7 +551,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = findUser(userId);
         try {
             String salt = CommonUtils.generateSalt();
-            String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim();
+            String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim().toUpperCase();
+
+            if (!StringUtils.isAlpha(secretWord)) {
+                throw new ResourceForbiddenException("Secret word must be letters only");
+            }
 
             // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
             Map<String, String> letters = new HashMap<>();
