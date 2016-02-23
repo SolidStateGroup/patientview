@@ -28,6 +28,8 @@ function ($scope, $modal, ObservationService, $routeParams) {
                 // validate that r param points to a correct page
                 if ($routeParams.r !== undefined) {
                     $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
+                } else {
+                    $scope.currentPage = 1;
                 }
 
                 $scope.panel = $scope.panels[$scope.currentPage];
