@@ -16,6 +16,8 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.userdetails.confirmEmail = $scope.userdetails.email;
             // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
             $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+
+            $rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
         });
     };
         
@@ -104,6 +106,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
                 $scope.secretWordSuccessMessage = 'Your secret word has been saved';
                 $rootScope.loggedInUser.hideSecretWordNotification = true;
+                $rootScope.loggedInUser.secretWordIsSet = true;
             }, function () {
                 $scope.secretWordErrorMessage = 'There was an error changing your secret word';
             });

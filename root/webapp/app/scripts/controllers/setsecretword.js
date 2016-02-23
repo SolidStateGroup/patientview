@@ -17,6 +17,7 @@ angular.module('patientviewApp').controller('SetSecretWordCtrl', ['UserService',
             UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
                 $scope.secretWordSuccessMessage = 'Your secret word has been saved';
                 $rootScope.loggedInUser.hideSecretWordNotification = true;
+                $rootScope.loggedInUser.secretWordIsSet = true;
                 $scope.loading = false;
             }, function () {
                 $scope.secretWordErrorMessage = 'There was an error setting your secret word';
