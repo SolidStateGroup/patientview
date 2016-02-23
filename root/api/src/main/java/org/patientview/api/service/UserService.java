@@ -334,7 +334,7 @@ public interface UserService {
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Reset a User's password, done by Users for other staff or patients.
+     * Reset a User's password, done by Users for other staff or patients. Also removes secret word.
      * @param userId ID of User to reset password for
      * @param password New password
      * @return User, newly updated (note: consider only returning HTTP OK)
