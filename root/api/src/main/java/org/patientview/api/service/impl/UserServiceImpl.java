@@ -551,13 +551,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = findUser(userId);
         try {
             String salt = CommonUtils.generateSalt();
+            String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim();
 
             // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
             Map<String, String> letters = new HashMap<>();
             letters.put("salt", salt);
-            for (int i = 0; i < secretWordInput.getSecretWord1().length(); i++) {
-                letters.put(String.valueOf(i), DigestUtils.sha256Hex(
-                        String.valueOf(secretWordInput.getSecretWord1().charAt(i)) + salt));
+            for (int i = 0; i < secretWord.length(); i++) {
+                letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(secretWord.charAt(i)) + salt));
             }
 
             user.setSecretWord(new JSONObject(letters).toString());

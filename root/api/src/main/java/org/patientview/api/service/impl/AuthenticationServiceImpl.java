@@ -376,10 +376,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             if (foundUserToken.getUser() == null) {
                 throw new AuthenticationServiceException("Forbidden, User not found");
             }
-            if (StringUtils.isNotEmpty(foundUserToken.getUser().getSecretWord())
-                    && StringUtils.isEmpty(userToken.getSecretWordToken())) {
-                throw new AuthenticationServiceException("Forbidden, secret word token not found");
-            }
 
             return createApiUserToken(foundUserToken);
         }
