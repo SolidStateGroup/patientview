@@ -150,6 +150,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getGpLoginRoute(), data.routes)) {
                     data.routes.push(RouteService.getGpLoginRoute());
                 }
+                if (!routeExists(RouteService.getSetSecretWordRoute(), data.routes)) {
+                    data.routes.push(RouteService.getSetSecretWordRoute());
+                }
 
                 for (var j = 0; j < data.routes.length; j++) {
                     var path = data.routes[j].url;

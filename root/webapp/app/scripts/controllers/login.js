@@ -37,7 +37,11 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                         // manually call buildroute, ios fix
                         $rootScope.buildRoute();
 
-                        $location.path('/dashboard');
+                        if (userInformation.mustSetSecretWord) {
+                            $location.path('/setsecretword');
+                        } else {
+                            $location.path('/dashboard');
+                        }
                     }
                 } else {
                     // error getting routes

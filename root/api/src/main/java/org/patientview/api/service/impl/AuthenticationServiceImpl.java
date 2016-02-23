@@ -253,6 +253,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return toReturn;
     }
 
+    /**
+     * Check if User must set a secret word. todo: will be updated in future to include forcing staff to set etc
+     * @param user User to check if must set a secret word
+     * @return boolean if secret word must be set
+     */
+    private boolean checkMustSetSecretWord(User user) {
+        return false;
+    }
+
     @Override
     public void checkSecretWord(User user, Map<String, String> letterMap)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -316,6 +325,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
             setAuditActions(transportUserToken);
         }
+
+        // tell ui user must set secret word
+        transportUserToken.setMustSetSecretWord(checkMustSetSecretWord(userToken.getUser()));
 
         return transportUserToken;
     }

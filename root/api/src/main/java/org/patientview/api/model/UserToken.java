@@ -42,6 +42,7 @@ public class UserToken {
     private Map<String, String> secretWordChoices;
     private boolean checkSecretWord;
     private String secretWordToken;
+    private boolean mustSetSecretWord;
 
     public UserToken() {
     }
@@ -219,5 +220,13 @@ public class UserToken {
 
     public void setSecretWordToken(String secretWordToken) {
         this.secretWordToken = secretWordToken;
+    }
+
+    public boolean isMustSetSecretWord() {
+        return mustSetSecretWord;
+    }
+
+    public void setMustSetSecretWord(boolean mustSetSecretWord) {
+        this.mustSetSecretWord = mustSetSecretWord;
     }
 }
