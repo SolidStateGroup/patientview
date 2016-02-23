@@ -15,22 +15,22 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
             $scope.loading = true;
 
             AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword})
-                .then(function (authToken) {
+                .then(function (userToken) {
 
                 // set the password
                 $scope.userdetails.password = $scope.pw;
 
                 // set the authtoken
-                $rootScope.authToken = authToken;
-                $cookies.authToken = authToken;
-                localStorageService.set('authToken', authToken);
+                $rootScope.authToken = userToken.token;
+                $cookies.authToken = userToken.token;
+                localStorageService.set('authToken', userToken.token);
 
                 UserService.changePassword($scope.userdetails).then(function () {
 
                     // successfully changed user password
                     $scope.successMessage = 'The password has been changed';
 
-                    AuthService.getUserInformation({'token' : authToken}).then(function (userInformation) {
+                    AuthService.getUserInformation({'token' : userToken.token}).then(function (userInformation) {
 
                         // get user information (securityroles, userGroups), store in session
                         var user = userInformation.user;
