@@ -103,6 +103,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             secretWordInput.secretWord2 = $scope.secretWord2;
             UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
                 $scope.secretWordSuccessMessage = 'Your secret word has been saved';
+                $rootScope.loggedInUser.hideSecretWordNotification = true;
             }, function () {
                 $scope.secretWordErrorMessage = 'There was an error changing your secret word';
             });

@@ -109,6 +109,13 @@ public interface UserService {
     @UserOnly
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
+    /**
+     * Update a User's secret word
+     * @param userId Id of User to update secret word for
+     * @param secretWordInput String pair containing secret word
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @UserOnly
     void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
             throws ResourceNotFoundException, ResourceForbiddenException;
