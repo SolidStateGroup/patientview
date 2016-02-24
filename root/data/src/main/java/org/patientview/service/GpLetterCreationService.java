@@ -12,14 +12,14 @@ import java.util.List;
  */
 public interface GpLetterCreationService {
 
+    String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
+    throws DocumentException;
+
+    String generateSignupKey();
+
     boolean hasValidPracticeDetails(GpLetter gpLetter);
 
     boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter);
 
     List<GpLetter> matchByGpDetails(GpLetter gpLetter);
-
-    String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
-            throws DocumentException;
-
-    String generateSignupKey();
 }

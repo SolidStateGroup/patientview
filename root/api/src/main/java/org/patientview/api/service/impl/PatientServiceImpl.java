@@ -1373,10 +1373,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                     // check existing gp letter does not exist for postcode and gp name (claimed or unclaimed)
                     // handle entries with and without spaces in postcode
-                    List<GpLetter> gpLetters = gpLetterRepository.findByPostcodeAndName(
-                            gpLetter.getGpPostcode(), gpLetter.getGpName());
-                    gpLetters.addAll(gpLetterRepository.findByPostcodeAndName(
-                            gpLetter.getGpPostcode().replace(" ", ""), gpLetter.getGpName()));
+                    List<GpLetter> gpLetters = new ArrayList<>();
+
+                    if (StringUtils.isNotEmpty(gpLetter.getGpPostcode())
+                            && StringUtils.isNotEmpty(gpLetter.getGpName())) {
+                        gpLetters.addAll(gpLetterRepository.findByPostcodeAndName(
+                                gpLetter.getGpPostcode(), gpLetter.getGpName()));
+                        gpLetters.addAll(gpLetterRepository.findByPostcodeAndName(
+                                gpLetter.getGpPostcode().replace(" ", ""), gpLetter.getGpName()));
+                    }
 
                     if (gpLetters.isEmpty()) {
                         // no current gp letter, check gp details are suitable for creating gp letter
