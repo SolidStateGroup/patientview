@@ -67,9 +67,9 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
     }]);
 
 patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
-    '$route', 'RouteService', 'ENV', 'ConversationService', 'RequestService', 'UserService', 'AuthService',
+    '$route', 'RouteService', 'ENV', 'ConversationService', 'RequestService', 'UserService', 'AuthService', '$anchorScroll',
     function ($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
-              RouteService, ENV, ConversationService, RequestService, UserService, AuthService) {
+              RouteService, ENV, ConversationService, RequestService, UserService, AuthService, $anchorScroll) {
 
         $('#timeout').hide();
 
@@ -296,6 +296,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.$on('$routeChangeSuccess', function (event, currentRoute) {
             $rootScope.title = currentRoute.title;
             $rootScope.resetTimeoutTimers();
+            $timeout(function() {
+                if ($location.hash()) $anchorScroll();
+            });
         });
 
         $rootScope.$on('$viewContentLoaded', function () {
