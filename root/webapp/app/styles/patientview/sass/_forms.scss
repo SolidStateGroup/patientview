@@ -512,6 +512,14 @@ textarea.form-control{
     float:none;
 }
 
+.top-offset{
+    margin-bottom:0;
+
+    &.twenty{
+        margin-top:20px;
+    }
+}
+
 /** Selectize tweaks **/
 
 .optgroup-header {
@@ -523,3 +531,5 @@ textarea.form-control{
 .selectize-dropdown, .selectize-input, .selectize-input input {
     font-size: inherit;
 }
+
+

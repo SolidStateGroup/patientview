@@ -189,26 +189,9 @@
         </div>
     </div>
 
-    <div class="content-panel gp-login" data-ng-show="step === 3">
+    <div class="content-panel gp-login" data-ng-show="step !== 3">
         <div class="content-inner">
-            <h2>Account Created, Welcome to PatientView</h2>
-            <p>You have successfully claimed your PatientView account, your details are below.
-                Please make sure to remember these details as they will not be available when you leave this page.</p>
-            <div class="form-group row">
-                <div class="col-sm-12 text-center">
-                    <dl>
-                        <dt><strong>Username:</strong></dt>
-                        <dd>{{details.username}}</dd>
-                    </dl>
-                </div>
-
-                <div class="col-sm-12 text-center">
-                    <dl>
-                        <dt><strong>Password:</strong></dt>
-                        <dd>{{details.password}}</dd>
-                    </dl>
-                </div>
-            </div>
+            <h2 class="text-center full-width">Account Created, Welcome to PatientView</h2>
             <div class="success-container text-center">
                 <div class="sweet-alert showSweetAlert visible" data-custom-class="" data-has-cancel-button="false"
                      data-has-confirm-button="true" data-allow-outside-click="false" data-has-done-function="false"
@@ -231,7 +214,23 @@
                         <div class="sa-placeholder"></div>
                         <div class="sa-fix"></div>
                     </div>
-                    <h2>Success</h2>
+                </div>
+            </div>
+            <p class="full-width text-center">You have successfully claimed your PatientView account, your details are below.<br/>
+                <strong>Please make sure to remember these details as they will not be available when you leave this page.</strong></p>
+            <div class="form-group row top-offset twenty">
+                <div class="col-sm-12 text-center">
+                    <dl>
+                        <dt><strong>Username:</strong></dt>
+                        <dd>{{details.username}}</dd>
+                    </dl>
+                </div>
+
+                <div class="col-sm-12 text-center">
+                    <dl>
+                        <dt><strong>Password:</strong></dt>
+                        <dd>{{details.password}}</dd>
+                    </dl>
                 </div>
             </div>
             <div class="row">
