@@ -36,7 +36,7 @@ public final class CommonUtils {
     }
 
     public static String generatePassword() {
-        return RandomStringUtils.randomAlphanumeric(12);
+        return RandomStringUtils.randomAlphanumeric(9);
     }
 
     // to get type of identifier based on numeric range
