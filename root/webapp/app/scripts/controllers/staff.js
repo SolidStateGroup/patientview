@@ -351,7 +351,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.filterUnitGroups = [];
             $scope.filterOtherGroups = [];
             $scope.filterSpecialtyGroups = [];
-            $scope.filterGeneralPracticeGroups = [];
 
             // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
             for (i = 0; i < groups.length; i++) {
@@ -371,7 +370,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     minimalGroup.groupType.value = group.groupType.value;
                     minimalGroup.groupType.description = group.groupType.description;
                     $scope.allGroups.push(minimalGroup);
-
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 
@@ -379,15 +377,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                         $scope.showUnitFilter = true;
                         $scope.filterUnitGroups.push(minimalGroup);
                     } else if (group.groupType.value === 'DISEASE_GROUP'
-                            || group.groupType.value === 'CENTRAL_SUPPORT') {
+                            || group.groupType.value === 'CENTRAL_SUPPORT'
+                            || group.groupType.value === 'GENERAL_PRACTICE') {
                         $scope.showOtherGroupFilter = true;
                         $scope.filterOtherGroups.push(minimalGroup);
                     } else if (group.groupType.value === 'SPECIALTY') {
                         $scope.showSpecialtyFilter = true;
                         $scope.filterSpecialtyGroups.push(minimalGroup);
-                    } else if (group.groupType.value === 'GENERAL_PRACTICE') {
-                        $scope.showGeneralPracticeFilter = true;
-                        $scope.filterGeneralPracticeGroups.push(minimalGroup);
                     }
                 }
             }

@@ -830,9 +830,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // show error if user is not a member of any groups
             if (groups.length !== 0) {
                 $scope.filterUnitGroups = [];
-                $scope.filterDiseaseGroupGroups = [];
+                $scope.filterOtherGroups = [];
                 $scope.filterSpecialtyGroups = [];
-                $scope.filterGeneralPracticeGroups = [];
 
                 // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                 for (i = 0; i < groups.length; i++) {
@@ -858,15 +857,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         if (group.groupType.value === 'UNIT') {
                             $scope.showUnitFilter = true;
                             $scope.filterUnitGroups.push(minimalGroup);
-                        } else if (group.groupType.value === 'DISEASE_GROUP') {
-                            $scope.showDiseaseGroupFilter = true;
-                            $scope.filterDiseaseGroupGroups.push(minimalGroup);
+                        } else if (group.groupType.value === 'DISEASE_GROUP'
+                            || group.groupType.value === 'GENERAL_PRACTICE') {
+                            $scope.showOtherGroupFilter = true;
+                            $scope.filterOtherGroups.push(minimalGroup);
                         } else if (group.groupType.value === 'SPECIALTY') {
                             $scope.showSpecialtyFilter = true;
                             $scope.filterSpecialtyGroups.push(minimalGroup);
-                        } else if (group.groupType.value === 'GENERAL_PRACTICE') {
-                            $scope.showGeneralPracticeFilter = true;
-                            $scope.filterGeneralPracticeGroups.push(minimalGroup);
                         }
                     }
                 }
