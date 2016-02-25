@@ -695,7 +695,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpLetter.setGpAddress2(practitioner.getAddress2());
         gpLetter.setGpAddress3(practitioner.getAddress3());
         gpLetter.setGpAddress4(practitioner.getAddress4());
-        gpLetter.setGpPostcode(practitioner.getPostcode().replace(" ", ""));
+        gpLetter.setGpPostcode(practitioner.getPostcode());
 
         gpLetter.setPatientForename(patient.getForename());
         gpLetter.setPatientSurname(patient.getSurname());
