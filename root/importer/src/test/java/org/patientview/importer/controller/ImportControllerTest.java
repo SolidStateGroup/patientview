@@ -389,6 +389,7 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin_test_2/p9-4.xml"));
         //post(getFileFromString("data/xml/gplogin_test_2/p10.xml"));
         //post(getFileFromString("data/xml/gplogin_test_2/p10-2.xml"));
+        post(getFileFromString("data/xml/gplogin_test_2/p10-3.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
@@ -419,9 +420,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
