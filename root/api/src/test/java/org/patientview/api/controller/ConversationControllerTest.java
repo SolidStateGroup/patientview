@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.Feature;
@@ -29,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -39,16 +42,18 @@ import static org.mockito.Mockito.verify;
 
 public class ConversationControllerTest {
 
-    @Mock
-    private UriComponentsBuilder uriComponentsBuilder;
+    @InjectMocks
+    private ConversationController conversationController;
 
     @Mock
     private ConversationService conversationService;
 
-    @InjectMocks
-    private ConversationController conversationController;
+    private ObjectMapper mapper = new ObjectMapper();
 
     private MockMvc mockMvc;
+
+    @Mock
+    private UriComponentsBuilder uriComponentsBuilder;
 
     @Before
     public void setup() {
@@ -137,6 +142,18 @@ public class ConversationControllerTest {
         } catch (Exception e) {
             fail("Exception throw: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testAddExternalConversation() throws Exception {
+        ExternalConversation externalConversation = new ExternalConversation();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/conversations/external")
+                .content(mapper.writeValueAsString(externalConversation))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(conversationService, Mockito.times(1)).addExternalConversation(any(ExternalConversation.class));
     }
 
     @Test

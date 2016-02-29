@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.BaseUser;
+import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -56,6 +57,13 @@ public interface ConversationService extends CrudService<Conversation> {
     @UserOnly
     void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Create a Conversation for a User or set of Users, used by external systems
+     * @param externalConversation ExternalConversation, contains all required fields to generate a Conversation
+     * @return ExternalConversation, including any required confirmation
+     */
+    ExternalConversation addExternalConversation(ExternalConversation externalConversation);
 
     /**
      * Add a Message to an existing Conversation.
@@ -185,4 +193,5 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
 }

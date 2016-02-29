@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.ConversationServiceImpl;
@@ -26,17 +27,12 @@ import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -81,6 +77,13 @@ public class ConversationServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testAddExternalConversation() throws Exception {
+        ExternalConversation externalConversation = new ExternalConversation();
+        
+        conversationService.addExternalConversation(externalConversation);
     }
 
     @Test

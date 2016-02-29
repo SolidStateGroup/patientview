@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.Conversation;
+import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.model.Message;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -85,6 +86,18 @@ public class ConversationController extends BaseController<ConversationControlle
                                          @PathVariable("conversationLabel") ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addConversationUserLabel(userId, conversationId, conversationLabel);
+    }
+
+    /**
+     * Create a Conversation for a User or set of Users, used by external systems
+     * @param externalConversation ExternalConversation, contains all required fields to generate a Conversation
+     * @return ExternalConversation, including any required confirmation
+     */
+    @RequestMapping(value = "/conversations/external", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExternalConversation> addExternalConversation(
+            @RequestBody ExternalConversation externalConversation) {
+        return new ResponseEntity<>(conversationService.addExternalConversation(externalConversation), HttpStatus.OK);
     }
 
     /**

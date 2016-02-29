@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
+import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.ConversationUserLabel;
@@ -326,6 +327,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         conversationRepository.save(conversation);
+    }
+
+    @Override
+    public ExternalConversation addExternalConversation(ExternalConversation externalConversation) {
+        return externalConversation;
     }
 
     /**
