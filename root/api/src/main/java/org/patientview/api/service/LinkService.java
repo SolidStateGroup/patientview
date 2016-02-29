@@ -35,7 +35,7 @@ public interface LinkService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Link addGroupLink(Long groupId, Link link) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
