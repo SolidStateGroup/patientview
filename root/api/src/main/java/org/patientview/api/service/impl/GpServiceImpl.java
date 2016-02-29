@@ -1,10 +1,12 @@
 package org.patientview.api.service.impl;
 
 import com.itextpdf.text.DocumentException;
-import com.opencsv.CSVReader;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -793,26 +795,24 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             File extractedDataFile = new File(zipFolder.getPath().concat("/" + filename));
 
             // read CSV file line by line, extracting data to populate GpMaster objects
-            CSVReader reader = new CSVReader(new FileReader(extractedDataFile));
-            String[] nextLine;
-
-            while ((nextLine = reader.readNext()) != null) {
-                // retrieve data from CSV columns
-                String practiceCode = nextLine[0];
-                String practiceName = nextLine[1];
-                String address1 = nextLine[4];
-                String address2 = nextLine[5];
-                String address3 = nextLine[6];
-                String address4 = nextLine[7];
-                String postcode = nextLine[9];
-                String statusCode = nextLine[12];
-                String telephone = nextLine[17];
+            CSVParser parser = new CSVParser(new FileReader(extractedDataFile), CSVFormat.DEFAULT);
+            for(CSVRecord record : parser){
+                String practiceCode = record.get(0);
+                String practiceName = record.get(1);
+                String address1 = record.get(4);
+                String address2 = record.get(5);
+                String address3 = record.get(6);
+                String address4 = record.get(7);
+                String postcode = record.get(9);
+                String statusCode = record.get(12);
+                String telephone = record.get(17);
 
                 addToSaveMap(practiceCode, practiceName, address1, address2, address3,
                         address4, postcode, statusCode, telephone, GpCountries.ENG);
             }
 
-            reader.close();
+            //close the parser
+            parser.close();
 
             // archive csv file to new archive directory
             File archiveDir = new File(this.tempDirectory.concat(

@@ -63,6 +63,12 @@
             <artifactId>opencsv</artifactId>
             <version>3.4</version>
         </dependency>
+        <!-- opencsv got incorrect number of lines in gp master update -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.2</version>
+        </dependency>
 
         <!-- for handling rotation (metadata-extractor conflicts with itext) -->
         <dependency>
