@@ -1,8 +1,6 @@
 package org.patientview.api.service.impl;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -82,6 +80,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
@@ -450,32 +449,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
 
             InputStream inputStream = new ByteArrayInputStream(inputBytes);
-            BufferedImage bufferedImage = ImageIO.read(inputStream);
-
-            // detect orientation if set in exif (ipad etc) and rotate image then resize to MAXIMUM_IMAGE_WIDTH
-            Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
-            ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
-
-            if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
-                int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-                LOG.info("" + orientation);
-                switch (orientation) {
-                    case THREE:
-                        bufferedImage = transformImage(bufferedImage, ONE_HUNDRED_AND_EIGHTY);
-                        break;
-                    case SIX:
-                        bufferedImage = transformImage(bufferedImage, NINETY);
-                        break;
-                    case EIGHT:
-                        bufferedImage = transformImage(bufferedImage, TWO_HUNDRED_AND_SEVENTY);
-                        break;
-                    default:
-                        bufferedImage = transformImage(bufferedImage, 0);
-                        break;
-                }
-            } else {
-                bufferedImage = transformImage(bufferedImage, 0);
-            }
+            BufferedImage bufferedImage = Thumbnails.of(ImageIO.read(inputStream)).scale(1).asBufferedImage();
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage, "jpeg", byteArrayOutputStream);
