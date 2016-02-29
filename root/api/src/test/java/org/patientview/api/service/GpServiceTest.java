@@ -287,7 +287,6 @@ public class GpServiceTest {
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
-        Assert.assertNotNull("should set password", out.getPassword());
 
         verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
@@ -649,7 +648,6 @@ public class GpServiceTest {
         GpDetails out = gpService.claim(details);
 
         Assert.assertNotNull("should set username", out.getUsername());
-        Assert.assertNotNull("should set password", out.getPassword());
 
         verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
