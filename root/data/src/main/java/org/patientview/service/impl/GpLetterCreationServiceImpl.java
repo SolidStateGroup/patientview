@@ -159,6 +159,8 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
         document.add(new Paragraph(" "));
         document.add(new Paragraph(" "));
         document.add(new Paragraph(" "));
+        document.add(new Paragraph(" "));
+        document.add(new Paragraph(" "));
 
         // GP name
         document.add(new Paragraph(new Chunk(gpLetter.getGpName())));

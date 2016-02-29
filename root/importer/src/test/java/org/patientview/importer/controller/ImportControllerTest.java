@@ -313,6 +313,7 @@ public class ImportControllerTest {
         DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_audit WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_group_statistic WHERE id > 4731630;
+        DELETE FROM pv_link WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_user_token WHERE creation_date > '2016-02-10 00:00:00.000';
         DELETE FROM pv_message_read_receipt WHERE creation_date > '2016-02-10 00:00:00.000';
