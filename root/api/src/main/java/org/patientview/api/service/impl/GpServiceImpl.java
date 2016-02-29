@@ -381,11 +381,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // send email to user
-        sendGpAdminWelcomeEmail(gpAdminUser);
+        sendGpAdminWelcomeEmail(gpAdminUser, password);
 
-        // add created username and password
+        // add created username (password is emailed)
         gpDetails.setUsername(gpAdminUser.getUsername());
-        gpDetails.setPassword(password);
 
         return gpDetails;
     }
@@ -747,7 +746,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
-    private void sendGpAdminWelcomeEmail(User user) {
+    private void sendGpAdminWelcomeEmail(User user, String password) {
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
         email.setSenderName(properties.getProperty("smtp.sender.name"));
@@ -763,7 +762,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 + "(top right) with the username below and the password generated when you claimed your account. You "
                 + "will be forced to change this password when you first log in so that only you know it. "
                 + "It is very important that it is difficult to guess, and kept secret."
-                + "<br/><br/><strong>Username:</strong> " + user.getUsername());
+                + "<br/><br/><strong>Username:</strong> " + user.getUsername()
+                + "<br/><br/><strong>Password:</strong> " + password);
 
         // try and send but ignore if exception and log
         try {

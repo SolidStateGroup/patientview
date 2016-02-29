@@ -145,6 +145,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.log(response);
         $scope.uploadError = true;
         delete $scope.pictureChangeSuccessMessage;
         $scope.uploadErrorMessage = 'There was an error uploading your image file.';
