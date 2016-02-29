@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.patientview2</groupId>
         <artifactId>root</artifactId>
-        <version>2.1.4-RELEASE</version>
+        <version>2.2.0-RELEASE</version>
     </parent>
 
     <artifactId>data</artifactId>
-    <version>2.1.4-RELEASE</version>
+    <version>2.2.0-RELEASE</version>
     <packaging>jar</packaging>
     <name>data</name>
     <url>http://maven.apache.org</url>
@@ -20,7 +20,14 @@
     </properties>
 
     <dependencies>
-    
+
+        <!-- PDF export support -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.8</version>
+        </dependency>
+
         <!-- required for file upload -->
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -47,6 +54,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.5.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
@@ -61,7 +81,7 @@
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>common</artifactId>
-            <version>2.1.4-RELEASE</version>
+            <version>2.2.0-RELEASE</version>
         </dependency>
 
         <dependency>

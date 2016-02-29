@@ -9,9 +9,8 @@ var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result
         };
     }];
 
-
-angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', 'ObservationHeadingService', 'UtilService',
-function ($scope, $modal, ObservationService) {
+angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', '$routeParams',
+function ($scope, $modal, ObservationService, $routeParams) {
 
     $scope.init = function() {
 
@@ -22,11 +21,17 @@ function ($scope, $modal, ObservationService) {
 
             if (summary.length) {
                 $scope.groupIndex = 0;
-                $scope.currentPage = 1;
-
                 $scope.summary = summary;
                 $scope.group = summary[$scope.groupIndex].group;
                 $scope.panels = summary[$scope.groupIndex].panels;
+
+                // validate that r param points to a correct page
+                if ($routeParams.r !== undefined) {
+                    $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
+                } else {
+                    $scope.currentPage = 1;
+                }
+
                 $scope.panel = $scope.panels[$scope.currentPage];
 
                 // set up group switcher

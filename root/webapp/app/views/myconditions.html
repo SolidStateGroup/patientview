@@ -1,28 +1,11 @@
-<style>
-    .specialty-switcher {
-        margin-left:10px;
-    }
-    .group-image {
-        width: 30px;
-        margin-right:5px;
-    }
-    .btn-group-switcher a.active {
-        background: #BEDAF7;
-        color: #585858;
-    }
-    .btn-group-switcher div, .btn-group-switcher div:hover {
-        background: #BEDAF7;
-        color: #585858;
-        cursor: default;
-    }
-</style>
 <h1 data-ng-show="!loading">
     My Conditions
     <span data-ng-show="specialties && specialties.length > 1" class="specialty-switcher">
         <div class="btn-group-switcher btn-group">
             <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
-               class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">
-                <img class="group-image" src="../images/icons/pv-{{specialty.code.toLowerCase()}}.png"/>
+               class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}"
+                    data-ng-if="specialty.code !== 'GENERAL_PRACTICE'">
+                <img class="group-image" data-ng-src="../images/icons/pv-{{specialty.code.toLowerCase()}}.png"/>
                 {{specialty.name}}
             </a>
         </div>
@@ -30,7 +13,7 @@
     <span data-ng-show="specialties && specialties.length === 1" class="specialty-switcher">
         <div class="btn-group-switcher btn-group">
             <div class="btn active">
-                <img class="group-image" src="../images/icons/pv-{{specialties[0].code.toLowerCase()}}.png"/>
+                <img class="group-image" data-ng-src="../images/icons/pv-{{specialties[0].code.toLowerCase()}}.png"/>
                 {{specialties[0].name}}
             </div>
         </div>

@@ -234,7 +234,7 @@ public class NewsServiceTest {
     }
 
     @Test
-    public void testAddGroupAndRole() {
+    public void testAddGroupAndRole() throws ResourceForbiddenException, ResourceNotFoundException{
         User user = TestUtils.createUser("testUser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -242,6 +242,7 @@ public class NewsServiceTest {
         GroupRole groupRole = TestUtils.createGroupRole(TestUtils.createRole(RoleName.GLOBAL_ADMIN), group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
         NewsItem newsItem = new NewsItem();
@@ -259,12 +260,8 @@ public class NewsServiceTest {
         when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
         when(roleRepository.findOne(Matchers.anyLong())).thenReturn(role);
 
-        try {
-            newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
-            verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
-            Assert.fail("Exception: " + e.getMessage());
-        }
+        newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
     }
 
     @Test

@@ -22,6 +22,8 @@ CREATE TABLE PV_User
   Last_Login_Ip_Address    VARCHAR(50),
   Deleted          BOOLEAN      NOT NULL DEFAULT FALSE,
   Picture          TEXT,
+  Hide_Secret_Word_Notification          BOOLEAN NOT NULL DEFAULT FALSE,
+  Secret_Word      TEXT,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,
@@ -214,6 +216,8 @@ CREATE TABLE PV_User_Token
   User_Id         BIGINT      NOT NULL REFERENCES PV_User (Id),
   Token           VARCHAR(50) NOT NULL UNIQUE,
   Parent_Token_Id BIGINT      REFERENCES PV_User_Token (Id),
+  Check_Secret_Word BOOLEAN NOT NULL DEFAULT FALSE,
+  Secret_Word_Token VARCHAR(50),
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   PRIMARY KEY (Id)
@@ -652,7 +656,8 @@ CREATE TABLE PV_Survey
 CREATE TABLE PV_Survey_Response
 (
   Id              BIGINT NOT NULL,
-  User_Id         BIGINT NOT NULL,
+  User_Id         BIGINT NOT NULL REFERENCES PV_User (Id) NOT NULL,
+  Staff_User_Id   BIGINT NOT NULL REFERENCES PV_User (Id),
   Survey_Id       BIGINT NOT NULL REFERENCES PV_Survey (Id),
   Date            TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
@@ -732,6 +737,51 @@ CREATE TABLE PV_Food_Diary
   Creation_Date               TIMESTAMP    NOT NULL,
   Last_Update_Date            TIMESTAMP,
   Last_Updated_By             BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Gp_Master
+(
+  Practice_Code               TEXT         NOT NULL,
+  Practice_Name               TEXT         NOT NULL,
+  Address_1                   TEXT,
+  Address_2                   TEXT,
+  Address_3                   TEXT,
+  Address_4                   TEXT,
+  Postcode                    TEXT,
+  Postcode_Original           TEXT,
+  Country                     TEXT,
+  Telephone                   TEXT,
+  Status_Code                 TEXT,
+  Url                         TEXT,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT       REFERENCES PV_User (Id),
+  PRIMARY KEY (Practice_Code)
+);
+
+CREATE TABLE PV_Gp_Letter
+(
+  Id                          BIGINT NOT NULL,
+  Claimed_Date                TIMESTAMP,
+  Claimed_Email               TEXT,
+  Claimed_Group               BIGINT REFERENCES PV_Group (Id),
+  Claimed_Practice_Code       TEXT,
+  Creation_Date               TIMESTAMP NOT NULL,
+  Gp_Address1                 TEXT,
+  Gp_Address2                 TEXT,
+  Gp_Address3                 TEXT,
+  Gp_Address4                 TEXT,
+  Gp_Name                     TEXT,
+  Gp_Postcode                 TEXT NOT NULL,
+  Letter_Content              TEXT,
+  Patient_Forename            TEXT,
+  Patient_Identifier          TEXT,
+  Patient_Surname             TEXT,
+  Patient_Date_Of_Birth       DATE,
+  Signup_Key                  TEXT,
+  Source_Group                BIGINT REFERENCES PV_Group (Id),
   PRIMARY KEY (Id)
 );
 

@@ -67,9 +67,9 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
     }]);
 
 patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
-    '$route', 'RouteService', 'ENV', 'ConversationService', 'RequestService', 'UserService', 'AuthService',
+    '$route', 'RouteService', 'ENV', 'ConversationService', 'RequestService', 'UserService', 'AuthService', '$anchorScroll',
     function ($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
-              RouteService, ENV, ConversationService, RequestService, UserService, AuthService) {
+              RouteService, ENV, ConversationService, RequestService, UserService, AuthService, $anchorScroll) {
 
         $('#timeout').hide();
 
@@ -146,6 +146,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 }
                 if (!routeExists(RouteService.getWhatCanItDoRoute(), data.routes)) {
                     data.routes.push(RouteService.getWhatCanItDoRoute());
+                }
+                if (!routeExists(RouteService.getGpLoginRoute(), data.routes)) {
+                    data.routes.push(RouteService.getGpLoginRoute());
+                }
+                if (!routeExists(RouteService.getSetSecretWordRoute(), data.routes)) {
+                    data.routes.push(RouteService.getSetSecretWordRoute());
                 }
 
                 for (var j = 0; j < data.routes.length; j++) {
@@ -259,6 +265,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 groupTypes.DISEASE_GROUP = 4;
                 groupTypes.CENTRAL_SUPPORT = 5;
                 groupTypes.OTHER_GROUP = 6;
+                groupTypes.GENERAL_PRACTICE = 7;
 
                 if (groupTypes[group.groupType.value]) {
                     return groupTypes[group.groupType.value];
@@ -274,6 +281,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 groupTypes.SPECIALTY = 1;
                 groupTypes.UNIT = 2;
                 groupTypes.DISEASE_GROUP = 3;
+                groupTypes.GENERAL_PRACTICE = 4;
 
                 if (groupTypes[groupRole.group.groupType.value]) {
                     return groupTypes[groupRole.group.groupType.value];
@@ -289,6 +297,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.$on('$routeChangeSuccess', function (event, currentRoute) {
             $rootScope.title = currentRoute.title;
             $rootScope.resetTimeoutTimers();
+            $timeout(function() {
+                if ($location.hash()) $anchorScroll();
+            });
         });
 
         $rootScope.$on('$viewContentLoaded', function () {
@@ -296,7 +307,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             $rootScope.setSubmittedRequestCount();
         });
 
-        $rootScope.logout = function () {
+        $rootScope.logout = function (timeout) {
             $timeout(function () {
                 delete $rootScope.routes;
                 delete $rootScope.loggedInUser;
@@ -306,7 +317,11 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 delete $rootScope.previousLocation;
                 delete $cookies.authToken;
                 localStorageService.clearAll();
-                $location.path('/');
+                if (timeout) {
+                    $location.path('/login').search('timeout', 'true');
+                } else {
+                    $location.path('/');
+                }
             });
         };
 
@@ -322,7 +337,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                     localStorageService.set('authToken', authToken);
 
                     // get user information, store in session
-                    AuthService.getUserInformation(authToken).then(function (userInformation) {
+                    AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
 
                         var user = userInformation.user;
                         delete userInformation.user;
@@ -403,7 +418,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             // Safari private browsing does not support local storage fully so retrieve user info if not present
             if ($cookies.authToken && !$rootScope.authToken) {
                 $rootScope.authToken = $cookies.authToken;
-                AuthService.getUserInformation($cookies.authToken).then(function (userInformation) {
+
+                AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
                     var user = userInformation.user;
                     delete userInformation.user;
                     user.userInformation = userInformation;
@@ -448,7 +464,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
         // Logout the user.
         var idleTimeout = function IdleTimeout() {
-            window.location = '/#/logout';
+            window.location = '/#/logout?timeout=true';
         };
 
         // Start timers.

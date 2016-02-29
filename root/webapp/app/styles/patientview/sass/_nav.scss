@@ -90,13 +90,12 @@
         &.active{
             position:relative;
             a{
-                background:#f8f8f8;
-                color:$primary;
-//                font-weight:bold;
+                color:#f8f8f8;
+                background:#368de8;
 
-                &:hover{
-                    background:#f8f8f8;
-                    color:$primary;
+                &:hover, &:focus{
+                    color:#f8f8f8;
+                    background:#368de8;
                 }
             }
 
@@ -182,6 +181,8 @@ html, body{
             &.other-partners{
                 clear:left;
                 color:#959595;
+                width:100%;
+                text-decoration: underline;
             }
         }
     }
@@ -249,6 +250,48 @@ html, body{
     .content-panel{
         overflow:visible;
     }
+}
+
+.nav-tabs li {
+    cursor: pointer;
+
+    &.active{
+        a{
+            color:#368de8;
+            font-weight: bold;
+
+            &:hover{
+                color:#368de8;
+                font-weight: bold;
+            }
+        }
+    }
+
+    a{
+        border:1px solid #dddddd;
+        background:#f5f5f5;
+        color:#585858;
+
+        &:hover{
+            border:1px solid #dddddd;
+            color:#368de8;
+            background:#f5f5f5;
+        }
+    }
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+.image-colour-key-red {
+    width:15px;
+    height:15px;
+    border:none;
+    background-color: red;
+    float: left;
+    margin-right: 7px;
+    position: relative;
+    top: 2px;
 }
 
 
@@ -320,19 +363,20 @@ and (max-width : 1023px) {
         }
     }
 
-    .footer{
-        .legal-links{
-            width:20%;
-            li{
-                display:block;
-                text-align:right;
-                line-height:22px;
-            }
-        }
-        .partner-info{
-            width:46%;
-        }
-    }
+// todo: Review what the hell this is
+//    .footer{
+//        .legal-links{
+//            width:20%;
+//            li{
+//                display:block;
+//                text-align:right;
+//                line-height:22px;
+//            }
+//        }
+//        .partner-info{
+//            width:46%;
+//        }
+//    }
 }
 
 @media only screen
@@ -403,14 +447,30 @@ and (min-width : 768px) and (max-width:1023px) {
         display:none;
     }
 
-    .footer .legal-links{
-        width:40%;
-    }
+    .footer{
+        height:auto;
 
-    .footer .partner-info{
-      width: 100%;
-      position: absolute;
-      left: -20px;
-    }
+        .legal-links{
+            li{
+                line-height:normal;
+            }
+        }
 
+        .partner-info{
+            padding:5px;
+        }
+
+        .partner-links{
+            padding:0;
+            a{
+                float:none;
+
+                &.other-partners{
+                    float: left;
+                    text-align: center;
+                    padding-top: 5px;
+                }
+            }
+        }
+    }
 }

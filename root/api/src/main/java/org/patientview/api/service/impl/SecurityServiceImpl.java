@@ -5,7 +5,6 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.RouteRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -24,11 +23,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
     @Inject
     private RouteRepository routeRepository;
 
-    @Inject
-    private UserRepository userRepository;
-
-    public Set<Route> getUserRoutes(Long userId) {
-        User user = userRepository.findOne(userId);
+    public Set<Route> getUserRoutes(User user) {
         Set<Route> routes = new TreeSet<>(Util.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
         routes.addAll(Util.convertIterable(routeRepository.findGroupRoutesByUser(user)));
         routes.addAll(Util.convertIterable(routeRepository.findRoleRoutesByUser(user)));

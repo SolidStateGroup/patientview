@@ -42,7 +42,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (r)");
         }
 
         if (CollectionUtils.isEmpty(authentication.getAuthorities())) {
@@ -57,7 +57,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     }
 
     protected boolean doesContainRoles(RoleName... roleNames) {
-        return Util.doesContainRoles(roleNames);
+        return Util.currentUserHasRole(roleNames);
     }
 
     protected static <T> List<T> convertIterable(Iterable<T> iterable) {
@@ -87,16 +87,13 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return longs;
     }
 
-    protected boolean isCurrentUserMemberOfGroup(Group group) {
-
-        User user = getCurrentUser();
-
+    protected boolean isUserMemberOfGroup(User user, Group group) {
         // unit admins / specialty admins can only add groups they belong to
-        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 
-        if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
 
@@ -116,7 +113,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.UNIT_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
@@ -125,7 +122,16 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.doesContainRoles(RoleName.STAFF_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.GP_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        }
+
+        if (Util.userHasRole(user, RoleName.STAFF_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
@@ -133,7 +139,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.doesContainRoles(RoleName.DISEASE_GROUP_ADMIN)) {
+        if (Util.userHasRole(user, RoleName.DISEASE_GROUP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.DISEASE_GROUP_ADMIN)
                         && groupRole.getGroup().equals(group)) {
@@ -142,7 +148,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.doesContainRoles(RoleName.PATIENT)) {
+        if (Util.userHasRole(user, RoleName.PATIENT)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
                     return true;

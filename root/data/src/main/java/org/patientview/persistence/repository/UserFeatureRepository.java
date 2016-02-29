@@ -24,5 +24,5 @@ public interface UserFeatureRepository extends JpaRepository<UserFeature, Long> 
             "JOIN    uf.feature f " +
             "WHERE   u = :user " +
             "AND     f = :feature ")
-    public UserFeature findByUserAndFeature(@Param("user") User user, @Param("feature") Feature feature);
+    UserFeature findByUserAndFeature(@Param("user") User user, @Param("feature") Feature feature);
 }

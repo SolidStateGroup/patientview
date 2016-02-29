@@ -11,6 +11,9 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.GpPatient;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +36,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -50,6 +55,9 @@ public class FhirResource {
     @Inject
     @Named("fhir")
     private DataSource dataSource;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
 
     public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         JSONObject jsonObject = getBundle(uuid, resourceType);
@@ -837,5 +845,94 @@ public class FhirResource {
                 "' WHERE logical_id = '" + logicalId.toString() + "' ");
 
         return entity;
+    }
+
+    /**
+     * Get relevant details of PatientView users (name, identifiers, gp name) by identifying FHIR practitioners by
+     * postcode. Once FHIR practitioners are found, get all FHIR patients with that practitioner then find
+     * User details for those FHIR patients.
+     * @param gpPostcode String postcode of FHIR practitioner
+     * @return List of GpPatient containing relevant patient details
+     */
+    public List<GpPatient> getGpPatientsFromPostcode(String gpPostcode) {
+        List<GpPatient> gpPatients = new ArrayList<>();
+        Connection connection = null;
+
+        try {
+            // get logical_id and name of GP from FHIR practitioners where postcode matches
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
+                    "FROM practitioner " +
+                    "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
+                    "OR CONTENT -> 'address' ->> 'zip' = '" + gpPostcode.replace(" ", "")  + "' " +
+                    "GROUP BY logical_id";
+            //LOG.info(query);
+            ResultSet results = statement.executeQuery(query);
+
+            Map<String, Map<String, String>> practitionerMap = new HashMap<>();
+
+            // now have list of practitioners with the postcode, iterate through and add to practitioner map
+            while ((results.next())) {
+                String logicalId = results.getString(1);
+                String name = results.getString(2);
+
+                if (StringUtils.isNotEmpty(logicalId) && StringUtils.isNotEmpty(name)) {
+                    Map<String, String> practitioner = new HashMap<>();
+                    practitioner.put("logicalId", logicalId);
+                    practitioner.put("name", name);
+                    practitionerMap.put(logicalId, practitioner);
+                }
+            }
+
+            connection.close();
+
+            // have map of practitioner logical ids so get patient list for that practitioner,
+            // then Users with a FhirLink with each resource id and add relevant User details to gpPatients
+            if (!practitionerMap.isEmpty()) {
+                for (String practitionerLogicalId : practitionerMap.keySet()) {
+                    List<UUID> patientResourceIds = new ArrayList<>();
+
+                    // now have map of practitioners, get list of all patients with that practitioner
+                    connection = dataSource.getConnection();
+                    statement = connection.createStatement();
+                    query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
+                            practitionerLogicalId + "' GROUP BY logical_id";
+                    results = statement.executeQuery(query);
+                    //LOG.info(query);
+                    while ((results.next())) {
+                        if (StringUtils.isNotEmpty(results.getString(1))) {
+                            patientResourceIds.add(UUID.fromString(results.getString(1)));
+                        }
+                    }
+
+                    connection.close();
+
+                    // get Users from FhirLinks based on patient resource ids
+                    if (!patientResourceIds.isEmpty()) {
+                        for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
+                            // add relevant details from patient users to list of GpPatient to return with GpDetails
+                            GpPatient patient = new GpPatient();
+                            patient.setId(user.getId());
+                            patient.setGpName(
+                                    practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
+                            patient.setIdentifiers(user.getIdentifiers());
+                            gpPatients.add(patient);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error("SQL exception:", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection:", e2);
+            }
+        }
+
+        return gpPatients;
     }
 }

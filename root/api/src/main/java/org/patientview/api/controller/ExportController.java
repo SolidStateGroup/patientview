@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.itextpdf.text.DocumentException;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ExportService;
 import org.patientview.config.exception.FhirResourceException;
@@ -28,22 +29,10 @@ public class ExportController extends BaseController<ExportController> {
     @Inject
     private ExportService exportService;
 
-    /**
-     * Download a letter, given User ID and FileData ID.
-     *
-     * @param userId ID of User to download letter for
-     * @return HttpEntity to allow client to download in browser
-     * @throws ResourceNotFoundException
-     * @throws FhirResourceException
-     */
-    @RequestMapping(value = "/user/{userId}/export/results/{fromDate}/{toDate}/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/gp/mastertable/download", method = RequestMethod.GET)
     @ResponseBody
-    public HttpEntity<byte[]> downloadResults(@PathVariable("userId") Long userId,
-                                              @PathVariable("fromDate") String fromDate,
-                                              @PathVariable("toDate") String toDate,
-                                              @RequestParam List<String> resultCodes)
-            throws ResourceNotFoundException, FhirResourceException {
-        return exportService.downloadResults(userId, fromDate, toDate, resultCodes);
+    public HttpEntity<byte[]> downloadGpMaster() {
+        return exportService.downloadGpMaster();
     }
 
     /**
@@ -78,6 +67,40 @@ public class ExportController extends BaseController<ExportController> {
                                                 @PathVariable("toDate") String toDate)
             throws ResourceNotFoundException, FhirResourceException {
         return exportService.downloadMedicines(userId, fromDate, toDate);
+    }
+
+    /**
+     * Download a letter, given User ID and FileData ID.
+     *
+     * @param userId ID of User to download letter for
+     * @return HttpEntity to allow client to download in browser
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @RequestMapping(value = "/user/{userId}/export/results/{fromDate}/{toDate}/download", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadResults(@PathVariable("userId") Long userId,
+                                              @PathVariable("fromDate") String fromDate,
+                                              @PathVariable("toDate") String toDate,
+                                              @RequestParam List<String> resultCodes)
+            throws ResourceNotFoundException, FhirResourceException {
+        return exportService.downloadResults(userId, fromDate, toDate, resultCodes);
+    }
+
+    /**
+     * Export a survey response as PDF
+     * @param userId ID of user to export survey response for
+     * @param surveyResponseId ID of survey response to export
+     * @return byte array PDF file
+     * @throws DocumentException
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/export/surveyresponse/{surveyResponseId}/pdf", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadSurveyResponsePdf(@PathVariable("userId") Long userId,
+                                                      @PathVariable("surveyResponseId") Long surveyResponseId)
+            throws DocumentException, ResourceNotFoundException {
+        return exportService.downloadSurveyResponsePdf(userId, surveyResponseId);
     }
 
     /**

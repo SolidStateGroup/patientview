@@ -60,6 +60,117 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    public void testFindAllByCountGroupAction() {
+        Group group1 = dataTestUtils.createGroup("testGroup1");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Group group3 = dataTestUtils.createGroup("testGroup3");
+        Date now = new Date();
+        Date oneWeekAgo = new DateTime(now).minusWeeks(1).toDate();
+        Date twoWeeksAgo = new DateTime(now).minusWeeks(2).toDate();
+        Date oneDayAgo = new DateTime(now).minusDays(1).toDate();
+
+        // group1 audits
+        {
+            // yes
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_FAIL);
+            auditRepository.save(audit);
+        }
+        {
+            // yes
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+            auditRepository.save(audit);
+        }
+        {
+            // no
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_SUCCESS);
+            auditRepository.save(audit);
+        }
+        {
+            // no
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_ADD);
+            auditRepository.save(audit);
+        }
+        {
+            // no
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(twoWeeksAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_SUCCESS);
+            auditRepository.save(audit);
+        }
+        {
+            // no
+            Audit audit = new Audit();
+            audit.setGroup(group1);
+            audit.setCreationDate(twoWeeksAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+            auditRepository.save(audit);
+        }
+
+        // group 2 audits
+        {
+            // yes
+            Audit audit = new Audit();
+            audit.setGroup(group2);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+            auditRepository.save(audit);
+        }
+        {
+            // no
+            Audit audit = new Audit();
+            audit.setGroup(group2);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_SUCCESS);
+            auditRepository.save(audit);
+        }
+
+        // other group audits
+        {
+            Audit audit = new Audit();
+            audit.setGroup(group3);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_FAIL);
+            auditRepository.save(audit);
+        }
+        {
+            Audit audit = new Audit();
+            audit.setGroup(group3);
+            audit.setCreationDate(oneDayAgo);
+            audit.setAuditActions(AuditActions.PATIENT_DATA_FAIL);
+            auditRepository.save(audit);
+        }
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group1.getId());
+        groupIds.add(group2.getId());
+        List<AuditActions> auditActions = new ArrayList<>();
+        auditActions.add(AuditActions.PATIENT_DATA_FAIL);
+        auditActions.add(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+
+        List<Object[]> audits = auditRepository.findAllByCountGroupAction(groupIds, oneWeekAgo, auditActions);
+
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.size());
+        Assert.assertEquals("Should be correct group1", group1.getId(), audits.get(0)[0]);
+        Assert.assertEquals("Should be count of 2", 2L, audits.get(0)[1]);
+        Assert.assertEquals("Should be correct group2", group2.getId(), audits.get(1)[0]);
+        Assert.assertEquals("Should be count of 1", 1L, audits.get(1)[1]);
+
+    }
+
+    @Test
     public void testFindAllNonPaged() {
         Audit audit = new Audit();
         audit.setActorId(1L);

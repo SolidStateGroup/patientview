@@ -9,7 +9,8 @@ public enum SurveyTypes {
     COLITIS_SYMPTOM_SCORE("Colitis Symptom Score"),
     IBD_CONTROL("IBD Control Questionnaire"),
     HEART_SYMPTOM_SCORE("Heart Symptom Score"),
-    IBD_FATIGUE("IBD Fatigue Questionnaire");
+    IBD_FATIGUE("IBD Fatigue Questionnaire"),
+    IBD_SELF_MANAGEMENT("IBD Self-Management Programme");
 
     private String name;
     SurveyTypes(String name) { this.name = name; }

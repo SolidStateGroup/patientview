@@ -152,11 +152,11 @@ public final class Util {
      * @return True if User is a member, false if not
      */
     public static boolean doesContainGroupAndRole(Long groupId, RoleName... roleNames) {
-        if (CollectionUtils.isEmpty(getGroupRoles())) {
+        if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
 
-        for (GroupRole groupRole : getGroupRoles()) {
+        for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             if (groupRole.getGroup().getId().equals(groupId)) {
                 for (RoleName roleNameArg : roleNames) {
                     if (groupRole.getRole().getName().equals(roleNameArg)) {
@@ -176,11 +176,11 @@ public final class Util {
      * @return True if User is a member, false if not
      */
     public static boolean doesContainChildGroupAndRole(Long groupId, RoleName roleName) {
-        if (CollectionUtils.isEmpty(getGroupRoles())) {
+        if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
 
-        for (GroupRole groupRole : getGroupRoles()) {
+        for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             Group group = groupRole.getGroup();
             Role role = groupRole.getRole();
 
@@ -203,11 +203,11 @@ public final class Util {
      * @return True if User is a member, false if not
      */
     public static boolean doesContainParentGroupAndRole(Long groupId, RoleName roleName) {
-        if (CollectionUtils.isEmpty(getGroupRoles())) {
+        if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
 
-        for (GroupRole groupRole : getGroupRoles()) {
+        for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             Group group = groupRole.getGroup();
             Role role = groupRole.getRole();
 
@@ -228,11 +228,28 @@ public final class Util {
      * @return True if User is a member, false if not
      * @throws SecurityException
      */
-    public static boolean doesContainRoles(RoleName... roleNames) throws SecurityException {
-        if (CollectionUtils.isEmpty(getGroupRoles())) {
+    public static boolean currentUserHasRole(RoleName... roleNames) throws SecurityException {
+        if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
-        for (GroupRole groupRole : getGroupRoles()) {
+        for (GroupRole groupRole : getCurrentUserGroupRoles()) {
+            for (RoleName roleNameArg : roleNames) {
+                if (groupRole.getRole().getName().equals(roleNameArg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean userHasRole(User user, RoleName... roleNames) throws SecurityException {
+        if (user == null) {
+            return false;
+        }
+        if (CollectionUtils.isEmpty(user.getGroupRoles())) {
+            return false;
+        }
+        for (GroupRole groupRole : user.getGroupRoles()) {
             for (RoleName roleNameArg : roleNames) {
                 if (groupRole.getRole().getName().equals(roleNameArg)) {
                     return true;
@@ -246,10 +263,10 @@ public final class Util {
      * Get GroupRoles from current SecurityContext, originally stored after login.
      * @return List of GroupRole
      */
-    public static List<GroupRole> getGroupRoles() {
+    public static List<GroupRole> getCurrentUserGroupRoles() {
         if (SecurityContextHolder.getContext() == null
                 || SecurityContextHolder.getContext().getAuthentication() == null) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (gr)");
         }
         return convertAuthorities(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
     }
@@ -261,7 +278,7 @@ public final class Util {
     public static User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
+            throw new SecurityException("Session is not authenticated (u)");
         }
         return (User) authentication.getPrincipal();
     }
@@ -281,7 +298,7 @@ public final class Util {
                 return true;
             }
 
-            for (GroupRole currentUserGroupRole : getGroupRoles()) {
+            for (GroupRole currentUserGroupRole : getCurrentUserGroupRoles()) {
                 if (currentUserGroupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)) {
                     return true;
                 }

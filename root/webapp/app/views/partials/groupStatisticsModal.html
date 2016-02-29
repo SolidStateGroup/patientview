@@ -2,7 +2,10 @@
     <h3 class="modal-title">Group Statistics</h3>
 </div>
 <div class="modal-body">
-    <table class="table">
+    <div class="alert alert-warning" data-ng-if="!statistics.length">
+        Your group statistics will show here after they have been collected.
+    </div>
+    <table class="table" data-ng-hide="!statistics.length">
         <tr>
             <th>Date</th>
             <th>Patients</th>

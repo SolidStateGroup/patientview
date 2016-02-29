@@ -54,8 +54,13 @@
     }
 }
 
+.preview-news-link-labels .label {
+    font-size: 14px;
+    line-height: 25px;
+}
+
 .message-summary{
-    padding:20px 20px 0;
+    padding:15px;
     font-size:1rem;
 
     .message-title{
@@ -64,6 +69,12 @@
         font-size:2rem;
         font-weight:bold;
         max-width:84%;
+
+        .label-archived {
+            font-size: 11px;
+            position: relative;
+            top: -2px;
+        }
 
         a{
             padding-right:10px;
@@ -80,6 +91,12 @@
         }
     }
 
+    .view-patient {
+        margin-left:10px;
+        font-weight:bold;
+        text-decoration: underline;
+    }
+
     .last-message{
         clear:left;
         h4{
@@ -94,6 +111,23 @@
         .date-stamp{
             color:$messagetab;
             font-size:1.5rem;
+
+            ul{
+                margin-bottom:0;
+                position: relative;
+                bottom:-5px;
+
+                .archive-link {
+                    padding-right: 10px;
+                    padding-left: 10px;
+                }
+            }
+        }
+
+        .conversation-user-picture {
+            margin-right: 10px;
+            margin-top: 5px;
+            max-height: 50px;
         }
     }
 }
@@ -110,7 +144,7 @@
 }
 
 .news-actions{
-    text-align: center;
+    text-align: left;
     margin-bottom:10px;
 }
 

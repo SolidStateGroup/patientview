@@ -82,7 +82,7 @@ public class SecurityServiceTest {
         when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
 
-        Set<Route> routes = securityService.getUserRoutes(testUser.getId());
+        Set<Route> routes = securityService.getUserRoutes(testUser);
 
         verify(routeRepository, Mockito.times(1)).findGroupRoutesByUser(Matchers.eq(testUser));
         verify(routeRepository, Mockito.times(1)).findFeatureRoutesByUser(Matchers.eq(testUser));

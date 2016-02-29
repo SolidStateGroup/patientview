@@ -2,7 +2,6 @@ package org.patientview.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -10,6 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
@@ -246,6 +246,18 @@ public class UserControllerTest {
                 eq(staffUser.getId()), eq(group.getId()), eq(newStaffRole.getId()));
     }
 
+    @Test
+    public void testChangeSecretWord() throws Exception {
+        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser);
+
+        SecretWordInput secretWordInput = new SecretWordInput("abc1234", "abc1234");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + testUser.getId() + "/changeSecretWord")
+                .content(mapper.writeValueAsString(secretWordInput)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
     /**
      * Test: Removing a GroupRole from a user
      * Fail: The GroupService method does not get called
@@ -282,6 +294,15 @@ public class UserControllerTest {
 
         verify(userService, Mockito.times(1)).deleteGroupRole(
                 eq(staffUser.getId()), eq(group.getId()), eq(staffRole.getId()));
+    }
+
+    @Test
+    public void testHideSecretWordNotification() throws Exception {
+        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + testUser.getId() + "/hideSecretWordNotification"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     /**

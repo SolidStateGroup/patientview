@@ -16,6 +16,8 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.userdetails.confirmEmail = $scope.userdetails.email;
             // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
             $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+
+            $rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
         });
     };
         
@@ -36,7 +38,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
                 } else {
                     UserService.saveOwnSettings($scope.loggedInUser.id, $scope.userdetails).then(function () {
                         $scope.settingsSuccessMessage = 'The settings have been saved';
-                        AuthService.getUserInformation($scope.loggedInUser.userInformation.token)
+                        AuthService.getUserInformation({'token' : $scope.loggedInUser.userInformation.token})
                             .then(function (userInformation) {
 
                             // get user information, store in session
@@ -91,6 +93,26 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         }
     };
 
+    $scope.saveSecretWord = function () {
+        $scope.secretWordSuccessMessage = null;
+        $scope.secretWordErrorMessage = null;
+
+        if ($scope.secretWord1 !== $scope.secretWord2) {
+            $scope.secretWordErrorMessage = 'The secret words do not match';
+        } else {
+            var secretWordInput = {};
+            secretWordInput.secretWord1 = $scope.secretWord1;
+            secretWordInput.secretWord2 = $scope.secretWord2;
+            UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
+                $scope.secretWordSuccessMessage = 'Your secret word has been saved';
+                $rootScope.loggedInUser.hideSecretWordNotification = true;
+                $rootScope.loggedInUser.secretWordIsSet = true;
+            }, function () {
+                $scope.secretWordErrorMessage = 'There was an error changing your secret word';
+            });
+        }
+    };
+
     // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter
@@ -123,6 +145,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.log(response);
         $scope.uploadError = true;
         delete $scope.pictureChangeSuccessMessage;
         $scope.uploadErrorMessage = 'There was an error uploading your image file.';

@@ -1,14 +1,3 @@
-<style>
-    .result-item-container .result-change dt span.result-value {
-        font-size: 50px;
-    }
-    .result-item-container .result-header h4 .info-link {
-        font-size: 14px;
-    }
-    .info-link {
-        color: #00adc6;
-    }
-</style>
 <div data-ng-show="!loading">
     <h1 class="clearfix">
         <ul class="unstyled inline pull-right">
@@ -68,7 +57,7 @@
                         </h4>
                     </div>
 
-                    <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                    <a href="/#/resultsdetail?code={{result.code}}&r={{currentPage}}" data-ng-show="result.latestObservation">
                         <div class="result-value">
                             <dl class="result-change">
                                 <dt>
@@ -101,7 +90,7 @@
                     </ul>
                     
                     <div class="result-footer">
-                        <a href="/#/resultsdetail?code={{result.code}}" data-ng-show="result.latestObservation">
+                        <a href="/#/resultsdetail?code={{result.code}}&r={{currentPage}}" data-ng-show="result.latestObservation">
                             <i class="icon-circle-arrow pull-right"></i>
                             View Chart
                         </a>

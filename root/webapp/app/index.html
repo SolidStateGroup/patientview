@@ -19,6 +19,7 @@
 
         <!-- build:css({.tmp,app}) styles/patientview.css -->
         <link rel="stylesheet" href="styles/patientview/stylesheets/screen.css">
+        <link rel="stylesheet" href="styles/patientview/stylesheets/sweet-alerts.css">
         <!-- endbuild -->
         <!--[if IE]>
         <link href="styles/patientview/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
@@ -48,38 +49,43 @@
         <div class="clearFooter"></div>
         <div class="footer">
             <div class="container">
-                <div class="brand hidden-md hidden-sm hidden-xs col-md-4">
-                    <a href="#/dashboard" data-ng-show="authToken">
-                        <img src="images/pv-logo-trans.png" alt="patient view"/>
-                    </a>
-                    <a href="#/main" data-ng-show="!authToken">
-                        <img src="images/pv-logo-trans.png" alt="patient view"/>
-                    </a>
-                </div>
-                <ul class="inline unstyled pull-right legal-links col-md-4">
-                    <li><a href="#/privacy">Privacy Policy</a></li>
-                    <li><a href="#/terms">Terms &amp; Conditions</a></li>
-                    <li>Patient View {{getCurrentTime().getFullYear()}} &copy;</li>
-                    <li>Version: {{buildDateTime | date:'yyyy.MM.dd.HH.ss'}}</li>
-                </ul>
-                <div class="partner-info col-md-4">
-                    <h5 class="key-partners hidden-xs"><strong>Key Partners</strong></h5>
-                    <div class="partner-links">
-                        <a href="https://www.gov.uk/government/organisations/department-of-health" title="Department of Health" target="_blank">
-                            <img src="images/depthealthengland.png" alt="Department of Health">
-                        </a>
-                        <a href="http://www.scotland.gov.uk/Topics/Health" title="Scottish Government Health Department" target="_blank">
-                            <img src="images/scotgov.png" alt="Scottish Government Health Department">
-                        </a>
-                        <a href="http://www.renal.org/" title="Renal Association" target="_blank">
-                            <img src="images/renalassoc.png" alt="Renal Association">
-                        </a>
-                        <a class="other-partners" href="http://rixg.org/patientview2/about/supporters/"
-                                target="_blank">
-                            Other partners and supporting groups</a>
-                    </div>
-                </div>
 
+                <div class="row">
+                    <div class="brand hidden-md hidden-sm hidden-xs col-md-2">
+                        <a href="#/dashboard" data-ng-show="authToken">
+                            <img src="images/pv-logo-trans.png" alt="patient view"/>
+                        </a>
+                        <a href="#/main" data-ng-show="!authToken">
+                            <img src="images/pv-logo-trans.png" alt="patient view"/>
+                        </a>
+                    </div>
+                    <div class="partner-info col-md-6 col-xs-12">
+                        <h5 class="key-partners hidden-xs"><strong>Key Partners</strong></h5>
+                        <div class="partner-links text-center clearfix">
+                            <a href="https://www.gov.uk/government/organisations/department-of-health" title="Department of Health" target="_blank">
+                                <img src="images/depthealthengland.png" alt="Department of Health">
+                            </a>
+                            <a href="http://www.scotland.gov.uk/Topics/Health" title="Scottish Government Health Department" target="_blank">
+                                <img src="images/scotgov.png" alt="Scottish Government Health Department">
+                            </a>
+                            <a href="http://www.renal.org/" title="Renal Association" target="_blank">
+                                <img src="images/renalassoc.png" alt="Renal Association">
+                            </a>
+                            <a href="http://www.crohnsandcolitis.org.uk/" title="Crohn's and Colitis" target="_blank">
+                                <img src="images/secondary-ccuk-logo_green_rgb_50px.png" alt="Crohn's and Colitis">
+                            </a>
+                            <a class="other-partners" href="http://rixg.org/patientview2/about/supporters/"
+                               target="_blank">
+                                Other partners and supporting groups</a>
+                        </div>
+                    </div>
+                    <ul class="inline unstyled legal-links col-md-4 col-xs-12">
+                        <li><a href="#/privacy">Privacy Policy</a></li>
+                        <li><a href="#/terms">Terms &amp; Conditions</a></li>
+                        <li>Patient View {{getCurrentTime().getFullYear()}} &copy;</li>
+                        <li>Version: {{buildDateTime | date:'yyyy.MM.dd.HH.ss'}}</li>
+                    </ul>
+                </div>
             </div>
         </div>
         <!-- build:js scripts/vendor.js -->
@@ -99,7 +105,7 @@
         <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="bower_components/angular-local-storage/angular-local-storage.js"></script>
         <script src="bower_components/jquery-htmlclean/jquery.htmlClean.js"></script>
-        <script src="bower_components/jquery-waypoints/waypoints.js"></script>
+        <script src="bower_components/waypoints/waypoints.js"></script>
         <script src="bower_components/SHA-1/sha1.js"></script>
         <script src="bower_components/angulartics/src/angulartics.js"></script>
         <script src="bower_components/angulartics/src/angulartics-adobe.js"></script>
@@ -123,7 +129,7 @@
         <script src="bower_components/highstock-release/modules/exporting.js"></script>
         <script src="bower_components/angular-bindonce/bindonce.js"></script>
         <script src="bower_components/fastclick/lib/fastclick.js"></script>
-        <script src="bower_components/angular-file-upload/angular-file-upload.min.js"></script>
+        <script src="bower_components/angular-file-upload/angular-file-upload.js"></script>
         <script src="bower_components/sifter/sifter.js"></script>
         <script src="bower_components/microplugin/src/microplugin.js"></script>
         <script src="bower_components/selectize/dist/js/selectize.js"></script>
@@ -187,6 +193,10 @@
         <script src="scripts/controllers/whatcanitdo.js"></script>
         <script src="scripts/controllers/ibdfatigue.js"></script>
         <script src="scripts/controllers/fooddiary.js"></script>
+        <script src="scripts/controllers/ibdselfmanagement.js"></script>
+        <script src="scripts/controllers/admin.js"></script>
+        <script src="scripts/controllers/gplogin.js"></script>
+        <script src="scripts/controllers/setsecretword.js"></script>
 
         <script src="scripts/services/observationservice.js"></script>
         <script src="scripts/services/routeservice.js"></script>
@@ -217,6 +227,7 @@
         <script src="scripts/services/exportservice.js"></script>
         <script src="scripts/services/diagnosisservice.js"></script>
         <script src="scripts/services/fooddiaryservice.js"></script>
+        <script src="scripts/services/gpservice.js"></script>
 
         <script src="scripts/interceptors/httprequestinterceptor.js"></script>
         <script src="scripts/interceptors/httpresponseinterceptor.js"></script>
@@ -236,6 +247,7 @@
         <script src="scripts/directives/confirmclick.js"></script>
         <script src="scripts/directives/onlynum.js"></script>
         <script src="scripts/directives/pagination.js"></script>
+        <script src="scripts/directives/onlycapitalletters.js"></script>
         <!-- endbuild -->
     </body>
 </html>

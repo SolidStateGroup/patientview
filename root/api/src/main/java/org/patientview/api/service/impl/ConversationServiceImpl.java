@@ -933,9 +933,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // only users with certain roles
-        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
-                || Util.doesContainRoles(RoleName.UNIT_ADMIN)
-                || Util.doesContainRoles(RoleName.SPECIALTY_ADMIN))) {
+        if (!(Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || Util.currentUserHasRole(RoleName.UNIT_ADMIN)
+                || Util.currentUserHasRole(RoleName.SPECIALTY_ADMIN))) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -1314,7 +1314,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // when groupId is set, can only get patients if current user is member of group
-        if (groupId != null && isCurrentUserMemberOfGroup(groupRepository.findOne(groupId))) {
+        if (groupId != null && isUserMemberOfGroup(getCurrentUser(), groupRepository.findOne(groupId))) {
             for (Role role : patientRoles) {
                 getParameters.setRoleIds(new String[]{role.getId().toString()});
 
@@ -1348,7 +1348,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     private boolean loggedInUserHasMessagingFeatures() {
         User loggedInUser = getCurrentUser();
-        if (Util.doesContainRoles(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
+        if (Util.currentUserHasRole(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 

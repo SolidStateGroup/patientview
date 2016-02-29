@@ -1,10 +1,3 @@
-<!-- todo: move to main.css -->
-<style>
-    .user-picture {
-        max-width: 150px;
-    }
-</style>
-
 <div data-ng-show="editUser.picture.length" class="row text-center edit-staff" data-ng-if="editUser.id">
     <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
 </div>
@@ -100,7 +93,7 @@
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 col-sm-12">
         <div class="added-container">
             <label class="inner-title">Features</label>
             <p>Features are additional PatientView functions that can be enabled per user account</p>

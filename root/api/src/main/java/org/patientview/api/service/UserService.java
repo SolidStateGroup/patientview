@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -23,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -110,13 +110,24 @@ public interface UserService {
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     /**
+     * Update a User's secret word
+     * @param userId Id of User to update secret word for
+     * @param secretWordInput String pair containing secret word
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Create a new User, encrypting their password.
      * @param user User object containing all required information
      * @return ID of newly created User
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
@@ -205,7 +216,7 @@ public interface UserService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -230,7 +241,7 @@ public interface UserService {
      * @param username String username used to search for Users
      * @return User object
      */
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
 
     /**
@@ -283,6 +294,15 @@ public interface UserService {
     byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Hide secret word notification
+     * @param userId Id of User to hide secret word notification for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Set up service with generic Group and member Role.
      */
     @RoleOnly
@@ -321,7 +341,7 @@ public interface UserService {
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Reset a User's password, done by Users for other staff or patients.
+     * Reset a User's password, done by Users for other staff or patients. Also removes secret word.
      * @param userId ID of User to reset password for
      * @param password New password
      * @return User, newly updated (note: consider only returning HTTP OK)
@@ -373,13 +393,21 @@ public interface UserService {
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Check if User has the permissions to switch to another User.
+     * @param user User doing the switching
+     * @param switchUser User being switched to
+     * @return True if User can switch to the other User
+     */
+    boolean userCanSwitchToUser(User user, User switchUser);
+
+    /**
      * Used when searching for existing Users in Create New Staff/Patient in UI, simple check to see if username is
      * already in use.
      * @param username String username to check if User already exists
      * @return True or false if username belongs to User that already exists
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     boolean usernameExists(String username);
 
     /**
@@ -392,6 +420,4 @@ public interface UserService {
      */
     @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
-
-    String generateSalt() throws NoSuchAlgorithmException;
 }

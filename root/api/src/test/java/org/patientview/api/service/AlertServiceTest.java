@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.ContactAlert;
+import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.impl.AlertServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -25,13 +26,16 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -39,6 +43,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -58,6 +63,9 @@ public class AlertServiceTest {
     User creator;
 
     @Mock
+    AuditRepository auditRepository;
+
+    @Mock
     AlertRepository alertRepository;
 
     @InjectMocks
@@ -68,6 +76,9 @@ public class AlertServiceTest {
 
     @Mock
     EmailService emailService;
+
+    @Mock
+    GroupRepository groupRepository;
 
     @Mock
     GroupService groupService;
@@ -92,7 +103,7 @@ public class AlertServiceTest {
         TestUtils.removeAuthentication();
     }
 
-    @Ignore("Security issue, todo")
+    @Ignore("Security issue on live deploy, can be tested locally")
     @Test
     public void testGetContactAlerts() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup("GROUP1");
@@ -132,6 +143,54 @@ public class AlertServiceTest {
 
         List<ContactAlert> contactAlerts = alertService.getContactAlerts(user.getId());
         Assert.assertEquals("Should return 0 contact alerts", 0, contactAlerts.size());
+    }
+
+    @Ignore("Security issue on live deploy, can be tested locally")
+    @Test
+    public void testGetImportAlerts() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup("GROUP1");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+
+        List<org.patientview.api.model.Group> userGroups = new ArrayList<>();
+        userGroups.add(new org.patientview.api.model.Group(group));
+        PageImpl<org.patientview.api.model.Group> groupPage = new PageImpl<>(userGroups);
+
+        List<AuditActions> auditActions = new ArrayList<>();
+        auditActions.add(AuditActions.PATIENT_DATA_FAIL);
+        auditActions.add(AuditActions.PATIENT_DATA_VALIDATE_FAIL);
+
+        List<Object[]> audits = new ArrayList<>();
+        Object[] first = new Object[2];
+        first[0] = group.getId();
+        first[1] = 2L;
+        Object[] second = new Object[2];
+        second[0] = group.getId() + 1;
+        second[1] = 20L;
+        audits.add(first);
+        audits.add(second);
+
+        when(groupService.getUserGroups(eq(user.getId()), any(GetParameters.class))).thenReturn(groupPage);
+        when(auditRepository.findAllByCountGroupAction(eq(groupIds), any(Date.class), eq(auditActions)))
+                .thenReturn(audits);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        List<ImportAlert> importAlerts = alertService.getImportAlerts(user.getId());
+
+        Assert.assertEquals("Should return 1 import alerts", 1, importAlerts.size());
+        Assert.assertEquals("Should return correct group", group.getId(), importAlerts.get(0).getGroup().getId());
+        Assert.assertNotNull("Should return count", importAlerts.get(0).getFailedImports());
+        Assert.assertEquals("Should return correct count", Long.valueOf(2), importAlerts.get(0).getFailedImports());
     }
 
     @Test

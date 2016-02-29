@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -148,6 +149,7 @@ public class UserController extends BaseController<UserController> {
             throws ResourceInvalidException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
+
     /**
      * Change the picture associated with a User account.
      * @param userId ID of User to change picture
@@ -160,6 +162,13 @@ public class UserController extends BaseController<UserController> {
     public void changePicture(@PathVariable("userId") Long userId, @RequestBody String base64)
             throws ResourceInvalidException {
         userService.addPicture(userId, base64);
+    }
+
+    @RequestMapping(value = "/user/{userId}/changeSecretWord", method = RequestMethod.POST)
+    @ResponseBody
+    public void changeSecretWord(@PathVariable("userId") Long userId, @RequestBody SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.changeSecretWord(userId, secretWordInput);
     }
 
     /**
@@ -374,6 +383,19 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<Page<org.patientview.api.model.User>> getUsers(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(userService.getApiUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
+    }
+
+    /**
+     * Hide secret word notification
+     * @param userId Id of User to hide secret word notification for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/hideSecretWordNotification", method = RequestMethod.POST)
+    @ResponseBody
+    public void hideSecretWordNotification(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.hideSecretWordNotification(userId);
     }
 
     // Migration Only, are migrating passwords so create user with no password encryption

@@ -2,9 +2,9 @@
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
     'NewsService', 'UtilService', 'StaticDataService', 'MedicationService', 'ObservationService',
-    'ObservationHeadingService', 'AlertService',
+    'ObservationHeadingService', 'AlertService', '$rootScope',
     function (UserService, $modal, $scope, GroupService, NewsService, UtilService, StaticDataService, MedicationService,
-              ObservationService, ObservationHeadingService, AlertService) {
+              ObservationService, ObservationHeadingService, AlertService, $rootScope) {
 
         // get graph every time group is changed
         $scope.$watch('graphGroupId', function (newValue) {
@@ -19,6 +19,9 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         var uniqueLogons = [];
                         var logons = [];
                         var xAxisCategories = [];
+
+                        // remove last date (most recent month)
+                        statisticsArray.pop();
 
                         for (var i = 0; i < statisticsArray.length; i++) {
                             var statistics = statisticsArray[i];
@@ -206,22 +209,38 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             });
         };
 
-        $scope.getContactAlertsAndOldSubmissionDateGroups = function () {
+        $scope.getAlerts = function () {
             // get contact alerts for admin users
             if ($scope.permissions.showStaffAlerts) {
                 $scope.showStaffGroupAlerts = true;
+                $scope.importAlerts = [];
                 $scope.contactAlerts = [];
                 $scope.oldSubmissionDateGroups = [];
+
+                // get import alerts
+                $scope.importAlertsLoading = true;
+                AlertService.getImportAlerts($scope.loggedInUser.id).then(function (importAlerts) {
+                    for (var i = 0; i < importAlerts.length; i++) {
+                        if (importAlerts[i].group.groupType.value === 'UNIT') {
+                            $scope.importAlerts.push(importAlerts[i]);
+                        }
+                    }
+
+                    $scope.importAlertsLoading = false;
+                }, function () {
+                    alert("Error getting import alerts");
+                    $scope.importAlertsLoading = false;
+                });
 
                 // get contact alerts
                 $scope.contactAlertsLoading = true;
                 AlertService.getContactAlerts($scope.loggedInUser.id).then(function (contactAlerts) {
-                    $scope.contactAlertsLoading = false;
                     for (var i = 0; i < contactAlerts.length; i++) {
                         if (contactAlerts[i].group.groupType.value === 'UNIT') {
                             $scope.contactAlerts.push(contactAlerts[i]);
                         }
                     }
+                    $scope.contactAlertsLoading = false;
                 }, function () {
                     alert("Error getting contact alerts");
                     $scope.contactAlertsLoading = false;
@@ -246,6 +265,23 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     $scope.oldSubmissionDateGroupsLoading = false;
                 });
             }
+        };
+
+        $scope.hideAlertNotification = function (alert) {
+            alert.webAlertViewed = true;
+            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
+                getAlerts();
+            }, function () {
+                alert('Error updating alert');
+            });
+        };
+
+        $scope.hideSecretWordNotification = function () {
+            UserService.hideSecretWordNotification($rootScope.loggedInUser.id).then(function () {
+                $rootScope.loggedInUser.hideSecretWordNotification = true;
+            }, function () {
+                alert("Error hiding secret word notification");
+            });
         };
 
         $scope.viewNewsItem = function (news) {
@@ -405,15 +441,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     alert('Error updating alert');
                 });
             }
-        };
-
-        $scope.hideAlertNotification = function (alert) {
-            alert.webAlertViewed = true;
-            AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
-                getAlerts();
-            }, function () {
-                alert('Error updating alert');
-            });
         };
 
         var getAvailableObservationHeadings = function () {

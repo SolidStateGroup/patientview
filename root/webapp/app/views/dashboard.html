@@ -1,116 +1,36 @@
-<!-- todo: move to main css -->
 <style>
-    input.alert-checkbox {
-        margin-right: 7px;
-    }
-
-    a.new-result-notification {
-        color: #fff;
-        cursor: pointer;
-    }
-
-    .user-picture {
-        max-width: 150px;
-    }
-
-    .news-actions {
-        text-align: left;
-    }
-
-    .panel-intro-statistics p {
-        margin: 0;
-    }
-
-    .panel-help-link {
-        font-size: 14px;
-        font-family: Lato, sans-serif;
-    }
-
-    .featured-news{
-        padding-bottom: 1px;
-    }
-
-    .featured-news h3 {
-        padding-bottom: 5px;
-    }
-
-    .featured-news img {
-        float: left;
-        margin-right: 5px;
-    }
-
-    .featured-news-heading {
-        font-size: 12px;
-        margin-bottom: 0px;
-        margin-top: 0px;
-
-    }
-
-    .featured-news-heading a {
-        font-size: 15px;
-    }
-
-    .featured-news-content {
-        color: grey;
-        margin-bottom: 5px;
-    }
-
-    h3 {
-        font-size: 22px;
-    }
-
-    .read-more {
-        padding-right: 7px;
-    }
-
-    .featured-section-content-inner {
-        padding: 0px;
-    }
-
-    i.icon-forward-to{
-        background: url('../images/icons/forward-to.png') 0 0 no-repeat;
-        height: 22px;
-        width: 23px;
-        display:block;
-        margin-left:10px;
+    .alert-button {
         position: relative;
-        top: 4px;
-    }
-
-    .group-li {
-        margin-top: 5px;
-    }
-    .group-image {
-        width: 30px;
-    }
-    .group-description {
+        top: -10px;
         margin-left: 5px;
     }
-    .group-link:hover, .group-link:visited, .group-link:link, .group-link:active{
-        text-decoration: none;
-        outline: none;
-        border: 0px none transparent;
-    }
-
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
     <br/>
+    <div class="row" data-ng-if="!loggedInUser.hideSecretWordNotification">
+        <div class="alert alert-warning">
+            You may optionally set a secret word to improve the security of your PatientView login
+            <a href="" data-ng-click="hideSecretWordNotification()" class="btn blue pull-right alert-button">Hide this notification</a>
+            <a href="/#/settings#change-secret-word" class="btn blue pull-right alert-button">Do this now</a>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-8">
             <div class="tab-panel-item" data-ng-show="featuredNewsItems">
                 <div class="content-panel chart-container">
-                    <div class="panel-intro featured-news" style="padding-bottom:1px;">
-                        <h3><img src="../../../images/icons/featured-news.png"/>
+                    <div class="panel-intro featured-news">
+                        <h3><img src="../../../images/icons/featured-news.png" class="pull-left"/>
                             Featured Notices</h3>
+                    </div>
+                    <div class="panel-body">
                         <ul class="unstyled">
-                            <li class="news-item content-panel" data-ng-repeat="news in featuredNewsItems">
-                                <div class="content-inner">
+                            <li class="news-item" data-ng-repeat="news in featuredNewsItems">
+                                <div class="">
                                     <h4
                                         class="featured-news-heading">
-                                        <a href="" data-ng-click="viewNewsItem(news)">{{news.heading}} </a>
-                                        <br/>
-                                        {{news.created | date:'dd-MMM-yyyy HH:mm'}} - {{listNewsLinkGroupNames(news)}}
+                                        <a href="" data-ng-click="viewNewsItem(news)" class="pull-left">{{news.heading}} </a>
+                                        <span class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}} - {{listNewsLinkGroupNames(news)}}</span>
                                     </h4>
 
                                     <p class="featured-news-content">{{stripHTML(news.story) | limitTo:200}}
@@ -146,8 +66,7 @@
                         </dl>
                         <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
-                            <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy
-                                HH:mm'}}
+                            <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
                                 <span class="sub-text" data-ng-show="loggedInUser.lastLoginIpAddress">from {{loggedInUser.lastLoginIpAddress}}</span>
                             </dd>
                             <dd data-ng-show="!loggedInUser.lastLogin">
@@ -161,20 +80,20 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="groupRole.role.name !== 'MEMBER'"
+                                        data-ng-if="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE'"
                                         class="group-li">
 
                                         <!-- renal, diabetes, heart failure, ibd -->
                                         <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
                                             groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
                                             <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
-                                                <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
+                                                <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
                                                 <span class="group-description">
                                                     {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                                     <span class="light-text">({{groupRole.role.description}})</span>
                                                 </span>
                                             </a>
-                                            <img class="group-image" src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
+                                            <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png" data-ng-if="!permissions.isPatient"/>
                                             <span class="group-description" data-ng-if="!permissions.isPatient">
                                                 {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                                 <span class="light-text">({{groupRole.role.description}})</span>
@@ -183,7 +102,13 @@
 
                                         <!-- units & Generic specialties-->
                                         <img class="group-image" src="../images/icons/pv-units.png"
-                                             data-ng-if="groupRole.group.groupType.value === 'UNIT' || groupRole.group.code === 'Generic'"/>
+                                             data-ng-if="groupRole.group.groupType.value === 'UNIT'
+                                                || groupRole.group.code === 'Generic'
+                                                || groupRole.group.code === 'GENERAL_PRACTICE'"/>
+
+                                        <!-- GP units -->
+                                        <span class="badge gp pull-left small"
+                                              data-ng-if="groupRole.group.groupType.value === 'GENERAL_PRACTICE'">GP</span>
 
                                         <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
                                             && groupRole.group.code !== 'Diabetes' &&
@@ -219,10 +144,11 @@
             <div class="tab-panel-item" data-ng-show="permissions.showStaffAlerts">
                 <div class="content-panel chart-container">
                     <div class="panel-intro">
-                        <h3>Notifications<a
+                        <a
                                 href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Notifications_on_your_dashboard"
                                 target="_blank"
-                                class="pull-right panel-help-link">Help</a></h3>
+                                class="pull-right panel-help-link">Help</a>
+                        <h3>Notifications</h3>
 
 
                     </div>
@@ -238,14 +164,29 @@
                             </li>
                         </ul>
 
-                        <p><a href="" data-ng-click="getContactAlertsAndOldSubmissionDateGroups()"
-                              data-ng-show="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
+                        <p><a href="" data-ng-click="getAlerts()"
+                              data-ng-if="!contactAlerts && !oldSubmissionDateGroups">Show Group Alerts</a></p>
 
                         <div data-ng-show="showStaffGroupAlerts">
                             <a href=""
                                data-ng-click="contactAlerts = null; oldSubmissionDateGroups = null; showStaffGroupAlerts = false;"
                                data-ng-hide="!contactAlerts && !oldSubmissionDateGroups">Hide Group Alerts</a>
-                            <br/>
+                            <br/><br/>
+                            <strong>Failed Imports in Last Week</strong>
+                            <ul>
+                                <li data-ng-show="importAlertsLoading">
+                                    Checking failed imports for the last week
+                                </li>
+                                <li data-ng-repeat="importAlert in importAlerts | orderBy:'group.shortName'"
+                                    data-ng-show="!importAlertsLoading">
+                                    <a href="#/log?groupId={{importAlert.group.id}}&auditActions=Patient%20data%20failed%20validation&auditActions=Patient%20data%20failed%20import">
+                                        {{importAlert.group.shortName}} had {{importAlert.failedImports}} failed import<span data-ng-if="importAlert.failedImports > 1">s</span></a>
+                                    <span class="sub-text">(since {{importAlert.since | date:'dd-MMM-yyyy'}})</span>
+                                </li>
+                                <li data-ng-show="!importAlertsLoading && !importAlerts.length > 0">
+                                    There are no failed imports to report
+                                </li>
+                            </ul>
                             <strong>Missing Contact Alerts</strong>
                             <ul>
                                 <li data-ng-show="contactAlertsLoading">
@@ -300,7 +241,10 @@
                 </div>
                 <div data-ng-hide="permissions.isPatient">
                     <div class="content-inner">
-                        <div id="chart_div"></div>
+                        <div class="alert alert-warning" data-ng-if="!statisticsDate">
+                            Your group statistics will show here after they have been collected (this takes one month from group creation).
+                        </div>
+                        <div id="chart_div" data-ng-hide="!statisticsDate"></div>
                     </div>
                 </div>
             </div>
@@ -310,7 +254,7 @@
             </div>
 
             <div class="content-panel chart-container"
-                 data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+                 data-ng-if="!chartLoading && !permissions.isPatient && statisticsDate">
                 <div class="panel-intro panel-intro-statistics">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span>
                     </h3>
@@ -525,7 +469,7 @@
                                                data-ng-change="updateAlert(alert)">Email</input>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-danger" data-ng-click="removeAlert(alert.id)">Remove
+                                        <a href="" class="btn btn-danger pull-right" data-ng-click="removeAlert(alert.id)">Remove
                                             Alert</a>
                                     </td>
                                 </tr>
@@ -580,20 +524,20 @@
                 <h3><span class="badge aqua pull-left"><i class="icon-settings"></i></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">
-                <div data-ng-show="loggedInUser.picture.length">
+                <div data-ng-if="loggedInUser.picture.length">
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}"
-                         class="user-picture" src="">
+                         class="user-picture pull-left" src="">
                 </div>
-                <div data-ng-show="!loggedInUser.picture">
+                <div data-ng-if="!loggedInUser.picture">
                     <h4>No Photo Uploaded</h4>
 
                     <p><a href="/#/settings">Upload a photo of yourself</a></p>
                     <br/>
                 </div>
-                <ul class="unstyled">
+                <ul class="unstyled pull-left">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
-                    <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
-                    <li data-ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
+                    <li data-ng-if="loggedInUser.email">Email: {{loggedInUser.email}}</li>
+                    <li data-ng-if="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
                 </ul>
                 <br/>
 
@@ -661,6 +605,6 @@
 <br/>
 
 <!-- Migration only -->
-<div data-ng-show="permissions.isSuperAdmin" class="hidden">
+<!-- <div data-ng-show="permissions.isSuperAdmin" class="hidden">
     <a href="" class="btn blue" data-ng-click="startObservationMigration()">Start Observation Migration</a>
-</div>
+</div> -->

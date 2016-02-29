@@ -32,6 +32,10 @@ public class User extends BaseUser {
     private Date latestDataReceivedDate;
     private BaseGroup latestDataReceivedBy;
 
+    // secret word
+    private boolean hideSecretWordNotification = false;
+    private boolean secretWordIsSet = false;
+
     public User() {
     }
 
@@ -68,6 +72,9 @@ public class User extends BaseUser {
         if (StringUtils.isNotEmpty(user.getPicture())) {
             setPicture(Integer.toString(user.getPicture().length()));
         }
+
+        setHideSecretWordNotification(user.isHideSecretWordNotification());
+        setSecretWordIsSet(StringUtils.isNotEmpty(user.getSecretWord()));
     }
 
     public String getEmail() {
@@ -180,5 +187,21 @@ public class User extends BaseUser {
 
     public void setChangePassword(Boolean changePassword) {
         this.changePassword = changePassword;
+    }
+
+    public boolean isHideSecretWordNotification() {
+        return hideSecretWordNotification;
+    }
+
+    public void setHideSecretWordNotification(boolean hideSecretWordNotification) {
+        this.hideSecretWordNotification = hideSecretWordNotification;
+    }
+
+    public boolean isSecretWordIsSet() {
+        return secretWordIsSet;
+    }
+
+    public void setSecretWordIsSet(boolean secretWordIsSet) {
+        this.secretWordIsSet = secretWordIsSet;
     }
 }

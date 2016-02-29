@@ -213,6 +213,16 @@ public class ImportControllerTest {
         }
     }
 
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestCKD_7_01() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/CKD_7/RAL01_01_8217326543.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     // hfdemo
     @Test
     @Ignore("IntegrationTest")
@@ -278,6 +288,112 @@ public class ImportControllerTest {
         }
     }
 
+    // IBD importer testing
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestIBDtest() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/IBD_test/import-ibdtest.xml");
+        files.add("data/xml/IBD_test/importfail1.xml");
+        files.add("data/xml/IBD_test/importfail2.xml");
+        files.add("data/xml/IBD_test/importfail3.xml");
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
+    // GP logins, letter generation testing, db needs clearing manually after each test
+    /*
+        DELETE FROM pv_contact_point WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user_group_role WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group_relationship WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_feature_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_feature_user WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_fhir_link WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_gp_letter WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_audit WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group_statistic WHERE id > 4731630;
+        DELETE FROM pv_link WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_group WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user_token WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_message_read_receipt WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_message WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_conversation_user_label WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_conversation_user WHERE creation_date > '2016-02-10 00:00:00.000';
+        DELETE FROM pv_user WHERE creation_date > '2016-02-10 00:00:00.000';
+    */
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestGpLogins_local() throws Exception {
+        // all data, single match in gp master - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB.xml"));
+
+        // all data, multi match in gp master - creates letter, adds test results
+        post(getFileFromString("data/xml/gplogin/RENALB_1111111111_B11_4AN.xml"));
+
+        // only name and postcode, single match in gp master for postcode - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_name_postcode.xml"));
+
+        // only name and postcode, multiple matches (2) in gp master for postcode - no letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_ME20_7SE_name_postcode_duplicate_master.xml"));
+
+        // two blank addresses, single match in gp master - creates letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_two_blank_address.xml"));
+
+        // no postcode, no match in gp master - no letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_no_postcode.xml"));
+
+        // wrong postcode, no match in gp master - no letter
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_AB12_3CD.xml"));
+
+        // bad gp name, should rename file when saving
+        //post(getFileFromString("data/xml/gplogin/RENALB_1111111111_GU47_0UB_bad_name_postcode.xml"));
+    }
+
+    // GP logins on staging
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestGpLogins_staging() throws Exception {
+        //post(getFileFromString("data/xml/gplogin_test/p1.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p1-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p1-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p11.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-4.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-5.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-6.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p3-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p3-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p4.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p4-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p4-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test/p2-5.xml"));
+
+        // second batch
+        //post(getFileFromString("data/xml/gplogin_test_2/p2-5.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p3-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p4-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p4-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-4.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p6-3-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p7.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p8.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p9.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p9-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p9-3.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p9-4.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p10.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p10-2.xml"));
+        //post(getFileFromString("data/xml/gplogin_test_2/p10-3.xml"));
+        post(getFileFromString("data/xml/gplogin_test_2/p7-2.xml"));
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
@@ -306,9 +422,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="http://localhost:8081/importer/import";
+        String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

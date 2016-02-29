@@ -112,3 +112,11 @@ and (max-width : 992px) {
         }
     }
 }
+
+@media (max-width: $screen-xs-max) {
+    .hero-pane{
+        i{
+            display:none;
+        }
+    }
+}

@@ -830,13 +830,19 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // show error if user is not a member of any groups
             if (groups.length !== 0) {
                 $scope.filterUnitGroups = [];
-                $scope.filterDiseaseGroupGroups = [];
+                $scope.filterOtherGroups = [];
                 $scope.filterSpecialtyGroups = [];
 
                 // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                 for (i = 0; i < groups.length; i++) {
                     group = groups[i];
-                    if (group.visible === true) {
+
+                    // global admin can see all groups
+                    if ($scope.permissions.isSuperAdmin) {
+                        group.visible = true;
+                    }
+
+                    if (group.visible === true && group.code !== 'Generic') {
                         var minimalGroup = {};
                         minimalGroup.id = group.id;
                         minimalGroup.shortName = group.shortName;
@@ -851,9 +857,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         if (group.groupType.value === 'UNIT') {
                             $scope.showUnitFilter = true;
                             $scope.filterUnitGroups.push(minimalGroup);
-                        } else if (group.groupType.value === 'DISEASE_GROUP') {
-                            $scope.showDiseaseGroupFilter = true;
-                            $scope.filterDiseaseGroupGroups.push(minimalGroup);
+                        } else if (group.groupType.value === 'DISEASE_GROUP'
+                            || group.groupType.value === 'GENERAL_PRACTICE') {
+                            $scope.showOtherGroupFilter = true;
+                            $scope.filterOtherGroups.push(minimalGroup);
                         } else if (group.groupType.value === 'SPECIALTY') {
                             $scope.showSpecialtyFilter = true;
                             $scope.filterSpecialtyGroups.push(minimalGroup);
@@ -1270,7 +1277,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             localStorageService.set('authToken', authToken);
 
             // get user information, store in session
-            AuthService.getUserInformation(authToken).then(function (userInformation) {
+            AuthService.getUserInformation({'token' : authToken}).then(function (userInformation) {
 
                 var user = userInformation.user;
                 delete userInformation.user;

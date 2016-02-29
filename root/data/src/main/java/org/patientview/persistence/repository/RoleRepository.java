@@ -25,21 +25,21 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
            "FROM Role r " +
            "WHERE r.level <= (SELECT MAX(r.level) FROM User u JOIN u.groupRoles gr JOIN gr.role r WHERE u.id = :userId)" +
            "AND  r.visible = true")
-    public List<Role> findValidRolesByUser(@Param("userId") Long userId);
+    List<Role> findValidRolesByUser(@Param("userId") Long userId);
 
     @Query("SELECT r " +
            "FROM   Role r " +
            "WHERE  r.roleType.value = :roleType " +
            "AND    r.visible = true")
-    public List<Role> findByRoleType(@Param("roleType") RoleType roleType);
+    List<Role> findByRoleType(@Param("roleType") RoleType roleType);
 
     @Query("SELECT r " +
            "FROM   Role r " +
            "WHERE  r.roleType.value = :roleType " +
            "AND    r.name = :roleName " +
            "AND    r.visible = true")
-    public Role findByRoleTypeAndName(@Param("roleType") RoleType roleType, @Param("roleName") RoleName roleName);
+    Role findByRoleTypeAndName(@Param("roleType") RoleType roleType, @Param("roleName") RoleName roleName);
 
     @Query("SELECT gr.role FROM User u JOIN u.groupRoles gr WHERE u = :user AND gr.role.visible = true")
-    public List<Role> findByUser(@Param("user") User user);
+    List<Role> findByUser(@Param("user") User user);
 }

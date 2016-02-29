@@ -55,6 +55,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -76,6 +77,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.QuestionOptionRepository;
@@ -85,6 +87,7 @@ import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.GpLetterCreationService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -135,6 +138,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private FileDataService fileDataService;
+
+    @Inject
+    private GpLetterCreationService gpLetterCreationService;
+
+    @Inject
+    private GpLetterRepository gpLetterRepository;
 
     @Inject
     private GroupRepository groupRepository;
@@ -658,13 +667,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // make sure group links are displayed on screen, even if no fhirlink exists for the patient's groups, ignore
-        // specialty groups
+        // specialty groups and general practices
         for (GroupRole groupRole : user.getGroupRoles()) {
             Group group = groupRole.getGroup();
             if ((restrictGroups && filteredGroupIds.contains(group.getId())) || (!restrictGroups)) {
                 if (!foundFhirLinkGroupIds.contains(group.getId())
                         && group.getVisible()
-                        && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                        && !group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
+                        && !group.getGroupType().getValue().equals(HiddenGroupCodes.GENERAL_PRACTICE.toString())) {
                     org.patientview.api.model.Patient p = new org.patientview.api.model.Patient();
                     p.setFhirPatient(new FhirPatient());
                     p.setGroup(new org.patientview.api.model.Group(group));
@@ -1350,7 +1360,49 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             for (ResourceReference practitionerReference : fhirPatient.getCareProvider()) {
                 Practitioner practitioner = getPractitioner(UUID.fromString(practitionerReference.getDisplaySimple()));
                 if (practitioner != null) {
-                    patient.getFhirPractitioners().add(new FhirPractitioner(practitioner));
+                    FhirPractitioner fhirPractitioner = new FhirPractitioner(practitioner);
+
+                    // check if practitioner has been claimed already using gp letter table
+                    GpLetter gpLetter = new GpLetter();
+                    gpLetter.setGpName(fhirPractitioner.getName());
+                    gpLetter.setGpAddress1(fhirPractitioner.getAddress1());
+                    gpLetter.setGpAddress2(fhirPractitioner.getAddress2());
+                    gpLetter.setGpAddress3(fhirPractitioner.getAddress3());
+                    gpLetter.setGpAddress4(fhirPractitioner.getAddress4());
+                    gpLetter.setGpPostcode(fhirPractitioner.getPostcode());
+
+                    // check existing gp letter does not exist for postcode and gp name (claimed or unclaimed)
+                    // handle entries with and without spaces in postcode
+                    List<GpLetter> gpLetters = new ArrayList<>();
+
+                    if (StringUtils.isNotEmpty(gpLetter.getGpPostcode())
+                            && StringUtils.isNotEmpty(gpLetter.getGpName())) {
+                        gpLetters.addAll(gpLetterRepository.findByPostcodeAndName(
+                                gpLetter.getGpPostcode(), gpLetter.getGpName()));
+                        gpLetters.addAll(gpLetterRepository.findByPostcodeAndName(
+                                gpLetter.getGpPostcode().replace(" ", ""), gpLetter.getGpName()));
+                    }
+
+                    if (gpLetters.isEmpty()) {
+                        // no current gp letter, check gp details are suitable for creating gp letter
+                        if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
+                                || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
+                            fhirPractitioner.setAllowInviteGp(true);
+                        }
+                    } else {
+                        // get correct gp letter associated with this patient's identifier
+                        if (!CollectionUtils.isEmpty(fhirPatient.getIdentifier())) {
+                            for (org.hl7.fhir.instance.model.Identifier identifier : fhirPatient.getIdentifier()) {
+                                for (GpLetter gpLetter1 : gpLetters) {
+                                    if (gpLetter1.getPatientIdentifier().equals(identifier.getValueSimple())) {
+                                        fhirPractitioner.setInviteDate(gpLetter1.getCreated());
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    patient.getFhirPractitioners().add(fhirPractitioner);
                 }
             }
         }
@@ -1364,7 +1416,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // check current logged in user has rights to this group
-        if (!(Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+        if (!(Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 || Util.doesContainGroupAndRole(groupId, RoleName.UNIT_ADMIN_API))) {
             throw new ResourceForbiddenException("Failed group and role validation");
         }

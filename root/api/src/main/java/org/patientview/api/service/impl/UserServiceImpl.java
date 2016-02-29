@@ -1,13 +1,13 @@
 package org.patientview.api.service.impl;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -74,18 +74,16 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -181,6 +179,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int ONE_HUNDRED_AND_EIGHTY = 180;
     private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
+    private static final int SECRET_WORD_MIN_LENGTH = 7;
     private Group genericGroup;
     private Role memberRole;
 
@@ -191,243 +190,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         genericGroup = groupRepository.findOne(GENERIC_GROUP_ID);
     }
 
-    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator, boolean isPatient) {
-
-        Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
-
-        // save grouprole with same role and parent group if doesn't exist already
-        if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
-            for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
-                if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
-
-                    if (!groupRoleRepository.userGroupRoleExists(groupRole.getUser().getId(),
-                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
-                    {
-                        GroupRole parentGroupRole = new GroupRole();
-                        parentGroupRole.setGroup(groupRelationship.getObjectGroup());
-                        parentGroupRole.setRole(groupRole.getRole());
-                        parentGroupRole.setUser(groupRole.getUser());
-                        parentGroupRole.setCreator(creator);
-                        groupRoleRepository.save(parentGroupRole);
-
-                        if (isPatient) {
-                            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD,
-                                    groupRole.getUser().getUsername(),
-                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
-                        } else {
-                            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD,
-                                    groupRole.getUser().getUsername(),
-                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
-            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
-
-        User creator = getCurrentUser();
-        User user = findUser(userId);
-        Group group = groupRepository.findOne(groupId);
-        Role role = roleRepository.findOne(roleId);
-
-        if (group == null || role == null) {
-            throw new ResourceNotFoundException("Group or Role not found");
-        }
-
-        // validate i can add to requested group (staff role)
-        if (!isCurrentUserMemberOfGroup(group)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        if (groupRoleRepository.findByUserGroupRole(user, group, role) != null) {
-            throw new EntityExistsException();
-        }
-
-        GroupRole groupRole = new GroupRole();
-        groupRole.setUser(user);
-        groupRole.setGroup(group);
-        groupRole.setRole(role);
-        groupRole.setCreator(creator);
-        groupRole = groupRoleRepository.save(groupRole);
-
-        boolean isPatient = role.getRoleType().getValue().equals(RoleType.PATIENT);
-
-        if (isPatient) {
-            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
-                    getCurrentUser(), userId, AuditObjectTypes.User, group);
-
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-                sendGroupMemberShipNotification(groupRole, true);
-            }
-        } else {
-            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, user.getUsername(),
-                    getCurrentUser(), userId, AuditObjectTypes.User, group);
-        }
-
-        addParentGroupRoles(userId, groupRole, creator, isPatient);
-        return groupRole;
-    }
-
-    public void deleteGroupRole(Long userId, Long groupId, Long roleId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        deleteGroupRoleRelationship(userId, groupId, roleId, true);
-
-        // if a user is removed from all child groups the parent group (if present) is also removed
-        // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
-        User user = findUser(userId);
-        Group removedGroup = groupRepository.findOne(groupId);
-
-        Set<GroupRole> toRemove = new HashSet<>();
-        Set<GroupRole> userGroupRoles = new HashSet<>();
-
-        // remove deleted grouprole from user.getGroupRoles as not deleted in this transaction yet
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (!(groupRole.getGroup().getId().equals(groupId) && groupRole.getRole().getId().equals(roleId))) {
-                userGroupRoles.add(groupRole);
-            }
-        }
-
-        // identify specialty groups with no children
-        for (GroupRole groupRole : userGroupRoles) {
-            if (groupRole.getGroup().getGroupType() != null
-                    && groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-
-                List<Group> children = groupService.findChildren(groupRole.getGroup().getId());
-                boolean childInGroupRoles = false;
-                boolean removedGroupInChildren = children.contains(removedGroup);
-
-                for (Group group : children) {
-                    if (groupRolesContainsGroup(userGroupRoles, group)) {
-                        childInGroupRoles = true;
-                    }
-                }
-
-                if (!childInGroupRoles && removedGroupInChildren) {
-                    toRemove.add(groupRole);
-                }
-            }
-        }
-
-        // remove any specialty groups with no children
-        for (GroupRole groupRole : toRemove) {
-            deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
-                    groupRole.getRole().getId(), false);
-        }
-    }
-
-    private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
-        Date now = new Date();
-        // for ISO1806 date format
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
-
-        if (groupRole.getUser().getIdentifiers() != null) {
-            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
-                xml.append("<PatientNumber><Number>");
-                xml.append(identifier.getIdentifier());
-                xml.append("</Number><Organization>");
-                xml.append(identifier.getIdentifierType().getValue());
-                xml.append("</Organization></PatientNumber>");
-            }
-        }
-
-        xml.append("</PatientNumbers></Patient><ProgramMemberships><ProgramMembership><EnteredBy>");
-        xml.append(getCurrentUser().getUsername());
-        xml.append("</EnteredBy><EnteredAt>PV2</EnteredAt><EnteredOn>");
-        xml.append(df.format(now));
-        xml.append("</EnteredOn><ExternalId>");
-        xml.append(groupRole.getId());
-        xml.append("</ExternalId><ProgramName>");
-        xml.append(groupRole.getGroup().getCode());
-        xml.append("</ProgramName><ProgramDescription>");
-        xml.append(groupRole.getGroup().getName());
-        xml.append("</ProgramDescription><FromTime>");
-        xml.append(df.format(groupRole.getCreated()));
-        xml.append("</FromTime><ToTime>");
-        if (!adding) {
-            xml.append(df.format(now));
-        }
-        xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
-
-        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
-                getCurrentUser(), now);
-    }
-
     @Override
-    public void removeAllGroupRoles(Long userId) throws ResourceNotFoundException {
-        groupRoleRepository.removeAllGroupRoles(findUser(userId));
-    }
-
-    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId, boolean checkGroupMembership)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        Group entityGroup = groupRepository.findOne(groupId);
-        if (entityGroup == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
-
-        // check if current user is a member of the group to be removed
-        if (checkGroupMembership && !isCurrentUserMemberOfGroup(entityGroup)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
-        Role entityRole = roleRepository.findOne(roleId);
-        if (entityRole == null) {
-            throw new ResourceNotFoundException("Role not found");
-        }
-
-        GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(entityUser, entityGroup, entityRole);
-        if (entityGroupRole == null) {
-            throw new ResourceNotFoundException("GroupRole not found");
-        }
-
-        groupRoleRepository.delete(entityGroupRole);
-
-        // remove from user features if GP_MEDICATION group
-        if (entityGroupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
-            Feature entityFeature = featureRepository.findByName(FeatureType.GP_MEDICATION.toString());
-            UserFeature userFeature = userFeatureRepository.findByUserAndFeature(entityUser, entityFeature);
-            userFeatureRepository.delete(userFeature);
-        }
-
-        // audit
-        boolean isPatient = entityRole.getRoleType().getValue().equals(RoleType.PATIENT);
-
-        if (isPatient) {
-            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
-                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
-
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-                sendGroupMemberShipNotification(entityGroupRole, false);
-            }
-        } else {
-            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, entityUser.getUsername(),
-                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
-        }
-    }
-
-    private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
-        for (GroupRole groupRole : groupRoles) {
-            if (groupRole.getGroup().equals(group)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public Long add(User user) throws EntityExistsException {
-
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
             throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
@@ -528,6 +292,187 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return newUser.getId();
     }
 
+    @Override
+    public void addFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = findUser(userId);
+        Feature feature = featureRepository.findOne(featureId);
+        if (feature == null) {
+            throw new ResourceForbiddenException("Feature not found");
+        }
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        UserFeature userFeature = new UserFeature();
+        userFeature.setFeature(feature);
+        userFeature.setUser(user);
+        userFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
+        userFeatureRepository.save(userFeature);
+    }
+
+    @Override
+    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
+        User creator = getCurrentUser();
+        User user = findUser(userId);
+        Group group = groupRepository.findOne(groupId);
+        Role role = roleRepository.findOne(roleId);
+
+        if (group == null || role == null) {
+            throw new ResourceNotFoundException("Group or Role not found");
+        }
+
+        // validate i can add to requested group (staff role)
+        if (!isUserMemberOfGroup(getCurrentUser(), group)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (groupRoleRepository.findByUserGroupRole(user, group, role) != null) {
+            throw new EntityExistsException();
+        }
+
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(user);
+        groupRole.setGroup(group);
+        groupRole.setRole(role);
+        groupRole.setCreator(creator);
+        groupRole = groupRoleRepository.save(groupRole);
+
+        boolean isPatient = role.getRoleType().getValue().equals(RoleType.PATIENT);
+
+        if (isPatient) {
+            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, group);
+
+            // send membership notification to RDC, not GroupTypes.SPECIALTY
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                sendGroupMemberShipNotification(groupRole, true);
+            }
+        } else {
+            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, user.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, group);
+        }
+
+        addParentGroupRoles(userId, groupRole, creator, isPatient);
+        return groupRole;
+    }
+
+    @Override
+    public void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException {
+        User user = findUser(userId);
+
+        // for user information we want to update existing info, only create if doesn't already exist
+        for (UserInformation newUserInformation : userInformation) {
+            UserInformation entityUserInformation
+                    = userInformationRepository.findByUserAndType(user, newUserInformation.getType());
+            if (entityUserInformation != null) {
+                entityUserInformation.setValue(newUserInformation.getValue());
+                userInformationRepository.save(entityUserInformation);
+            } else {
+                if (newUserInformation.getValue() != null) {
+                    newUserInformation.setUser(user);
+                    newUserInformation.setCreator(getCurrentUser());
+                    userInformationRepository.save(newUserInformation);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addOtherUsersInformation(Long userId, List<UserInformation> userInformation)
+            throws ResourceNotFoundException {
+        User user = findUser(userId);
+
+        // for user information we want to update existing info, only create if doesn't already exist
+        for (UserInformation newUserInformation : userInformation) {
+            UserInformation entityUserInformation
+                    = userInformationRepository.findByUserAndType(user, newUserInformation.getType());
+            if (entityUserInformation != null) {
+                entityUserInformation.setValue(newUserInformation.getValue());
+                userInformationRepository.save(entityUserInformation);
+            } else {
+                if (newUserInformation.getValue() != null) {
+                    newUserInformation.setUser(user);
+                    newUserInformation.setCreator(getCurrentUser());
+                    userInformationRepository.save(newUserInformation);
+                }
+            }
+        }
+    }
+
+    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator, boolean isPatient) {
+        Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+
+        // save grouprole with same role and parent group if doesn't exist already
+        if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
+            for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
+
+                    if (!groupRoleRepository.userGroupRoleExists(groupRole.getUser().getId(),
+                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
+                    {
+                        GroupRole parentGroupRole = new GroupRole();
+                        parentGroupRole.setGroup(groupRelationship.getObjectGroup());
+                        parentGroupRole.setRole(groupRole.getRole());
+                        parentGroupRole.setUser(groupRole.getUser());
+                        parentGroupRole.setCreator(creator);
+                        groupRoleRepository.save(parentGroupRole);
+
+                        if (isPatient) {
+                            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD,
+                                    groupRole.getUser().getUsername(),
+                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
+                        } else {
+                            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD,
+                                    groupRole.getUser().getUsername(),
+                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
+        User user = userRepository.findOne(userId);
+        String fileName = "";
+
+        try {
+            fileName = file.getOriginalFilename();
+            byte[] inputBytes = file.getBytes();
+            if (inputBytes == null || inputBytes.length == 0) {
+                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
+            }
+
+            InputStream inputStream = new ByteArrayInputStream(inputBytes);
+            BufferedImage bufferedImage = Thumbnails.of(ImageIO.read(inputStream)).scale(1).asBufferedImage();
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpeg", byteArrayOutputStream);
+            byte[] outputBytes = byteArrayOutputStream.toByteArray();
+            String outputBase64 = new String(Base64.encodeBase64(outputBytes));
+            user.setPicture(outputBase64);
+            userRepository.save(user);
+
+            inputStream.close();
+            byteArrayOutputStream.close();
+            return "Uploaded '" + fileName + "' (" + outputBytes.length + " bytes, " + outputBase64.length() + " char)";
+        } catch (Exception e) {
+            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void addPicture(Long userId, String base64) {
+        User user = userRepository.findOne(userId);
+        user.setPicture(base64);
+        userRepository.save(user);
+    }
+
     // We do this so early one gets the generic group
     private void addUserToGenericGroup(User user, User creator) {
         GroupRole groupRole = new GroupRole();
@@ -540,16 +485,89 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
+     * Reset the flag so the user will not be prompted to change the password again
+     *
+     * @param userId   Id of User to change password
+     * @param password password to set
+     */
+    @Override
+    public void changePassword(Long userId, String password) throws ResourceNotFoundException {
+        User user = findUser(userId);
+        try {
+            user.setChangePassword(Boolean.FALSE);
+            String salt = CommonUtils.generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(password + salt));
+            user.setLocked(Boolean.FALSE);
+            user.setFailedLogonAttempts(0);
+            userRepository.save(user);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void changeSecretWord(Long userId, SecretWordInput secretWordInput)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {
+            throw new ResourceForbiddenException("Secret word must be set");
+        }
+        if (StringUtils.isEmpty(secretWordInput.getSecretWord2())) {
+            throw new ResourceForbiddenException("You must confirm your secret word");
+        }
+        if (!secretWordInput.getSecretWord1().equals(secretWordInput.getSecretWord2())) {
+            throw new ResourceForbiddenException("Secret words do not match");
+        }
+        if (secretWordInput.getSecretWord1().length() < SECRET_WORD_MIN_LENGTH) {
+            throw new ResourceForbiddenException("Secret word must be minimum " + SECRET_WORD_MIN_LENGTH + " letters");
+        }
+
+        User user = findUser(userId);
+        try {
+            String salt = CommonUtils.generateSalt();
+            String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim().toUpperCase();
+
+            if (!StringUtils.isAlpha(secretWord)) {
+                throw new ResourceForbiddenException("Secret word must be letters only");
+            }
+
+            // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+            Map<String, String> letters = new HashMap<>();
+            letters.put("salt", salt);
+            for (int i = 0; i < secretWord.length(); i++) {
+                letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(secretWord.charAt(i)) + salt));
+            }
+
+            user.setSecretWord(new JSONObject(letters).toString());
+            user.setHideSecretWordNotification(true);
+            userRepository.save(user);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ResourceForbiddenException("Error saving");
+        }
+    }
+
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            transportUsers.add(new org.patientview.api.model.User(user));
+        }
+
+        return transportUsers;
+    }
+
+    /**
      * This persists the User map with GroupRoles and UserFeatures. The static
      * data objects are detached so have to be become managed again without updating the objects.
      *
      * @param user user to store
      * @return Long userId
      */
+    @Override
     public Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
         try {
-            String salt = generateSalt();
+            String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword() + salt));
         } catch (NoSuchAlgorithmException e) {
@@ -560,7 +578,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
             }
-            if (!isCurrentUserMemberOfGroup(groupRepository.findOne(groupRole.getGroup().getId()))) {
+            if (!isUserMemberOfGroup(getCurrentUser(), groupRepository.findOne(groupRole.getGroup().getId()))) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }
@@ -576,34 +594,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
-    public User get(Long userId) throws ResourceNotFoundException {
-        return findUser(userId);
-    }
-
-    public org.patientview.api.model.User getUser(Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User with this ID does not exist");
-        }
-
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user);
-
-        // get last data received if present
-        List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
-        if (!fhirLinks.isEmpty()) {
-            transportUser.setLatestDataReceivedBy(new BaseGroup(fhirLinks.get(0).getGroup()));
-            transportUser.setLatestDataReceivedDate(fhirLinks.get(0).getCreated());
-        }
-
-        return transportUser;
-    }
-
     @Override
     public boolean currentUserCanGetUser(User user) {
         // if i am trying to access myself
@@ -611,9 +601,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return true;
         }
 
-        // UNIT_ADMIN can get users from other groups (used when updating existing user) as long as not GLOBAL_ADMIN
-        // or SPECIALTY_ADMIN
-        if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        // UNIT_ADMIN can get users from other groups (used when updating existing user)
+        // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
+        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN) || Util.currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -626,7 +616,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // if i have staff group role in same groups
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+            if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
                 return true;
             }
         }
@@ -635,23 +625,84 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public boolean currentUserCanSwitchToUser(User user) {
-        // if i am trying to access myself
-        if (getCurrentUser().equals(user)) {
-            return true;
-        }
+        return userCanSwitchToUser(getCurrentUser(), user);
+    }
 
-        // if i am trying to access a non patient user
-        if (!isUserAPatient(user)) {
-            return false;
-        }
+    @Override
+    public void delete(Long userId, boolean forceDelete)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        User user = findUser(userId);
+        boolean isPatient = false;
+        String username = user.getUsername();
 
-        // if i have staff group role in same groups
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
-                return true;
+        if (currentUserCanGetUser(user)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                Role role = roleRepository.findOne(groupRole.getRole().getId());
+                if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                    isPatient = true;
+                }
+
+                // audit removal (apart from MEMBER)
+                if (!role.getName().equals(RoleName.MEMBER) && isPatient) {
+                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
+                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
+                }
             }
+
+            if (isUserAPatient(user)) {
+                isPatient = true;
+            }
+
+            // wipe patient and observation data if it exists
+            if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
+                patientService.deleteExistingPatientData(user.getFhirLinks());
+                patientService.deleteAllExistingObservationData(user.getFhirLinks());
+            }
+
+            if (isPatient || forceDelete) {
+                // patient, delete from conversations and associated messages, other non user tables
+                conversationService.deleteUserFromConversations(user);
+                auditService.deleteUserFromAudit(user);
+                userTokenRepository.deleteByUserId(user.getId());
+                userMigrationRepository.deleteByUserId(user.getId());
+                userObservationHeadingRepository.deleteByUserId(user.getId());
+                alertRepository.deleteByUserId(user.getId());
+                deleteFhirLinks(user.getId());
+                userRepository.delete(user);
+            } else {
+                // staff member, mark as deleted
+                user.setDeleted(true);
+                userRepository.save(user);
+            }
+        } else {
+            throw new ResourceForbiddenException("Forbidden");
         }
-        return false;
+
+        // audit deletion
+        AuditActions auditActions;
+        if (isPatient) {
+            auditActions = AuditActions.PATIENT_DELETE;
+        } else {
+            auditActions = AuditActions.ADMIN_DELETE;
+        }
+
+        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User, null);
+    }
+
+    @Override
+    public void deleteFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = findUser(userId);
+        Feature feature = featureRepository.findOne(featureId);
+        if (feature == null) {
+            throw new ResourceForbiddenException("Feature not found");
+        }
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(user, feature));
     }
 
     @Override
@@ -675,13 +726,115 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public org.patientview.api.model.User getByUsername(String username) {
-        User foundUser = userRepository.findByUsernameCaseInsensitive(username);
-        if (foundUser == null) {
-            return null;
-        } else {
-            return new org.patientview.api.model.User(foundUser);
+    public void deleteGroupRole(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        deleteGroupRoleRelationship(userId, groupId, roleId, true);
+
+        // if a user is removed from all child groups the parent group (if present) is also removed
+        // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
+        User user = findUser(userId);
+        Group removedGroup = groupRepository.findOne(groupId);
+
+        Set<GroupRole> toRemove = new HashSet<>();
+        Set<GroupRole> userGroupRoles = new HashSet<>();
+
+        // remove deleted grouprole from user.getGroupRoles as not deleted in this transaction yet
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (!(groupRole.getGroup().getId().equals(groupId) && groupRole.getRole().getId().equals(roleId))) {
+                userGroupRoles.add(groupRole);
+            }
         }
+
+        // identify specialty groups with no children
+        for (GroupRole groupRole : userGroupRoles) {
+            if (groupRole.getGroup().getGroupType() != null
+                    && groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+
+                List<Group> children = groupService.findChildren(groupRole.getGroup().getId());
+                boolean childInGroupRoles = false;
+                boolean removedGroupInChildren = children.contains(removedGroup);
+
+                for (Group group : children) {
+                    if (groupRolesContainsGroup(userGroupRoles, group)) {
+                        childInGroupRoles = true;
+                    }
+                }
+
+                if (!childInGroupRoles && removedGroupInChildren) {
+                    toRemove.add(groupRole);
+                }
+            }
+        }
+
+        // remove any specialty groups with no children
+        for (GroupRole groupRole : toRemove) {
+            deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
+                    groupRole.getRole().getId(), false);
+        }
+    }
+
+    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId, boolean checkGroupMembership)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        Group entityGroup = groupRepository.findOne(groupId);
+        if (entityGroup == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        // check if current user is a member of the group to be removed
+        if (checkGroupMembership && !isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Role entityRole = roleRepository.findOne(roleId);
+        if (entityRole == null) {
+            throw new ResourceNotFoundException("Role not found");
+        }
+
+        GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(entityUser, entityGroup, entityRole);
+        if (entityGroupRole == null) {
+            throw new ResourceNotFoundException("GroupRole not found");
+        }
+
+        groupRoleRepository.delete(entityGroupRole);
+
+        // remove from user features if GP_MEDICATION group
+        if (entityGroupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
+            Feature entityFeature = featureRepository.findByName(FeatureType.GP_MEDICATION.toString());
+            UserFeature userFeature = userFeatureRepository.findByUserAndFeature(entityUser, entityFeature);
+            userFeatureRepository.delete(userFeature);
+        }
+
+        // audit
+        boolean isPatient = entityRole.getRoleType().getValue().equals(RoleType.PATIENT);
+
+        if (isPatient) {
+            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
+
+            // send membership notification to RDC, not GroupTypes.SPECIALTY
+            if (!entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                sendGroupMemberShipNotification(entityGroupRole, false);
+            }
+        } else {
+            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, entityUser.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
+        }
+    }
+
+    @Override
+    public void deletePicture(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        user.setPicture(null);
+        userRepository.save(user);
     }
 
     @Override
@@ -689,127 +842,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Override
-    public org.patientview.api.model.User getByEmail(String email) {
-        List<User> foundUsers = userRepository.findByEmail(email);
+    private User findUser(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
+        }
+        return user;
+    }
 
-        // should only return one
-        if (CollectionUtils.isEmpty(foundUsers)) {
+    @Override
+    public User get(Long userId) throws ResourceNotFoundException {
+        return findUser(userId);
+    }
+
+    @Override
+    public org.patientview.api.model.User getByUsername(String username) {
+        User foundUser = userRepository.findByUsernameCaseInsensitive(username);
+        if (foundUser == null) {
             return null;
         } else {
-            return new org.patientview.api.model.User(foundUsers.get(0));
+            return new org.patientview.api.model.User(foundUser);
         }
-    }
-
-    @Override
-    public org.patientview.api.model.User getByIdentifierValue(String identifier) throws ResourceNotFoundException {
-        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
-        if (CollectionUtils.isEmpty(identifiers)) {
-            throw new ResourceNotFoundException("Identifier does not exist");
-        }
-
-        // assume identifiers are unique so get the user associated with the first identifier
-        return new org.patientview.api.model.User(identifiers.get(0).getUser());
-    }
-
-    public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
-        User entityUser = findUser(user.getId());
-        String originalEmail = entityUser.getEmail();
-
-        // don't allow setting username to same as other users
-        org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
-        if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
-            throw new EntityExistsException("Username in use by another User");
-        }
-
-        boolean isPatient = false;
-        boolean isLocked = user.getLocked() && !entityUser.getLocked();
-        boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
-
-        for (GroupRole groupRole : entityUser.getGroupRoles()) {
-            if (!groupRepository.exists(groupRole.getGroup().getId())) {
-                throw new ResourceNotFoundException("Group does not exist");
-            }
-
-            Role role = roleRepository.findOne(groupRole.getRole().getId());
-            if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
-                isPatient = true;
-            }
-        }
-
-        if (!currentUserCanGetUser(entityUser)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        entityUser.setForename(user.getForename());
-        entityUser.setSurname(user.getSurname());
-        entityUser.setUsername(user.getUsername());
-        entityUser.setEmail(user.getEmail());
-        entityUser.setEmailVerified(user.getEmailVerified());
-        entityUser.setLocked(user.getLocked());
-        entityUser.setDummy(user.getDummy());
-        entityUser.setContactNumber(user.getContactNumber());
-        entityUser.setDateOfBirth(user.getDateOfBirth());
-        entityUser.setRoleDescription(user.getRoleDescription());
-        entityUser = userRepository.save(entityUser);
-
-        // audit changed
-        if (isPatient) {
-            auditService.createAudit(AuditActions.PATIENT_EDIT, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        } else {
-            auditService.createAudit(AuditActions.ADMIN_EDIT, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        }
-
-        // audit locked or unlocked
-        if (isLocked) {
-            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        }
-
-        if (isUnLocked) {
-            auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        }
-
-        // audit email changed
-        if (!user.getEmail().equals(originalEmail)) {
-            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        }
-    }
-
-    @Override
-    public void updateOwnSettings(Long userId, User user)
-            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
-        User entityUser = findUser(user.getId());
-
-        String originalEmail = entityUser.getEmail();
-
-        entityUser.setEmail(user.getEmail());
-        entityUser.setContactNumber(user.getContactNumber());
-        entityUser.setForename(user.getForename());
-        entityUser.setSurname(user.getSurname());
-        userRepository.save(entityUser);
-
-        // audit email changed
-        if (!user.getEmail().equals(originalEmail)) {
-            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User, null);
-        }
-    }
-
-    private List<Long> getUserGroupIds() {
-        List<org.patientview.api.model.Group> groups
-                = groupService.getUserGroups(getCurrentUser().getId(), new GetParameters()).getContent();
-
-        List<Long> groupIds = new ArrayList<>();
-        for (org.patientview.api.model.Group group : groups) {
-            groupIds.add(group.getId());
-        }
-
-        return groupIds;
     }
 
     /**
@@ -835,7 +888,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     if (entityGroup == null) {
                         throw new ResourceNotFoundException("Unknown Group");
                     }
-                    if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                    if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
                 }
@@ -1061,11 +1114,72 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return new PageImpl<>(transportContent, pageable, countQuery.getResultList().size());
     }
 
+    @Override
+    public org.patientview.api.model.User getByEmail(String email) {
+        List<User> foundUsers = userRepository.findByEmail(email);
+
+        // should only return one
+        if (CollectionUtils.isEmpty(foundUsers)) {
+            return null;
+        } else {
+            return new org.patientview.api.model.User(foundUsers.get(0));
+        }
+    }
+
+    @Override
+    public org.patientview.api.model.User getByIdentifierValue(String identifier) throws ResourceNotFoundException {
+        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+        if (CollectionUtils.isEmpty(identifiers)) {
+            throw new ResourceNotFoundException("Identifier does not exist");
+        }
+
+        // assume identifiers are unique so get the user associated with the first identifier
+        return new org.patientview.api.model.User(identifiers.get(0).getUser());
+    }
+
+    @Override
+    public org.patientview.api.model.User getUser(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User with this ID does not exist");
+        }
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user);
+
+        // get last data received if present
+        List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
+        if (!fhirLinks.isEmpty()) {
+            transportUser.setLatestDataReceivedBy(new BaseGroup(fhirLinks.get(0).getGroup()));
+            transportUser.setLatestDataReceivedDate(fhirLinks.get(0).getCreated());
+        }
+
+        return transportUser;
+    }
+
+    private List<Long> getUserGroupIds() {
+        List<org.patientview.api.model.Group> groups
+                = groupService.getUserGroups(getCurrentUser().getId(), new GetParameters()).getContent();
+
+        List<Long> groupIds = new ArrayList<>();
+        for (org.patientview.api.model.Group group : groups) {
+            groupIds.add(group.getId());
+        }
+
+        return groupIds;
+    }
+
     /**
      * Get users based on a list of groups and roles (only used by conversation service now)
      *
      * @return Page of standard User
      */
+    @Override
     public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -1134,8 +1248,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      *
      * @return Page of standard User
      */
+    @Override
     public Page<User> getUsersByGroupsRolesFeatures(GetParameters getParameters) throws ResourceNotFoundException {
-
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
         List<Long> featureIds = convertStringArrayToLongs(getParameters.getFeatureIds());
@@ -1195,302 +1309,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         throw new ResourceNotFoundException("No Users found");
     }
 
-    public void delete(Long userId, boolean forceDelete)
-            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-
-        User user = findUser(userId);
-        boolean isPatient = false;
-        String username = user.getUsername();
-
-        if (currentUserCanGetUser(user)) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                Role role = roleRepository.findOne(groupRole.getRole().getId());
-                if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
-                    isPatient = true;
-                }
-
-                // audit removal (apart from MEMBER)
-                if (!role.getName().equals(RoleName.MEMBER) && isPatient) {
-                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
-                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
-                }
-            }
-
-            if (isUserAPatient(user)) {
-                isPatient = true;
-            }
-
-            // wipe patient and observation data if it exists
-            if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
-                patientService.deleteExistingPatientData(user.getFhirLinks());
-                patientService.deleteAllExistingObservationData(user.getFhirLinks());
-            }
-
-            if (isPatient || forceDelete) {
-                // patient, delete from conversations and associated messages, other non user tables
-                conversationService.deleteUserFromConversations(user);
-                auditService.deleteUserFromAudit(user);
-                userTokenRepository.deleteByUserId(user.getId());
-                userMigrationRepository.deleteByUserId(user.getId());
-                userObservationHeadingRepository.deleteByUserId(user.getId());
-                alertRepository.deleteByUserId(user.getId());
-                deleteFhirLinks(user.getId());
-                userRepository.delete(user);
-            } else {
-                // staff member, mark as deleted
-                user.setDeleted(true);
-                userRepository.save(user);
-            }
-        } else {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        // audit deletion
-        AuditActions auditActions;
-        if (isPatient) {
-            auditActions = AuditActions.PATIENT_DELETE;
-        } else {
-            auditActions = AuditActions.ADMIN_DELETE;
-        }
-
-        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User, null);
-    }
-
-    /**
-     * Reset the flag so the user will not be prompted to change the password again
-     *
-     * @param userId   Id of User to change password
-     * @param password password to set
-     */
-    public void changePassword(Long userId, String password) throws ResourceNotFoundException {
-        User user = findUser(userId);
-        try {
-            user.setChangePassword(Boolean.FALSE);
-            String salt = generateSalt();
-            user.setSalt(salt);
-            user.setPassword(DigestUtils.sha256Hex(password + salt));
-            user.setLocked(Boolean.FALSE);
-            user.setFailedLogonAttempts(0);
-            userRepository.save(user);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * On a password reset the user should change on login
-     */
-    public org.patientview.api.model.User resetPassword(Long userId, String password)
-            throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
-        User user = findUser(userId);
-
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        // only send email if verified
-        if (user.getEmailVerified()) {
-            try {
-                emailService.sendEmail(getPasswordResetEmail(user, password));
-            } catch (MessagingException | MailException me) {
-                LOG.error("Could not send reset password email {}", me);
-            }
-        }
-        try {
-            String salt = generateSalt();
-            user.setSalt(salt);
-            user.setPassword(DigestUtils.sha256Hex(password + salt));
-            user.setChangePassword(Boolean.TRUE);
-            user.setLocked(Boolean.FALSE);
-            user.setFailedLogonAttempts(0);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return new org.patientview.api.model.User(userRepository.save(user));
-    }
-
-    /**
-     * Send a email to the user email address to verify have access to the email account
-     */
-    public Boolean sendVerificationEmail(Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
-        User user = findUser(userId);
-
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-        user.setVerificationCode(CommonUtils.getAuthToken());
-        userRepository.save(user);
-
-        return emailService.sendEmail(getVerifyEmailEmail(user));
-    }
-
-    public Boolean verify(Long userId, String verificationCode)
-            throws ResourceNotFoundException, VerificationException {
-        User user = findUser(userId);
-        if (user.getVerificationCode().equals(verificationCode)) {
-            user.setEmailVerified(true);
-            userRepository.save(user);
-            return true;
-        } else {
-            throw new VerificationException("Verification code does not match");
-        }
-    }
-
-    public void addFeature(Long userId, Long featureId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = findUser(userId);
-        Feature feature = featureRepository.findOne(featureId);
-        if (feature == null) {
-            throw new ResourceForbiddenException("Feature not found");
-        }
-
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        UserFeature userFeature = new UserFeature();
-        userFeature.setFeature(feature);
-        userFeature.setUser(user);
-        userFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
-        userFeatureRepository.save(userFeature);
-    }
-
-    public void deleteFeature(Long userId, Long featureId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = findUser(userId);
-        Feature feature = featureRepository.findOne(featureId);
-        if (feature == null) {
-            throw new ResourceForbiddenException("Feature not found");
-        }
-
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(user, feature));
-    }
-
-    // Stage 1 of Forgotten Password, user knows username and email
-    public void resetPasswordByUsernameAndEmail(String username, String email)
-            throws ResourceNotFoundException, MailException, MessagingException {
-
-        LOG.info("Forgotten password (username, email) for " + username);
-        User user = userRepository.findByUsernameCaseInsensitive(username);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find account");
-        }
-
-        if (user.getEmail().equalsIgnoreCase(email)) {
-            user.setChangePassword(Boolean.TRUE);
-
-            // Set the new password
-            String password = CommonUtils.generatePassword();
-
-            // email the user but ignore if exception and log
-            try {
-                emailService.sendEmail(getPasswordResetEmail(user, password));
-            } catch (MailException | MessagingException me) {
-                LOG.error("Cannot send email: {}", me);
-            }
-
-            try {
-                String salt = generateSalt();
-                user.setSalt(salt);
-
-                // Hash the password and save user
-                user.setLocked(Boolean.FALSE);
-                user.setFailedLogonAttempts(0);
-                user.setPassword(DigestUtils.sha256Hex(password + salt));
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-            userRepository.save(user);
-        } else {
-            throw new ResourceNotFoundException("Could not find account");
-        }
-
-        auditService.createAudit(AuditActions.PASSWORD_RESET_FORGOTTEN, user.getUsername(),
-                user, user.getId(), AuditObjectTypes.User, null);
-    }
-
-    public void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException {
-        User user = findUser(userId);
-
-        // for user information we want to update existing info, only create if doesn't already exist
-        for (UserInformation newUserInformation : userInformation) {
-            UserInformation entityUserInformation
-                    = userInformationRepository.findByUserAndType(user, newUserInformation.getType());
-            if (entityUserInformation != null) {
-                entityUserInformation.setValue(newUserInformation.getValue());
-                userInformationRepository.save(entityUserInformation);
-            } else {
-                if (newUserInformation.getValue() != null) {
-                    newUserInformation.setUser(user);
-                    newUserInformation.setCreator(getCurrentUser());
-                    userInformationRepository.save(newUserInformation);
-                }
-            }
-        }
+    @Override
+    public Group getGenericGroup() {
+        return genericGroup;
     }
 
     @Override
-    public void addOtherUsersInformation(Long userId, List<UserInformation> userInformation)
-            throws ResourceNotFoundException {
-
-        User user = findUser(userId);
-
-        // for user information we want to update existing info, only create if doesn't already exist
-        for (UserInformation newUserInformation : userInformation) {
-            UserInformation entityUserInformation
-                    = userInformationRepository.findByUserAndType(user, newUserInformation.getType());
-            if (entityUserInformation != null) {
-                entityUserInformation.setValue(newUserInformation.getValue());
-                userInformationRepository.save(entityUserInformation);
-            } else {
-                if (newUserInformation.getValue() != null) {
-                    newUserInformation.setUser(user);
-                    newUserInformation.setCreator(getCurrentUser());
-                    userInformationRepository.save(newUserInformation);
-                }
-            }
-        }
-    }
-
     public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
         return userInformationRepository.findByUser(user);
-    }
-
-    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
-        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
-
-        for (User user : users) {
-            transportUsers.add(new org.patientview.api.model.User(user));
-        }
-
-        return transportUsers;
-    }
-
-    private boolean isUserAPatient(User user) {
-
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (!groupRole.getRole().getRoleType().getValue().equals(RoleType.PATIENT)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private User findUser(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
-        return user;
     }
 
     private Email getPasswordResetEmail(User user, String password) {
@@ -1513,6 +1340,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         email.setBody(sb.toString());
 
         return email;
+    }
+
+    @Override
+    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            return Base64.decodeBase64(user.getPicture());
+        } else {
+            return null;
+        }
     }
 
     private Email getVerifyEmailEmail(User user) {
@@ -1539,134 +1382,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return email;
     }
 
-    public Group getGenericGroup() {
-        return genericGroup;
-    }
-
-    public void setGenericGroup(Group genericGroup) {
-        this.genericGroup = genericGroup;
-    }
-
-    public Role getMemberRole() {
-        return memberRole;
-    }
-
-    public void setMemberRole(Role memberRole) {
-        this.memberRole = memberRole;
-    }
-
-    @Override
-    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
-        User user = userRepository.findOne(userId);
-        String fileName = "";
-
-        try {
-            fileName = file.getOriginalFilename();
-            byte[] inputBytes = file.getBytes();
-            if (inputBytes == null || inputBytes.length == 0) {
-                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
-            }
-
-            InputStream inputStream = new ByteArrayInputStream(inputBytes);
-            BufferedImage bufferedImage = ImageIO.read(inputStream);
-
-            // detect orientation if set in exif (ipad etc) and rotate image then resize to MAXIMUM_IMAGE_WIDTH
-            Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
-            ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
-
-            if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
-                int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-                LOG.info("" + orientation);
-                switch (orientation) {
-                    case THREE:
-                        bufferedImage = transformImage(bufferedImage, ONE_HUNDRED_AND_EIGHTY);
-                        break;
-                    case SIX:
-                        bufferedImage = transformImage(bufferedImage, NINETY);
-                        break;
-                    case EIGHT:
-                        bufferedImage = transformImage(bufferedImage, TWO_HUNDRED_AND_SEVENTY);
-                        break;
-                    default:
-                        bufferedImage = transformImage(bufferedImage, 0);
-                        break;
-                }
-            } else {
-                bufferedImage = transformImage(bufferedImage, 0);
-            }
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "jpeg", byteArrayOutputStream);
-            byte[] outputBytes = byteArrayOutputStream.toByteArray();
-            String outputBase64 = new String(Base64.encodeBase64(outputBytes));
-            user.setPicture(outputBase64);
-            userRepository.save(user);
-
-            inputStream.close();
-            byteArrayOutputStream.close();
-            return "Uploaded '" + fileName + "' (" + outputBytes.length + " bytes, " + outputBase64.length() + " char)";
-        } catch (Exception e) {
-            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void addPicture(Long userId, String base64) {
-        User user = userRepository.findOne(userId);
-        user.setPicture(base64);
-        userRepository.save(user);
-    }
-
-    protected BufferedImage transformImage(BufferedImage image, int angle) {
-        Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
-        int width = image.getWidth();
-        int height = image.getHeight();
-        AffineTransform transform = new AffineTransform();
-
-        if (angle == NINETY) {
-            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
-            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-            image = op.filter(image, null);
-
-            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
-                width = MAXIMUM_IMAGE_WIDTH;
-                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
-                height = heightDouble.intValue();
-            }
-        } else if (angle == ONE_HUNDRED_AND_EIGHTY) {
-            transform.rotate(Math.toRadians(angle), width / 2, height / 2);
-            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-            image = op.filter(image, null);
-
-            if (width > MAXIMUM_IMAGE_WIDTH) {
-                width = MAXIMUM_IMAGE_WIDTH;
-                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
-                height = heightDouble.intValue();
-            }
-        } else if (angle == TWO_HUNDRED_AND_SEVENTY) {
-            image = transformImage(image, ONE_HUNDRED_AND_EIGHTY);
-            image = transformImage(image, NINETY);
-            Double widthDouble = image.getWidth() * aspect;
-            width = widthDouble.intValue();
-            height = image.getHeight();
-        } else {
-            if (width > MAXIMUM_IMAGE_WIDTH) {
-                width = MAXIMUM_IMAGE_WIDTH;
-                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
-                height = heightDouble.intValue();
+    private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
+        for (GroupRole groupRole : groupRoles) {
+            if (groupRole.getGroup().equals(group)) {
+                return true;
             }
         }
-
-        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
-                scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-        bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
-
-        return bufferedScaledImage;
+        return false;
     }
 
     @Override
-    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException{
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
@@ -1674,39 +1400,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
-        if (StringUtils.isNotEmpty(user.getPicture())) {
-            return Base64.decodeBase64(user.getPicture());
-        } else {
-            return null;
-        }
-    }
 
-    @Override
-    public boolean usernameExists(String username) {
-        if (StringUtils.isEmpty(username)) {
-            return false;
-        }
-
-        return (userRepository.findByUsernameCaseInsensitive(username) != null);
-    }
-
-    @Override
-    public void deletePicture(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        user.setPicture(null);
+        user.setHideSecretWordNotification(true);
         userRepository.save(user);
     }
 
-    @Override
-    public String generateSalt() throws NoSuchAlgorithmException {
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-        byte[] salt = new byte[16];
-        sr.nextBytes(salt);
+    private boolean isUserAPatient(User user) {
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (!groupRole.getRole().getRoleType().getValue().equals(RoleType.PATIENT)) {
+                return false;
+            }
+        }
 
-        return toHex(salt);
+        return true;
     }
 
     @Override
@@ -1793,20 +1499,327 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         LOG.info("Moving Users: " + (countDelete - count) + " already in new group");
     }
 
+    @Override
+    public void removeAllGroupRoles(Long userId) throws ResourceNotFoundException {
+        groupRoleRepository.removeAllGroupRoles(findUser(userId));
+    }
+
+
     /**
-     * Converts a byte array into a hexadecimal string.
-     *
-     * @param array the byte array to convert
-     * @return a length*2 character string encoding the byte array
+     * On a password reset the user should change on login
      */
-    private static String toHex(byte[] array) {
-        BigInteger bi = new BigInteger(1, array);
-        String hex = bi.toString(16);
-        int paddingLength = (array.length * 2) - hex.length();
-        if (paddingLength > 0) {
-            return String.format("%0" + paddingLength + "d", 0) + hex;
+    @Override
+    public org.patientview.api.model.User resetPassword(Long userId, String password)
+            throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
+        User user = findUser(userId);
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        // only send email if verified
+        if (user.getEmailVerified()) {
+            try {
+                emailService.sendEmail(getPasswordResetEmail(user, password));
+            } catch (MessagingException | MailException me) {
+                LOG.error("Could not send reset password email {}", me);
+            }
+        }
+        try {
+            String salt = CommonUtils.generateSalt();
+            user.setSalt(salt);
+            user.setPassword(DigestUtils.sha256Hex(password + salt));
+            user.setChangePassword(Boolean.TRUE);
+            user.setLocked(Boolean.FALSE);
+            user.setFailedLogonAttempts(0);
+
+            // remove secret word
+            user.setHideSecretWordNotification(false);
+            user.setSecretWord(null);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return new org.patientview.api.model.User(userRepository.save(user));
+    }
+
+    // Stage 1 of Forgotten Password, user knows username and email
+    public void resetPasswordByUsernameAndEmail(String username, String email)
+            throws ResourceNotFoundException, MailException, MessagingException {
+        LOG.info("Forgotten password (username, email) for " + username);
+        User user = userRepository.findByUsernameCaseInsensitive(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find account");
+        }
+
+        if (user.getEmail().equalsIgnoreCase(email)) {
+            user.setChangePassword(Boolean.TRUE);
+
+            // Set the new password
+            String password = CommonUtils.generatePassword();
+
+            // email the user but ignore if exception and log
+            try {
+                emailService.sendEmail(getPasswordResetEmail(user, password));
+            } catch (MailException | MessagingException me) {
+                LOG.error("Cannot send email: {}", me);
+            }
+
+            try {
+                String salt = CommonUtils.generateSalt();
+                user.setSalt(salt);
+
+                // Hash the password and save user
+                user.setLocked(Boolean.FALSE);
+                user.setFailedLogonAttempts(0);
+                user.setPassword(DigestUtils.sha256Hex(password + salt));
+
+                // remove secret word
+                user.setHideSecretWordNotification(false);
+                user.setSecretWord(null);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            userRepository.save(user);
         } else {
-            return hex;
+            throw new ResourceNotFoundException("Could not find account");
+        }
+
+        auditService.createAudit(AuditActions.PASSWORD_RESET_FORGOTTEN, user.getUsername(),
+                user, user.getId(), AuditObjectTypes.User, null);
+    }
+
+    @Override
+    public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+        User entityUser = findUser(user.getId());
+        String originalEmail = entityUser.getEmail();
+
+        // don't allow setting username to same as other users
+        org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
+        if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
+            throw new EntityExistsException("Username in use by another User");
+        }
+
+        boolean isPatient = false;
+        boolean isLocked = user.getLocked() && !entityUser.getLocked();
+        boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+                throw new ResourceNotFoundException("Group does not exist");
+            }
+
+            Role role = roleRepository.findOne(groupRole.getRole().getId());
+            if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                isPatient = true;
+            }
+        }
+
+        if (!currentUserCanGetUser(entityUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        entityUser.setForename(user.getForename());
+        entityUser.setSurname(user.getSurname());
+        entityUser.setUsername(user.getUsername());
+        entityUser.setEmail(user.getEmail());
+        entityUser.setEmailVerified(user.getEmailVerified());
+        entityUser.setLocked(user.getLocked());
+        entityUser.setDummy(user.getDummy());
+        entityUser.setContactNumber(user.getContactNumber());
+        entityUser.setDateOfBirth(user.getDateOfBirth());
+        entityUser.setRoleDescription(user.getRoleDescription());
+        entityUser = userRepository.save(entityUser);
+
+        // audit changed
+        if (isPatient) {
+            auditService.createAudit(AuditActions.PATIENT_EDIT, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        } else {
+            auditService.createAudit(AuditActions.ADMIN_EDIT, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+
+        // audit locked or unlocked
+        if (isLocked) {
+            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+
+        if (isUnLocked) {
+            auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+
+        // audit email changed
+        if (!user.getEmail().equals(originalEmail)) {
+            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+    }
+
+    private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
+        Date now = new Date();
+        // for ISO1806 date format
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
+
+        if (groupRole.getUser().getIdentifiers() != null) {
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+                xml.append("<PatientNumber><Number>");
+                xml.append(identifier.getIdentifier());
+                xml.append("</Number><Organization>");
+                xml.append(identifier.getIdentifierType().getValue());
+                xml.append("</Organization></PatientNumber>");
+            }
+        }
+
+        xml.append("</PatientNumbers></Patient><ProgramMemberships><ProgramMembership><EnteredBy>");
+        xml.append(getCurrentUser().getUsername());
+        xml.append("</EnteredBy><EnteredAt>PV2</EnteredAt><EnteredOn>");
+        xml.append(df.format(now));
+        xml.append("</EnteredOn><ExternalId>");
+        xml.append(groupRole.getId());
+        xml.append("</ExternalId><ProgramName>");
+        xml.append(groupRole.getGroup().getCode());
+        xml.append("</ProgramName><ProgramDescription>");
+        xml.append(groupRole.getGroup().getName());
+        xml.append("</ProgramDescription><FromTime>");
+        xml.append(df.format(groupRole.getCreated()));
+        xml.append("</FromTime><ToTime>");
+        if (!adding) {
+            xml.append(df.format(now));
+        }
+        xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
+
+        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
+                getCurrentUser(), now);
+    }
+
+    /**
+     * Send a email to the user email address to verify have access to the email account
+     */
+    @Override
+    public Boolean sendVerificationEmail(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
+        User user = findUser(userId);
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+        user.setVerificationCode(CommonUtils.getAuthToken());
+        userRepository.save(user);
+
+        return emailService.sendEmail(getVerifyEmailEmail(user));
+    }
+
+    protected BufferedImage transformImage(BufferedImage image, int angle) {
+        Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
+        int width = image.getWidth();
+        int height = image.getHeight();
+        AffineTransform transform = new AffineTransform();
+
+        if (angle == NINETY) {
+            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
+                height = heightDouble.intValue();
+            }
+        } else if (angle == ONE_HUNDRED_AND_EIGHTY) {
+            transform.rotate(Math.toRadians(angle), width / 2, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
+            }
+        } else if (angle == TWO_HUNDRED_AND_SEVENTY) {
+            image = transformImage(image, ONE_HUNDRED_AND_EIGHTY);
+            image = transformImage(image, NINETY);
+            Double widthDouble = image.getWidth() * aspect;
+            width = widthDouble.intValue();
+            height = image.getHeight();
+        } else {
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
+            }
+        }
+
+        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
+                scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
+
+        return bufferedScaledImage;
+    }
+
+    @Override
+    public void updateOwnSettings(Long userId, User user)
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+        User entityUser = findUser(user.getId());
+
+        String originalEmail = entityUser.getEmail();
+
+        entityUser.setEmail(user.getEmail());
+        entityUser.setContactNumber(user.getContactNumber());
+        entityUser.setForename(user.getForename());
+        entityUser.setSurname(user.getSurname());
+        userRepository.save(entityUser);
+
+        // audit email changed
+        if (!user.getEmail().equals(originalEmail)) {
+            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+    }
+
+    @Override
+    public boolean userCanSwitchToUser(User user, User switchUser) {
+        // if user trying to access themselves
+        if (user.equals(switchUser)) {
+            return true;
+        }
+
+        // if user trying to access a non patient user
+        if (!isUserAPatient(switchUser)) {
+            return false;
+        }
+
+        // if user has staff group role in same groups
+        for (GroupRole groupRole : switchUser.getGroupRoles()) {
+            if (isUserMemberOfGroup(user, groupRole.getGroup())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean usernameExists(String username) {
+        if (StringUtils.isEmpty(username)) {
+            return false;
+        }
+
+        return (userRepository.findByUsernameCaseInsensitive(username) != null);
+    }
+
+    @Override
+    public Boolean verify(Long userId, String verificationCode)
+            throws ResourceNotFoundException, VerificationException {
+        User user = findUser(userId);
+        if (user.getVerificationCode().equals(verificationCode)) {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+            return true;
+        } else {
+            throw new VerificationException("Verification code does not match");
         }
     }
 }

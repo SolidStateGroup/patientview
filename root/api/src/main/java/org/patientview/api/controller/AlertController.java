@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Alert;
 import org.patientview.api.model.ContactAlert;
+import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.AlertService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -68,12 +69,32 @@ public class AlertController extends BaseController<AlertController> {
         return new ResponseEntity<>(alertService.getAlerts(userId, alertType), HttpStatus.OK);
     }
 
+    /**
+     * Get alerts per group where groups are missing important contact information, used on dashboard.
+     * @param userId ID of User to get contact alerts for
+     * @return List of ContactAlert objects
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/contactalerts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<ContactAlert>> getContactAlerts(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(alertService.getContactAlerts(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Get alerts per group with count of failed imports, used on dashboard.
+     * @param userId ID of User to get import alerts for
+     * @return List of ImportAlert objects
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/importalerts", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ImportAlert>> getImportAlerts(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(alertService.getImportAlerts(userId), HttpStatus.OK);
     }
 
     /**

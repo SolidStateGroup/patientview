@@ -1,0 +1,39 @@
+<h1>Site Administration (Global Administrators only)</h1>
+
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <form class="form-horizontal" data-ng-cloak id="account-settings-form">
+            <h4>GP Practice Lists - Master File Import</h4>
+            <p>This will update the master GP table in the "patientview" database using a background task.</p>
+            <p>Excel lists of GP Practices for England & Wales, as well as separate lists for Scotland and
+                Northern Ireland are available online and refreshed regularly. Filenames are set in .properties files
+                and must be checked before the update process is started.</p>
+
+            <p>England & Wales: <a href="http://systems.hscic.gov.uk/data/ods/datadownloads/gppractice">epracurr.zip</a>
+                (See PDF in zip file download for xls column info) </p>
+
+            <p>Scotland: <a href="http://www.isdscotland.org/Health-Topics/General-Practice/Workforce-and-Practice-Populations/Practices-and-Their-Populations/">
+                Prac_ContactDetails_Oct2015_final.xls</a></p>
+
+            <p>NI: <a href="http://www.hscbusiness.hscni.net/services/1816.htm">Northern_Ireland_GP_List_010216.xls</a></p>
+
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button data-ng-click="updateGPs()" class="btn blue" data-ng-disabled="updateGpRunning">Update master GP table</button>
+                    <a href="../api/gp/mastertable/download?token={{authToken}}" class="btn blue">Download</a>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="gpErrorMessage">
+                <div class="col-sm-12 alert alert-danger">
+                    <p><strong>Error updating master GP table:</strong> {{gpErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="gpSuccessMessage">
+                <div class="col-sm-12 alert alert-success">
+                    <p>{{gpSuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

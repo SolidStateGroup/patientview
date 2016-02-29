@@ -296,8 +296,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
         // get list of specialties for logged in user
         for (i=0;i<$scope.loggedInUser.groupRoles.length;i++) {
-            if ($scope.loggedInUser.groupRoles[i].group.groupType.value === 'SPECIALTY' &&
-                $scope.loggedInUser.groupRoles[i].group.code !== 'Generic') {
+            if ($scope.loggedInUser.groupRoles[i].group.groupType.value === 'SPECIALTY'
+                && $scope.loggedInUser.groupRoles[i].group.code !== 'Generic'
+                && $scope.loggedInUser.groupRoles[i].group.code !== 'GENERAL_PRACTICE') {
                 $scope.specialties.push($scope.loggedInUser.groupRoles[i].group);
             }
         }

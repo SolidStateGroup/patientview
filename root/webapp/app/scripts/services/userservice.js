@@ -36,6 +36,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // hide notification for secret word
+        hideSecretWordNotification: function (userId) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/hideSecretWordNotification
+            Restangular.one('user', userId).post('hideSecretWordNotification').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Reset user's password
         resetPassword: function (user) {
             var deferred = $q.defer();
@@ -55,6 +66,17 @@ function ($q, Restangular, UtilService) {
             var newPasword = user.password;
             // POST /user/{userId}/changePassword
             Restangular.one('user', user.id).post('changePassword', {'password':newPasword}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Change user's secret word
+        changeSecretWord: function (userId, secretWordInput) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/changeSecretWord
+            Restangular.one('user', userId).post('changeSecretWord', secretWordInput).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

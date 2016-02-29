@@ -1,8 +1,64 @@
-<style>
-    .about-textarea {
-        height: 150px;
-    }
-</style>
+<!-- invite GP modal -->
+<script type="text/ng-template" id="inviteGpModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Invite GP to PatientView</h3>
+    </div>
+    <div class="modal-body">
+        <div data-ng-if="!completed && !loading">
+            <p>The details of your GP are shown below:</p>
+            <table>
+                <tbody>
+                <tr>
+                    <td class="forced-width">Name</td>
+                    <td>{{practitioner.name}}</td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td>
+                        <span data-ng-show="practitioner.address1">{{practitioner.address1}}<br/></span>
+                        <span data-ng-show="practitioner.address2">{{practitioner.address2}}<br/></span>
+                        <span data-ng-show="practitioner.address3">{{practitioner.address3}}<br/></span>
+                        <span data-ng-show="practitioner.address4">{{practitioner.address4}}<br/></span>
+                        <span data-ng-show="practitioner.postcode">{{practitioner.postcode}}</span>
+                    </td>
+                </tr>
+                <tr data-ng-if="practitioner.contacts">
+                    <td class="forced-width">Phone Number(s)</td>
+                    <td>
+                        <span data-ng-repeat="contact in practitioner.contacts">
+                            {{contact.value}}<br/>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <br/>
+            <p>
+                An invite letter will be sent to your GP Practice to join PatientView.
+                Once signed up, your GP will be able to view your records. Do you wish to continue?
+            </p>
+        </div>
+        <div data-ng-if="completed && !loading">
+            <p>You have successfully invited your GP to join PatientView.</p>
+        </div>
+        <div data-ng-if="loading">
+            <div data-ng-show="loading" class="loading">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Inviting your GP to PatientView</h3>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div data-ng-if="!completed && !loading">
+            <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+            <button class="btn btn-primary" data-ng-click="inviteGp(practitioner)">Invite GP to PatientView</button>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        </div>
+        <div data-ng-if="completed || loading">
+            <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+        </div>
+    </div>
+</script>
+
 <h1 data-ng-show="!loading">My Details</h1>
 
 <div class="patient-details" data-ng-show="!loading">
@@ -96,7 +152,17 @@
                                 <tr><td colspan="2"><h4>GP Details</h4></td></tr>
                                 <tr>
                                     <td class="forced-width">Name</td>
-                                    <td>{{practitioner.name}}</td>
+                                    <td>
+                                        {{practitioner.name}} &nbsp;&nbsp;
+                                        <span data-ng-if="practitioner.inviteDate" class="sub-text">
+                                            (Invited to join PatientView on {{ practitioner.inviteDate | date:'dd-MMM-yyyy' }})
+                                        </span>
+                                        <div data-ng-if="practitioner.allowInviteGp && isStaff" class="pull-right">
+                                            <button data-ng-click="inviteGp(patient.fhirPatient, practitioner, patient.group.id)" class="btn blue">Invite GP to PatientView</button>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <!--<a href="http://www.rixg.org/xxxxx">What is this?</a>-->
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>

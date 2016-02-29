@@ -1,15 +1,3 @@
-<!-- todo: move to main css -->
-<style>
-    .feature-list-delete {
-        margin-right:10px;
-    }
-    .name-action-list li {
-        height: auto;
-    }
-    .feature-list {
-        margin-top: 10px;
-    }
-</style>
 <div data-ng-show="!loading">
     <h1>Log</h1>
 
@@ -42,7 +30,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='UNIT'">
-                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                    <a data-ng-click="setSelectedGroup(group.id)" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>
@@ -65,7 +53,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
-                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                    <a data-ng-click="setSelectedGroup(group.id)" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>
@@ -137,7 +125,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <ul class="feature-list unstyled name-action-list">
-                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'"
+                                <li class="feature-list-item pull-left" data-ng-repeat="group in allGroups | orderBy:'name'"
                                     data-ng-show="isGroupChecked(group.id)">
                                     <div class="feature-list-name pull-left">
                                         <span class="feature-list-name">{{group.name}}</span>
@@ -148,7 +136,7 @@
                                         </a>
                                     </div>
                                 </li>
-                                <li class="feature-list-item" data-ng-repeat="auditAction in auditActions"
+                                <li class="feature-list-item pull-left" data-ng-repeat="auditAction in auditActions"
                                     data-ng-show="isAuditActionChecked(auditAction)">
                                     <div class="feature-list-name pull-left">
                                         <span class="feature-list-name">{{auditAction}}</span>
@@ -195,7 +183,7 @@
                 <td>
                     <span data-ng-show="audit.sourceObjectType === 'User'">
                         <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
-                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'">
+                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.group.code === 'GENERAL_PRACTICE' || groupRole.role.name === 'MEMBER'">
                             {{groupRole.group.shortName}} ({{groupRole.role.description}})
                             <br/>
                         </span>

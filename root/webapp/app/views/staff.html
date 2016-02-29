@@ -132,15 +132,18 @@
                             </ul>
                         </div>
                     </div>
-                    <!-- filter by other group (disease group and central support) -->
+                    <!-- filter by other group (disease group, central support, GP) -->
                     <div class="select-container pull-left" data-ng-show="showOtherGroupFilter">
                         <div class="btn-group filter-select" id="filter-othergroup" dropdown>
                             <button class="btn dropdown-toggle">
-                                Filter By Other Group <span class="caret-container"><span class="caret"></span></span>
+                                Filter By
+                                <span data-ng-if="filterSpecialtyGroups.length || filterUnitGroups">Other</span>
+                                Group
+                                <span class="caret-container"><span class="caret"></span></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li>
-                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP');removeAllSelectedGroup('CENTRAL_SUPPORT');" class="a-filter-group">
+                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP');removeAllSelectedGroup('CENTRAL_SUPPORT');removeAllSelectedGroup('GENERAL_PRACTICE');" class="a-filter-group">
                                         <i class="glyphicon glyphicon-remove"></i> Uncheck All
                                     </a>
                                 </li>
@@ -238,7 +241,7 @@
                     <div class="row-item accordion-heading-text row-break"><a href="mailto:{{user.email}}">{{user.email}}</a></div>
                     <div class="row-item accordion-heading-text">
                         <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled"
-                                data-ng-show="groupRole.role.name !== 'MEMBER'">
+                                data-ng-show="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE'">
                             <li>
                                 <span data-ng-show="groupRole.group.shortName.length">{{groupRole.group.shortName}} ({{groupRole.role.description}})</span>
                                 <span data-ng-show="!groupRole.group.shortName.length">{{groupRole.group.name}} ({{groupRole.role.description}})</span>

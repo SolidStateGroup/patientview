@@ -14,8 +14,8 @@
         <centretelephone>01563 521133</centretelephone>
     </centredetails>
     <gpdetails>
-        <gpname>O'DONNEL</gpname>
-        <gpaddress1>O'DONNEL</gpaddress1>
+        <gpname>Dr John Smith</gpname>
+        <gpaddress1>O'Donnel Practice</gpaddress1>
         <gpaddress2>24 Templehill</gpaddress2>
         <gpaddress3>Troon</gpaddress3>
         <gpaddress4>Ayrshire</gpaddress4>
@@ -24,8 +24,8 @@
     </gpdetails>
     <patient>
         <personaldetails>
-            <surname>patbs'ur</surname>
-            <forename>patbfore</forename>
+            <surname>Cohen</surname>
+            <forename>Mark</forename>
             <!--<dateofbirth>1944-03-17</dateofbirth>-->
             <dateofbirth>1952-10-31</dateofbirth>
             <sex>Female</sex>

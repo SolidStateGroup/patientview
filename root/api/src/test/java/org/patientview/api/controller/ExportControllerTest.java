@@ -63,6 +63,22 @@ public class ExportControllerTest {
                 + SurveyTypes.IBD_CONTROL + "/download"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    public void testDownloadSurveyResponsePdf() throws Exception {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/export/surveyresponse/1/pdf"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }
 
 
