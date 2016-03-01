@@ -100,6 +100,29 @@ public class ConversationServiceTest {
     @Test
     public void testAddExternalConversation_identifier() throws Exception {
         User sender = TestUtils.createUser("sender");
+        sender.setUserFeatures(new HashSet<UserFeature>());
+        sender.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), sender));
+
+        User recipient = TestUtils.createUser("recipient");
+        recipient.setUserFeatures(new HashSet<UserFeature>());
+        recipient.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), recipient));
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(TestUtils.createGroupFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole staffGroupRole = TestUtils.createGroupRole(staffRole, group, sender);
+        sender.setGroupRoles(new HashSet<GroupRole>());
+        sender.getGroupRoles().add(staffGroupRole);
+
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole patientGroupRole = TestUtils.createGroupRole(patientRole, group, recipient);
+        recipient.setGroupRoles(new HashSet<GroupRole>());
+        recipient.getGroupRoles().add(patientGroupRole);
 
         ExternalConversation externalConversation = new ExternalConversation();
         externalConversation.setToken("abc123");
@@ -107,8 +130,6 @@ public class ConversationServiceTest {
         externalConversation.setTitle("some title");
         externalConversation.setIdentifier("1234567890");
         externalConversation.setSenderUsername(sender.getUsername());
-
-        User recipient = TestUtils.createUser("recipient");
 
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(TestUtils.createIdentifier(
@@ -119,6 +140,8 @@ public class ConversationServiceTest {
         when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
+        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
+        when(userRepository.findOne(sender.getId())).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -134,7 +157,29 @@ public class ConversationServiceTest {
     @Test
     public void testAddExternalConversation_username() throws Exception {
         User sender = TestUtils.createUser("sender");
+        sender.setUserFeatures(new HashSet<UserFeature>());
+        sender.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), sender));
+
         User recipient = TestUtils.createUser("recipient");
+        recipient.setUserFeatures(new HashSet<UserFeature>());
+        recipient.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), recipient));
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(TestUtils.createGroupFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole staffGroupRole = TestUtils.createGroupRole(staffRole, group, sender);
+        sender.setGroupRoles(new HashSet<GroupRole>());
+        sender.getGroupRoles().add(staffGroupRole);
+
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole patientGroupRole = TestUtils.createGroupRole(patientRole, group, recipient);
+        recipient.setGroupRoles(new HashSet<GroupRole>());
+        recipient.getGroupRoles().add(patientGroupRole);
 
         ExternalConversation externalConversation = new ExternalConversation();
         externalConversation.setToken("abc123");
@@ -154,6 +199,8 @@ public class ConversationServiceTest {
                 .thenReturn(recipient);
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
+        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
+        when(userRepository.findOne(sender.getId())).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -169,11 +216,33 @@ public class ConversationServiceTest {
     @Test
     public void testAddExternalConversation_groupAndUserFeature() throws Exception {
         User sender = TestUtils.createUser("sender");
+        sender.setUserFeatures(new HashSet<UserFeature>());
+        sender.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), sender));
+
         User recipient = TestUtils.createUser("recipient");
+        recipient.setUserFeatures(new HashSet<UserFeature>());
+        recipient.getUserFeatures().add(TestUtils.createUserFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), recipient));
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(TestUtils.createGroupFeature(
+                TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        group.setCode("A12345");
+
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole staffGroupRole = TestUtils.createGroupRole(staffRole, group, sender);
+        sender.setGroupRoles(new HashSet<GroupRole>());
+        sender.getGroupRoles().add(staffGroupRole);
+
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole patientGroupRole = TestUtils.createGroupRole(patientRole, group, recipient);
+        recipient.setGroupRoles(new HashSet<GroupRole>());
+        recipient.getGroupRoles().add(patientGroupRole);
+
         List<User> recipients = new ArrayList<>();
         recipients.add(recipient);
-        Group group = TestUtils.createGroup("someGroup");
-        group.setCode("A12345");
 
         ExternalConversation externalConversation = new ExternalConversation();
         externalConversation.setToken("abc123");
@@ -197,6 +266,8 @@ public class ConversationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
         when(userRepository.findByGroupAndFeature(eq(group), eq(feature))).thenReturn(recipients);
+        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
+        when(userRepository.findOne(sender.getId())).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 

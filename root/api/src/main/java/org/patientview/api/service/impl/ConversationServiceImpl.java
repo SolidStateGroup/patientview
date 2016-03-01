@@ -484,6 +484,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversation.getConversationUsers().add(conversationUser);
         }
 
+        // check all recipients can receive messages
+        if (!conversationUsersAndGroupsHaveMessagingFeatures(newConversation)) {
+            String senderString = sender != null ? " or sender" : "";
+            return rejectExternalConversation("recipients" + senderString + " are not messaging enabled", conversation);
+        }
+
         // add message, sender may be null
         Message message = new Message();
         message.setMessage(conversation.getMessage());
@@ -1730,6 +1736,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * @return True if User has at least one Group with MESSAGING Feature enabled, false if not
      */
     private boolean userGroupsHaveMessagingFeature(User user) {
+        if (user == null) {
+            return false;
+        }
+
         User entityUser = userRepository.findOne(user.getId());
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
@@ -1761,6 +1771,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * @return true if User has at least one of the RoleNames passed in
      */
     private boolean userHasRole(User user, RoleName ... roleNames) {
+        if (user == null) {
+            return false;
+        }
+
         User entityUser = userRepository.findOne(user.getId());
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
@@ -1779,7 +1793,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * @return True if User has at least one Feature from a restricted list of staff messaging Features, false if not
      */
     private boolean userHasStaffMessagingFeatures(User user) {
+        if (user == null) {
+            return false;
+        }
+
         User entityUser = userRepository.findOne(user.getId());
+
+        if (CollectionUtils.isEmpty(entityUser.getUserFeatures())) {
+            return false;
+        }
 
         for (UserFeature userFeature : entityUser.getUserFeatures()) {
             if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
