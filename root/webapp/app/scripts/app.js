@@ -180,7 +180,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                     }
                 }
 
-                $routeProviderReference.otherwise({'redirectTo': '/'});
+                $routeProviderReference.otherwise({'redirectTo': '/logout'});
                 $route.reload();
             } else {
                 alert('You must have cookies enabled to use PatientView');
