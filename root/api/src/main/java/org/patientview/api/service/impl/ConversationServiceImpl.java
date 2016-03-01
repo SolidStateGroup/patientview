@@ -51,6 +51,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -66,6 +67,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -124,6 +126,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private Properties properties;
+
+    @Inject
+    private RoleRepository roleRepository;
 
     @Inject
     private RoleService roleService;
@@ -444,6 +449,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // find users in group with feature
             List<User> users = userRepository.findByGroupAndFeature(group, feature);
+
+            // if MESSAGING feature, all patients have MESSAGING so add them all to recipient list
+            if (feature.getName().equals(FeatureType.MESSAGING.toString())) {
+                Role patientRole = roleRepository.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
+                if (patientRole == null) {
+                    return rejectExternalConversation("patient role not found", conversation);
+                }
+                Page<User> patientPage = userRepository.findPatientByGroupsRolesNoFilter(
+                        Arrays.asList(new Long[]{group.getId()}),
+                        Arrays.asList(new Long[]{patientRole.getId()}), new PageRequest(0, Integer.MAX_VALUE));
+
+                if (!CollectionUtils.isEmpty(patientPage.getContent())) {
+                    users.addAll(patientPage.getContent());
+                }
+            }
+
             if (CollectionUtils.isEmpty(users)) {
                 return rejectExternalConversation("no users found with feature in group", conversation);
             }
@@ -509,7 +530,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             sender = notificationUser;
         }
 
-        // add message, sender may be null
+        // add message
         Message message = new Message();
         message.setMessage(conversation.getMessage());
         message.setType(MessageTypes.MESSAGE);
