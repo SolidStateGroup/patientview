@@ -490,6 +490,23 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return rejectExternalConversation("recipients" + senderString + " are not messaging enabled", conversation);
         }
 
+        // add dummy notification user if no sender
+        if (sender == null) {
+            User notificationUser = userRepository.findByUsernameCaseInsensitive(
+                    DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName());
+            if (notificationUser == null) {
+                return rejectExternalConversation(
+                        "no sender set, but default notification user not found", conversation);
+            }
+            ConversationUser conversationUser = new ConversationUser(newConversation, notificationUser);
+            conversationUser.setAnonymous(false);
+            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.getConversationUserLabels().add(
+                    new ConversationUserLabel(conversationUser, ConversationLabel.INBOX));
+
+            newConversation.getConversationUsers().add(conversationUser);
+        }
+
         // add message, sender may be null
         Message message = new Message();
         message.setMessage(conversation.getMessage());

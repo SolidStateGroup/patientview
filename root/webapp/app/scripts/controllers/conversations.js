@@ -678,12 +678,6 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             return true;
         }
 
-        for (var i=0; i<conversationUsers.length; i++) {
-            if (conversationUsers[i].user.username === 'patientviewnotifications') {
-                return false;
-            }
-        }
-
         return true;
     };
 
