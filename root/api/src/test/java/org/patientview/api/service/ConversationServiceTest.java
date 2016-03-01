@@ -140,8 +140,8 @@ public class ConversationServiceTest {
         when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
-        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
-        when(userRepository.findOne(sender.getId())).thenReturn(sender);
+        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
+        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -199,8 +199,8 @@ public class ConversationServiceTest {
                 .thenReturn(recipient);
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
-        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
-        when(userRepository.findOne(sender.getId())).thenReturn(sender);
+        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
+        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -266,8 +266,8 @@ public class ConversationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
         when(userRepository.findByGroupAndFeature(eq(group), eq(feature))).thenReturn(recipients);
-        when(userRepository.findOne(recipient.getId())).thenReturn(recipient);
-        when(userRepository.findOne(sender.getId())).thenReturn(sender);
+        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
+        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
