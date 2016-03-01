@@ -28,6 +28,13 @@ public class ConversationUserLabel extends AuditModel {
     @Enumerated(EnumType.STRING)
     private ConversationLabel conversationLabel;
 
+    public ConversationUserLabel() { }
+
+    public ConversationUserLabel(ConversationUser conversationUser, ConversationLabel conversationLabel) {
+        this.conversationUser = conversationUser;
+        this.conversationLabel = conversationLabel;
+    }
+
     public ConversationUser getConversationUser() {
         return conversationUser;
     }

@@ -86,6 +86,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/gp/validatedetails");
         publicUrls.add("/gp/claim");
 
+        // external conversation creation
+        publicUrls.add("/conversations/external");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }

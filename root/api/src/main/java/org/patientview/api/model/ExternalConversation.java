@@ -1,7 +1,5 @@
 package org.patientview.api.model;
 
-import org.patientview.persistence.model.UserFeature;
-
 /**
  * ExternalConversation used to handle creation of conversations with users by external systems
  */
@@ -15,7 +13,7 @@ public class ExternalConversation {
     private String senderUsername;
     private String title;
     private String token;
-    private UserFeature userFeature;
+    private String userFeature;
 
     // for returning success and error status
     private String errorMessage;
@@ -88,11 +86,11 @@ public class ExternalConversation {
         this.token = token;
     }
 
-    public UserFeature getUserFeature() {
+    public String getUserFeature() {
         return userFeature;
     }
 
-    public void setUserFeature(UserFeature userFeature) {
+    public void setUserFeature(String userFeature) {
         this.userFeature = userFeature;
     }
 

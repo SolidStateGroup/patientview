@@ -18,6 +18,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
@@ -25,9 +26,14 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -39,7 +45,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,20 +62,29 @@ public class ConversationServiceTest {
     @Mock
     ConversationRepository conversationRepository;
 
-    @Mock
-    MessageRepository messageRepository;
+    @InjectMocks
+    ConversationService conversationService = new ConversationServiceImpl();
 
     @Mock
-    UserRepository userRepository;
+    EmailService emailService;
+
+    @Mock
+    FeatureRepository featureRepository;
+
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
+    IdentifierRepository identifierRepository;
+
+    @Mock
+    MessageRepository messageRepository;
 
     @Mock
     Properties properties;
 
     @Mock
-    EmailService emailService;
-
-    @InjectMocks
-    ConversationService conversationService = new ConversationServiceImpl();
+    UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -80,15 +98,115 @@ public class ConversationServiceTest {
     }
 
     @Test
-    public void testAddExternalConversation() throws Exception {
+    public void testAddExternalConversation_identifier() throws Exception {
+        User sender = TestUtils.createUser("sender");
+
         ExternalConversation externalConversation = new ExternalConversation();
         externalConversation.setToken("abc123");
-        
+        externalConversation.setMessage("some message");
+        externalConversation.setTitle("some title");
+        externalConversation.setIdentifier("1234567890");
+        externalConversation.setSenderUsername(sender.getUsername());
+
+        User recipient = TestUtils.createUser("recipient");
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), recipient, "1111111111"));
+
+        when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
+        when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
+        when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
+                .thenReturn(sender);
+
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
         Assert.assertNotNull("Should return ExternalConversation", returned);
+        Assert.assertNull("Should not have an error message, got '" + returned.getErrorMessage() + "'",
+                returned.getErrorMessage());
         Assert.assertTrue("Should be successful", returned.isSuccess());
-        Assert.assertNull("Should not have an error message", returned.getErrorMessage());
+
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(messageRepository, times(1)).save(any(Message.class));
+    }
+
+    @Test
+    public void testAddExternalConversation_username() throws Exception {
+        User sender = TestUtils.createUser("sender");
+        User recipient = TestUtils.createUser("recipient");
+
+        ExternalConversation externalConversation = new ExternalConversation();
+        externalConversation.setToken("abc123");
+        externalConversation.setMessage("some message");
+        externalConversation.setTitle("some title");
+        externalConversation.setRecipientUsername("1234567890");
+        externalConversation.setSenderUsername(sender.getUsername());
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), recipient, "1111111111"));
+
+        when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
+        when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
+        when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getRecipientUsername())))
+                .thenReturn(recipient);
+        when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
+                .thenReturn(sender);
+
+        ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
+
+        Assert.assertNotNull("Should return ExternalConversation", returned);
+        Assert.assertNull("Should not have an error message, got '" + returned.getErrorMessage() + "'",
+                returned.getErrorMessage());
+        Assert.assertTrue("Should be successful", returned.isSuccess());
+
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(messageRepository, times(1)).save(any(Message.class));
+    }
+
+    @Test
+    public void testAddExternalConversation_groupAndUserFeature() throws Exception {
+        User sender = TestUtils.createUser("sender");
+        User recipient = TestUtils.createUser("recipient");
+        List<User> recipients = new ArrayList<>();
+        recipients.add(recipient);
+        Group group = TestUtils.createGroup("someGroup");
+        group.setCode("A12345");
+
+        ExternalConversation externalConversation = new ExternalConversation();
+        externalConversation.setToken("abc123");
+        externalConversation.setMessage("some message");
+        externalConversation.setTitle("some title");
+        externalConversation.setGroupCode(group.getCode());
+        externalConversation.setSenderUsername(sender.getUsername());
+        externalConversation.setUserFeature(FeatureType.DEFAULT_MESSAGING_CONTACT.toString());
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), recipient, "1111111111"));
+
+        Feature feature = TestUtils.createFeature(externalConversation.getUserFeature());
+
+        when(featureRepository.findByName(eq(externalConversation.getUserFeature()))).thenReturn(feature);
+        when(groupRepository.findByCode(eq(externalConversation.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
+        when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
+        when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
+                .thenReturn(sender);
+        when(userRepository.findByGroupAndFeature(eq(group), eq(feature))).thenReturn(recipients);
+
+        ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
+
+        Assert.assertNotNull("Should return ExternalConversation", returned);
+        Assert.assertNull("Should not have an error message, got '" + returned.getErrorMessage() + "'",
+                returned.getErrorMessage());
+        Assert.assertTrue("Should be successful", returned.isSuccess());
+
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(messageRepository, times(1)).save(any(Message.class));
     }
 
     @Test

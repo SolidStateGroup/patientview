@@ -25,6 +25,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
@@ -36,6 +37,7 @@ import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -46,6 +48,7 @@ import org.patientview.persistence.repository.ConversationUserLabelRepository;
 import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -109,6 +112,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private GroupService groupService;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private MessageReadReceiptRepository messageReadReceiptRepository;
@@ -330,15 +336,174 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     @Override
-    public ExternalConversation addExternalConversation(ExternalConversation externalConversation) {
-        // validate properties are present
-        if (StringUtils.isEmpty(externalConversation.getToken())) {
-            externalConversation.setErrorMessage("no token");
-            externalConversation.setSuccess(false);
-            return externalConversation;
+    public ExternalConversation addExternalConversation(ExternalConversation conversation) {
+        // validate essential properties are present and token is correct
+        if (StringUtils.isEmpty(conversation.getToken())) {
+            return rejectExternalConversation("no token", conversation);
+        }
+        String tokenProperty = properties.getProperty("external.conversation.token");
+        if (StringUtils.isEmpty(tokenProperty)) {
+            return rejectExternalConversation("error retrieving token on server", conversation);
+        }
+        if (!conversation.getToken().equals(tokenProperty)) {
+            return rejectExternalConversation("token does not match server token", conversation);
+        }
+        if (StringUtils.isEmpty(conversation.getMessage())) {
+            return rejectExternalConversation("no message", conversation);
+        }
+        if (StringUtils.isEmpty(conversation.getTitle())) {
+            return rejectExternalConversation("no title", conversation);
         }
 
-        externalConversation.setSuccess(true);
+        if (StringUtils.isEmpty(conversation.getIdentifier())
+                && StringUtils.isEmpty(conversation.getRecipientUsername())
+                && StringUtils.isEmpty(conversation.getGroupCode())) {
+            return rejectExternalConversation(
+                    "must set identifier, recipient username or group code", conversation);
+        }
+
+        Set<User> recipients = new HashSet<>();
+        User sender = null;
+
+        // if individual user, identifier based, check that other fields not present
+        if (StringUtils.isNotEmpty(conversation.getIdentifier())) {
+            if (StringUtils.isNotEmpty(conversation.getRecipientUsername())) {
+                return rejectExternalConversation(
+                        "should not set identifier and recipient username", conversation);
+            }
+            if (StringUtils.isNotEmpty(conversation.getGroupCode())) {
+                return rejectExternalConversation(
+                        "should not set identifier and group code", conversation);
+            }
+            if (StringUtils.isNotEmpty(conversation.getUserFeature())) {
+                return rejectExternalConversation(
+                        "should not set identifier and user feature", conversation);
+            }
+
+            List<Identifier> identifiers = identifierRepository.findByValue(conversation.getIdentifier());
+            if (CollectionUtils.isEmpty(identifiers)) {
+                return rejectExternalConversation(
+                        "identifier not found", conversation);
+            }
+            recipients.add(identifiers.get(0).getUser());
+        }
+
+        // if individual user, username based, check that other fields not present
+        if (StringUtils.isNotEmpty(conversation.getRecipientUsername())) {
+            if (StringUtils.isNotEmpty(conversation.getIdentifier())) {
+                return rejectExternalConversation(
+                        "should not set recipient username and identifier", conversation);
+            }
+            if (StringUtils.isNotEmpty(conversation.getGroupCode())) {
+                return rejectExternalConversation(
+                        "should not set recipient username and group code", conversation);
+            }
+            if (StringUtils.isNotEmpty(conversation.getUserFeature())) {
+                return rejectExternalConversation(
+                        "should not set recipient username and user feature", conversation);
+            }
+
+            // find recipient
+            User recipient = userRepository.findByUsernameCaseInsensitive(conversation.getRecipientUsername());
+            if (recipient == null) {
+                return rejectExternalConversation("recipient username not found", conversation);
+            }
+            recipients.add(recipient);
+        }
+
+        // if group code set, check other fields not present and suitable user feature set
+        if (StringUtils.isNotEmpty(conversation.getGroupCode())) {
+            if (StringUtils.isNotEmpty(conversation.getIdentifier())) {
+                return rejectExternalConversation(
+                        "should not set group code and identifier", conversation);
+            }
+            if (StringUtils.isNotEmpty(conversation.getRecipientUsername())) {
+                return rejectExternalConversation(
+                        "should not set group code and recipient username", conversation);
+            }
+            if (StringUtils.isEmpty(conversation.getUserFeature())) {
+                return rejectExternalConversation(
+                        "if group code set, must set user feature", conversation);
+            }
+            if (!Util.isInEnum(conversation.getUserFeature(), FeatureType.class)) {
+                return rejectExternalConversation(
+                        "if group code set, must set suitable user feature", conversation);
+            }
+
+            // find group
+            Group group = groupRepository.findByCode(conversation.getGroupCode());
+            if (group == null) {
+                return rejectExternalConversation("group not found", conversation);
+            }
+
+            // find feature
+            Feature feature = featureRepository.findByName(conversation.getUserFeature());
+            if (feature == null) {
+                return rejectExternalConversation("feature not found", conversation);
+            }
+
+            // find users in group with feature
+            List<User> users = userRepository.findByGroupAndFeature(group, feature);
+            if (CollectionUtils.isEmpty(users)) {
+                return rejectExternalConversation("no users found with feature in group", conversation);
+            }
+            recipients.addAll(users);
+        }
+
+        // check there are recipients
+        if (CollectionUtils.isEmpty(recipients)) {
+            return rejectExternalConversation("no suitable recipients", conversation);
+        }
+
+        // if sender username is set, make sure exists
+        if (StringUtils.isNotEmpty(conversation.getSenderUsername())) {
+            sender = userRepository.findByUsernameCaseInsensitive(conversation.getSenderUsername());
+            if (sender == null) {
+                return rejectExternalConversation("sender username not found", conversation);
+            }
+            recipients.add(sender);
+        }
+
+        // create conversation
+        Conversation newConversation = new Conversation();
+        newConversation.setTitle(conversation.getTitle());
+        newConversation.setConversationUsers(new HashSet<ConversationUser>());
+        newConversation.setMessages(new ArrayList<Message>());
+        newConversation.setLastUpdate(new Date());
+        newConversation.setType(ConversationTypes.MESSAGE);
+        newConversation.setOpen(true);
+
+        // add recipients
+        for (User recipient : recipients) {
+            ConversationUser conversationUser = new ConversationUser(newConversation, recipient);
+            conversationUser.setAnonymous(false);
+            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.getConversationUserLabels().add(
+                    new ConversationUserLabel(conversationUser, ConversationLabel.INBOX));
+
+            newConversation.getConversationUsers().add(conversationUser);
+        }
+
+        // add message, sender may be null
+        Message message = new Message();
+        message.setMessage(conversation.getMessage());
+        message.setType(MessageTypes.MESSAGE);
+        message.setConversation(newConversation);
+        message.setUser(sender);
+        newConversation.getMessages().add(message);
+
+        // persist
+        conversationRepository.save(newConversation);
+        messageRepository.save(message);
+
+        // return success
+        conversation.setSuccess(true);
+        return conversation;
+    }
+
+    private ExternalConversation rejectExternalConversation(String message, ExternalConversation externalConversation) {
+        externalConversation.setSuccess(false);
+        externalConversation.setErrorMessage(message);
         return externalConversation;
     }
 
