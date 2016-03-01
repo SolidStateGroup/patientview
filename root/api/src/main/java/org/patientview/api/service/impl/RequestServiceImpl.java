@@ -92,6 +92,12 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         // attempt to find PV Admin Email address
         Email email = null;
         if (request.getType().equals(RequestTypes.JOIN_REQUEST)) {
+            if (StringUtils.isEmpty(request.getForename())) {
+                throw new ResourceNotFoundException("forename must be set");
+            }
+            if (StringUtils.isEmpty(request.getSurname())) {
+                throw new ResourceNotFoundException("surname must be set");
+            }
             email = createJoinRequestEmail(entityRequest);
         } else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
             email = createForgottenCredentialsRequestEmail(entityRequest);
