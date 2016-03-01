@@ -82,8 +82,13 @@ public class ConversationServiceTest {
     @Test
     public void testAddExternalConversation() throws Exception {
         ExternalConversation externalConversation = new ExternalConversation();
+        externalConversation.setToken("abc123");
         
-        conversationService.addExternalConversation(externalConversation);
+        ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
+
+        Assert.assertNotNull("Should return ExternalConversation", returned);
+        Assert.assertTrue("Should be successful", returned.isSuccess());
+        Assert.assertNull("Should not have an error message", returned.getErrorMessage());
     }
 
     @Test

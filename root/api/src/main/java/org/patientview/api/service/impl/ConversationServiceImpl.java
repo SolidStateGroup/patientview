@@ -331,6 +331,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Override
     public ExternalConversation addExternalConversation(ExternalConversation externalConversation) {
+        // validate properties are present
+        if (StringUtils.isEmpty(externalConversation.getToken())) {
+            externalConversation.setErrorMessage("no token");
+            externalConversation.setSuccess(false);
+            return externalConversation;
+        }
+
+        externalConversation.setSuccess(true);
         return externalConversation;
     }
 

@@ -10,11 +10,17 @@ public class ExternalConversation {
     private String groupCode;
     private String identifier;
     private String message;
-    private String sender;
+    private String recipientUsername;
+    private String senderSystem;
+    private String senderUsername;
     private String title;
     private String token;
     private UserFeature userFeature;
-    private String username;
+
+    // for returning success and error status
+    private String errorMessage;
+    private boolean success;
+    private String successMessage;
 
     public ExternalConversation() { }
 
@@ -42,12 +48,28 @@ public class ExternalConversation {
         this.message = message;
     }
 
-    public String getSender() {
-        return sender;
+    public String getRecipientUsername() {
+        return recipientUsername;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setRecipientUsername(String recipientUsername) {
+        this.recipientUsername = recipientUsername;
+    }
+
+    public String getSenderSystem() {
+        return senderSystem;
+    }
+
+    public void setSenderSystem(String senderSystem) {
+        this.senderSystem = senderSystem;
+    }
+
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
     }
 
     public String getTitle() {
@@ -74,11 +96,27 @@ public class ExternalConversation {
         this.userFeature = userFeature;
     }
 
-    public String getUsername() {
-        return username;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getSuccessMessage() {
+        return successMessage;
+    }
+
+    public void setSuccessMessage(String successMessage) {
+        this.successMessage = successMessage;
     }
 }
