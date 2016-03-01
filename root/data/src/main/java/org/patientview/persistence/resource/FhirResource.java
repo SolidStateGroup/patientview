@@ -14,6 +14,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +60,9 @@ public class FhirResource {
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         JSONObject jsonObject = getBundle(uuid, resourceType);
@@ -916,7 +921,7 @@ public class FhirResource {
                             patient.setId(user.getId());
                             patient.setGpName(
                                     practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
-                            patient.setIdentifiers(user.getIdentifiers());
+                            patient.setIdentifiers(new HashSet<>(identifierRepository.findByUser(user)));
                             gpPatients.add(patient);
                         }
                     }

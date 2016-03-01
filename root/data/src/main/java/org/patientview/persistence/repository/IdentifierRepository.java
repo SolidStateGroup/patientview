@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +38,9 @@ public interface IdentifierRepository extends JpaRepository<Identifier, Long> {
             "JOIN   gr.group g " +
             "WHERE  g.code = :code")
     List<String> findByGroupCode(@Param("code") String code);
+
+    @Query("SELECT  i " +
+            "FROM   Identifier i " +
+            "WHERE  i.user = :user ")
+    List<Identifier> findByUser(@Param("user") User user);
 }
