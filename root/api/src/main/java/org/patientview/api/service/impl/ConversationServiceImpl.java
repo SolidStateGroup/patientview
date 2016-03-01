@@ -505,6 +505,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     new ConversationUserLabel(conversationUser, ConversationLabel.INBOX));
 
             newConversation.getConversationUsers().add(conversationUser);
+
+            sender = notificationUser;
         }
 
         // add message, sender may be null
