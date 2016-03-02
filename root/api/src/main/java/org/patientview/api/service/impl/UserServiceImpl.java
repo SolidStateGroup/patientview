@@ -13,9 +13,9 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -139,7 +139,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private IdentifierRepository identifierRepository;
 
     @Inject
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     @Inject
     private Properties properties;
@@ -602,7 +602,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // UNIT_ADMIN can get users from other groups (used when updating existing user)
         // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
-        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN) || Util.currentUserHasRole(RoleName.GP_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN) || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -654,8 +654,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
-                patientService.deleteExistingPatientData(user.getFhirLinks());
-                patientService.deleteAllExistingObservationData(user.getFhirLinks());
+                apiPatientService.deleteExistingPatientData(user.getFhirLinks());
+                apiPatientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
             if (isPatient || forceDelete) {
@@ -937,7 +937,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);
@@ -955,7 +955,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         StatusFilter statusFilter = null;
 
         // get status filter for filtering users by status (e.g. locked, active, inactive)
-        if (Util.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
+        if (ApiUtil.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
             statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
         }
 
@@ -1217,7 +1217,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);
@@ -1283,7 +1283,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);
@@ -1391,7 +1391,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException{
+    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");

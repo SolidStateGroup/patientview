@@ -1,13 +1,13 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.service.ObservationService;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -74,13 +74,13 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private UserService userService;
 
     @Inject
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     @Inject
     private UserMigrationService userMigrationService;
 
     @Inject
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private ObservationHeadingService observationHeadingService;
@@ -145,7 +145,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 Long pv2UserId = userMigration.getPatientview2UserId();
                 try {
                     //LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
-                    patientService.migrateTestObservations(pv2UserId, migrationUser);
+                    apiPatientService.migrateTestObservations(pv2UserId, migrationUser);
 
                     userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
                     userMigration.setInformation(null);
@@ -160,7 +160,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 }
                 Date end = new Date();
                 LOG.info(pv2UserId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
-                        + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
+                        + ApiUtil.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
             } else {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
                 userMigration.setInformation(null);
@@ -264,7 +264,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                             LOG.info("ObservationHeading not found (adding anyway): " + testcode);
                                         }
 
-                                        fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
+                                        fhirDatabaseObservations.add(apiObservationService.buildFhirDatabaseObservation(
                                                 fhirObservation, observationHeading, fhirLink));
                                     }
                                 }
@@ -301,7 +301,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                         ObservationHeading observationHeading
                                                 = observationHeadingMap.get(COMMENT_RESULT_HEADING.toUpperCase());
 
-                                        fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
+                                        fhirDatabaseObservations.add(apiObservationService.buildFhirDatabaseObservation(
                                                 fhirObservation, observationHeading, commentFhirLink));
                                     }
                                 }
@@ -433,7 +433,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigrationService.save(userMigration);
 
                 LOG.info("{} migrating patient data", userId);
-                patientService.migratePatientData(userId, migrationUser);
+                apiPatientService.migratePatientData(userId, migrationUser);
                 doneMessage = userId + " Done, migrated patient data";
 
                 userMigration.setStatus(MigrationStatus.PATIENT_MIGRATED);
@@ -444,7 +444,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 LOG.error("Could not migrate patient data: {}", e);
                 try {
                     // clean up any data created during failed migration
-                    patientService.deleteExistingPatientData(userRepository.findOne(userId).getFhirLinks());
+                    apiPatientService.deleteExistingPatientData(userRepository.findOne(userId).getFhirLinks());
                 } catch (FhirResourceException fre) {
                     userMigration.setStatus(MigrationStatus.PATIENT_CLEANUP_FAILED);
                     userMigration.setInformation(fre.getMessage());
@@ -465,7 +465,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         }
 
         Date end = new Date();
-        LOG.info(doneMessage + ", took " + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
+        LOG.info(doneMessage + ", took " + ApiUtil.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
         return userId;
     }
 
@@ -522,7 +522,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigrationService.save(userMigration);
 
                 LOG.info("{} migrating patient data", pv2User.getId());
-                patientService.migratePatientData(pv2User.getId(), migrationUser);
+                apiPatientService.migratePatientData(pv2User.getId(), migrationUser);
                 doneMessage = pv2User.getId() + " Done, migrated patient data";
 
                 userMigration.setStatus(MigrationStatus.PATIENT_MIGRATED);
@@ -543,7 +543,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         }
 
         Date end = new Date();
-        LOG.info(doneMessage + ", took " + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
+        LOG.info(doneMessage + ", took " + ApiUtil.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
 
         return pv2User.getId();
     }

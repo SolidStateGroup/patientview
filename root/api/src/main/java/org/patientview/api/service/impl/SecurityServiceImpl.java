@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.SecurityService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.RouteRepository;
@@ -24,9 +24,9 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
     private RouteRepository routeRepository;
 
     public Set<Route> getUserRoutes(User user) {
-        Set<Route> routes = new TreeSet<>(Util.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
-        routes.addAll(Util.convertIterable(routeRepository.findGroupRoutesByUser(user)));
-        routes.addAll(Util.convertIterable(routeRepository.findRoleRoutesByUser(user)));
+        Set<Route> routes = new TreeSet<>(ApiUtil.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
+        routes.addAll(ApiUtil.convertIterable(routeRepository.findGroupRoutesByUser(user)));
+        routes.addAll(ApiUtil.convertIterable(routeRepository.findRoleRoutesByUser(user)));
         return routes;
     }
 }

@@ -4,7 +4,7 @@ import com.opencsv.CSVReader;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.service.FoodDiaryService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FoodDiary;
@@ -130,7 +130,7 @@ public class FoodDiaryServiceImpl implements FoodDiaryService {
                     foodDiary.setComment(comment);
                 }
 
-                foodDiary.setCreator(Util.getUser());
+                foodDiary.setCreator(ApiUtil.getUser());
                 foodDiaryRepository.save(foodDiary);
                 success++;
             }

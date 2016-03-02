@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -115,8 +115,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -141,8 +141,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -166,8 +166,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-            && !Util.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+            && !ApiUtil.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -175,7 +175,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     public List<ResultCluster> getResultClusters() {
-        return Util.convertIterable(resultClusterRepository.findAll());
+        return ApiUtil.convertIterable(resultClusterRepository.findAll());
     }
 
     @Override
@@ -247,7 +247,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         if (CollectionUtils.isEmpty(user.getUserObservationHeadings())) {
             // get list of visible specialties for user and get top 3 observation headings
-            for (Group group : Util.convertIterable(groupRepository.findGroupByUser(user))) {
+            for (Group group : ApiUtil.convertIterable(groupRepository.findGroupByUser(user))) {
                 if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                     List<ObservationHeadingGroup> observationHeadingGroups
                             = observationHeadingGroupRepository.findByGroup(group);
@@ -363,7 +363,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
+        List<Group> userGroups = ApiUtil.convertIterable(groupRepository.findGroupByUser(user));
         List<ObservationHeading> observationHeadings = findAll();
         List<ObservationHeading> availableObservationHeadings = new ArrayList<>();
 
@@ -437,7 +437,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     public List<ObservationHeading> findAll() {
-        return Util.convertIterable(observationHeadingRepository.findAll());
+        return ApiUtil.convertIterable(observationHeadingRepository.findAll());
     }
 
     public ObservationHeading get(final Long observationHeadingId) {

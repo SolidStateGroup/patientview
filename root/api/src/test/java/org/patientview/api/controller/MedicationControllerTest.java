@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.MedicationService;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
 public class MedicationControllerTest {
 
     @Mock
-    private MedicationService medicationService;
+    private ApiMedicationService apiMedicationService;
 
     @InjectMocks
     private MedicationController medicationController;

@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.StaticDataManager;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -36,17 +36,17 @@ public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManager
     private FeatureRepository featureRepository;
 
     public List<Lookup> getAllLookups() {
-        return Util.convertIterable(lookupRepository.findAll());
+        return ApiUtil.convertIterable(lookupRepository.findAll());
     }
 
     public List<Feature> getAllFeatures() {
-        return Util.convertIterable(featureRepository.findAll());
+        return ApiUtil.convertIterable(featureRepository.findAll());
     }
 
     public List<Lookup> getLookupsByType(LookupTypes type) {
         LookupType lookupType = lookupTypeRepository.findByType(type);
         if (lookupType != null) {
-            return Util.convertIterable(lookupRepository.findByType(lookupType));
+            return ApiUtil.convertIterable(lookupRepository.findByType(lookupType));
         }
         return Collections.emptyList();
     }
@@ -58,7 +58,7 @@ public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManager
     public List<Feature> getFeaturesByType(String featureType) {
         Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.FEATURE_TYPE, featureType);
         if (lookup != null) {
-            return Util.convertIterable(featureRepository.findByType(lookup));
+            return ApiUtil.convertIterable(featureRepository.findByType(lookup));
         }
         return Collections.emptyList();
     }

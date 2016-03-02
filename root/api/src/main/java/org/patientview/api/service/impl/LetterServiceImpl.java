@@ -13,7 +13,6 @@ import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.FileDataService;
 import org.patientview.api.service.LetterService;
-import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
@@ -28,6 +27,7 @@ import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -178,7 +178,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
         DocumentReference documentReference = new DocumentReference();
         documentReference.setStatusSimple(DocumentReference.DocumentReferenceStatus.current);
-        documentReference.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+        documentReference.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
 
         if (StringUtils.isNotEmpty(fhirDocumentReference.getType())) {
             CodeableConcept type = new CodeableConcept();

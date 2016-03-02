@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -157,10 +157,10 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
         // if specialty admin or group admin only return information relating to your groups
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             if (groupIds.isEmpty()) {
                 // haven't filtered on group, add list of user's group ids
-                List<GroupRole> groupRoles = Util.getCurrentUserGroupRoles();
+                List<GroupRole> groupRoles = ApiUtil.getCurrentUserGroupRoles();
 
                 for (GroupRole groupRole : groupRoles) {
                     if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -253,7 +253,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
         } else {
             // include final check to see if global admin as others should have group ids
-            if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
                 throw new ResourceForbiddenException("Forbidden");
             }
 

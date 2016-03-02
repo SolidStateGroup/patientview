@@ -7,7 +7,7 @@ import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SurveyResponseService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -297,7 +297,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     for (User staffUser : staffUsers.getContent()) {
                         boolean hasMessagingFeature = false;
                         for (UserFeature userFeature : staffUser.getUserFeatures()) {
-                            if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
+                            if (ApiUtil.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
                                 hasMessagingFeature = true;
                             }
                         }

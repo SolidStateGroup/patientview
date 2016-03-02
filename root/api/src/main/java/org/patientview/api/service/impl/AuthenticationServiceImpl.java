@@ -14,7 +14,7 @@ import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -47,7 +47,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -209,7 +208,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // choose two characters to check and add to secret word indexes for ui
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
-                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
 
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -309,14 +308,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         transportUserToken.setUserFeatures(featureRepository.findByUser(userToken.getUser()));
         transportUserToken.setRoutes(securityService.getUserRoutes(userToken.getUser()));
 
-        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+        if (ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken.setPatientMessagingFeatureTypes(
                     new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
             transportUserToken.setGroupMessagingEnabled(true);
         }
 
-        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+        if (!ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setSecurityRoles(transportUserToken);
             setPatientRoles(transportUserToken);
             setStaffRoles(transportUserToken);
@@ -479,7 +478,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private void setSecurityRoles(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Role> availableRoles
-                = Util.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
+                = ApiUtil.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
 
         userToken.setSecurityRoles(new ArrayList<Role>());
 
@@ -497,13 +496,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // global admin can also get general practice specialty
         List<String> extraGroupCodes = new ArrayList<>();
-        if (Util.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
             extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
         }
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results
-            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
+            if (!ApiUtil.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
                     || extraGroupCodes.contains(userGroup.getCode())) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 

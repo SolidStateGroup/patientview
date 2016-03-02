@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
@@ -63,7 +63,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
 
         List<GroupStatistic> groupStatistics =
-                Util.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
+                ApiUtil.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
                         StatisticPeriod.MONTH));
 
         return convertToTransportObject(groupStatistics);

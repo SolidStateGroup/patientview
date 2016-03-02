@@ -11,7 +11,7 @@ import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LetterService;
-import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -78,7 +78,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     private LetterService letterService;
 
     @Inject
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
@@ -91,6 +91,76 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Inject
     private UserRepository userRepository;
+
+    @Override
+    public void addAlert(Long userId, org.patientview.api.model.Alert alert)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Alert newAlert = new Alert();
+
+        if (alert.getAlertType() == null) {
+            throw new ResourceNotFoundException("No alert type");
+        }
+
+        if (alert.getAlertType().equals(AlertTypes.RESULT)) {
+            if (alert.getObservationHeading() != null) {
+                ObservationHeading observationHeading
+                        = observationHeadingRepository.findOne(alert.getObservationHeading().getId());
+                if (observationHeading == null) {
+                    throw new ResourceNotFoundException("Could not find result type");
+                }
+
+                List<FhirObservation> fhirObservations
+                        = apiObservationService.get(user.getId(), observationHeading.getCode(), null, null, null);
+
+                if (!CollectionUtils.isEmpty(fhirObservations)) {
+
+                    // order by date desc
+                    Collections.sort(fhirObservations, new Comparator<FhirObservation>() {
+                        @Override
+                        public int compare(FhirObservation o1, FhirObservation o2) {
+                            return o2.getApplies().compareTo(o1.getApplies());
+                        }
+                    });
+
+                    newAlert.setLatestValue(fhirObservations.get(0).getValue());
+                    newAlert.setLatestDate(fhirObservations.get(0).getApplies());
+                }
+
+                newAlert.setObservationHeading(observationHeading);
+                newAlert.setAlertType(AlertTypes.RESULT);
+            } else {
+                throw new ResourceNotFoundException("Result type not set");
+            }
+        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
+
+            List<FhirDocumentReference> fhirDocumentReferences = letterService.getByUserId(user.getId());
+
+            if (!CollectionUtils.isEmpty(fhirDocumentReferences)) {
+                newAlert.setLatestValue(fhirDocumentReferences.get(0).getType());
+                newAlert.setLatestDate(fhirDocumentReferences.get(0).getDate());
+            }
+
+            newAlert.setAlertType(AlertTypes.LETTER);
+        } else {
+            throw new ResourceNotFoundException("Incorrect alert type");
+        }
+
+        newAlert.setUser(user);
+        newAlert.setWebAlert(alert.isWebAlert());
+        newAlert.setWebAlertViewed(true);
+        newAlert.setEmailAlert(alert.isEmailAlert());
+        newAlert.setEmailAlertSent(true);
+        newAlert.setCreated(new Date());
+        newAlert.setCreator(user);
+
+        alertRepository.save(newAlert);
+    }
 
     @Override
     public List<org.patientview.api.model.Alert> getAlerts(Long userId, AlertTypes alertType)
@@ -202,76 +272,6 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
         return !(userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds,
                 new PageRequest(0, Integer.MAX_VALUE)).getTotalElements() > 0L);
-    }
-
-    @Override
-    public void addAlert(Long userId, org.patientview.api.model.Alert alert)
-            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        Alert newAlert = new Alert();
-
-        if (alert.getAlertType() == null) {
-            throw new ResourceNotFoundException("No alert type");
-        }
-
-        if (alert.getAlertType().equals(AlertTypes.RESULT)) {
-            if (alert.getObservationHeading() != null) {
-                ObservationHeading observationHeading
-                        = observationHeadingRepository.findOne(alert.getObservationHeading().getId());
-                if (observationHeading == null) {
-                    throw new ResourceNotFoundException("Could not find result type");
-                }
-
-                List<FhirObservation> fhirObservations
-                    = observationService.get(user.getId(), observationHeading.getCode(), null, null, null);
-
-                if (!CollectionUtils.isEmpty(fhirObservations)) {
-
-                    // order by date desc
-                    Collections.sort(fhirObservations, new Comparator<FhirObservation>() {
-                        @Override
-                        public int compare(FhirObservation o1, FhirObservation o2) {
-                            return o2.getApplies().compareTo(o1.getApplies());
-                        }
-                    });
-
-                    newAlert.setLatestValue(fhirObservations.get(0).getValue());
-                    newAlert.setLatestDate(fhirObservations.get(0).getApplies());
-                }
-
-                newAlert.setObservationHeading(observationHeading);
-                newAlert.setAlertType(AlertTypes.RESULT);
-            } else {
-                throw new ResourceNotFoundException("Result type not set");
-            }
-        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
-
-            List<FhirDocumentReference> fhirDocumentReferences = letterService.getByUserId(user.getId());
-
-            if (!CollectionUtils.isEmpty(fhirDocumentReferences)) {
-                newAlert.setLatestValue(fhirDocumentReferences.get(0).getType());
-                newAlert.setLatestDate(fhirDocumentReferences.get(0).getDate());
-            }
-
-            newAlert.setAlertType(AlertTypes.LETTER);
-        } else {
-            throw new ResourceNotFoundException("Incorrect alert type");
-        }
-
-        newAlert.setUser(user);
-        newAlert.setWebAlert(alert.isWebAlert());
-        newAlert.setWebAlertViewed(true);
-        newAlert.setEmailAlert(alert.isEmailAlert());
-        newAlert.setEmailAlertSent(true);
-        newAlert.setCreated(new Date());
-        newAlert.setCreator(user);
-
-        alertRepository.save(newAlert);
     }
 
     @Override

@@ -796,7 +796,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
 
             // read CSV file line by line, extracting data to populate GpMaster objects
             CSVParser parser = new CSVParser(new FileReader(extractedDataFile), CSVFormat.DEFAULT);
-            for(CSVRecord record : parser){
+            for (CSVRecord record : parser) {
                 String practiceCode = record.get(0);
                 String practiceName = record.get(1);
                 String address1 = record.get(4);

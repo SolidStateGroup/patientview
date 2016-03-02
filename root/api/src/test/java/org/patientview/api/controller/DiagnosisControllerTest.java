@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.ConditionService;
+import org.patientview.api.service.ApiConditionService;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 public class DiagnosisControllerTest {
 
     @Mock
-    private ConditionService conditionService;
+    private ApiConditionService apiConditionService;
 
     @InjectMocks
     private DiagnosisController diagnosisController;
@@ -52,7 +52,7 @@ public class DiagnosisControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/user/" + userId + "/diagnosis/" + code))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(conditionService, Mockito.times(1)).staffAddCondition(eq(userId), eq(code));
+        verify(apiConditionService, Mockito.times(1)).staffAddCondition(eq(userId), eq(code));
     }
 
     @Test

@@ -9,7 +9,7 @@ import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Patient;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirIdentifier;
@@ -310,7 +310,7 @@ public class PatientBuilder {
             for (FhirIdentifier fhirIdentifier : fhirPatient.getIdentifiers()) {
                 if (StringUtils.isNotEmpty(fhirIdentifier.getValue())
                         && StringUtils.isNotEmpty(fhirIdentifier.getLabel())
-                        && Util.isInEnum(fhirIdentifier.getLabel(), IdentifierTypes.class)) {
+                        && ApiUtil.isInEnum(fhirIdentifier.getLabel(), IdentifierTypes.class)) {
                     Identifier identifier = patient.addIdentifier();
                     identifier.setValueSimple(fhirIdentifier.getValue());
                     identifier.setLabelSimple(fhirIdentifier.getLabel());
