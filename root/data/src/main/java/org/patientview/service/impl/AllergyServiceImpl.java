@@ -118,7 +118,7 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     }
 
     @Override
-    public void addAllergy(FhirAllergy fhirAllergy, FhirLink fhirLink) throws FhirResourceException {
+    public void add(FhirAllergy fhirAllergy, FhirLink fhirLink) throws FhirResourceException {
 
         // Substance
         Substance substance = new Substance();

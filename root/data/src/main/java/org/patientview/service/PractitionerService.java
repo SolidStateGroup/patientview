@@ -25,5 +25,5 @@ public interface PractitionerService {
     List<UUID> getPractitionerLogicalUuidsByName(String name) throws FhirResourceException;
 
     // used by migration
-    UUID addPractitioner(FhirPractitioner fhirPractitioner) throws ResourceNotFoundException, FhirResourceException;
+    UUID add(FhirPractitioner fhirPractitioner) throws ResourceNotFoundException, FhirResourceException;
 }

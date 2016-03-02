@@ -95,7 +95,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     }
 
     @Override
-    public void addMedicationStatement(
+    public void add(
             org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
             throws FhirResourceException {
 

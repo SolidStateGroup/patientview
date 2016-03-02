@@ -7,7 +7,7 @@ import com.rabbitmq.client.Envelope;
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.Utility.Util;
+import org.patientview.util.Util;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.AuditService;

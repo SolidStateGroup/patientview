@@ -98,7 +98,7 @@ import java.util.UUID;
                     FhirEncounter fhirEncounter = new FhirEncounter();
                     fhirEncounter.setStatus(status);
                     fhirEncounter.setEncounterType(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString());
-                    encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
+                    encounterService.add(fhirEncounter, fhirLink, organizationUuid);
                 }
             }
         }

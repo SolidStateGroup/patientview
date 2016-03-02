@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.builder.OrganizationBuilder;
 import org.patientview.test.BaseTest;
-import org.patientview.test.util.Util;
+import org.patientview.util.Util;
 
 /**
  * Created by jamesr@solidstategroup.com

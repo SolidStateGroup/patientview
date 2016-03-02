@@ -21,8 +21,7 @@ public interface MedicationService {
      * @param fhirLink Link between user and FHIR patient record
      * @throws FhirResourceException
      */
-    void addMedicationStatement(
-            org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
+    void add(org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
             throws FhirResourceException;
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;

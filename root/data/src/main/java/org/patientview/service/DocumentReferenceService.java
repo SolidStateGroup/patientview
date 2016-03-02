@@ -15,5 +15,5 @@ import java.sql.SQLException;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface DocumentReferenceService {
 
-    public void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
+    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
 }

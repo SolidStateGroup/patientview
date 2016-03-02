@@ -1,16 +1,15 @@
-package org.patientview.importer.Utility;
+package org.patientview.test.util;
 
 import junit.framework.Assert;
 import org.hl7.fhir.instance.model.Patient;
 import org.junit.Test;
-import org.patientview.importer.BaseTest;
-import org.patientview.config.exception.FhirResourceException;
+import org.patientview.test.BaseTest;
+import org.patientview.util.Util;
 
 public class UtilTest extends BaseTest {
 
     public void setUp() throws Exception {
         super.setUp();
-
     }
 
     /**
@@ -22,13 +21,7 @@ public class UtilTest extends BaseTest {
     public void testMarshallFhirRecord() throws Exception {
         String nhsNumber = "675765765";
         Patient patient = FhirTestUtil.createTestPatient(nhsNumber);
-        String content = null;
-        try {
-            content = org.patientview.importer.Utility.Util.marshallFhirRecord(patient);
-        } catch (FhirResourceException e) {
-            e.printStackTrace();
-            org.junit.Assert.fail("An exception should not be raised");        }
-
+        String content = Util.marshallFhirRecord(patient);
         Assert.assertTrue("The string should contain the nhs number", content != null && content.contains(nhsNumber));
     }
 }

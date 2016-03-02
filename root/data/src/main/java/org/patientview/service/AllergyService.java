@@ -20,7 +20,7 @@ public interface AllergyService {
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
 
-    void addAllergy(FhirAllergy fhirAllergy, FhirLink fhirLink) throws FhirResourceException;
+    void add(FhirAllergy fhirAllergy, FhirLink fhirLink) throws FhirResourceException;
 
     List<FhirAllergy> getBySubject(UUID subjectUuid) throws FhirResourceException;
 }

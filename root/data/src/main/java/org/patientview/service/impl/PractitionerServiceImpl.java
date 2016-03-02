@@ -120,7 +120,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     }
 
     @Override
-    public UUID addPractitioner(FhirPractitioner fhirPractitioner) throws FhirResourceException {
+    public UUID add(FhirPractitioner fhirPractitioner) throws FhirResourceException {
         Practitioner practitioner = new Practitioner();
         HumanName humanName = new HumanName();
         humanName.addFamilySimple(fhirPractitioner.getName());

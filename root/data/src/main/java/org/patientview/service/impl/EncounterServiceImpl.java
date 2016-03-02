@@ -158,7 +158,7 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     }
 
     @Override
-    public void addEncounter(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+    public void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
             throws ResourceNotFoundException, FhirResourceException {
 
         Encounter encounter = new Encounter();

@@ -835,7 +835,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                         practitionerService.getPractitionerLogicalUuidsByName(gp.getName());
 
                 if (CollectionUtils.isEmpty(existingPractitionerUuids)) {
-                    practitionerUuids.add(practitionerService.addPractitioner(gp));
+                    practitionerUuids.add(practitionerService.add(gp));
                 } else {
                     practitionerUuids.add(existingPractitionerUuids.get(0));
                 }
@@ -848,7 +848,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                             practitionerService.getPractitionerLogicalUuidsByName(fhirPractitioner.getName());
 
                     if (CollectionUtils.isEmpty(existingPractitionerUuids)) {
-                        practitionerUuids.add(practitionerService.addPractitioner(fhirPractitioner));
+                        practitionerUuids.add(practitionerService.add(fhirPractitioner));
                     } else {
                         practitionerUuids.add(existingPractitionerUuids.get(0));
                     }
@@ -1025,7 +1025,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                 organizationUuid = organizationUuids.get(0);
             }
 
-            encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
+            encounterService.add(fhirEncounter, fhirLink, organizationUuid);
         }
     }
 
@@ -1045,7 +1045,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                 fhirLinks.add(fhirLink);
             }
 
-            medicationService.addMedicationStatement(fhirMedicationStatement, fhirLink);
+            medicationService.add(fhirMedicationStatement, fhirLink);
         }
     }
 
@@ -1165,7 +1165,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                 fhirLinks.add(fhirLink);
             }
 
-            allergyService.addAllergy(fhirAllergy, fhirLink);
+            allergyService.add(fhirAllergy, fhirLink);
         }
     }
 

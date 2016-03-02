@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.builder.ObservationsBuilder;
 import org.patientview.test.BaseTest;
-import org.patientview.test.util.Util;
+import org.patientview.util.Util;
 import org.springframework.util.CollectionUtils;
 
 /**

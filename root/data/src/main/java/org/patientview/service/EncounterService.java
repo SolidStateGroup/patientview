@@ -34,7 +34,7 @@ public interface EncounterService {
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    void addEncounter(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+    void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**

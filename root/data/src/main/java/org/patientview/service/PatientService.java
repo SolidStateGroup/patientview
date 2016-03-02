@@ -19,6 +19,5 @@ public interface PatientService {
     FhirLink add(Patientview patient, ResourceReference practitionerReference)
             throws FhirResourceException, ResourceNotFoundException;
 
-    public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException;
-
+    Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException;
 }

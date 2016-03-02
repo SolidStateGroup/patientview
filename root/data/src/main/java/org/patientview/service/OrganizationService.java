@@ -15,7 +15,7 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface OrganizationService {
 
-    public UUID add(Patientview data) throws ResourceNotFoundException, FhirResourceException;
+    UUID add(Patientview data) throws ResourceNotFoundException, FhirResourceException;
 
-    public boolean groupWithCodeExists(String code);
+    boolean groupWithCodeExists(String code);
 }

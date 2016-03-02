@@ -6,7 +6,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.test.BaseTest;
-import org.patientview.test.util.Util;
+import org.patientview.util.Util;
 import org.patientview.builder.DocumentReferenceBuilder;
 
 /**
