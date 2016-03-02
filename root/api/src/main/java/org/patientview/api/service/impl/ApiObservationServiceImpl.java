@@ -1138,99 +1138,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return observationData;
     }
 
-    @Override
-    public ServerResponse importObservations(FhirObservationRange fhirObservationRange) {
-        if (StringUtils.isEmpty(fhirObservationRange.getGroupCode())) {
-            return new ServerResponse("group code not set");
-        }
-        if (StringUtils.isEmpty(fhirObservationRange.getIdentifier())) {
-            return new ServerResponse("identifier not set");
-        }
-        if (fhirObservationRange.getStartDate() == null) {
-            return new ServerResponse("start date not set");
-        }
-        if (fhirObservationRange.getEndDate() == null) {
-            return new ServerResponse("end date not set");
-        }
-        if (StringUtils.isEmpty(fhirObservationRange.getCode())) {
-            return new ServerResponse("observation code not set");
-        }
-
-        Group group = groupRepository.findByCode(fhirObservationRange.getGroupCode());
-
-        if (group == null) {
-            return new ServerResponse("group not found");
-        }
-
-        // check current logged in user has rights to this group
-        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
-            return new ServerResponse("failed group and role validation");
-        }
-
-        List<Identifier> identifiers = identifierRepository.findByValue(fhirObservationRange.getIdentifier());
-
-        if (CollectionUtils.isEmpty(identifiers)) {
-            return new ServerResponse("identifier not found");
-        }
-        if (identifiers.size() > 1) {
-            return new ServerResponse("identifier not unique");
-        }
-
-        User user = identifiers.get(0).getUser();
-
-        if (user == null) {
-            return new ServerResponse("user not found");
-        }
-
-        // check user has fhirLink associated with this group
-        /*FhirLink foundFhirLink = null;
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getGroup().getId().equals(groupId)) {
-                foundFhirLink = fhirLink;
-            }
-        }
-        if (foundFhirLink == null) {
-            throw new ResourceForbiddenException("Failed fhirLink validation");
-        }
-
-        // check there are any observations
-        if (CollectionUtils.isEmpty(fhirObservationRange.getObservations())) {
-            throw new ResourceNotFoundException("Observations not found");
-        }
-
-        // check code is a test type observation
-        if (Util.isInEnum(fhirObservationRange.getCode(), NonTestObservationTypes.class)
-                || Util.isInEnum(fhirObservationRange.getCode(), DiagnosticReportObservationTypes.class)) {
-            throw new ResourceForbiddenException("Non-test or DiagnosticReport type Observations");
-        }
-
-        // build FHIR observation objects
-        ResourceReference patientReference = Util.createResourceReference(foundFhirLink.getResourceId());
-        TestObservationsBuilder testObservationsBuilder
-                = new TestObservationsBuilder(fhirObservationRange, patientReference);
-        testObservationsBuilder.build();
-        List<Observation> observations = testObservationsBuilder.getObservations();
-
-        // get existing observation UUIDs by date range (to remove) and then delete
-        List<UUID> existingObservations = fhirResource.getObservationUuidsBySubjectNameDateRange(
-                foundFhirLink.getResourceId(), fhirObservationRange.getCode(), fhirObservationRange.getStartDate(),
-                fhirObservationRange.getEndDate());
-        LOG.info("Deleting " + existingObservations.size() + " existing observation(s).");
-        deleteObservations(existingObservations);
-
-        // add new observations
-        LOG.info("Inserting " + observations.size() + " observation(s).");
-        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
-        for (Observation observation : observations) {
-            fhirDatabaseObservations.add(new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
-        }
-        observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);*/
-
-
-        return new ServerResponse(null, "done", true);
-    }
-
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group,
                                         List<ObservationHeading> observationHeadings,
@@ -1278,5 +1185,157 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         return observationSummary;
+    }
+
+    @Override
+    public ServerResponse importObservations(FhirObservationRange fhirObservationRange) {
+        if (StringUtils.isEmpty(fhirObservationRange.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(fhirObservationRange.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+        if (fhirObservationRange.getStartDate() == null) {
+            return new ServerResponse("start date not set");
+        }
+        if (fhirObservationRange.getEndDate() == null) {
+            return new ServerResponse("end date not set");
+        }
+        if (StringUtils.isEmpty(fhirObservationRange.getCode())) {
+            return new ServerResponse("observation code not set");
+        }
+        if (CollectionUtils.isEmpty(fhirObservationRange.getObservations())) {
+            return new ServerResponse("no observations");
+        }
+
+        if (Util.isInEnum(fhirObservationRange.getCode(), NonTestObservationTypes.class)
+                || Util.isInEnum(fhirObservationRange.getCode(), DiagnosticReportObservationTypes.class)) {
+            return new ServerResponse("non-test or DiagnosticReport type observations");
+        }
+
+        List<ObservationHeading> observationHeadings
+                = observationHeadingRepository.findByCode(fhirObservationRange.getCode());
+
+        if (CollectionUtils.isEmpty(observationHeadings)) {
+            return new ServerResponse("observation code not found");
+        }
+        if (observationHeadings.size() > 1) {
+            return new ServerResponse("observation code not unique");
+        }
+
+        Group group = groupRepository.findByCode(fhirObservationRange.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(fhirObservationRange.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        Identifier identifier = identifiers.get(0);
+        User user = identifier.getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        // get fhirlink, create one if not present
+        FhirLink fhirLink = getFhirLink(group, fhirObservationRange.getIdentifier(), user.getFhirLinks());
+
+        if (fhirLink == null) {
+            Patient patient = patientService.buildPatient(user, identifier);
+            if (patient == null) {
+                return new ServerResponse("error building FHIR patient");
+            }
+
+            FhirDatabaseEntity fhirPatient = null;
+
+            try {
+                fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error creating FHIR patient");
+            }
+
+            if (fhirPatient == null) {
+                return new ServerResponse("error creating FHIR patient, is null");
+            }
+
+            // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
+            fhirLink = new FhirLink();
+            fhirLink.setUser(user);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(group);
+            fhirLink.setResourceId(fhirPatient.getLogicalId());
+            fhirLink.setVersionId(fhirPatient.getVersionId());
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+
+            if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+                user.setFhirLinks(new HashSet<FhirLink>());
+            }
+
+            user.getFhirLinks().add(fhirLink);
+            userRepository.save(user);
+        }
+
+        // build FHIR observation objects
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+        TestObservationsBuilder testObservationsBuilder
+                = new TestObservationsBuilder(fhirObservationRange, patientReference);
+        try {
+            testObservationsBuilder.build();
+        } catch (FhirResourceException fre) {
+            return new ServerResponse("error building observations");
+        }
+
+        List<Observation> observations = testObservationsBuilder.getObservations();
+
+        List<UUID> existingObservations = null;
+
+        // get existing observation UUIDs by date range (to remove) and then delete
+        try {
+            existingObservations = fhirResource.getObservationUuidsBySubjectNameDateRange(
+                    fhirLink.getResourceId(), fhirObservationRange.getCode(), fhirObservationRange.getStartDate(),
+                    fhirObservationRange.getEndDate());
+        } catch (FhirResourceException fre) {
+            return new ServerResponse("error getting existing observations");
+        }
+
+        try {
+            deleteObservations(existingObservations);
+        } catch (FhirResourceException fre) {
+            return new ServerResponse("error deleting existing observations");
+        }
+
+        // add new observations
+        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+
+        try {
+            for (Observation observation : observations) {
+                fhirDatabaseObservations.add(new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+            }
+        } catch (FhirResourceException | NullArgumentException e) {
+            return new ServerResponse("error marshalling fhir records");
+        }
+
+        try {
+            observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
+        } catch (FhirResourceException fre) {
+            return new ServerResponse("error inserting observations");
+        }
+
+        return new ServerResponse(null, "done", true);
     }
 }

@@ -44,7 +44,7 @@ public class TestObservationsBuilder {
     }
 
     // Normally any invalid data would fail the whole XML
-    public void build() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+    public void build() throws FhirResourceException {
         List<FhirObservation> fhirObservations = fhirObservationRange.getObservations();
         if (!CollectionUtils.isEmpty(fhirObservations)) {
             for (FhirObservation fhirObservation : fhirObservations) {
@@ -99,6 +99,9 @@ public class TestObservationsBuilder {
     }
 
     private Decimal createDecimal(String text) throws FhirResourceException {
+        if (StringUtils.isEmpty(text)) {
+            throw new FhirResourceException("Empty value for observation");
+        }
         Decimal decimal = new Decimal();
 
         String resultString = text.replaceAll(">", "").replaceAll(">=", "")

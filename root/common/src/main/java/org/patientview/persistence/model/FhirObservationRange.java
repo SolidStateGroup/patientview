@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class FhirObservationRange extends BaseImport {
 
     private String code;
     private Date endDate;
-    private List<FhirObservation> observations;
+    private List<FhirObservation> observations = new ArrayList<>();
     private Date startDate;
 
     public FhirObservationRange() { }
