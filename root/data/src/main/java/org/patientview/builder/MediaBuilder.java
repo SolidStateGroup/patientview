@@ -1,4 +1,4 @@
-package org.patientview.importer.builder;
+package org.patientview.builder;
 
 import generated.Patientview.Patient.Diagnostics.Diagnostic;
 import generated.Patientview.Patient.Letterdetails.Letter;

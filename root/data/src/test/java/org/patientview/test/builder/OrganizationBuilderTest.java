@@ -1,11 +1,12 @@
-package org.patientview.importer.builder;
+package org.patientview.test.builder;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Organization;
 import org.junit.Assert;
 import org.junit.Test;
-import org.patientview.importer.BaseTest;
-import org.patientview.importer.Utility.Util;
+import org.patientview.builder.OrganizationBuilder;
+import org.patientview.test.BaseTest;
+import org.patientview.test.util.Util;
 
 /**
  * Created by jamesr@solidstategroup.com

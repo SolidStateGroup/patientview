@@ -8,7 +8,7 @@ import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.importer.builder.ObservationsBuilder;
+import org.patientview.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
 import org.patientview.persistence.model.Alert;

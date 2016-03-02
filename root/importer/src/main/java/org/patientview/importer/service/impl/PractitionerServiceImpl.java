@@ -10,7 +10,7 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.importer.builder.PractitionerBuilder;
+import org.patientview.builder.PractitionerBuilder;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.PractitionerRoles;

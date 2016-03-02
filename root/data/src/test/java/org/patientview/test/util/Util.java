@@ -1,4 +1,4 @@
-package org.patientview.importer.Utility;
+package org.patientview.test.util;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.formats.JsonComposer;
@@ -7,8 +7,8 @@ import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

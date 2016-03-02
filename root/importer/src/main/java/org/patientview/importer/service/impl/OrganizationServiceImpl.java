@@ -5,7 +5,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.instance.model.Organization;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.builder.OrganizationBuilder;
+import org.patientview.builder.OrganizationBuilder;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;

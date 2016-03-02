@@ -4,7 +4,7 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.Utility.Util;
-import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.AllergyService;
 import org.patientview.importer.service.AuditService;

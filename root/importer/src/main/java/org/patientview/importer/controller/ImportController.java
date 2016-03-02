@@ -1,7 +1,7 @@
 package org.patientview.importer.controller;
 
 import generated.Patientview;
-import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

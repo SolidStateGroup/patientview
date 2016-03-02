@@ -7,7 +7,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.builder.PatientBuilder;
+import org.patientview.builder.PatientBuilder;
 import org.patientview.importer.service.PatientService;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;

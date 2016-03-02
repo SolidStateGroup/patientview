@@ -4,7 +4,7 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.importer.builder.EncountersBuilder;
+import org.patientview.builder.EncountersBuilder;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.EncounterService;

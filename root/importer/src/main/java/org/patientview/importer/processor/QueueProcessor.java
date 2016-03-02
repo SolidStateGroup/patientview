@@ -8,7 +8,7 @@ import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.Utility.Util;
-import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.AuditService;
 import org.patientview.importer.service.EmailService;

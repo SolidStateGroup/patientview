@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.impl.PatientServiceImpl;
 import org.patientview.importer.Utility.Util;

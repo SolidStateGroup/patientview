@@ -8,8 +8,8 @@ import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.importer.builder.DocumentReferenceBuilder;
-import org.patientview.importer.builder.MediaBuilder;
+import org.patientview.builder.DocumentReferenceBuilder;
+import org.patientview.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FileData;
@@ -47,7 +47,8 @@ import java.util.UUID;
  * Created on 07/10/2014
  */
 @Service
-public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentReferenceService> implements DocumentReferenceService {
+public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentReferenceService>
+        implements DocumentReferenceService {
 
     @Inject
     private AlertRepository alertRepository;
@@ -359,7 +360,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     }
 
     // check for existing by letter content
-    private Map<String, String> getExistingDateAndContentBySubjectId(FhirLink fhirLink, String nhsno) throws FhirResourceException {
+    private Map<String, String> getExistingDateAndContentBySubjectId(FhirLink fhirLink, String nhsno)
+            throws FhirResourceException {
         Map<String, String> existingMap = new HashMap<>();
 
         // build query
@@ -443,7 +445,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         return existingMap;
     }
 
-    private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap, String nhsno) {
+    private List<UUID> getExistingByDate(
+            DocumentReference documentReference, Map<String, Date> existingMap, String nhsno) {
         List<UUID> existingByDate = new ArrayList<>();
 
         try {
