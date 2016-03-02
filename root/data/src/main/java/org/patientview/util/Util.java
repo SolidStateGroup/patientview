@@ -20,6 +20,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -36,6 +40,26 @@ public class Util {
         jsonParser = new JsonParser();
     }
 
+    /**
+     * Convert the Iterable<T> type passed for Spring DAO interface into a more useful typed List.
+     * @param iterable Iterable to convert to typed List
+     * @param <T> Type of List to create
+     * @return Typed List
+     */
+    public static <T> List<T> convertIterable(Iterable<T> iterable) {
+        if (iterable == null) {
+            return Collections.emptyList();
+        }
+
+        List<T> list = new ArrayList<T>();
+        Iterator<T> lookupIterator = iterable.iterator();
+
+        while (lookupIterator.hasNext()) {
+            list.add(lookupIterator.next());
+        }
+        return list;
+    }
+
     public static StringWriter marshallPatientRecord(Patientview patientview) throws ImportResourceException {
 
         StringWriter stringWriter = null;
@@ -50,7 +74,6 @@ public class Util {
         }
 
         return stringWriter;
-
     }
 
     public static Patientview unmarshallPatientRecord(String content) throws ImportResourceException {
@@ -61,7 +84,6 @@ public class Util {
         } catch (JAXBException jxb) {
             throw new ImportResourceException("Unable to marshall patientview record");
         }
-
     }
 
     public static String marshallFhirRecord(Resource resource) throws FhirResourceException {

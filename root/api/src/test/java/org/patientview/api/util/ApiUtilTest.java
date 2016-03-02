@@ -13,6 +13,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.test.util.TestUtils;
+import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.CollectionUtils;
@@ -45,7 +46,7 @@ public class ApiUtilTest {
     @Test
     public void testIterableToList_emptyResult() throws Exception {
         Iterable<Group> groups = new HashSet<>();
-        List<Group> groupList = ApiUtil.convertIterable(groups);
+        List<Group> groupList = Util.convertIterable(groups);
         Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
     }
 
@@ -66,7 +67,7 @@ public class ApiUtilTest {
             ((Set<Group>) groups).add(group);
         }
 
-        List<Group> groupList = ApiUtil.convertIterable(groups);
+        List<Group> groupList = Util.convertIterable(groups);
         Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
         Assert.assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
     }

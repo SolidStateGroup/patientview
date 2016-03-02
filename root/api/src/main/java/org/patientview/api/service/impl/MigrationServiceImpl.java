@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.MigrationService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -23,6 +22,7 @@ import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -83,7 +83,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private ApiObservationService apiObservationService;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private ObservationHeadingRepository observationHeadingRepository;
 
     @Inject
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
@@ -186,7 +186,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
                 // get observation headings
                 HashMap<String, ObservationHeading> observationHeadingMap = new HashMap<>();
-                for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
                     observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
                 }
 

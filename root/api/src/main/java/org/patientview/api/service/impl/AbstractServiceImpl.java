@@ -10,6 +10,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -61,7 +62,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     }
 
     protected static <T> List<T> convertIterable(Iterable<T> iterable) {
-        return ApiUtil.convertIterable(iterable);
+        return Util.convertIterable(iterable);
     }
 
 

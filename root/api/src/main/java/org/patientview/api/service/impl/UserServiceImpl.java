@@ -57,6 +57,7 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -937,7 +938,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);
@@ -1217,7 +1218,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);
@@ -1283,7 +1284,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        List<Role> allRoles = ApiUtil.convertIterable(roleRepository.findAll());
+        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
         Map<Long, Role> roleMap = new HashMap<>();
         for (Role role : allRoles) {
             roleMap.put(role.getId(), role);

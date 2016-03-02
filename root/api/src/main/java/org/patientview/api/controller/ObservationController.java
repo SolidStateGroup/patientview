@@ -4,7 +4,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.MigrationService;

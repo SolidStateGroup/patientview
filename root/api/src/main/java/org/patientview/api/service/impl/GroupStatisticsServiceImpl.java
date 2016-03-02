@@ -13,6 +13,7 @@ import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -63,7 +64,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
 
         List<GroupStatistic> groupStatistics =
-                ApiUtil.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
+                Util.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
                         StatisticPeriod.MONTH));
 
         return convertToTransportObject(groupStatistics);

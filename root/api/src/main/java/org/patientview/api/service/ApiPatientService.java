@@ -8,9 +8,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
-import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 
 import javax.persistence.EntityExistsException;
@@ -25,14 +23,6 @@ import java.util.UUID;
  * Created on 02/09/2014
  */
 public interface ApiPatientService {
-
-    /**
-     * Build a FHIR Patient, used when entering own results if no current link between PatientView and FHIR.
-     * @param user User to build FHIR Patient for
-     * @param identifier Identifier associated with User and to be assigned to new FHIR Patient
-     * @return FHIR Patient
-     */
-    Patient buildPatient(User user, Identifier identifier);
 
     /**
      * Delete all Observations from FHIR given a Set of FhirLink, used when deleting a patient and in migration.

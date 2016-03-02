@@ -11,7 +11,7 @@ import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ApiConditionService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
-import org.patientview.api.service.ApiPatientService;
+import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.api.service.UserService;
 import org.patientview.util.Util;
@@ -69,7 +69,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     private LookupService lookupService;
 
     @Inject
-    private ApiPatientService apiPatientService;
+    private PatientService patientService;
 
     @Inject
     private PractitionerService practitionerService;
@@ -241,7 +241,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     private FhirLink addFhirLink(User patientUser, Identifier identifier, Group group) throws FhirResourceException {
         FhirDatabaseEntity fhirPatient
                 = fhirResource.createEntity(
-                    apiPatientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
+                    patientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
 
         // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
         FhirLink fhirLink = new FhirLink();

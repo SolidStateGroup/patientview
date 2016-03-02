@@ -18,9 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,26 +31,6 @@ import java.util.concurrent.TimeUnit;
 public final class ApiUtil {
 
     private ApiUtil() { }
-
-    /**
-     * Convert the Iterable<T> type passed for Spring DAO interface into a more useful typed List.
-     * @param iterable Iterable to convert to typed List
-     * @param <T> Type of List to create
-     * @return Typed List
-     */
-    public static <T> List<T> convertIterable(Iterable<T> iterable) {
-        if (iterable == null) {
-            return Collections.emptyList();
-        }
-
-        List<T> list = new ArrayList<T>();
-        Iterator<T> lookupIterator = iterable.iterator();
-
-        while (lookupIterator.hasNext()) {
-            list.add(lookupIterator.next());
-        }
-        return list;
-    }
 
     /**
      * Check a String appears in an Enum.

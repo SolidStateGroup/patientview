@@ -4,7 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -13,6 +13,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public interface ApiObservationService {
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
-    @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })
+    @RoleOnly(roles = { RoleName.UNIT_ADMIN_API, RoleName.IMPORTER })
     void addTestObservations(Long userId, Long groupId, FhirObservationRange fhirObservationRange)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
@@ -142,4 +143,7 @@ public interface ApiObservationService {
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
     List<ObservationSummary> getObservationSummary(Long userId) throws ResourceNotFoundException, FhirResourceException;
+
+    @RoleOnly(roles = { RoleName.IMPORTER })
+    ServerResponse importObservations(FhirObservationRange fhirObservationRange);
 }

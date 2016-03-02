@@ -235,6 +235,33 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    @Override
+    public void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
+            throws FhirResourceException {
+        // now have collection, manually insert using native SQL
+        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT INTO observation ");
+            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
+
+            for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
+                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+                sb.append("(");
+                sb.append("'").append(obs.getLogicalId().toString()).append("','");
+                sb.append(obs.getVersionId().toString()).append("','");
+                sb.append(obs.getResourceType()).append("','");
+                sb.append(obs.getPublished().toString()).append("','");
+                sb.append(obs.getUpdated().toString()).append("','");
+                sb.append(obs.getContent());
+                sb.append("')");
+                if (i != (fhirDatabaseObservations.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            fhirResource.executeSQL(sb.toString());
+        }
+    }
+
     private Date convertDateTime(DateTime dateTime) {
         DateAndTime dateAndTime = dateTime.getValue();
         Calendar calendar = Calendar.getInstance();

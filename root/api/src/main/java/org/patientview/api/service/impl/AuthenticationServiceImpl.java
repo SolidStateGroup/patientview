@@ -35,6 +35,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.util.Util;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -478,7 +479,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private void setSecurityRoles(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Role> availableRoles
-                = ApiUtil.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
+                = Util.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
 
         userToken.setSecurityRoles(new ArrayList<Role>());
 

@@ -35,6 +35,7 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.test.util.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
@@ -65,9 +66,6 @@ public class ApiConditionServiceTest {
     ApiConditionService apiConditionService = new ApiConditionServiceImpl();
 
     @Mock
-    ApiPatientService apiPatientService;
-
-    @Mock
     CodeService codeService;
 
     @Mock
@@ -81,6 +79,9 @@ public class ApiConditionServiceTest {
 
     @Mock
     LookupService lookupService;
+
+    @Mock
+    PatientService patientService;
 
     @Mock
     PractitionerService practitionerService;
@@ -296,7 +297,7 @@ public class ApiConditionServiceTest {
         when(groupService.findByCode(eq(HiddenGroupCodes.STAFF_ENTERED.toString()))).thenReturn(staffEntered);
         when(lookupService.findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(CodeTypes.DIAGNOSIS.toString())))
                 .thenReturn(lookup);
-        when(apiPatientService.buildPatient(eq(patient), eq(identifier))).thenReturn(new Patient());
+        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(new Patient());
         when(practitionerService.getPractitionerLogicalUuidsByName(eq(staffUser.getId().toString())))
                 .thenReturn(staffUuids);
         when(userService.get(eq(patient.getId()))).thenReturn(patient);
@@ -384,7 +385,7 @@ public class ApiConditionServiceTest {
         when(groupService.findByCode(eq(HiddenGroupCodes.STAFF_ENTERED.toString()))).thenReturn(staffEntered);
         when(lookupService.findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(CodeTypes.DIAGNOSIS.toString())))
                 .thenReturn(lookup);
-        when(apiPatientService.buildPatient(eq(patient), eq(identifier))).thenReturn(new Patient());
+        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(new Patient());
         when(practitionerService.getPractitionerLogicalUuidsByName(eq(staffUser.getId().toString())))
                 .thenReturn(null);
         when(userService.get(eq(patient.getId()))).thenReturn(patient);

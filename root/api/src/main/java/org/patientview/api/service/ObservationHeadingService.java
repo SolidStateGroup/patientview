@@ -49,12 +49,6 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Get a List of all available ObservationHeadings.
-     * @return List of ObservationHeading
-     */
-    List<ObservationHeading> findAll();
-
-    /**
      * Get a Page of ObservationHeading given GetParameters.
      * @param getParameters GetParameters object for pagination/filter properties defined in UI, including page number,
      * size etc

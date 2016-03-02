@@ -1,4 +1,4 @@
-package org.patientview.api.builder;
+package org.patientview.builder;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -11,8 +11,8 @@ import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
-import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;

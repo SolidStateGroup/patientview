@@ -20,14 +20,14 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ObservationHeadingRepository extends CrudRepository<ObservationHeading, Long> {
 
-    public Page<ObservationHeading> findAll(Pageable pageable);
+    Page<ObservationHeading> findAll(Pageable pageable);
 
     @Query("SELECT new ObservationHeading(oh.id as id, oh.code as code, oh.heading as heading, oh.name as name, " +
             "oh.normalRange as normalRange, " +
             "oh.units as units, oh.minGraph as minGraph, oh.maxGraph as maxGraph, " +
             "oh.infoLink as infoLink) FROM ObservationHeading oh")
-    public Page<ObservationHeading> findAllMinimal(Pageable pageable);
+    Page<ObservationHeading> findAllMinimal(Pageable pageable);
 
     @Query("SELECT oh FROM ObservationHeading oh WHERE lower(oh.code) = lower(:code)")
-    public List<ObservationHeading> findByCode(@Param("code") String code);
+    List<ObservationHeading> findByCode(@Param("code") String code);
 }

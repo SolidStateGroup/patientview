@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
@@ -149,7 +149,7 @@ public class ObservationControllerTest {
         fhirObservationRange.setCode("wbc");
         fhirObservationRange.setStartDate(new Date());
         fhirObservationRange.setEndDate(new Date());
-        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+        fhirObservationRange.setObservations(new ArrayList<org.patientview.persistence.model.FhirObservation>());
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/user/" + patient.getId() + "/group/" + group.getId() + "/observations")

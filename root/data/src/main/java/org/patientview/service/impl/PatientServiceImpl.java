@@ -2,6 +2,8 @@ package org.patientview.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -123,6 +125,34 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         LOG.info(nhsno + ": Processed Patient");
         return fhirLink;
+    }
+
+    private Patient addIdentifier(Patient patient, Identifier identifier) {
+        org.hl7.fhir.instance.model.Identifier fhirIdentifier = patient.addIdentifier();
+        fhirIdentifier.setLabelSimple(identifier.getIdentifierType().getValue());
+        fhirIdentifier.setValueSimple(identifier.getIdentifier());
+        return patient;
+    }
+
+    @Override
+    public Patient buildPatient(User user, Identifier identifier) {
+        Patient patient = new Patient();
+        patient = createHumanName(patient, user);
+        patient = addIdentifier(patient, identifier);
+        return patient;
+    }
+
+    private Patient createHumanName(Patient patient, User user) {
+        HumanName humanName = patient.addName();
+        if (StringUtils.isNotEmpty(user.getSurname())) {
+            humanName.addFamilySimple(user.getSurname());
+        }
+        if (StringUtils.isNotEmpty(user.getForename())) {
+            humanName.addGivenSimple(user.getForename());
+        }
+        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
+        humanName.setUse(nameUse);
+        return patient;
     }
 
     public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {

@@ -17,7 +17,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -25,6 +25,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.impl.ApiObservationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -33,13 +34,18 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.ObservationService;
+import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
 
 import java.util.ArrayList;
@@ -65,9 +71,6 @@ public class ApiObservationServiceTest {
     ApiObservationService apiObservationService = new ApiObservationServiceImpl();
 
     @Mock
-    ApiPatientService apiPatientService;
-
-    @Mock
     FhirResource fhirResource;
 
     @Mock
@@ -77,13 +80,19 @@ public class ApiObservationServiceTest {
     GroupService groupService;
 
     @Mock
+    IdentifierRepository identifierRepository;
+
+    @Mock
     ObservationHeadingGroupRepository observationHeadingGroupRepository;
 
     @Mock
     ObservationHeadingRepository observationHeadingRepository;
 
     @Mock
-    ObservationHeadingService observationHeadingService;
+    ObservationService observationService;
+
+    @Mock
+    PatientService patientService;
 
     @Mock
     ResultClusterRepository resultClusterRepository;
@@ -103,7 +112,7 @@ public class ApiObservationServiceTest {
     }
 
     @Test
-    public void testAddResultClusters() {
+    public void testAddResultClusters() throws Exception {
 
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -165,23 +174,18 @@ public class ApiObservationServiceTest {
         FhirDatabaseEntity entity = new FhirDatabaseEntity(fhirPatientJson.toString(), ResourceType.Patient.name());
         entity.setLogicalId(UUID.randomUUID());
 
-        try {
-            when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-            when(observationHeadingService.get(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
-            when(observationHeadingService.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
-            when(groupService.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
-            when(apiPatientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
-            when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient"))).thenReturn(entity);
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
+        when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
+        when(groupRepository.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString())))
+                .thenReturn(patientEnteredGroup);
+        when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
+        when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient")))
+                .thenReturn(entity);
 
-            when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
+        when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
 
-            apiObservationService.addUserResultClusters(user.getId(), userResultClusters);
-
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException: " + rnf.getMessage());
-        } catch (FhirResourceException fre) {
-            Assert.fail("FhirResourceException: " + fre.getMessage());
-        }
+        apiObservationService.addUserResultClusters(user.getId(), userResultClusters);
     }
 
     @Test
@@ -212,9 +216,10 @@ public class ApiObservationServiceTest {
         fhirObservationRange.setCode("wbc");
         fhirObservationRange.setStartDate(new Date());
         fhirObservationRange.setEndDate(new Date());
-        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+        fhirObservationRange.setObservations(new ArrayList<org.patientview.persistence.model.FhirObservation>());
         
-        FhirObservation fhirObservation = new FhirObservation();
+        org.patientview.persistence.model.FhirObservation fhirObservation
+                = new org.patientview.persistence.model.FhirObservation();
         fhirObservation.setApplies(new Date());
         fhirObservation.setValue("999");
         fhirObservationRange.getObservations().add(fhirObservation);
@@ -256,9 +261,10 @@ public class ApiObservationServiceTest {
         fhirObservationRange.setCode("wbc");
         fhirObservationRange.setStartDate(new Date());
         fhirObservationRange.setEndDate(new Date());
-        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+        fhirObservationRange.setObservations(new ArrayList<org.patientview.persistence.model.FhirObservation>());
 
-        FhirObservation fhirObservation = new FhirObservation();
+        org.patientview.persistence.model.FhirObservation fhirObservation
+                = new org.patientview.persistence.model.FhirObservation();
         fhirObservation.setApplies(new Date());
         fhirObservation.setValue("999");
         fhirObservationRange.getObservations().add(fhirObservation);
@@ -450,5 +456,48 @@ public class ApiObservationServiceTest {
         Assert.assertEquals("Should return observations", true, apiObservations.size() > 0);
         Assert.assertEquals("Should return 1 observation", 1, apiObservations.size());
         Assert.assertEquals("Should return correct observation", value, apiObservations.get(0).getValue());
+    }
+
+    @Test
+    public void testImportObservations() throws Exception {
+        Group group = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        FhirObservationRange fhirObservationRange = new FhirObservationRange();
+        fhirObservationRange.setGroupCode("DSF01");
+        fhirObservationRange.setIdentifier("1111111111");
+        fhirObservationRange.setStartDate(new Date());
+        fhirObservationRange.setEndDate(new Date());
+        fhirObservationRange.setCode("hb");
+
+        when(groupRepository.findByCode(eq(fhirObservationRange.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirObservationRange.getIdentifier()))).thenReturn(identifiers);
+
+        ServerResponse serverResponse = apiObservationService.importObservations(fhirObservationRange);
+
+        Assert.assertTrue(
+                "Should be successful, got '" + serverResponse.getErrorMessage() + "'", serverResponse.isSuccess());
     }
 }

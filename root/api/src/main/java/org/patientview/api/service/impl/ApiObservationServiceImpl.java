@@ -12,21 +12,15 @@ import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.patientview.api.builder.TestObservationsBuilder;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.api.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.api.service.GroupService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ApiObservationService;
-import org.patientview.api.service.ApiPatientService;
-import org.patientview.util.Util;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.util.ApiUtil;
+import org.patientview.builder.TestObservationsBuilder;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -34,10 +28,12 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -45,11 +41,18 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IbdDiseaseExtent;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.ObservationService;
+import org.patientview.service.PatientService;
+import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -79,6 +82,7 @@ import java.util.UUID;
  * Created on 02/09/2014
  */
 @Service
+@Transactional
 public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservationServiceImpl>
         implements ApiObservationService {
 
@@ -86,16 +90,25 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     private FhirResource fhirResource;
 
     @Inject
-    private UserRepository userRepository;
+    private GroupRepository groupRepository;
 
     @Inject
     private GroupService groupService;
 
     @Inject
-    private ApiPatientService apiPatientService;
+    private IdentifierRepository identifierRepository;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private ObservationService observationService;
+
+    @Inject
+    private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private UserRepository userRepository;
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
@@ -172,7 +185,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         for (Observation observation : observations) {
             fhirDatabaseObservations.add(new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
         }
-        insertFhirDatabaseObservations(fhirDatabaseObservations);
+        observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
     }
 
     @Override
@@ -184,13 +197,13 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("User does not exist");
         }
 
-        Group patientEnteredResultsGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+        Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
         if (patientEnteredResultsGroup == null) {
             throw new ResourceNotFoundException("Group for patient entered results does not exist");
         }
 
         List<ObservationHeading> commentObservationHeadings
-                = observationHeadingService.findByCode(COMMENT_RESULT_HEADING);
+                = observationHeadingRepository.findByCode(COMMENT_RESULT_HEADING);
         if (CollectionUtils.isEmpty(commentObservationHeadings)) {
             throw new ResourceNotFoundException("Comment type observation heading does not exist");
         }
@@ -211,7 +224,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
             // build observations
             for (IdValue idValue : userResultCluster.getValues()) {
-                ObservationHeading observationHeading = observationHeadingService.get(idValue.getId());
+                ObservationHeading observationHeading = observationHeadingRepository.findOne(idValue.getId());
                 if (observationHeading == null) {
                     throw new ResourceNotFoundException("Observation Heading not found");
                 }
@@ -230,7 +243,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                         patientEnteredResultsGroup, patientIdentifier.getIdentifier(), patientUser.getFhirLinks());
 
                 if (fhirLink == null) {
-                    Patient patient = apiPatientService.buildPatient(patientUser, patientIdentifier);
+                    Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
                     FhirDatabaseEntity fhirPatient
                             = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
@@ -281,7 +294,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                             new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                 }
 
-                insertFhirDatabaseObservations(fhirDatabaseObservations);
+                observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
             }
         }
     }
@@ -326,6 +339,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
+    // migration
     private Observation buildNonTestObservation(FhirObservation fhirObservation)
             throws FhirResourceException {
 
@@ -375,6 +389,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return observation;
     }
 
+    // migration
     private Observation buildObservation(DateTime applies, String value, String comparator, String comments,
                                          ObservationHeading observationHeading)
             throws FhirResourceException {
@@ -416,6 +431,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return observation;
     }
 
+    // migration
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
                                                                              ObservationHeading observationHeading) {
         org.patientview.api.model.ObservationHeading summaryHeading =
@@ -427,6 +443,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return summaryHeading;
     }
 
+    // migration
     private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException {
 
         try {
@@ -453,6 +470,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
+    // migration
     private DateTime createDateTime(Date date) throws FhirResourceException {
         DateTime dateTime = new DateTime();
         Calendar calendar = Calendar.getInstance();
@@ -462,6 +480,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return dateTime;
     }
 
+    // migration
     private Decimal createDecimal(String result) throws ParseException {
         Decimal decimal = new Decimal();
 
@@ -482,6 +501,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return decimal;
     }
 
+    // migration
     private org.hl7.fhir.instance.model.Identifier createIdentifier(String code) {
         org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
         identifier.setLabelSimple("resultcode");
@@ -534,7 +554,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        List<ObservationHeading> observationHeadings = observationHeadingService.findByCode(code);
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(code);
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -707,7 +727,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
-        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+        for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
             observationHeadingMap.put(observationHeading.getCode(), observationHeading);
         }
 
@@ -817,7 +837,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
-        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+        for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
             observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
         }
 
@@ -966,7 +986,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
-        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+        for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
             observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
         }
 
@@ -1089,6 +1109,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     }
 
+    @Override
     public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -1106,7 +1127,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             }
         }
 
-        List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
+        List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
         List<ObservationSummary> observationData = new ArrayList<>();
         Map<String, org.patientview.api.model.FhirObservation> latestObservationMap = getLastObservations(user.getId());
 
@@ -1117,11 +1138,105 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return observationData;
     }
 
+    @Override
+    public ServerResponse importObservations(FhirObservationRange fhirObservationRange) {
+        if (StringUtils.isEmpty(fhirObservationRange.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(fhirObservationRange.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+        if (fhirObservationRange.getStartDate() == null) {
+            return new ServerResponse("start date not set");
+        }
+        if (fhirObservationRange.getEndDate() == null) {
+            return new ServerResponse("end date not set");
+        }
+        if (StringUtils.isEmpty(fhirObservationRange.getCode())) {
+            return new ServerResponse("observation code not set");
+        }
+
+        Group group = groupRepository.findByCode(fhirObservationRange.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(fhirObservationRange.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        User user = identifiers.get(0).getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        // check user has fhirLink associated with this group
+        /*FhirLink foundFhirLink = null;
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+            if (fhirLink.getGroup().getId().equals(groupId)) {
+                foundFhirLink = fhirLink;
+            }
+        }
+        if (foundFhirLink == null) {
+            throw new ResourceForbiddenException("Failed fhirLink validation");
+        }
+
+        // check there are any observations
+        if (CollectionUtils.isEmpty(fhirObservationRange.getObservations())) {
+            throw new ResourceNotFoundException("Observations not found");
+        }
+
+        // check code is a test type observation
+        if (Util.isInEnum(fhirObservationRange.getCode(), NonTestObservationTypes.class)
+                || Util.isInEnum(fhirObservationRange.getCode(), DiagnosticReportObservationTypes.class)) {
+            throw new ResourceForbiddenException("Non-test or DiagnosticReport type Observations");
+        }
+
+        // build FHIR observation objects
+        ResourceReference patientReference = Util.createResourceReference(foundFhirLink.getResourceId());
+        TestObservationsBuilder testObservationsBuilder
+                = new TestObservationsBuilder(fhirObservationRange, patientReference);
+        testObservationsBuilder.build();
+        List<Observation> observations = testObservationsBuilder.getObservations();
+
+        // get existing observation UUIDs by date range (to remove) and then delete
+        List<UUID> existingObservations = fhirResource.getObservationUuidsBySubjectNameDateRange(
+                foundFhirLink.getResourceId(), fhirObservationRange.getCode(), fhirObservationRange.getStartDate(),
+                fhirObservationRange.getEndDate());
+        LOG.info("Deleting " + existingObservations.size() + " existing observation(s).");
+        deleteObservations(existingObservations);
+
+        // add new observations
+        LOG.info("Inserting " + observations.size() + " observation(s).");
+        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+        for (Observation observation : observations) {
+            fhirDatabaseObservations.add(new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+        }
+        observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);*/
+
+
+        return new ServerResponse(null, "done", true);
+    }
+
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group,
                                         List<ObservationHeading> observationHeadings,
                                         Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
+        group = groupRepository.findOne(group.getId());
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
@@ -1163,46 +1278,5 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         return observationSummary;
-    }
-
-    private UUID getResourceId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        return UUID.fromString(resource.get("id").toString());
-    }
-
-    private UUID getVersionId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        JSONArray links = (JSONArray) resource.get("link");
-        JSONObject link = (JSONObject) links.get(0);
-        String[] href = link.getString("href").split("/");
-        return UUID.fromString(href[href.length - 1]);
-    }
-
-    private void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
-            throws FhirResourceException {
-        // now have collection, manually insert using native SQL
-        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO observation ");
-            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
-
-            for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
-                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
-                sb.append("(");
-                sb.append("'").append(obs.getLogicalId().toString()).append("','");
-                sb.append(obs.getVersionId().toString()).append("','");
-                sb.append(obs.getResourceType()).append("','");
-                sb.append(obs.getPublished().toString()).append("','");
-                sb.append(obs.getUpdated().toString()).append("','");
-                sb.append(obs.getContent());
-                sb.append("')");
-                if (i != (fhirDatabaseObservations.size() - 1)) {
-                    sb.append(",");
-                }
-            }
-            fhirResource.executeSQL(sb.toString());
-        }
     }
 }

@@ -42,6 +42,7 @@ import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.util.Util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -340,7 +341,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findAll() {
-        List<Group> groups = ApiUtil.convertIterable(groupRepository.findAll());
+        List<Group> groups = Util.convertIterable(groupRepository.findAll());
         return addParentAndChildGroups(groups);
     }
 
@@ -374,11 +375,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
         }
 
-        return ApiUtil.convertIterable(groupRepository.findChildren(group));
+        return Util.convertIterable(groupRepository.findChildren(group));
     }
 
     public List<Group> findGroupsByUser(User user) {
-        List<Group> groups = ApiUtil.convertIterable(groupRepository.findGroupByUser(user));
+        List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
     }
 
@@ -393,10 +394,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             // GLOBAL_ADMIN can reach all groups
-            groups = new HashSet<>(ApiUtil.convertIterable(groupRepository.findAll()));
+            groups = new HashSet<>(Util.convertIterable(groupRepository.findAll()));
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             // SPECIALTY_ADMIN gets groups and child groups if available
-            List<Group> parentGroups = ApiUtil.convertIterable(groupRepository.findGroupByUser(entityUser));
+            List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             parentGroups = addParentAndChildGroups(parentGroups);
 
             // add child groups
@@ -408,7 +409,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             groups.addAll(getSupportGroups());
         } else if (doesContainRoles(RoleName.PATIENT)) {
             // PATIENT do not add specialty type groups
-            List<Group> parentGroups = ApiUtil.convertIterable(groupRepository.findGroupByUser(entityUser));
+            List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             for (Group parentGroup : parentGroups) {
                 if (!parentGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                     groups.add(parentGroup);
@@ -419,7 +420,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             groups.addAll(groupRepository.findAll());
         } else {
             // STAFF_ADMIN, DISEASE_GROUP_ADMIN get all group types by user
-            groups.addAll(ApiUtil.convertIterable(groupRepository.findGroupByUser(entityUser)));
+            groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(entityUser)));
 
             // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
             groups.addAll(getSupportGroups());

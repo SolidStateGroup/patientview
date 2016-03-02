@@ -1,11 +1,11 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.RoleService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -23,15 +23,15 @@ public class RoleServiceImpl extends AbstractServiceImpl<RoleServiceImpl> implem
     private RoleRepository roleRepository;
 
     public List<Role> getAllRoles() {
-        return ApiUtil.convertIterable(roleRepository.findAll());
+        return Util.convertIterable(roleRepository.findAll());
     }
 
     public List<Role> getRolesByType(RoleType type) {
-        return ApiUtil.convertIterable(roleRepository.findByRoleType(type));
+        return Util.convertIterable(roleRepository.findByRoleType(type));
     }
 
     public List<Role> getUserRoles(Long userId) {
-        return ApiUtil.convertIterable(roleRepository.findValidRolesByUser(userId));
+        return Util.convertIterable(roleRepository.findValidRolesByUser(userId));
     }
 
     @Override

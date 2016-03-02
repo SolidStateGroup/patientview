@@ -1,11 +1,13 @@
 package org.patientview.service;
 
 import generated.Patientview;
+import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,14 @@ public interface PatientService {
 
     FhirLink add(Patientview patient, ResourceReference practitionerReference)
             throws FhirResourceException, ResourceNotFoundException;
+
+    /**
+     * Build a FHIR Patient, used when entering own results if no current link between PatientView and FHIR.
+     * @param user User to build FHIR Patient for
+     * @param identifier Identifier associated with User and to be assigned to new FHIR Patient
+     * @return FHIR Patient
+     */
+    Patient buildPatient(User user, Identifier identifier);
 
     Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException;
 }

@@ -27,9 +27,10 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.LookupService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
+import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
@@ -171,7 +172,10 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private MedicationService medicationService;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private ApiObservationService apiObservationService;
@@ -202,13 +206,6 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private static final String GENDER_CODING = "gender";
     private static final String RENAL_GROUP_CODE = "Renal";
     private static final String GEN_CODE = "GEN";
-
-    private Patient addIdentifier(Patient patient, Identifier identifier) {
-        org.hl7.fhir.instance.model.Identifier fhirIdentifier = patient.addIdentifier();
-        fhirIdentifier.setLabelSimple(identifier.getIdentifierType().getValue());
-        fhirIdentifier.setValueSimple(identifier.getIdentifier());
-        return patient;
-    }
 
     // add FHIR Patient with optional practitioner reference, used during migration
     private FhirLink addPatient(FhirPatient fhirPatient, User entityUser, List<UUID> practitionerUuids,
@@ -348,39 +345,12 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         }
     }
 
-    /**
-     * Build a FHIR Patient, used when entering own results if no current link between PatientView and FHIR.
-     * @param user User to build FHIR Patient for
-     * @param identifier Identifier associated with User and to be assigned to new FHIR Patient
-     * @return FHIR Patient
-     */
-    @Override
-    public Patient buildPatient(User user, Identifier identifier) {
-        Patient patient = new Patient();
-        patient = createHumanName(patient, user);
-        patient = addIdentifier(patient, identifier);
-        return patient;
-    }
-
-    private Patient createHumanName(Patient patient, User user) {
-        HumanName humanName = patient.addName();
-        if (StringUtils.isNotEmpty(user.getSurname())) {
-            humanName.addFamilySimple(user.getSurname());
-        }
-        if (StringUtils.isNotEmpty(user.getForename())) {
-            humanName.addGivenSimple(user.getForename());
-        }
-        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
-        humanName.setUse(nameUse);
-        return patient;
-    }
-
     // used as backup if missing data in pv1 patient table
     private FhirLink createPatientAndFhirLink(User user, Group group, Identifier identifier)
             throws ResourceNotFoundException, FhirResourceException {
 
-        FhirDatabaseEntity fhirPatient
-                = fhirResource.createEntity(buildPatient(user, identifier), ResourceType.Patient.name(), "patient");
+        FhirDatabaseEntity fhirPatient = fhirResource.createEntity(
+                patientService.buildPatient(user, identifier), ResourceType.Patient.name(), "patient");
 
         // create new FhirLink and add to list of known fhirlinks
         FhirLink fhirLink = new FhirLink();
@@ -869,7 +839,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                 throw new ResourceNotFoundException("Group for patient entered results does not exist");
             }
             Identifier identifier = entityUser.getIdentifiers().iterator().next();
-            Patient patient = buildPatient(entityUser, identifier);
+            Patient patient = patientService.buildPatient(entityUser, identifier);
             FhirDatabaseEntity fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
 
             FhirLink fhirLink = new FhirLink();
@@ -1110,7 +1080,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         // set up map of observation headings
         if (observationHeadingMap == null) {
             observationHeadingMap = new HashMap<>();
-            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+            for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
                 observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
             }
         }
@@ -1216,7 +1186,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         // set up map of observation headings
         if (observationHeadingMap == null) {
             observationHeadingMap = new HashMap<>();
-            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+            for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
                 observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
             }
         }

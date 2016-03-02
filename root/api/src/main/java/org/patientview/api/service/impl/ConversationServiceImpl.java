@@ -53,6 +53,7 @@ import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -1298,7 +1299,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // only search for groups patient is in (excluding specialties so only units and disease groups)
         List<Group> patientGroups
-                = ApiUtil.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
+                = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
                 "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
 
         for (Group group : patientGroups) {

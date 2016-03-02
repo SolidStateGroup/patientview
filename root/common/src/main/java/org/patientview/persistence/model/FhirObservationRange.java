@@ -1,4 +1,4 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import java.util.Date;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 02/03/2015
  */
-public class FhirObservationRange {
+public class FhirObservationRange extends BaseImport {
 
     private String code;
     private Date endDate;
