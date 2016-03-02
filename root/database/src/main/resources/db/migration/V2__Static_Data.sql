@@ -180,6 +180,7 @@ INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creatio
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (9, 'DISEASE_GROUP_ADMIN', '6', '30', true, 'Disease Group Admin', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (10, 'UNIT_ADMIN_API', '6', '40', false, 'Unit Admin (API)', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (11, 'GP_ADMIN', '6', '25', true, 'GP Admin', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (12, 'IMPORTER', '6', '25', false, 'Importer', now(), '1');
 
 /* global admin */
 INSERT INTO pv_user_group_role VALUES(1, 3, 1, 5, now(), null, now(), 1, null, null);
