@@ -1,4 +1,4 @@
-package org.patientview.api.service;
+package org.patientview.service;
 
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.FhirResourceException;

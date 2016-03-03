@@ -35,6 +35,7 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.test.util.TestUtils;
@@ -79,6 +80,9 @@ public class ApiConditionServiceTest {
 
     @Mock
     LookupService lookupService;
+
+    @Mock
+    ObservationService observationService;
 
     @Mock
     PatientService patientService;

@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
-import org.patientview.api.service.FileDataService;
+import org.patientview.service.FileDataService;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;

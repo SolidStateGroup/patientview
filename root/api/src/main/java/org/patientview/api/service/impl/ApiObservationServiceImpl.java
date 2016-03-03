@@ -2,14 +2,10 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
-import org.hl7.fhir.instance.model.Decimal;
-import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
-import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.BaseGroup;
@@ -61,10 +57,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -177,7 +170,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 foundFhirLink.getResourceId(), fhirObservationRange.getCode(), fhirObservationRange.getStartDate(),
                 fhirObservationRange.getEndDate());
         LOG.info("Deleting " + existingObservations.size() + " existing observation(s).");
-        deleteObservations(existingObservations);
+        observationService.deleteObservations(existingObservations);
 
         // add new observations
         LOG.info("Inserting " + observations.size() + " observation(s).");
@@ -230,7 +223,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 }
 
                 if (!idValue.getValue().isEmpty()) {
-                    fhirObservations.add(buildObservation(applies, idValue.getValue(), null,
+                    fhirObservations.add(observationService.buildObservation(applies, idValue.getValue(), null,
                             userResultCluster.getComments(), observationHeading));
                 }
             }
@@ -286,7 +279,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
 
                     Observation observation =
-                            buildObservation(applies, userResultCluster.getComments(), null,
+                            observationService.buildObservation(applies, userResultCluster.getComments(), null,
                                     userResultCluster.getComments(), commentObservationHeadings.get(0));
 
                     observation.setSubject(patientReference);
@@ -299,139 +292,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
-    // used by migration
-    @Override
-    public FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
-            FhirObservation fhirObservation, FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        // build actual FHIR observation and set subject
-        Observation observation = buildNonTestObservation(fhirObservation);
-        observation.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
-
-        // return new FhirDatabaseObservation with correct JSON content
-        try {
-            return new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
-        } catch (NullArgumentException nae) {
-            throw new FhirResourceException(nae.getMessage());
-        }
-    }
-
-    // used by migration
-    @Override
-    public FhirDatabaseObservation buildFhirDatabaseObservation(FhirObservation fhirObservation,
-                                                                ObservationHeading observationHeading,
-                                                                FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        // build actual FHIR observation and set subject
-        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
-                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
-                observationHeading);
-
-        observation.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
-
-        // return new FhirDatabaseObservation with correct JSON content
-        try {
-            return new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
-        } catch (NullArgumentException nae) {
-            throw new FhirResourceException(nae.getMessage());
-        }
-    }
-
-    // migration
-    private Observation buildNonTestObservation(FhirObservation fhirObservation)
-            throws FhirResourceException {
-
-        Observation observation = new Observation();
-        if (fhirObservation.getApplies() != null) {
-            observation.setApplies(createDateTime(fhirObservation.getApplies()));
-        }
-        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-        observation.setStatusSimple(Observation.ObservationStatus.registered);
-
-        if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
-            try {
-                Quantity quantity = new Quantity();
-                quantity.setValue(createDecimal(fhirObservation.getValue()));
-                quantity.setComparatorSimple(getComparator(fhirObservation.getComparator()));
-                observation.setValue(quantity);
-            } catch (ParseException pe) {
-                // parse exception, likely to be a string, e.g. comments store as text
-                CodeableConcept comment = new CodeableConcept();
-                comment.setTextSimple(fhirObservation.getValue());
-                observation.setValue(comment);
-            }
-        }
-
-        if (StringUtils.isNotEmpty(fhirObservation.getName())) {
-            CodeableConcept name = new CodeableConcept();
-            name.setTextSimple(fhirObservation.getName().toUpperCase());
-            name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
-            observation.setName(name);
-            observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
-        }
-
-        if (StringUtils.isNotEmpty(fhirObservation.getComments())) {
-            observation.setCommentsSimple(fhirObservation.getComments());
-        }
-
-        if (StringUtils.isNotEmpty(fhirObservation.getBodySite())) {
-            CodeableConcept bodySite = new CodeableConcept();
-            bodySite.setTextSimple(fhirObservation.getBodySite());
-            observation.setBodySite(bodySite);
-        }
-
-        if (StringUtils.isNotEmpty(fhirObservation.getLocation())) {
-            observation.setCommentsSimple(fhirObservation.getLocation());
-        }
-
-        return observation;
-    }
-
-    // migration
-    private Observation buildObservation(DateTime applies, String value, String comparator, String comments,
-                                         ObservationHeading observationHeading)
-            throws FhirResourceException {
-
-        Observation observation = new Observation();
-        if (applies != null) {
-            observation.setApplies(applies);
-        }
-        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-        observation.setStatusSimple(Observation.ObservationStatus.registered);
-
-        if (StringUtils.isNotEmpty(value)) {
-            try {
-                Quantity quantity = new Quantity();
-                quantity.setValue(createDecimal(value));
-                quantity.setComparatorSimple(getComparator(comparator));
-                quantity.setUnitsSimple(observationHeading.getUnits());
-                observation.setValue(quantity);
-            } catch (ParseException pe) {
-                // parse exception, likely to be a string, e.g. comments store as text
-                CodeableConcept comment = new CodeableConcept();
-                comment.setTextSimple(value);
-                comment.addCoding().setDisplaySimple(observationHeading.getHeading());
-                observation.setValue(comment);
-            }
-        }
-
-        CodeableConcept name = new CodeableConcept();
-        name.setTextSimple(observationHeading.getCode());
-        name.addCoding().setDisplaySimple(observationHeading.getHeading());
-        observation.setName(name);
-
-        observation.setIdentifier(createIdentifier(observationHeading.getCode()));
-
-        if (StringUtils.isNotEmpty(comments)) {
-            observation.setCommentsSimple(comments);
-        }
-
-        return observation;
-    }
-
-    // migration
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
                                                                              ObservationHeading observationHeading) {
         org.patientview.api.model.ObservationHeading summaryHeading =
@@ -439,13 +299,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
         summaryHeading.setPanel(panel);
         summaryHeading.setPanelOrder(panelOrder);
-
         return summaryHeading;
     }
 
-    // migration
     private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException {
-
         try {
             DateTime dateTime = new DateTime();
             DateAndTime dateAndTime = DateAndTime.now();
@@ -467,71 +324,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             return dateTime;
         } catch (Exception e) {
             throw new FhirResourceException("Error converting date");
-        }
-    }
-
-    // migration
-    private DateTime createDateTime(Date date) throws FhirResourceException {
-        DateTime dateTime = new DateTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        DateAndTime dateAndTime = new DateAndTime(calendar);
-        dateTime.setValue(dateAndTime);
-        return dateTime;
-    }
-
-    // migration
-    private Decimal createDecimal(String result) throws ParseException {
-        Decimal decimal = new Decimal();
-
-        // remove all but numeric and . -
-        String resultString = result.replaceAll("/[^\\d.-]+/", "");
-
-        // attempt to parse remaining
-        NumberFormat decimalFormat = DecimalFormat.getInstance();
-
-        try {
-            if (StringUtils.isNotEmpty(resultString)) {
-                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
-            }
-        } catch (ParseException nfe) {
-            throw new ParseException("Invalid value for observation", nfe.getErrorOffset());
-        }
-
-        return decimal;
-    }
-
-    // migration
-    private org.hl7.fhir.instance.model.Identifier createIdentifier(String code) {
-        org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
-        identifier.setLabelSimple("resultcode");
-        identifier.setValueSimple(code);
-        return identifier;
-    }
-
-    /**
-     * Natively delete Observations from FHIR by logical ID.
-     *
-     * @param observationsUuidsToDelete List of UUID Observation logical IDs to delete
-     * @throws FhirResourceException
-     */
-    private void deleteObservations(List<UUID> observationsUuidsToDelete) throws FhirResourceException {
-        if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("DELETE FROM observation WHERE logical_id IN (");
-
-            for (int i = 0; i < observationsUuidsToDelete.size(); i++) {
-                UUID uuid = observationsUuidsToDelete.get(i);
-
-                sb.append("'").append(uuid).append("'");
-
-                if (i != (observationsUuidsToDelete.size() - 1)) {
-                    sb.append(",");
-                }
-            }
-
-            sb.append(")");
-            fhirResource.executeSQL(sb.toString());
         }
     }
 
@@ -678,29 +470,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
         }
         return fhirObservations;
-    }
-
-    private Quantity.QuantityComparator getComparator(String comparator) {
-
-        if (StringUtils.isNotEmpty(comparator)) {
-            if (comparator.contains(">=")) {
-                return Quantity.QuantityComparator.greaterOrEqual;
-            }
-
-            if (comparator.contains("<=")) {
-                return Quantity.QuantityComparator.lessOrEqual;
-            }
-
-            if (comparator.contains(">")) {
-                return Quantity.QuantityComparator.greaterThan;
-            }
-
-            if (comparator.contains("<")) {
-                return Quantity.QuantityComparator.lessThan;
-            }
-        }
-
-        return null;
     }
 
     private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
@@ -973,6 +742,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return new FhirObservationPage(output, Long.valueOf(tempMap.entrySet().size()), Long.valueOf(pages));
     }
 
+    @Override
     public Map<Long, Map<String, List<org.patientview.api.model.FhirObservation>>> getObservationsByMultipleCodeAndDate(
             Long userId,
             List<String> codes,
@@ -1314,7 +1084,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         try {
-            deleteObservations(existingObservations);
+            observationService.deleteObservations(existingObservations);
         } catch (FhirResourceException fre) {
             return new ServerResponse("error deleting existing observations");
         }
@@ -1328,6 +1098,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             }
         } catch (FhirResourceException | NullArgumentException e) {
             return new ServerResponse("error marshalling fhir records");
+        }
+
+        if (CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+            return new ServerResponse("error preparing observations");
         }
 
         try {

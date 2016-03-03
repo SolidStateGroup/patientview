@@ -57,6 +57,8 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.ObservationService;
+import org.patientview.service.PatientService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -140,7 +142,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private IdentifierRepository identifierRepository;
 
     @Inject
-    private ApiPatientService apiPatientService;
+    private ObservationService observationService;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private Properties properties;
@@ -173,9 +178,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int INACTIVE_MONTH_LIMIT = 3;
     // used for image resizing
     private static final int MAXIMUM_IMAGE_WIDTH = 400;
-    private static final int THREE = 3;
-    private static final int SIX = 6;
-    private static final int EIGHT = 8;
     private static final int ONE_HUNDRED_AND_EIGHTY = 180;
     private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
@@ -655,8 +657,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
-                apiPatientService.deleteExistingPatientData(user.getFhirLinks());
-                apiPatientService.deleteAllExistingObservationData(user.getFhirLinks());
+                patientService.deleteExistingPatientData(user.getFhirLinks());
+                observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
             if (isPatient || forceDelete) {

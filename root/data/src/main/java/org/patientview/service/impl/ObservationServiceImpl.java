@@ -3,9 +3,13 @@ package org.patientview.service.impl;
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
+import org.hl7.fhir.instance.model.Decimal;
+import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.ObservationsBuilder;
@@ -13,6 +17,8 @@ import org.patientview.persistence.model.BasicObservation;
 import org.patientview.persistence.model.DateRange;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.repository.AlertRepository;
@@ -31,15 +37,20 @@ import javax.inject.Named;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -50,17 +61,17 @@ import java.util.UUID;
 public class ObservationServiceImpl extends AbstractServiceImpl<ObservationService> implements ObservationService {
 
     @Inject
-    private FhirResource fhirResource;
+    private AlertRepository alertRepository;
 
     @Inject
     @Named("fhir")
     private BasicDataSource dataSource;
 
     @Inject
-    private IdentifierRepository identifierRepository;
+    private FhirResource fhirResource;
 
     @Inject
-    private AlertRepository alertRepository;
+    private IdentifierRepository identifierRepository;
 
     private String nhsno;
 
@@ -236,30 +247,97 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     }
 
     @Override
-    public void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
-            throws FhirResourceException {
-        // now have collection, manually insert using native SQL
-        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO observation ");
-            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
+    public Observation buildNonTestObservation(FhirObservation fhirObservation) throws FhirResourceException {
 
-            for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
-                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
-                sb.append("(");
-                sb.append("'").append(obs.getLogicalId().toString()).append("','");
-                sb.append(obs.getVersionId().toString()).append("','");
-                sb.append(obs.getResourceType()).append("','");
-                sb.append(obs.getPublished().toString()).append("','");
-                sb.append(obs.getUpdated().toString()).append("','");
-                sb.append(obs.getContent());
-                sb.append("')");
-                if (i != (fhirDatabaseObservations.size() - 1)) {
-                    sb.append(",");
-                }
-            }
-            fhirResource.executeSQL(sb.toString());
+        Observation observation = new Observation();
+        if (fhirObservation.getApplies() != null) {
+            DateTime dateTime = new DateTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(fhirObservation.getApplies());
+            DateAndTime dateAndTime = new DateAndTime(calendar);
+            dateTime.setValue(dateAndTime);
+            observation.setApplies(dateTime);
         }
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+            try {
+                Quantity quantity = new Quantity();
+                quantity.setValue(createDecimal(fhirObservation.getValue()));
+                quantity.setComparatorSimple(getComparator(fhirObservation.getComparator()));
+                observation.setValue(quantity);
+            } catch (ParseException pe) {
+                // parse exception, likely to be a string, e.g. comments store as text
+                CodeableConcept comment = new CodeableConcept();
+                comment.setTextSimple(fhirObservation.getValue());
+                observation.setValue(comment);
+            }
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getName())) {
+            CodeableConcept name = new CodeableConcept();
+            name.setTextSimple(fhirObservation.getName().toUpperCase());
+            name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
+            observation.setName(name);
+            observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getComments())) {
+            observation.setCommentsSimple(fhirObservation.getComments());
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getBodySite())) {
+            CodeableConcept bodySite = new CodeableConcept();
+            bodySite.setTextSimple(fhirObservation.getBodySite());
+            observation.setBodySite(bodySite);
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getLocation())) {
+            observation.setCommentsSimple(fhirObservation.getLocation());
+        }
+
+        return observation;
+    }
+
+    @Override
+    public Observation buildObservation(DateTime applies, String value, String comparator, String comments,
+                                        ObservationHeading observationHeading) throws FhirResourceException {
+        Observation observation = new Observation();
+        if (applies != null) {
+            observation.setApplies(applies);
+        }
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        if (StringUtils.isNotEmpty(value)) {
+            try {
+                Quantity quantity = new Quantity();
+                quantity.setValue(createDecimal(value));
+                quantity.setComparatorSimple(getComparator(comparator));
+                quantity.setUnitsSimple(observationHeading.getUnits());
+                observation.setValue(quantity);
+            } catch (ParseException pe) {
+                // parse exception, likely to be a string, e.g. comments store as text
+                CodeableConcept comment = new CodeableConcept();
+                comment.setTextSimple(value);
+                comment.addCoding().setDisplaySimple(observationHeading.getHeading());
+                observation.setValue(comment);
+            }
+        }
+
+        CodeableConcept name = new CodeableConcept();
+        name.setTextSimple(observationHeading.getCode());
+        name.addCoding().setDisplaySimple(observationHeading.getHeading());
+        observation.setName(name);
+
+        observation.setIdentifier(createIdentifier(observationHeading.getCode()));
+
+        if (StringUtils.isNotEmpty(comments)) {
+            observation.setCommentsSimple(comments);
+        }
+
+        return observation;
     }
 
     private Date convertDateTime(DateTime dateTime) {
@@ -270,9 +348,68 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return calendar.getTime();
     }
 
+    private Decimal createDecimal(String result) throws ParseException {
+        Decimal decimal = new Decimal();
+
+        // remove all but numeric and . -
+        String resultString = result.replaceAll("/[^\\d.-]+/", "");
+
+        // attempt to parse remaining
+        NumberFormat decimalFormat = DecimalFormat.getInstance();
+
+        try {
+            if (StringUtils.isNotEmpty(resultString)) {
+                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
+            }
+        } catch (ParseException nfe) {
+            throw new ParseException("Invalid value for observation", nfe.getErrorOffset());
+        }
+
+        return decimal;
+    }
+
+    private org.hl7.fhir.instance.model.Identifier createIdentifier(String code) {
+        org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
+        identifier.setLabelSimple("resultcode");
+        identifier.setValueSimple(code);
+        return identifier;
+    }
+
+    @Override
+    public void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException {
+
+        if (fhirLinks != null) {
+            for (FhirLink fhirLink : fhirLinks) {
+                UUID subjectId = fhirLink.getResourceId();
+                deleteObservations(fhirResource.getLogicalIdsBySubjectId("observation", subjectId));
+            }
+        }
+    }
+
+    @Override
+    public void deleteObservations(List<UUID> observationsUuidsToDelete) throws FhirResourceException {
+        if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("DELETE FROM observation WHERE logical_id IN (");
+
+            for (int i = 0; i < observationsUuidsToDelete.size(); i++) {
+                UUID uuid = observationsUuidsToDelete.get(i);
+
+                sb.append("'").append(uuid).append("'");
+
+                if (i != (observationsUuidsToDelete.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+
+            sb.append(")");
+            fhirResource.executeSQL(sb.toString());
+        }
+    }
+
     private List<BasicObservation> getBasicObservationBySubjectId(final UUID subjectId)
             throws FhirResourceException {
-        
+
         try {
             // build query
             StringBuilder query = new StringBuilder();
@@ -281,7 +418,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             query.append("WHERE content -> 'subject' ->> 'display' = '");
             query.append(subjectId);
             query.append("' ");
-    
+
             // execute and return map of logical ids and applies
             Connection connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
@@ -320,6 +457,56 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         } catch (Exception e) {
             LOG.error("Error getting existing observations", e);
             throw new FhirResourceException(e);
+        }
+    }
+
+    private Quantity.QuantityComparator getComparator(String comparator) {
+
+        if (StringUtils.isNotEmpty(comparator)) {
+            if (comparator.contains(">=")) {
+                return Quantity.QuantityComparator.greaterOrEqual;
+            }
+
+            if (comparator.contains("<=")) {
+                return Quantity.QuantityComparator.lessOrEqual;
+            }
+
+            if (comparator.contains(">")) {
+                return Quantity.QuantityComparator.greaterThan;
+            }
+
+            if (comparator.contains("<")) {
+                return Quantity.QuantityComparator.lessThan;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
+            throws FhirResourceException {
+        // now have collection, manually insert using native SQL
+        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT INTO observation ");
+            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
+
+            for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
+                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+                sb.append("(");
+                sb.append("'").append(obs.getLogicalId().toString()).append("','");
+                sb.append(obs.getVersionId().toString()).append("','");
+                sb.append(obs.getResourceType()).append("','");
+                sb.append(obs.getPublished().toString()).append("','");
+                sb.append(obs.getUpdated().toString()).append("','");
+                sb.append(obs.getContent());
+                sb.append("')");
+                if (i != (fhirDatabaseObservations.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            fhirResource.executeSQL(sb.toString());
         }
     }
 }

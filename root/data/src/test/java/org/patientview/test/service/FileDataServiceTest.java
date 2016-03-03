@@ -1,4 +1,4 @@
-package org.patientview.api.service;
+package org.patientview.test.service;
 
 import junit.framework.Assert;
 import org.junit.After;
@@ -7,9 +7,10 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.impl.FileDataServiceImpl;
+import org.patientview.service.impl.FileDataServiceImpl;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FileDataRepository;
+import org.patientview.service.FileDataService;
 import org.patientview.test.util.TestUtils;
 
 /**

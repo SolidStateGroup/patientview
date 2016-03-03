@@ -5,6 +5,8 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,10 +14,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.persistence.model.FhirObservationRange;
@@ -48,6 +50,10 @@ import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
+import org.patientview.util.Util;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +63,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
@@ -65,6 +72,8 @@ import static org.mockito.Mockito.any;
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Util.class)
 public class ApiObservationServiceTest {
 
     User creator;
@@ -106,6 +115,7 @@ public class ApiObservationServiceTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
+        PowerMockito.mockStatic(Util.class);
     }
 
     @After
@@ -115,7 +125,6 @@ public class ApiObservationServiceTest {
 
     @Test
     public void testAddResultClusters() throws Exception {
-
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -176,18 +185,24 @@ public class ApiObservationServiceTest {
         FhirDatabaseEntity entity = new FhirDatabaseEntity(fhirPatientJson.toString(), ResourceType.Patient.name());
         entity.setLogicalId(UUID.randomUUID());
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
-        when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
-        when(groupRepository.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString())))
-                .thenReturn(patientEnteredGroup);
-        when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
+        Observation observation = new Observation();
+
         when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient")))
                 .thenReturn(entity);
-
         when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
+        when(groupRepository.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString())))
+                .thenReturn(patientEnteredGroup);
+        when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
+        when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
+        when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
+                any(String.class), eq(observationHeading1))).thenReturn(observation);
+        when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
 
         apiObservationService.addUserResultClusters(user.getId(), userResultClusters);
+
+        verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
     }
 
     @Test
@@ -517,20 +532,21 @@ public class ApiObservationServiceTest {
 
         when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"))).thenReturn(fhirPatient);
+        when(fhirResource.marshallFhirRecord(any(Resource.class)))
+                .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
         when(groupRepository.findByCode(eq(fhirObservationRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirObservationRange.getIdentifier()))).thenReturn(identifiers);
         when(observationHeadingRepository.findByCode(eq(fhirObservationRange.getCode())))
                 .thenReturn(observationHeadings);
         when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(builtPatient);
 
-
         ServerResponse serverResponse = apiObservationService.importObservations(fhirObservationRange);
 
         Assert.assertTrue(
                 "Should be successful, got '" + serverResponse.getErrorMessage() + "'", serverResponse.isSuccess());
 
-        verify(fhirResource, Mockito.times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
+        verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"));
-        verify(userRepository, Mockito.times(1)).save(eq(patient));
+        verify(userRepository, times(1)).save(eq(patient));
     }
 }

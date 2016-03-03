@@ -6,14 +6,10 @@ import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
-import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.enums.RoleName;
 
-import javax.persistence.EntityExistsException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -23,20 +19,6 @@ import java.util.UUID;
  * Created on 02/09/2014
  */
 public interface ApiPatientService {
-
-    /**
-     * Delete all Observations from FHIR given a Set of FhirLink, used when deleting a patient and in migration.
-     * @param fhirLinks Set of FhirLink
-     * @throws FhirResourceException
-     */
-    void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException;
-
-    /**
-     * Delete all non Observation Patient data stored in Fhir given a Set of FhirLink.
-     * @param fhirLinks Set of FhirLink
-     * @throws FhirResourceException
-     */
-    void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException;
 
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
@@ -73,14 +55,6 @@ public interface ApiPatientService {
     @RoleOnly(roles = { RoleName.PATIENT })
     List<org.patientview.api.model.Patient> getBasic(Long userId)
         throws FhirResourceException, ResourceNotFoundException;
-
-    // migration only
-    void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
-
-    // migration only
-    void migrateTestObservations(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 
     // API
     @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })

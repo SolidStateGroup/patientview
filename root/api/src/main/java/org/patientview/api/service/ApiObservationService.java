@@ -4,15 +4,13 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.enums.RoleName;
 
@@ -56,19 +54,7 @@ public interface ApiObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
-    // used by migration
-    FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
-            org.patientview.persistence.model.FhirObservation fhirObservation, FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException;
-
-    // used by migration
-    FhirDatabaseObservation buildFhirDatabaseObservation(
-            org.patientview.persistence.model.FhirObservation fhirObservation,
-            ObservationHeading observationHeading, FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException;
-
     // API
-
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
      * view.
@@ -144,6 +130,11 @@ public interface ApiObservationService {
     @RoleOnly(roles = { RoleName.PATIENT })
     List<ObservationSummary> getObservationSummary(Long userId) throws ResourceNotFoundException, FhirResourceException;
 
+    /**
+     * Given a FhirObservationRange object with a start, end date and list of observations, store in FHIR
+     * @param fhirObservationRange
+     * @return
+     */
     @RoleOnly(roles = { RoleName.IMPORTER })
     ServerResponse importObservations(FhirObservationRange fhirObservationRange);
 }

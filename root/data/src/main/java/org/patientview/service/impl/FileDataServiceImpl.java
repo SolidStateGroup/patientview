@@ -1,7 +1,7 @@
-package org.patientview.api.service.impl;
+package org.patientview.service.impl;
 
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.api.service.FileDataService;
+import org.patientview.service.FileDataService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirLink;

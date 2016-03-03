@@ -393,7 +393,7 @@ public class ImportControllerTest {
         //post(getFileFromString("data/xml/gplogin_test_2/p10-3.xml"));
         //post(getFileFromString("data/xml/gplogin_test_2/p7-2.xml"));
 
-        //post(getFileFromString("data/xml/gplogin_test_2/vvvv.xml"));
+        post(getFileFromString("data/xml/gplogin_test_2/vvvv.xml"));
     }
 
     String getTestFile() throws IOException, URISyntaxException {
