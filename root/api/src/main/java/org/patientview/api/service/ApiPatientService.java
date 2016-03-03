@@ -7,6 +7,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
@@ -55,6 +56,14 @@ public interface ApiPatientService {
     @RoleOnly(roles = { RoleName.PATIENT })
     List<org.patientview.api.model.Patient> getBasic(Long userId)
         throws FhirResourceException, ResourceNotFoundException;
+
+    /**
+     * Update or create patient details (used by API importer)
+     * @param fhirPatient details to update
+     * @return ServerResponse with success/error messages
+     */
+    @RoleOnly(roles = { RoleName.IMPORTER })
+    ServerResponse importPatient(FhirPatient fhirPatient);
 
     // API
     @RoleOnly(roles = { RoleName.UNIT_ADMIN_API })

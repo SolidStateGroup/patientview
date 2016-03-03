@@ -13,7 +13,6 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
@@ -130,9 +129,6 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
-
-    @Inject
-    private FhirLinkService fhirLinkService;
 
     @Inject
     private FhirResource fhirResource;
@@ -334,7 +330,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             fhirLink.setVersionId(createdPatient.getVersionId());
             fhirLink.setResourceType(ResourceType.Patient.name());
             fhirLink.setActive(true);
-            return fhirLinkService.save(fhirLink);
+            return fhirLinkRepository.save(fhirLink);
         } else {
             return null;
         }
@@ -398,7 +394,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         fhirLink.setVersionId(fhirPatient.getVersionId());
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
-        return fhirLinkService.save(fhirLink);
+        return fhirLinkRepository.save(fhirLink);
     }
 
     // delete all FHIR related Observation data for this patient (not other patient data), non test data only
@@ -1068,7 +1064,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             fhirLink.setVersionId(fhirPatient.getVersionId());
             fhirLink.setResourceType(ResourceType.Patient.name());
             fhirLink.setActive(true);
-            fhirLinkService.save(fhirLink);
+            fhirLinkRepository.save(fhirLink);
         }
     }
 

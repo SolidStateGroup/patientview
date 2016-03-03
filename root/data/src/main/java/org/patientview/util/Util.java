@@ -9,8 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -58,6 +62,20 @@ public class Util {
             list.add(lookupIterator.next());
         }
         return list;
+    }
+
+    public static FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            return null;
+        }
+
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
+                return fhirLink;
+            }
+        }
+
+        return null;
     }
 
     public static StringWriter marshallPatientRecord(Patientview patientview) throws ImportResourceException {

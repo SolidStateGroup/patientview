@@ -12,7 +12,6 @@ import org.patientview.api.service.ApiConditionService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.CodeService;
-import org.patientview.service.FileDataService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
@@ -30,6 +29,8 @@ import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
@@ -43,6 +44,8 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GpLetterRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -50,13 +53,16 @@ import org.patientview.service.AllergyService;
 import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
 import org.patientview.service.GpLetterCreationService;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,6 +82,9 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private ApiConditionService apiConditionService;
 
     @Inject
+    private ApiObservationService apiObservationService;
+
+    @Inject
     private CodeService codeService;
 
     @Inject
@@ -91,19 +100,19 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private FhirResource fhirResource;
 
     @Inject
-    private FileDataService fileDataService;
-
-    @Inject
     private GpLetterCreationService gpLetterCreationService;
 
     @Inject
     private GpLetterRepository gpLetterRepository;
 
     @Inject
-    private LookupService lookupService;
+    private GroupRepository groupRepository;
 
     @Inject
-    private ApiObservationService apiObservationService;
+    private IdentifierRepository identifierRepository;
+
+    @Inject
+    private LookupService lookupService;
 
     @Inject
     private UserService userService;
@@ -283,6 +292,132 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         }
 
         return patients;
+    }
+
+    @Override
+    @Transactional
+    public ServerResponse importPatient(FhirPatient fhirPatient) {
+        if (StringUtils.isEmpty(fhirPatient.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(fhirPatient.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+
+        Group group = groupRepository.findByCode(fhirPatient.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(fhirPatient.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        Identifier identifier = identifiers.get(0);
+        User user = identifier.getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        // get FhirLink
+        FhirLink fhirLink = Util.getFhirLink(group, fhirPatient.getIdentifier(), user.getFhirLinks());
+
+        if (fhirLink == null) {
+            // no FhirLink exists
+            FhirDatabaseEntity entity;
+
+            // build patient
+            PatientBuilder patientBuilder = new PatientBuilder(null, fhirPatient);
+            Patient builtPatient = patientBuilder.build();
+
+            // store new patient in FHIR
+            try {
+                entity = fhirResource.createEntity(builtPatient, ResourceType.Patient.name(), "patient");
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error creating FHIR patient");
+            }
+
+            // create FhirLink
+            fhirLink = new FhirLink();
+            fhirLink.setUser(user);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(group);
+            fhirLink.setResourceId(entity.getLogicalId());
+            fhirLink.setVersionId(entity.getVersionId());
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+
+            if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+                user.setFhirLinks(new HashSet<FhirLink>());
+            }
+
+            user.getFhirLinks().add(fhirLink);
+            userRepository.save(user);
+
+            return new ServerResponse(null, "created", true);
+        } else {
+            // FhirLink exists, check patient exists
+            Patient currentPatient;
+            FhirDatabaseEntity entity;
+
+            if (fhirLink.getResourceId() == null) {
+                return new ServerResponse("error retrieving FHIR patient, no UUID");
+            }
+
+            try {
+                currentPatient = get(fhirLink.getResourceId());
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error retrieving FHIR patient");
+            }
+
+            // build patient
+            PatientBuilder patientBuilder = new PatientBuilder(currentPatient, fhirPatient);
+            Patient builtPatient = patientBuilder.build();
+
+            if (currentPatient == null) {
+                // create patient in FHIR, update FhirLink with newly created resource ID
+                try {
+                    entity = fhirResource.createEntity(builtPatient, ResourceType.Patient.name(), "patient");
+                    fhirLink.setResourceId(entity.getLogicalId());
+                    fhirLink.setResourceType(ResourceType.Patient.name());
+                    fhirLink.setActive(true);
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error creating FHIR patient");
+                }
+            } else {
+                // store updated patient in FHIR
+                try {
+                    entity = fhirResource.updateEntity(
+                            builtPatient, ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error updating FHIR patient");
+                }
+            }
+
+            if (entity == null) {
+                return new ServerResponse("error storing FHIR patient");
+            }
+
+            // update FhirLink and save
+            fhirLink.setVersionId(entity.getVersionId());
+            fhirLink.setUpdated(entity.getUpdated());
+            fhirLinkRepository.save(fhirLink);
+
+            return new ServerResponse(null, "updated", true);
+        }
     }
 
     private Practitioner getPractitioner(final UUID uuid) throws FhirResourceException {

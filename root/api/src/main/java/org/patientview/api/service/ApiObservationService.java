@@ -132,8 +132,8 @@ public interface ApiObservationService {
 
     /**
      * Given a FhirObservationRange object with a start, end date and list of observations, store in FHIR
-     * @param fhirObservationRange
-     * @return
+     * @param fhirObservationRange FhirObservationRange containing start date, end date, code and observations to import
+     * @return ServerResponse object containing success, error message and successful status
      */
     @RoleOnly(roles = { RoleName.IMPORTER })
     ServerResponse importObservations(FhirObservationRange fhirObservationRange);

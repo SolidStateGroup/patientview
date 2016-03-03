@@ -24,7 +24,7 @@ import java.util.List;
  * empty strings means clear existing data, null strings means leave alone and do not update. For Date, clear if null.
  * Also assume that a patient has only one address.
  *
- * Created by james@solidstategroup.com
+ * Created by jamesr@solidstategroup.com
  * Created on 03/03/2015
  */
 public class PatientBuilder {

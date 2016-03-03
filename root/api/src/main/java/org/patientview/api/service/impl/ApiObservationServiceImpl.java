@@ -232,7 +232,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     || !(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
 
                 // create FHIR Patient & fhirlink if not exists with PATIENT_ENTERED group, userId and identifier
-                FhirLink fhirLink = getFhirLink(
+                FhirLink fhirLink = Util.getFhirLink(
                         patientEnteredResultsGroup, patientIdentifier.getIdentifier(), patientUser.getFhirLinks());
 
                 if (fhirLink == null) {
@@ -470,20 +470,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
         }
         return fhirObservations;
-    }
-
-    private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
-        if (CollectionUtils.isEmpty(fhirLinks)) {
-            return null;
-        }
-
-        for (FhirLink fhirLink : fhirLinks) {
-            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
-                return fhirLink;
-            }
-        }
-
-        return null;
     }
 
     // gets all latest observations in single query per fhirlink
@@ -1022,7 +1008,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         // get fhirlink, create one if not present
-        FhirLink fhirLink = getFhirLink(group, fhirObservationRange.getIdentifier(), user.getFhirLinks());
+        FhirLink fhirLink = Util.getFhirLink(group, fhirObservationRange.getIdentifier(), user.getFhirLinks());
 
         if (fhirLink == null) {
             Patient patient = patientService.buildPatient(user, identifier);
