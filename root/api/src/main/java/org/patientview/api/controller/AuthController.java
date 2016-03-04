@@ -102,7 +102,7 @@ public class AuthController extends BaseController<AuthController> {
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
     public void logOut(@PathVariable("token") String token) throws AuthenticationServiceException {
-        authenticationService.logout(token);
+        authenticationService.logout(token, false);
     }
 
     /**

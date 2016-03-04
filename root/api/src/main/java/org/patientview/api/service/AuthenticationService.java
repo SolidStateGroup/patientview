@@ -75,9 +75,10 @@ public interface AuthenticationService extends UserDetailsService {
      * Log out User, clearing their session and deleting the token associated with their account, invalidating all
      * future requests with this token.
      * @param token String token associated with User
+     * @param expired boolean if session has expired causing logout
      * @throws AuthenticationServiceException
      */
-    void logout(String token) throws AuthenticationServiceException;
+    void logout(String token, boolean expired) throws AuthenticationServiceException;
 
     /**
      * Check if the current session has expired given a String authentication token.
