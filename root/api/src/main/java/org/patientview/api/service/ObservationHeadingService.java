@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -47,6 +48,12 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
     throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Get all ObservationHeading
+     * @return List of all ObservationHeading
+     */
+    List<BaseObservationHeading> findAll();
 
     /**
      * Get a Page of ObservationHeading given GetParameters.

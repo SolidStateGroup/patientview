@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -130,35 +131,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     @Override
-    public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        ObservationHeading observationHeading
-                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
-
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
+    public List<BaseObservationHeading> findAll() {
+        List<BaseObservationHeading> headings = new ArrayList<>();
+        for (ObservationHeading heading : observationHeadingRepository.findAll()) {
+            headings.add(new BaseObservationHeading(heading));
         }
-
-        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
-        if (group == null) {
-            throw new ResourceNotFoundException("Group does not exist");
-        }
-
-        // only global admin or specialty admin with correct group role can remove
-        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-            if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
-                oldObservationHeadingGroup.setGroup(group);
-                oldObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
-                oldObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
-            }
-        }
-
-        observationHeadingRepository.save(observationHeading);
+        return headings;
     }
 
     @Override
@@ -475,5 +453,37 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     private boolean observationHeadingExists(ObservationHeading observationHeading) {
         return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
+    }
+
+    @Override
+    public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        ObservationHeading observationHeading
+                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
+
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
+        if (group == null) {
+            throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        // only global admin or specialty admin with correct group role can remove
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
+                oldObservationHeadingGroup.setGroup(group);
+                oldObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
+                oldObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
+            }
+        }
+
+        observationHeadingRepository.save(observationHeading);
     }
 }

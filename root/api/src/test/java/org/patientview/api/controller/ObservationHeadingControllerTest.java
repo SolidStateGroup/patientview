@@ -70,16 +70,23 @@ public class ObservationHeadingControllerTest {
     }
 
     @Test
-    public void testFindAll() {
-        try {
-            TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-            mockMvc.perform(MockMvcRequestBuilders
-                    .get("/observationheading?page=0&size=5&sortDirection=ASC&sortField=name")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+    public void testFindAll() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/observationheadings")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(observationHeadingService, Mockito.times(1)).findAll();
+    }
+
+    @Test
+    public void testFindAllPaged() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/observationheading?page=0&size=5&sortDirection=ASC&sortField=name")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
