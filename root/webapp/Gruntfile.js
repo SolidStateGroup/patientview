@@ -213,10 +213,7 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     src: [
-                        '<%= yeoman.dist %>/scripts/{,*/}*.js',
-                        '<%= yeoman.dist %>/styles/{,*/}*.css',
-                        '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-                        '<%= yeoman.dist %>/styles/fonts/*'
+                        '<%= yeoman.dist %>/scripts/{,*/}*.js'
                     ]
                 }
             }
@@ -664,6 +661,7 @@ module.exports = function (grunt) {
         'concat',
         'uglify',
         'cssmin',
+        'rev',
         'usemin'
     ]);
 

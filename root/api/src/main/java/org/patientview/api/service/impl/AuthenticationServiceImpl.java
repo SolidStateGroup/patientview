@@ -416,14 +416,17 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
             @CacheEvict(value = "authenticateOnToken", allEntries = true) })
-    public void logout(String token) throws AuthenticationServiceException {
+    public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-        auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
-                userToken.getUser().getId(), AuditObjectTypes.User, null);
+
+        if (!expired) {
+            auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
+                    userToken.getUser().getId(), AuditObjectTypes.User, null);
+        }
 
         // delete all user tokens associated with this user (should only ever be one per user)
         userTokenRepository.deleteByUserId(userToken.getUser().getId());
