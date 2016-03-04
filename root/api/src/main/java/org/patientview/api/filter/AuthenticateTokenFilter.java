@@ -154,7 +154,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         try {
             if (authenticationService.sessionExpired(authToken)) {
-                authenticationService.logout(authToken);
+                authenticationService.logout(authToken, true);
                 return false;
             }
 

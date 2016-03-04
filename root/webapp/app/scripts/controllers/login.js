@@ -70,6 +70,10 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             // workaround for https://github.com/angular/angular.js/issues/1460
             $scope.username = $('#username').val();
             $scope.password = $('#password').val();
+
+            // completely clear local data
+            $rootScope.removeAllClientData();
+
             AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (userToken) {
                 delete $scope.checkSecretWord;
 

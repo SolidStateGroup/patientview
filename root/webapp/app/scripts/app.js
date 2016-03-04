@@ -309,20 +309,24 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
         $rootScope.logout = function (timeout) {
             $timeout(function () {
-                delete $rootScope.routes;
-                delete $rootScope.loggedInUser;
-                delete $rootScope.authToken;
-                delete $rootScope.previousAuthToken;
-                delete $rootScope.previousLoggedInUser;
-                delete $rootScope.previousLocation;
-                delete $cookies.authToken;
-                localStorageService.clearAll();
+                $rootScope.removeAllClientData();
                 if (timeout) {
                     $location.path('/login').search('timeout', 'true');
                 } else {
                     $location.path('/');
                 }
             });
+        };
+
+        $rootScope.removeAllClientData = function () {
+            delete $rootScope.routes;
+            delete $rootScope.loggedInUser;
+            delete $rootScope.authToken;
+            delete $rootScope.previousAuthToken;
+            delete $rootScope.previousLoggedInUser;
+            delete $rootScope.previousLocation;
+            delete $cookies.authToken;
+            localStorageService.clearAll();
         };
 
         $rootScope.switchUserBack = function () {
