@@ -23,6 +23,6 @@ public interface PractitionerService {
 
     List<UUID> getPractitionerLogicalUuidsByName(String name) throws FhirResourceException;
 
-    // used by migration & importer
+    // used by migration
     UUID add(FhirPractitioner fhirPractitioner) throws FhirResourceException;
 }

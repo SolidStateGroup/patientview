@@ -205,11 +205,19 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
 
             // no care providers, add practitioner and store against patient
             try {
-                practitionerUuid = practitionerService.add(fhirPractitioner);
+                // build practitioner
+                PractitionerBuilder practitionerBuilder = new PractitionerBuilder(null, fhirPractitioner);
+                Practitioner practitioner = practitionerBuilder.build();
+
+                // save in FHIR
+                FhirDatabaseEntity createdPractitioner
+                        = fhirResource.createEntity(practitioner, ResourceType.Practitioner.name(), "practitioner");
+                practitionerUuid = createdPractitioner.getLogicalId();
             } catch (FhirResourceException fre) {
                 return new ServerResponse("error creating practitioner");
             }
 
+            // update FHIR patient with reference to new care provider
             ResourceReference careProvider = patient.addCareProvider();
             careProvider.setReferenceSimple("uuid");
             careProvider.setDisplaySimple(practitionerUuid.toString());
@@ -220,7 +228,7 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
                 return new ServerResponse("error updating patient with practitioner");
             }
         } else {
-            // has care providers, check which is GP (could have other practitioners)
+            // patient has care providers, check which is GP (could have other practitioners)
             UUID practitionerUuid = null;
             Practitioner practitioner = null;
 
