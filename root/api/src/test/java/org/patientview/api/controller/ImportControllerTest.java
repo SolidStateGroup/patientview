@@ -10,8 +10,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.ApiPractitionerService;
+import org.patientview.api.service.LetterService;
+import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -42,8 +46,14 @@ public class ImportControllerTest {
     @Mock
     private ApiPatientService apiPatientService;
 
+    @Mock
+    private ApiPractitionerService apiPractitionerService;
+
     @InjectMocks
     private ImportController importController;
+
+    @Mock
+    private LetterService letterService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -61,6 +71,25 @@ public class ImportControllerTest {
     }
 
     @Test
+    public void testImportLetter() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/letter")
+                .content(mapper.writeValueAsString(new FhirDocumentReference()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(letterService, Mockito.times(1)).importLetter(any(FhirDocumentReference.class));
+    }
+
+    @Test
     public void testImportObservations() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -71,10 +100,8 @@ public class ImportControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        FhirObservationRange fhirObservationRange = new FhirObservationRange();
-
         mockMvc.perform(MockMvcRequestBuilders.post("/import/observations")
-                .content(mapper.writeValueAsString(fhirObservationRange)).contentType(MediaType.APPLICATION_JSON))
+                .content(mapper.writeValueAsString(new FhirObservationRange())).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(apiObservationService, Mockito.times(1)).importObservations(any(FhirObservationRange.class));
@@ -91,13 +118,30 @@ public class ImportControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        FhirPatient fhirPatient = new FhirPatient();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/import/patient")
-                .content(mapper.writeValueAsString(fhirPatient)).contentType(MediaType.APPLICATION_JSON))
+                .content(mapper.writeValueAsString(new FhirPatient())).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(apiPatientService, Mockito.times(1)).importPatient(any(FhirPatient.class));
+    }
+
+    @Test
+    public void testImportPractitioner() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/practitioner")
+                .content(mapper.writeValueAsString(new FhirPractitioner())).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(apiPractitionerService, Mockito.times(1)).importPractitioner(any(FhirPractitioner.class));
     }
 
 }

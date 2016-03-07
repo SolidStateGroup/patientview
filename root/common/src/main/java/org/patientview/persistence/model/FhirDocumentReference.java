@@ -12,15 +12,12 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
-public class FhirDocumentReference extends BaseModel {
+public class FhirDocumentReference extends BaseImport {
 
     private Date date;
     private String type;
     private String content;
     private Group group;
-
-    // used by migration
-    private String identifier;
 
     // only present for DocumentReference with associated Media and binary FileData
     private String filename;
@@ -83,14 +80,6 @@ public class FhirDocumentReference extends BaseModel {
 
     public void setGroup(Group group) {
         this.group = group;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
     }
 
     public String getFilename() {

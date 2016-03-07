@@ -12,6 +12,7 @@ import org.patientview.builder.DocumentReferenceBuilder;
 import org.patientview.builder.MediaBuilder;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.repository.AlertRepository;
@@ -287,6 +288,14 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
         LOG.trace(nhsno + ": Finished DocumentReference (letter) Process");
         LOG.info(nhsno + ": Processed {} of {} letters", success, count);
+    }
+
+    @Override
+    public void add(FhirDocumentReference fhirDocumentReference, FhirLink fhirLink)
+            throws FhirResourceException, SQLException {
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+
+        // todo
     }
 
     private String getLocationUuidFromLogicalUuid(UUID logicalId) throws FhirResourceException {
