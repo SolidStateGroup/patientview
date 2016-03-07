@@ -2,7 +2,6 @@ package org.patientview.service;
 
 import generated.Patientview;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,6 +23,6 @@ public interface PractitionerService {
 
     List<UUID> getPractitionerLogicalUuidsByName(String name) throws FhirResourceException;
 
-    // used by migration
-    UUID add(FhirPractitioner fhirPractitioner) throws ResourceNotFoundException, FhirResourceException;
+    // used by migration & importer
+    UUID add(FhirPractitioner fhirPractitioner) throws FhirResourceException;
 }

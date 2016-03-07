@@ -3,8 +3,10 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.ServerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,9 @@ public class ImportController extends BaseController<ImportController> {
     @Inject
     ApiPatientService apiPatientService;
 
+    @Inject
+    ApiPractitionerService apiPractitionerService;
+
     @RequestMapping(value = "/import/observations", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importObservations(@RequestBody FhirObservationRange fhirObservationRange) {
         return new ResponseEntity<>(apiObservationService.importObservations(fhirObservationRange), HttpStatus.OK);
@@ -33,5 +38,10 @@ public class ImportController extends BaseController<ImportController> {
     @RequestMapping(value = "/import/patient", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importPatient(@RequestBody FhirPatient fhirPatient) {
         return new ResponseEntity<>(apiPatientService.importPatient(fhirPatient), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/import/practitioner", method = RequestMethod.POST)
+    public ResponseEntity<ServerResponse> importPractitioner(@RequestBody FhirPractitioner fhirPractitioner) {
+        return new ResponseEntity<>(apiPractitionerService.importPractitioner(fhirPractitioner), HttpStatus.OK);
     }
 }
