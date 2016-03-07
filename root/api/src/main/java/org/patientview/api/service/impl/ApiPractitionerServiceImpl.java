@@ -15,6 +15,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
+import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
@@ -26,6 +27,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.GpLetterService;
 import org.patientview.service.PractitionerService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,9 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private GpLetterService gpLetterService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -140,6 +145,7 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
             fhirLink.setVersionId(patientEntity.getVersionId());
             fhirLink.setResourceType(ResourceType.Patient.name());
             fhirLink.setActive(true);
+            fhirLink.setIsNew(true);
 
             if (CollectionUtils.isEmpty(user.getFhirLinks())) {
                 user.setFhirLinks(new HashSet<FhirLink>());
@@ -251,6 +257,30 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
             } catch (FhirResourceException fre) {
                 return new ServerResponse("error updating practitioner");
             }
+        }
+
+        // generate invite letter, if it meets the criteria
+        try {
+            GpLetter gpLetter = new GpLetter();
+
+            // gp details
+            gpLetter.setGpName(fhirPractitioner.getName());
+            gpLetter.setGpAddress1(fhirPractitioner.getAddress1());
+            gpLetter.setGpAddress2(fhirPractitioner.getAddress2());
+            gpLetter.setGpAddress3(fhirPractitioner.getAddress3());
+            gpLetter.setGpAddress4(fhirPractitioner.getAddress4());
+            gpLetter.setGpPostcode(fhirPractitioner.getPostcode());
+
+            // patient details
+            FhirPatient fhirPatient = new FhirPatient(patient);
+            gpLetter.setPatientForename(fhirPatient.getForename());
+            gpLetter.setPatientSurname(fhirPatient.getSurname());
+            gpLetter.setPatientDateOfBirth(fhirPatient.getDateOfBirth());
+            gpLetter.setPatientIdentifier(fhirPractitioner.getIdentifier());
+
+            gpLetterService.createGpLetter(fhirLink, gpLetter);
+        } catch (Exception e) {
+            LOG.info("Could not create GP letter, continuing: " + e.getMessage());
         }
 
         return new ServerResponse(null, "done", true);

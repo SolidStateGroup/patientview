@@ -50,8 +50,8 @@ public class FhirPatient extends BaseImport {
         // date of birth if present
         DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
         if (fhirDateOfBirth != null) {
-            dateOfBirth = fhirDateOfBirth.toCalendar().getTime();
-            dateOfBirthNoTime = fhirDateOfBirth.toString().split("T")[0];
+            this.dateOfBirth = fhirDateOfBirth.toCalendar().getTime();
+            this.dateOfBirthNoTime = fhirDateOfBirth.toString().split("T")[0];
         }
 
         // gender/sex

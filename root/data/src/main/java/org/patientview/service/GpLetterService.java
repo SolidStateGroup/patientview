@@ -26,6 +26,8 @@ public interface GpLetterService {
 
     void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException;
 
+    void createGpLetter(FhirLink fhirLink, GpLetter gpLetter) throws ResourceNotFoundException;
+
     String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
         throws DocumentException;
 
@@ -33,13 +35,7 @@ public interface GpLetterService {
 
     boolean hasValidPracticeDetails(GpLetter gpLetter);
 
-    boolean hasValidPracticeDetails(Patientview patientview);
-
     boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter);
-
-    boolean hasValidPracticeDetailsSingleMaster(Patientview patientview);
-
-    List<GpLetter> matchByGpDetails(Patientview patientview);
 
     List<GpLetter> matchByGpDetails(GpLetter gpLetter);
 }

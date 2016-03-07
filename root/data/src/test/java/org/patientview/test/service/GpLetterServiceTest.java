@@ -222,6 +222,15 @@ public class GpLetterServiceTest extends BaseTest {
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
 
+        // patient details
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
         // user
         User user = TestUtils.createUser("testUser");
         Identifier identifier = TestUtils.createIdentifier(
@@ -316,6 +325,15 @@ public class GpLetterServiceTest extends BaseTest {
         gpdetails.setGpaddress3("address3");
         gpdetails.setGppostcode("AB1 23C");
         patientview.setGpdetails(gpdetails);
+
+        // patient details
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
 
         User user = TestUtils.createUser("testUser");
         Identifier identifier = TestUtils.createIdentifier(

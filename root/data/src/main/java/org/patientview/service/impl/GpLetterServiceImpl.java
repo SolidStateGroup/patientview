@@ -219,52 +219,79 @@ public class GpLetterServiceImpl implements GpLetterService {
 
     @Override
     public void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException {
+        Patientview.Gpdetails gp = patientview.getGpdetails();
+        Patientview.Patient.Personaldetails personaldetails = patientview.getPatient().getPersonaldetails();
+
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
+        gpLetter.setPatientForename(personaldetails.getForename());
+        gpLetter.setPatientSurname(personaldetails.getSurname());
+        if (personaldetails.getDateofbirth() != null) {
+            gpLetter.setPatientDateOfBirth(personaldetails.getDateofbirth().toGregorianCalendar().getTime());
+        }
+        gpLetter.setPatientIdentifier(personaldetails.getNhsno());
+
+        createGpLetter(fhirLink, gpLetter);
+    }
+
+    @Override
+    public void createGpLetter(FhirLink fhirLink, GpLetter gpLetter) throws ResourceNotFoundException {
         // verbose logging
-        LOG.info("fhirLink.isNew(): " + fhirLink.isNew());
-        LOG.info("hasValidPracticeDetails(): " + hasValidPracticeDetails(patientview));
-        LOG.info("hasValidPracticeDetailsSingleMaster(): " + hasValidPracticeDetailsSingleMaster(patientview));
+        String identifier = gpLetter.getPatientIdentifier();
+        LOG.info(identifier + ": fhirLink.isNew(): " + fhirLink.isNew());
+        LOG.info(identifier + ": hasValidPracticeDetails(): " + hasValidPracticeDetails(gpLetter));
+        LOG.info(identifier + ": hasValidPracticeDetailsSingleMaster(): "
+                + hasValidPracticeDetailsSingleMaster(gpLetter));
 
         // check FhirLink is new and GP details are suitable for using in GP letter table (either enough details
         // or only have postcode but no more than one in Gp master table)
         if (fhirLink.isNew()
-                && (hasValidPracticeDetails(patientview) || hasValidPracticeDetailsSingleMaster(patientview))) {
+                && (hasValidPracticeDetails(gpLetter) || hasValidPracticeDetailsSingleMaster(gpLetter))) {
             // check if any entries exist matching GP details in GP letter table
-            List<GpLetter> gpLetters = matchByGpDetails(patientview);
+            List<GpLetter> existingGpLetters = matchByGpDetails(gpLetter);
 
             // verbose logging
-            LOG.info("gpLetters.size(): " + gpLetters.size());
+            LOG.info(identifier + ": gpLetters.size(): " + existingGpLetters.size());
 
-            if (!CollectionUtils.isEmpty(gpLetters)) {
+            if (!CollectionUtils.isEmpty(existingGpLetters)) {
                 // match exists, check if first entry is claimed (all will be claimed if so)
-                if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getClaimedGroup() != null) {
-                    LOG.info("gpLetters(0) is claimed, add group role for group "
-                            + gpLetters.get(0).getClaimedGroup().getCode());
+                if (existingGpLetters.get(0).getClaimedDate() != null
+                        && existingGpLetters.get(0).getClaimedGroup() != null) {
+                    LOG.info(identifier + " gpLetters(0) is claimed, add group role for group "
+                            + existingGpLetters.get(0).getClaimedGroup().getCode());
 
                     // add GroupRole for this patient and GP group
-                    addGroupRole(
-                            fhirLink.getUser().getId(), gpLetters.get(0).getClaimedGroup().getId(), RoleType.PATIENT);
+                    addGroupRole(fhirLink.getUser().getId(),
+                            existingGpLetters.get(0).getClaimedGroup().getId(),
+                            RoleType.PATIENT);
                 } else {
-                    LOG.info("gpLetters(0) is not claimed, checking gp name is unique");
+                    LOG.info(identifier + ": gpLetters(0) is not claimed, checking gp name is unique");
 
                     // entries exist but not claimed, check GP name against existing GP letter entries
                     boolean gpNameExists = false;
-                    for (GpLetter gpLetter : gpLetters) {
-                        if (gpLetter.getGpName().equals(patientview.getGpdetails().getGpname())) {
+                    for (GpLetter existingGpLetter : existingGpLetters) {
+                        if (existingGpLetter.getGpName().equals(gpLetter.getGpName())) {
                             gpNameExists = true;
                         }
                     }
 
                     if (!gpNameExists) {
-                        LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
+                        LOG.info(identifier + ": gpLetters(0) is not claimed, no entry exists, create new letter");
                         // no entry for this specific GP name, create new entry
-                        add(patientview, fhirLink.getGroup());
+                        add(gpLetter, fhirLink.getGroup());
                     }
                 }
             } else {
-                LOG.info("gpLetters is empty, create new letter");
+                LOG.info(identifier + ": gpLetters is empty, create new letter");
 
                 // GP details do not match any in GP letter table, create new entry
-                add(patientview, fhirLink.getGroup());
+                add(gpLetter, fhirLink.getGroup());
             }
         }
     }
@@ -297,27 +324,6 @@ public class GpLetterServiceImpl implements GpLetterService {
     }
 
     @Override
-    public boolean hasValidPracticeDetails(Patientview patientview) {
-        // check gpdetails section is present
-        if (patientview.getGpdetails() == null) {
-            return false;
-        }
-
-        Patientview.Gpdetails gp = patientview.getGpdetails();
-
-        // convert to GpLetter and check using shared service
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(gp.getGpname());
-        gpLetter.setGpAddress1(gp.getGpaddress1());
-        gpLetter.setGpAddress2(gp.getGpaddress2());
-        gpLetter.setGpAddress3(gp.getGpaddress3());
-        gpLetter.setGpAddress4(gp.getGpaddress4());
-        gpLetter.setGpPostcode(gp.getGppostcode());
-
-        return hasValidPracticeDetails(gpLetter);
-    }
-
-    @Override
     public boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
         // check postcode is set
         if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
@@ -326,27 +332,6 @@ public class GpLetterServiceImpl implements GpLetterService {
 
         // validate postcode exists in GP master table and only one record
         return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")).size() == 1;
-    }
-
-    @Override
-    public boolean hasValidPracticeDetailsSingleMaster(Patientview patientview) {
-        // check gpdetails section is present
-        if (patientview.getGpdetails() == null) {
-            return false;
-        }
-
-        Patientview.Gpdetails gp = patientview.getGpdetails();
-
-        // convert to GpLetter and check using shared service
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(gp.getGpname());
-        gpLetter.setGpAddress1(gp.getGpaddress1());
-        gpLetter.setGpAddress2(gp.getGpaddress2());
-        gpLetter.setGpAddress3(gp.getGpaddress3());
-        gpLetter.setGpAddress4(gp.getGpaddress4());
-        gpLetter.setGpPostcode(gp.getGppostcode());
-
-        return hasValidPracticeDetailsSingleMaster(gpLetter);
     }
 
     @Override
@@ -583,19 +568,5 @@ public class GpLetterServiceImpl implements GpLetterService {
         }
 
         return new ArrayList<>(matchedGpLetters);
-    }
-
-    @Override
-    public List<GpLetter> matchByGpDetails(Patientview patientview) {
-        // convert to GpLetter and check using shared service
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(patientview.getGpdetails().getGpname());
-        gpLetter.setGpAddress1(patientview.getGpdetails().getGpaddress1());
-        gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
-        gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
-        gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
-        gpLetter.setGpPostcode(patientview.getGpdetails().getGppostcode());
-
-        return matchByGpDetails(gpLetter);
     }
 }
