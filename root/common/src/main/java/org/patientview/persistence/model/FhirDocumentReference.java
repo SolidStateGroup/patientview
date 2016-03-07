@@ -25,6 +25,9 @@ public class FhirDocumentReference extends BaseImport {
     private Long fileDataId;
     private Long filesize;
 
+    // used for import of binary data
+    private String fileBase64;
+
     public FhirDocumentReference() {
     }
 
@@ -112,5 +115,13 @@ public class FhirDocumentReference extends BaseImport {
 
     public void setFileDataId(Long fileDataId) {
         this.fileDataId = fileDataId;
+    }
+
+    public String getFileBase64() {
+        return fileBase64;
+    }
+
+    public void setFileBase64(String fileBase64) {
+        this.fileBase64 = fileBase64;
     }
 }

@@ -155,7 +155,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                 if (locationUuid != null) {
                                     // delete associated media and binary data if present
                                     Media media
-                                            = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+                                        = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+
                                     if (media != null) {
                                         // delete media
                                         fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
@@ -164,7 +165,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                         try {
                                             if (fileDataRepository.exists(Long.valueOf(
                                                     media.getContent().getUrlSimple()))) {
-                                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                                                fileDataRepository.delete(
+                                                        Long.valueOf(media.getContent().getUrlSimple()));
                                             }
                                         } catch (NumberFormatException nfe) {
                                             LOG.info("Error deleting existing binary data, " +
@@ -291,11 +293,149 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     }
 
     @Override
-    public void add(FhirDocumentReference fhirDocumentReference, FhirLink fhirLink)
-            throws FhirResourceException, SQLException {
+    public void add(FhirDocumentReference fhirDocumentReference, FhirLink fhirLink) throws FhirResourceException {
+        Alert alert = null;
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
 
-        // todo
+        // get LETTER alert if exists for this user
+        List<Alert> alerts
+                = alertRepository.findByUserAndAlertType(fhirLink.getUser(), AlertTypes.LETTER);
+        if (!CollectionUtils.isEmpty(alerts)) {
+            alert = alerts.get(0);
+        }
+
+        // set up Media and DocumentReference builders and build DocumentReference
+        DocumentReferenceBuilder docBuilder = new DocumentReferenceBuilder(fhirDocumentReference, patientReference);
+        DocumentReference documentReference = docBuilder.build();
+        Date now = new Date();
+        FileData fileData = null;
+
+        // delete existing, matched by type and content
+        Map<String, String> existingMap = getExistingTypeAndContentBySubjectId(fhirLink);
+        List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
+
+        if (!existingUuids.isEmpty()) {
+            for (UUID existingUuid : existingUuids) {
+                String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+
+                if (locationUuid != null) {
+                    // delete associated media and binary data if present
+                    Media media = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+
+                    if (media != null) {
+                        // delete media
+                        fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
+
+                        // delete binary data
+                        try {
+                            if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                            }
+                        } catch (NumberFormatException nfe) {
+                            LOG.info("Error deleting existing letter binary data, " +
+                                    "Media reference to binary data is not Long, ignoring");
+                        }
+                    }
+                }
+
+                fhirResource.deleteEntity(existingUuid, "documentreference");
+            }
+        }
+
+        // create new binary file and Media if document reference has file body (base64 binary)
+        if (fhirDocumentReference.getFileBase64() != null) {
+
+            // set filename and type if not set in XML
+            if (StringUtils.isEmpty(fhirDocumentReference.getFilename())) {
+                fhirDocumentReference.setFilename(String.valueOf(now.getTime()));
+            }
+            if (StringUtils.isEmpty(fhirDocumentReference.getFiletype())) {
+                fhirDocumentReference.setFiletype("application/unknown");
+            }
+
+            // build Media
+            MediaBuilder mediaBuilder = new MediaBuilder(fhirDocumentReference);
+            mediaBuilder.build();
+            Media media = mediaBuilder.getMedia();
+
+            // create binary file
+            fileData = new FileData();
+            fileData.setCreated(now);
+
+            // title
+            if (media.getContent().getTitle() != null) {
+                fileData.setName(media.getContent().getTitleSimple());
+            } else {
+                fileData.setName(String.valueOf(now.getTime()));
+            }
+
+            // type
+            if (media.getContent().getContentType() != null) {
+                fileData.setType(media.getContent().getContentTypeSimple());
+            } else {
+                fileData.setType("application/unknown");
+            }
+
+            // convert base64 string to binary
+            byte[] content = CommonUtils.base64ToByteArray(fhirDocumentReference.getFileBase64());
+            fileData.setContent(content);
+            fileData.setSize(Long.valueOf(content.length));
+
+            // persist to patientview file data
+            fileData = fileDataRepository.save(fileData);
+
+            // update Media with extra fields
+            media = mediaBuilder.setFileDataId(media, fileData.getId());
+            media = mediaBuilder.setFileSize(media, content.length);
+
+            // create Media and set DocumentReference location to newly created Media logicalId
+            try {
+                FhirDatabaseEntity createdMedia
+                        = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+                documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
+            } catch (FhirResourceException e) {
+                fileDataRepository.delete(fileData);
+                throw new FhirResourceException("Unable to create Media, cleared binary data");
+            }
+        }
+
+        // create new DocumentReference
+        try {
+            fhirResource.createEntity(
+                    documentReference, ResourceType.DocumentReference.name(), "documentreference");
+        } catch (FhirResourceException e) {
+            fileDataRepository.delete(fileData);
+            throw new FhirResourceException("Unable to create DocumentReference, cleared binary data");
+        }
+
+        // handle updated alerts
+        if (alert != null) {
+            if (alert.getLatestDate() == null) {
+                alert.setLatestDate(fhirDocumentReference.getDate());
+                alert.setLatestValue(fhirDocumentReference.getType());
+                alert.setEmailAlertSent(false);
+                alert.setWebAlertViewed(false);
+                alert.setUpdated(true);
+            } else {
+                if (alert.getLatestDate().getTime() < fhirDocumentReference.getDate().getTime()) {
+                    alert.setLatestDate(fhirDocumentReference.getDate());
+                    alert.setLatestValue(fhirDocumentReference.getType());
+                    alert.setEmailAlertSent(false);
+                    alert.setWebAlertViewed(false);
+                    alert.setUpdated(true);
+                }
+            }
+
+            Alert entityAlert = alertRepository.findOne(alert.getId());
+            if (entityAlert != null) {
+                entityAlert.setLatestValue(alert.getLatestValue());
+                entityAlert.setLatestDate(alert.getLatestDate());
+                entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
+                entityAlert.setLastUpdate(new Date());
+                alertRepository.save(entityAlert);
+            }
+        }
     }
 
     private String getLocationUuidFromLogicalUuid(UUID logicalId) throws FhirResourceException {

@@ -450,8 +450,6 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
             documentReferenceService.add(fhirDocumentReference, fhirLink);
         } catch (FhirResourceException e) {
             return new ServerResponse("error adding letter: " + e.getMessage());
-        } catch (SQLException e) {
-            return new ServerResponse("SQL error adding letter: " + e.getMessage());
         }
 
         return new ServerResponse(null, "done", true);

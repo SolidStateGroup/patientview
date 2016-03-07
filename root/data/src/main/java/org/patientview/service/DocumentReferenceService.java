@@ -18,5 +18,5 @@ public interface DocumentReferenceService {
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
 
-    void add(FhirDocumentReference fhirDocumentReference, FhirLink fhirLink) throws FhirResourceException, SQLException;
+    void add(FhirDocumentReference fhirDocumentReference, FhirLink fhirLink) throws FhirResourceException;
 }

@@ -9,6 +9,7 @@ import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Media;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.FhirDocumentReference;
 
 /**
  * This maps between parameters from old PatientView and the new PatientView fhir record
@@ -19,15 +20,20 @@ import org.patientview.config.utils.CommonUtils;
 public class MediaBuilder {
 
     private Diagnostic diagnostic;
+    private FhirDocumentReference fhirDocumentReference;
     private Letter letter;
     private Media media;
 
-    public MediaBuilder(Letter letter) {
-        this.letter = letter;
-    }
-
     public MediaBuilder(Diagnostic diagnostic) {
         this.diagnostic = diagnostic;
+    }
+
+    public MediaBuilder(FhirDocumentReference fhirDocumentReference) {
+        this.fhirDocumentReference = fhirDocumentReference;
+    }
+
+    public MediaBuilder(Letter letter) {
+        this.letter = letter;
     }
 
     public void build() throws FhirResourceException {
@@ -79,6 +85,21 @@ public class MediaBuilder {
             // file type
             if (StringUtils.isNotEmpty(diagnostic.getDiagnosticfiletype())) {
                 attachment.setContentTypeSimple(diagnostic.getDiagnosticfiletype());
+            }
+        } else if (fhirDocumentReference != null) {
+            // date
+            if (fhirDocumentReference.getDate() != null) {
+                media.setDateTimeSimple(new DateAndTime(fhirDocumentReference.getDate()));
+            }
+
+            // filename
+            if (StringUtils.isNotEmpty(fhirDocumentReference.getFilename())) {
+                attachment.setTitleSimple(fhirDocumentReference.getFilename());
+            }
+
+            // file type
+            if (StringUtils.isNotEmpty(fhirDocumentReference.getFiletype())) {
+                attachment.setTitleSimple(fhirDocumentReference.getFiletype());
             }
         }
 
