@@ -1,14 +1,11 @@
-package org.patientview.api.service;
+package org.patientview.service;
 
-import org.patientview.api.model.Audit;
-import org.patientview.persistence.model.Group;
-import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +28,12 @@ public interface AuditService {
      * @param sourceObjectType AuditObjectTypes type of the object being audited, e.g. Group or User
      * @param group Group, if relevant to Audit action, e.g. adding User to Group
      */
-    void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
-                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group);
+    void createAudit(AuditActions auditActions, String username, User actor,
+                     Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group);
+
+    // used by queue processor
+    void createAudit(AuditActions auditActions, String identifier, String unitCode,
+                     String information, String xml, Long importerUserId);
 
     /**
      * Remove all Audit entries associated with a User.
@@ -40,15 +41,7 @@ public interface AuditService {
      */
     void deleteUserFromAudit(User user);
 
-    /**
-     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
-     * of page etc
-     * @return Page containing a number of Audit objects, each of which has a Date, Action etc
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    Page<Audit> findAll(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
+    Long getImporterUserId() throws ResourceNotFoundException;
 
     /**
      * Set xml column to NULL for older audit entries, configured by properties file
@@ -60,5 +53,5 @@ public interface AuditService {
      * @param audit Audit object to update
      * @return Updated Audit object
      */
-    org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit);
+    Audit save(Audit audit);
 }

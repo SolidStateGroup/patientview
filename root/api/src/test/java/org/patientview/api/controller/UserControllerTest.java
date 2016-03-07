@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;

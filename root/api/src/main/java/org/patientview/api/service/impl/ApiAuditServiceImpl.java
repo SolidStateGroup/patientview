@@ -1,15 +1,14 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.patientview.api.model.BaseGroup;
-import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
+import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.User;
+import org.patientview.api.service.ApiAuditService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.api.model.User;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.enums.AuditActions;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
@@ -39,7 +37,7 @@ import java.util.Properties;
  * Created on 06/08/2014
  */
 @Service
-public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> implements AuditService {
+public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl> implements ApiAuditService {
 
     @Inject
     private AuditRepository auditRepository;
@@ -49,9 +47,6 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
     @Inject
     private UserRepository userRepository;
-
-    @Inject
-    private Properties properties;
 
     /**
      * Convert a List of persistence Audit to api Audit for display in UI, adds details on source object if User or
@@ -84,7 +79,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
                         transportAudit.setSourceObjectUser(new User(sourceObject));
                     }
                 } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
-                    org.patientview.persistence.model.Group sourceObject
+                    Group sourceObject
                             = groupRepository.findOne(audit.getSourceObjectId());
 
                     if (sourceObject != null) {
@@ -98,48 +93,6 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         }
 
         return transportAudits;
-    }
-
-    /**
-     * Create an Audit item, given required properties.
-     * @param auditActions An AuditActions enum representing the type of Audit
-     * @param username String username
-     * @param actor User who is performing the action, can be a regular User or the importer User etc
-     * @param sourceObjectId ID of object being audited
-     * @param sourceObjectType AuditObjectTypes type of the object being audited, e.g. Group or User
-     * @param group Group, if relevant to Audit action, e.g. adding User to Group
-     */
-    @Override
-    public void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
-                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group) {
-
-        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
-        audit.setAuditActions(auditActions);
-        audit.setUsername(username);
-
-        if (actor != null) {
-            audit.setActorId(actor.getId());
-        }
-
-        if (group != null) {
-            audit.setGroup(groupRepository.findOne(group.getId()));
-        }
-
-        audit.setSourceObjectId(sourceObjectId);
-        if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType);
-        }
-
-        save(audit);
-    }
-
-    /**
-     * Remove all Audit entries associated with a User.
-     * @param user User to delete Audit entries for
-     */
-    @Override
-    public void deleteUserFromAudit(org.patientview.persistence.model.User user) {
-        auditRepository.removeActorId(user.getId());
     }
 
     /**
@@ -268,26 +221,4 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         List<Audit> transportContent = convertToTransport(audits.getContent());
         return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
     }
-
-    /**
-     * Set xml column to NULL for older audit entries, configured by properties file
-     */
-    @Override
-    public void removeOldAuditXml() {
-        if (Boolean.parseBoolean(properties.getProperty("remove.old.audit.xml"))) {
-            Integer days = Integer.parseInt(properties.getProperty("remove.old.audit.xml.days"));
-            auditRepository.removeOldAuditXml(new DateTime().minusDays(days).toDate());
-        }
-    }
-
-    /**
-     * Update an existing Audit object.
-     * @param audit Audit object to update
-     * @return Updated Audit object
-     */
-    @Override
-    public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
-        return auditRepository.save(audit);
-    }
-
 }

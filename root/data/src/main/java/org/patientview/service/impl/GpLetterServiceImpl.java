@@ -13,13 +13,28 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.service.GpLetterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,10 +65,25 @@ public class GpLetterServiceImpl implements GpLetterService {
     protected final Logger LOG = LoggerFactory.getLogger(GpLetterService.class);
 
     @Inject
+    private AuditService auditService;
+
+    @Inject
     private GpLetterRepository gpLetterRepository;
 
     @Inject
     private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Inject
     Properties properties;
@@ -127,6 +158,118 @@ public class GpLetterServiceImpl implements GpLetterService {
     }
 
     @Override
+    public void addGroupRole(Long userId, Long groupId, RoleType roleType) throws ResourceNotFoundException {
+        Long importUserId = auditService.getImporterUserId();
+        if (importUserId == null) {
+            throw new ResourceNotFoundException("Importer user ID not found");
+        }
+        User importerUser = userRepository.getOne(importUserId);
+        if (importerUser == null) {
+            throw new ResourceNotFoundException("Importer user not found");
+        }
+
+        User user = userRepository.getOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        List<Role> roles = roleRepository.findByRoleType(roleType);
+        if (CollectionUtils.isEmpty(roles)) {
+            throw new ResourceNotFoundException("Role not found");
+        }
+        Role role = roles.get(0);
+
+        if (groupRoleRepository.findByUserGroupRole(user, group, role) != null) {
+            throw new EntityExistsException();
+        }
+
+        GroupRole groupRole = new GroupRole(user, group, role);
+        groupRole.setCreator(importerUser);
+        groupRoleRepository.save(groupRole);
+
+        // add audit entry
+        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
+                importerUser, userId, AuditObjectTypes.User, group);
+
+        // check if group being added is GENERAL_PRACTICE type
+        if (group.getGroupType().getValue().equals(GroupTypes.GENERAL_PRACTICE.toString())) {
+            // check General Practice specialty exists (should always be true)
+            Group gpSpecialty = groupRepository.findByCode(HiddenGroupCodes.GENERAL_PRACTICE.toString());
+
+            if (gpSpecialty != null) {
+                // check if user already a member of the General Practice specialty, if not then add
+                if (!groupRoleRepository.userGroupRoleExists(user.getId(), gpSpecialty.getId(), role.getId())) {
+                    // not already a member, add to General Practice specialty
+                    GroupRole specialtyGroupRole = new GroupRole(user, gpSpecialty, role);
+                    specialtyGroupRole.setCreator(importerUser);
+                    groupRoleRepository.save(specialtyGroupRole);
+
+                    // add audit entry
+                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
+                            importerUser, userId, AuditObjectTypes.User, gpSpecialty);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void createGpLetter(FhirLink fhirLink, Patientview patientview) throws ResourceNotFoundException {
+        // verbose logging
+        LOG.info("fhirLink.isNew(): " + fhirLink.isNew());
+        LOG.info("hasValidPracticeDetails(): " + hasValidPracticeDetails(patientview));
+        LOG.info("hasValidPracticeDetailsSingleMaster(): " + hasValidPracticeDetailsSingleMaster(patientview));
+
+        // check FhirLink is new and GP details are suitable for using in GP letter table (either enough details
+        // or only have postcode but no more than one in Gp master table)
+        if (fhirLink.isNew()
+                && (hasValidPracticeDetails(patientview) || hasValidPracticeDetailsSingleMaster(patientview))) {
+            // check if any entries exist matching GP details in GP letter table
+            List<GpLetter> gpLetters = matchByGpDetails(patientview);
+
+            // verbose logging
+            LOG.info("gpLetters.size(): " + gpLetters.size());
+
+            if (!CollectionUtils.isEmpty(gpLetters)) {
+                // match exists, check if first entry is claimed (all will be claimed if so)
+                if (gpLetters.get(0).getClaimedDate() != null && gpLetters.get(0).getClaimedGroup() != null) {
+                    LOG.info("gpLetters(0) is claimed, add group role for group "
+                            + gpLetters.get(0).getClaimedGroup().getCode());
+
+                    // add GroupRole for this patient and GP group
+                    addGroupRole(
+                            fhirLink.getUser().getId(), gpLetters.get(0).getClaimedGroup().getId(), RoleType.PATIENT);
+                } else {
+                    LOG.info("gpLetters(0) is not claimed, checking gp name is unique");
+
+                    // entries exist but not claimed, check GP name against existing GP letter entries
+                    boolean gpNameExists = false;
+                    for (GpLetter gpLetter : gpLetters) {
+                        if (gpLetter.getGpName().equals(patientview.getGpdetails().getGpname())) {
+                            gpNameExists = true;
+                        }
+                    }
+
+                    if (!gpNameExists) {
+                        LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
+                        // no entry for this specific GP name, create new entry
+                        add(patientview, fhirLink.getGroup());
+                    }
+                }
+            } else {
+                LOG.info("gpLetters is empty, create new letter");
+
+                // GP details do not match any in GP letter table, create new entry
+                add(patientview, fhirLink.getGroup());
+            }
+        }
+    }
+
+    @Override
     public boolean hasValidPracticeDetails(GpLetter gpLetter) {
         // check postcode is set
         if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
@@ -172,71 +315,6 @@ public class GpLetterServiceImpl implements GpLetterService {
         gpLetter.setGpPostcode(gp.getGppostcode());
 
         return hasValidPracticeDetails(gpLetter);
-    }
-
-    @Override
-    public List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
-        Set<GpLetter> matchedGpLetters = new HashSet<>();
-
-        if (hasValidPracticeDetails(gpLetter)) {
-            // match using postcode and at least 2 of address1, address2, address3
-            // handle postcodes with and without spaces
-            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
-            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
-
-            for (GpLetter gpLetterEntity : gpLetters) {
-                int fieldCount = 0;
-
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress1())) {
-                    if (gpLetter.getGpAddress1().equals(gpLetterEntity.getGpAddress1())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress2())) {
-                    if (gpLetter.getGpAddress2().equals(gpLetterEntity.getGpAddress2())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())
-                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress3())) {
-                    if (gpLetter.getGpAddress3().equals(gpLetterEntity.getGpAddress3())) {
-                        fieldCount++;
-                    }
-                }
-
-                if (fieldCount > 1) {
-                    matchedGpLetters.add(gpLetterEntity);
-                }
-            }
-        }
-
-        if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
-            // match using postcode (already checked only 1 practice with this postcode in GP master table)
-            // handle with and without spaces in postcode
-            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
-            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
-            matchedGpLetters.addAll(gpLetters);
-        }
-
-        return new ArrayList<>(matchedGpLetters);
-    }
-
-    @Override
-    public List<GpLetter> matchByGpDetails(Patientview patientview) {
-        // convert to GpLetter and check using shared service
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(patientview.getGpdetails().getGpname());
-        gpLetter.setGpAddress1(patientview.getGpdetails().getGpaddress1());
-        gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
-        gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
-        gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
-        gpLetter.setGpPostcode(patientview.getGpdetails().getGppostcode());
-
-        return matchByGpDetails(gpLetter);
     }
 
     @Override
@@ -454,5 +532,70 @@ public class GpLetterServiceImpl implements GpLetterService {
         return RandomStringUtils.randomAlphanumeric(7)
                 .replace("o", "p").replace("0", "2").replace("1", "3").replace("l", "m").replace("i", "j")
                 .toUpperCase();
+    }
+
+    @Override
+    public List<GpLetter> matchByGpDetails(GpLetter gpLetter) {
+        Set<GpLetter> matchedGpLetters = new HashSet<>();
+
+        if (hasValidPracticeDetails(gpLetter)) {
+            // match using postcode and at least 2 of address1, address2, address3
+            // handle postcodes with and without spaces
+            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
+
+            for (GpLetter gpLetterEntity : gpLetters) {
+                int fieldCount = 0;
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress1())) {
+                    if (gpLetter.getGpAddress1().equals(gpLetterEntity.getGpAddress1())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress2())) {
+                    if (gpLetter.getGpAddress2().equals(gpLetterEntity.getGpAddress2())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())
+                        && StringUtils.isNotEmpty(gpLetterEntity.getGpAddress3())) {
+                    if (gpLetter.getGpAddress3().equals(gpLetterEntity.getGpAddress3())) {
+                        fieldCount++;
+                    }
+                }
+
+                if (fieldCount > 1) {
+                    matchedGpLetters.add(gpLetterEntity);
+                }
+            }
+        }
+
+        if (hasValidPracticeDetailsSingleMaster(gpLetter)) {
+            // match using postcode (already checked only 1 practice with this postcode in GP master table)
+            // handle with and without spaces in postcode
+            Set<GpLetter> gpLetters = new HashSet<>(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode()));
+            gpLetters.addAll(gpLetterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")));
+            matchedGpLetters.addAll(gpLetters);
+        }
+
+        return new ArrayList<>(matchedGpLetters);
+    }
+
+    @Override
+    public List<GpLetter> matchByGpDetails(Patientview patientview) {
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(patientview.getGpdetails().getGpname());
+        gpLetter.setGpAddress1(patientview.getGpdetails().getGpaddress1());
+        gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
+        gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
+        gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
+        gpLetter.setGpPostcode(patientview.getGpdetails().getGppostcode());
+
+        return matchByGpDetails(gpLetter);
     }
 }

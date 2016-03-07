@@ -7,7 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;

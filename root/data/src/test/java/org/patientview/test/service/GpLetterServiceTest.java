@@ -8,28 +8,48 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.service.GpLetterService;
 import org.patientview.service.impl.GpLetterServiceImpl;
 import org.patientview.test.util.TestUtils;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 public class GpLetterServiceTest extends BaseTest {
+
+    @Mock
+    AuditService auditService;
 
     @Mock
     GpLetterRepository gpLetterRepository;
@@ -39,6 +59,18 @@ public class GpLetterServiceTest extends BaseTest {
 
     @InjectMocks
     GpLetterService gpLetterService = new GpLetterServiceImpl();
+
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
+    GroupRoleRepository groupRoleRepository;
+
+    @Mock
+    RoleRepository roleRepository;
+
+    @Mock
+    UserRepository userRepository;
 
     @Mock
     Properties properties;
@@ -82,7 +114,7 @@ public class GpLetterServiceTest extends BaseTest {
 
         gpLetterService.add(patientview, sourceGroup);
 
-        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterRepository, times(1)).save(any(GpLetter.class));
     }
 
     @Test
@@ -120,7 +152,284 @@ public class GpLetterServiceTest extends BaseTest {
 
         gpLetterService.add(patientview, sourceGroup);
 
-        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterRepository, times(1)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testCreateGpLetter_noneExistingCheckMaster() throws ResourceNotFoundException {
+        Patientview patientview = new Patientview();
+
+        // patient details
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
+        // gp details
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+        gpdetails.setGpname("gpName");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        // user
+        User user = TestUtils.createUser("testUser");
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(
+                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
+                user, "1111111111");
+        Group sourceGroup = TestUtils.createGroup("testGroup");
+
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier, sourceGroup);
+        fhirLink.setIsNew(true);
+
+        // returned from gp master
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("practiceName");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+        when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
+
+        gpLetterService.createGpLetter(fhirLink, patientview);
+
+        // will not add group role
+        verify(groupRoleRepository, times(0)).save(any(GroupRole.class));
+
+        // will add GP letter
+        verify(gpLetterRepository, times(1)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testCreateGpLetter_notNewFhirPatient() throws ResourceNotFoundException {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        // gp details
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        // user
+        User user = TestUtils.createUser("testUser");
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(
+                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
+                user, "1111111111");
+
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
+
+        gpLetterService.createGpLetter(fhirLink, patientview);
+
+        // will not add group role
+        verify(groupRoleRepository, times(0)).save(any(GroupRole.class));
+
+        // will not add GP letter
+        verify(gpLetterRepository, times(0)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testCreateGpLetter_existsWithNameNotClaimed() throws ResourceNotFoundException {
+        Patientview patientview = new Patientview();
+
+        // patient details
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
+        // gp details
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+        gpdetails.setGpname("gpName");
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        User user = TestUtils.createUser("testUser");
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(
+                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
+                user, "1111111111");
+        Group sourceGroup = TestUtils.createGroup("testGroup");
+
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier, sourceGroup);
+        fhirLink.setIsNew(true);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gpdetails.getGpname());
+
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        // returned from gp master
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("practiceName");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("ABC123C");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        // already exists
+        when(gpLetterRepository.findByPostcode(eq(gpMaster.getPostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+        when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
+
+        gpLetterService.createGpLetter(fhirLink, patientview);
+
+        // will not add group role
+        verify(groupRoleRepository, times(0)).save(any(GroupRole.class));
+
+        // will not add GP letter
+        verify(gpLetterRepository, times(0)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testCreateGpLetter_existsWithNameClaimed() throws ResourceNotFoundException {
+        Patientview patientview = new Patientview();
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+
+        gpdetails.setGpname("gpName");
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        User user = TestUtils.createUser("testUser");
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(
+                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
+                user, "1111111111");
+
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
+        fhirLink.setIsNew(true);
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gpdetails.getGpname());
+        gpLetter.setClaimedGroup(group);
+        gpLetter.setClaimedDate(new Date());
+
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        // returned from gp master
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPracticeName("practiceName");
+        gpMaster.setAddress1("address1");
+        gpMaster.setAddress2("address2");
+        gpMaster.setAddress3("address3");
+        gpMaster.setAddress4("address4");
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("ABC123C");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        User importerUser = TestUtils.createUser("importerUser");
+
+        when(auditService.getImporterUserId()).thenReturn(importerUser.getId());
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+        when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
+        when(roleRepository.findByRoleType(eq(RoleType.PATIENT))).thenReturn(roles);
+        when(userRepository.getOne(eq(importerUser.getId()))).thenReturn(importerUser);
+        when(userRepository.getOne(eq(user.getId()))).thenReturn(user);
+
+        gpLetterService.createGpLetter(fhirLink, patientview);
+
+        // will add group role
+        verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
+
+        // will not add new Gp letter
+        verify(gpLetterRepository, times(0)).save(any(GpLetter.class));
+    }
+
+    @Test
+    public void testCreateGpLetter_existsDifferentNameNotClaimed() throws ResourceNotFoundException {
+        Patientview patientview = new Patientview();
+
+        // patient details
+        Patientview.Patient patient = new Patientview.Patient();
+        Patientview.Patient.Personaldetails personaldetails = new Patientview.Patient.Personaldetails();
+        personaldetails.setForename("forename");
+        personaldetails.setSurname("surname");
+        personaldetails.setNhsno("1111111111");
+        patient.setPersonaldetails(personaldetails);
+        patientview.setPatient(patient);
+
+        // gp details
+        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+        gpdetails.setGpname("gpName");
+        gpdetails.setGpaddress1("address1");
+        gpdetails.setGpaddress2("address2");
+        gpdetails.setGpaddress3("address3");
+        gpdetails.setGppostcode("AB1 23C");
+        patientview.setGpdetails(gpdetails);
+
+        User user = TestUtils.createUser("testUser");
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(
+                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
+                user, "1111111111");
+        Group sourceGroup = TestUtils.createGroup("testGroup");
+
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier, sourceGroup);
+        fhirLink.setIsNew(true);
+
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName("anotherGpName");
+
+        List<GpLetter> gpLetters = new ArrayList<>();
+        gpLetters.add(gpLetter);
+
+        GpMaster gpMaster = new GpMaster();
+        gpMaster.setPostcode(gpdetails.getGppostcode());
+        gpMaster.setPracticeCode("A1234");
+        List<GpMaster> gpMasters = new ArrayList<>();
+        gpMasters.add(gpMaster);
+
+        when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
+        when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
+        when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
+        when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
+
+        gpLetterService.createGpLetter(fhirLink, patientview);
+
+        // will not add group role
+        verify(groupRoleRepository, times(0)).save(any(GroupRole.class));
+
+        // will add new Gp letter
+        verify(gpLetterRepository, times(1)).save(any(GpLetter.class));
     }
 
     @Test

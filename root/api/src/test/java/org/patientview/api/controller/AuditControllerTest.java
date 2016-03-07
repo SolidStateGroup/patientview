@@ -1,13 +1,12 @@
 package org.patientview.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.AuditService;
+import org.patientview.api.service.ApiAuditService;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,18 +14,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.Assert.fail;
-
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 12/11/2014
  */
 public class AuditControllerTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
-
     @Mock
-    private AuditService auditService;
+    ApiAuditService apiAuditService;
 
     @InjectMocks
     private AuditController auditController;
@@ -45,15 +40,10 @@ public class AuditControllerTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void testFindAll() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         String url = "/audit";
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
-
 }

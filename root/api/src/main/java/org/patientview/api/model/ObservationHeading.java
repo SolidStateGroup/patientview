@@ -5,7 +5,7 @@ package org.patientview.api.model;
  * Created by jamesr@solidstategroup.com
  * Created on 12/09/2014
  */
-public class ObservationHeading extends BaseObservationHeading{
+public class ObservationHeading extends BaseObservationHeading {
     private Long panel;
     private Long panelOrder;
     private Long decimalPlaces;
@@ -21,6 +21,17 @@ public class ObservationHeading extends BaseObservationHeading{
         this.panel = observationHeading.getDefaultPanel();
         this.panelOrder = observationHeading.getDefaultPanelOrder();
         this.decimalPlaces = observationHeading.getDecimalPlaces();
+
+        // BaseObservationHeading properties
+        setId(observationHeading.getId());
+        setCode(observationHeading.getCode());
+        setHeading(observationHeading.getHeading());
+        setName(observationHeading.getName());
+        setNormalRange(observationHeading.getNormalRange());
+        setUnits(observationHeading.getUnits());
+        setMinGraph(observationHeading.getMinGraph());
+        setMaxGraph(observationHeading.getMaxGraph());
+        setInfoLink(observationHeading.getInfoLink());
     }
 
     public Long getPanel() {

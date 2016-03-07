@@ -10,7 +10,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.model.FhirDocumentReference;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.service.FileDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.FhirResourceException;

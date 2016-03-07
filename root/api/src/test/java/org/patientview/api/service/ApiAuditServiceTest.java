@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.impl.AuditServiceImpl;
+import org.patientview.api.service.impl.ApiAuditServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
@@ -27,16 +27,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 12/11/2014
  */
-public class AuditServiceTest {
+public class ApiAuditServiceTest {
 
     User creator;
 
@@ -44,7 +42,7 @@ public class AuditServiceTest {
     AuditRepository auditRepository;
 
     @InjectMocks
-    AuditService auditService = new AuditServiceImpl();
+    ApiAuditService apiAuditService = new ApiAuditServiceImpl();
 
     @Mock
     Properties properties;
@@ -80,19 +78,9 @@ public class AuditServiceTest {
                 any(Pageable.class))).thenReturn(auditPage);
         when(userRepository.findOne(any(Long.class))).thenReturn(new User());
 
-        Page<org.patientview.api.model.Audit> returnedAudits = auditService.findAll(new GetParameters());
+        Page<org.patientview.api.model.Audit> returnedAudits = apiAuditService.findAll(new GetParameters());
 
         Assert.assertNotNull("There should be audit records", returnedAudits);
         Assert.assertEquals("There should be 1 audit record", 1, returnedAudits.getContent().size());
-    }
-
-    @Test
-    public void testRemoveOldAuditXml() {
-        when(properties.getProperty("remove.old.audit.xml")).thenReturn("true");
-        when(properties.getProperty("remove.old.audit.xml.days")).thenReturn("90");
-
-        auditService.removeOldAuditXml();
-
-        verify(auditRepository, times(1)).removeOldAuditXml(any(Date.class));
     }
 }
