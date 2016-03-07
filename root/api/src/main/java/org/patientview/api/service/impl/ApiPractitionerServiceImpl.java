@@ -247,15 +247,41 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
                 }
             }
 
+            // if practitioner is missing from FHIR, but linked to from patient (unlikely), need to create
+            boolean createPractitioner = practitioner == null;
+
             // now should have the GP practitioner and uuid, can update
             PractitionerBuilder practitionerBuilder = new PractitionerBuilder(practitioner, fhirPractitioner);
             practitioner = practitionerBuilder.build();
 
-            try {
-                fhirResource.updateEntity(
-                        practitioner, ResourceType.Practitioner.name(), "practitioner", practitionerUuid);
-            } catch (FhirResourceException fre) {
-                return new ServerResponse("error updating practitioner");
+            if (createPractitioner) {
+                try {
+                    // create practitioner
+                    FhirDatabaseEntity createdPractitioner
+                            = fhirResource.createEntity(practitioner, ResourceType.Practitioner.name(), "practitioner");
+
+                    // add to patient care providers
+                    ResourceReference careProvider = patient.addCareProvider();
+                    careProvider.setReferenceSimple("uuid");
+                    careProvider.setDisplaySimple(createdPractitioner.getLogicalId().toString());
+
+                    // update patient
+                    try {
+                        fhirResource.updateEntity(patient, ResourceType.Patient.name(), "patient",
+                                fhirLink.getResourceId());
+                    } catch (FhirResourceException fre) {
+                        return new ServerResponse("error updating patient with missing practitioner");
+                    }
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error creating missing practitioner");
+                }
+            } else {
+                try {
+                    fhirResource.updateEntity(
+                            practitioner, ResourceType.Practitioner.name(), "practitioner", practitionerUuid);
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error updating practitioner");
+                }
             }
         }
 
