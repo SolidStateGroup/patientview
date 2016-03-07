@@ -52,7 +52,7 @@ import org.patientview.persistence.util.DataUtils;
 import org.patientview.service.AllergyService;
 import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
-import org.patientview.service.GpLetterCreationService;
+import org.patientview.service.GpLetterService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +100,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private FhirResource fhirResource;
 
     @Inject
-    private GpLetterCreationService gpLetterCreationService;
+    private GpLetterService gpLetterService;
 
     @Inject
     private GpLetterRepository gpLetterRepository;
@@ -598,8 +598,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
                     if (gpLetters.isEmpty()) {
                         // no current gp letter, check gp details are suitable for creating gp letter
-                        if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
-                                || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
+                        if (gpLetterService.hasValidPracticeDetails(gpLetter)
+                                || gpLetterService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
                             fhirPractitioner.setAllowInviteGp(true);
                         }
                     } else {

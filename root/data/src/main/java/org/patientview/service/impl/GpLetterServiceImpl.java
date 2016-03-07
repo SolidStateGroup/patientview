@@ -8,6 +8,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
+import generated.Patientview;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,23 +16,27 @@ import org.hibernate.Hibernate;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.repository.GpLetterRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
-import org.patientview.service.GpLetterCreationService;
+import org.patientview.service.GpLetterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -39,15 +44,87 @@ import java.util.Set;
  * Created on 16/02/2016
  */
 @Service
-public class GpLetterCreationServiceImpl implements GpLetterCreationService {
+public class GpLetterServiceImpl implements GpLetterService {
 
-    protected final Logger LOG = LoggerFactory.getLogger(GpLetterCreationService.class);
+    protected final Logger LOG = LoggerFactory.getLogger(GpLetterService.class);
 
     @Inject
     private GpLetterRepository gpLetterRepository;
 
     @Inject
     private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    Properties properties;
+
+    @Override
+    @Transactional
+    public void add(GpLetter gpLetter, Group sourceGroup) {
+        gpLetter.setCreated(new Date());
+
+        // set identifier trimmed without spaces
+        gpLetter.setPatientIdentifier(gpLetter.getPatientIdentifier().trim().replace(" ", ""));
+
+        // signup key (generated)
+        gpLetter.setSignupKey(generateSignupKey());
+
+        // source group (provided the xml, from fhirlink)
+        gpLetter.setSourceGroup(sourceGroup);
+
+        // letter (generated)
+        try {
+            // if not enough information to produce letter address then use gp master
+            if (!hasValidPracticeDetails(gpLetter)) {
+                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", ""));
+                if (!gpMasters.isEmpty()) {
+                    gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
+                } else {
+                    gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0),
+                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
+                }
+            } else {
+                gpLetter.setLetterContent(generateLetter(gpLetter, null, properties.getProperty("site.url"),
+                        properties.getProperty("gp.letter.output.directory")));
+            }
+        } catch (DocumentException de) {
+            LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
+            gpLetter.setLetterContent(null);
+        }
+
+        gpLetterRepository.save(gpLetter);
+    }
+
+    @Override
+    @Transactional
+    public void add(Patientview patientview, Group sourceGroup) {
+        // get xml gp details
+        Patientview.Gpdetails gp = patientview.getGpdetails();
+        Patientview.Patient patient = patientview.getPatient();
+
+        GpLetter gpLetter = new GpLetter();
+
+        // patient details
+        gpLetter.setPatientForename(patient.getPersonaldetails().getForename());
+        gpLetter.setPatientSurname(patient.getPersonaldetails().getSurname());
+        if (patient.getPersonaldetails().getDateofbirth() != null) {
+            gpLetter.setPatientDateOfBirth(
+                    patient.getPersonaldetails().getDateofbirth().toGregorianCalendar().getTime());
+        }
+
+        // set identifier trimmed without spaces
+        gpLetter.setPatientIdentifier(patient.getPersonaldetails().getNhsno().trim().replace(" ", ""));
+
+        // gp details
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
+
+        add(gpLetter, sourceGroup);
+    }
 
     @Override
     public boolean hasValidPracticeDetails(GpLetter gpLetter) {
@@ -77,14 +154,24 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
     }
 
     @Override
-    public boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
-        // check postcode is set
-        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+    public boolean hasValidPracticeDetails(Patientview patientview) {
+        // check gpdetails section is present
+        if (patientview.getGpdetails() == null) {
             return false;
         }
 
-        // validate postcode exists in GP master table and only one record
-        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")).size() == 1;
+        Patientview.Gpdetails gp = patientview.getGpdetails();
+
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
+
+        return hasValidPracticeDetails(gpLetter);
     }
 
     @Override
@@ -136,6 +223,52 @@ public class GpLetterCreationServiceImpl implements GpLetterCreationService {
         }
 
         return new ArrayList<>(matchedGpLetters);
+    }
+
+    @Override
+    public List<GpLetter> matchByGpDetails(Patientview patientview) {
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(patientview.getGpdetails().getGpname());
+        gpLetter.setGpAddress1(patientview.getGpdetails().getGpaddress1());
+        gpLetter.setGpAddress2(patientview.getGpdetails().getGpaddress2());
+        gpLetter.setGpAddress3(patientview.getGpdetails().getGpaddress3());
+        gpLetter.setGpAddress4(patientview.getGpdetails().getGpaddress4());
+        gpLetter.setGpPostcode(patientview.getGpdetails().getGppostcode());
+
+        return matchByGpDetails(gpLetter);
+    }
+
+    @Override
+    public boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter) {
+        // check postcode is set
+        if (StringUtils.isEmpty(gpLetter.getGpPostcode())) {
+            return false;
+        }
+
+        // validate postcode exists in GP master table and only one record
+        return gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", "")).size() == 1;
+    }
+
+    @Override
+    public boolean hasValidPracticeDetailsSingleMaster(Patientview patientview) {
+        // check gpdetails section is present
+        if (patientview.getGpdetails() == null) {
+            return false;
+        }
+
+        Patientview.Gpdetails gp = patientview.getGpdetails();
+
+        // convert to GpLetter and check using shared service
+        GpLetter gpLetter = new GpLetter();
+        gpLetter.setGpName(gp.getGpname());
+        gpLetter.setGpAddress1(gp.getGpaddress1());
+        gpLetter.setGpAddress2(gp.getGpaddress2());
+        gpLetter.setGpAddress3(gp.getGpaddress3());
+        gpLetter.setGpAddress4(gp.getGpaddress4());
+        gpLetter.setGpPostcode(gp.getGppostcode());
+
+        return hasValidPracticeDetailsSingleMaster(gpLetter);
     }
 
     @Override

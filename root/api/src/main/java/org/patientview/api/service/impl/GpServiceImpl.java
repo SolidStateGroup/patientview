@@ -66,7 +66,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.service.GpLetterCreationService;
+import org.patientview.service.GpLetterService;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,7 +114,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private FhirResource fhirResource;
 
     @Inject
-    private GpLetterCreationService gpLetterCreationService;
+    private GpLetterService gpLetterService;
 
     @Inject
     private GpLetterRepository gpLetterRepository;
@@ -158,45 +158,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     private Date now;
     private String tempDirectory;
     private int total, newGp, existingGp;
-
-    private void add(GpLetter gpLetter, Group sourceGroup) {
-        gpLetter.setCreated(new Date());
-
-        // set identifier trimmed without spaces
-        gpLetter.setPatientIdentifier(gpLetter.getPatientIdentifier().trim().replace(" ", ""));
-
-        // signup key (generated)
-        gpLetter.setSignupKey(gpLetterCreationService.generateSignupKey());
-
-        // source group (provided the xml, from fhirlink)
-        gpLetter.setSourceGroup(sourceGroup);
-
-        // letter (generated)
-        try {
-            // if not enough information to produce letter address then use gp master
-            if (!gpLetterCreationService.hasValidPracticeDetails(gpLetter)) {
-                List<GpMaster> gpMasters = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", ""));
-                if (!gpMasters.isEmpty()) {
-                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                            gpLetter, gpMasters.get(0),
-                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
-                } else {
-                    gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                            gpLetter, gpMasters.get(0),
-                            properties.getProperty("site.url"), properties.getProperty("gp.letter.output.directory")));
-                }
-            } else {
-                gpLetter.setLetterContent(gpLetterCreationService.generateLetter(
-                        gpLetter, null, properties.getProperty("site.url"),
-                        properties.getProperty("gp.letter.output.directory")));
-            }
-        } catch (DocumentException de) {
-            LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
-            gpLetter.setLetterContent(null);
-        }
-
-        gpLetterRepository.save(gpLetter);
-    }
 
     private void addPracticesAndPatients(GpDetails gpDetails, GpLetter gpLetter) throws VerificationException {
         // get practices from GP master table by postcode, must return at least one
@@ -361,7 +322,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // claim all GP letters with same details
-        List<GpLetter> matchedGpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
+        List<GpLetter> matchedGpLetters = gpLetterService.matchByGpDetails(gpLetter);
         Date now = new Date();
         for (GpLetter matchedGpLetter : matchedGpLetters) {
             matchedGpLetter.setClaimedEmail(gpAdminUser.getEmail());
@@ -706,10 +667,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         gpLetter.setPatientIdentifier(patient.getIdentifiers().get(0).getValue());
 
         // same logic to check if ok as importer
-        if (gpLetterCreationService.hasValidPracticeDetails(gpLetter)
-                || gpLetterCreationService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
+        if (gpLetterService.hasValidPracticeDetails(gpLetter)
+                || gpLetterService.hasValidPracticeDetailsSingleMaster(gpLetter)) {
             // check if any entries exist matching GP details in GP letter table
-            List<GpLetter> existingGpLetters = gpLetterCreationService.matchByGpDetails(gpLetter);
+            List<GpLetter> existingGpLetters = gpLetterService.matchByGpDetails(gpLetter);
 
             // verbose logging
             LOG.info("existingGpLetters.size(): " + existingGpLetters.size());
@@ -730,7 +691,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                     if (!gpNameExists) {
                         LOG.info("gpLetters(0) is not claimed, no entry exists, create new letter");
                         // no entry for this specific GP name, create new entry
-                        add(gpLetter, sourceGroup);
+                        gpLetterService.add(gpLetter, sourceGroup);
                     } else {
                         throw new VerificationException("Your GP has already been invited to PatientView");
                     }
@@ -741,7 +702,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 LOG.info("gpLetters is empty, create new letter");
 
                 // GP details do not match any in GP letter table, create new entry
-                add(gpLetter, sourceGroup);
+                gpLetterService.add(gpLetter, sourceGroup);
             }
         } else {
             throw new VerificationException("Your GP details are incorrect, your GP cannot be invited");

@@ -1,8 +1,10 @@
 package org.patientview.service;
 
 import com.itextpdf.text.DocumentException;
+import generated.Patientview;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.GpMaster;
+import org.patientview.persistence.model.Group;
 
 import java.util.List;
 
@@ -10,16 +12,26 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 16/02/2016
  */
-public interface GpLetterCreationService {
+public interface GpLetterService {
+
+    void add(GpLetter gpLetter, Group sourceGroup);
+
+    void add(Patientview patientview, Group sourceGroup);
 
     String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
-    throws DocumentException;
+        throws DocumentException;
 
     String generateSignupKey();
 
     boolean hasValidPracticeDetails(GpLetter gpLetter);
 
+    boolean hasValidPracticeDetails(Patientview patientview);
+
     boolean hasValidPracticeDetailsSingleMaster(GpLetter gpLetter);
+
+    boolean hasValidPracticeDetailsSingleMaster(Patientview patientview);
+
+    List<GpLetter> matchByGpDetails(Patientview patientview);
 
     List<GpLetter> matchByGpDetails(GpLetter gpLetter);
 }
