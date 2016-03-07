@@ -200,6 +200,9 @@ public class LetterServiceTest {
                 = new org.patientview.persistence.model.FhirDocumentReference();
         fhirDocumentReference.setGroupCode(group.getCode());
         fhirDocumentReference.setIdentifier(identifier.getIdentifier());
+        fhirDocumentReference.setContent("some content");
+        fhirDocumentReference.setType("some type");
+        fhirDocumentReference.setDate(new Date());
 
         when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(existingPatient);
         when(groupRepository.findByCode(eq(fhirDocumentReference.getGroupCode()))).thenReturn(group);

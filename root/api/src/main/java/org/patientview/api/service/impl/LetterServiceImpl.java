@@ -319,6 +319,15 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         if (StringUtils.isEmpty(fhirDocumentReference.getIdentifier())) {
             return new ServerResponse("identifier not set");
         }
+        if (StringUtils.isEmpty(fhirDocumentReference.getContent())) {
+            return new ServerResponse("content not set");
+        }
+        if (StringUtils.isEmpty(fhirDocumentReference.getType())) {
+            return new ServerResponse("type not set");
+        }
+        if (fhirDocumentReference.getDate() == null) {
+            return new ServerResponse("date not set");
+        }
 
         Group group = groupRepository.findByCode(fhirDocumentReference.getGroupCode());
 
