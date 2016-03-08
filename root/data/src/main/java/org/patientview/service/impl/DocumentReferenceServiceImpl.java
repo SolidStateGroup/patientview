@@ -401,7 +401,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 alert.setWebAlertViewed(false);
                 alert.setUpdated(true);
             } else {
-                if (alert.getLatestDate().getTime() < fhirDocumentReference.getDate().getTime()) {
+                if (fhirDocumentReference.getDate() != null
+                        && alert.getLatestDate().getTime() < fhirDocumentReference.getDate().getTime()) {
                     alert.setLatestDate(fhirDocumentReference.getDate());
                     alert.setLatestValue(fhirDocumentReference.getType());
                     alert.setEmailAlertSent(false);
@@ -429,8 +430,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
      * @param existingMap Map<String, String> of key (DocumentReference UUID) to value (type + content)
      * @return List of logical UUID for existing DocumentReferences that match the input DocumentReference
      */
-    private List<UUID> getExistingByTypeAndContent(DocumentReference documentReference, Map<String,
-            String> existingMap) {
+    private List<UUID> getExistingByTypeAndContent(DocumentReference documentReference,
+                                                   Map<String, String> existingMap) {
         List<UUID> existingByDateAndContent = new ArrayList<>();
 
         if (documentReference.getDescriptionSimple() != null) {
@@ -457,5 +458,3 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         return existingByDateAndContent;
     }
 }
-
-
