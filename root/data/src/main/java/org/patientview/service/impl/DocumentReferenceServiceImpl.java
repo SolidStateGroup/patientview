@@ -1,18 +1,19 @@
 package org.patientview.service.impl;
 
 import generated.Patientview;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.DocumentReferenceBuilder;
 import org.patientview.builder.MediaBuilder;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDocumentReference;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.repository.AlertRepository;
@@ -21,24 +22,13 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.DocumentReferenceService;
 import org.patientview.util.Util;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,10 +43,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
     @Inject
     private AlertRepository alertRepository;
-
-    @Inject
-    @Named("fhir")
-    private BasicDataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
@@ -88,10 +74,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
         if (data.getPatient().getLetterdetails() != null) {
 
-            // get currently existing DocumentReference by subject Id, map of <logical Id, applies>
-            //Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
-            //Map<String, String> existingMap = getExistingDateAndContentBySubjectId(fhirLink);
-            Map<String, String> existingMap = getExistingTypeAndContentBySubjectId(fhirLink);
+            Map<String, String> existingMap
+                    = fhirResource.getExistingDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
 
             List<org.patientview.persistence.model.Identifier> identifiers
                     = identifierRepository.findByValue(nhsno);
@@ -135,8 +119,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                         }
 
                         // delete existing document reference, media and binary data if present
-                        //List<UUID> existingUuids = getExistingByDate(documentReference, existingMap);
-                        //List<UUID> existingUuids = getExistingByDateAndContent(documentReference, existingMap);
                         List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
 
                         if (!existingUuids.isEmpty()) {
@@ -150,7 +132,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                                     }
                                 }
 
-                                String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+                                String locationUuid
+                                    = fhirResource.getLocationUuidFromLogicalUuid(existingUuid, "documentreference");
 
                                 if (locationUuid != null) {
                                     // delete associated media and binary data if present
@@ -311,12 +294,13 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         FileData fileData = null;
 
         // delete existing, matched by type and content
-        Map<String, String> existingMap = getExistingTypeAndContentBySubjectId(fhirLink);
+        Map<String, String> existingMap
+                = fhirResource.getExistingDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
         List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
 
         if (!existingUuids.isEmpty()) {
             for (UUID existingUuid : existingUuids) {
-                String locationUuid = getLocationUuidFromLogicalUuid(existingUuid);
+                String locationUuid = fhirResource.getLocationUuidFromLogicalUuid(existingUuid, "documentreference");
 
                 if (locationUuid != null) {
                     // delete associated media and binary data if present
@@ -436,220 +420,6 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 alertRepository.save(entityAlert);
             }
         }
-    }
-
-    private String getLocationUuidFromLogicalUuid(UUID logicalId) throws FhirResourceException {
-        String output = null;
-
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT content->>'location' ");
-        query.append("FROM documentreference ");
-        query.append("WHERE logical_id = '");
-        query.append(logicalId.toString());
-        query.append("' ");
-
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                output = results.getString(1);
-            }
-
-            connection.close();
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-
-        return output;
-    }
-
-    private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink, String nhsno)
-            throws FhirResourceException, SQLException {
-        Map<String, Date> existingMap = new HashMap<>();
-
-        // build query
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id, content->>'created' ");
-        query.append("FROM documentreference ");
-        query.append("WHERE content -> 'subject' ->> 'display' = '");
-        query.append(fhirLink.getResourceId());
-        query.append("' ");
-
-        // execute and return map of logical ids and applies
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                try {
-                    Date applies = null;
-
-                    if (StringUtils.isNotEmpty(results.getString(2))) {
-                        String dateString = results.getString(2);
-                        XMLGregorianCalendar xmlDate
-                                = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
-                        applies = xmlDate.toGregorianCalendar().getTime();
-                    }
-
-                    existingMap.put(results.getString(1), applies);
-                } catch (DatatypeConfigurationException e) {
-                    LOG.error(nhsno + ": Error getting existing DocumentReference", e);
-                }
-            }
-
-            connection.close();
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-
-        return existingMap;
-    }
-
-    // check for existing by letter content
-    private Map<String, String> getExistingDateAndContentBySubjectId(FhirLink fhirLink, String nhsno)
-            throws FhirResourceException {
-        Map<String, String> existingMap = new HashMap<>();
-
-        // build query
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id, content->>'created', content->>'description' ");
-        query.append("FROM documentreference ");
-        query.append("WHERE content -> 'subject' ->> 'display' = '");
-        query.append(fhirLink.getResourceId());
-        query.append("' ");
-
-        // execute and return map of logical ids and applies
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                try {
-                    if (StringUtils.isNotEmpty(results.getString(2))) {
-                        String dateString = results.getString(2);
-                        XMLGregorianCalendar xmlDate
-                                = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
-                        Date applies = xmlDate.toGregorianCalendar().getTime();
-
-                        // get date without timestamp
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        Date dateWithoutTime = sdf.parse(sdf.format(applies));
-
-                        if (StringUtils.isNotEmpty(results.getString(3))) {
-                            existingMap.put(results.getString(1), dateWithoutTime.toString() + results.getString(3));
-                        }
-                    }
-                } catch (DatatypeConfigurationException | ParseException e) {
-                    LOG.error(nhsno + ": Error getting existing DocumentReference", e);
-                }
-            }
-
-            connection.close();
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-
-        return existingMap;
-    }
-
-    // check for existing by letter content
-    private Map<String, String> getExistingTypeAndContentBySubjectId(FhirLink fhirLink) throws FhirResourceException {
-        Map<String, String> existingMap = new HashMap<>();
-
-        // build query
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id, content -> 'type' ->> 'text', content ->> 'description' ");
-        query.append("FROM documentreference ");
-        query.append("WHERE content -> 'subject' ->> 'display' = '");
-        query.append(fhirLink.getResourceId());
-        query.append("' ");
-
-        // execute and return map of logical ids and applies
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                if (StringUtils.isNotEmpty(results.getString(2)) && StringUtils.isNotEmpty(results.getString(3))) {
-                    // replace used to fix migrated letters coming as duplicates
-                    String content = results.getString(3)
-                            .replaceAll("\\s+", " ")
-                            .replace("'", "''").replace("''''", "''")
-                            .replace(" \n", "CARRIAGE_RETURN").replace("\n ", "CARRIAGE_RETURN")
-                            .replace("CARRIAGE_RETURN", "\n");
-                    existingMap.put(results.getString(1), results.getString(2) + content);
-                }
-            }
-
-            connection.close();
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-
-        return existingMap;
-    }
-
-    private List<UUID> getExistingByDate(
-            DocumentReference documentReference, Map<String, Date> existingMap, String nhsno) {
-        List<UUID> existingByDate = new ArrayList<>();
-
-        try {
-            if (documentReference.getCreated() != null) {
-                XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                        documentReference.getCreated().getValue().toString());
-                Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
-
-                for (Map.Entry keyValue : existingMap.entrySet()) {
-                    if (keyValue.getValue() != null) {
-                        Date existing = (Date) keyValue.getValue();
-                        if (applies == existing.getTime()) {
-                            existingByDate.add(UUID.fromString((String) keyValue.getKey()));
-                        }
-                    }
-                }
-            }
-        } catch (DatatypeConfigurationException e) {
-            LOG.error(nhsno + ": Error converting DocumentReference created date");
-            return existingByDate;
-        }
-        return existingByDate;
-    }
-
-    private List<UUID> getExistingByDateAndContent(DocumentReference documentReference, Map<String,
-            String> existingMap, String nhsno) {
-        List<UUID> existingByDateAndContent = new ArrayList<>();
-
-        try {
-            if (documentReference.getDescriptionSimple() != null) {
-                XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                        documentReference.getCreated().getValue().toString());
-                Date applies = xmlDate.toGregorianCalendar().getTime();
-
-                // get date without timestamp
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date dateWithoutTime = sdf.parse(sdf.format(applies));
-
-                String key = dateWithoutTime.toString() + documentReference.getDescriptionSimple();
-
-                for (Map.Entry keyValue : existingMap.entrySet()) {
-                    if (keyValue.getValue() != null) {
-                        String existing = (String) keyValue.getValue();
-                        if (key.equals(existing)) {
-                            existingByDateAndContent.add(UUID.fromString((String) keyValue.getKey()));
-                        }
-                    }
-                }
-            }
-        } catch (DatatypeConfigurationException | ParseException e) {
-            LOG.error(nhsno + ": Error converting DocumentReference created date");
-            return existingByDateAndContent;
-        }
-        return existingByDateAndContent;
     }
 
     /**

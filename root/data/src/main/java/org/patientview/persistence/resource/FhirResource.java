@@ -64,22 +64,17 @@ public class FhirResource {
     @Inject
     private IdentifierRepository identifierRepository;
 
-    public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-        JSONObject jsonObject = getBundle(uuid, resourceType);
-
-        // return null if not found
-        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
-            return null;
+    private <T> List<T> convertResultSet(ResultSet resultSet) throws SQLException {
+        List<T> resources = new ArrayList<>();
+        while ((resultSet.next())) {
+            try {
+                T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(1).getBytes()));
+                resources.add(resource);
+            } catch (Exception e) {
+                LOG.error("Cannot create resource");
+            }
         }
-
-        JSONArray resultArray = (JSONArray) jsonObject.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-
-        try {
-            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
-        } catch (Exception e) {
-            throw new FhirResourceException(e.getMessage());
-        }
+        return resources;
     }
 
     /**
@@ -91,7 +86,6 @@ public class FhirResource {
      */
     @Deprecated
     public JSONObject create(Resource resource) throws FhirResourceException {
-        //LOG.info("c1 " + new Date().getTime());
         PGobject result;
         Connection connection = null;
 
@@ -131,154 +125,33 @@ public class FhirResource {
     }
 
     /**
-     * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
-     *
-     * @param resource Resource to create
-     * @return JSONObject JSON version of saved Resource
+     * Natively update FHIR entity, returning newly created Resource logical UUID.
+     * @param resource Resource to create, e.g. Observation, Patient, etc
+     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @return FhirDatabaseEntity, used to create newly created Resource
      * @throws FhirResourceException
      */
-    @Deprecated
-    public void createFast(Resource resource) throws FhirResourceException {
-        //LOG.info("c1 " + new Date().getTime());
-        Connection connection = null;
+    public FhirDatabaseEntity createEntity(Resource resource, String resourceType, String tableName)
+            throws FhirResourceException {
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
+        entity.setLogicalId(UUID.randomUUID());
+        entity.setPublished(entity.getUpdated());
 
-        try {
-            connection = dataSource.getConnection();
-            //LOG.info("c2 " + new Date().getTime());
-            CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
-            proc.setObject(1, config);
-            proc.setObject(2, resource.getResourceType().name());
-            proc.setObject(3, marshallFhirRecord(resource));
-            proc.setObject(4, null);
-            proc.execute();
-            //LOG.info("c3 " + new Date().getTime());
-            proc.close();
-            connection.close();
-            //LOG.info("c4 " + new Date().getTime());
-        } catch (SQLException e) {
-            LOG.error("Unable to build resource {}", e);
+        executeSQL("INSERT INTO " + tableName +
+                " (logical_id, version_id, resource_type, published, updated, content) VALUES " +
+                "('" + entity.getLogicalId() + "'," +
+                "'" + entity.getVersionId() + "'," +
+                "'" + entity.getResourceType() + "'," +
+                "'" + entity.getPublished() + "'," +
+                "'" + entity.getUpdated() + "'," +
+                "'" + CommonUtils.cleanSql(entity.getContent()) + "')");
 
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2);
-            }
-
-            throw new FhirResourceException(e);
-        } catch (Exception e) {
-            throw new FhirResourceException(e);
-        }
-    }
-
-    /**
-     *
-     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
-     *
-     */
-    @Deprecated
-    public JSONObject updateFhirObject(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
-
-        PGobject result;
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
-            proc.setObject(1, config);
-            proc.setObject(2, resource.getResourceType().name());
-            proc.setObject(3, resourceId);
-            proc.setObject(4, versionId);
-            proc.setObject(5, marshallFhirRecord(resource));
-            proc.setObject(6, null);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.execute();
-
-            result = (PGobject) proc.getObject(1);
-            JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
-            return jsonObject;
-
-        } catch (SQLException e) {
-            // will likely fail if trying to update the same resource in multiple threads
-            LOG.error("Unable to update resource {}", e);
-
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-
-            throw new FhirResourceException(e.getMessage());
-        } catch (FhirResourceException fre) {
-            LOG.error("Unable to update resource: " + fre.getMessage());
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-            throw fre;
-        }
-    }
-
-    /**
-     *
-     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
-     *
-     */
-    @Deprecated
-    public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
-
-        PGobject result;
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
-            proc.setObject(1, config);
-            proc.setObject(2, resource.getResourceType().name());
-            proc.setObject(3, fhirLink.getResourceId());
-            proc.setObject(4, fhirLink.getVersionId());
-            proc.setObject(5, marshallFhirRecord(resource));
-            proc.setObject(6, null);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.execute();
-
-            result = (PGobject) proc.getObject(1);
-            JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
-            return getVersionId(jsonObject);
-
-        } catch (SQLException e) {
-            LOG.error("Unable to update resource {}", e);
-
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-
-            throw new FhirResourceException(e.getMessage());
-        }
+        return entity;
     }
 
     /**
      * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
-     *
      */
     @Deprecated
     public void delete(UUID uuid, ResourceType resourceType) throws FhirResourceException {
@@ -307,66 +180,39 @@ public class FhirResource {
         }
     }
 
-    public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-        LOG.debug("Getting resource {}", uuid.toString());
-        PGobject result;
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
-            proc.setObject(1, config);
-            proc.setObject(2, resourceType.name());
-            proc.setObject(3, uuid);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.execute();
-            result = (PGobject) proc.getObject(1);
-            JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
-            return jsonObject;
-        } catch (SQLException e) {
-            LOG.error("Unable to retrieve resource {}", e);
-
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-
-            throw new FhirResourceException(e.getMessage());
-        }
+    /**
+     * Simple delete statement to remove entity based on logical id and table name.
+     * @param logicalId Logical UUID of the object to delete, the primary key
+     * @param tableName Table name, e.g. "observation", "patient" etc
+     * @throws FhirResourceException
+     */
+    public void deleteEntity(UUID logicalId, String tableName) throws FhirResourceException {
+        executeSQL("DELETE FROM " + tableName + " WHERE logical_id = '" + logicalId + "'");
     }
 
-    public <T extends Resource> Object getResourceConverted(UUID uuid, ResourceType resourceType)
-            throws FhirResourceException{
-        JSONObject object = getResource(uuid, resourceType);
-        try {
-            return (T) jsonParser.parse(new ByteArrayInputStream(object.toString().getBytes()));
-        } catch (Exception e) {
-            throw new FhirResourceException("Cannot convert resource");
-        }
-    }
-
-    public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType)
-            throws FhirResourceException {
-
+    public void executeSQL(String sql) throws FhirResourceException {
         Connection connection = null;
-
         try {
             connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
-            List<T> resultsList = convertResultSet(results);
+            statement.execute(sql);
             connection.close();
-            return resultsList;
         } catch (SQLException e) {
-            LOG.error("Unable to find resource resource by query {}", e);
+            LOG.error("SQL exception: " + sql);
+            LOG.error("SQL exception:", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
 
-            // try and close the open connection
+            throw new FhirResourceException(e.getMessage());
+        } catch (Exception e) {
+            LOG.error("executeSQL Exception: " + sql);
+            LOG.error("executeSQL Exception:", e);
             try {
                 if (connection != null) {
                     connection.close();
@@ -380,17 +226,22 @@ public class FhirResource {
         }
     }
 
-    private <T> List<T> convertResultSet(ResultSet resultSet) throws SQLException {
-        List<T> resources = new ArrayList<>();
-        while ((resultSet.next())) {
-            try {
-                T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(1).getBytes()));
-                resources.add(resource);
-            } catch (Exception e) {
-                LOG.error("Cannot create resource");
-            }
+    public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+        JSONObject jsonObject = getBundle(uuid, resourceType);
+
+        // return null if not found
+        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
+            return null;
         }
-        return resources;
+
+        JSONArray resultArray = (JSONArray) jsonObject.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+
+        try {
+            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
+        } catch (Exception e) {
+            throw new FhirResourceException(e.getMessage());
+        }
     }
 
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
@@ -426,6 +277,251 @@ public class FhirResource {
 
             throw new FhirResourceException(e.getMessage());
         }
+    }
+
+    public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType)
+            throws FhirResourceException {
+        Connection connection = null;
+
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+            List<T> resultsList = convertResultSet(results);
+            connection.close();
+            return resultsList;
+        } catch (SQLException e) {
+            LOG.error("Unable to find resource resource by query {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+        //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resourceType.name());
+            proc.setObject(3, uuid);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return jsonObject;
+        } catch (SQLException e) {
+            LOG.error("Unable to get bundle {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    // check for existing by letter content
+    public Map<String, String> getExistingDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
+            throws FhirResourceException {
+        Map<String, String> existingMap = new HashMap<>();
+        Connection connection = null;
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content -> 'type' ->> 'text', content ->> 'description' ");
+        query.append("FROM documentreference ");
+        query.append("WHERE content -> 'subject' ->> 'display' = '");
+        query.append(resourceId);
+        query.append("' ");
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                if (StringUtils.isNotEmpty(results.getString(2)) && StringUtils.isNotEmpty(results.getString(3))) {
+                    // replace used to fix migrated letters coming as duplicates
+                    String content = results.getString(3)
+                            .replaceAll("\\s+", " ")
+                            .replace("'", "''").replace("''''", "''")
+                            .replace(" \n", "CARRIAGE_RETURN").replace("\n ", "CARRIAGE_RETURN")
+                            .replace("CARRIAGE_RETURN", "\n");
+                    existingMap.put(results.getString(1), results.getString(2) + content);
+                }
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get location uuids by logical id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return existingMap;
+    }
+
+    /**
+     * Get relevant details of PatientView users (name, identifiers, gp name) by identifying FHIR practitioners by
+     * postcode. Once FHIR practitioners are found, get all FHIR patients with that practitioner then find
+     * User details for those FHIR patients.
+     * @param gpPostcode String postcode of FHIR practitioner
+     * @return List of GpPatient containing relevant patient details
+     */
+    public List<GpPatient> getGpPatientsFromPostcode(String gpPostcode) {
+        List<GpPatient> gpPatients = new ArrayList<>();
+        Connection connection = null;
+
+        try {
+            // get logical_id and name of GP from FHIR practitioners where postcode matches
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
+                    "FROM practitioner " +
+                    "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
+                    "OR CONTENT -> 'address' ->> 'zip' = '" + gpPostcode.replace(" ", "")  + "' " +
+                    "GROUP BY logical_id";
+            //LOG.info(query);
+            ResultSet results = statement.executeQuery(query);
+
+            Map<String, Map<String, String>> practitionerMap = new HashMap<>();
+
+            // now have list of practitioners with the postcode, iterate through and add to practitioner map
+            while ((results.next())) {
+                String logicalId = results.getString(1);
+                String name = results.getString(2);
+
+                if (StringUtils.isNotEmpty(logicalId) && StringUtils.isNotEmpty(name)) {
+                    Map<String, String> practitioner = new HashMap<>();
+                    practitioner.put("logicalId", logicalId);
+                    practitioner.put("name", name);
+                    practitionerMap.put(logicalId, practitioner);
+                }
+            }
+
+            connection.close();
+
+            // have map of practitioner logical ids so get patient list for that practitioner,
+            // then Users with a FhirLink with each resource id and add relevant User details to gpPatients
+            if (!practitionerMap.isEmpty()) {
+                for (String practitionerLogicalId : practitionerMap.keySet()) {
+                    List<UUID> patientResourceIds = new ArrayList<>();
+
+                    // now have map of practitioners, get list of all patients with that practitioner
+                    connection = dataSource.getConnection();
+                    statement = connection.createStatement();
+                    query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
+                            practitionerLogicalId + "' GROUP BY logical_id";
+                    results = statement.executeQuery(query);
+                    //LOG.info(query);
+                    while ((results.next())) {
+                        if (StringUtils.isNotEmpty(results.getString(1))) {
+                            patientResourceIds.add(UUID.fromString(results.getString(1)));
+                        }
+                    }
+
+                    connection.close();
+
+                    // get Users from FhirLinks based on patient resource ids
+                    if (!patientResourceIds.isEmpty()) {
+                        for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
+                            // add relevant details from patient users to list of GpPatient to return with GpDetails
+                            GpPatient patient = new GpPatient();
+                            patient.setId(user.getId());
+                            patient.setGpName(
+                                    practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
+                            patient.setIdentifiers(new HashSet<>(identifierRepository.findByUser(user)));
+                            gpPatients.add(patient);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error("SQL exception:", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection:", e2);
+            }
+        }
+
+        return gpPatients;
+    }
+
+    public String getLocationUuidFromLogicalUuid(UUID logicalId, String tableName) throws FhirResourceException {
+        String output = null;
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT content->>'location' ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE logical_id = '");
+        query.append(logicalId.toString());
+        query.append("' ");
+
+        Connection connection = null;
+
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                output = results.getString(1);
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get location uuids by logical id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return output;
     }
 
     public List<UUID> getLogicalIdsBySubjectId(final String tableName, final UUID subjectId)
@@ -655,40 +751,6 @@ public class FhirResource {
         }
     }
 
-    private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-        //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
-        PGobject result;
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
-            proc.setObject(1, config);
-            proc.setObject(2, resourceType.name());
-            proc.setObject(3, uuid);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.execute();
-            result = (PGobject) proc.getObject(1);
-            JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
-            return jsonObject;
-        } catch (SQLException e) {
-            LOG.error("Unable to get bundle {}", e);
-
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-
-            throw new FhirResourceException(e.getMessage());
-        }
-    }
-
     public List<UUID> getObservationUuidsBySubjectNameDateRange(UUID subjectId, String name, Date start, Date end)
             throws FhirResourceException {
 
@@ -734,29 +796,27 @@ public class FhirResource {
         }
     }
 
-    public void executeSQL(String sql) throws FhirResourceException {
+    public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+        LOG.debug("Getting resource {}", uuid.toString());
+        PGobject result;
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            statement.execute(sql);
+            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resourceType.name());
+            proc.setObject(3, uuid);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
             connection.close();
+            return jsonObject;
         } catch (SQLException e) {
-            LOG.error("SQL exception: " + sql);
-            LOG.error("SQL exception:", e);
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
+            LOG.error("Unable to retrieve resource {}", e);
 
-            throw new FhirResourceException(e.getMessage());
-        } catch (Exception e) {
-            LOG.error("executeSQL Exception: " + sql);
-            LOG.error("executeSQL Exception:", e);
+            // try and close the open connection
             try {
                 if (connection != null) {
                     connection.close();
@@ -770,16 +830,14 @@ public class FhirResource {
         }
     }
 
-    public String marshallFhirRecord(Resource resource) throws FhirResourceException {
-        JsonComposer jsonComposer = new JsonComposer();
-        OutputStream outputStream = new ByteArrayOutputStream();
+    public <T extends Resource> Object getResourceConverted(UUID uuid, ResourceType resourceType)
+            throws FhirResourceException{
+        JSONObject object = getResource(uuid, resourceType);
         try {
-            jsonComposer.compose(outputStream, resource, false);
+            return (T) jsonParser.parse(new ByteArrayInputStream(object.toString().getBytes()));
         } catch (Exception e) {
-            LOG.error("Unable to handle Fhir resource record", e);
-            throw new FhirResourceException("Cannot build JSON", e);
+            throw new FhirResourceException("Cannot convert resource");
         }
-        return outputStream.toString();
     }
 
     public static UUID getVersionId(final JSONObject bundle) {
@@ -797,39 +855,62 @@ public class FhirResource {
         return UUID.fromString(resource.getString("id"));
     }
 
-    /**
-     * Natively update FHIR entity, returning newly created Resource logical UUID.
-     * @param resource Resource to create, e.g. Observation, Patient, etc
-     * @param resourceType Type of the Resource, e.g. "Observation", "Patient" etc
-     * @param tableName Table name, e.g. "observation", "patient" etc
-     * @return FhirDatabaseEntity, used to create newly created Resource
-     * @throws FhirResourceException
-     */
-    public FhirDatabaseEntity createEntity(Resource resource, String resourceType, String tableName) throws FhirResourceException {
-        FhirDatabaseEntity entity = new FhirDatabaseEntity(marshallFhirRecord(resource), resourceType);
-        entity.setLogicalId(UUID.randomUUID());
-        entity.setPublished(entity.getUpdated());
-
-        executeSQL("INSERT INTO " + tableName +
-                " (logical_id, version_id, resource_type, published, updated, content) VALUES " +
-                "('" + entity.getLogicalId() + "'," +
-                "'" + entity.getVersionId() + "'," +
-                "'" + entity.getResourceType() + "'," +
-                "'" + entity.getPublished() + "'," +
-                "'" + entity.getUpdated() + "'," +
-                "'" + CommonUtils.cleanSql(entity.getContent()) + "')");
-
-        return entity;
+    public String marshallFhirRecord(Resource resource) throws FhirResourceException {
+        JsonComposer jsonComposer = new JsonComposer();
+        OutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            jsonComposer.compose(outputStream, resource, false);
+        } catch (Exception e) {
+            LOG.error("Unable to handle Fhir resource record", e);
+            throw new FhirResourceException("Cannot build JSON", e);
+        }
+        return outputStream.toString();
     }
 
     /**
-     * Simple delete statement to remove entity based on logical id and table name.
-     * @param logicalId Logical UUID of the object to delete, the primary key
-     * @param tableName Table name, e.g. "observation", "patient" etc
-     * @throws FhirResourceException
+     *
+     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
+     *
      */
-    public void deleteEntity(UUID logicalId, String tableName) throws FhirResourceException {
-        executeSQL("DELETE FROM " + tableName + " WHERE logical_id = '" + logicalId + "'");
+    @Deprecated
+    public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
+
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc
+                    = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, fhirLink.getResourceId());
+            proc.setObject(4, fhirLink.getVersionId());
+            proc.setObject(5, marshallFhirRecord(resource));
+            proc.setObject(6, null);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return getVersionId(jsonObject);
+
+        } catch (SQLException e) {
+            LOG.error("Unable to update resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
     }
 
     /**
@@ -850,94 +931,5 @@ public class FhirResource {
                 "' WHERE logical_id = '" + logicalId.toString() + "' ");
 
         return entity;
-    }
-
-    /**
-     * Get relevant details of PatientView users (name, identifiers, gp name) by identifying FHIR practitioners by
-     * postcode. Once FHIR practitioners are found, get all FHIR patients with that practitioner then find
-     * User details for those FHIR patients.
-     * @param gpPostcode String postcode of FHIR practitioner
-     * @return List of GpPatient containing relevant patient details
-     */
-    public List<GpPatient> getGpPatientsFromPostcode(String gpPostcode) {
-        List<GpPatient> gpPatients = new ArrayList<>();
-        Connection connection = null;
-
-        try {
-            // get logical_id and name of GP from FHIR practitioners where postcode matches
-            connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
-                    "FROM practitioner " +
-                    "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
-                    "OR CONTENT -> 'address' ->> 'zip' = '" + gpPostcode.replace(" ", "")  + "' " +
-                    "GROUP BY logical_id";
-            //LOG.info(query);
-            ResultSet results = statement.executeQuery(query);
-
-            Map<String, Map<String, String>> practitionerMap = new HashMap<>();
-
-            // now have list of practitioners with the postcode, iterate through and add to practitioner map
-            while ((results.next())) {
-                String logicalId = results.getString(1);
-                String name = results.getString(2);
-
-                if (StringUtils.isNotEmpty(logicalId) && StringUtils.isNotEmpty(name)) {
-                    Map<String, String> practitioner = new HashMap<>();
-                    practitioner.put("logicalId", logicalId);
-                    practitioner.put("name", name);
-                    practitionerMap.put(logicalId, practitioner);
-                }
-            }
-
-            connection.close();
-
-            // have map of practitioner logical ids so get patient list for that practitioner,
-            // then Users with a FhirLink with each resource id and add relevant User details to gpPatients
-            if (!practitionerMap.isEmpty()) {
-                for (String practitionerLogicalId : practitionerMap.keySet()) {
-                    List<UUID> patientResourceIds = new ArrayList<>();
-
-                    // now have map of practitioners, get list of all patients with that practitioner
-                    connection = dataSource.getConnection();
-                    statement = connection.createStatement();
-                    query = "SELECT logical_id FROM patient WHERE CONTENT #> '{careProvider, 0}' ->> 'display' = '" +
-                            practitionerLogicalId + "' GROUP BY logical_id";
-                    results = statement.executeQuery(query);
-                    //LOG.info(query);
-                    while ((results.next())) {
-                        if (StringUtils.isNotEmpty(results.getString(1))) {
-                            patientResourceIds.add(UUID.fromString(results.getString(1)));
-                        }
-                    }
-
-                    connection.close();
-
-                    // get Users from FhirLinks based on patient resource ids
-                    if (!patientResourceIds.isEmpty()) {
-                        for (User user : fhirLinkRepository.findFhirLinkUsersByResourceIds(patientResourceIds)) {
-                            // add relevant details from patient users to list of GpPatient to return with GpDetails
-                            GpPatient patient = new GpPatient();
-                            patient.setId(user.getId());
-                            patient.setGpName(
-                                    practitionerMap.get(practitionerLogicalId).get("name").replace("''", "'"));
-                            patient.setIdentifiers(new HashSet<>(identifierRepository.findByUser(user)));
-                            gpPatients.add(patient);
-                        }
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            LOG.error("SQL exception:", e);
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection:", e2);
-            }
-        }
-
-        return gpPatients;
     }
 }

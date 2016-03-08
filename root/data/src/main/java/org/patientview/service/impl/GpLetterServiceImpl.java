@@ -500,7 +500,7 @@ public class GpLetterServiceImpl implements GpLetterService {
                 String cleanPath = outputDir + "/" +
                         path.toString().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("&", "_");
                 FileUtils.writeByteArrayToFile(new File(cleanPath), bytes);
-                LOG.info("Wrote GP letter to file '" + cleanPath + "'");
+                LOG.info(gpLetter.getPatientIdentifier() + ": Wrote GP letter to file '" + cleanPath + "'");
             } catch (IOException ioe) {
                 LOG.error("Could not write GP letter to file (IOException: " + ioe.getMessage() + "), continuing");
             }
