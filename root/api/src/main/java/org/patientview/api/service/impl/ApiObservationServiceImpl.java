@@ -1068,7 +1068,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         if (fhirLink == null && insertObservations) {
             Patient patient = patientService.buildPatient(user, identifier);
             if (patient == null) {
-                return new ServerResponse("error building FHIR patient");
+                return new ServerResponse("error building patient");
             }
 
             FhirDatabaseEntity fhirPatient = null;
@@ -1076,11 +1076,11 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             try {
                 fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
             } catch (FhirResourceException fre) {
-                return new ServerResponse("error creating FHIR patient");
+                return new ServerResponse("error creating patient");
             }
 
             if (fhirPatient == null) {
-                return new ServerResponse("error creating FHIR patient, is null");
+                return new ServerResponse("error creating patient, is null");
             }
 
             // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
@@ -1189,7 +1189,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                         }
                     }
                 } catch (FhirResourceException | NullArgumentException e) {
-                    return new ServerResponse("error marshalling fhir records");
+                    return new ServerResponse("error marshalling records");
                 }
 
                 if (CollectionUtils.isEmpty(fhirDatabaseObservations)) {

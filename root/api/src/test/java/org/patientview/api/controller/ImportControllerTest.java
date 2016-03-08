@@ -8,11 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.api.service.LetterService;
 import org.patientview.persistence.model.FhirDocumentReference;
+import org.patientview.persistence.model.FhirMedicationStatementRange;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
@@ -39,6 +41,8 @@ import static org.mockito.Mockito.verify;
  * Created on 07/10/2014
  */
 public class ImportControllerTest {
+    @Mock
+    private ApiMedicationService apiMedicationService;
 
     @Mock
     private ApiObservationService apiObservationService;
@@ -87,6 +91,25 @@ public class ImportControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(letterService, Mockito.times(1)).importLetter(any(FhirDocumentReference.class));
+    }
+
+    @Test
+    public void testImportMedication() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/medication")
+                .content(mapper.writeValueAsString(new FhirMedicationStatementRange()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(apiMedicationService, Mockito.times(1)).importMedication(any(FhirMedicationStatementRange.class));
     }
 
     @Test
@@ -143,5 +166,4 @@ public class ImportControllerTest {
 
         verify(apiPractitionerService, Mockito.times(1)).importPractitioner(any(FhirPractitioner.class));
     }
-
 }

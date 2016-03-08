@@ -6,7 +6,8 @@ import org.patientview.persistence.model.FhirLink;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -24,5 +25,15 @@ public interface MedicationService {
     void add(org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
             throws FhirResourceException;
 
-    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
+    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException;
+
+    /**
+     * Delete MedicationStatement and Medication from FHIR given a patientId and date range
+     * @param patientId UUID of patient (logical id)
+     * @param fromDate Date to delete medication from
+     * @param toDate Date to delete medication to
+     * @return int number of MedicationStatement deleted (usually equal to number of Medication deleted)
+     * @throws FhirResourceException
+     */
+    int deleteBySubjectIdAndDateRange(UUID patientId, Date fromDate, Date toDate) throws FhirResourceException;
 }

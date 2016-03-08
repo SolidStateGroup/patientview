@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * FhirObservationRange, representing a List of Observations and a date range, all observations that currently exist for
- * this User and Group will be removed from FHIR.
+ * this User and Group within the date range will be removed from FHIR.
  * Created by jamesr@solidstategroup.com
  * Created on 02/03/2015
  */

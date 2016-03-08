@@ -21,7 +21,9 @@ import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -44,7 +46,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
      * @param fhirLink FhirLink for user
      */
     @Override
-    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
+    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         LOG.trace(nhsno + ": Starting Medication Statement and Medication Process");
@@ -134,7 +136,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
         fhirResource.createEntity(medicationStatement, ResourceType.MedicationStatement.name(), "medicationstatement");
     }
 
-    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
         // delete medication natively
         fhirResource.executeSQL(
             "DELETE FROM medication WHERE logical_id::TEXT IN (SELECT CONTENT -> 'medication' ->> 'display' " +
@@ -147,6 +149,36 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
             + subjectId.toString() + "'"
         );
     }
+
+    @Override
+    public int deleteBySubjectIdAndDateRange(UUID patientId, Date fromDate, Date toDate)
+            throws FhirResourceException {
+
+        // delete medication natively
+        fhirResource.executeSQL(
+            "DELETE FROM medication WHERE logical_id::TEXT IN (" +
+            "SELECT CONTENT -> 'medication' ->> 'display' " +
+            "FROM medicationstatement WHERE CONTENT -> 'patient' ->> 'display' = '" + patientId.toString() + "' " +
+            "AND CAST(content -> 'whenGiven' ->> 'start' AS TIMESTAMP) >= '" + fromDate + "' " +
+            "AND CAST(content -> 'whenGiven' ->> 'end' AS TIMESTAMP) <= '" + toDate + "')"
+        );
+
+        // get count of medication to be deleted
+        List<UUID> uuidToDelete = fhirResource.getUuidByQuery(
+                "SELECT logical_id FROM medicationstatement " +
+                "WHERE CONTENT -> 'patient' ->> 'display' = '" + patientId.toString() + "' " +
+                "AND CAST(content -> 'whenGiven' ->> 'start' AS TIMESTAMP) >= '" + fromDate + "' " +
+                "AND CAST(content -> 'whenGiven' ->> 'end' AS TIMESTAMP) <= '" + toDate + "'"
+        );
+
+        // delete medication statement natively
+        fhirResource.executeSQL(
+            "DELETE FROM medicationstatement " +
+            "WHERE CONTENT -> 'patient' ->> 'display' = '" + patientId.toString() + "' " +
+            "AND CAST(content -> 'whenGiven' ->> 'start' AS TIMESTAMP) >= '" + fromDate + "' " +
+            "AND CAST(content -> 'whenGiven' ->> 'end' AS TIMESTAMP) <= '" + toDate + "'"
+        );
+
+        return uuidToDelete.size();
+    }
 }
-
-

@@ -765,9 +765,11 @@ public class FhirResource {
         query.append(name.toUpperCase());
         query.append("' ");
 
+        Connection connection = null;
+
         // execute and return map of logical ids
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
             List<UUID> observationUuids = new ArrayList<>();
@@ -792,7 +794,19 @@ public class FhirResource {
             connection.close();
             return observationUuids;
         } catch (SQLException e) {
-            throw new FhirResourceException(e);
+            LOG.error("Unable to get logical ids by subject id, date range {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
@@ -853,6 +867,39 @@ public class FhirResource {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.getString("id"));
+    }
+
+    public List<UUID> getUuidByQuery(final String query) throws FhirResourceException {
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query);
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to retrieve resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
     }
 
     public String marshallFhirRecord(Resource resource) throws FhirResourceException {

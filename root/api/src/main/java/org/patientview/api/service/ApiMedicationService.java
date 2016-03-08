@@ -1,9 +1,13 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirMedicationStatementRange;
+import org.patientview.persistence.model.ServerResponse;
+import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
 
@@ -35,4 +39,12 @@ public interface ApiMedicationService {
     @UserOnly
     List<FhirMedicationStatement> getByUserId(Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Given a FhirMedicationStatementRange object with a start, end date and list of medication, store in FHIR
+     * @param fhirMedicationStatementRange FhirMedicationStatementRange containing start date, end date and medication to import
+     * @return ServerResponse object containing success, error message and successful status
+     */
+    @RoleOnly(roles = { RoleName.IMPORTER })
+    ServerResponse importMedication(FhirMedicationStatementRange fhirMedicationStatementRange);
 }
