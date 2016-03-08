@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ApiMedicationServiceImpl;
+import org.patientview.api.service.impl.FhirLinkServiceImpl;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
@@ -65,6 +66,9 @@ public class ApiMedicationServiceTest {
 
     @InjectMocks
     ApiMedicationService apiMedicationService = new ApiMedicationServiceImpl();
+
+    @Mock
+    FhirLinkService fhirLinkService;
 
     @Mock
     FhirResource fhirResource;
@@ -151,22 +155,14 @@ public class ApiMedicationServiceTest {
         fhirMedicationStatement.setDose("medicationDose");
         fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
 
-        // built fhir patient
-        Patient builtPatient = new Patient();
-
-        // created fhir patient
-        FhirDatabaseEntity fhirPatient = new FhirDatabaseEntity();
-        fhirPatient.setLogicalId(UUID.randomUUID());
-
-        when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"))).thenReturn(fhirPatient);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
         when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirMedicationStatementRange.getIdentifier())))
                 .thenReturn(identifiers);
         when(medicationService.deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate())))
             .thenReturn(1);
-        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(builtPatient);
 
         ServerResponse serverResponse = apiMedicationService.importMedication(fhirMedicationStatementRange);
 
@@ -177,13 +173,11 @@ public class ApiMedicationServiceTest {
         Assert.assertTrue("Should have correct deleted success message, got '"
                 + serverResponse.getSuccessMessage() + "'", serverResponse.getSuccessMessage().contains("deleted 1"));
 
-        verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(medicationService, times(1)).add(eq(fhirMedicationStatement),
                 eq(patient.getFhirLinks().iterator().next()));
         verify(medicationService, times(1)).deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
-        verify(userRepository, times(1)).save(eq(patient));
     }
 
     @Test
@@ -228,19 +222,11 @@ public class ApiMedicationServiceTest {
         fhirMedicationStatement.setDose("medicationDose");
         fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
 
-        // built fhir patient
-        Patient builtPatient = new Patient();
-
-        // created fhir patient
-        FhirDatabaseEntity fhirPatient = new FhirDatabaseEntity();
-        fhirPatient.setLogicalId(UUID.randomUUID());
-
-        when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"))).thenReturn(fhirPatient);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
         when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirMedicationStatementRange.getIdentifier())))
                 .thenReturn(identifiers);
-        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(builtPatient);
 
         ServerResponse serverResponse = apiMedicationService.importMedication(fhirMedicationStatementRange);
 
@@ -251,13 +237,11 @@ public class ApiMedicationServiceTest {
         Assert.assertTrue("Should have correct deleted success message, got '"
                 + serverResponse.getSuccessMessage() + "'", !serverResponse.getSuccessMessage().contains("deleted 1"));
 
-        verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(medicationService, times(1)).add(eq(fhirMedicationStatement),
                 eq(patient.getFhirLinks().iterator().next()));
         verify(medicationService, times(0)).deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
-        verify(userRepository, times(1)).save(eq(patient));
     }
 
     @Test

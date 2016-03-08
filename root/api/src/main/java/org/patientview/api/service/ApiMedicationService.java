@@ -42,7 +42,8 @@ public interface ApiMedicationService {
 
     /**
      * Given a FhirMedicationStatementRange object with a start, end date and list of medication, store in FHIR
-     * @param fhirMedicationStatementRange FhirMedicationStatementRange containing start date, end date and medication to import
+     * @param fhirMedicationStatementRange FhirMedicationStatementRange containing start date, end date and medication
+     *                                     to import
      * @return ServerResponse object containing success, error message and successful status
      */
     @RoleOnly(roles = { RoleName.IMPORTER })

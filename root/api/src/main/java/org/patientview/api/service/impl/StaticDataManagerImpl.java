@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.StaticDataManager;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;

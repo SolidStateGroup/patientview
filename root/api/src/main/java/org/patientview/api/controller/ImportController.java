@@ -26,19 +26,19 @@ import javax.inject.Inject;
 public class ImportController extends BaseController<ImportController> {
 
     @Inject
-    ApiMedicationService apiMedicationService;
+    private ApiMedicationService apiMedicationService;
 
     @Inject
-    ApiObservationService apiObservationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
-    ApiPatientService apiPatientService;
+    private ApiPatientService apiPatientService;
 
     @Inject
-    ApiPractitionerService apiPractitionerService;
+    private ApiPractitionerService apiPractitionerService;
 
     @Inject
-    LetterService letterService;
+    private LetterService letterService;
 
     @RequestMapping(value = "/import/letter", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importLetter(@RequestBody FhirDocumentReference fhirDocumentReference) {

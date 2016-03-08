@@ -3,18 +3,17 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
-import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.ApiMedicationService;
+import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GpMedicationService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
 import org.patientview.persistence.model.Group;
@@ -29,7 +28,6 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
 import org.patientview.service.MedicationService;
-import org.patientview.service.PatientService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,6 +44,9 @@ import java.util.UUID;
  */
 @Service
 public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServiceImpl> implements ApiMedicationService {
+
+    @Inject
+    private FhirLinkService fhirLinkService;
 
     @Inject
     private FhirResource fhirResource;
@@ -59,9 +59,6 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
 
     @Inject
     private MedicationService medicationService;
-
-    @Inject
-    private PatientService patientService;
 
     @Inject
     private UserRepository userRepository;
@@ -203,39 +200,11 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
         FhirLink fhirLink = Util.getFhirLink(group, fhirMedicationStatementRange.getIdentifier(), user.getFhirLinks());
 
         if (fhirLink == null && insertMedications) {
-            Patient patient = patientService.buildPatient(user, identifier);
-            if (patient == null) {
-                return new ServerResponse("error building patient");
-            }
-
-            FhirDatabaseEntity fhirPatient = null;
-
             try {
-                fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+                fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
             } catch (FhirResourceException fre) {
-                return new ServerResponse("error creating patient");
+                return new ServerResponse(fre.getMessage());
             }
-
-            if (fhirPatient == null) {
-                return new ServerResponse("error creating patient, is null");
-            }
-
-            // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
-            fhirLink = new FhirLink();
-            fhirLink.setUser(user);
-            fhirLink.setIdentifier(identifier);
-            fhirLink.setGroup(group);
-            fhirLink.setResourceId(fhirPatient.getLogicalId());
-            fhirLink.setVersionId(fhirPatient.getVersionId());
-            fhirLink.setResourceType(ResourceType.Patient.name());
-            fhirLink.setActive(true);
-
-            if (CollectionUtils.isEmpty(user.getFhirLinks())) {
-                user.setFhirLinks(new HashSet<FhirLink>());
-            }
-
-            user.getFhirLinks().add(fhirLink);
-            userRepository.save(user);
         }
 
         StringBuilder info = new StringBuilder();

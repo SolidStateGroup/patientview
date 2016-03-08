@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,6 +58,7 @@ import java.util.UUID;
  * Created on 07/10/2014
  */
 @Service
+@Transactional
 public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> implements LetterService {
 
     @Inject
@@ -311,7 +311,6 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
     }
 
     @Override
-    @Transactional
     public ServerResponse importLetter(org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference) {
         if (StringUtils.isEmpty(fhirDocumentReference.getGroupCode())) {
             return new ServerResponse("group code not set");

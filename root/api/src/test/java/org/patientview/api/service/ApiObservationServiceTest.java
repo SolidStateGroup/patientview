@@ -88,6 +88,9 @@ public class ApiObservationServiceTest {
     ApiObservationService apiObservationService = new ApiObservationServiceImpl();
 
     @Mock
+    FhirLinkService fhirLinkService;
+
+    @Mock
     FhirResource fhirResource;
 
     @Mock
@@ -511,6 +514,8 @@ public class ApiObservationServiceTest {
                 TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                         IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
 
+        TestUtils.createFhirLink(patient, identifier, group);
+
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
@@ -535,13 +540,6 @@ public class ApiObservationServiceTest {
         List<ObservationHeading> observationHeadings = new ArrayList<>();
         observationHeadings.add(observationHeading);
 
-        // built fhir patient
-        Patient builtPatient = new Patient();
-
-        // created fhir patient
-        FhirDatabaseEntity fhirPatient = new FhirDatabaseEntity();
-        fhirPatient.setLogicalId(UUID.randomUUID());
-
         // existing observation uuids
         List<UUID> existingObservations = new ArrayList<>();
         existingObservations.add(UUID.randomUUID());
@@ -557,8 +555,8 @@ public class ApiObservationServiceTest {
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
         when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
-        when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"))).thenReturn(fhirPatient);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
         when(fhirResource.getObservationUuidsBySubjectNameDateRange(any(UUID.class),
                 eq(fhirObservationRange.getCode()), eq(fhirObservationRange.getStartDate()),
                 eq(fhirObservationRange.getStartDate()))).thenReturn(existingObservations);
@@ -568,7 +566,6 @@ public class ApiObservationServiceTest {
         when(identifierRepository.findByValue(eq(fhirObservationRange.getIdentifier()))).thenReturn(identifiers);
         when(observationHeadingRepository.findByCode(eq(fhirObservationRange.getCode())))
                 .thenReturn(observationHeadings);
-        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(builtPatient);
 
         ServerResponse serverResponse = apiObservationService.importObservations(fhirObservationRange);
 
@@ -579,14 +576,12 @@ public class ApiObservationServiceTest {
         Assert.assertTrue("Should have correct deleted success message, got '"
                 + serverResponse.getSuccessMessage() + "'", serverResponse.getSuccessMessage().contains("deleted 1"));
 
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(alertRepository, times(1)).findByUserAndObservationHeading(eq(patient), eq(observationHeading));
         verify(alertRepository, times(1)).save(any(Alert.class));
-        verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"));
         verify(fhirResource, times(1)).marshallFhirRecord(any(Observation.class));
         verify(observationService, times(1)).deleteObservations(any(List.class));
         verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
-        verify(userRepository, times(1)).save(eq(patient));
     }
 
     @Test
@@ -614,6 +609,8 @@ public class ApiObservationServiceTest {
                 TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                         IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
 
+        TestUtils.createFhirLink(patient, identifier, group);
+
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
@@ -644,25 +641,17 @@ public class ApiObservationServiceTest {
         List<Alert> alerts = new ArrayList<>();
         alerts.add(alert);
 
-        // built fhir patient
-        Patient builtPatient = new Patient();
-
-        // created fhir patient
-        FhirDatabaseEntity fhirPatient = new FhirDatabaseEntity();
-        fhirPatient.setLogicalId(UUID.randomUUID());
-
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
         when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
-        when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"))).thenReturn(fhirPatient);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
         when(fhirResource.marshallFhirRecord(any(Resource.class)))
                 .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
         when(groupRepository.findByCode(eq(fhirObservationRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirObservationRange.getIdentifier()))).thenReturn(identifiers);
         when(observationHeadingRepository.findByCode(eq(fhirObservationRange.getCode())))
                 .thenReturn(observationHeadings);
-        when(patientService.buildPatient(eq(patient), eq(identifier))).thenReturn(builtPatient);
 
         ServerResponse serverResponse = apiObservationService.importObservations(fhirObservationRange);
 
@@ -671,14 +660,12 @@ public class ApiObservationServiceTest {
         Assert.assertTrue("Should have correct success message, got '" + serverResponse.getSuccessMessage() + "'",
                 serverResponse.getSuccessMessage().contains("added 1"));
 
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(alertRepository, times(1)).findByUserAndObservationHeading(eq(patient), eq(observationHeading));
         verify(alertRepository, times(1)).save(any(Alert.class));
-        verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"));
         verify(fhirResource, times(1)).marshallFhirRecord(any(Observation.class));
         verify(observationService, times(0)).deleteObservations(any(List.class));
         verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
-        verify(userRepository, times(1)).save(eq(patient));
     }
 
     @Test

@@ -16,6 +16,7 @@ import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.builder.TestObservationsBuilder;
@@ -88,6 +89,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private FhirLinkService fhirLinkService;
 
     @Inject
     private GroupRepository groupRepository;
@@ -1066,39 +1070,11 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         FhirLink fhirLink = Util.getFhirLink(group, fhirObservationRange.getIdentifier(), user.getFhirLinks());
 
         if (fhirLink == null && insertObservations) {
-            Patient patient = patientService.buildPatient(user, identifier);
-            if (patient == null) {
-                return new ServerResponse("error building patient");
-            }
-
-            FhirDatabaseEntity fhirPatient = null;
-
             try {
-                fhirPatient = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+                fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
             } catch (FhirResourceException fre) {
-                return new ServerResponse("error creating patient");
+                return new ServerResponse(fre.getMessage());
             }
-
-            if (fhirPatient == null) {
-                return new ServerResponse("error creating patient, is null");
-            }
-
-            // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
-            fhirLink = new FhirLink();
-            fhirLink.setUser(user);
-            fhirLink.setIdentifier(identifier);
-            fhirLink.setGroup(group);
-            fhirLink.setResourceId(fhirPatient.getLogicalId());
-            fhirLink.setVersionId(fhirPatient.getVersionId());
-            fhirLink.setResourceType(ResourceType.Patient.name());
-            fhirLink.setActive(true);
-
-            if (CollectionUtils.isEmpty(user.getFhirLinks())) {
-                user.setFhirLinks(new HashSet<FhirLink>());
-            }
-
-            user.getFhirLinks().add(fhirLink);
-            userRepository.save(user);
         }
 
         StringBuilder info = new StringBuilder();

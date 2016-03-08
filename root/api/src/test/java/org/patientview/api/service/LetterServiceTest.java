@@ -103,6 +103,7 @@ public class LetterServiceTest {
     }
 
     @Test
+    //@Ignore("permgen error?")
     public void testGetByUserId() {
 
         // user and security
@@ -159,6 +160,7 @@ public class LetterServiceTest {
     }
 
     @Test
+    //@Ignore("permgen error?")
     public void testImportLetter() throws Exception {
         // auth
         Group group = TestUtils.createGroup("testGroup");
