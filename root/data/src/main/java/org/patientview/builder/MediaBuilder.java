@@ -99,7 +99,7 @@ public class MediaBuilder {
 
             // file type
             if (StringUtils.isNotEmpty(fhirDocumentReference.getFiletype())) {
-                attachment.setTitleSimple(fhirDocumentReference.getFiletype());
+                attachment.setContentTypeSimple(fhirDocumentReference.getFiletype());
             }
         }
 

@@ -66,6 +66,10 @@ public class DocumentReferenceBuilder {
             if (StringUtils.isNotEmpty(fhirDocumentReference.getContent())) {
                 documentReference.setDescriptionSimple(CommonUtils.cleanSql(fhirDocumentReference.getContent()));
             }
+
+            if (fhirDocumentReference.getDate() != null) {
+                documentReference.setCreatedSimple(new DateAndTime(fhirDocumentReference.getDate()));
+            }
         } else {
             throw new FhirResourceException("cannot build, missing Letter or FhirDocumentReference");
         }
