@@ -2,10 +2,12 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.BaseGroup;
@@ -20,6 +22,7 @@ import org.patientview.builder.TestObservationsBuilder;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
@@ -37,6 +40,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IbdDiseaseExtent;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -60,11 +64,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -78,6 +82,9 @@ import java.util.UUID;
 @Transactional
 public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservationServiceImpl>
         implements ApiObservationService {
+
+    @Inject
+    private AlertRepository alertRepository;
 
     @Inject
     private FhirResource fhirResource;
@@ -943,6 +950,43 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return observationSummary;
     }
 
+    private Date getObservationDate(Observation observation) {
+        if (observation.getApplies() != null) {
+            DateTime applies = (DateTime) observation.getApplies();
+            DateAndTime date = applies.getValue();
+            return new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(),
+                    date.getSecond()).getTimeInMillis());
+        }
+
+        return null;
+    }
+
+    private String getObservationValue(Observation observation) {
+        String valueString = null;
+
+        if (observation.getValue() != null) {
+            if (observation.getValue().getClass().equals(Quantity.class)) {
+                // value
+                Quantity value = (Quantity) observation.getValue();
+                if (value.getValueSimple() != null) {
+                    valueString = value.getValueSimple().toString();
+                }
+
+                // comparator
+                Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();
+                if (quantityComparator != null && !quantityComparator.equals(Quantity.QuantityComparator.Null)) {
+                    valueString = valueString + quantityComparator.toCode();
+                }
+            } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                CodeableConcept value = (CodeableConcept) observation.getValue();
+                valueString = value.getTextSimple();
+            }
+        }
+
+        return valueString;
+    }
+
     @Override
     public ServerResponse importObservations(FhirObservationRange fhirObservationRange) {
         boolean deleteObservations = false;
@@ -987,6 +1031,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         if (observationHeadings.size() > 1) {
             return new ServerResponse("observation code not unique");
         }
+
+        ObservationHeading observationHeading = observationHeadings.get(0);
 
         Group group = groupRepository.findByCode(fhirObservationRange.getGroupCode());
 
@@ -1094,27 +1140,83 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
             List<Observation> observations = testObservationsBuilder.getObservations();
 
-            // add new observations
-            List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(observations)) {
+                // handle alerts
+                Alert alert = null;
 
-            try {
-                for (Observation observation : observations) {
-                    fhirDatabaseObservations.add(
-                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                // get current alert for this result type, only take first (should only be one)
+                List<Alert> alerts = alertRepository.findByUserAndObservationHeading(user, observationHeading);
+                if (!CollectionUtils.isEmpty(alerts)) {
+                    alert = alerts.get(0);
                 }
-            } catch (FhirResourceException | NullArgumentException e) {
-                return new ServerResponse("error marshalling fhir records");
-            }
 
-            if (CollectionUtils.isEmpty(fhirDatabaseObservations)) {
-                return new ServerResponse("error preparing observations");
-            }
+                // prepare new observations for insertion into FHIR
+                List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
 
-            try {
-                observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
-                info.append(", added ").append(fhirDatabaseObservations.size());
-            } catch (FhirResourceException fre) {
-                return new ServerResponse("error inserting observations");
+                try {
+                    for (Observation observation : observations) {
+                        // must have value
+                        if (observation.getValue() != null) {
+                            FhirDatabaseObservation fhirDatabaseObservation
+                                    = new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
+                            fhirDatabaseObservations.add(fhirDatabaseObservation);
+
+                            // handle alerts
+                            if (alert != null) {
+                                Date observationDate = getObservationDate(observation);
+                                String observationValue = getObservationValue(observation);
+
+                                if (observationDate != null && observationValue != null) {
+                                    if (alert.getLatestDate() == null) {
+                                        // is the first time a result has come in for this alert
+                                        alert.setLatestDate(observationDate);
+                                        alert.setLatestValue(observationValue);
+                                        alert.setEmailAlertSent(false);
+                                        alert.setWebAlertViewed(false);
+                                        alert.setUpdated(true);
+                                    } else {
+                                        // previous result has been alerted, check if this one is newer
+                                        if (alert.getLatestDate().getTime() < observationDate.getTime()) {
+                                            alert.setLatestDate(observationDate);
+                                            alert.setLatestValue(observationValue);
+                                            alert.setEmailAlertSent(false);
+                                            alert.setWebAlertViewed(false);
+                                            alert.setUpdated(true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (FhirResourceException | NullArgumentException e) {
+                    return new ServerResponse("error marshalling fhir records");
+                }
+
+                if (CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+                    return new ServerResponse("error preparing observations");
+                }
+
+                try {
+                    // insert observations
+                    observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
+                    info.append(", added ").append(fhirDatabaseObservations.size());
+
+                    // set alert if present and updated
+                    if (alert != null && alert.isUpdated()) {
+                        Alert entityAlert = alertRepository.findOne(alert.getId());
+                        entityAlert.setLatestValue(alert.getLatestValue());
+                        entityAlert.setLatestDate(alert.getLatestDate());
+                        entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                        entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
+                        entityAlert.setLastUpdate(new Date());
+                        alertRepository.save(entityAlert);
+                    }
+
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error inserting observations");
+                }
+            } else {
+                return new ServerResponse("error, no observations built");
             }
         }
 

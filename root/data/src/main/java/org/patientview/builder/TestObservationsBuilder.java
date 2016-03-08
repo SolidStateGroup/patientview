@@ -11,12 +11,10 @@ import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirObservationRange;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.config.utils.CommonUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -53,8 +51,7 @@ public class TestObservationsBuilder {
         }
     }
 
-    private Observation createObservation(FhirObservation fhirObservation)
-        throws FhirResourceException {
+    private Observation createObservation(FhirObservation fhirObservation) throws FhirResourceException {
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
