@@ -87,15 +87,9 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         );
     }
     @Override
-    public void deleteByUserAndType(final User user, final EncounterTypes encounterType)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        if (user == null) {
-            throw new ResourceNotFoundException("No user");
-        }
-
+    public void deleteByUserAndType(final User user, final EncounterTypes encounterType) throws FhirResourceException {
         if (encounterType == null) {
-            throw new ResourceNotFoundException("Encounter type must be set");
+            throw new FhirResourceException("Encounter type must be set");
         }
 
         Connection connection = null;
@@ -159,16 +153,18 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
 
     @Override
     public void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws FhirResourceException {
 
         Encounter encounter = new Encounter();
         encounter.setStatusSimple(Encounter.EncounterState.finished);
 
+        // e.g. "TREATMENT"
         if (StringUtils.isNotEmpty(fhirEncounter.getEncounterType())) {
             Identifier identifier = encounter.addIdentifier();
             identifier.setValueSimple(fhirEncounter.getEncounterType());
         }
 
+        // e.g. "transfusion"
         if (StringUtils.isNotEmpty(fhirEncounter.getStatus())) {
             CodeableConcept code = encounter.addType();
             code.setTextSimple(fhirEncounter.getStatus());

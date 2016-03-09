@@ -3,13 +3,12 @@ package org.patientview.service;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Condition;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +20,14 @@ import java.util.UUID;
 public interface ConditionService {
 
     /**
+     * Delete Condition by UUID subject ID and DiagnosisTypes type, used by API importer.
+     * @param subjectId UUID subject ID
+     * @param diagnosisTypes DiagnosisTypes type, e.g. DiagnosisTypes.DIAGNOSIS_EDTA
+     * @throws FhirResourceException
+     */
+    void deleteBySubjectIdAndType(UUID subjectId, DiagnosisTypes diagnosisTypes) throws FhirResourceException;
+
+    /**
      * Get a list of FHIR Conditions given a UUID from FhirLink representing the patient in FHIR.
      * @param patientUuid UUID representing the patient in FHIR
      * @return List of FHIR Conditions
@@ -29,7 +36,7 @@ public interface ConditionService {
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
 
     // used by migration
-    void add(FhirCondition fhirCondition, FhirLink fhirLink) throws ResourceNotFoundException, FhirResourceException;
+    void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException;
 
-    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
+    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException;
 }

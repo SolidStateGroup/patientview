@@ -9,16 +9,15 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.builder.ConditionsBuilder;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +38,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
      * Creates all of the FHIR condition records from the Patientview object. Links them to the PatientReference
      */
     @Override
-    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
+    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException {
 
         this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         int count = 0;
@@ -64,8 +63,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     }
 
     @Override
-    public void add(FhirCondition fhirCondition, FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException {
+    public void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException {
 
         Condition condition = new Condition();
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
@@ -95,11 +93,19 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
         fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
     }
 
-
-    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
         // native delete
         fhirResource.executeSQL(
                 "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+        );
+    }
+
+    @Override
+    public void deleteBySubjectIdAndType(UUID subjectId, DiagnosisTypes diagnosisTypes) throws FhirResourceException {
+        // native delete
+        fhirResource.executeSQL(
+                "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
+                "AND CONTENT -> 'category' ->> 'text' = '" + diagnosisTypes.toString() + "'"
         );
     }
 

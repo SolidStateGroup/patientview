@@ -4,7 +4,6 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
@@ -27,15 +26,13 @@ public interface EncounterService {
             throws FhirResourceException, SQLException;
 
     /**
-     * Add a FHIR Encounter, used by UKT when adding kidney transplant status, also by migration.
+     * Add a FHIR Encounter, used by UKT when adding kidney transplant status, also by migration, API importer.
      * @param fhirEncounter FhirEncounter, containing all fields required to store Encounter in FHIR
      * @param fhirLink FhirLink, link between patient and records in FHIR
      * @param organizationUuid UUID of FHIR Organization, same as Group
-     * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
-            throws ResourceNotFoundException, FhirResourceException;
+    void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid) throws FhirResourceException;
 
     /**
      * Get a List of FHIR Encounters given a patient UUID, typically retrieved from FhirLink resourceId.
@@ -46,12 +43,10 @@ public interface EncounterService {
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
     /**
-     * Delete FHIR encounters for a User given type, used when deleting UKT data.
+     * Delete FHIR encounters for a User given type, used when deleting UKT data and API importer.
      * @param user User to delete FHIR Encounters for
      * @param encounterType EncounterTypes type of Encounter to delete, e.g. EncounterTypes.TRANSPLANT_STATUS_KIDNEY
-     * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    void deleteByUserAndType(final User user, final EncounterTypes encounterType)
-            throws ResourceNotFoundException, FhirResourceException;
+    void deleteByUserAndType(final User user, final EncounterTypes encounterType) throws FhirResourceException;
 }

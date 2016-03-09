@@ -10,23 +10,27 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ClinicalDataServiceImpl;
 import org.patientview.persistence.model.FhirClinicalData;
+import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
-import org.patientview.persistence.repository.ObservationHeadingRepository;
-import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.service.DiagnosticService;
+import org.patientview.service.ConditionService;
+import org.patientview.service.EncounterService;
+import org.patientview.service.OrganizationService;
 import org.patientview.test.util.TestUtils;
 import org.patientview.util.Util;
 import org.powermock.api.mockito.PowerMockito;
@@ -38,6 +42,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -58,10 +63,10 @@ public class ClinicalDataServiceTest {
     ClinicalDataService clinicalDataService = new ClinicalDataServiceImpl();
 
     @Mock
-    ApiPatientService apiPatientService;
+    ConditionService conditionService;
 
     @Mock
-    DiagnosticService diagnosticService;
+    EncounterService encounterService;
 
     @Mock
     FhirLinkService fhirLinkService;
@@ -71,21 +76,12 @@ public class ClinicalDataServiceTest {
 
     @Mock
     GroupRepository groupRepository;
-    
-    @Mock
-    GroupService groupService;
 
     @Mock
     IdentifierRepository identifierRepository;
-    
-    @Mock
-    ObservationHeadingGroupRepository observationHeadingGroupRepository;
 
     @Mock
-    ObservationHeadingRepository observationHeadingRepository;
-
-    @Mock
-    ResultClusterRepository resultClusterRepository;
+    OrganizationService organizationService;
 
     @Mock
     UserRepository userRepository;
@@ -141,10 +137,24 @@ public class ClinicalDataServiceTest {
         fhirClinicalData.setGroupCode("DSF01");
         fhirClinicalData.setIdentifier("1111111111");
 
+        // treatment Encounter
+        FhirEncounter treatment = new FhirEncounter();
+        treatment.setStatus("transfusion");
+        fhirClinicalData.setTreatment(treatment);
 
-        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
-                .thenReturn(patient.getFhirLinks().iterator().next());
+        // diagnosis Condition
+        FhirCondition diagnosis = new FhirCondition();
+        diagnosis.setCode("00");
+        fhirClinicalData.setDiagnosis(diagnosis);
+
+        // from Organization create/update
+        UUID organizationUuid = UUID.randomUUID();
+
+        FhirLink fhirLink = patient.getFhirLinks().iterator().next();
+
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group))).thenReturn(fhirLink);
         when(groupRepository.findByCode(eq(fhirClinicalData.getGroupCode()))).thenReturn(group);
+        when(organizationService.add(eq(group))).thenReturn(organizationUuid);
         when(identifierRepository.findByValue(eq(fhirClinicalData.getIdentifier())))
                 .thenReturn(identifiers);
 
@@ -153,6 +163,13 @@ public class ClinicalDataServiceTest {
         Assert.assertTrue(
                 "Should be successful, got '" + serverResponse.getErrorMessage() + "'", serverResponse.isSuccess());
 
+        verify(conditionService, times(1)).add(eq(fhirClinicalData.getDiagnosis()), eq(fhirLink));
+        verify(conditionService, times(1)).deleteBySubjectIdAndType(
+                eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS_EDTA));
+        verify(encounterService, times(1)).add(
+                eq(treatment), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
+        verify(encounterService, times(1)).deleteByUserAndType(eq(patient), eq(EncounterTypes.TREATMENT));
         verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
+        verify(organizationService, times(1)).add(eq(group));
     }
 }

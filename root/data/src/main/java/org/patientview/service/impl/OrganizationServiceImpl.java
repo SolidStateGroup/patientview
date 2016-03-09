@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.builder.OrganizationBuilder;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.OrganizationService;
 import org.patientview.config.exception.FhirResourceException;
@@ -90,6 +91,35 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         } catch (FhirResourceException e) {
             LOG.error(nhsno + ": Unable to save organization: " + e.getMessage());
             throw e;
+        }
+    }
+
+    @Override
+    public UUID add(Group group) throws FhirResourceException {
+
+        // build
+        OrganizationBuilder organizationBuilder = new OrganizationBuilder(group);
+        Organization organization = organizationBuilder.build();
+
+        // get existing
+        List<Map<String, UUID>> uuids = getUuidsByCode(group.getCode());
+
+        if (!uuids.isEmpty()) {
+            // native update existing FHIR entities (should be a single row)
+            UUID logicalId = null;
+
+            for (Map<String, UUID> objectData : uuids) {
+                fhirResource.updateEntity(organization,
+                        ResourceType.Organization.name(), "organization", objectData.get("logicalId"));
+                logicalId = objectData.get("logicalId");
+            }
+
+            return logicalId;
+        } else {
+            // native create new FHIR organization
+            FhirDatabaseEntity entity
+                    = fhirResource.createEntity(organization, ResourceType.Organization.name(), "organization");
+            return entity.getLogicalId();
         }
     }
 
