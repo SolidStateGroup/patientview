@@ -218,8 +218,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     }
 
     @Override
-    public void add(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink)
-            throws FhirResourceException {
+    public void add(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink) throws FhirResourceException {
 
         // build diagnostic result observation
         Observation observation = new Observation();
@@ -279,13 +278,39 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         fhirResource.createEntity(diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
     }
 
-    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+    private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
+        deleteBySubjectIdAndDateRange(subjectId, null, null);
+    }
+
+    @Override
+    public int deleteBySubjectIdAndDateRange(UUID subjectId, Date fromDate, Date toDate) throws FhirResourceException {
+        int deleteCount = 0;
+
         // split query to avoid DELETE FROM observation WHERE logical_id::TEXT conversion of uuid to text
         StringBuilder query = new StringBuilder();
         query.append("SELECT CONTENT #> '{result,0}' ->> 'display', CONTENT #> '{image,0}' -> 'link' ->> 'display'");
         query.append("FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
         query.append(subjectId.toString());
-        query.append("'");
+        query.append("' ");
+
+        if (fromDate != null && toDate != null) {
+            // date range
+            query.append("AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) >= '");
+            query.append(fromDate);
+            query.append("' AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) <= '");
+            query.append(toDate);
+            query.append("'");
+
+            // get count of medication to be deleted
+            List<UUID> uuidToDelete = fhirResource.getUuidByQuery(
+                    "SELECT logical_id FROM diagnosticreport " +
+                    "WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
+                    "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) >= '" + fromDate + "' " +
+                    "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) <= '" + toDate + "'"
+            );
+
+            deleteCount = uuidToDelete.size();
+        }
 
         StringBuilder observationIn = new StringBuilder("'");
         List<UUID> mediaUuids = new ArrayList<>();
@@ -344,10 +369,22 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         }
 
         // delete DiagnosticReport
-        fhirResource.executeSQL(
-            "DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
-        );
+        query = new StringBuilder();
+        query.append("DELETE FROM diagnosticreport WHERE CONTENT -> 'subject' ->> 'display' = '");
+        query.append(subjectId.toString());
+        query.append("' ");
+
+        if (fromDate != null && toDate != null) {
+            // date range
+            query.append("AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) >= '");
+            query.append(fromDate);
+            query.append("' AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) <= '");
+            query.append(toDate);
+            query.append("'");
+        }
+
+        fhirResource.executeSQL(query.toString());
+
+        return deleteCount;
     }
 }
-
-

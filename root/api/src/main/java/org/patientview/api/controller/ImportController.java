@@ -1,11 +1,13 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.api.service.LetterService;
+import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
 import org.patientview.persistence.model.FhirObservationRange;
@@ -26,6 +28,9 @@ import javax.inject.Inject;
 public class ImportController extends BaseController<ImportController> {
 
     @Inject
+    private ApiDiagnosticService apiDiagnosticService;
+
+    @Inject
     private ApiMedicationService apiMedicationService;
 
     @Inject
@@ -39,6 +44,12 @@ public class ImportController extends BaseController<ImportController> {
 
     @Inject
     private LetterService letterService;
+
+    @RequestMapping(value = "/import/diagnostics", method = RequestMethod.POST)
+    public ResponseEntity<ServerResponse> importDiagnostics(
+            @RequestBody FhirDiagnosticReportRange fhirDiagnosticReportRange) {
+        return new ResponseEntity<>(apiDiagnosticService.importDiagnostics(fhirDiagnosticReportRange), HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/import/letter", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importLetter(@RequestBody FhirDocumentReference fhirDocumentReference) {

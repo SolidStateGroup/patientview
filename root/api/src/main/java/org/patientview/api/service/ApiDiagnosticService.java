@@ -1,10 +1,14 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.ServerResponse;
+import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
 
@@ -27,4 +31,13 @@ public interface ApiDiagnosticService {
     List<FhirDiagnosticReport> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
 
     FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Given a FhirDiagnosticReportRange object with a start, end date and list of diagnostics, store in FHIR
+     * @param fhirDiagnosticReportRange FhirDiagnosticReportRange containing start date, end date and diagnostics
+     *                                  to import
+     * @return ServerResponse object containing success, error message and successful status
+     */
+    @RoleOnly(roles = { RoleName.IMPORTER })
+    ServerResponse importDiagnostics(FhirDiagnosticReportRange fhirDiagnosticReportRange);
 }

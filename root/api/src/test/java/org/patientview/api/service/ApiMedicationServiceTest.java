@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ApiMedicationServiceImpl;
-import org.patientview.api.service.impl.FhirLinkServiceImpl;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
@@ -245,7 +244,7 @@ public class ApiMedicationServiceTest {
     }
 
     @Test
-    public void testImportMedication_onlyDelete() throws Exception {
+    public void testImportMedication_deleteOnly() throws Exception {
         // auth
         Group group = TestUtils.createGroup("testGroup");
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
@@ -309,8 +308,7 @@ public class ApiMedicationServiceTest {
         Assert.assertTrue("Should have correct deleted success message, got '"
                 + serverResponse.getSuccessMessage() + "'", serverResponse.getSuccessMessage().contains("deleted 1"));
 
-        verify(fhirResource, times(0)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
-                eq("patient"));
+        verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(medicationService, times(0)).add(any(FhirMedicationStatement.class),
                 eq(patient.getFhirLinks().iterator().next()));
         verify(medicationService, times(1)).deleteBySubjectIdAndDateRange(any(UUID.class),

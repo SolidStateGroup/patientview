@@ -1,23 +1,37 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DiagnosticReport;
 import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
-import org.patientview.service.FileDataService;
-import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.api.service.ApiDiagnosticService;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.service.FhirLinkService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDiagnosticReport;
+import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FileDataRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.DiagnosticService;
+import org.patientview.service.FileDataService;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -33,6 +47,12 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
         implements ApiDiagnosticService {
 
     @Inject
+    private DiagnosticService diagnosticService;
+
+    @Inject
+    private FhirLinkService fhirLinkService;
+
+    @Inject
     private FhirResource fhirResource;
 
     @Inject
@@ -40,6 +60,12 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
 
     @Inject
     private FileDataService fileDataService;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -134,5 +160,105 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
         } else {
             throw new ResourceNotFoundException("File not found");
         }
+    }
+
+    @Transactional
+    @Override
+    public ServerResponse importDiagnostics(FhirDiagnosticReportRange fhirDiagnosticReportRange) {
+
+        boolean deleteDiagnostics = false;
+        boolean insertDiagnostics = false;
+
+        if (StringUtils.isEmpty(fhirDiagnosticReportRange.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(fhirDiagnosticReportRange.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+        if (fhirDiagnosticReportRange.getStartDate() == null && fhirDiagnosticReportRange.getEndDate() != null) {
+            return new ServerResponse("start date not set");
+        }
+        if (fhirDiagnosticReportRange.getStartDate() != null && fhirDiagnosticReportRange.getEndDate() == null) {
+            return new ServerResponse("end date not set");
+        }
+        if (fhirDiagnosticReportRange.getStartDate() != null) {
+            deleteDiagnostics = true;
+        }
+        if (!CollectionUtils.isEmpty(fhirDiagnosticReportRange.getDiagnostics())) {
+            insertDiagnostics = true;
+        }
+        if (!deleteDiagnostics && !insertDiagnostics) {
+            return new ServerResponse("must enter either a date range or a list of medications to add");
+        }
+
+        Group group = groupRepository.findByCode(fhirDiagnosticReportRange.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(fhirDiagnosticReportRange.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        Identifier identifier = identifiers.get(0);
+        User user = identifier.getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        // get fhirlink, create one if not present
+        FhirLink fhirLink = Util.getFhirLink(group, fhirDiagnosticReportRange.getIdentifier(), user.getFhirLinks());
+
+        if (fhirLink == null && insertDiagnostics) {
+            try {
+                fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
+            } catch (FhirResourceException fre) {
+                return new ServerResponse(fre.getMessage());
+            }
+        }
+
+        StringBuilder info = new StringBuilder();
+
+        // delete existing diagnostics in date range
+        if (fhirLink != null && deleteDiagnostics) {
+            try {
+                int deletedCount = diagnosticService.deleteBySubjectIdAndDateRange(fhirLink.getResourceId(),
+                        fhirDiagnosticReportRange.getStartDate(), fhirDiagnosticReportRange.getEndDate());
+                info.append(", deleted ").append(deletedCount);
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error deleting existing diagnostics");
+            }
+        }
+
+        // insert new diagnostics
+        if (insertDiagnostics) {
+            int success = 0;
+            for (org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport
+                    : fhirDiagnosticReportRange.getDiagnostics()) {
+                try {
+                    diagnosticService.add(fhirDiagnosticReport, fhirLink);
+                    success++;
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error inserting diagnostic, " + success + " of "
+                            + fhirDiagnosticReportRange.getDiagnostics().size() + " added");
+                }
+            }
+            info.append(", added ").append(success);
+        }
+
+        return new ServerResponse(null, "done" + info.toString(), true);
     }
 }

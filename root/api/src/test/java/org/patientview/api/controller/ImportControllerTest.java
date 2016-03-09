@@ -8,11 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.api.service.LetterService;
+import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
 import org.patientview.persistence.model.FhirObservationRange;
@@ -41,6 +43,10 @@ import static org.mockito.Mockito.verify;
  * Created on 07/10/2014
  */
 public class ImportControllerTest {
+
+    @Mock
+    private ApiDiagnosticService apiDiagnosticService;
+
     @Mock
     private ApiMedicationService apiMedicationService;
 
@@ -72,6 +78,25 @@ public class ImportControllerTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testImportDiagnostics() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/diagnostics")
+                .content(mapper.writeValueAsString(new FhirDiagnosticReportRange()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(apiDiagnosticService, Mockito.times(1)).importDiagnostics(any(FhirDiagnosticReportRange.class));
     }
 
     @Test

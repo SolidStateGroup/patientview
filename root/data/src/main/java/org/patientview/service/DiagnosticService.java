@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -20,4 +22,14 @@ public interface DiagnosticService {
     // used by migration
     void add(org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink)
             throws FhirResourceException;
+
+    /**
+     * Delete DiagnosticReport from FHIR, binary data from patientview given a subjectId and date range
+     * @param subjectId UUID of subject (patient's logical id)
+     * @param fromDate Date to delete diagnostic reports from
+     * @param toDate Date to delete diagnostic reports to
+     * @return int number of DiagnosticReport deleted
+     * @throws FhirResourceException
+     */
+    int deleteBySubjectIdAndDateRange(UUID subjectId, Date fromDate, Date toDate) throws FhirResourceException;
 }
