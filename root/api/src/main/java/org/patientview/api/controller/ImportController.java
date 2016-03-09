@@ -6,7 +6,9 @@ import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
+import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
+import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
@@ -43,7 +45,15 @@ public class ImportController extends BaseController<ImportController> {
     private ApiPractitionerService apiPractitionerService;
 
     @Inject
+    private ClinicalDataService clinicalDataService;
+
+    @Inject
     private LetterService letterService;
+
+    @RequestMapping(value = "/import/clinicaldata", method = RequestMethod.POST)
+    public ResponseEntity<ServerResponse> importClinicalData(@RequestBody FhirClinicalData fhirClinicalData) {
+        return new ResponseEntity<>(clinicalDataService.importClinicalData(fhirClinicalData), HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/import/diagnostics", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importDiagnostics(

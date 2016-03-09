@@ -13,7 +13,9 @@ import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
+import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
+import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirMedicationStatementRange;
@@ -59,6 +61,9 @@ public class ImportControllerTest {
     @Mock
     private ApiPractitionerService apiPractitionerService;
 
+    @Mock
+    private ClinicalDataService clinicalDataService;
+
     @InjectMocks
     private ImportController importController;
 
@@ -78,6 +83,25 @@ public class ImportControllerTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testImportClinicalData() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/clinicaldata")
+                .content(mapper.writeValueAsString(new FhirClinicalData()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(clinicalDataService, Mockito.times(1)).importClinicalData(any(FhirClinicalData.class));
     }
 
     @Test
