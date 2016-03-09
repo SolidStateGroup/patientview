@@ -35,6 +35,8 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
@@ -47,6 +49,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.AuditService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.util.Util;
@@ -86,6 +89,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     @Inject
     private AlertRepository alertRepository;
+
+    @Inject
+    private AuditService auditService;
 
     @Inject
     private FhirResource fhirResource;
@@ -1188,6 +1194,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                         alertRepository.save(entityAlert);
                     }
 
+                    // audit as patient data load
+                    auditService.createAudit(AuditActions.PATIENT_DATA_SUCCESS, user.getUsername(),
+                            getCurrentUser(), user.getId(), AuditObjectTypes.User, group);
                 } catch (FhirResourceException fre) {
                     return new ServerResponse("error inserting observations");
                 }

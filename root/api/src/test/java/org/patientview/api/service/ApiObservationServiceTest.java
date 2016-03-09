@@ -31,6 +31,8 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.impl.ApiObservationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -50,6 +52,7 @@ import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.AuditService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
@@ -86,6 +89,9 @@ public class ApiObservationServiceTest {
 
     @InjectMocks
     ApiObservationService apiObservationService = new ApiObservationServiceImpl();
+
+    @Mock
+    AuditService auditService;
 
     @Mock
     FhirLinkService fhirLinkService;
@@ -576,9 +582,11 @@ public class ApiObservationServiceTest {
         Assert.assertTrue("Should have correct deleted success message, got '"
                 + serverResponse.getSuccessMessage() + "'", serverResponse.getSuccessMessage().contains("deleted 1"));
 
-        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(alertRepository, times(1)).findByUserAndObservationHeading(eq(patient), eq(observationHeading));
         verify(alertRepository, times(1)).save(any(Alert.class));
+        verify(auditService, times(1)).createAudit(eq(AuditActions.PATIENT_DATA_SUCCESS), eq(patient.getUsername()),
+                any(User.class), eq(patient.getId()), eq(AuditObjectTypes.User), any(Group.class));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(fhirResource, times(1)).marshallFhirRecord(any(Observation.class));
         verify(observationService, times(1)).deleteObservations(any(List.class));
         verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
@@ -660,9 +668,11 @@ public class ApiObservationServiceTest {
         Assert.assertTrue("Should have correct success message, got '" + serverResponse.getSuccessMessage() + "'",
                 serverResponse.getSuccessMessage().contains("added 1"));
 
-        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(alertRepository, times(1)).findByUserAndObservationHeading(eq(patient), eq(observationHeading));
         verify(alertRepository, times(1)).save(any(Alert.class));
+        verify(auditService, times(1)).createAudit(eq(AuditActions.PATIENT_DATA_SUCCESS), eq(patient.getUsername()),
+                any(User.class), eq(patient.getId()), eq(AuditObjectTypes.User), any(Group.class));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(fhirResource, times(1)).marshallFhirRecord(any(Observation.class));
         verify(observationService, times(0)).deleteObservations(any(List.class));
         verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
@@ -748,6 +758,8 @@ public class ApiObservationServiceTest {
 
         verify(alertRepository, times(0)).findByUserAndObservationHeading(eq(patient), eq(observationHeading));
         verify(alertRepository, times(0)).save(any(Alert.class));
+        verify(auditService, times(0)).createAudit(eq(AuditActions.PATIENT_DATA_SUCCESS), eq(patient.getUsername()),
+                any(User.class), eq(patient.getId()), eq(AuditObjectTypes.User), any(Group.class));
         verify(fhirResource, times(0)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"));
         verify(fhirResource, times(0)).marshallFhirRecord(any(Observation.class));
