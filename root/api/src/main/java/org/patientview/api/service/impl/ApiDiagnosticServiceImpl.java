@@ -19,6 +19,8 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -189,6 +191,26 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
         }
         if (!deleteDiagnostics && !insertDiagnostics) {
             return new ServerResponse("must enter either a date range or a list of medications to add");
+        }
+
+        // if inserting, validate diagnostics
+        if (insertDiagnostics) {
+            for (org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport
+                    : fhirDiagnosticReportRange.getDiagnostics()) {
+                if (fhirDiagnosticReport.getDate() == null) {
+                    return new ServerResponse("diagnostic is missing date");
+                }
+                if (StringUtils.isEmpty(fhirDiagnosticReport.getName())) {
+                    return new ServerResponse("diagnostic is missing name");
+                }
+                if (StringUtils.isEmpty(fhirDiagnosticReport.getType())) {
+                    return new ServerResponse("diagnostic is missing type");
+                }
+                if (!Util.isInEnum(fhirDiagnosticReport.getType(), DiagnosticReportTypes.class)) {
+                    return new ServerResponse("diagnostic type '" + fhirDiagnosticReport.getType()
+                            + "' is an unsupported type");
+                }
+            }
         }
 
         Group group = groupRepository.findByCode(fhirDiagnosticReportRange.getGroupCode());

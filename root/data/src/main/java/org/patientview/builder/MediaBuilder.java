@@ -9,6 +9,7 @@ import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Media;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
 
 /**
@@ -21,6 +22,7 @@ public class MediaBuilder {
 
     private Diagnostic diagnostic;
     private FhirDocumentReference fhirDocumentReference;
+    private FhirDiagnosticReport fhirDiagnosticReport;
     private Letter letter;
     private Media media;
 
@@ -32,6 +34,10 @@ public class MediaBuilder {
         this.fhirDocumentReference = fhirDocumentReference;
     }
 
+    public MediaBuilder(FhirDiagnosticReport fhirDiagnosticReport) {
+        this.fhirDiagnosticReport = fhirDiagnosticReport;
+    }
+
     public MediaBuilder(Letter letter) {
         this.letter = letter;
     }
@@ -40,7 +46,7 @@ public class MediaBuilder {
         media = new Media();
         Attachment attachment = new Attachment();
 
-        // build based on either Letter or Diagnostic
+        // build based on object type
         if (letter != null) {
             // date
             if (letter.getLetterdate() != null) {
@@ -100,6 +106,21 @@ public class MediaBuilder {
             // file type
             if (StringUtils.isNotEmpty(fhirDocumentReference.getFiletype())) {
                 attachment.setContentTypeSimple(fhirDocumentReference.getFiletype());
+            }
+        } else if (fhirDiagnosticReport != null) {
+            // date
+            if (fhirDiagnosticReport.getDate() != null) {
+                media.setDateTimeSimple(new DateAndTime(fhirDiagnosticReport.getDate()));
+            }
+
+            // filename
+            if (StringUtils.isNotEmpty(fhirDiagnosticReport.getFilename())) {
+                attachment.setTitleSimple(fhirDiagnosticReport.getFilename());
+            }
+
+            // file type
+            if (StringUtils.isNotEmpty(fhirDiagnosticReport.getFiletype())) {
+                attachment.setContentTypeSimple(fhirDiagnosticReport.getFiletype());
             }
         }
 

@@ -219,6 +219,11 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
     @Override
     public void add(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink) throws FhirResourceException {
+        Date now = new Date();
+
+        if (fhirDiagnosticReport.getResult() == null) {
+            throw new FhirResourceException("no result");
+        }
 
         // build diagnostic result observation
         Observation observation = new Observation();
@@ -268,14 +273,93 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         // create observation
         FhirDatabaseEntity entity
                 = fhirResource.createEntity(observation, ResourceType.Observation.name(), "observation");
+
+        if (entity == null) {
+            throw new FhirResourceException("error adding observation");
+        }
+
         UUID observationUuid = entity.getLogicalId();
 
         // add observation (result) reference to diagnostic report
         ResourceReference resultReference = diagnosticReport.addResult();
         resultReference.setDisplaySimple(observationUuid.toString());
 
+        FileData fileData = null;
+
+        // if binary file then build media, store and add reference to DiagnosticReport
+        if (StringUtils.isNotEmpty(fhirDiagnosticReport.getFileBase64())) {
+            // set filename and type if not set
+            if (StringUtils.isEmpty(fhirDiagnosticReport.getFilename())) {
+                fhirDiagnosticReport.setFilename(String.valueOf(now.getTime()));
+            }
+            if (StringUtils.isEmpty(fhirDiagnosticReport.getFiletype())) {
+                fhirDiagnosticReport.setFiletype("application/unknown");
+            }
+            MediaBuilder mediaBuilder = new MediaBuilder(fhirDiagnosticReport);
+            mediaBuilder.build();
+            Media media = mediaBuilder.getMedia();
+
+            // create binary file
+            fileData = new FileData();
+            fileData.setCreated(now);
+            if (media.getContent().getTitle() != null) {
+                fileData.setName(media.getContent().getTitleSimple());
+            } else {
+                fileData.setName(String.valueOf(now.getTime()));
+            }
+            if (media.getContent().getContentType() != null) {
+                fileData.setType(media.getContent().getContentTypeSimple());
+            } else {
+                fileData.setType("application/unknown");
+            }
+
+            // convert base64 string to binary
+            byte[] content = CommonUtils.base64ToByteArray(fhirDiagnosticReport.getFileBase64());
+            fileData.setContent(content);
+            fileData.setSize(Long.valueOf(content.length));
+
+            // store binary data
+            fileData = fileDataRepository.save(fileData);
+
+            if (fileData == null) {
+                throw new FhirResourceException("error adding file data");
+            }
+
+            // set Media file data ID and size
+            media = mediaBuilder.setFileDataId(media, fileData.getId());
+            media = mediaBuilder.setFileSize(media, content.length);
+
+            // create Media and set DocumentReference location to newly created Media logicalId
+            try {
+                // create Media
+                FhirDatabaseEntity createdMedia
+                        = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+
+                // create ResourceReference to newly created Media and add to new
+                // DiagnosticReportImageComponent on DiagnosticReport as Link
+                DiagnosticReport.DiagnosticReportImageComponent imageComponent
+                        = diagnosticReport.addImage();
+
+                ResourceReference mediaReference = new ResourceReference();
+                mediaReference.setDisplaySimple(createdMedia.getLogicalId().toString());
+                imageComponent.setLink(mediaReference);
+            } catch (FhirResourceException e) {
+                fileDataRepository.delete(fileData);
+                throw new FhirResourceException("Unable to create Media, cleared binary data");
+            }
+        }
+
         // create diagnostic report
-        fhirResource.createEntity(diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
+        try {
+            fhirResource.createEntity(diagnosticReport, ResourceType.DiagnosticReport.name(), "diagnosticreport");
+        } catch (FhirResourceException e) {
+            if (fileData != null) {
+                fileDataRepository.delete(fileData);
+                throw new FhirResourceException("Unable to create DiagnosticReport, cleared binary data");
+            }
+
+            throw new FhirResourceException("Unable to create DiagnosticReport");
+        }
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
