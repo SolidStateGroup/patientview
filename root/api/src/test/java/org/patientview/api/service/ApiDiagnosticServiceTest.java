@@ -288,6 +288,7 @@ public class ApiDiagnosticServiceTest {
         when(groupRepository.findByCode(eq(fhirDiagnosticReportRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirDiagnosticReportRange.getIdentifier())))
                 .thenReturn(identifiers);
+        when(Util.isInEnum(eq(fhirDiagnosticReport.getType()), eq(DiagnosticReportTypes.class))).thenReturn(true);
 
         ServerResponse serverResponse = apiDiagnosticService.importDiagnostics(fhirDiagnosticReportRange);
 
@@ -359,6 +360,7 @@ public class ApiDiagnosticServiceTest {
         when(groupRepository.findByCode(eq(fhirDiagnosticReportRange.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirDiagnosticReportRange.getIdentifier())))
                 .thenReturn(identifiers);
+        when(Util.isInEnum(eq(fhirDiagnosticReport.getType()), eq(DiagnosticReportTypes.class))).thenReturn(true);
 
         ServerResponse serverResponse = apiDiagnosticService.importDiagnostics(fhirDiagnosticReportRange);
 
