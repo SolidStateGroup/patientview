@@ -116,6 +116,10 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             return new ServerResponse("diagnosis code must be set");
         }
 
+        if (fhirClinicalData.getDiagnosis() != null && fhirClinicalData.getDiagnosis().getDate() == null) {
+            return new ServerResponse("diagnosis date must be set");
+        }
+
         if (fhirClinicalData.getDiagnosis() != null
                 && StringUtils.isNotEmpty(fhirClinicalData.getDiagnosis().getCode())) {
             Lookup diagnosisLookup = lookupRepository.findByTypeAndValue(
