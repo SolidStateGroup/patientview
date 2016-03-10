@@ -112,12 +112,14 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             return new ServerResponse("treatment status must be set");
         }
 
-        if (fhirClinicalData.getDiagnosis() != null && fhirClinicalData.getDiagnosis().getCode() == null) {
-            return new ServerResponse("diagnosis code must be set");
-        }
-
-        if (fhirClinicalData.getDiagnosis() != null && fhirClinicalData.getDiagnosis().getDate() == null) {
-            return new ServerResponse("diagnosis date must be set");
+        if (fhirClinicalData.getDiagnosis() != null) {
+            if (fhirClinicalData.getDiagnosis().getCode() == null) {
+                return new ServerResponse("diagnosis code must be set");
+            }
+            if (StringUtils.isNotEmpty(fhirClinicalData.getDiagnosis().getCode())
+                    && fhirClinicalData.getDiagnosis().getDate() == null) {
+                return new ServerResponse("diagnosis date must be set");
+            }
         }
 
         if (fhirClinicalData.getDiagnosis() != null

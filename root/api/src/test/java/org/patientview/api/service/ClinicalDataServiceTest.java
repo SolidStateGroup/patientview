@@ -42,6 +42,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -150,6 +151,7 @@ public class ClinicalDataServiceTest {
         // diagnosis Condition
         FhirCondition diagnosis = new FhirCondition();
         diagnosis.setCode("00");
+        diagnosis.setDate(new Date());
         fhirClinicalData.setDiagnosis(diagnosis);
 
         // other diagnoses Conditions
