@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ClinicalDataServiceImpl;
-import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirEncounter;
@@ -17,7 +16,6 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
@@ -146,35 +144,33 @@ public class ClinicalDataServiceTest {
         // treatment Encounter
         FhirEncounter treatment = new FhirEncounter();
         treatment.setStatus("transfusion");
-        fhirClinicalData.setTreatment(treatment);
+        fhirClinicalData.setTreatments(new ArrayList<FhirEncounter>());
+        FhirEncounter treatment2 = new FhirEncounter();
+        treatment2.setStatus("removal");
+        fhirClinicalData.setTreatments(new ArrayList<FhirEncounter>());
+
+        fhirClinicalData.getTreatments().add(treatment);
+        fhirClinicalData.getTreatments().add(treatment2);
 
         // diagnosis Condition
         FhirCondition diagnosis = new FhirCondition();
         diagnosis.setCode("00");
         diagnosis.setDate(new Date());
-        fhirClinicalData.setDiagnosis(diagnosis);
 
-        // other diagnoses Conditions
+        // other diagnosis Condition
         FhirCondition otherDiagnosis = new FhirCondition();
         otherDiagnosis.setCode("another diagnosis");
-        fhirClinicalData.setOtherDiagnoses(new ArrayList<FhirCondition>());
-        fhirClinicalData.getOtherDiagnoses().add(otherDiagnosis);
+        otherDiagnosis.setDate(new Date());
+
+        fhirClinicalData.setDiagnoses(new ArrayList<FhirCondition>());
+        fhirClinicalData.getDiagnoses().add(diagnosis);
+        fhirClinicalData.getDiagnoses().add(otherDiagnosis);
 
         // from Organization create/update
         UUID organizationUuid = UUID.randomUUID();
 
-        // Lookup for Code and Code, found from diagnosis code
-        Lookup lookup = TestUtils.createLookup(
-                TestUtils.createLookupType(LookupTypes.CODE_TYPE), DiagnosisTypes.DIAGNOSIS.toString());
-        Code code = TestUtils.createCode(diagnosis.getCode());
-        List<Code> codes = new ArrayList<>();
-        codes.add(code);
-
-        when(codeRepository.findAllByCodeAndType(eq(diagnosis.getCode()), eq(lookup))).thenReturn(codes);
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group))).thenReturn(fhirLink);
         when(groupRepository.findByCode(eq(fhirClinicalData.getGroupCode()))).thenReturn(group);
-        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(DiagnosisTypes.DIAGNOSIS.toString())))
-                .thenReturn(lookup);
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
         when(identifierRepository.findByValue(eq(fhirClinicalData.getIdentifier())))
                 .thenReturn(identifiers);
@@ -184,25 +180,18 @@ public class ClinicalDataServiceTest {
         Assert.assertTrue(
                 "Should be successful, got '" + serverResponse.getErrorMessage() + "'", serverResponse.isSuccess());
         Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("saved treatment"));
+                + "'", serverResponse.getSuccessMessage().contains("saved 2 treatments"));
         Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("saved diagnosis"));
-        Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("saved 1 other diagnoses"));
+                + "'", serverResponse.getSuccessMessage().contains("saved 2 diagnoses"));
 
-        verify(codeRepository, times(1)).findAllByCodeAndType(eq(diagnosis.getCode()), eq(lookup));
-        verify(conditionService, times(1)).add(eq(fhirClinicalData.getDiagnosis()), eq(fhirLink));
-        verify(conditionService, times(1)).add(eq(fhirClinicalData.getOtherDiagnoses().get(0)), eq(fhirLink));
-        verify(conditionService, times(1)).deleteBySubjectIdAndType(
-                eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS_EDTA));
+        verify(conditionService, times(1)).add(eq(fhirClinicalData.getDiagnoses().get(0)), eq(fhirLink));
+        verify(conditionService, times(1)).add(eq(fhirClinicalData.getDiagnoses().get(1)), eq(fhirLink));
         verify(conditionService, times(1)).deleteBySubjectIdAndType(
                 eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS));
         verify(encounterService, times(1)).add(
                 eq(treatment), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
         verify(encounterService, times(1)).deleteByUserAndType(eq(patient), eq(EncounterTypes.TREATMENT));
         verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
-        verify(lookupRepository, times(1)).findByTypeAndValue(
-                eq(LookupTypes.CODE_TYPE), eq(DiagnosisTypes.DIAGNOSIS.toString()));
         verify(organizationService, times(1)).add(eq(group));
     }
 
@@ -241,25 +230,14 @@ public class ClinicalDataServiceTest {
         fhirClinicalData.setGroupCode("DSF01");
         fhirClinicalData.setIdentifier("1111111111");
 
-        // treatment Encounter (blank)
-        FhirEncounter treatment = new FhirEncounter();
-        treatment.setStatus("");
-        fhirClinicalData.setTreatment(treatment);
-
-        // diagnosis Condition (blank)
-        FhirCondition diagnosis = new FhirCondition();
-        diagnosis.setCode("");
-        fhirClinicalData.setDiagnosis(diagnosis);
-
-        // other diagnoses Conditions (empty)
-        fhirClinicalData.setOtherDiagnoses(new ArrayList<FhirCondition>());
+        fhirClinicalData.setDiagnoses(new ArrayList<FhirCondition>());
+        fhirClinicalData.setTreatments(new ArrayList<FhirEncounter>());
 
         // from Organization create/update
         UUID organizationUuid = UUID.randomUUID();
 
         FhirLink fhirLink = patient.getFhirLinks().iterator().next();
 
-        verify(codeRepository, times(0)).findAllByCodeAndType(eq(diagnosis.getCode()), any(Lookup.class));
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group))).thenReturn(fhirLink);
         when(groupRepository.findByCode(eq(fhirClinicalData.getGroupCode()))).thenReturn(group);
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
@@ -271,24 +249,17 @@ public class ClinicalDataServiceTest {
         Assert.assertTrue(
                 "Should be successful, got '" + serverResponse.getErrorMessage() + "'", serverResponse.isSuccess());
         Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("removed treatment"));
+                + "'", serverResponse.getSuccessMessage().contains("removed treatments"));
         Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("removed diagnosis"));
-        Assert.assertTrue("Should have correct added success message, got '" + serverResponse.getSuccessMessage()
-                + "'", serverResponse.getSuccessMessage().contains("removed other diagnoses"));
+                + "'", serverResponse.getSuccessMessage().contains("removed diagnoses"));
 
-        verify(conditionService, times(0)).add(eq(fhirClinicalData.getDiagnosis()), eq(fhirLink));
         verify(conditionService, times(0)).add(any(FhirCondition.class), eq(fhirLink));
-        verify(conditionService, times(1)).deleteBySubjectIdAndType(
-                eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS_EDTA));
         verify(conditionService, times(1)).deleteBySubjectIdAndType(
                 eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS));
         verify(encounterService, times(0)).add(
-                eq(treatment), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
+                any(FhirEncounter.class), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
         verify(encounterService, times(1)).deleteByUserAndType(eq(patient), eq(EncounterTypes.TREATMENT));
         verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
-        verify(lookupRepository, times(0)).findByTypeAndValue(
-                eq(LookupTypes.CODE_TYPE), eq(DiagnosisTypes.DIAGNOSIS.toString()));
         verify(organizationService, times(1)).add(eq(group));
     }
 }
