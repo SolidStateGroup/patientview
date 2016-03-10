@@ -176,10 +176,11 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
         // set primary diagnosis to first condition of patient (as sent in <diagnosis>), DIAGNOSIS, not EDTA_DIAGNOSIS
         if (patient.fhirConditions.length) {
+            var found = false;
             for (i = 0; i < patient.fhirConditions.length; i++) {
-                if (patient.fhirConditions[i].category === 'DIAGNOSIS') {
-                    myIbd.primaryDiagnosis = patient.fhirConditions[i].notes;
-                    myIbd.primaryDiagnosisDate = patient.fhirConditions[i].date;
+                if (found === false && patient.fhirConditions[i].category === 'DIAGNOSIS') {
+                    myIbd.primaryDiagnosis = patient.fhirConditions[i];
+                    found = true;
                 }
             }
         }
