@@ -5,24 +5,19 @@ import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
 import org.patientview.service.OrganizationService;
@@ -46,9 +41,6 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
         implements ClinicalDataService {
 
     @Inject
-    private CodeRepository codeRepository;
-
-    @Inject
     private ConditionService conditionService;
 
     @Inject
@@ -62,9 +54,6 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
 
     @Inject
     private IdentifierRepository identifierRepository;
-
-    @Inject
-    private LookupRepository lookupRepository;
 
     @Inject
     private OrganizationService organizationService;
@@ -107,43 +96,26 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             return new ServerResponse("user not found");
         }
 
-        // validate child objects
-        if (fhirClinicalData.getTreatment() != null && fhirClinicalData.getTreatment().getStatus() == null) {
-            return new ServerResponse("treatment status must be set");
-        }
-
-        if (fhirClinicalData.getDiagnosis() != null) {
-            if (fhirClinicalData.getDiagnosis().getCode() == null) {
-                return new ServerResponse("diagnosis code must be set");
-            }
-            if (StringUtils.isNotEmpty(fhirClinicalData.getDiagnosis().getCode())
-                    && fhirClinicalData.getDiagnosis().getDate() == null) {
-                return new ServerResponse("diagnosis date must be set");
+        // validate treatments
+        if (fhirClinicalData.getTreatments() != null) {
+            if (!CollectionUtils.isEmpty(fhirClinicalData.getTreatments())) {
+                for (FhirEncounter treatment : fhirClinicalData.getTreatments()) {
+                    if (StringUtils.isEmpty(treatment.getStatus())) {
+                        return new ServerResponse("treatment status must be set");
+                    }
+                }
             }
         }
 
-        if (fhirClinicalData.getDiagnosis() != null
-                && StringUtils.isNotEmpty(fhirClinicalData.getDiagnosis().getCode())) {
-            Lookup diagnosisLookup = lookupRepository.findByTypeAndValue(
-                    LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
-
-            if (diagnosisLookup == null) {
-                return new ServerResponse("cannot get diagnosis lookup");
-            }
-
-            List<Code> codes = codeRepository.findAllByCodeAndType(
-                    fhirClinicalData.getDiagnosis().getCode(), diagnosisLookup);
-
-            if (CollectionUtils.isEmpty(codes)) {
-                return new ServerResponse("diagnosis code is invalid");
-            }
-        }
-
-        if (fhirClinicalData.getOtherDiagnoses() != null) {
-            if (!CollectionUtils.isEmpty(fhirClinicalData.getOtherDiagnoses())) {
-                for (FhirCondition diagnosis : fhirClinicalData.getOtherDiagnoses()) {
+        // validate diagnoses
+        if (fhirClinicalData.getDiagnoses() != null) {
+            if (!CollectionUtils.isEmpty(fhirClinicalData.getDiagnoses())) {
+                for (FhirCondition diagnosis : fhirClinicalData.getDiagnoses()) {
                     if (StringUtils.isEmpty(diagnosis.getCode())) {
-                        return new ServerResponse("diagnoses codes must be set");
+                        return new ServerResponse("diagnosis code must be set");
+                    }
+                    if (diagnosis.getDate() == null) {
+                        return new ServerResponse("diagnosis date must be set");
                     }
                 }
             }
@@ -176,8 +148,8 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
         StringBuilder info = new StringBuilder();
 
         // treatment
-        if (fhirClinicalData.getTreatment() != null) {
-            // erase existing TREATMENT Encounters, should only ever be one
+        if (fhirClinicalData.getTreatments() != null) {
+            // erase existing TREATMENT Encounters
             try {
                 encounterService.deleteByUserAndType(user, EncounterTypes.TREATMENT);
             } catch (FhirResourceException fre) {
@@ -185,44 +157,26 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             }
 
             // store new TREATMENT Encounter (only if set)
-            if (StringUtils.isNotEmpty(fhirClinicalData.getTreatment().getStatus())) {
-                try {
-                    fhirClinicalData.getTreatment().setEncounterType(EncounterTypes.TREATMENT.toString());
-                    encounterService.add(fhirClinicalData.getTreatment(), fhirLink, organizationUuid);
-                    info.append(", saved treatment");
-                } catch (FhirResourceException fre) {
-                    return new ServerResponse("error saving treatment");
+            if (!CollectionUtils.isEmpty(fhirClinicalData.getTreatments())) {
+                int successCount = 0;
+                for (FhirEncounter fhirEncounter : fhirClinicalData.getTreatments()) {
+                    try {
+                        fhirEncounter.setEncounterType(EncounterTypes.TREATMENT.toString());
+                        encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+                    } catch (FhirResourceException fre) {
+                        return new ServerResponse("error saving treatment, added " + successCount
+                                + " of " + fhirClinicalData.getTreatments().size());
+                    }
                 }
+
+                info.append(", saved ").append(fhirClinicalData.getTreatments().size()).append(" treatments");
             } else {
-                info.append(", removed treatment");
+                info.append(", removed treatments");
             }
         }
 
-        // diagnosis (originally diagnosisedta in xml)
-        if (fhirClinicalData.getDiagnosis() != null) {
-            // erase existing DIAGNOSIS_EDTA type Condition, should only be one
-            try {
-                conditionService.deleteBySubjectIdAndType(fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_EDTA);
-            } catch (FhirResourceException fre) {
-                return new ServerResponse("error removing existing diagnosis");
-            }
-
-            // store new DIAGNOSIS_EDTA type Condition (if set)
-            if (StringUtils.isNotEmpty(fhirClinicalData.getDiagnosis().getCode())) {
-                try {
-                    fhirClinicalData.getDiagnosis().setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
-                    conditionService.add(fhirClinicalData.getDiagnosis(), fhirLink);
-                    info.append(", saved diagnosis");
-                } catch (FhirResourceException fre) {
-                    return new ServerResponse("error saving diagnosis");
-                }
-            } else {
-                info.append(", removed diagnosis");
-            }
-        }
-
-        // other diagnoses (orginally diagnosis, list of diagnoses)
-        if (fhirClinicalData.getOtherDiagnoses() != null) {
+        // diagnoses (orginally diagnosis, list of diagnoses)
+        if (fhirClinicalData.getDiagnoses() != null) {
             // erase existing DIAGNOSIS type Condition, could be multiple
             try {
                 conditionService.deleteBySubjectIdAndType(fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS);
@@ -230,22 +184,22 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                 return new ServerResponse("error removing existing diagnoses");
             }
 
-            if (!CollectionUtils.isEmpty(fhirClinicalData.getOtherDiagnoses())) {
+            if (!CollectionUtils.isEmpty(fhirClinicalData.getDiagnoses())) {
                 // store new DIAGNOSIS type Conditions
                 int successCount = 0;
-                for (FhirCondition diagnosis : fhirClinicalData.getOtherDiagnoses()) {
+                for (FhirCondition diagnosis : fhirClinicalData.getDiagnoses()) {
                     try {
                         diagnosis.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
                         conditionService.add(diagnosis, fhirLink);
                     } catch (FhirResourceException fre) {
                         return new ServerResponse("error saving diagnosis, added " + successCount
-                                + " of " + fhirClinicalData.getOtherDiagnoses().size());
+                                + " of " + fhirClinicalData.getDiagnoses().size());
                     }
                 }
 
-                info.append(", saved ").append(fhirClinicalData.getOtherDiagnoses().size()).append(" other diagnoses");
+                info.append(", saved ").append(fhirClinicalData.getDiagnoses().size()).append(" diagnoses");
             } else {
-                info.append(", removed other diagnoses");
+                info.append(", removed diagnoses");
             }
         }
 

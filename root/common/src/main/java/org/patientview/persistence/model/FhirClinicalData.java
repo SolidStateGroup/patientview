@@ -4,38 +4,29 @@ import java.util.List;
 
 /**
  * FhirClinicalData, representing a collection of objects for treatment (Encounter)
- * and diagnosis/diagnosisedta (Condition). Used for API import.
+ * and diagnosis (Condition). Used for API import.
  * Created by jamesr@solidstategroup.com
  * Created on 09/03/2016
  */
 public class FhirClinicalData extends BaseImport {
-    private FhirCondition diagnosis;
-    private List<FhirCondition> otherDiagnoses;
-    private FhirEncounter treatment;
+    private List<FhirCondition> diagnoses;
+    private List<FhirEncounter> treatments;
 
     public FhirClinicalData() { }
 
-    public FhirCondition getDiagnosis() {
-        return diagnosis;
+    public List<FhirCondition> getDiagnoses() {
+        return diagnoses;
     }
 
-    public void setDiagnosis(FhirCondition diagnosis) {
-        this.diagnosis = diagnosis;
+    public void setDiagnoses(List<FhirCondition> diagnoses) {
+        this.diagnoses = diagnoses;
     }
 
-    public List<FhirCondition> getOtherDiagnoses() {
-        return otherDiagnoses;
+    public List<FhirEncounter> getTreatments() {
+        return treatments;
     }
 
-    public void setOtherDiagnoses(List<FhirCondition> otherDiagnoses) {
-        this.otherDiagnoses = otherDiagnoses;
-    }
-
-    public FhirEncounter getTreatment() {
-        return treatment;
-    }
-
-    public void setTreatment(FhirEncounter treatment) {
-        this.treatment = treatment;
+    public void setTreatments(List<FhirEncounter> treatments) {
+        this.treatments = treatments;
     }
 }
