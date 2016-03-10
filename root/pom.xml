@@ -21,6 +21,19 @@
     <module>api</module>
   </modules>
 
+   <build>
+      <plugins>
+      <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-surefire-plugin</artifactId>
+               <configuration>
+                   <forkMode>pertest</forkMode>
+                   <argLine>-Xms512m -Xmx1024m</argLine>
+                   <testFailureIgnore>false</testFailureIgnore>
+               </configuration>
+           </plugin>
+      </plugins>
+   </build>
     <!-- Add Spring repositories -->
     <!-- (you don't need this if you are using a .RELEASE version) -->
     <repositories>
