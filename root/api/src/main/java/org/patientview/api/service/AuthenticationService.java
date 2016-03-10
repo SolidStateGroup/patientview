@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -42,6 +43,8 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
+
+    UserToken authenticateImporter(Credentials credentials) throws AuthenticationServiceException;
 
     /**
      * Validates a User's secret word given a Map of letter position to letter chosen, used as part of login and

@@ -8,11 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.persistence.model.FhirClinicalData;
@@ -60,6 +62,9 @@ public class ImportControllerTest {
 
     @Mock
     private ApiPractitionerService apiPractitionerService;
+
+    @Mock
+    private AuthenticationService authenticationService;
 
     @Mock
     private ClinicalDataService clinicalDataService;
@@ -140,6 +145,16 @@ public class ImportControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(letterService, Mockito.times(1)).importLetter(any(FhirDocumentReference.class));
+    }
+
+    @Test
+    public void testImportLogin() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/login")
+                .content(mapper.writeValueAsString(new Credentials()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(authenticationService, Mockito.times(1)).authenticateImporter(any(Credentials.class));
     }
 
     @Test

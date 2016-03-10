@@ -1,11 +1,14 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.model.Credentials;
+import org.patientview.api.model.UserToken;
 import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ApiPractitionerService;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.persistence.model.FhirClinicalData;
@@ -18,6 +21,7 @@ import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.ServerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,6 +49,9 @@ public class ImportController extends BaseController<ImportController> {
     private ApiPractitionerService apiPractitionerService;
 
     @Inject
+    private AuthenticationService authenticationService;
+
+    @Inject
     private ClinicalDataService clinicalDataService;
 
     @Inject
@@ -64,6 +71,12 @@ public class ImportController extends BaseController<ImportController> {
     @RequestMapping(value = "/import/letter", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importLetter(@RequestBody FhirDocumentReference fhirDocumentReference) {
         return new ResponseEntity<>(letterService.importLetter(fhirDocumentReference), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/import/login", method = RequestMethod.POST)
+    public ResponseEntity<UserToken> importLogin(@RequestBody Credentials credentials)
+            throws AuthenticationServiceException {
+        return new ResponseEntity<>(authenticationService.authenticateImporter(credentials), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/import/medication", method = RequestMethod.POST)

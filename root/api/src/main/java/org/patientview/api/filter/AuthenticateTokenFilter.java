@@ -56,6 +56,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/auth/userinformation");
         publicUrls.add("/error");
 
+        // importer user login
+        publicUrls.add("/import/login");
+
         // public news
         publicUrls.add("/public/news");
 

@@ -24,6 +24,8 @@ CREATE TABLE PV_User
   Picture          TEXT,
   Hide_Secret_Word_Notification          BOOLEAN NOT NULL DEFAULT FALSE,
   Secret_Word      TEXT,
+  Api_Key          TEXT,
+  Api_Key_Expiry_Date  DATE,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,
