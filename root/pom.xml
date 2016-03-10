@@ -65,8 +65,22 @@
         <repository>
             <id>nexus</id>
             <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com/content/repositories/snapshots/</url>
+            <url>http://nexus2.solidstategroup.com/content/repositories/snapshots/</url>
         </repository>
     </distributionManagement>
 
+    <!-- increase memory for tests -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms512m -Xmx1024m</argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
