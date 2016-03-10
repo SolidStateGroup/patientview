@@ -71,6 +71,12 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
 
         if (StringUtils.isNotEmpty(fhirCondition.getNotes())) {
             condition.setNotesSimple(fhirCondition.getNotes());
+        } else {
+            // if code isn't empty and not the same as notes
+            if (StringUtils.isNotEmpty(fhirCondition.getCode())
+                    && !fhirCondition.getCode().equals(fhirCondition.getNotes())) {
+                condition.setNotesSimple(fhirCondition.getCode());
+            }
         }
 
         if (StringUtils.isNotEmpty(fhirCondition.getCode())) {

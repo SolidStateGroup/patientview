@@ -479,7 +479,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
     private org.patientview.api.model.Patient setDiagnosisCodes(org.patientview.api.model.Patient patient) {
         for (FhirCondition condition : patient.getFhirConditions()) {
-            if (condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
+            if (StringUtils.isNotEmpty(condition.getCategory())
+                    && condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
 
                 List<Code> codes = codeService.findAllByCodeAndType(condition.getCode(),
                         lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));

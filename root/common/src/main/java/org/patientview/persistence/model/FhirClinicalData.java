@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
  */
 public class FhirClinicalData extends BaseImport {
     private FhirCondition diagnosis;
-    private List<FhirCondition> otherDiagnoses = new ArrayList<>();
+    private List<FhirCondition> otherDiagnoses;
     private FhirEncounter treatment;
 
     public FhirClinicalData() { }
