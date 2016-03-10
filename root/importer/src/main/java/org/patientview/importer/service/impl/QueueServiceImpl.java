@@ -2,7 +2,7 @@ package org.patientview.importer.service.impl;
 
 import com.rabbitmq.client.Channel;
 import generated.Patientview;
-import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.springframework.stereotype.Service;
 

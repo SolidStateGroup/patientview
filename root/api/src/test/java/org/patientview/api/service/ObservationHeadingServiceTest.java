@@ -10,10 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
-import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -23,7 +21,6 @@ import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.model.ResultClusterObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -56,45 +53,42 @@ import static org.mockito.Mockito.when;
  */
 public class ObservationHeadingServiceTest {
 
-    User creator;
-
-    @Mock
-    ObservationHeadingRepository observationHeadingRepository;
-
-    @Mock
-    ObservationHeadingGroupRepository observationHeadingGroupRepository;
-
-    @Mock
-    GroupRepository groupRepository;
-
-    @Mock
-    UserRepository userRepository;
-
-    @Mock
-    RoleRepository roleRepository;
-
-    @Mock
-    ResultClusterRepository resultClusterRepository;
-
     @Mock
     AlertRepository alertRepository;
 
     @Mock
-    ObservationService observationService;
+    ApiObservationService apiObservationService;
 
     @Mock
     EmailService emailService;
 
     @Mock
-    Properties properties;
+    GroupRepository groupRepository;
+
+    @Mock
+    ObservationHeadingGroupRepository observationHeadingGroupRepository;
+
+    @Mock
+    ObservationHeadingRepository observationHeadingRepository;
 
     @InjectMocks
     ObservationHeadingService observationHeadingService = new ObservationHeadingServiceImpl();
 
+    @Mock
+    Properties properties;
+
+    @Mock
+    ResultClusterRepository resultClusterRepository;
+
+    @Mock
+    RoleRepository roleRepository;
+
+    @Mock
+    UserRepository userRepository;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
     }
 
     @After

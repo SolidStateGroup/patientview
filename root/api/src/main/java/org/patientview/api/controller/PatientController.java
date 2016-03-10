@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -31,7 +31,7 @@ import java.util.List;
 public class PatientController  extends BaseController<PatientController> {
 
     @Inject
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
@@ -47,7 +47,7 @@ public class PatientController  extends BaseController<PatientController> {
     @ResponseBody
     public ResponseEntity<List<org.patientview.api.model.Patient>> getBasicPatientDetails(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(patientService.getBasic(userId), HttpStatus.OK);
+        return new ResponseEntity<>(apiPatientService.getBasic(userId), HttpStatus.OK);
     }
 
     /**
@@ -65,7 +65,7 @@ public class PatientController  extends BaseController<PatientController> {
     public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(
             @PathVariable("userId") Long userId, @RequestParam(value = "groupId", required = false) List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(patientService.get(userId, groupIds), HttpStatus.OK);
+        return new ResponseEntity<>(apiPatientService.get(userId, groupIds), HttpStatus.OK);
     }
 
     // API
@@ -76,6 +76,6 @@ public class PatientController  extends BaseController<PatientController> {
     public void update(@PathVariable("userId") Long userId, @PathVariable(value = "groupId") Long groupId,
                        @RequestBody FhirPatient fhirPatient)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
-        patientService.update(userId, groupId, fhirPatient);
+        apiPatientService.update(userId, groupId, fhirPatient);
     }
 }

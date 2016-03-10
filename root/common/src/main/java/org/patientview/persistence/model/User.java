@@ -83,11 +83,20 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "picture")
     private String picture;
 
+    // secret word for multi-factor authentication
     @Column(name = "hide_secret_word_notification")
     private boolean hideSecretWordNotification = false;
 
     @Column(name = "secret_word")
     private String secretWord;
+
+    // API key for importing data via API with IMPORTER Role
+    @Column(name = "api_key")
+    private String apiKey;
+
+    @Column(name = "api_key_expiry_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date apiKeyExpiryDate;
 
     @Transient
     private String name;
@@ -431,5 +440,21 @@ public class User extends RangeModel implements UserDetails {
 
     public void setSecretWord(String secretWord) {
         this.secretWord = secretWord;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public Date getApiKeyExpiryDate() {
+        return apiKeyExpiryDate;
+    }
+
+    public void setApiKeyExpiryDate(Date apiKeyExpiryDate) {
+        this.apiKeyExpiryDate = apiKeyExpiryDate;
     }
 }

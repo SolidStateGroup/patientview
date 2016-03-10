@@ -4,11 +4,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.MigrationService;
-import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -41,7 +41,7 @@ import java.util.List;
 public class ObservationController extends BaseController<ObservationController> {
 
     @Inject
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private MigrationService migrationService;
@@ -68,7 +68,7 @@ public class ObservationController extends BaseController<ObservationController>
     public void addObservations(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
                                   @RequestBody FhirObservationRange fhirObservationRange)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        observationService.addTestObservations(userId, groupId, fhirObservationRange);
+        apiObservationService.addTestObservations(userId, groupId, fhirObservationRange);
     }
 
     /**
@@ -86,7 +86,7 @@ public class ObservationController extends BaseController<ObservationController>
     public void addResultClusters(@PathVariable("userId") Long userId,
                                   @RequestBody List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
-        observationService.addUserResultClusters(userId, userResultClusters);
+        apiObservationService.addUserResultClusters(userId, userResultClusters);
     }
 
     // API
@@ -107,7 +107,7 @@ public class ObservationController extends BaseController<ObservationController>
             @PathVariable("code") String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(
-            observationService.get(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
+            apiObservationService.get(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
             HttpStatus.OK);
     }
 
@@ -132,7 +132,7 @@ public class ObservationController extends BaseController<ObservationController>
             @RequestParam String orderDirection)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(
-            observationService.getMultipleByCode(userId, code, limit, offset, orderDirection), HttpStatus.OK);
+            apiObservationService.getMultipleByCode(userId, code, limit, offset, orderDirection), HttpStatus.OK);
     }
 
     /**
@@ -147,7 +147,7 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public ResponseEntity<List<ObservationSummary>> getObservationSummary(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(observationService.getObservationSummary(userId), HttpStatus.OK);
+        return new ResponseEntity<>(apiObservationService.getObservationSummary(userId), HttpStatus.OK);
     }
 
     // Migration Only

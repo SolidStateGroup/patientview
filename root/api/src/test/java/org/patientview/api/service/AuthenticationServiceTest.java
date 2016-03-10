@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -8,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -30,6 +31,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -48,9 +50,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -143,7 +147,7 @@ public class AuthenticationServiceTest {
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         authenticationService.authenticate(user.getUsername(), password);
 
-        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
@@ -190,7 +194,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
         Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
 
-        verify(auditService, Mockito.times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+        verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
@@ -216,6 +220,44 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         authenticationService.authenticate(user.getUsername(), password);
+    }
+
+    @Test
+    public void testAuthenticateImporter() throws AuthenticationServiceException {
+        String password = "doNotShow";
+        String apiKey = "abc123";
+
+        Credentials credentials = new Credentials();
+        credentials.setUsername("testUsername");
+        credentials.setPassword(password);
+        credentials.setApiKey(apiKey);
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER, RoleType.STAFF);
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setGroupRoles(new HashSet<GroupRole>());
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        user.setApiKey(apiKey);
+        user.setApiKeyExpiryDate(new DateTime(new Date()).plusDays(1).toDate());
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(UUID.randomUUID().toString());
+
+        when(userRepository.findByUsernameCaseInsensitive(eq(credentials.getUsername()))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+        org.patientview.api.model.UserToken toReturn = authenticationService.authenticateImporter(credentials);
+
+        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+        verify(userRepository, times(1)).save(eq(user));
+        Assert.assertNotNull("token should not be null", toReturn.getToken());
     }
 
     /**
@@ -446,7 +488,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token must not be null", userToken.getToken());
         Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
 
-        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
     }
 
     @Test
@@ -499,9 +541,9 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
 
-        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
-        verify(userTokenRepository, Mockito.times(1)).save(eq(foundUserToken));
-        verify(userRepository, Mockito.times(1)).save(any(User.class));
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(userTokenRepository, times(1)).save(eq(foundUserToken));
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test (expected = ResourceForbiddenException.class)

@@ -14,7 +14,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirPractitioner extends BaseModel {
+public class FhirPractitioner extends BaseImport {
 
     private String name;
     private String gender;

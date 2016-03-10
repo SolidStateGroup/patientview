@@ -7,14 +7,14 @@ import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.Patient;
 import org.patientview.api.model.UserToken;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
-import org.patientview.api.service.MedicationService;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.service.ObservationService;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -67,16 +67,16 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
     private LetterService letterService;
 
     @Inject
-    private MedicationService medicationService;
+    private ApiMedicationService apiMedicationService;
 
     @Inject
     private ObservationHeadingService observationHeadingService;
 
     @Inject
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     @Inject
     private Properties properties;
@@ -181,7 +181,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         List<FhirMedicationStatement> fhirMedicationStatements;
 
         try {
-            fhirMedicationStatements = medicationService.getByUserId(userToken.getUser().getId());
+            fhirMedicationStatements = apiMedicationService.getByUserId(userToken.getUser().getId());
         } catch (FhirResourceException | ResourceNotFoundException e) {
             return getErrorXml("Cannot get medication");
         }
@@ -502,7 +502,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         }
 
         try {
-            patientDetails = patientService.getBasic(userToken.getUser().getId());
+            patientDetails = apiPatientService.getBasic(userToken.getUser().getId());
         } catch (FhirResourceException | ResourceNotFoundException e) {
             return getErrorXml("Error getting details");
         }
@@ -724,7 +724,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         try {
             observations
-                    = observationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
+                    = apiObservationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
         } catch (FhirResourceException | ResourceNotFoundException | ResourceForbiddenException e) {
             return getErrorXml("Error getting results");
         }

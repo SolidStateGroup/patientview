@@ -4,7 +4,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
@@ -77,9 +77,9 @@ public final class SecurityAspect {
             throw new SecurityException("The user must be authenticated");
         }
 
-        RoleName[] roles = Util.getRoles(joinPoint);
+        RoleName[] roles = ApiUtil.getRoles(joinPoint);
 
-        if (roles != null && (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN) || Util.currentUserHasRole(roles))) {
+        if (roles != null && (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN) || ApiUtil.currentUserHasRole(roles))) {
             LOG.debug("User has passed role validation");
         } else {
             throw new ResourceForbiddenException("The user does not have the required role");
@@ -125,11 +125,11 @@ public final class SecurityAspect {
             return;
         }
 
-        RoleName[] roles = Util.getRoles(joinPoint);
+        RoleName[] roles = ApiUtil.getRoles(joinPoint);
 
-        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                || Util.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
-                || Util.doesContainGroupAndRole(groupId, roles)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
         } else {
             throw new ResourceForbiddenException("Failed group validation");
@@ -147,7 +147,7 @@ public final class SecurityAspect {
     @Before("@annotation(org.patientview.api.annotation.UserOnly)")
     public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
         Long requestId = getId(joinPoint);
-        Long userId = Util.getUser().getId();
+        Long userId = ApiUtil.getUser().getId();
         if (!requestId.equals(userId)) {
             LOG.debug("User with id: {id} should not be accessing the resource for user id {}", userId, requestId);
             throw new ResourceForbiddenException("You have to be logged in as the requested user");

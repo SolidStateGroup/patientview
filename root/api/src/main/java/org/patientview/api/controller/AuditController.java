@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.service.AuditService;
+import org.patientview.api.service.ApiAuditService;
 import org.patientview.api.model.Audit;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -27,7 +27,7 @@ import javax.inject.Inject;
 public class AuditController extends BaseController<AuditController> {
 
     @Inject
-    private AuditService auditService;
+    private ApiAuditService apiAuditService;
 
     /**
      * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
@@ -41,6 +41,6 @@ public class AuditController extends BaseController<AuditController> {
     @ResponseBody
     public ResponseEntity<Page<Audit>> findAll(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(auditService.findAll(getParameters), HttpStatus.OK);
+        return new ResponseEntity<>(apiAuditService.findAll(getParameters), HttpStatus.OK);
     }
 }

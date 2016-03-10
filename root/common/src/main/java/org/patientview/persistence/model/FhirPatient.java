@@ -13,7 +13,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirPatient extends BaseModel {
+public class FhirPatient extends BaseImport {
 
     private String forename;
     private String surname;
@@ -29,7 +29,6 @@ public class FhirPatient extends BaseModel {
     private List<FhirIdentifier> identifiers = new ArrayList<>();
 
     // used during migration
-    private String identifier;
     private Group group;
     private List<FhirPractitioner> practitioners = new ArrayList<>();
 
@@ -51,8 +50,8 @@ public class FhirPatient extends BaseModel {
         // date of birth if present
         DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
         if (fhirDateOfBirth != null) {
-            dateOfBirth = fhirDateOfBirth.toCalendar().getTime();
-            dateOfBirthNoTime = fhirDateOfBirth.toString().split("T")[0];
+            this.dateOfBirth = fhirDateOfBirth.toCalendar().getTime();
+            this.dateOfBirthNoTime = fhirDateOfBirth.toString().split("T")[0];
         }
 
         // gender/sex
@@ -182,14 +181,6 @@ public class FhirPatient extends BaseModel {
 
     public void setIdentifiers(List<FhirIdentifier> identifiers) {
         this.identifiers = identifiers;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
     }
 
     public Group getGroup() {

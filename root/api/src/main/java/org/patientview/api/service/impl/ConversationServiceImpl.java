@@ -6,7 +6,7 @@ import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.model.enums.DummyUsernames;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.ConversationService;
@@ -14,7 +14,7 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -53,6 +53,7 @@ import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -430,7 +431,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 return rejectExternalConversation(
                         "if group code set, must set user feature", conversation);
             }
-            if (!Util.isInEnum(conversation.getUserFeature(), FeatureType.class)) {
+            if (!ApiUtil.isInEnum(conversation.getUserFeature(), FeatureType.class)) {
                 return rejectExternalConversation(
                         "if group code set, must set suitable user feature", conversation);
             }
@@ -1158,9 +1159,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // only users with certain roles
-        if (!(Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                || Util.currentUserHasRole(RoleName.UNIT_ADMIN)
-                || Util.currentUserHasRole(RoleName.SPECIALTY_ADMIN))) {
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)
+                || ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN))) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -1573,7 +1574,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     private boolean loggedInUserHasMessagingFeatures() {
         User loggedInUser = getCurrentUser();
-        if (Util.currentUserHasRole(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 
@@ -1844,7 +1845,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         for (UserFeature userFeature : entityUser.getUserFeatures()) {
-            if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
+            if (ApiUtil.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
                 return true;
             }
         }

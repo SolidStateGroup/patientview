@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -10,6 +10,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -49,15 +50,15 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             return Collections.EMPTY_LIST;
         }
 
-        return Util.convertAuthorities(authentication.getAuthorities());
+        return ApiUtil.convertAuthorities(authentication.getAuthorities());
     }
 
     protected User getUser() {
-        return Util.getUser();
+        return ApiUtil.getUser();
     }
 
     protected boolean doesContainRoles(RoleName... roleNames) {
-        return Util.currentUserHasRole(roleNames);
+        return ApiUtil.currentUserHasRole(roleNames);
     }
 
     protected static <T> List<T> convertIterable(Iterable<T> iterable) {
@@ -89,11 +90,11 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
     protected boolean isUserMemberOfGroup(User user, Group group) {
         // unit admins / specialty admins can only add groups they belong to
-        if (Util.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 
-        if (Util.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
 
@@ -113,7 +114,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.userHasRole(user, RoleName.UNIT_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.UNIT_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
@@ -122,7 +123,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.userHasRole(user, RoleName.GP_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN) && groupRole.getGroup().equals(group)) {
@@ -131,7 +132,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.userHasRole(user, RoleName.STAFF_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.STAFF_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
@@ -139,7 +140,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.userHasRole(user, RoleName.DISEASE_GROUP_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.DISEASE_GROUP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.DISEASE_GROUP_ADMIN)
                         && groupRole.getGroup().equals(group)) {
@@ -148,7 +149,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
-        if (Util.userHasRole(user, RoleName.PATIENT)) {
+        if (ApiUtil.userHasRole(user, RoleName.PATIENT)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
                     return true;

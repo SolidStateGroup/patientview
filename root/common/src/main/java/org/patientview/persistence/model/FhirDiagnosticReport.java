@@ -13,7 +13,7 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 10/09/2014
  */
-public class FhirDiagnosticReport extends BaseModel {
+public class FhirDiagnosticReport {
 
     private Date date;
     private String name;
@@ -29,6 +29,9 @@ public class FhirDiagnosticReport extends BaseModel {
     private String filetype;
     private Long fileDataId;
     private Long filesize;
+
+    // used for import of binary data
+    private String fileBase64;
 
     public FhirDiagnosticReport() {
     }
@@ -151,5 +154,13 @@ public class FhirDiagnosticReport extends BaseModel {
 
     public void setFilesize(Long filesize) {
         this.filesize = filesize;
+    }
+
+    public String getFileBase64() {
+        return fileBase64;
+    }
+
+    public void setFileBase64(String fileBase64) {
+        this.fileBase64 = fileBase64;
     }
 }

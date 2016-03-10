@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.AuditTrail;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.User;
@@ -48,9 +48,17 @@ public class AuditAspect {
         LOG.info("Audit aspect started");
     }
 
-
     @Pointcut("execution(public * *(..))")
     public void publicMethod() { }
+
+    // Singleton pattern for AspectJ vs Spring management
+    public static AuditAspect aspectOf() {
+
+        if (instance == null) {
+            instance = new AuditAspect();
+        }
+        return instance;
+    }
 
     @AfterReturning(value = "@annotation(org.patientview.api.annotation.AuditTrail)")
     public void auditObject(JoinPoint joinPoint) {
@@ -111,15 +119,6 @@ public class AuditAspect {
 
         audit.setAuditActions(auditTrail.value());
         return audit;
-    }
-
-    // Singleton pattern for AspectJ vs Spring management
-    public static AuditAspect aspectOf() {
-
-        if (instance == null) {
-            instance = new AuditAspect();
-        }
-        return instance;
     }
 
     // Retrieve the list of Roles from the annotation.

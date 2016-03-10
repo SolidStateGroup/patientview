@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.impl.GpMedicationServiceImpl;
-import org.patientview.api.service.impl.MedicationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -40,18 +39,15 @@ import static org.mockito.Mockito.when;
  */
 public class GpMedicationServiceTest {
 
-    User creator;
+    @InjectMocks
+    GpMedicationService gpMedicationService = new GpMedicationServiceImpl();
 
     @Mock
     UserRepository userRepository;
 
-    @InjectMocks
-    GpMedicationService gpMedicationService = new GpMedicationServiceImpl();
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
     }
 
     @After

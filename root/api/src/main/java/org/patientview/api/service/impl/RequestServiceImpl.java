@@ -4,7 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.RequestService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
@@ -389,7 +389,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         if (!ArrayUtils.isEmpty(getParameters.getTypes())) {
             for (String requestType : getParameters.getTypes()) {
-                if (Util.isInEnum(requestType, RequestTypes.class)) {
+                if (ApiUtil.isInEnum(requestType, RequestTypes.class)) {
                     requestTypes.add(RequestTypes.valueOf(requestType));
                 }
             }

@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.service.ConditionService;
+import org.patientview.api.service.ApiConditionService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -28,7 +28,7 @@ import java.util.List;
 public class DiagnosisController extends BaseController<DiagnosisController> {
 
     @Inject
-    private ConditionService conditionService;
+    private ApiConditionService apiConditionService;
 
     /**
      * Add a diagnosis to a patient, used by staff to add DIAGNOSIS_STAFF_ENTERED Condition to a patient
@@ -42,7 +42,7 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
     @RequestMapping(value = "/user/{userId}/diagnosis/{code}", method = RequestMethod.POST)
     public void add(@PathVariable("userId") Long userId, @PathVariable("code") String code)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
-        conditionService.staffAddCondition(userId, code);
+        apiConditionService.staffAddCondition(userId, code);
     }
 
     /**
@@ -56,7 +56,7 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
     @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.GET)
     public ResponseEntity<List<FhirCondition>> getStaffEntered(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
-        return new ResponseEntity<>(conditionService.getStaffEntered(userId), HttpStatus.OK);
+        return new ResponseEntity<>(apiConditionService.getStaffEntered(userId), HttpStatus.OK);
     }
 
     /**
@@ -66,6 +66,6 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
      */
     @RequestMapping(value = "/user/{userId}/diagnosis/staffentered", method = RequestMethod.DELETE)
     public void removeStaffEntered(@PathVariable("userId") Long userId) throws Exception {
-        conditionService.staffRemoveCondition(userId);
+        apiConditionService.staffRemoveCondition(userId);
     }
 }

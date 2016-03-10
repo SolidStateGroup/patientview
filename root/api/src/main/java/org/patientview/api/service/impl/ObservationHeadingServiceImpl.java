@@ -1,8 +1,9 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -22,6 +23,7 @@ import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -78,6 +80,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     private static final Long FIRST_PANEL = 1L;
     private static final Long DEFAULT_COUNT = 3L;
 
+    @Override
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
             LOG.debug("Observation Heading not created, already exists with these details");
@@ -101,6 +104,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(observationHeading);
     }
 
+    @Override
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
@@ -115,8 +119,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -126,37 +130,16 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingRepository.save(observationHeading);
     }
 
-    public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        ObservationHeading observationHeading
-                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
-
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
+    @Override
+    public List<BaseObservationHeading> findAll() {
+        List<BaseObservationHeading> headings = new ArrayList<>();
+        for (ObservationHeading heading : observationHeadingRepository.findAll()) {
+            headings.add(new BaseObservationHeading(heading));
         }
-
-        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
-        if (group == null) {
-            throw new ResourceNotFoundException("Group does not exist");
-        }
-
-        // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-            if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
-                oldObservationHeadingGroup.setGroup(group);
-                oldObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
-                oldObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
-            }
-        }
-
-        observationHeadingRepository.save(observationHeading);
+        return headings;
     }
 
+    @Override
     public void removeObservationHeadingGroup(Long observationHeadingGroupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeadingGroup observationHeadingGroup
@@ -166,14 +149,15 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // only global admin or specialty admin with correct group role can remove
-        if (!Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-            && !Util.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+            && !ApiUtil.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 
+    @Override
     public List<ResultCluster> getResultClusters() {
         return Util.convertIterable(resultClusterRepository.findAll());
     }
@@ -364,7 +348,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
-        List<ObservationHeading> observationHeadings = findAll();
+        List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
         List<ObservationHeading> availableObservationHeadings = new ArrayList<>();
 
         // add based on default panel (if not 0)
@@ -404,10 +388,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return new ArrayList<>(out);
     }
 
+    @Override
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.delete(observationHeadingId);
     }
 
+    @Override
     public Page<ObservationHeading> findAll(final GetParameters getParameters) {
         String size = getParameters.getSize();
         String page = getParameters.getPage();
@@ -432,18 +418,17 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.findAllMinimal(pageable);
     }
 
+    @Override
     public List<ObservationHeading> findByCode(final String code) {
         return observationHeadingRepository.findByCode(code);
     }
 
-    public List<ObservationHeading> findAll() {
-        return Util.convertIterable(observationHeadingRepository.findAll());
-    }
-
+    @Override
     public ObservationHeading get(final Long observationHeadingId) {
         return observationHeadingRepository.findOne(observationHeadingId);
     }
 
+    @Override
     public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
 
         ObservationHeading entity = observationHeadingRepository.findOne(input.getId());
@@ -468,5 +453,37 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     private boolean observationHeadingExists(ObservationHeading observationHeading) {
         return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
+    }
+
+    @Override
+    public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        ObservationHeading observationHeading
+                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
+
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
+        if (group == null) {
+            throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        // only global admin or specialty admin with correct group role can remove
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
+                oldObservationHeadingGroup.setGroup(group);
+                oldObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
+                oldObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
+            }
+        }
+
+        observationHeadingRepository.save(observationHeading);
     }
 }

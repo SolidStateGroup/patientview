@@ -1,10 +1,10 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.SecurityService;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.RouteRepository;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

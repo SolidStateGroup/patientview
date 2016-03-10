@@ -1,11 +1,11 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.RoleService;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

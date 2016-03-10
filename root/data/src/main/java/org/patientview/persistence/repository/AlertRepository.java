@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,19 +26,26 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
             "FROM    Alert a " +
             "JOIN    a.user u " +
             "WHERE   u = :user ")
-    public List<Alert> findByUser(@Param("user") User user);
+    List<Alert> findByUser(@Param("user") User user);
 
     @Query("SELECT   a " +
             "FROM    Alert a " +
             "JOIN    a.user u " +
             "WHERE   u = :user " +
             "AND     a.alertType = :alertType")
-    public List<Alert> findByUserAndAlertType(@Param("user") User user, @Param("alertType") AlertTypes alertType);
+    List<Alert> findByUserAndAlertType(@Param("user") User user, @Param("alertType") AlertTypes alertType);
+
+    @Query("SELECT   a " +
+            "FROM    Alert a " +
+            "WHERE   a.user = :user " +
+            "AND     a.observationHeading = :observationHeading")
+    List<Alert> findByUserAndObservationHeading(@Param("user") User user,
+                                                @Param("observationHeading") ObservationHeading observationHeading);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Alert WHERE user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
 
     @Query("SELECT a FROM Alert a WHERE a.emailAlert = true AND a.emailAlertSent = false")
-    public List<Alert> findByEmailAlertSetAndNotSent();
+    List<Alert> findByEmailAlertSetAndNotSent();
 }

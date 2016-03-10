@@ -6,15 +6,16 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.model.Role;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -35,6 +36,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.util.Util;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -47,7 +49,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -124,6 +125,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Cacheable(value = "authenticateOnToken")
+    @Override
     public Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(authentication.getName());
 
@@ -152,6 +154,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    @Override
     public org.patientview.api.model.UserToken authenticate(String username, String password)
             throws UsernameNotFoundException, AuthenticationServiceException {
         LOG.debug("Authenticating user: {}", username);
@@ -209,7 +212,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // choose two characters to check and add to secret word indexes for ui
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
-                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {}.getType());
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
 
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -249,6 +252,92 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             updateUserAndAuditLogin(user, password);
         }
+
+        return toReturn;
+    }
+
+    @CacheEvict(value = "authenticateOnToken", allEntries = true)
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    @Override
+    public org.patientview.api.model.UserToken authenticateImporter(Credentials credentials)
+            throws AuthenticationServiceException {
+        String username = credentials.getUsername();
+        String password = credentials.getPassword();
+
+        if (StringUtils.isEmpty(username)) {
+            throw new AuthenticationServiceException("username not set");
+        }
+        if (StringUtils.isEmpty(credentials.getPassword())) {
+            throw new AuthenticationServiceException("password not set");
+        }
+        if (StringUtils.isEmpty(credentials.getApiKey())) {
+            throw new AuthenticationServiceException("api key not set");
+        }
+
+        // trim username (ipad adds space if you tap space after username to auto enter details)
+        username = username.trim();
+        User user = userRepository.findByUsernameCaseInsensitive(username);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Incorrect username or password");
+        }
+        if (user.getLocked()) {
+            throw new AuthenticationServiceException("This account is locked");
+        }
+        if (user.getDeleted()) {
+            throw new AuthenticationServiceException("This account has been deleted");
+        }
+        if (StringUtils.isEmpty(user.getApiKey())) {
+            throw new AuthenticationServiceException("No API key found");
+        }
+        if (user.getApiKeyExpiryDate() == null) {
+            throw new AuthenticationServiceException("API key has no expiry date");
+        }
+        if (new Date().getTime() > user.getApiKeyExpiryDate().getTime()) {
+            throw new AuthenticationServiceException("API key has expired");
+        }
+        if (!credentials.getApiKey().equals(user.getApiKey())) {
+            throw new AuthenticationServiceException("Incorrect API key");
+        }
+
+        // strip spaces from beginning and end of password
+        password = password.trim();
+
+        // check username and password
+        if (!user.getPassword().equals(DigestUtils.sha256Hex(password)) && user.getSalt() == null) {
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
+            incrementFailedLogon(user);
+            throw new AuthenticationServiceException("Incorrect username or password");
+        } else if (user.getSalt() != null
+                && !user.getPassword().equals(
+                DigestUtils.sha256Hex(password + user.getSalt()))) {
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
+            incrementFailedLogon(user);
+            throw new AuthenticationServiceException("Incorrect username or password");
+        }
+
+        // check user has IMPORTER role
+        if (!ApiUtil.userHasRole(user, RoleName.IMPORTER) && !ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
+            throw new AuthenticationServiceException("Importer role missing");
+        }
+
+        Date now = new Date();
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + sessionLength));
+
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+
+        // no secret word, log in as usual
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken = userTokenRepository.save(userToken);
+        toReturn.setToken(userToken.getToken());
+
+        updateUserAndAuditLogin(user, password);
 
         return toReturn;
     }
@@ -309,14 +398,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         transportUserToken.setUserFeatures(featureRepository.findByUser(userToken.getUser()));
         transportUserToken.setRoutes(securityService.getUserRoutes(userToken.getUser()));
 
-        if (Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+        if (ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken.setPatientMessagingFeatureTypes(
                     new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
             transportUserToken.setGroupMessagingEnabled(true);
         }
 
-        if (!Util.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
+        if (!ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setSecurityRoles(transportUserToken);
             setPatientRoles(transportUserToken);
             setStaffRoles(transportUserToken);
@@ -345,6 +434,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     // retrieve static data and user specific data to avoid requerying
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
+    @Override
     public org.patientview.api.model.UserToken getUserInformation(org.patientview.api.model.UserToken userToken)
             throws ResourceNotFoundException, ResourceForbiddenException {
         UserToken foundUserToken = userTokenRepository.findByToken(userToken.getToken());
@@ -410,12 +500,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userRepository.save(user);
     }
 
+    @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
     @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
             @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -500,13 +592,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // global admin can also get general practice specialty
         List<String> extraGroupCodes = new ArrayList<>();
-        if (Util.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
             extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
         }
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results
-            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
+            if (!ApiUtil.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)
                     || extraGroupCodes.contains(userGroup.getCode())) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 
@@ -547,6 +639,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    @Override
     public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
         LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findOne(userId);
@@ -565,6 +658,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    @Override
     public String switchToUser(Long userId) throws AuthenticationServiceException {
         LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findOne(userId);

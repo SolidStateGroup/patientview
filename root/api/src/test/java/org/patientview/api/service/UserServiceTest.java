@@ -45,6 +45,7 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mail.MailException;
 

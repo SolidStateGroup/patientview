@@ -1,7 +1,9 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.MigrationUser;
 
@@ -29,4 +31,10 @@ public interface MigrationService {
     @RoleOnly
     Long migrateUserExisting(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException;
+
+    void migratePatientData(Long userId, MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
+
+    void migrateTestObservations(Long userId, MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 }

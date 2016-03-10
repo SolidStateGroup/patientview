@@ -67,7 +67,15 @@
                 <td>
                     <ul class="unstyled">
                         <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS'">
-                            {{condition.notes}}
+                            <span data-ng-if="!condition.description">
+                                {{condition.code}}
+                            </span>
+                            <span data-ng-if="condition.description">
+                                {{condition.description}}
+                            </span>
+                            <span data-ng-if="condition.code !== condition.notes">
+                                ({{condition.notes}})
+                            </span>
                         </li>
                     </ul>
                 </td>

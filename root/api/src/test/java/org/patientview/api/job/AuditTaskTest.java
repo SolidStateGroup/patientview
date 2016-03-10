@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.Timer;
 
 import java.util.Properties;

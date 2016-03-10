@@ -64,7 +64,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleResourceForbiddenException(ResourceForbiddenException e) {
-        LOG.info("Resource forbidden");
+        LOG.info("Resource forbidden: " + e.getMessage());
         return e.getMessage();
     }
 
@@ -72,7 +72,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleResourceInvalidException(ResourceInvalidException e) {
-        LOG.info("Resource invalid");
+        LOG.info("Resource invalid: " + e.getMessage());
         return e.getMessage();
     }
 

@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.annotation.AuditTrail;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.repository.UserRepository;

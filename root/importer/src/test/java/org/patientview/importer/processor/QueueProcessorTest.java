@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.service.PatientService;
+import org.patientview.service.PatientService;
 
 import java.util.concurrent.ExecutorService;
 
