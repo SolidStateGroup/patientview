@@ -217,9 +217,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (!CollectionUtils.isEmpty(apiKeys)) {
             for (ApiKey apiKeyEntity : apiKeys) {
                 if (apiKeyEntity.getExpiryDate() == null) {
-                    throw new AuthenticationServiceException("Error checking API key");
-                }
-                if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    validApiKey = true;
+                } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
                     validApiKey = true;
                 }
             }
@@ -325,9 +324,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (!CollectionUtils.isEmpty(apiKeys)) {
             for (ApiKey apiKeyEntity : apiKeys) {
                 if (apiKeyEntity.getExpiryDate() == null) {
-                    throw new AuthenticationServiceException("Error checking API key");
-                }
-                if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    validApiKey = true;
+                } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
                     validApiKey = true;
                 }
             }

@@ -26,7 +26,7 @@ public class ApiKey extends BaseModel {
     @Column(name = "key", nullable = false)
     private String key;
 
-    @Column(name = "expiry_date", nullable = false)
+    @Column(name = "expiry_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiryDate;
 

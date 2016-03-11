@@ -312,7 +312,6 @@ public class AuthenticationServiceTest {
         ApiKey apiKey = new ApiKey();
         apiKey.setKey(apiKeyValue);
         apiKey.setUser(user);
-        apiKey.setExpiryDate(new DateTime(new Date()).plusDays(1).toDate());
         apiKey.setType(ApiKeyTypes.IMPORTER);
         List<ApiKey> apiKeys = new ArrayList<>();
         apiKeys.add(apiKey);
