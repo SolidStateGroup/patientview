@@ -154,7 +154,6 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
 
-        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
         org.patientview.api.model.UserToken returned
                 = authenticationService.authenticate(new Credentials(user.getUsername(), password));
 

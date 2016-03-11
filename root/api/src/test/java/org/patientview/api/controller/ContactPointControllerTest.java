@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ContactPointService;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
@@ -27,8 +26,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.junit.Assert.fail;
 
 /**
  * Created by james@solidstategroup.com
@@ -63,20 +60,16 @@ public class ContactPointControllerTest {
      */
     @Test
     @Ignore("Only used for migration")
-    public void testGetContactPointType() throws ResourceInvalidException {
+    public void testGetContactPointType() throws Exception {
         String type = "testType";
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/contactpoint/type/" + type)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/contactpoint/type/" + type)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testUpdateContactPoint() {
+    public void testUpdateContactPoint() throws Exception {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -91,30 +84,21 @@ public class ContactPointControllerTest {
         contactPoint.setId(1L);
         contactPoint.setGroup(group);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put("/contactpoint")
-                    .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.put("/contactpoint")
+                .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testDeleteContactPoint() {
+    public void testDeleteContactPoint() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Long contactPointId = 1L;
         String url = "/contactpoint/" + contactPointId;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testAddContactPoint() {
+    public void testAddContactPoint() throws Exception {
         ContactPoint contactPoint = new ContactPoint();
         ContactPointType contactPointType = new ContactPointType();
         contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
@@ -130,13 +114,9 @@ public class ContactPointControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/contactpoints")
-                    .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/contactpoints")
+                .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     @Test(expected = AssertionError.class)
