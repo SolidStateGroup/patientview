@@ -240,12 +240,12 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                 }
             };
         },
-        getDocsRoute: function() {
+        getApiDocsRoute: function() {
             return {
-                'url': '/docs',
-                'templateUrl': 'views/docs.html',
-                'controller': 'DocsCtrl',
-                'title': 'Documentation',
+                'url': '/apidocs',
+                'templateUrl': 'views/apidocs.html',
+                'controller': 'ApiDocsCtrl',
+                'title': 'API Documentation',
                 'lookup': {
                     'id': 99,
                     'value': 'NOT_DISPLAYED',

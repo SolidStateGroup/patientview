@@ -153,8 +153,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getSetSecretWordRoute(), data.routes)) {
                     data.routes.push(RouteService.getSetSecretWordRoute());
                 }
-                if (!routeExists(RouteService.getDocsRoute(), data.routes)) {
-                    data.routes.push(RouteService.getDocsRoute());
+                if (!routeExists(RouteService.getApiDocsRoute(), data.routes)) {
+                    data.routes.push(RouteService.getApiDocsRoute());
                 }
 
                 for (var j = 0; j < data.routes.length; j++) {
