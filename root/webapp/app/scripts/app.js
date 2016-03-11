@@ -153,6 +153,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getSetSecretWordRoute(), data.routes)) {
                     data.routes.push(RouteService.getSetSecretWordRoute());
                 }
+                if (!routeExists(RouteService.getDocsRoute(), data.routes)) {
+                    data.routes.push(RouteService.getDocsRoute());
+                }
 
                 for (var j = 0; j < data.routes.length; j++) {
                     var path = data.routes[j].url;

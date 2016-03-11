@@ -239,6 +239,23 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                     }
                 }
             };
+        },
+        getDocsRoute: function() {
+            return {
+                'url': '/docs',
+                'templateUrl': 'views/docs.html',
+                'controller': 'DocsCtrl',
+                'title': 'Documentation',
+                'lookup': {
+                    'id': 99,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
         }
     };
 }]);
