@@ -1,5 +1,5 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ApiDocsCtrl',['$scope', function ($scope) {
+angular.module('patientviewApp').controller('DocsCtrl',['$scope', function ($scope) {
 
 }]);
