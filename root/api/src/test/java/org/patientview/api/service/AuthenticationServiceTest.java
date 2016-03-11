@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -8,22 +9,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -51,6 +55,7 @@ import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,6 +64,9 @@ import static org.mockito.Mockito.when;
  * Created on 16/06/2014
  */
 public class AuthenticationServiceTest {
+
+    @Mock
+    private ApiKeyRepository apiKeyRepository;
 
     @Mock
     private AuditRepository auditRepository;
@@ -128,6 +136,7 @@ public class AuthenticationServiceTest {
     @Test
     public void testAuthenticate() {
         String password = "doNotShow";
+        String token = "abc123456";
 
         User user = new User();
         user.setUsername("testUsername");
@@ -138,12 +147,69 @@ public class AuthenticationServiceTest {
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
+        userToken.setToken(token);
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-        authenticationService.authenticate(user.getUsername(), password);
 
-        verify(auditService, Mockito.times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password));
+
+        Assert.assertNotNull("token should be set", returned.getToken());
+        Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
+
+        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
+    /**
+     * Test authentication with an apiKey
+     */
+    @Test
+    public void testAuthenticate_apiKey() {
+        String password = "doNotShow";
+        String salt = "saltsaltsalt";
+
+        // User
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        // UserToken
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken("sometoken");
+
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.CKD);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
+        apiKey.setKey("abc123");
+        List<ApiKey> apiKeys = new ArrayList<>();
+        apiKeys.add(apiKey);
+
+        when(apiKeyRepository.findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()))).thenReturn(apiKeys);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password, apiKey.getKey()));
+
+        Assert.assertNotNull("token should be set", returned.getToken());
+        Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
+
+        verify(apiKeyRepository, times(1)).findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()));
+        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
@@ -184,13 +250,14 @@ public class AuthenticationServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
-        org.patientview.api.model.UserToken returned = authenticationService.authenticate(user.getUsername(), password);
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password));
 
         Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
         Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
 
-        verify(auditService, Mockito.times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+        verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
@@ -215,7 +282,7 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-        authenticationService.authenticate(user.getUsername(), password);
+        authenticationService.authenticate(new Credentials(user.getUsername(), password));
     }
 
     /**
@@ -322,7 +389,7 @@ public class AuthenticationServiceTest {
         user.setDeleted(false);
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
-        authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
+        authenticationService.authenticate(new Credentials(user.getUsername(), "NotThePasswordWanted"));
     }
 
     @Test
@@ -446,7 +513,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token must not be null", userToken.getToken());
         Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
 
-        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
     }
 
     @Test
@@ -499,9 +566,9 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
 
-        verify(groupService, Mockito.times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
-        verify(userTokenRepository, Mockito.times(1)).save(eq(foundUserToken));
-        verify(userRepository, Mockito.times(1)).save(any(User.class));
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(userTokenRepository, times(1)).save(eq(foundUserToken));
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test (expected = ResourceForbiddenException.class)
@@ -568,7 +635,7 @@ public class AuthenticationServiceTest {
         user.setDeleted(false);
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
-        authenticationService.authenticate(user.getUsername(), password);
+        authenticationService.authenticate(new Credentials(user.getUsername(), password));
     }
 
     @Test

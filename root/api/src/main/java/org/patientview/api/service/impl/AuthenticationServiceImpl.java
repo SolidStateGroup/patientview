@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.model.Role;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.AuthenticationService;
@@ -18,12 +19,14 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -31,6 +34,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -76,6 +80,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
     private static Integer sessionLength;
+
+    @Inject
+    private ApiKeyRepository apiKeyRepository;
 
     @Inject
     private AuditService auditService;
@@ -152,12 +159,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public org.patientview.api.model.UserToken authenticate(String username, String password)
-            throws UsernameNotFoundException, AuthenticationServiceException {
-        LOG.debug("Authenticating user: {}", username);
+    public org.patientview.api.model.UserToken authenticate(Credentials credentials)
+            throws AuthenticationServiceException {
+        String username = credentials.getUsername();
+        String password = credentials.getPassword();
 
         if (username == null || password == null) {
-            throw new UsernameNotFoundException("Incorrect username or password");
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
 
         // trim username (ipad adds space if you tap space after username to auto enter details)
@@ -165,7 +173,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         User user = userRepository.findByUsernameCaseInsensitive(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException("Incorrect username or password");
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
         if (user.getLocked()) {
             throw new AuthenticationServiceException("This account is locked");
@@ -200,9 +208,23 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
 
+        // if valid CKD api key then can bypass secret word check
+        boolean validApiKey = false;
+        List<ApiKey> apiKeys = apiKeyRepository.findByKeyAndType(credentials.getApiKey(), ApiKeyTypes.CKD);
+        if (!CollectionUtils.isEmpty(apiKeys)) {
+            for (ApiKey apiKeyEntity : apiKeys) {
+                if (apiKeyEntity.getExpiryDate() == null) {
+                    throw new AuthenticationServiceException("Error checking API key");
+                }
+                if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    validApiKey = true;
+                }
+            }
+        }
+
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
         // of multi factor authentication
-        if (!StringUtils.isEmpty(user.getSecretWord())) {
+        if (!StringUtils.isEmpty(user.getSecretWord()) && !validApiKey) {
             // has secret word
             userToken.setCheckSecretWord(true);
 

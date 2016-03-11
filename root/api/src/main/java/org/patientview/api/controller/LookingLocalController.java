@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
@@ -45,7 +46,7 @@ public class LookingLocalController extends BaseController {
             @RequestParam(value = "password", required = false) String password) {
         try {
             try {
-                String token = authenticationService.authenticate(username, password).getToken();
+                String token = authenticationService.authenticate(new Credentials(username, password)).getToken();
                 try {
                     return new ResponseEntity<>(lookingLocalService.getLoginSuccessfulXml(token), HttpStatus.OK);
                 } catch (Exception e) {

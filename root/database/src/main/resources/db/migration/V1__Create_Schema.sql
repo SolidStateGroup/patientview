@@ -785,6 +785,16 @@ CREATE TABLE PV_Gp_Letter
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Api_Key
+(
+  Id            BIGINT NOT NULL,
+  Key           TEXT NOT NULL,
+  Expiry_Date   TIMESTAMP NOT NULL,
+  Type          TEXT NOT NULL,
+  User_Id       BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
