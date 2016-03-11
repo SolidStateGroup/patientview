@@ -5,7 +5,8 @@ package org.patientview.persistence.model.enums;
  * Created on 11/03/2016
  */
 public enum ApiKeyTypes {
-    CKD("Care Know Do");
+    CKD("Care Know Do"),
+    IMPORTER("Importer");
 
     private String name;
     ApiKeyTypes(String name) { this.name = name; }

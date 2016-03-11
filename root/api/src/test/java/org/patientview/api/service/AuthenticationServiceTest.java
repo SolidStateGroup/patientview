@@ -290,12 +290,12 @@ public class AuthenticationServiceTest {
     @Test
     public void testAuthenticateImporter() throws AuthenticationServiceException {
         String password = "doNotShow";
-        String apiKey = "abc123";
+        String apiKeyValue = "abc123";
 
         Credentials credentials = new Credentials();
         credentials.setUsername("testUsername");
         credentials.setPassword(password);
-        credentials.setApiKey(apiKey);
+        credentials.setApiKey(apiKeyValue);
 
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.IMPORTER, RoleType.STAFF);
@@ -308,13 +308,21 @@ public class AuthenticationServiceTest {
         user.setDeleted(false);
         user.setGroupRoles(new HashSet<GroupRole>());
         user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
-        user.setApiKey(apiKey);
-        user.setApiKeyExpiryDate(new DateTime(new Date()).plusDays(1).toDate());
+
+        ApiKey apiKey = new ApiKey();
+        apiKey.setKey(apiKeyValue);
+        apiKey.setUser(user);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusDays(1).toDate());
+        apiKey.setType(ApiKeyTypes.IMPORTER);
+        List<ApiKey> apiKeys = new ArrayList<>();
+        apiKeys.add(apiKey);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(UUID.randomUUID().toString());
 
+        when(apiKeyRepository.findByKeyAndTypeAndUser(eq(apiKey.getKey()), eq(apiKey.getType()), eq(user)))
+                .thenReturn(apiKeys);
         when(userRepository.findByUsernameCaseInsensitive(eq(credentials.getUsername()))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         org.patientview.api.model.UserToken toReturn = authenticationService.authenticateImporter(credentials);

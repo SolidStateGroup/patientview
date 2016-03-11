@@ -309,17 +309,32 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
-        if (StringUtils.isEmpty(user.getApiKey())) {
+
+        Date now = new Date();
+
+        // validate api key
+        List<ApiKey> apiKeys
+                = apiKeyRepository.findByKeyAndTypeAndUser(credentials.getApiKey(), ApiKeyTypes.IMPORTER, user);
+
+        if (CollectionUtils.isEmpty(apiKeys)) {
             throw new AuthenticationServiceException("No API key found");
         }
-        if (user.getApiKeyExpiryDate() == null) {
-            throw new AuthenticationServiceException("API key has no expiry date");
+
+        // check not expired
+        boolean validApiKey = false;
+        if (!CollectionUtils.isEmpty(apiKeys)) {
+            for (ApiKey apiKeyEntity : apiKeys) {
+                if (apiKeyEntity.getExpiryDate() == null) {
+                    throw new AuthenticationServiceException("Error checking API key");
+                }
+                if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    validApiKey = true;
+                }
+            }
         }
-        if (new Date().getTime() > user.getApiKeyExpiryDate().getTime()) {
+
+        if (!validApiKey) {
             throw new AuthenticationServiceException("API key has expired");
-        }
-        if (!credentials.getApiKey().equals(user.getApiKey())) {
-            throw new AuthenticationServiceException("Incorrect API key");
         }
 
         // strip spaces from beginning and end of password
@@ -344,8 +359,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (!ApiUtil.userHasRole(user, RoleName.IMPORTER) && !ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             throw new AuthenticationServiceException("Importer role missing");
         }
-
-        Date now = new Date();
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);

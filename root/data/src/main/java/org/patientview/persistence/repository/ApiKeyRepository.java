@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.ApiKey;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,12 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
             "WHERE   a.key = :key " +
             "AND     a.type = :type")
     List<ApiKey> findByKeyAndType(@Param("key") String key, @Param("type") ApiKeyTypes type);
+
+    @Query("SELECT   a " +
+            "FROM    ApiKey a " +
+            "WHERE   a.key = :key " +
+            "AND     a.type = :type " +
+            "AND     a.user = :user")
+    List<ApiKey> findByKeyAndTypeAndUser(@Param("key") String key, @Param("type") ApiKeyTypes type,
+                                         @Param("user") User user);
 }
