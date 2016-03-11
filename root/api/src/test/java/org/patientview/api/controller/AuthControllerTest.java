@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -64,8 +66,17 @@ public class AuthControllerTest {
     public void testGetBasicUserInformation() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/auth/" + token + "/basicuserinformation/"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    public void testAuthenticate() throws Exception {
+        Credentials credentials = new Credentials();
+        credentials.setUsername("testUser");
+        credentials.setPassword("doNotShow");
 
         verify(authenticationService, Mockito.times(1)).getBasicUserInformation(eq(token));
+        when(authenticationService.authenticate(eq(credentials))).thenReturn(new UserToken("1234"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+                .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Credentials.class));
     }
 
     @Test

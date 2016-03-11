@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalProperties;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,14 +67,14 @@ public class LookingLocalControllerTest {
 
     @Test
     public void testAuth() throws Exception {
-        when(authenticationService.authenticate(eq(username), eq(password)))
+        when(authenticationService.authenticate(any(Credentials.class)))
                 .thenReturn(token);
 
         mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_AUTH
                 + "?username=" + username + "&password=" + password))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(authenticationService, Mockito.times(1)).authenticate(eq(username), eq(password));
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Credentials.class));
         verify(lookingLocalService, Mockito.times(1)).getLoginSuccessfulXml(eq(token.getToken()));
     }
 
@@ -80,14 +82,14 @@ public class LookingLocalControllerTest {
     public void testAuth_noUsername() throws Exception {
         String username = "";
 
-        when(authenticationService.authenticate(eq(username), eq(password)))
+        when(authenticationService.authenticate(any(Credentials.class)))
                 .thenThrow(new UsernameNotFoundException("username not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_AUTH
                 + "?username=" + username + "&password=" + password))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(authenticationService, Mockito.times(1)).authenticate(eq(username), eq(password));
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Credentials.class));
         verify(lookingLocalService, Mockito.times(1)).getAuthErrorXml();
     }
 
@@ -95,14 +97,14 @@ public class LookingLocalControllerTest {
     public void testAuth_wrongCredentials() throws Exception {
         String password = "wrong_password";
 
-        when(authenticationService.authenticate(eq(username), eq(password)))
+        when(authenticationService.authenticate(any(Credentials.class)))
                 .thenThrow(new AuthenticationServiceException("incorrect password"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(LookingLocalProperties.LOOKING_LOCAL_AUTH
                 + "?username=" + username + "&password=" + password))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(authenticationService, Mockito.times(1)).authenticate(eq(username), eq(password));
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Credentials.class));
         verify(lookingLocalService, Mockito.times(1)).getAuthErrorXml();
     }
 
@@ -115,5 +117,3 @@ public class LookingLocalControllerTest {
         verify(lookingLocalService, Mockito.times(1)).getMainXml(eq(token.getToken()));
     }
 }
-
-

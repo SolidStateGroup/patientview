@@ -9,9 +9,20 @@ public class Credentials {
 
     private String username;
     private String password;
-
-    // only used for importer
     private String apiKey;
+
+    public Credentials() { }
+
+    public Credentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public Credentials(String username, String password, String apiKey) {
+        this.username = username;
+        this.password = password;
+        this.apiKey = apiKey;
+    }
 
     public String getUsername() {
         return username;
