@@ -216,7 +216,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         List<org.patientview.api.model.Request> requests = new ArrayList<>();
 
         for (Request request : requestPage.getContent()) {
-            requests.add(new org.patientview.api.model.Request(request));
+            org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(request);
+            if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+                apiRequest.setEmailExists(true);
+            }
+            requests.add(apiRequest);
         }
 
         return new PageImpl<>(requests, pageable, total);
@@ -348,7 +352,13 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             throw new ResourceNotFoundException("Request not found");
         }
 
-        return new org.patientview.api.model.Request(entityRequest);
+
+        org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(entityRequest);
+        if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+            apiRequest.setEmailExists(true);
+        }
+
+        return apiRequest;
     }
 
     @Override

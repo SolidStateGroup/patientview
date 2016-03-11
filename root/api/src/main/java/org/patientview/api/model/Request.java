@@ -27,6 +27,9 @@ public class Request {
     private String captcha;
     private RequestTypes type;
 
+    // used to display if email is currently present in pv
+    private boolean emailExists = false;
+
     public Request() {
     }
 
@@ -164,5 +167,13 @@ public class Request {
 
     public void setType(RequestTypes type) {
         this.type = type;
+    }
+
+    public boolean isEmailExists() {
+        return emailExists;
+    }
+
+    public void setEmailExists(boolean emailExists) {
+        this.emailExists = emailExists;
     }
 }

@@ -133,7 +133,12 @@
             <div class="row-item accordion-heading-text">{{request.forename}} {{request.surname}}</div>
             <div class="row-item accordion-heading-text">{{request.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">{{request.nhsNumber}}</div>
-            <div class="row-item accordion-heading-text row-break">{{request.email}}</div>
+            <div class="row-item accordion-heading-text row-break">
+                {{request.email}}<br/>
+                <span data-ng-if="!request.emailExists && request.type === 'FORGOT_LOGIN'" class="error">
+                    (email not in PV)
+                </span>
+            </div>
             <div class="row-item accordion-heading-text">{{request.group.name}}</div>
             <div class="row-item accordion-heading-text">{{request.created  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">
