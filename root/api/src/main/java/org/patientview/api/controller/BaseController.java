@@ -20,6 +20,7 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
+import java.net.SocketException;
 
 /**
  * RESTful base controller containing exception handling, other controllers extend from this
@@ -36,51 +37,19 @@ public abstract class BaseController<T extends BaseController> {
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }
 
+    @ExceptionHandler(AuthenticationServiceException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleAuthenticationException(Exception e) {
+        //LOG.error("Login failed: " + e.getMessage());
+        return e.getMessage();
+    }
+
     @ExceptionHandler(EntityExistsException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public String handleEntityException(EntityExistsException e) {
         LOG.info("Handling Entity Exception: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public String handleNotFoundException(ResourceNotFoundException e) {
-        LOG.info("Could not find resource: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(SecurityException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public String handleSecurityException(SecurityException e) {
-        LOG.info("Authentication failed for this resource", e);
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(ResourceForbiddenException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public String handleResourceForbiddenException(ResourceForbiddenException e) {
-        LOG.info("Resource forbidden: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(ResourceInvalidException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleResourceInvalidException(ResourceInvalidException e) {
-        LOG.info("Resource invalid: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(IOException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleIoException(Exception e) {
-        LOG.error("IO exception: ", e.getMessage());
         return e.getMessage();
     }
 
@@ -93,35 +62,11 @@ public abstract class BaseController<T extends BaseController> {
         return e.getMessage();
     }
 
-    @ExceptionHandler(AuthenticationServiceException.class)
+    @ExceptionHandler(IOException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public String handleAuthenticationException(Exception e) {
-        //LOG.error("Login failed: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public String handleUsernameException(Exception e) {
-        //LOG.error("Login failed: " + e.getMessage());
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(NullPointerException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleNullPointerException(NullPointerException e) {
-        LOG.error("Null Pointer {}", e);
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(MigrationException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleMigrationException(MigrationException e) {
-        LOG.error("Migration exception {}", e);
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleIoException(IOException e) {
+        LOG.error("IO exception: ", e.getMessage());
         return e.getMessage();
     }
 
@@ -141,11 +86,19 @@ public abstract class BaseController<T extends BaseController> {
         return e.getMessage();
     }
 
-    @ExceptionHandler(VerificationException.class)
+    @ExceptionHandler(MigrationException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleVerificationException(VerificationException e) {
-        LOG.error("Verification exception {}", e);
+    public String handleMigrationException(MigrationException e) {
+        LOG.error("Migration exception {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public String handleNotFoundException(ResourceNotFoundException e) {
+        LOG.info("Could not find resource: " + e.getMessage());
         return e.getMessage();
     }
 
@@ -155,6 +108,62 @@ public abstract class BaseController<T extends BaseController> {
     public String handleNumberFormatException(NumberFormatException e) {
         LOG.error("NumberFormatException exception {}", e);
         return "Number format exception";
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleNullPointerException(NullPointerException e) {
+        LOG.error("Null Pointer {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceForbiddenException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleResourceForbiddenException(ResourceForbiddenException e) {
+        LOG.info("Resource forbidden: " + e.getMessage());
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceInvalidException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleResourceInvalidException(ResourceInvalidException e) {
+        LOG.info("Resource invalid: " + e.getMessage());
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleSecurityException(SecurityException e) {
+        LOG.info("Authentication failed for this resource", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(SocketException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleSocketException(SocketException e) {
+        LOG.error("Socket exception {}", e.getMessage());
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleUsernameException(Exception e) {
+        //LOG.error("Login failed: " + e.getMessage());
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(VerificationException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleVerificationException(VerificationException e) {
+        LOG.error("Verification exception {}", e);
+        return e.getMessage();
     }
 
     @ExceptionHandler(ZipException.class)
