@@ -23,6 +23,17 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         
     getUser();
 
+    $scope.removeSecretWord = function() {
+        delete $scope.secretWordErrorMessage;
+        delete $scope.secretWordSuccessMessage;
+        UserService.removeSecretWord($rootScope.loggedInUser.id).then(function () {
+            getUser();
+            $scope.secretWordSuccessMessage = 'Your secret word has been successfully removed.';
+        }, function () {
+            $scope.secretWordErrorMessage = 'Error removing secret word';
+        });
+    };
+
     $scope.saveSettings = function () {
         // If the email field has been changed validate emails
         $scope.settingsSuccessMessage = null;

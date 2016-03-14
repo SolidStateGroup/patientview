@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import com.wordnik.swagger.annotations.ApiOperation;
-import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.ForgottenCredentials;
@@ -11,8 +10,6 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +34,6 @@ import javax.mail.MessagingException;
  */
 @RestController
 public class AuthController extends BaseController<AuthController> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
     @Inject
     private AuthenticationService authenticationService;

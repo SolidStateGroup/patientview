@@ -1505,6 +1505,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRoleRepository.removeAllGroupRoles(findUser(userId));
     }
 
+    @Override
+    public void removeSecretWord(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = findUser(userId);
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        user.setSecretWord(null);
+        user.setHideSecretWordNotification(false);
+        userRepository.save(user);
+    }
 
     /**
      * On a password reset the user should change on login
