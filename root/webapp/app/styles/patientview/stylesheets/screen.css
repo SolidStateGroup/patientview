@@ -77,6 +77,11 @@
 }
 
 /* line 60, ../sass/_utils.scss */
+.clear-left {
+  clear: left;
+}
+
+/* line 64, ../sass/_utils.scss */
 ul.unstyled, ul.inline,
 ol.unstyled,
 ol.inline {
@@ -85,43 +90,43 @@ ol.inline {
   list-style: none;
 }
 
-/* line 70, ../sass/_utils.scss */
+/* line 74, ../sass/_utils.scss */
 .inline > li {
   display: inline-block;
 }
-/* line 73, ../sass/_utils.scss */
+/* line 77, ../sass/_utils.scss */
 .inline > li:first-child {
   padding-left: 0;
 }
-/* line 77, ../sass/_utils.scss */
+/* line 81, ../sass/_utils.scss */
 .inline > li > a {
   display: inline-block;
 }
 
-/* line 83, ../sass/_utils.scss */
+/* line 87, ../sass/_utils.scss */
 .error {
   color: #f20d2e;
   font-weight: normal;
 }
 
-/* line 88, ../sass/_utils.scss */
+/* line 92, ../sass/_utils.scss */
 .no-items {
   font-style: italic;
   font-weight: 100;
 }
 
-/* line 93, ../sass/_utils.scss */
+/* line 97, ../sass/_utils.scss */
 .loading {
   text-align: center;
 }
 
 /** todo revise james' css **/
-/* line 101, ../sass/_utils.scss */
+/* line 105, ../sass/_utils.scss */
 input.ng-pristine + ul#strength {
   display: none;
 }
 
-/* line 104, ../sass/_utils.scss */
+/* line 108, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -131,12 +136,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 112, ../sass/_utils.scss */
+/* line 116, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 115, ../sass/_utils.scss */
+/* line 119, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -146,7 +151,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 123, ../sass/_utils.scss */
+/* line 127, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;

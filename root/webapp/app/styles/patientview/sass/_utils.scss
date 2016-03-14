@@ -57,6 +57,10 @@
     @include bootstrap-clearfix();
 }
 
+.clear-left{
+    clear:left;
+}
+
 ul.unstyled,
 ol.unstyled {
     margin-left: 0;
