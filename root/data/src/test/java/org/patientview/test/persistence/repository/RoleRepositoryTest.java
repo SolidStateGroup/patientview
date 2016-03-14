@@ -53,4 +53,14 @@ public class RoleRepositoryTest {
         Assert.assertEquals("Should return same Role", role, entityRole);
         Assert.assertEquals("Correct Role should be returned", RoleName.PATIENT, entityRole.getName());
     }
+
+    @Test
+    public void testGetRoleByTypeAndNameIncludeHidden() {
+        Role role = dataTestUtils.createRole(RoleName.IMPORTER, RoleType.STAFF, false);
+        Role entityRole = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.IMPORTER, false);
+
+        Assert.assertNotNull("Should return Role", entityRole);
+        Assert.assertEquals("Should return same Role", role, entityRole);
+        Assert.assertEquals("Correct Role should be returned", RoleName.IMPORTER, entityRole.getName());
+    }
 }

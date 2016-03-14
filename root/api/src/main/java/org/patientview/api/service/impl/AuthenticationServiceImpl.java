@@ -8,10 +8,8 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.Role;
-import org.patientview.service.AuditService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.service.UserService;
@@ -37,8 +35,10 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -101,7 +101,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private Properties properties;
 
     @Inject
-    private RoleService roleService;
+    private RoleRepository roleRepository;
 
     @Inject
     private SecurityService securityService;
@@ -431,6 +431,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         transportUserToken.setUserFeatures(featureRepository.findByUser(userToken.getUser()));
         transportUserToken.setRoutes(securityService.getUserRoutes(userToken.getUser()));
 
+        // patient
         if (ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken.setPatientMessagingFeatureTypes(
@@ -438,6 +439,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setGroupMessagingEnabled(true);
         }
 
+        // staff
         if (!ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT)) {
             setSecurityRoles(transportUserToken);
             setPatientRoles(transportUserToken);
@@ -446,6 +448,17 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setPatientFeatures(staticDataManager.getFeaturesByType("PATIENT"));
             transportUserToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
             setAuditActions(transportUserToken);
+        }
+
+        // global admins
+        if (ApiUtil.userHasRole(userToken.getUser(), RoleName.GLOBAL_ADMIN)) {
+            // global admins can add hidden IMPORTER Role
+            org.patientview.persistence.model.Role importerRole
+                    = roleRepository.findByRoleTypeAndName(RoleType.STAFF, RoleName.IMPORTER, false);
+            if (importerRole != null) {
+                transportUserToken.getStaffRoles().add(new Role(importerRole));
+                transportUserToken.getSecurityRoles().add(new Role(importerRole));
+            }
         }
 
         // tell ui user must set secret word
@@ -607,7 +620,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private void setSecurityRoles(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Role> availableRoles
-                = Util.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
+                = Util.convertIterable(roleRepository.findValidRolesByUser(userToken.getUser().getId()));
 
         userToken.setSecurityRoles(new ArrayList<Role>());
 
@@ -648,7 +661,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private void setPatientRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> patientRoles = new ArrayList<>();
-        for (org.patientview.persistence.model.Role role : roleService.getRolesByType(RoleType.PATIENT)) {
+        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.PATIENT)) {
             patientRoles.add(new Role(role));
         }
         userToken.setPatientRoles(patientRoles);
@@ -656,7 +669,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private void setStaffRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> staffRoles = new ArrayList<>();
-        for (org.patientview.persistence.model.Role role : roleService.getRolesByType(RoleType.STAFF)) {
+        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.STAFF)) {
             staffRoles.add(new Role(role));
         }
         userToken.setStaffRoles(staffRoles);
