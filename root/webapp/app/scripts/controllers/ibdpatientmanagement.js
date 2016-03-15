@@ -124,7 +124,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
         // example options
         $scope.sexes = [];
-        $scope.sexes.push({'code': 0, 'description': 'Not known'});
+        $scope.sexes.push({'code': 0, 'description': 'Not Known'});
         $scope.sexes.push({'code': 1, 'description': 'Male'});
         $scope.sexes.push({'code': 2, 'description': 'Female'});
         $scope.diagnoses = [];
@@ -170,6 +170,25 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
         // check if viewing as patient
         $scope.isStaff = $rootScope.previousLoggedInUser ? true : false;
+
+        // survey based
+        var i, j;
+
+        SurveyService.getByType('IBD_PATIENT_MANAGEMENT').then(function(survey) {
+            $scope.survey = survey;
+            $scope.questions = [];
+
+            // create map of question id to question type, used when creating object to send to backend
+            for (i = 0; i < survey.questionGroups.length; i++) {
+                for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
+                    $scope.questions.push(survey.questionGroups[i].questions[j]);
+                }
+            }
+
+            console.log($scope.questions);
+        }, function () {
+            alert('error getting patient management programme details')
+        });
     };
 
     $scope.removeEgimComplication = function (complication) {

@@ -1,7 +1,7 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * Taken from original IBD portal
+ * QuestionOptionTypes, used with V6__Questions.sql
  * Created by jamesr@solidstategroup.com
  * Created on 10/06/2015
  */
@@ -71,5 +71,46 @@ public enum QuestionOptionTypes {
     FOUR,
     NOT_APPLICABLE,
     CONSTANT,
-    INTERMITTENT
+    INTERMITTENT,
+
+    // IBD Patient Management
+    CD,
+    UC,
+    IBDU,
+    L1,
+    L2,
+    L3,
+    B1,
+    B2,
+    B3,
+    E1,
+    E2,
+    E3,
+    ZERO_ZERO,
+    ZERO_ONE,
+    ZERO_TWO,
+    ZERO_THREE,
+    ZERO_FOUR,
+    ZERO_FIVE,
+    ZERO_SIX,
+    TWENTY_FIVE,
+    ZERO_SEVEN,
+    ZERO_EIGHT,
+    ZERO_NINE,
+    TEN,
+    ELEVEN,
+    TWENTY_SIX,
+    TWENTY_FOUR,
+    TWELVE,
+    THIRTEEN,
+    FOURTEEN,
+    FIFTEEN,
+    SIXTEEN,
+    SEVENTEEN,
+    EIGHTEEN,
+    NINETEEN,
+    TWENTY,
+    TWENTY_ONE,
+    TWENTY_TWO,
+    TWENTY_THREE
 }
