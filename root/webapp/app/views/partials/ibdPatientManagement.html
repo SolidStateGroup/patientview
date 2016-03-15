@@ -1,0 +1,409 @@
+<style>
+    .panel-questions {
+        margin: 0 10px 10px 10px;
+    }
+    .panel-questions .row {
+        margin-bottom: 20px;
+    }
+    .control-label {
+        margin-top: 15px;
+    }
+    .feature-list-item {
+        margin-right: 10px;
+    }
+</style>
+
+<!-- add surgery modal -->
+<script type="text/ng-template" id="addSurgeryModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add surgery</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-4 day">
+                        <label class="control-label" for="surgery-day">Day:</label>
+                        <select data-ng-model="surgery.selectedDay"
+                                data-ng-options="option as option for option in days"
+                                class="form-control" id="surgery-day"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label" for="surgery-month">Month:</label>
+                        <select data-ng-model="surgery.selectedMonth"
+                                data-ng-options="option as option for option in months"
+                                class="form-control" id="surgery-month"></select>
+                    </div>
+                    <div class="col-md-4 year">
+                        <label class="control-label" for="surgery-year">Year:</label>
+                        <select data-ng-model="surgery.selectedYear"
+                                data-ng-options="option as option for option in years"
+                                class="form-control" id="surgery-year"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="hospital-code" class="control-label">
+                    Hospital Code (if different to current)
+                </label>
+                <input type="text" class="form-control" id="hospital-code" data-ng-model="surgery.hospitalCode">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="procedure-select" class="control-label">
+                    Main Surgical Procedure(s)
+                </label>
+                <select id="procedure-select" data-ng-model="selectedProcedure"
+                        data-ng-options="procedure as procedure.description for procedure in procedures"
+                        class="form-control" data-ng-change="addProcedure(selectedProcedure)" >
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="procedure-list" class="control-label">
+                    &nbsp;
+                </label>
+                <ul class="feature-list unstyled name-action-list" id="procedure-list">
+                    <li class="feature-list-item" data-ng-repeat="selectedProcedure in surgery.selectedProcedures track by $index">
+                        <div class="feature-list-name pull-left">
+                            <span class="feature-list-name">{{selectedProcedure.description}}</span>
+                        </div>
+                        <div class="feature-list-delete pull-left">
+                            <a href="" data-ng-click="removeProcedure(selectedProcedure)">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <label for="other-details" class="control-label">
+                    Other Surgical Details
+                </label>
+            <textarea id="other-details" data-ng-model="surgery.otherDetails" class="form-control" style="height: 100px;">
+            </textarea>
+            </div>
+        </div>
+
+        <div class="row" data-ng-if="errorMessage.length">
+            <br/>
+            <div class="col-md-12">
+                <div class="alert alert-danger">
+                    <span>{{errorMessage}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="btn-group pull-right">
+            <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+            <button class="btn blue" data-ng-click="ok()">Add Surgery</button>
+        </div>
+    </div>
+</script>
+
+<div data-ng-show="!loading">
+    <hr>
+
+    <div class="row" data-ng-if="successMessage.length">
+        <div class="col-md-12">
+            <div class="alert alert-success">
+                <h5>{{successMessage}}</h5>
+            </div>
+        </div>
+    </div>
+    <h3>Personal Details</h3>
+
+    <pre class="hidden">{{patientManagement}}</pre>
+
+    <div class="row">
+        <div class="col-md-3">
+            <label for="postcode" class="control-label">
+                Postcode
+            </label>
+            <input type="text" class="form-control" id="postcode" data-ng-model="patientManagement.postcode">
+        </div>
+        <div class="col-md-3">
+            <label for="gender" class="control-label">
+                Gender
+            </label>
+            <select id="gender" data-ng-model="patientManagement.gender"
+                    data-ng-options="sex.code as sex.description for sex in sexes"
+                    class="form-control">
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="ibd-nurse" class="control-label">
+                IBD Nurse Specialist
+            </label>
+            <input type="text" class="form-control" id="ibd-nurse" data-ng-model="patientManagement.ibdNurse">
+        </div>
+        <div class="col-md-3">
+            <label for="named-consultant" class="control-label">
+                Named Consultant
+            </label>
+            <input type="text" class="form-control" id="named-consultant" data-ng-model="patientManagement.namedConsultant">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <label for="height" class="control-label">
+                Height (m)
+            </label>
+            <input type="text" class="form-control" id="height" data-ng-model="patientManagement.height" only-num-decimal-2dp>
+        </div>
+        <div class="col-md-3">
+            <label for="weight" class="control-label">
+                Weight (kg)
+            </label>
+            <input type="text" class="form-control" id="weight" data-ng-model="patientManagement.weight" only-num-decimal-1dp>
+        </div>
+        <div class="col-md-3">
+            <label for="bmi" class="control-label">
+                BMI (calculated)
+            </label>
+            <input type="text" class="form-control" id="bmi" data-ng-value="calculateBMI()" disabled="disabled">
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>Diagnosis Details</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="control-label">Date Of Diagnosis</label>
+            <div class="dob-row">
+                <div class="col-md-4 day">
+                    Day:
+                    <select data-ng-model="editUser.selectedDay"
+                            data-ng-options="option as option for option in days"
+                            class="form-control"></select>
+                </div>
+                <div class="col-md-4">
+                    Month:
+                    <select data-ng-model="editUser.selectedMonth"
+                            data-ng-options="option as option for option in months"
+                            class="form-control"></select>
+                </div>
+                <div class="col-md-4 year">
+                    Year:
+                    <select data-ng-model="editUser.selectedYear"
+                            data-ng-options="option as option for option in years"
+                            class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label for="diagnosis" class="control-label">
+                Diagnosis
+            </label>
+            <br/>
+            <select id="diagnosis" data-ng-model="patientManagement.diagnosis"
+                    data-ng-options="diagnosis.code as diagnosis.description for diagnosis in diagnoses"
+                    class="form-control">
+            </select>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="patientManagement.diagnosis === 'CD'">
+        <div class="col-md-3">
+            <label for="location-crohns" class="control-label">
+                Location
+            </label>
+            <br/>
+            <select id="location-crohns" data-ng-model="patientManagement.ibd_crohnslocation"
+                    data-ng-options="ibd_crohnslocation.code as ibd_crohnslocation.description for ibd_crohnslocation in ibd_crohnslocations"
+                    class="form-control">
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="proximal" class="control-label">
+                Disease Proximal to Terminal Ileum
+            </label>
+            <br/>
+            <select id="proximal" data-ng-model="patientManagement.ibd_crohnsproximalterminalileum"
+                    data-ng-options="ibd_crohnsproximalterminalileum.code as ibd_crohnsproximalterminalileum.description for ibd_crohnsproximalterminalileum in ibd_crohnsproximalterminalileums"
+                    class="form-control">
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="perianal" class="control-label">
+                Perianal
+            </label>
+            <br/>
+            <select id="perianal" data-ng-model="patientManagement.ibd_crohnsperianal"
+                    data-ng-options="ibd_crohnsperianal.code as ibd_crohnsperianal.description for ibd_crohnsperianal in ibd_crohnsperianals"
+                    class="form-control">
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="complications" class="control-label">
+                Complications
+            </label>
+            <br/>
+            <select id="complications" data-ng-model="patientManagement.ibd_crohnsbehaviour"
+                    data-ng-options="ibd_crohnsbehaviour.code as ibd_crohnsbehaviour.description for ibd_crohnsbehaviour in ibd_crohnsbehaviours"
+                    class="form-control">
+            </select>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="patientManagement.diagnosis !== undefined">
+        <div class="col-md-3" data-ng-if="patientManagement.diagnosis === 'CD' || patientManagement.diagnosis === 'IBDU'">
+            <label for="ibd_ucextent" class="control-label">
+                Location
+            </label>
+            <br/>
+            <select id="ibd_ucextent" data-ng-model="patientManagement.ibd_ucextent"
+                    data-ng-options="ibd_ucextent.code as ibd_ucextent.description for ibd_ucextent in ibd_ucextents"
+                    class="form-control">
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="ibd_egimcomplications" class="control-label">
+                Other Part(s) of The Body Affected
+            </label>
+            <br/>
+            <select id="ibd_egimcomplications" data-ng-model="complication"
+                    data-ng-options="complication as complication.description for complication in ibd_egimcomplications"
+                    class="form-control" data-ng-change="addEgimComplication(complication)">
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="ibd_egimcomplications-list" class="control-label">
+                &nbsp;
+            </label>
+            <ul class="feature-list unstyled name-action-list" id="ibd_egimcomplications-list">
+                <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.ibd_egimcomplications track by $index">
+                    <div class="feature-list-name pull-left">
+                        <span class="feature-list-name">{{selectedComplication.description}}</span>
+                    </div>
+                    <div class="feature-list-delete pull-left">
+                        <a href="" data-ng-click="removeEgimComplication(selectedComplication)">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="patientManagement.diagnosis !== undefined">
+        <div class="col-md-12">
+            <label for="ibd_egimcomplicationsother" class="control-label">
+                Other Parts of The Body Affected (not in list)
+            </label>
+            <br/>
+            <input type="text" class="form-control" id="ibd_egimcomplicationsother" data-ng-model="patientManagement.ibd_egimcomplicationsother">
+        </div>
+    </div>
+
+    <div data-ng-if="patientManagement.diagnosis !== undefined">
+        <hr>
+
+        <h3>Surgeries</h3>
+
+        <div class="row" data-ng-if="patientManagement.surgeries.length">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead class="table-head">
+                        <tr>
+                            <th>Date</th>
+                            <th>Hospital Code</th>
+                            <th>Main Surgical Procedure(s)</th>
+                            <th>Other Details</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="surgery in patientManagement.surgeries">
+                            <td>{{surgery.date | date:'dd-MMM-yyyy'}}</td>
+                            <td>{{surgery.hospitalCode}}</td>
+                            <td>
+                                <span data-ng-repeat="procedure in surgery.selectedProcedures">
+                                    {{procedure.description}}<span data-ng-if="surgery.selectedProcedures.length > 1">,</span>
+                                </span>
+                            </td>
+                            <td>
+                                {{surgery.otherDetails}}
+                            </td>
+                            <td>
+                                <div class="btn-group pull-right">
+                                    <button class="btn btn-danger" data-ng-click="removeSurgery(surgery)">Remove</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <button class="btn blue form-control" data-ng-click="showSurgeryModal()">Add Surgery</button>
+            </div>
+        </div>
+    </div>
+
+    <div data-ng-if="patientManagement.diagnosis !== undefined">
+        <hr>
+
+        <h3>Further Clinical Information</h3>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label for="ibd_smokingstatus" class="control-label">
+                    Smoking Status
+                </label>
+                <select id="ibd_smokingstatus" data-ng-model="patientManagement.ibd_smokingstatus"
+                        data-ng-options="ibd_smokingstatus.code as ibd_smokingstatus.description for ibd_smokingstatus in ibd_smokingstatuses"
+                        class="form-control">
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="ibd_familyhistory" class="control-label">
+                    Family History of IBD
+                </label>
+                <select id="ibd_familyhistory" data-ng-model="patientManagement.ibd_familyhistory"
+                        data-ng-options="ibd_familyhistory.code as ibd_familyhistory.description for ibd_familyhistory in ibd_familyhistorys"
+                        class="form-control">
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="allergysubstance" class="control-label">
+                    Allergies & Drug Reactions
+                </label>
+                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.allergysubstance">
+            </div>
+            <div class="col-md-3">
+                <label for="vaccinationrecord" class="control-label">
+                    Vaccination Record
+                </label>
+                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.vaccinationrecord">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label for="colonoscopysurveillance" class="control-label">
+                    Year for Colonoscopy Surveillance
+                </label>
+                <select data-ng-model="patientManagement.colonoscopysurveillance"
+                        data-ng-options="option as option for option in years"
+                        class="form-control" id="colonoscopysurveillance"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container">
+    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+    <br/>
+</div>
