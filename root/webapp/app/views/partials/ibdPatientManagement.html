@@ -108,13 +108,6 @@
 <div data-ng-show="!loading">
     <hr>
 
-    <div class="row" data-ng-if="successMessage.length">
-        <div class="col-md-12">
-            <div class="alert alert-success">
-                <h5>{{successMessage}}</h5>
-            </div>
-        </div>
-    </div>
     <h3>Personal Details</h3>
 
     <pre class="hidden">{{patientManagement}}</pre>
@@ -256,7 +249,7 @@
     </div>
 
     <div class="row" data-ng-if="patientManagement.diagnosis !== undefined">
-        <div class="col-md-3" data-ng-if="patientManagement.diagnosis === 'CD' || patientManagement.diagnosis === 'IBDU'">
+        <div class="col-md-3" data-ng-if="patientManagement.diagnosis === 'UC' || patientManagement.diagnosis === 'IBDU'">
             <label for="ibd_ucextent" class="control-label">
                 Location
             </label>
