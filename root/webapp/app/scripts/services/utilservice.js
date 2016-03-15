@@ -187,10 +187,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             return months;
         },
 
-        generateYears: function () {
+        generateYears: function (maxYear) {
             var years = [];
             years.push('');
-            for (var i=new Date().getFullYear();i>=1900;i--) {
+            if (maxYear === undefined || maxYear === null) {
+                maxYear = new Date().getFullYear();
+            }
+
+            for (var i=maxYear;i>=1900;i--) {
                 years.push(i);
             }
             return years;

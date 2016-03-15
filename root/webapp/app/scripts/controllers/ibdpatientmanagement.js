@@ -163,7 +163,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.ibd_familyhistorys.push({'code': 'NO', 'description': 'No'});
 
         $scope.years = UtilService.generateYears();
-        $scope.patientManagement.colonoscopysurveillance = $scope.years[0];
+        $scope.colonoscopysurveillanceYears = UtilService.generateYears(new Date().getFullYear() + 6);
+        $scope.patientManagement.colonoscopysurveillance = $scope.colonoscopysurveillanceYears[0];
 
         delete $scope.successMessage;
 
