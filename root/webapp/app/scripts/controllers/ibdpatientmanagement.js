@@ -120,7 +120,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     $scope.init = function() {
         $scope.patientManagement = {};
         $scope.patientManagement.surgeries = [];
-        $scope.patientManagement.selectedProcedures = [];
         $scope.patientManagement.ibd_egimcomplications = [];
 
         // example options
