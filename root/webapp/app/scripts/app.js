@@ -44,7 +44,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'angulartics.google.analytics',
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
-    'vr.directives.slider'  // https://github.com/venturocket/angular-slider
+    'vr.directives.slider', // https://github.com/venturocket/angular-slider
+    'debounce'              // https://github.com/shahata/angular-debounce
 ]);
 
 patientviewApp.filter('startFrom', function () {

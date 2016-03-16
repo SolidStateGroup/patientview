@@ -134,8 +134,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     $scope.patientManagement.answers[lookupTypes[i].type] = {};
                     $scope.patientManagement.answers[lookupTypes[i].type].type = 'SELECT';
                 }
-                //console.log($scope.patientManagement.answers[lookupTypes[i].type]);
-                //console.log($scope.patientManagement.answers);
 
                 for (j = 0; j < lookupTypes[i].lookups.length; j++) {
                     $scope.lookupMap[lookupTypes[i].type].push(lookupTypes[i].lookups[j]);
@@ -192,7 +190,31 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         });
 
         // testing
-        console.log($scope.patientManagement.answers);
+        var observations = [];
+        var observation;
+
+        // build observations
+        for (var type in $scope.patientManagement.answers) {
+            var answer = $scope.patientManagement.answers[type];
+            if (answer.values !== undefined) {
+                // multi select
+                console.log(type);
+            } else if (answer.option !== undefined) {
+                // select
+                observation = {};
+                observation.name = type;
+                observation.value = answer.option.value;
+                observations.push(observation);
+            } else if (answer.value !== undefined && answer.value.length) {
+                // text
+                observation = {};
+                observation.name = type;
+                observation.value = answer.value;
+                observations.push(observation);
+            }
+        }
+
+        console.log(observations);
 
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {
