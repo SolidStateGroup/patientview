@@ -15,6 +15,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface LookupTypeRepository extends CrudRepository<LookupType, Long> {
 
-    public LookupType findByType(LookupTypes type);
-
+    LookupType findByType(LookupTypes type);
 }

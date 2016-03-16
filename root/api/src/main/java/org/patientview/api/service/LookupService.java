@@ -1,9 +1,12 @@
 package org.patientview.api.service;
 
+import org.patientview.api.model.LookupType;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Lookup service, used to get Lookups, referenced by other objects for static data. Note that newer code uses
@@ -14,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface LookupService {
+
+    List<LookupType> getPatientManagementLookupTypes();
 
     /**
      * Get a Lookup given the LookupTypes type and value.

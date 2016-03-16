@@ -64,6 +64,7 @@ CREATE TABLE PV_Lookup_Value (
   Lookup_Type_Id   BIGINT       NOT NULL REFERENCES PV_Lookup_Type (Id),
   Value            VARCHAR(100) NOT NULL,
   Description      TEXT,
+  Display_Order    BIGINT,
   Creation_Date    TIMESTAMP    NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,

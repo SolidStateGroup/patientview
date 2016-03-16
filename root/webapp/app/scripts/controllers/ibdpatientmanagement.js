@@ -1,48 +1,27 @@
 'use strict';
 
 // add Surgery modal instance controller
-var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService',
-    function ($scope, $rootScope, $modalInstance, UtilService) {
+var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService', 'lookupMap',
+    function ($scope, $rootScope, $modalInstance, UtilService, lookupMap) {
         var init = function () {
+            $scope.lookupMap = lookupMap;
             $scope.months = UtilService.generateMonths();
             $scope.years = UtilService.generateYears();
             $scope.days = UtilService.generateDays();
 
             $scope.surgery = {};
-
             $scope.surgery.selectedDay = $scope.days[0];
             $scope.surgery.selectedMonth = $scope.months[0];
             $scope.surgery.selectedYear = $scope.years[0];
+            $scope.surgery.selectedProcedures = [];
 
             delete $scope.errorMessage;
-            $scope.procedures = [];
-            $scope.procedures.push({'code': '01.1', 'description': 'Apendicectomy'});
-            $scope.procedures.push({'code': '04.1', 'description': 'Total proctocolectomy'});
-            $scope.procedures.push({'code': '04.2', 'description': 'Ileonal pouch'});
-            $scope.procedures.push({'code': '05.1', 'description': 'Partial colectomy & colostomy with retained rectal stump'});
-            $scope.procedures.push({'code': '05.2', 'description': 'Colectomy ileostomy with retained rectal stump'});
-            $scope.procedures.push({'code': '05.3', 'description': 'Pancolectomy'});
-            $scope.procedures.push({'code': '06.1', 'description': 'Partial (segmental) colectomy'});
-            $scope.procedures.push({'code': '07.1', 'description': 'Right hemicolectomy'});
-            $scope.procedures.push({'code': '09.1', 'description': 'Left hemicolectomy'});
-            $scope.procedures.push({'code': '55.4', 'description': 'Insertion of seton'});
-            $scope.procedures.push({'code': '55.5', 'description': 'Fistulectomy'});
-            $scope.procedures.push({'code': '58.2', 'description': 'Drainage of perianal sepsis'});
-            $scope.procedures.push({'code': '27.2', 'description': 'Gastric surgery'});
-            $scope.procedures.push({'code': '58.1', 'description': 'Small bowel resection'});
-            $scope.procedures.push({'code': '73.3', 'description': 'Permanent ileostomy'});
-            $scope.procedures.push({'code': '78.2', 'description': 'Stricturoplasty'});
-            $scope.procedures.push({'code': 'J18.1', 'description': 'Cholecystectomy'});
-            $scope.procedures.push({'code': 'Y53.1', 'description': 'Radiological drainage of abscess'});
-            $scope.procedures.push({'code': '99', 'description': 'Other surgery (not specified)'});
-            
-            $scope.surgery.selectedProcedures = [];
         };
 
         $scope.addProcedure = function (procedure) {
             var found = false;
             for (var i = 0; i < $scope.surgery.selectedProcedures.length; i++) {
-                if ($scope.surgery.selectedProcedures[i].code === procedure.code) {
+                if ($scope.surgery.selectedProcedures[i].id === procedure.id) {
                     found = true;
                 }
             }
@@ -55,7 +34,7 @@ var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Ut
         $scope.removeProcedure = function (procedure) {
             var procedures = [];
             for (var i = 0; i < $scope.surgery.selectedProcedures.length; i++) {
-                if ($scope.surgery.selectedProcedures[i].code !== procedure.code) {
+                if ($scope.surgery.selectedProcedures[i].id !== procedure.id) {
                     procedures.push($scope.surgery.selectedProcedures[i])
                 }
             }
@@ -89,24 +68,24 @@ var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Ut
 
 
 angular.module('patientviewApp').controller('IbdPatientManagementCtrl', ['$scope', '$rootScope', 'SurveyService',
-    'SurveyResponseService', '$modal', 'UtilService',
-function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, UtilService) {
+    'SurveyResponseService', '$modal', 'UtilService', 'PatientService',
+function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, UtilService, PatientService) {
 
     $scope.addEgimComplication = function(complication) {
-        if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION === undefined) {
-            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION = {};
-            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values = [];
+        if ($scope.patientManagement.IBD_EGIMCOMPLICATION === undefined) {
+            $scope.patientManagement.IBD_EGIMCOMPLICATION = {};
+            $scope.patientManagement.IBD_EGIMCOMPLICATION.values = [];
         }
 
         var found = false;
-        for (var i = 0; i < $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.length; i++) {
-            if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i].id === complication.id) {
+        for (var i = 0; i < $scope.patientManagement.IBD_EGIMCOMPLICATION.values.length; i++) {
+            if ($scope.patientManagement.IBD_EGIMCOMPLICATION.values[i].id === complication.id) {
                 found = true;
             }
         }
 
         if (!found) {
-            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.push(complication);
+            $scope.patientManagement.IBD_EGIMCOMPLICATION.values.push(complication);
         }
     };
 
@@ -123,34 +102,32 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     };
 
     $scope.init = function() {
+        delete $scope.successMessage;
         $scope.patientManagement = {};
         $scope.patientManagement.surgeries = [];
 
         $scope.years = UtilService.generateYears();
         $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear() + 6);
-        $scope.patientManagement.IBD_PATIENT_MANAGEMENT_COLONOSCOPYSURVEILLANCE = $scope.yearsPlusSix[0];
+        $scope.patientManagement.IBD_COLONOSCOPYSURVEILLANCE = $scope.yearsPlusSix[0];
 
-        delete $scope.successMessage;
+        // testing
+        $scope.diagnoses = [];
+        $scope.diagnoses.push({'code': 'Crohn\'s Disease', 'description': 'Crohn\'s Disease'});
+        $scope.diagnoses.push({'code': 'Ulcerative Colitis', 'description': 'Ulcerative Colitis'});
+        $scope.diagnoses.push({'code': 'IBDU', 'description': 'IBD Unspecified'});
+
+        $scope.lookupMap = [];
 
         // check if viewing as patient
         $scope.isStaff = $rootScope.previousLoggedInUser ? true : false;
 
-        // survey based
-        var i, j;
-
-        // prepare for survey response
-        SurveyService.getByType('IBD_PATIENT_MANAGEMENT').then(function(survey) {
-            $scope.survey = survey;
-            $scope.questionMap = [];
-
-            // create map of question id to question type, used when creating object to send to backend
-            for (i = 0; i < survey.questionGroups.length; i++) {
-                for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
-                    var question = survey.questionGroups[i].questions[j];
-                    $scope.questionMap[question.type] = question;
+        PatientService.getPatientManagementLookupTypes().then(function(lookupTypes) {
+            for (var i = 0; i < lookupTypes.length; i++) {
+                $scope.lookupMap[lookupTypes[i].type] = [];
+                for (var j = 0; j < lookupTypes[i].lookups.length; j++) {
+                    $scope.lookupMap[lookupTypes[i].type].push(lookupTypes[i].lookups[j]);
                 }
             }
-
         }, function () {
             alert('error getting patient management programme details')
         });
@@ -158,12 +135,12 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
     $scope.removeEgimComplication = function (complication) {
         var complications = [];
-        for (var i = 0; i < $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.length; i++) {
-            if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i].id !== complication.id) {
-                complications.push($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i])
+        for (var i = 0; i < $scope.patientManagement.IBD_EGIMCOMPLICATION.values.length; i++) {
+            if ($scope.patientManagement.IBD_EGIMCOMPLICATION.values[i].id !== complication.id) {
+                complications.push($scope.patientManagement.IBD_EGIMCOMPLICATION.values[i])
             }
         }
-        $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values = complications;
+        $scope.patientManagement.IBD_EGIMCOMPLICATION.values = complications;
     };
 
     $scope.removeSurgery = function(surgery) {
@@ -186,13 +163,16 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             resolve: {
                 UtilService: function() {
                     return UtilService;
+                },
+                lookupMap: function() {
+                    return $scope.lookupMap;
                 }
             }
         });
 
         // testing
         // build object to send to back end
-        var surveyResponse = {}, questionAnswer = {};
+        /*var surveyResponse = {}, questionAnswer = {};
         surveyResponse.survey = {};
         surveyResponse.survey.id = $scope.survey.id;
         surveyResponse.questionAnswers = [];
@@ -234,7 +214,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             }
         }
 
-        console.log(surveyResponse);
+        console.log(surveyResponse);*/
 
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {

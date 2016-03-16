@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.LookupService;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -24,7 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -33,15 +34,18 @@ import static org.mockito.Mockito.verify;
  */
 public class PatientControllerTest {
 
+    @Mock
+    private ApiPatientService apiPatientService;
+
+    @Mock
+    private LookupService lookupService;
+
     private ObjectMapper mapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 
     @InjectMocks
     private PatientController patientController;
-
-    @Mock
-    private ApiPatientService apiPatientService;
 
     @Before
     public void setup() {
@@ -68,6 +72,14 @@ public class PatientControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testGetPatientManagementLookupTypes() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/patientmanagement/lookuptypes"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(lookupService, times(1)).getPatientManagementLookupTypes();
     }
     
     @Test

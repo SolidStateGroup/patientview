@@ -27,6 +27,9 @@ public class Lookup extends AuditModel {
     @JoinColumn(name = "lookup_type_id")
     private LookupType lookupType;
 
+    @Column(name = "display_order")
+    private Long displayOrder;
+
     public String getValue() {
         return value;
     }
@@ -49,5 +52,13 @@ public class Lookup extends AuditModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Long displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }
