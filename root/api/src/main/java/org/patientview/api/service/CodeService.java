@@ -83,4 +83,6 @@ public interface CodeService extends CrudService<Code> {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws ResourceNotFoundException, EntityExistsException;
+
+    List<Code> getPatientManagementDiagnoses();
 }

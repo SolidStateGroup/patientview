@@ -113,7 +113,7 @@
             <label for="gender" class="control-label">
                 Gender
             </label>
-            <select id="gender" data-ng-model="patientManagement.GENDER"
+            <select id="gender" data-ng-model="patientManagement.answers['GENDER'].option"
                     data-ng-options="option as option.description for option in lookupMap['GENDER'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
@@ -188,7 +188,7 @@
             </label>
             <br/>
             <select id="diagnosis" data-ng-model="patientManagement.diagnosis"
-                    data-ng-options="option as option.description for option in diagnoses | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.diagnoses | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -200,7 +200,7 @@
                 Location
             </label>
             <br/>
-            <select id="location-crohns" data-ng-model="patientManagement.IBD_CROHNSLOCATION"
+            <select id="location-crohns" data-ng-model="patientManagement.answers['IBD_CROHNSLOCATION'].option"
                     data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSLOCATION'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
@@ -210,7 +210,7 @@
                 Disease Proximal to Terminal Ileum
             </label>
             <br/>
-            <select id="proximal" data-ng-model="patientManagement.IBD_CROHNSPROXIMALTERMINALILEUM"
+            <select id="proximal" data-ng-model="patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option"
                     data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSPROXIMALTERMINALILEUM'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
@@ -220,7 +220,7 @@
                 Perianal
             </label>
             <br/>
-            <select id="perianal" data-ng-model="patientManagement.IBD_CROHNSPERIANAL"
+            <select id="perianal" data-ng-model="patientManagement.answers['IBD_CROHNSPERIANAL'].option"
                     data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSPERIANAL'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
@@ -230,7 +230,7 @@
                 Complications
             </label>
             <br/>
-            <select id="complications" data-ng-model="patientManagement.IBD_CROHNSBEHAVIOUR"
+            <select id="complications" data-ng-model="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option"
                     data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSBEHAVIOUR'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
@@ -244,7 +244,7 @@
                     Location
                 </label>
                 <br/>
-                <select id="ibd_ucextent" data-ng-model="patientManagement.IBD_UCEXTENT"
+                <select id="ibd_ucextent" data-ng-model="patientManagement.answers['IBD_UCEXTENT'].option"
                         data-ng-options="option as option.description for option in lookupMap['IBD_UCEXTENT'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
@@ -284,7 +284,8 @@
                     Other Parts of The Body Affected (not in list)
                 </label>
                 <br/>
-                <input type="text" class="form-control" id="ibd_egimcomplicationsother" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER">
+                <input type="text" class="form-control" id="ibd_egimcomplicationsother"
+                       data-ng-model="patientManagement.answers['IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER'].value">
             </div>
         </div>
 
@@ -338,7 +339,7 @@
                 <label for="ibd_smokingstatus" class="control-label">
                     Smoking Status
                 </label>
-                <select id="ibd_smokingstatus" data-ng-model="patientManagement.IBD_SMOKINGSTATUS"
+                <select id="ibd_smokingstatus" data-ng-model="patientManagement.answers['IBD_SMOKINGSTATUS'].option"
                         data-ng-options="option as option.description for option in lookupMap['IBD_SMOKINGSTATUS'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
@@ -347,7 +348,7 @@
                 <label for="ibd_familyhistory" class="control-label">
                     Family History of IBD
                 </label>
-                <select id="ibd_familyhistory" data-ng-model="patientManagement.IBD_FAMILYHISTORY"
+                <select id="ibd_familyhistory" data-ng-model="patientManagement.answers['IBD_FAMILYHISTORY'].option"
                         data-ng-options="option as option.description for option in lookupMap['IBD_FAMILYHISTORY'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
@@ -356,13 +357,13 @@
                 <label for="allergysubstance" class="control-label">
                     Allergies & Drug Reactions
                 </label>
-                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.IBD_ALLERGYSUBSTANCE">
+                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.answers['IBD_ALLERGYSUBSTANCE'].value">
             </div>
             <div class="col-md-3">
                 <label for="vaccinationrecord" class="control-label">
                     Vaccination Record
                 </label>
-                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.IBD_VACCINATIONRECORD">
+                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.answers['IBD_VACCINATIONRECORD'].value">
             </div>
         </div>
 
@@ -371,13 +372,15 @@
                 <label for="colonoscopysurveillance" class="control-label">
                     Year for Colonoscopy Surveillance
                 </label>
-                <select data-ng-model="patientManagement.IBD_COLONOSCOPYSURVEILLANCE"
+                <select data-ng-model="patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value"
                         data-ng-options="year as year for year in yearsPlusSix"
                         class="form-control" id="colonoscopysurveillance"></select>
             </div>
         </div>
     </div>
 </div>
+
+<pre>{{patientManagement}}</pre>
 
 <div data-ng-show="loading" class="container">
     <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>

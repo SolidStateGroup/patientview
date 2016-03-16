@@ -103,31 +103,52 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
     $scope.init = function() {
         delete $scope.successMessage;
+
+        var i, j;
         $scope.patientManagement = {};
         $scope.patientManagement.surgeries = [];
+        $scope.patientManagement.diagnoses = [];
 
         $scope.years = UtilService.generateYears();
         $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear() + 6);
-        $scope.patientManagement.IBD_COLONOSCOPYSURVEILLANCE = $scope.yearsPlusSix[0];
-
-        // testing
-        $scope.diagnoses = [];
-        $scope.diagnoses.push({'code': 'Crohn\'s Disease', 'description': 'Crohn\'s Disease'});
-        $scope.diagnoses.push({'code': 'Ulcerative Colitis', 'description': 'Ulcerative Colitis'});
-        $scope.diagnoses.push({'code': 'IBDU', 'description': 'IBD Unspecified'});
+        //$scope.patientManagement.IBD_COLONOSCOPYSURVEILLANCE = $scope.yearsPlusSix[0];
 
         $scope.lookupMap = [];
 
-        // check if viewing as patient
-        $scope.isStaff = $rootScope.previousLoggedInUser ? true : false;
+        $scope.patientManagement.answers = {};
+        $scope.patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'] = {};
+        $scope.patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value = $scope.yearsPlusSix[0];
+        $scope.patientManagement.answers['IBD_ALLERGYSUBSTANCE'] = {};
+        $scope.patientManagement.answers['IBD_VACCINATIONRECORD'] = {};
+        $scope.patientManagement.answers['IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER'] = {};
 
+        // object to store lookup and text based answers
+
+        // get lookups and minimal diagnoses list
         PatientService.getPatientManagementLookupTypes().then(function(lookupTypes) {
-            for (var i = 0; i < lookupTypes.length; i++) {
+            for (i = 0; i < lookupTypes.length; i++) {
                 $scope.lookupMap[lookupTypes[i].type] = [];
-                for (var j = 0; j < lookupTypes[i].lookups.length; j++) {
+
+                // create answer object (not surgery procedure)
+                if (lookupTypes[i].type !== 'IBD_SURGERYMAINPROCEDURE') {
+                    $scope.patientManagement.answers[lookupTypes[i].type] = {};
+                    $scope.patientManagement.answers[lookupTypes[i].type].type = 'SELECT';
+                }
+                //console.log($scope.patientManagement.answers[lookupTypes[i].type]);
+                //console.log($scope.patientManagement.answers);
+
+                for (j = 0; j < lookupTypes[i].lookups.length; j++) {
                     $scope.lookupMap[lookupTypes[i].type].push(lookupTypes[i].lookups[j]);
                 }
             }
+
+            PatientService.getPatientManagementDiagnoses().then(function(diagnoses) {
+                for (i = 0; i < diagnoses.length; i++) {
+                    $scope.patientManagement.diagnoses.push(diagnoses[i]);
+                }
+            }, function () {
+                alert('error getting patient management programme diagnoses')
+            });
         }, function () {
             alert('error getting patient management programme details')
         });
@@ -171,50 +192,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         });
 
         // testing
-        // build object to send to back end
-        /*var surveyResponse = {}, questionAnswer = {};
-        surveyResponse.survey = {};
-        surveyResponse.survey.id = $scope.survey.id;
-        surveyResponse.questionAnswers = [];
-        surveyResponse.date = new Date();
-
-        for (var type in $scope.questionMap) {
-            if ($scope.questionMap.hasOwnProperty(type)
-                && $scope.patientManagement[type] !== null
-                && $scope.patientManagement[type] !== undefined) {
-                if ($scope.questionMap[type].elementType === 'MULTI_SELECT') {
-                    for (var i = 0; i < $scope.patientManagement[type].values.length; i++) {
-                        questionAnswer = {};
-                        questionAnswer.questionOption = $scope.patientManagement[type].values[i];
-                        questionAnswer.question = {};
-                        questionAnswer.question.id = $scope.questionMap[type].id;
-                        surveyResponse.questionAnswers.push(questionAnswer);
-                    }
-                } else if ($scope.questionMap[type].elementType === 'TEXT') {
-                    questionAnswer = {};
-                    questionAnswer.value = $scope.patientManagement[type];
-                    questionAnswer.question = {};
-                    questionAnswer.question.id = $scope.questionMap[type].id;
-                    surveyResponse.questionAnswers.push(questionAnswer);
-                } else if ($scope.questionMap[type].elementType === 'SINGLE_SELECT') {
-                    questionAnswer = {};
-                    questionAnswer.questionOption = $scope.patientManagement[type];
-                    questionAnswer.question = {};
-                    questionAnswer.question.id = $scope.questionMap[type].id;
-                    surveyResponse.questionAnswers.push(questionAnswer);
-                } else if ($scope.questionMap[type].elementType === 'DATE') {
-                    var value = $scope.patientManagement[type];
-                    questionAnswer = {};
-                    //questionAnswer.value = new Date(parseInt(value.selectedYear), parseInt(value.selectedMonth) - 1, parseInt(value.selectedDay));
-                    questionAnswer.value = value.selectedYear + '-' + value.selectedMonth + '-' + value.selectedDay;
-                    questionAnswer.question = {};
-                    questionAnswer.question.id = $scope.questionMap[type].id;
-                    surveyResponse.questionAnswers.push(questionAnswer);
-                }
-            }
-        }
-
-        console.log(surveyResponse);*/
+        console.log($scope.patientManagement.answers);
 
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {

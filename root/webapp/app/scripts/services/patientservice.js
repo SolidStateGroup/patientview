@@ -26,6 +26,17 @@ function ($q, Restangular) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Get list of IBD patient management diagnoses (limited), for use in UI
+        getPatientManagementDiagnoses: function () {
+            var deferred = $q.defer();
+            // GET /patientmanagement/diagnoses
+            Restangular.all('/patientmanagement/diagnoses').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

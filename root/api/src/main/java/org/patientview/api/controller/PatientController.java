@@ -4,10 +4,12 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.LookupType;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.CodeService;
 import org.patientview.api.service.LookupService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirPatient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +36,9 @@ public class PatientController  extends BaseController<PatientController> {
 
     @Inject
     private ApiPatientService apiPatientService;
+
+    @Inject
+    private CodeService codeService;
 
     @Inject
     private LookupService lookupService;
@@ -71,6 +76,13 @@ public class PatientController  extends BaseController<PatientController> {
             @PathVariable("userId") Long userId, @RequestParam(value = "groupId", required = false) List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(apiPatientService.get(userId, groupIds), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/patientmanagement/diagnoses", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Code>> getPatientManagementDiagnoses() {
+        return new ResponseEntity<>(codeService.getPatientManagementDiagnoses(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/patientmanagement/lookuptypes", method = RequestMethod.GET,

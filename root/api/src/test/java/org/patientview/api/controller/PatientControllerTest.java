@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.CodeService;
 import org.patientview.api.service.LookupService;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
@@ -33,6 +34,9 @@ import static org.mockito.Mockito.verify;
  * Created on 03/09/2014
  */
 public class PatientControllerTest {
+
+    @Mock
+    private CodeService codeService;
 
     @Mock
     private ApiPatientService apiPatientService;
@@ -72,6 +76,14 @@ public class PatientControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testGetPatientManagementDiagnoses() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/patientmanagement/diagnoses"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(codeService, times(1)).getPatientManagementDiagnoses();
     }
 
     @Test
