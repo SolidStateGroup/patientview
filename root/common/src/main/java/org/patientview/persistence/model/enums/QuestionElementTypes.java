@@ -10,7 +10,8 @@ public enum QuestionElementTypes {
     SINGLE_SELECT_RANGE("Single Select Range"),
     TEXT("Text"),
     TEXT_NUMERIC("Text (numeric)"),
-    MULTI_SELECT("Multi Select");
+    MULTI_SELECT("Multi Select"),
+    DATE("Date");
 
     private String name;
     QuestionElementTypes(String name) { this.name = name; }

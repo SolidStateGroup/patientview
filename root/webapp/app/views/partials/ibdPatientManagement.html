@@ -1,10 +1,4 @@
 <style>
-    .panel-questions {
-        margin: 0 10px 10px 10px;
-    }
-    .panel-questions .row {
-        margin-bottom: 20px;
-    }
     .control-label {
         margin-top: 15px;
     }
@@ -107,11 +101,7 @@
 
 <div data-ng-show="!loading">
     <hr>
-
     <h3>Personal Details</h3>
-
-    <pre class="hidden">{{patientManagement}}</pre>
-
     <div class="row">
         <div class="col-md-3">
             <label for="postcode" class="control-label">
@@ -123,8 +113,8 @@
             <label for="gender" class="control-label">
                 Gender
             </label>
-            <select id="gender" data-ng-model="patientManagement.gender"
-                    data-ng-options="sex.code as sex.description for sex in sexes"
+            <select id="gender" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_GENDER"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_GENDER'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -164,7 +154,6 @@
     </div>
 
     <hr>
-
     <h3>Diagnosis Details</h3>
     <div class="row">
         <div class="col-md-6">
@@ -172,19 +161,19 @@
             <div class="dob-row">
                 <div class="col-md-4 day">
                     Day:
-                    <select data-ng-model="editUser.selectedDay"
+                    <select data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS_DATE.selectedDay"
                             data-ng-options="option as option for option in days"
                             class="form-control"></select>
                 </div>
                 <div class="col-md-4">
                     Month:
-                    <select data-ng-model="editUser.selectedMonth"
+                    <select data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS_DATE.selectedMonth"
                             data-ng-options="option as option for option in months"
                             class="form-control"></select>
                 </div>
                 <div class="col-md-4 year">
                     Year:
-                    <select data-ng-model="editUser.selectedYear"
+                    <select data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS_DATE.selectedYear"
                             data-ng-options="option as option for option in years"
                             class="form-control"></select>
                 </div>
@@ -198,21 +187,21 @@
                 Diagnosis
             </label>
             <br/>
-            <select id="diagnosis" data-ng-model="patientManagement.diagnosis"
-                    data-ng-options="diagnosis.code as diagnosis.description for diagnosis in diagnoses"
+            <select id="diagnosis" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_DIAGNOSIS'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
     </div>
 
-    <div class="row" data-ng-if="patientManagement.diagnosis === 'CD'">
+    <div class="row" data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS.text === 'CD'">
         <div class="col-md-3">
             <label for="location-crohns" class="control-label">
                 Location
             </label>
             <br/>
-            <select id="location-crohns" data-ng-model="patientManagement.ibd_crohnslocation"
-                    data-ng-options="ibd_crohnslocation.code as ibd_crohnslocation.description for ibd_crohnslocation in ibd_crohnslocations"
+            <select id="location-crohns" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_CROHNSLOCATION"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_CROHNSLOCATION'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -221,8 +210,8 @@
                 Disease Proximal to Terminal Ileum
             </label>
             <br/>
-            <select id="proximal" data-ng-model="patientManagement.ibd_crohnsproximalterminalileum"
-                    data-ng-options="ibd_crohnsproximalterminalileum.code as ibd_crohnsproximalterminalileum.description for ibd_crohnsproximalterminalileum in ibd_crohnsproximalterminalileums"
+            <select id="proximal" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_CROHNSPROXIMALTERMINALILEUM"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_CROHNSPROXIMALTERMINALILEUM'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -231,8 +220,8 @@
                 Perianal
             </label>
             <br/>
-            <select id="perianal" data-ng-model="patientManagement.ibd_crohnsperianal"
-                    data-ng-options="ibd_crohnsperianal.code as ibd_crohnsperianal.description for ibd_crohnsperianal in ibd_crohnsperianals"
+            <select id="perianal" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_CROHNSPERIANAL"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_CROHNSPERIANAL'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -241,21 +230,21 @@
                 Complications
             </label>
             <br/>
-            <select id="complications" data-ng-model="patientManagement.ibd_crohnsbehaviour"
-                    data-ng-options="ibd_crohnsbehaviour.code as ibd_crohnsbehaviour.description for ibd_crohnsbehaviour in ibd_crohnsbehaviours"
+            <select id="complications" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_CROHNSBEHAVIOUR"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_CROHNSBEHAVIOUR'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
     </div>
 
-    <div class="row" data-ng-if="patientManagement.diagnosis !== undefined">
-        <div class="col-md-3" data-ng-if="patientManagement.diagnosis === 'UC' || patientManagement.diagnosis === 'IBDU'">
+    <div class="row" data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS !== undefined">
+        <div class="col-md-3" data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS === 'UC' || patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS === 'IBDU'">
             <label for="ibd_ucextent" class="control-label">
                 Location
             </label>
             <br/>
-            <select id="ibd_ucextent" data-ng-model="patientManagement.ibd_ucextent"
-                    data-ng-options="ibd_ucextent.code as ibd_ucextent.description for ibd_ucextent in ibd_ucextents"
+            <select id="ibd_ucextent" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_UCEXTENT"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_UCEXTENT'].questionOptions | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -265,7 +254,7 @@
             </label>
             <br/>
             <select id="ibd_egimcomplications" data-ng-model="complication"
-                    data-ng-options="complication as complication.description for complication in ibd_egimcomplications"
+                    data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION'].questionOptions | orderBy:'displayOrder'"
                     class="form-control" data-ng-change="addEgimComplication(complication)">
             </select>
         </div>
@@ -274,7 +263,7 @@
                 &nbsp;
             </label>
             <ul class="feature-list unstyled name-action-list" id="ibd_egimcomplications-list">
-                <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.ibd_egimcomplications track by $index">
+                <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values track by $index">
                     <div class="feature-list-name pull-left">
                         <span class="feature-list-name">{{selectedComplication.description}}</span>
                     </div>
@@ -288,21 +277,19 @@
         </div>
     </div>
 
-    <div class="row" data-ng-if="patientManagement.diagnosis !== undefined">
+    <div class="row" data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS !== undefined">
         <div class="col-md-12">
             <label for="ibd_egimcomplicationsother" class="control-label">
                 Other Parts of The Body Affected (not in list)
             </label>
             <br/>
-            <input type="text" class="form-control" id="ibd_egimcomplicationsother" data-ng-model="patientManagement.ibd_egimcomplicationsother">
+            <input type="text" class="form-control" id="ibd_egimcomplicationsother" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER">
         </div>
     </div>
 
-    <div data-ng-if="patientManagement.diagnosis !== undefined">
+    <div data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS !== undefined">
         <hr>
-
         <h3>Surgeries</h3>
-
         <div class="row" data-ng-if="patientManagement.surgeries.length">
             <div class="col-md-12">
                 <table class="table">
@@ -345,18 +332,16 @@
         </div>
     </div>
 
-    <div data-ng-if="patientManagement.diagnosis !== undefined">
+    <div data-ng-if="patientManagement.IBD_PATIENT_MANAGEMENT_DIAGNOSIS !== undefined">
         <hr>
-
         <h3>Further Clinical Information</h3>
-
         <div class="row">
             <div class="col-md-3">
                 <label for="ibd_smokingstatus" class="control-label">
                     Smoking Status
                 </label>
-                <select id="ibd_smokingstatus" data-ng-model="patientManagement.ibd_smokingstatus"
-                        data-ng-options="ibd_smokingstatus.code as ibd_smokingstatus.description for ibd_smokingstatus in ibd_smokingstatuses"
+                <select id="ibd_smokingstatus" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_SMOKINGSTATUS"
+                        data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_SMOKINGSTATUS'].questionOptions | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
             </div>
@@ -364,8 +349,8 @@
                 <label for="ibd_familyhistory" class="control-label">
                     Family History of IBD
                 </label>
-                <select id="ibd_familyhistory" data-ng-model="patientManagement.ibd_familyhistory"
-                        data-ng-options="ibd_familyhistory.code as ibd_familyhistory.description for ibd_familyhistory in ibd_familyhistorys"
+                <select id="ibd_familyhistory" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_FAMILYHISTORY"
+                        data-ng-options="option as option.description for option in questionMap['IBD_PATIENT_MANAGEMENT_FAMILYHISTORY'].questionOptions | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
             </div>
@@ -373,13 +358,13 @@
                 <label for="allergysubstance" class="control-label">
                     Allergies & Drug Reactions
                 </label>
-                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.allergysubstance">
+                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_ALLERGYSUBSTANCE">
             </div>
             <div class="col-md-3">
                 <label for="vaccinationrecord" class="control-label">
                     Vaccination Record
                 </label>
-                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.vaccinationrecord">
+                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_VACCINATIONRECORD">
             </div>
         </div>
 
@@ -388,8 +373,8 @@
                 <label for="colonoscopysurveillance" class="control-label">
                     Year for Colonoscopy Surveillance
                 </label>
-                <select data-ng-model="patientManagement.colonoscopysurveillance"
-                        data-ng-options="option as option for option in colonoscopysurveillanceYears"
+                <select data-ng-model="patientManagement.IBD_PATIENT_MANAGEMENT_COLONOSCOPYSURVEILLANCE"
+                        data-ng-options="year as year for year in colonoscopysurveillanceYears"
                         class="form-control" id="colonoscopysurveillance"></select>
             </div>
         </div>

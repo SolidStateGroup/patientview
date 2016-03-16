@@ -93,15 +93,20 @@ angular.module('patientviewApp').controller('IbdPatientManagementCtrl', ['$scope
 function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, UtilService) {
 
     $scope.addEgimComplication = function(complication) {
+        if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION === undefined) {
+            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION = {};
+            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values = [];
+        }
+
         var found = false;
-        for (var i = 0; i < $scope.patientManagement.ibd_egimcomplications.length; i++) {
-            if ($scope.patientManagement.ibd_egimcomplications[i].code === complication.code) {
+        for (var i = 0; i < $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.length; i++) {
+            if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i].id === complication.id) {
                 found = true;
             }
         }
 
         if (!found) {
-            $scope.patientManagement.ibd_egimcomplications.push(complication);
+            $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.push(complication);
         }
     };
 
@@ -120,51 +125,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     $scope.init = function() {
         $scope.patientManagement = {};
         $scope.patientManagement.surgeries = [];
-        $scope.patientManagement.ibd_egimcomplications = [];
-
-        // example options
-        $scope.sexes = [];
-        $scope.sexes.push({'code': 0, 'description': 'Not Known'});
-        $scope.sexes.push({'code': 1, 'description': 'Male'});
-        $scope.sexes.push({'code': 2, 'description': 'Female'});
-        $scope.diagnoses = [];
-        $scope.diagnoses.push({'code': 'CD', 'description': 'Crohn\'s Disease'});
-        $scope.diagnoses.push({'code': 'UC', 'description': 'Ulcerative Colitis'});
-        $scope.diagnoses.push({'code': 'IBDU', 'description': 'IBD Indeterminate'});
-        $scope.ibd_crohnslocations = [];
-        $scope.ibd_crohnslocations.push({'code': 'L1', 'description': 'Terminal Ileum +/- limited caecal disease'});
-        $scope.ibd_crohnslocations.push({'code': 'L2', 'description': 'Colonic'});
-        $scope.ibd_crohnslocations.push({'code': 'L3', 'description': 'Ileocolonic'});
-        $scope.ibd_crohnslocations.push({'code': 'None', 'description': 'None of the above'});
-        $scope.ibd_crohnsproximalterminalileums = [];
-        $scope.ibd_crohnsproximalterminalileums.push({'code': 'YES', 'description': 'Yes'});
-        $scope.ibd_crohnsproximalterminalileums.push({'code': 'NO', 'description': 'No'});
-        $scope.ibd_crohnsperianals = [];
-        $scope.ibd_crohnsperianals.push({'code': 'YES', 'description': 'Yes'});
-        $scope.ibd_crohnsperianals.push({'code': 'NO', 'description': 'No'});
-        $scope.ibd_crohnsbehaviours = [];
-        $scope.ibd_crohnsbehaviours.push({'code': 'B1', 'description': 'Inflammation only'});
-        $scope.ibd_crohnsbehaviours.push({'code': 'B2', 'description': 'Stricturing disease'});
-        $scope.ibd_crohnsbehaviours.push({'code': 'B3', 'description': 'Fistulating disease'});
-        $scope.ibd_ucextents = [];
-        $scope.ibd_ucextents.push({'code': 'E1', 'description': 'Ulcerative proctitis'});
-        $scope.ibd_ucextents.push({'code': 'E2', 'description': 'Left sided UC (distal UC)'});
-        $scope.ibd_ucextents.push({'code': 'E3', 'description': 'Extensive UC (pancolitis)'});
-        $scope.ibd_egimcomplications = [];
-        $scope.ibd_egimcomplications.push({'code': '1', 'description': 'Head'});
-        $scope.ibd_egimcomplications.push({'code': '2', 'description': 'Foot'});
-        $scope.ibd_smokingstatuses = [];
-        $scope.ibd_smokingstatuses.push({'code': '1', 'description': 'Current Smoker'});
-        $scope.ibd_smokingstatuses.push({'code': '2', 'description': 'Ex-Smoker'});
-        $scope.ibd_smokingstatuses.push({'code': '3', 'description': 'Non-Smoker - history unknown'});
-        $scope.ibd_smokingstatuses.push({'code': '4', 'description': 'Never Smoked'});
-        $scope.ibd_familyhistorys = [];
-        $scope.ibd_familyhistorys.push({'code': 'YES', 'description': 'Yes'});
-        $scope.ibd_familyhistorys.push({'code': 'NO', 'description': 'No'});
 
         $scope.years = UtilService.generateYears();
-        $scope.colonoscopysurveillanceYears = UtilService.generateYears(new Date().getFullYear() + 6);
-        $scope.patientManagement.colonoscopysurveillance = $scope.colonoscopysurveillanceYears[0];
+        $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear() + 6);
+        $scope.patientManagement.IBD_PATIENT_MANAGEMENT_COLONOSCOPYSURVEILLANCE = $scope.yearsPlusSix[0];
 
         delete $scope.successMessage;
 
@@ -174,18 +138,19 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // survey based
         var i, j;
 
+        // prepare for survey response
         SurveyService.getByType('IBD_PATIENT_MANAGEMENT').then(function(survey) {
             $scope.survey = survey;
-            $scope.questions = [];
+            $scope.questionMap = [];
 
             // create map of question id to question type, used when creating object to send to backend
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
-                    $scope.questions.push(survey.questionGroups[i].questions[j]);
+                    var question = survey.questionGroups[i].questions[j];
+                    $scope.questionMap[question.type] = question;
                 }
             }
 
-            console.log($scope.questions);
         }, function () {
             alert('error getting patient management programme details')
         });
@@ -193,12 +158,12 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
     $scope.removeEgimComplication = function (complication) {
         var complications = [];
-        for (var i = 0; i < $scope.patientManagement.ibd_egimcomplications.length; i++) {
-            if ($scope.patientManagement.ibd_egimcomplications[i].code !== complication.code) {
-                complications.push($scope.patientManagement.ibd_egimcomplications[i])
+        for (var i = 0; i < $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values.length; i++) {
+            if ($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i].id !== complication.id) {
+                complications.push($scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values[i])
             }
         }
-        $scope.patientManagement.ibd_egimcomplications = complications;
+        $scope.patientManagement.IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATION.values = complications;
     };
 
     $scope.removeSurgery = function(surgery) {
@@ -224,6 +189,52 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
             }
         });
+
+        // testing
+        // build object to send to back end
+        var surveyResponse = {}, questionAnswer = {};
+        surveyResponse.survey = {};
+        surveyResponse.survey.id = $scope.survey.id;
+        surveyResponse.questionAnswers = [];
+        surveyResponse.date = new Date();
+
+        for (var type in $scope.questionMap) {
+            if ($scope.questionMap.hasOwnProperty(type)
+                && $scope.patientManagement[type] !== null
+                && $scope.patientManagement[type] !== undefined) {
+                if ($scope.questionMap[type].elementType === 'MULTI_SELECT') {
+                    for (var i = 0; i < $scope.patientManagement[type].values.length; i++) {
+                        questionAnswer = {};
+                        questionAnswer.questionOption = $scope.patientManagement[type].values[i];
+                        questionAnswer.question = {};
+                        questionAnswer.question.id = $scope.questionMap[type].id;
+                        surveyResponse.questionAnswers.push(questionAnswer);
+                    }
+                } else if ($scope.questionMap[type].elementType === 'TEXT') {
+                    questionAnswer = {};
+                    questionAnswer.value = $scope.patientManagement[type];
+                    questionAnswer.question = {};
+                    questionAnswer.question.id = $scope.questionMap[type].id;
+                    surveyResponse.questionAnswers.push(questionAnswer);
+                } else if ($scope.questionMap[type].elementType === 'SINGLE_SELECT') {
+                    questionAnswer = {};
+                    questionAnswer.questionOption = $scope.patientManagement[type];
+                    questionAnswer.question = {};
+                    questionAnswer.question.id = $scope.questionMap[type].id;
+                    surveyResponse.questionAnswers.push(questionAnswer);
+                } else if ($scope.questionMap[type].elementType === 'DATE') {
+                    var value = $scope.patientManagement[type];
+                    questionAnswer = {};
+                    //questionAnswer.value = new Date(parseInt(value.selectedYear), parseInt(value.selectedMonth) - 1, parseInt(value.selectedDay));
+                    questionAnswer.value = value.selectedYear + '-' + value.selectedMonth + '-' + value.selectedDay;
+                    questionAnswer.question = {};
+                    questionAnswer.question.id = $scope.questionMap[type].id;
+                    surveyResponse.questionAnswers.push(questionAnswer);
+                }
+            }
+        }
+
+        console.log(surveyResponse);
 
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {

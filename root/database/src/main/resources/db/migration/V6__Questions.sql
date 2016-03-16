@@ -249,6 +249,8 @@ INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type
 VALUES (93, 13, 'TEXT', 'TEXT', 'Vaccination Record', 1, 'IBD_PATIENT_MANAGEMENT_VACCINATIONRECORD');
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "display_order", "type")
 VALUES (94, 13, 'SINGLE_SELECT_RANGE', 'SELECT', 'Year for Colonoscopy Surveillance', 1, 'IBD_PATIENT_MANAGEMENT_COLONOSCOPYSURVEILLANCE');
+INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "display_order", "type")
+VALUES (95, 13, 'DATE', 'DATE', 'Diagnosis Date', 1, 'IBD_PATIENT_MANAGEMENT_DIAGNOSIS_DATE');
 
 /* Question Options, see QuestionOptionTypes.java */
 INSERT INTO "pv_question_option" ("id", "question_id", "text", "description", "display_order", "type", "score")
