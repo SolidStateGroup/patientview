@@ -150,7 +150,7 @@ table{
                 white-space: pre-wrap; /* css-3 */
                 word-wrap: break-word; /* Internet Explorer 5.5+ */
                 word-break: break-all;
-                white-space: normal;
+                white-space: normal; /* THIS SHOULD BE HERE */
             }
 
             &.actions{
