@@ -1911,6 +1911,7 @@ table tr td .filetype-icon {
   /* Internet Explorer 5.5+ */
   word-break: break-all;
   white-space: normal;
+  /* THIS SHOULD BE HERE */
 }
 /* line 156, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
