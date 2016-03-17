@@ -1,6 +1,6 @@
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
-        <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
+        <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">(required)</span></label>
         <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
         <div data-ng-show="editUser.username.length">
@@ -10,19 +10,19 @@
         </div>
     </div>
     <div class="col-md-3">
-        <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span>
+        <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">(required)</span>
             <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
         <div><input type="text" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
         <div>Don't have an email? <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Add_a_new_patient" target="_blank">Click for info</a></div>
     </div>
     <div class="col-md-3">
-        <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">required</span></label>
+        <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">(required)</span></label>
         <div><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
                              name="forename" data-ng-model="editUser.forename" required></div>
     </div>
     <div class="col-md-3">
-        <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userFormNew.surname.$error.required && !userFormNew.$pristine">required</span></label>
+        <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userFormNew.surname.$error.required && !userFormNew.$pristine">(required)</span></label>
         <div><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
                              name="surname" data-ng-model="editUser.surname" required></div>
     </div>
@@ -35,21 +35,21 @@
         <div class="dob-row">
             <div class="col-md-4 day">
                 Day:
-                <span class="error" data-ng-show="!editUser.selectedDay && !userFormNew.$pristine">required</span>
+                <span class="error" data-ng-show="!editUser.selectedDay && !userFormNew.$pristine">(required)</span>
                 <select data-ng-model="editUser.selectedDay"
                             data-ng-options="option as option for option in days"
                             class="form-control" required></select>
             </div>
             <div class="col-md-4">
                 Month:
-                <span class="error" data-ng-show="!editUser.selectedMonth && !userFormNew.$pristine">required</span>
+                <span class="error" data-ng-show="!editUser.selectedMonth && !userFormNew.$pristine">(required)</span>
                 <select data-ng-model="editUser.selectedMonth"
                               data-ng-options="option as option for option in months"
                               class="form-control" required></select>
             </div>
             <div class="col-md-4 year">
                 Year:
-                <span class="error" data-ng-show="!editUser.selectedYear && !userFormNew.$pristine">required</span>
+                <span class="error" data-ng-show="!editUser.selectedYear && !userFormNew.$pristine">(required)</span>
                 <select data-ng-model="editUser.selectedYear"
                              data-ng-options="option as option for option in years"
                              class="form-control" required></select>

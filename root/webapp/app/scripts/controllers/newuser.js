@@ -37,6 +37,9 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     var init = function() {
         $scope.addPatient = ($location.url().indexOf("newpatient") > 0);
 
+        // patient management, referenced by child scope
+        $scope.patientManagement = {};
+
         var i, j, role, group, roles, allFeatures;
         $scope.allGroups = [];
         $scope.allRoles = [];

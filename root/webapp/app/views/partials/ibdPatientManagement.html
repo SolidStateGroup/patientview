@@ -2,7 +2,7 @@
     .control-label {
         margin-top: 15px;
     }
-    .feature-list-item {
+    .name-action-list li .feature-list-delete {
         margin-right: 10px;
     }
 </style>
@@ -102,6 +102,16 @@
 <div data-ng-show="!loading">
     <hr>
     <h3>Personal Details</h3>
+
+    <div class="row" data-ng-if="patientManagement.errorMessage.length">
+        <br/>
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                <span ng-bind-html="patientManagement.errorMessage"></span>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-3">
             <label for="postcode" class="control-label">
@@ -157,7 +167,12 @@
     <h3>Diagnosis Details</h3>
     <div class="row">
         <div class="col-md-6">
-            <label class="control-label">Date Of Diagnosis</label>
+            <label class="control-label">
+                Date of Diagnosis
+                <span class="error" data-ng-if="!patientManagement.diagnosisDate.selectedDay || !patientManagement.diagnosisDate.selectedMonth || !patientManagement.diagnosisDate.selectedYear">
+                    (required)
+                </span>
+            </label>
             <div class="dob-row">
                 <div class="col-md-4 day">
                     Day:
@@ -184,7 +199,7 @@
     <div class="row">
         <div class="col-md-6">
             <label for="diagnosis" class="control-label">
-                Diagnosis
+                Diagnosis <span class="error" data-ng-if="!patientManagement.diagnosis">(required)</span>
             </label>
             <br/>
             <select id="diagnosis" data-ng-model="patientManagement.diagnosis"
@@ -264,7 +279,7 @@
                     &nbsp;
                 </label>
                 <ul class="feature-list unstyled name-action-list" id="ibd_egimcomplications-list">
-                    <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.IBD_EGIMCOMPLICATION.values track by $index">
+                    <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.answers['IBD_EGIMCOMPLICATION'].values track by $index">
                         <div class="feature-list-name pull-left">
                             <span class="feature-list-name">{{selectedComplication.description}}</span>
                         </div>
@@ -379,8 +394,6 @@
         </div>
     </div>
 </div>
-
-<pre>{{patientManagement}}</pre>
 
 <div data-ng-show="loading" class="container">
     <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
