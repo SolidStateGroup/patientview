@@ -1905,63 +1905,61 @@ table tr td .filetype-icon {
   /* Opera 4-6 */
   white-space: -o-pre-wrap;
   /* Opera 7 */
-  white-space: pre-wrap;
-  /* css-3 */
   word-wrap: break-word;
   /* Internet Explorer 5.5+ */
   word-break: break-all;
   white-space: normal;
   /* THIS SHOULD BE HERE */
 }
-/* line 156, ../sass/_tables.scss */
+/* line 155, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
   padding: 0 10px;
 }
-/* line 160, ../sass/_tables.scss */
+/* line 159, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions .button-dropdown-group {
   width: 120px;
   margin: 0 auto;
 }
-/* line 166, ../sass/_tables.scss */
+/* line 165, ../sass/_tables.scss */
 .faux-table .faux-row .row-item ul {
   margin-bottom: 0;
 }
-/* line 173, ../sass/_tables.scss */
+/* line 172, ../sass/_tables.scss */
 .faux-table.three-col .row-item, .faux-table.three-col .head-item {
   width: 33.33%;
 }
-/* line 179, ../sass/_tables.scss */
+/* line 178, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 185, ../sass/_tables.scss */
+/* line 184, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-/* line 191, ../sass/_tables.scss */
+/* line 190, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
   width: 16.66%;
 }
-/* line 196, ../sass/_tables.scss */
+/* line 195, ../sass/_tables.scss */
 .faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
   width: 14.44%;
 }
-/* line 201, ../sass/_tables.scss */
+/* line 200, ../sass/_tables.scss */
 .faux-table.eight-col .row-item, .faux-table.eight-col .head-item {
   width: 12.5%;
 }
 
-/* line 207, ../sass/_tables.scss */
+/* line 206, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 209, ../sass/_tables.scss */
+/* line 208, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 213, ../sass/_tables.scss */
+/* line 212, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -1969,17 +1967,17 @@ table tr td .filetype-icon {
   width: auto;
 }
 
-/* line 221, ../sass/_tables.scss */
+/* line 220, ../sass/_tables.scss */
 .date-th {
   min-width: 100px;
 }
 
-/* line 224, ../sass/_tables.scss */
+/* line 223, ../sass/_tables.scss */
 .button-th {
   min-width: 160px;
 }
 
-/* line 229, ../sass/_tables.scss */
+/* line 228, ../sass/_tables.scss */
 .result-link a {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -1996,7 +1994,7 @@ table tr td .filetype-icon {
   white-space: normal;
 }
 
-/* line 241, ../sass/_tables.scss */
+/* line 240, ../sass/_tables.scss */
 .cleared-row {
   float: left;
   clear: left;
@@ -2004,17 +2002,17 @@ table tr td .filetype-icon {
   width: 100%;
 }
 
-/* line 247, ../sass/_tables.scss */
+/* line 246, ../sass/_tables.scss */
 .log-container {
   margin-top: 20px;
 }
-/* line 251, ../sass/_tables.scss */
+/* line 250, ../sass/_tables.scss */
 .log-container table thead {
   background: #f3f6f9;
   height: 40px;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 255, ../sass/_tables.scss */
+/* line 254, ../sass/_tables.scss */
 .log-container table thead th {
   height: 100%;
   border-right: 1px solid #e4e9f0;
@@ -2024,13 +2022,13 @@ table tr td .filetype-icon {
   padding: 10px;
   font-weight: bold;
 }
-/* line 264, ../sass/_tables.scss */
+/* line 263, ../sass/_tables.scss */
 .log-container table thead th a {
   color: #585858;
 }
 
 @media (max-width: 767px) {
-  /* line 276, ../sass/_tables.scss */
+  /* line 275, ../sass/_tables.scss */
   .details-container table tr td {
     width: 50%;
   }
