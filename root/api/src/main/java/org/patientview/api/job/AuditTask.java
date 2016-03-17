@@ -1,6 +1,6 @@
 package org.patientview.api.job;
 
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.UktException;

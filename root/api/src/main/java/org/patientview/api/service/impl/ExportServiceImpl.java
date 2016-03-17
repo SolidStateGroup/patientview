@@ -18,10 +18,10 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.enums.FileTypes;
 import org.patientview.api.service.ExportService;
 import org.patientview.api.service.LetterService;
-import org.patientview.api.service.MedicationService;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.service.ObservationService;
-import org.patientview.api.util.Util;
+import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
@@ -81,13 +81,13 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private LetterService letterService;
 
     @Inject
-    private MedicationService medicationService;
+    private ApiMedicationService apiMedicationService;
 
     @Inject
     private ObservationHeadingService observationHeadingService;
 
     @Inject
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private QuestionRepository questionRepository;
@@ -190,7 +190,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Dose");
         document.addHeader("Source");
 
-        List<FhirMedicationStatement> medicationStatements = medicationService.getByUserId(userId, fromDate, toDate);
+        List<FhirMedicationStatement> medicationStatements = apiMedicationService.getByUserId(userId, fromDate, toDate);
         TreeMap<String, FhirMedicationStatement> orderedMedicationStatement = new TreeMap<>(Collections.reverseOrder());
         for (FhirMedicationStatement fhirMedicationStatement : medicationStatements) {
             //Add current size in case multiple for that day
@@ -235,7 +235,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
         //Get all results for a specified period of time
         Map<Long, Map<String, List<FhirObservation>>> resultsMap =
-                observationService.getObservationsByMultipleCodeAndDate(userId, headings, "DESC", fromDate, toDate);
+                apiObservationService.getObservationsByMultipleCodeAndDate(userId, headings, "DESC", fromDate, toDate);
 
         for (Map.Entry<Long, Map<String, List<FhirObservation>>> entry : resultsMap.entrySet()) {
             ArrayList<String> unitNames = new ArrayList<>();
@@ -410,7 +410,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
     @Override
     public HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException {
-        if (!Util.isInEnum(type, SurveyTypes.class)) {
+        if (!ApiUtil.isInEnum(type, SurveyTypes.class)) {
             throw new ResourceNotFoundException("Survey type not found");
         }
 

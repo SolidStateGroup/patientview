@@ -40,6 +40,14 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
            "AND    r.visible = true")
     Role findByRoleTypeAndName(@Param("roleType") RoleType roleType, @Param("roleName") RoleName roleName);
 
+    @Query("SELECT r " +
+           "FROM   Role r " +
+           "WHERE  r.roleType.value = :roleType " +
+           "AND    r.name = :roleName " +
+           "AND    r.visible = :visible")
+    Role findByRoleTypeAndName(@Param("roleType") RoleType roleType, @Param("roleName") RoleName roleName,
+                               @Param("visible") boolean visible);
+
     @Query("SELECT gr.role FROM User u JOIN u.groupRoles gr WHERE u = :user AND gr.role.visible = true")
     List<Role> findByUser(@Param("user") User user);
 }

@@ -6,10 +6,46 @@
             <tbody>
             <tr>
                 <td class="forced-width">Primary Diagnosis</td>
-                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.length">
-                    {{patientDetails[0].myIbd.primaryDiagnosis}}
+                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosis">
+                    <span data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis.description">
+                        {{patientDetails[0].myIbd.primaryDiagnosis.code}}
+                    </span>
+                    <span data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.description">
+                        {{patientDetails[0].myIbd.primaryDiagnosis.description}}
+                    </span>
+                    <span data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.code !== patientDetails[0].myIbd.primaryDiagnosis.notes">
+                        ({{patientDetails[0].myIbd.primaryDiagnosis.notes}})
+                    </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis.length"></td>
+                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis"></td>
+            </tr>
+            <tr>
+                <td class="forced-width">Primary Diagnosis Date</td>
+                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.date">
+                    {{patientDetails[0].myIbd.primaryDiagnosis.date | date:'yyyy'}}
+                </td>
+                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis.date"></td>
+            </tr>
+            <tr class="hidden for-generic-only" data-ng-if="patientDetails[0].fhirConditions.length">
+                <td class="forced-width">Diagnoses</td>
+                <td>
+                    <ul>
+                        <li data-ng-repeat="condition in patientDetails[0].fhirConditions">
+                            <span data-ng-if="!condition.description">
+                                {{condition.code}}
+                            </span>
+                            <span data-ng-if="condition.description">
+                                {{condition.description}}
+                            </span>
+                            <span data-ng-if="condition.code !== condition.notes">
+                                ({{condition.notes}})
+                            </span>
+                            <span data-ng-if="condition.date">
+                                ({{condition.date | date:'dd-MMM-yyyy'}})
+                            </span>
+                        </li>
+                    </ul>
+                </td>
             </tr>
             <tr>
                 <td class="forced-width">Disease Extent</td>
@@ -23,13 +59,6 @@
                     </div>
                 </td>
                 <td data-ng-if="!patientDetails[0].myIbd.ibdDiseaseExtent.length"></td>
-            </tr>
-            <tr>
-                <td class="forced-width">Diagnosis Date</td>
-                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosisDate">
-                    {{patientDetails[0].myIbd.primaryDiagnosisDate | date:'yyyy'}}
-                </td>
-                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosisDate"></td>
             </tr>
             <tr>
                 <td class="forced-width">Complications</td>

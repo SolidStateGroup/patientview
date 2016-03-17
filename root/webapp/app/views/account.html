@@ -180,6 +180,11 @@
                             && (secretWord1 === secretWord2))">
                         Update Secret Word
                     </button>
+                    <button data-ng-click="removeSecretWord()"
+                            data-ng-if="previousAuthToken && loggedInUser.secretWordIsSet"
+                            class="btn">
+                        Remove Secret Word
+                    </button>
                 </div>
             </div>
             <div class="form-group" data-ng-show="secretWordErrorMessage">

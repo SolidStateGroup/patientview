@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirDiagnosticReport;
-import org.patientview.api.service.DiagnosticService;
+import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FileData;
@@ -31,7 +31,7 @@ import java.util.List;
 public class DiagnosticController extends BaseController<DiagnosticController> {
 
     @Inject
-    private DiagnosticService diagnosticService;
+    private ApiDiagnosticService apiDiagnosticService;
 
     /**
      * Download a letter, given User ID and FileData ID.
@@ -45,7 +45,7 @@ public class DiagnosticController extends BaseController<DiagnosticController> {
     @ResponseBody
     public HttpEntity<byte[]> download(@PathVariable("userId") Long userId, @PathVariable("fileDataId") Long fileDataId)
             throws ResourceNotFoundException, FhirResourceException {
-        FileData fileData = diagnosticService.getFileData(userId, fileDataId);
+        FileData fileData = apiDiagnosticService.getFileData(userId, fileDataId);
 
         if (fileData != null) {
             HttpHeaders header = new HttpHeaders();
@@ -72,6 +72,6 @@ public class DiagnosticController extends BaseController<DiagnosticController> {
     @ResponseBody
     public ResponseEntity<List<FhirDiagnosticReport>> getAllDiagnostics(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(diagnosticService.getByUserId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(apiDiagnosticService.getByUserId(userId), HttpStatus.OK);
     }
 }

@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirMedicationStatement;
-import org.patientview.api.service.MedicationService;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ import java.util.List;
 public class MedicationController extends BaseController<MedicationController> {
 
     @Inject
-    private MedicationService medicationService;
+    private ApiMedicationService apiMedicationService;
 
     /**
      * Retrieve all medication for a User as a List of FhirMedicationStatement.
@@ -40,6 +40,6 @@ public class MedicationController extends BaseController<MedicationController> {
     @ResponseBody
     public ResponseEntity<List<FhirMedicationStatement>> getAllMedication(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(medicationService.getByUserId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(apiMedicationService.getByUserId(userId), HttpStatus.OK);
     }
 }

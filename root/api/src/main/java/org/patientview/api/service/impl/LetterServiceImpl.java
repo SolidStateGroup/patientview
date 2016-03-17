@@ -6,35 +6,49 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.Media;
+import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.model.FhirDocumentReference;
-import org.patientview.api.service.AuditService;
-import org.patientview.api.service.FileDataService;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.LetterService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.AuditService;
+import org.patientview.service.DocumentReferenceService;
+import org.patientview.service.FileDataService;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -44,10 +58,17 @@ import java.util.UUID;
  * Created on 07/10/2014
  */
 @Service
+@Transactional
 public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> implements LetterService {
 
     @Inject
+    private ApiPatientService apiPatientService;
+
+    @Inject
     private AuditService auditService;
+
+    @Inject
+    private DocumentReferenceService documentReferenceService;
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
@@ -63,6 +84,9 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -178,7 +202,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
         DocumentReference documentReference = new DocumentReference();
         documentReference.setStatusSimple(DocumentReference.DocumentReferenceStatus.current);
-        documentReference.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+        documentReference.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
 
         if (StringUtils.isNotEmpty(fhirDocumentReference.getType())) {
             CodeableConcept type = new CodeableConcept();
@@ -284,5 +308,149 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
             audit.setInformation(type + " (" + dateString + ")");
             auditService.save(audit);
         }
+    }
+
+    @Override
+    public ServerResponse importLetter(org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference) {
+        if (StringUtils.isEmpty(fhirDocumentReference.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(fhirDocumentReference.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+        if (StringUtils.isEmpty(fhirDocumentReference.getContent())) {
+            return new ServerResponse("content not set");
+        }
+        if (StringUtils.isEmpty(fhirDocumentReference.getType())) {
+            return new ServerResponse("type not set");
+        }
+        if (fhirDocumentReference.getDate() == null) {
+            return new ServerResponse("date not set");
+        }
+
+        Group group = groupRepository.findByCode(fhirDocumentReference.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(fhirDocumentReference.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        Identifier identifier = identifiers.get(0);
+        User user = identifier.getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        // get FhirLink
+        FhirLink fhirLink = Util.getFhirLink(group, fhirDocumentReference.getIdentifier(), user.getFhirLinks());
+
+        // FHIR patient object
+        Patient patient;
+
+        // handle if no fhirlink or patient record associated with fhirlink
+        if (fhirLink == null) {
+            // no FhirLink exists, create one, build basic patient
+            FhirPatient fhirPatient = new FhirPatient();
+            fhirPatient.setForename(user.getForename());
+            fhirPatient.setSurname(user.getSurname());
+            fhirPatient.setDateOfBirth(user.getDateOfBirth());
+
+            PatientBuilder patientBuilder = new PatientBuilder(null, fhirPatient);
+            patient = patientBuilder.build();
+            FhirDatabaseEntity patientEntity;
+
+            // store new patient in FHIR
+            try {
+                patientEntity = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error creating patient");
+            }
+
+            // create FhirLink
+            fhirLink = new FhirLink();
+            fhirLink.setUser(user);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(group);
+            fhirLink.setResourceId(patientEntity.getLogicalId());
+            fhirLink.setVersionId(patientEntity.getVersionId());
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+            fhirLink.setIsNew(true);
+
+            if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+                user.setFhirLinks(new HashSet<FhirLink>());
+            }
+
+            user.getFhirLinks().add(fhirLink);
+            userRepository.save(user);
+        } else {
+            FhirDatabaseEntity patientEntity;
+
+            // FhirLink exists, check patient exists
+            if (fhirLink.getResourceId() == null) {
+                return new ServerResponse("error retrieving patient, no UUID");
+            }
+
+            try {
+                patient = apiPatientService.get(fhirLink.getResourceId());
+            } catch (FhirResourceException fre) {
+                return new ServerResponse("error retrieving patient");
+            }
+
+            if (patient == null) {
+                // no patient exists, build basic
+                FhirPatient fhirPatient = new FhirPatient();
+                fhirPatient.setForename(user.getForename());
+                fhirPatient.setSurname(user.getSurname());
+                fhirPatient.setDateOfBirth(user.getDateOfBirth());
+
+                // build patient
+                PatientBuilder patientBuilder = new PatientBuilder(null, fhirPatient);
+                patient = patientBuilder.build();
+
+                // create patient in FHIR, update FhirLink with newly created resource ID
+                try {
+                    patientEntity = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+
+                    if (patientEntity == null) {
+                        return new ServerResponse("error storing patient");
+                    }
+
+                    // update fhirlink and save
+                    fhirLink.setResourceId(patientEntity.getLogicalId());
+                    fhirLink.setResourceType(ResourceType.Patient.name());
+                    fhirLink.setVersionId(patientEntity.getVersionId());
+                    fhirLink.setUpdated(patientEntity.getUpdated());
+                    fhirLink.setActive(true);
+                    fhirLinkRepository.save(fhirLink);
+                } catch (FhirResourceException fre) {
+                    return new ServerResponse("error creating patient");
+                }
+            }
+        }
+
+        // now have Patient object and reference to logical id in fhirlink
+        try {
+            documentReferenceService.add(fhirDocumentReference, fhirLink);
+        } catch (FhirResourceException e) {
+            return new ServerResponse("error adding letter: " + e.getMessage());
+        }
+
+        return new ServerResponse(null, "done", true);
     }
 }

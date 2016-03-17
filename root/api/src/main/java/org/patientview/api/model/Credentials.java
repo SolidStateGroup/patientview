@@ -9,6 +9,20 @@ public class Credentials {
 
     private String username;
     private String password;
+    private String apiKey;
+
+    public Credentials() { }
+
+    public Credentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public Credentials(String username, String password, String apiKey) {
+        this.username = username;
+        this.password = password;
+        this.apiKey = apiKey;
+    }
 
     public String getUsername() {
         return username;
@@ -24,5 +38,13 @@ public class Credentials {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 }

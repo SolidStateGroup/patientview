@@ -1,4 +1,11 @@
-<div class="row">
+<div class="row" data-ng-if="!request.emailExists && request.type === 'FORGOT_LOGIN'">
+    <div class="col-md-12">
+        <div class="alert alert-warning">
+            Warning: The email address associated with this request does not exist in PatientView.
+            Please exercise caution. It is recommended that the user's identity be verified by making direct contact before resetting the login.
+        </div>
+    </div>
+</div><div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="request-status-select" class="control-label">Status</label>

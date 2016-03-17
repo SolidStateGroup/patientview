@@ -393,6 +393,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             // set roles that can be chosen in UI, only show visible roles
             for (i = 0; i < roles.length; i++) {
                 role = roles[i];
+
+                // global admin can see all Roles, inc hidden IMPORTER role
+                if ($scope.permissions.isSuperAdmin) {
+                    role.visible = true;
+                }
+
                 if (role.visible === true) {
                     $scope.allRoles.push(role);
                     $scope.roleIds.push(role.id);

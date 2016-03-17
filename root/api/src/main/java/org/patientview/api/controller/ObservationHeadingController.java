@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
@@ -82,8 +83,20 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @RequestMapping(value = "/observationheading", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Page<ObservationHeading>> findAll(GetParameters getParameters) {
+    public ResponseEntity<Page<ObservationHeading>> findAllPaged(GetParameters getParameters) {
         return new ResponseEntity<>(observationHeadingService.findAll(getParameters), HttpStatus.OK);
+    }
+
+    /**
+     * Get all ObservationHeading
+     * @return List of all ObservationHeading
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/observationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseObservationHeading>> findAll() {
+        return new ResponseEntity<>(observationHeadingService.findAll(), HttpStatus.OK);
     }
 
     @ExcludeFromApiDoc

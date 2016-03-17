@@ -3,7 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.GpMedicationStatus;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.GpMedicationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;

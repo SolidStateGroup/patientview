@@ -443,6 +443,23 @@ public final class TestUtils {
         return fhirLink;
     }
 
+    public static FhirLink createFhirLink(User user, Identifier identifier, Group group) {
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(user);
+        fhirLink.setResourceId(UUID.randomUUID());
+        fhirLink.setVersionId(UUID.randomUUID());
+        fhirLink.setCreated(new Date());
+        fhirLink.setIdentifier(identifier);
+        fhirLink.setActive(true);
+        fhirLink.setGroup(group);
+        if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+            user.setFhirLinks(new HashSet<FhirLink>());
+        }
+
+        user.getFhirLinks().add(fhirLink);
+        return fhirLink;
+    }
+
     public static ObservationHeading createObservationHeading(String code) {
         ObservationHeading observationHeading = new ObservationHeading();
         observationHeading.setCode(code);

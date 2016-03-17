@@ -35,6 +35,7 @@ import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;

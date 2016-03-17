@@ -8,14 +8,13 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.api.service.AuditService;
+import org.patientview.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -57,6 +56,9 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.ObservationService;
+import org.patientview.service.PatientService;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -139,6 +141,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private IdentifierRepository identifierRepository;
 
     @Inject
+    private ObservationService observationService;
+
+    @Inject
     private PatientService patientService;
 
     @Inject
@@ -172,9 +177,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int INACTIVE_MONTH_LIMIT = 3;
     // used for image resizing
     private static final int MAXIMUM_IMAGE_WIDTH = 400;
-    private static final int THREE = 3;
-    private static final int SIX = 6;
-    private static final int EIGHT = 8;
     private static final int ONE_HUNDRED_AND_EIGHTY = 180;
     private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
@@ -602,7 +604,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // UNIT_ADMIN can get users from other groups (used when updating existing user)
         // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
-        if (Util.currentUserHasRole(RoleName.UNIT_ADMIN) || Util.currentUserHasRole(RoleName.GP_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN) || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -655,7 +657,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
                 patientService.deleteExistingPatientData(user.getFhirLinks());
-                patientService.deleteAllExistingObservationData(user.getFhirLinks());
+                observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
             if (isPatient || forceDelete) {
@@ -955,7 +957,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         StatusFilter statusFilter = null;
 
         // get status filter for filtering users by status (e.g. locked, active, inactive)
-        if (Util.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
+        if (ApiUtil.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
             statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
         }
 
@@ -1391,7 +1393,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException{
+    public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
@@ -1503,6 +1505,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRoleRepository.removeAllGroupRoles(findUser(userId));
     }
 
+    @Override
+    public void removeSecretWord(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = findUser(userId);
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        user.setSecretWord(null);
+        user.setHideSecretWordNotification(false);
+        userRepository.save(user);
+    }
 
     /**
      * On a password reset the user should change on login

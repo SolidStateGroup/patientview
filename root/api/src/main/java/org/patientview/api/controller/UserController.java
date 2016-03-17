@@ -442,6 +442,16 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
+     * Remove User's secret word.
+     * @param userId Long ID of User to remove secret word for
+     */
+    @RequestMapping(value = "/user/{userId}/secretword", method = RequestMethod.DELETE)
+    public void removeSecretWord(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.removeSecretWord(userId);
+    }
+
+    /**
      * Reset a User's password, done by Users for other staff or patients.
      * @param userId ID of User to reset password for
      * @param credentials Credentials object containing username and new password

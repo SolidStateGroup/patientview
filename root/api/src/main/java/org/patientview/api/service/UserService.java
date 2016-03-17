@@ -341,6 +341,13 @@ public interface UserService {
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Remove User's secret word.
+     * @param userId Long ID of User to remove secret word for
+     */
+    @UserOnly
+    void removeSecretWord(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Reset a User's password, done by Users for other staff or patients. Also removes secret word.
      * @param userId ID of User to reset password for
      * @param password New password

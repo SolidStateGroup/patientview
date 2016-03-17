@@ -239,6 +239,23 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                     }
                 }
             };
+        },
+        getApiDocsRoute: function() {
+            return {
+                'url': '/apidocs',
+                'templateUrl': 'views/apidocs.html',
+                'controller': 'ApiDocsCtrl',
+                'title': 'API Documentation',
+                'lookup': {
+                    'id': 99,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
         }
     };
 }]);

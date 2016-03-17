@@ -53,7 +53,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.service.GpLetterCreationService;
+import org.patientview.service.GpLetterService;
 import org.patientview.test.util.TestUtils;
 
 import javax.mail.MessagingException;
@@ -96,7 +96,7 @@ public class GpServiceTest {
     FhirResource fhirResource;
 
     @Mock
-    GpLetterCreationService gpLetterCreationService;
+    GpLetterService gpLetterService;
 
     @Mock
     GpLetterRepository gpLetterRepository;
@@ -282,7 +282,7 @@ public class GpServiceTest {
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
-        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
+        when(gpLetterService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
 
         GpDetails out = gpService.claim(details);
 
@@ -643,7 +643,7 @@ public class GpServiceTest {
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
 
-        when(gpLetterCreationService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
+        when(gpLetterService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
 
         GpDetails out = gpService.claim(details);
 
@@ -689,11 +689,12 @@ public class GpServiceTest {
         gpMasters.add(gpMaster);
 
         when(gpMasterRepository.findByPostcode(eq(practitioner.getPostcode()))).thenReturn(gpMasters);
-        when(gpLetterCreationService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
+        when(gpLetterService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
+        when(groupRepository.findOne(eq(patient.getGroup().getId()))).thenReturn(patient.getGroup());
 
         gpService.invite(user.getId(), patient);
 
-        verify(gpLetterRepository, Mockito.times(1)).save(any(GpLetter.class));
+        verify(gpLetterService, Mockito.times(1)).add(any(GpLetter.class), eq(group));
     }
 
     @Test

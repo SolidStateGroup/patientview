@@ -1,11 +1,14 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.ServerResponse;
+import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
 
@@ -58,4 +61,7 @@ public interface LetterService {
 
     @UserOnly
     FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException;
+
+    @RoleOnly(roles = { RoleName.IMPORTER })
+    ServerResponse importLetter(org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference);
 }

@@ -139,6 +139,18 @@ public class DataTestUtils {
         return roleRepository.save(role);
     }
 
+    public Role createRole(RoleName name, org.patientview.persistence.model.enums.RoleType roleTypeEnum,
+                           boolean visible) {
+        Role role = TestUtils.createRole(name);
+        setupBaseObject(role);
+        RoleType roleType = new RoleType();
+        roleType.setValue(roleTypeEnum);
+        role.setRoleType(roleType);
+        role.setVisible(visible);
+
+        return roleRepository.save(role);
+    }
+
 
     public Group createGroup(String name) {
         Group group = TestUtils.createGroup(name);

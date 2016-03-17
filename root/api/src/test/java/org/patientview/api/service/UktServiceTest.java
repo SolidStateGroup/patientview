@@ -24,6 +24,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.EncounterService;
 import org.patientview.test.util.TestUtils;
 
 import java.util.ArrayList;
@@ -46,7 +47,8 @@ import static org.mockito.Mockito.eq;
  */
 public class UktServiceTest {
 
-    User creator;
+    @Mock
+    ApiPatientService apiPatientService;
 
     @Mock
     AuditRepository auditRepository;
@@ -59,9 +61,6 @@ public class UktServiceTest {
 
     @Mock
     IdentifierRepository identifierRepository;
-    
-    @Mock
-    PatientService patientService;
 
     @Mock
     Properties properties;
@@ -75,7 +74,6 @@ public class UktServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
     }
 
     @After
@@ -171,7 +169,7 @@ public class UktServiceTest {
         when(properties.getProperty("ukt.export.directory")).thenReturn(path);
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
         when(userRepository.findAllPatients()).thenReturn(users);
-        when(patientService.get(eq(resourceId))).thenReturn(patient);
+        when(apiPatientService.get(eq(resourceId))).thenReturn(patient);
 
         uktService.exportData();
 

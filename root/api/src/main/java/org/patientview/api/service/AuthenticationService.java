@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -25,15 +26,13 @@ import java.util.Map;
 public interface AuthenticationService extends UserDetailsService {
 
     /**
-     * Authenticate a User given username and password.
-     * @param username String username
-     * @param password String password
+     * Authenticate a User given credentials.
+     * @param credentials Credentials object containing username, password and api key if present
      * @return UserToken containing authentication token, used in all future authenticated requests
      * @throws AuthenticationServiceException
      * @throws UsernameNotFoundException
      */
-    UserToken authenticate(String username, String password)
-            throws AuthenticationServiceException, UsernameNotFoundException;
+    UserToken authenticate(Credentials credentials) throws AuthenticationServiceException;
 
     /**
      * Store Authentication object in Spring Security
@@ -42,6 +41,8 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
+
+    UserToken authenticateImporter(Credentials credentials) throws AuthenticationServiceException;
 
     /**
      * Validates a User's secret word given a Map of letter position to letter chosen, used as part of login and

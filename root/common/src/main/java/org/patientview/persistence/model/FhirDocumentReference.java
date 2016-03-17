@@ -12,21 +12,21 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
-public class FhirDocumentReference extends BaseModel {
+public class FhirDocumentReference extends BaseImport {
 
     private Date date;
     private String type;
     private String content;
     private Group group;
 
-    // used by migration
-    private String identifier;
-
     // only present for DocumentReference with associated Media and binary FileData
     private String filename;
     private String filetype;
     private Long fileDataId;
     private Long filesize;
+
+    // used for import of binary data
+    private String fileBase64;
 
     public FhirDocumentReference() {
     }
@@ -85,14 +85,6 @@ public class FhirDocumentReference extends BaseModel {
         this.group = group;
     }
 
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
     public String getFilename() {
         return filename;
     }
@@ -123,5 +115,13 @@ public class FhirDocumentReference extends BaseModel {
 
     public void setFileDataId(Long fileDataId) {
         this.fileDataId = fileDataId;
+    }
+
+    public String getFileBase64() {
+        return fileBase64;
+    }
+
+    public void setFileBase64(String fileBase64) {
+        this.fileBase64 = fileBase64;
     }
 }

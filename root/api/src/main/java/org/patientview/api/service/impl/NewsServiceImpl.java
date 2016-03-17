@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.NewsService;
 import org.patientview.api.service.StaticDataManager;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
@@ -394,7 +394,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        if (entityRole.getName().equals(RoleName.PUBLIC) && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -468,7 +468,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        if (entityRole.getName().equals(RoleName.PUBLIC) && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -520,7 +520,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     private boolean canModifyNewsLink(NewsLink newsLink) {
-        if (newsLink.getGroup() != null && Util.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        if (newsLink.getGroup() != null && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             User currentUser = getCurrentUser();
             for (GroupRole groupRole : currentUser.getGroupRoles()) {
                 if (groupRole.getGroup().equals(newsLink.getGroup())) {
@@ -534,7 +534,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     private boolean canModifyNewsItem(NewsItem newsItem) {
 
-        if (Util.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 

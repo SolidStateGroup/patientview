@@ -11,10 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.builder.ObservationsBuilder;
+import org.patientview.builder.ObservationsBuilder;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.importer.Utility.FhirTestUtil;
-import org.patientview.importer.Utility.Util;
+import org.patientview.test.util.FhirTestUtil;
+import org.patientview.util.Util;
 
 import javax.sql.DataSource;
 import java.util.UUID;

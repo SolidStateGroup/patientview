@@ -10,8 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.AlertService;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
@@ -29,7 +27,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -60,8 +57,7 @@ public class AlertControllerTest {
     }
 
     @Test
-    public void testAddAlert() throws ResourceNotFoundException {
-
+    public void testAddAlert() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -81,19 +77,14 @@ public class AlertControllerTest {
         alert.setEmailAlertSent(false);
         alert.setAlertType(AlertTypes.RESULT);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/alert")
-                    .content(mapper.writeValueAsString(alert))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/alert")
+                .content(mapper.writeValueAsString(alert))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testGetAlerts() throws ResourceNotFoundException {
-
+    public void testGetAlerts() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -104,19 +95,14 @@ public class AlertControllerTest {
 
         AlertTypes alertType = AlertTypes.RESULT;
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alerts/" + alertType.toString())
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alerts/" + alertType.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
         verify(alertService, Mockito.times(1)).getAlerts(user.getId(), alertType);
     }
 
     @Test
-    public void testGetContactAlerts() throws ResourceNotFoundException {
-
+    public void testGetContactAlerts() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
@@ -125,50 +111,30 @@ public class AlertControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/contactalerts/")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/contactalerts/")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
         verify(alertService, Mockito.times(1)).getContactAlerts(user.getId());
     }
 
     @Test
-    public void testRemoveAlert() throws ResourceNotFoundException, ResourceForbiddenException {
-
+    public void testGetImportAlerts() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-
-        org.patientview.api.model.Alert alert = new org.patientview.api.model.Alert();
-        alert.setId(1L);
-        alert.setUser(new BaseUser(user));
-        alert.setObservationHeading(new org.patientview.api.model.ObservationHeading(observationHeading));
-        alert.setWebAlert(true);
-        alert.setWebAlertViewed(false);
-        alert.setEmailAlert(true);
-        alert.setEmailAlertSent(false);
-        alert.setAlertType(AlertTypes.RESULT);
-
-        try {
-            String url = "/user/" + user.getId() + "/alerts/" + alert.getId();
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/importalerts/")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(alertService, Mockito.times(1)).getImportAlerts(user.getId());
     }
 
     @Test
-    public void testUpdateAlert() throws ResourceNotFoundException, ResourceForbiddenException {
-
+    public void testRemoveAlert() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -189,15 +155,35 @@ public class AlertControllerTest {
         alert.setEmailAlertSent(false);
         alert.setAlertType(AlertTypes.RESULT);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/alert")
-                    .content(mapper.writeValueAsString(alert))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        String url = "/user/" + user.getId() + "/alerts/" + alert.getId();
+        mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testUpdateAlert() throws Exception {
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        org.patientview.api.model.Alert alert = new org.patientview.api.model.Alert();
+        alert.setId(1L);
+        alert.setUser(new BaseUser(user));
+        alert.setObservationHeading(new org.patientview.api.model.ObservationHeading(observationHeading));
+        alert.setWebAlert(true);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(true);
+        alert.setEmailAlertSent(false);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/alert")
+                .content(mapper.writeValueAsString(alert))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
-
-

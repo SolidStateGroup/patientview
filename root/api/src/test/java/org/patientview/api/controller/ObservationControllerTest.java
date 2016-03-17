@@ -1,7 +1,5 @@
 package org.patientview.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -11,13 +9,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.FhirObservationRange;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.api.service.ObservationService;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
@@ -49,7 +44,7 @@ import static org.mockito.Mockito.verify;
 public class ObservationControllerTest {
 
     @Mock
-    private ObservationService observationService;
+    private ApiObservationService apiObservationService;
 
     @InjectMocks
     private ObservationController observationController;
@@ -154,14 +149,14 @@ public class ObservationControllerTest {
         fhirObservationRange.setCode("wbc");
         fhirObservationRange.setStartDate(new Date());
         fhirObservationRange.setEndDate(new Date());
-        fhirObservationRange.setObservations(new ArrayList<FhirObservation>());
+        fhirObservationRange.setObservations(new ArrayList<org.patientview.persistence.model.FhirObservation>());
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/user/" + patient.getId() + "/group/" + group.getId() + "/observations")
                 .content(mapper.writeValueAsString(fhirObservationRange)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
                 
-        verify(observationService, Mockito.times(1))
+        verify(apiObservationService, Mockito.times(1))
                 .addTestObservations(eq(patient.getId()), eq(group.getId()), any(FhirObservationRange.class));
     }
 }

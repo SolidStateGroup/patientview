@@ -4,7 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.RequestService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
@@ -216,7 +216,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         List<org.patientview.api.model.Request> requests = new ArrayList<>();
 
         for (Request request : requestPage.getContent()) {
-            requests.add(new org.patientview.api.model.Request(request));
+            org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(request);
+            if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+                apiRequest.setEmailExists(true);
+            }
+            requests.add(apiRequest);
         }
 
         return new PageImpl<>(requests, pageable, total);
@@ -348,7 +352,13 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             throw new ResourceNotFoundException("Request not found");
         }
 
-        return new org.patientview.api.model.Request(entityRequest);
+
+        org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(entityRequest);
+        if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+            apiRequest.setEmailExists(true);
+        }
+
+        return apiRequest;
     }
 
     @Override
@@ -389,7 +399,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         if (!ArrayUtils.isEmpty(getParameters.getTypes())) {
             for (String requestType : getParameters.getTypes()) {
-                if (Util.isInEnum(requestType, RequestTypes.class)) {
+                if (ApiUtil.isInEnum(requestType, RequestTypes.class)) {
                     requestTypes.add(RequestTypes.valueOf(requestType));
                 }
             }

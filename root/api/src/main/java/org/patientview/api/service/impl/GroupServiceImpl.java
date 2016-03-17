@@ -10,7 +10,7 @@ import org.hl7.fhir.instance.model.Organization;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -42,6 +42,7 @@ import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.util.Util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -285,7 +286,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         for (Group group : groups) {
             // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
-            if (!Util.isInEnum(group.getCode(), HiddenGroupCodes.class)) {
+            if (!ApiUtil.isInEnum(group.getCode(), HiddenGroupCodes.class)) {
                 transportGroups.add(new org.patientview.api.model.Group(group));
             }
         }
@@ -644,13 +645,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         User user = userRepository.findOne(userId);
         boolean groupTypesNotEmpty = ArrayUtils.isNotEmpty(groupTypes);
 
-        if (Util.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             if (groupTypesNotEmpty) {
                 groupPage = groupRepository.findAllByGroupType(filterText, groupTypesList, pageable);
             } else {
                 groupPage = groupRepository.findAll(filterText, pageable);
             }
-        } else if (Util.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
+        } else if (ApiUtil.userHasRole(user, RoleName.SPECIALTY_ADMIN)) {
             if (groupTypesNotEmpty) {
                 groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType(filterText, groupTypesList,
                         user, pageable);
@@ -697,13 +698,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
 
         // unit admin cannot change group type
-        if (Util.doesContainGroupAndRole(entityGroup.getId(), RoleName.UNIT_ADMIN)
+        if (ApiUtil.doesContainGroupAndRole(entityGroup.getId(), RoleName.UNIT_ADMIN)
                 && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
             throw new ResourceForbiddenException("Unit Admin cannot change group type");
         }
 
         // gp admin cannot change group type
-        if (Util.doesContainGroupAndRole(entityGroup.getId(), RoleName.GP_ADMIN)
+        if (ApiUtil.doesContainGroupAndRole(entityGroup.getId(), RoleName.GP_ADMIN)
                 && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
             throw new ResourceForbiddenException("GP Admin cannot change group type");
         }

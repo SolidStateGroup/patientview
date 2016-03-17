@@ -1,9 +1,11 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.ServerResponse;
+
 /**
  * ExternalConversation used to handle creation of conversations with users by external systems
  */
-public class ExternalConversation {
+public class ExternalConversation extends ServerResponse {
 
     private String groupCode;
     private String identifier;
@@ -14,11 +16,6 @@ public class ExternalConversation {
     private String title;
     private String token;
     private String userFeature;
-
-    // for returning success and error status
-    private String errorMessage;
-    private boolean success;
-    private String successMessage;
 
     public ExternalConversation() { }
 
@@ -92,29 +89,5 @@ public class ExternalConversation {
 
     public void setUserFeature(String userFeature) {
         this.userFeature = userFeature;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getSuccessMessage() {
-        return successMessage;
-    }
-
-    public void setSuccessMessage(String successMessage) {
-        this.successMessage = successMessage;
     }
 }

@@ -3,11 +3,11 @@ package org.patientview.api.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
-import org.patientview.api.service.EncounterService;
+import org.patientview.service.EncounterService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.UktService;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.UktException;
@@ -62,7 +62,7 @@ import java.util.UUID;
     private GroupService groupService;
 
     @Inject
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     @Inject
     private Properties properties;
@@ -82,7 +82,7 @@ import java.util.UUID;
 
         if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
             for (FhirLink fhirLink : user.getFhirLinks()) {
-                if (!Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
+                if (!ApiUtil.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
 
                     UUID organizationUuid;
 
@@ -98,7 +98,7 @@ import java.util.UUID;
                     FhirEncounter fhirEncounter = new FhirEncounter();
                     fhirEncounter.setStatus(status);
                     fhirEncounter.setEncounterType(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString());
-                    encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
+                    encounterService.add(fhirEncounter, fhirLink, organizationUuid);
                 }
             }
         }
@@ -226,7 +226,7 @@ import java.util.UUID;
         try {
             if (user.getFhirLinks() != null) {
                 for (FhirLink fhirLink : user.getFhirLinks()) {
-                    Patient patient = patientService.get(fhirLink.getResourceId());
+                    Patient patient = apiPatientService.get(fhirLink.getResourceId());
                     if (patient != null && !CollectionUtils.isEmpty(patient.getAddress())) {
                         if (StringUtils.isNotEmpty(patient.getAddress().get(0).getZipSimple())) {
                             return clean(patient.getAddress().get(0).getZipSimple());

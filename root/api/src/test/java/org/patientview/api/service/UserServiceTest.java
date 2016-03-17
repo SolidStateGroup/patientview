@@ -45,6 +45,7 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mail.MailException;
 
@@ -74,10 +75,10 @@ public class UserServiceTest {
     private AlertRepository alertRepository;
 
     @InjectMocks
-    AuditAspect auditAspect = AuditAspect.aspectOf();
+    private AuditAspect auditAspect = AuditAspect.aspectOf();
 
     @Mock
-    AuditService auditService;
+    private AuditService auditService;
 
     @Mock
     private ConversationService conversationService;
@@ -887,7 +888,6 @@ public class UserServiceTest {
      */
     @Test
     public void testPasswordReset() throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
-
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
@@ -923,7 +923,6 @@ public class UserServiceTest {
      */
     @Test
     public void testPasswordChange() throws ResourceNotFoundException {
-
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -940,6 +939,25 @@ public class UserServiceTest {
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
         verify(userRepository, times(3)).findOne(eq(user.getId()));
+    }
+
+    @Test
+    public void testRemoveSecretWord() throws ResourceForbiddenException, ResourceNotFoundException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        userService.removeSecretWord(user.getId());
+
+        verify(userRepository, times(1)).save(eq(user));
     }
 
     /**

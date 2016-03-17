@@ -9,7 +9,7 @@ import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Patient;
-import org.patientview.api.util.Util;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirIdentifier;
@@ -24,7 +24,7 @@ import java.util.List;
  * empty strings means clear existing data, null strings means leave alone and do not update. For Date, clear if null.
  * Also assume that a patient has only one address.
  *
- * Created by james@solidstategroup.com
+ * Created by jamesr@solidstategroup.com
  * Created on 03/03/2015
  */
 public class PatientBuilder {
@@ -52,7 +52,6 @@ public class PatientBuilder {
         createAddress();
         createContactDetails();
         addIdentifiers();
-        /*addCareProvider(newPatient);*/
         return patient;
     }
 
@@ -302,30 +301,22 @@ public class PatientBuilder {
     }
 
     private void addIdentifiers() {
-        if (!CollectionUtils.isEmpty(fhirPatient.getIdentifiers())) {
-            if (update) {
-                patient.getIdentifier().clear();
-            }
+        if (fhirPatient.getIdentifiers() != null) {
+            if (!CollectionUtils.isEmpty(fhirPatient.getIdentifiers())) {
+                if (update) {
+                    patient.getIdentifier().clear();
+                }
 
-            for (FhirIdentifier fhirIdentifier : fhirPatient.getIdentifiers()) {
-                if (StringUtils.isNotEmpty(fhirIdentifier.getValue())
-                        && StringUtils.isNotEmpty(fhirIdentifier.getLabel())
-                        && Util.isInEnum(fhirIdentifier.getLabel(), IdentifierTypes.class)) {
-                    Identifier identifier = patient.addIdentifier();
-                    identifier.setValueSimple(fhirIdentifier.getValue());
-                    identifier.setLabelSimple(fhirIdentifier.getLabel());
+                for (FhirIdentifier fhirIdentifier : fhirPatient.getIdentifiers()) {
+                    if (StringUtils.isNotEmpty(fhirIdentifier.getValue())
+                            && StringUtils.isNotEmpty(fhirIdentifier.getLabel())
+                            && ApiUtil.isInEnum(fhirIdentifier.getLabel(), IdentifierTypes.class)) {
+                        Identifier identifier = patient.addIdentifier();
+                        identifier.setValueSimple(fhirIdentifier.getValue());
+                        identifier.setLabelSimple(fhirIdentifier.getLabel());
+                    }
                 }
             }
         }
     }
-
-    /*private Patient addCareProvider(Patient newPatient) {
-        if (practitionerReference != null) {
-            ResourceReference careProvider = newPatient.addCareProvider();
-            careProvider.setReference(practitionerReference.getReference());
-            careProvider.setDisplay(practitionerReference.getDisplay());
-        }
-        return newPatient;
-    }*/
-
 }

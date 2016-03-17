@@ -6,13 +6,13 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.Utility.Util;
-import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
-import org.patientview.importer.service.AuditService;
 import org.patientview.importer.service.EmailService;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.service.AuditService;
+import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,13 +36,13 @@ public class QueueProcessor extends DefaultConsumer {
     private Long importerUserId;
 
     @Inject
+    private AuditService auditService;
+
+    @Inject
     private ExecutorService executor;
 
     @Inject
     private ImportManager importManager;
-
-    @Inject
-    private AuditService auditService;
 
     @Inject
     private EmailService emailService;
@@ -96,7 +96,7 @@ public class QueueProcessor extends DefaultConsumer {
                 patient = Util.unmarshallPatientRecord(message);
             } catch (ImportResourceException ire) {
                 LOG.error(ire.getMessage());
-                auditService.createAudit(AuditActions.PATIENT_DATA_FAIL, null, null, 
+                auditService.createAudit(AuditActions.PATIENT_DATA_FAIL, null, null,
                         ire.getMessage(), message, importerUserId);
                 emailService.sendErrorEmail(ire.getMessage(), null, null);
                 fail = true;
@@ -106,7 +106,7 @@ public class QueueProcessor extends DefaultConsumer {
             if (!fail && patient.getPatient().getPersonaldetails().getNhsno() == null) {
                 String errorMessage = "Identifier not set in XML";
                 LOG.error(errorMessage);
-                auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null, 
+                auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null,
                         errorMessage, message, importerUserId);
                 emailService.sendErrorEmail(errorMessage, null, patient.getCentredetails().getCentrecode());
                 fail = true;

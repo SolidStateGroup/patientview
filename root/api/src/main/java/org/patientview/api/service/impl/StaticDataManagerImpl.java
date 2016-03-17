@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.StaticDataManager;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -9,6 +8,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

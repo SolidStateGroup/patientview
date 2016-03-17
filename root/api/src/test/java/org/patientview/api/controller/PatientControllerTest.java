@@ -6,9 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.PatientService;
+import org.patientview.api.service.ApiPatientService;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -42,7 +41,7 @@ public class PatientControllerTest {
     private PatientController patientController;
 
     @Mock
-    private PatientService patientService;
+    private ApiPatientService apiPatientService;
 
     @Before
     public void setup() {
@@ -91,6 +90,6 @@ public class PatientControllerTest {
                 .content(mapper.writeValueAsString(fhirPatient)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        //verify(patientService, Mockito.times(1)).update(eq(user.getId()), eq(group.getId()), eq(fhirPatient));
+        //verify(apiPatientService, Mockito.times(1)).update(eq(user.getId()), eq(group.getId()), eq(fhirPatient));
     }
 }

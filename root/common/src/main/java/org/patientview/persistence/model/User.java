@@ -83,6 +83,7 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "picture")
     private String picture;
 
+    // secret word for multi-factor authentication
     @Column(name = "hide_secret_word_notification")
     private boolean hideSecretWordNotification = false;
 

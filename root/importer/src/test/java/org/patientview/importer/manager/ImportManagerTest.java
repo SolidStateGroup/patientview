@@ -6,34 +6,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.manager.impl.ImportManagerImpl;
-import org.patientview.importer.service.GpLetterService;
-import org.patientview.importer.service.GroupRoleService;
-import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.GpLetter;
-import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.IdentifierTypes;
-import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.model.enums.RoleType;
-import org.patientview.persistence.repository.GpMasterRepository;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.service.AllergyService;
+import org.patientview.service.AuditService;
+import org.patientview.service.ConditionService;
+import org.patientview.service.DiagnosticService;
+import org.patientview.service.DocumentReferenceService;
+import org.patientview.service.EncounterService;
+import org.patientview.service.GpLetterService;
+import org.patientview.service.MedicationService;
+import org.patientview.service.ObservationService;
+import org.patientview.service.OrganizationService;
+import org.patientview.service.PatientService;
+import org.patientview.service.PractitionerService;
 import org.patientview.test.util.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -41,16 +37,46 @@ import static org.mockito.Mockito.when;
 public class ImportManagerTest extends BaseTest {
 
     @Mock
+    AllergyService allergyService;
+
+    @Mock
+    AuditService auditService;
+
+    @Mock
     GpLetterService gpLetterService;
 
     @Mock
-    GroupRoleService groupRoleService;
+    ConditionService conditionService;
 
     @Mock
-    GpMasterRepository gpMasterRepository;
+    DiagnosticService diagnosticService;
+
+    @Mock
+    DocumentReferenceService documentReferenceService;
+
+    @Mock
+    EncounterService encounterService;
+
+    @Mock
+    GroupRepository groupRepository;
 
     @InjectMocks
     ImportManager importManager = new ImportManagerImpl();
+
+    @Mock
+    MedicationService medicationService;
+
+    @Mock
+    ObservationService observationService;
+
+    @Mock
+    OrganizationService organizationService;
+
+    @Mock
+    PatientService patientService;
+
+    @Mock
+    PractitionerService practitionerService;
 
     @Before
     public void setUp() throws Exception {
@@ -59,183 +85,14 @@ public class ImportManagerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateGpLetter_noneExistingCheckMaster() throws ResourceNotFoundException {
-        Patientview patientview = new Patientview();
-        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
+    public void testProcess() throws Exception {
+        Patientview patientview = org.patientview.util.Util.unmarshallPatientRecord(getTestFile());
 
-        gpdetails.setGpname("gpName");
-        gpdetails.setGppostcode("AB1 23C");
-        patientview.setGpdetails(gpdetails);
+        when(organizationService.add(eq(patientview))).thenReturn(UUID.randomUUID());
+        when(practitionerService.add(eq(patientview))).thenReturn(UUID.randomUUID());
+        when(groupRepository.findByCode(eq(patientview.getCentredetails().getCentrecode())))
+                .thenReturn(TestUtils.createGroup("testGroup"));
 
-        User user = TestUtils.createUser("testUser");
-        Identifier identifier = TestUtils.createIdentifier(
-                TestUtils.createLookup(
-                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
-                user, "1111111111");
-
-        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
-        fhirLink.setIsNew(true);
-
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(false);
-        when(gpLetterService.hasValidPracticeDetailsSingleMaster(eq(patientview))).thenReturn(true);
-
-        importManager.createGpLetter(fhirLink, patientview);
-
-        // will not add group role
-        verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
-
-        // will add GP letter
-        verify(gpLetterService, Mockito.times(1)).add(eq(patientview), any(Group.class));
-    }
-
-    @Test
-    public void testCreateGpLetter_notNewFhirPatient() throws ResourceNotFoundException {
-        Patientview patientview = new Patientview();
-        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
-
-        gpdetails.setGpaddress1("address1");
-        gpdetails.setGpaddress2("address2");
-        gpdetails.setGpaddress3("address3");
-        gpdetails.setGppostcode("AB1 23C");
-        patientview.setGpdetails(gpdetails);
-
-        User user = TestUtils.createUser("testUser");
-        Identifier identifier = TestUtils.createIdentifier(
-                TestUtils.createLookup(
-                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
-                user, "1111111111");
-
-        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
-
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(true);
-
-        importManager.createGpLetter(fhirLink, patientview);
-
-        // will not add group role
-        verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
-
-        // will not add GP letter
-        verify(gpLetterService, Mockito.times(0)).add(eq(patientview), any(Group.class));
-    }
-
-    @Test
-    public void testCreateGpLetter_existsWithNameNotClaimed() throws ResourceNotFoundException {
-        Patientview patientview = new Patientview();
-        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
-
-        gpdetails.setGpname("gpName");
-        gpdetails.setGpaddress1("address1");
-        gpdetails.setGpaddress2("address2");
-        gpdetails.setGpaddress3("address3");
-        gpdetails.setGppostcode("AB1 23C");
-        patientview.setGpdetails(gpdetails);
-
-        User user = TestUtils.createUser("testUser");
-        Identifier identifier = TestUtils.createIdentifier(
-                TestUtils.createLookup(
-                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
-                user, "1111111111");
-
-        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
-        fhirLink.setIsNew(true);
-
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(gpdetails.getGpname());
-
-        List<GpLetter> gpLetters = new ArrayList<>();
-        gpLetters.add(gpLetter);
-
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(true);
-        when(gpLetterService.matchByGpDetails(patientview)).thenReturn(gpLetters);
-
-        importManager.createGpLetter(fhirLink, patientview);
-
-        // will not add group role
-        verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
-
-        // will not add new Gp letter
-        verify(gpLetterService, Mockito.times(0)).add(eq(patientview), any(Group.class));
-    }
-
-    @Test
-    public void testCreateGpLetter_existsWithNameClaimed() throws ResourceNotFoundException {
-        Patientview patientview = new Patientview();
-        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
-
-        gpdetails.setGpname("gpName");
-        gpdetails.setGpaddress1("address1");
-        gpdetails.setGpaddress2("address2");
-        gpdetails.setGpaddress3("address3");
-        gpdetails.setGppostcode("AB1 23C");
-        patientview.setGpdetails(gpdetails);
-
-        User user = TestUtils.createUser("testUser");
-        Identifier identifier = TestUtils.createIdentifier(
-                TestUtils.createLookup(
-                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
-                user, "1111111111");
-
-        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
-        fhirLink.setIsNew(true);
-
-        Group group = TestUtils.createGroup("testGroup");
-
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName(gpdetails.getGpname());
-        gpLetter.setClaimedGroup(group);
-        gpLetter.setClaimedDate(new Date());
-
-        List<GpLetter> gpLetters = new ArrayList<>();
-        gpLetters.add(gpLetter);
-
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(true);
-        when(gpLetterService.matchByGpDetails(patientview)).thenReturn(gpLetters);
-
-        importManager.createGpLetter(fhirLink, patientview);
-
-        // will add group role
-        verify(groupRoleService, Mockito.times(1)).add(eq(user.getId()), eq(group.getId()), eq(RoleType.PATIENT));
-
-        // will not add new Gp letter
-        verify(gpLetterService, Mockito.times(0)).add(eq(patientview), any(Group.class));
-    }
-
-    @Test
-    public void testCreateGpLetter_existsDifferentNameNotClaimed() throws ResourceNotFoundException {
-        Patientview patientview = new Patientview();
-        Patientview.Gpdetails gpdetails = new Patientview.Gpdetails();
-
-        gpdetails.setGpname("gpName");
-        gpdetails.setGpaddress1("address1");
-        gpdetails.setGpaddress2("address2");
-        gpdetails.setGpaddress3("address3");
-        gpdetails.setGppostcode("AB1 23C");
-        patientview.setGpdetails(gpdetails);
-
-        User user = TestUtils.createUser("testUser");
-        Identifier identifier = TestUtils.createIdentifier(
-                TestUtils.createLookup(
-                        TestUtils.createLookupType(LookupTypes.IDENTIFIER), IdentifierTypes.NHS_NUMBER.toString()),
-                user, "1111111111");
-
-        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
-        fhirLink.setIsNew(true);
-
-        GpLetter gpLetter = new GpLetter();
-        gpLetter.setGpName("anotherGpName");
-
-        List<GpLetter> gpLetters = new ArrayList<>();
-        gpLetters.add(gpLetter);
-
-        when(gpLetterService.hasValidPracticeDetails(eq(patientview))).thenReturn(true);
-        when(gpLetterService.matchByGpDetails(patientview)).thenReturn(gpLetters);
-
-        importManager.createGpLetter(fhirLink, patientview);
-
-        // will not add group role
-        verify(groupRoleService, Mockito.times(0)).add(any(Long.class), any(Long.class), any(RoleType.class));
-
-        // will add new Gp letter
-        verify(gpLetterService, Mockito.times(1)).add(eq(patientview), any(Group.class));
+        importManager.process(patientview, getTestFile(), 1L);
     }
 }
