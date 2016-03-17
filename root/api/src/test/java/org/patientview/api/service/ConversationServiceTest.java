@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.ConversationServiceImpl;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Feature;
@@ -24,12 +26,14 @@ import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -39,6 +43,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -58,6 +63,9 @@ import static org.mockito.Mockito.when;
 public class ConversationServiceTest {
 
     User creator;
+
+    @Mock
+    ApiKeyRepository apiKeyRepository;
 
     @Mock
     ConversationRepository conversationRepository;
@@ -136,6 +144,15 @@ public class ConversationServiceTest {
                 TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                         IdentifierTypes.NHS_NUMBER.toString()), recipient, "1111111111"));
 
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.EXTERNAL_CONVERSATION);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
+        apiKey.setKey("abc123");
+        List<ApiKey> apiKeys = new ArrayList<>();
+        apiKeys.add(apiKey);
+
+        when(apiKeyRepository.findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()))).thenReturn(apiKeys);
         when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
         when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
@@ -193,6 +210,15 @@ public class ConversationServiceTest {
                 TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                         IdentifierTypes.NHS_NUMBER.toString()), recipient, "1111111111"));
 
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.EXTERNAL_CONVERSATION);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
+        apiKey.setKey("abc123");
+        List<ApiKey> apiKeys = new ArrayList<>();
+        apiKeys.add(apiKey);
+
+        when(apiKeyRepository.findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()))).thenReturn(apiKeys);
         when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
         when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getRecipientUsername())))
@@ -259,6 +285,15 @@ public class ConversationServiceTest {
 
         Feature feature = TestUtils.createFeature(externalConversation.getUserFeature());
 
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.EXTERNAL_CONVERSATION);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
+        apiKey.setKey("abc123");
+        List<ApiKey> apiKeys = new ArrayList<>();
+        apiKeys.add(apiKey);
+
+        when(apiKeyRepository.findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()))).thenReturn(apiKeys);
         when(featureRepository.findByName(eq(externalConversation.getUserFeature()))).thenReturn(feature);
         when(groupRepository.findByCode(eq(externalConversation.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(externalConversation.getIdentifier()))).thenReturn(identifiers);
