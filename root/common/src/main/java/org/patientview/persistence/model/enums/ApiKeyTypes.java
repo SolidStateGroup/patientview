@@ -6,6 +6,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum ApiKeyTypes {
     CKD("Care Know Do"),
+    EXTERNAL_CONVERSATION("External Conversation"),
     IMPORTER("Importer");
 
     private String name;
