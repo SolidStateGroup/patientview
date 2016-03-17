@@ -123,7 +123,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value = $scope.yearsPlusSix[0];
         $scope.patientManagement.answers['IBD_ALLERGYSUBSTANCE'] = {};
         $scope.patientManagement.answers['IBD_VACCINATIONRECORD'] = {};
-        $scope.patientManagement.answers['IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER'] = {};
+        $scope.patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'] = {};
+        $scope.patientManagement.answers['HEIGHT'] = {};
+        $scope.patientManagement.answers['WEIGHT'] = {};
 
         $scope.patientManagement.diagnosisDate = {};
         $scope.patientManagement.diagnosisDate.selectedDay = $scope.days[0];
@@ -150,7 +152,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // build function to store FhirObjects
         $scope.patientManagement.buildFhirObjects = function() {
             var observations = [];
-            var observation;
+            var observation, surgery, practitioner, encounter;
             var answers = $scope.patientManagement.answers;
 
             // build observations (selects and text fields)
@@ -159,7 +161,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     var answer = answers[type];
                     if (answer.values !== undefined) {
                         // multi select
-                        for (var i = 0; i < answer.values.length; i++) {
+                        for (i = 0; i < answer.values.length; i++) {
                             observation = {};
                             observation.name = type;
                             observation.value = answer.values[i].value;
@@ -193,11 +195,75 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 parseInt($scope.patientManagement.diagnosisDate.selectedDay));
             $scope.patientManagement.fhirCondition = condition;
 
-            // build encounter (surgery)
-            // todo
+            // build encounters (surgery)
+            var encounters = [];
+            for (i = 0; i < $scope.patientManagement.surgeries.length; i++) {
+                surgery = $scope.patientManagement.surgeries[i];
+                encounter = {};
+                encounter.encounterType = 'SURGERY';
+                encounter.observations = [];
 
+                // date
+                encounter.date = new Date(parseInt(surgery.selectedYear),
+                    parseInt(surgery.selectedMonth) - 1,
+                    parseInt(surgery.selectedDay));
+
+                // procedures
+                for (j = 0; j < surgery.selectedProcedures.length; j++) {
+                    observation = {};
+                    observation.name = 'IBD_SURGERYMAINPROCEDURE';
+                    observation.value = surgery.selectedProcedures[j].value;
+                    encounter.observations.push(observation);
+                }
+
+                // hospital code
+                observation = {};
+                observation.name = 'SURGERY_HOSPITAL_CODE';
+                observation.value = surgery.hospitalCode;
+                encounter.observations.push(observation);
+
+                // hospital code
+                observation = {};
+                observation.name = 'SURGERY_OTHER_DETAILS';
+                observation.value = surgery.otherDetails;
+                encounter.observations.push(observation);
+
+                encounters.push(encounter);
+            }
+
+            $scope.patientManagement.fhirEncounters = encounters;
+
+            // practitioners (ibdNurse, namedConsultant)
+            $scope.patientManagement.fhirPractitioners = [];
+
+            if ($scope.patientManagement.ibdNurse !== undefined
+                && $scope.patientManagement.ibdNurse.length) {
+                practitioner = {};
+                practitioner.role = 'IBD_NURSE';
+                practitioner.name = $scope.patientManagement.ibdNurse;
+                $scope.patientManagement.fhirPractitioners.push(practitioner);
+            }
+
+            if ($scope.patientManagement.namedConsultant !== undefined
+                && $scope.patientManagement.namedConsultant.length) {
+                practitioner = {};
+                practitioner.role = 'NAMED_CONSULTANT';
+                practitioner.name = $scope.patientManagement.ibdNurse;
+                $scope.patientManagement.fhirPractitioners.push(practitioner);
+            }
+
+            // postcode
+            $scope.patientManagement.fhirPatient = {};
+            if ($scope.patientManagement.namedConsultant !== undefined
+                && $scope.patientManagement.namedConsultant.length) {
+                $scope.patientManagement.fhirPatient.postcode = $scope.patientManagement.postcode;
+            }
+
+            console.log($scope.patientManagement);
+            /*console.log($scope.patientManagement.fhirCondition);
+            console.log($scope.patientManagement.fhirEncounters);
             console.log($scope.patientManagement.fhirObservations);
-            console.log($scope.patientManagement.fhirCondition);
+            console.log($scope.patientManagement.fhirPractitioners);*/
         };
 
         // get lookups and minimal diagnoses list

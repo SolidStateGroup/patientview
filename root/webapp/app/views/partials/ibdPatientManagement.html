@@ -147,13 +147,13 @@
             <label for="height" class="control-label">
                 Height (m)
             </label>
-            <input type="text" class="form-control" id="height" data-ng-model="patientManagement.height" only-num-decimal-2dp debounce="500">
+            <input type="text" class="form-control" id="height" data-ng-model="patientManagement.answers['HEIGHT'].value" only-num-decimal-2dp debounce="500">
         </div>
         <div class="col-md-3">
             <label for="weight" class="control-label">
                 Weight (kg)
             </label>
-            <input type="text" class="form-control" id="weight" data-ng-model="patientManagement.weight" only-num-decimal-1dp debounce="500">
+            <input type="text" class="form-control" id="weight" data-ng-model="patientManagement.answers['WEIGHT'].value" only-num-decimal-1dp debounce="500">
         </div>
         <div class="col-md-3">
             <label for="bmi" class="control-label">
@@ -300,7 +300,7 @@
                 </label>
                 <br/>
                 <input type="text" class="form-control" id="ibd_egimcomplicationsother"
-                       data-ng-model="patientManagement.answers['IBD_PATIENT_MANAGEMENT_EGIMCOMPLICATIONSOTHER'].value" debounce="500">
+                       data-ng-model="patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'].value" debounce="500">
             </div>
         </div>
 

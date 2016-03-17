@@ -34,7 +34,7 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (16, now(), 'Complications','IBD_CROHNSBEHAVIOUR', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (17, now(), 'Other Location','IBD_UCEXTENT', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (18, now(), 'Other Part(s) of The Body Affected','IBD_EGIMCOMPLICATION', '1');
-INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (19, now(), 'Surgery Procedure','IBD_SURGERYMAINPROCEDURE', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (19, now(), 'Surgery Main Procedure','IBD_SURGERYMAINPROCEDURE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (20, now(), 'Smoking Status','IBD_SMOKINGSTATUS', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (21, now(), 'Family History','IBD_FAMILYHISTORY', '1');
 

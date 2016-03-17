@@ -23,7 +23,25 @@ public enum NonTestObservationTypes {
     SMOKING_HISTORY("Smoking History"), // my IBD
     SURGICAL_HISTORY("Surgical History"), // my IBD
     VA("Eye Checkup: va"),
-    VACCINATION_RECORD("Vaccination Record"); // my IBD
+    VACCINATION_RECORD("Vaccination Record"), // my IBD
+
+    // added for IBD patient management
+    IBD_SURGERYMAINPROCEDURE("Surgery Main Procedure"),
+    SURGERY_HOSPITAL_CODE("Surgery Hospital Code"),
+    SURGERY_OTHER_DETAILS("Surgery Other Details"),
+    GENDER("Gender"),
+    IBD_CROHNSLOCATION("Crohns Location"),
+    IBD_CROHNSPROXIMALTERMINALILEUM("Crohns Proximal Terminal Ileum"),
+    IBD_CROHNSPERIANAL("Crohns Perianal"),
+    IBD_CROHNSBEHAVIOUR("Crohns Behaviour"),
+    IBD_UCEXTENT("Ulcerative Colitis Extent"),
+    IBD_EGIMCOMPLICATION("EGIM Complication"),
+    IBD_EGIMCOMPLICATIONSOTHER("Other EGIM Complications"),
+    IBD_SMOKINGSTATUS("Smoking Status"),
+    IBD_FAMILYHISTORY("Family History"),
+    IBD_ALLERGYSUBSTANCE("Allergy Substance"),
+    IBD_VACCINATIONRECORD("Vaccination Record"),
+    IBD_COLONOSCOPYSURVEILLANCE("Year For Colonoscopy Surveillance");
 
     private String name;
     NonTestObservationTypes(String name) { this.name = name; }

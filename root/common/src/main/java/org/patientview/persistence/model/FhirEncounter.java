@@ -8,7 +8,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  *
- * Used for treatment and transplant status
+ * Used for treatment, transplant status, surgery
  */
 public class FhirEncounter extends BaseModel {
 
@@ -25,6 +25,9 @@ public class FhirEncounter extends BaseModel {
 
     // used during display in UI
     Set<Link> links;
+
+    // used when adding surgery information
+    Set<FhirObservation> observations;
 
     public FhirEncounter() {
     }
@@ -76,5 +79,13 @@ public class FhirEncounter extends BaseModel {
 
     public void setLinks(Set<Link> links) {
         this.links = links;
+    }
+
+    public Set<FhirObservation> getObservations() {
+        return observations;
+    }
+
+    public void setObservations(Set<FhirObservation> observations) {
+        this.observations = observations;
     }
 }

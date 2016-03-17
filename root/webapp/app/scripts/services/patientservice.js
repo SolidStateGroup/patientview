@@ -20,7 +20,7 @@ function ($q, Restangular) {
         getPatientManagementLookupTypes: function () {
             var deferred = $q.defer();
             // GET /patientmanagement/lookuptypes
-            Restangular.all('/patientmanagement/lookuptypes').getList().then(function(successResult) {
+            Restangular.all('patientmanagement/lookuptypes').getList().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -31,7 +31,7 @@ function ($q, Restangular) {
         getPatientManagementDiagnoses: function () {
             var deferred = $q.defer();
             // GET /patientmanagement/diagnoses
-            Restangular.all('/patientmanagement/diagnoses').getList().then(function(successResult) {
+            Restangular.all('patientmanagement/diagnoses').getList().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
