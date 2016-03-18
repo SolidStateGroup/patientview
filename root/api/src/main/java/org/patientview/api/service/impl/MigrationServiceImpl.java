@@ -733,7 +733,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     }
 
     public Long migrateUser(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, MigrationException {
+            throws EntityExistsException, ResourceNotFoundException, MigrationException, FhirResourceException {
 
         Date start = new Date();
         UserMigration userMigration = null;

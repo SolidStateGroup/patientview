@@ -206,11 +206,33 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
 
     // click Create New button
     $scope.create = function () {
+        var valid = true;
+
         // check date of birth if entered
         if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
-            && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
+            && !UtilService.validationDateNoFuture(
+                $scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
             $scope.errorMessage = 'Please enter a valid date of birth (and not in the future)';
-        } else {
+            valid = false;
+        }
+
+        if (valid && ($scope.patientManagement !== undefined)) {
+            valid = $scope.patientManagement.validate();
+            if (valid) {
+                $scope.patientManagement.buildFhirObjects();
+
+                var patientManagement = {};
+                patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
+                patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
+                patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
+                patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
+                patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
+
+                $scope.editUser.patientManagement = patientManagement;
+            }
+        }
+
+        if (valid) {
             // generate password
             var password = UtilService.generatePassword();
             $scope.editUser.password = password;

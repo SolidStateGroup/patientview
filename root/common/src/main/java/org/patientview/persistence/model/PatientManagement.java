@@ -1,10 +1,4 @@
-package org.patientview.api.model;
-
-import org.patientview.persistence.model.FhirCondition;
-import org.patientview.persistence.model.FhirEncounter;
-import org.patientview.persistence.model.FhirObservation;
-import org.patientview.persistence.model.FhirPatient;
-import org.patientview.persistence.model.FhirPractitioner;
+package org.patientview.persistence.model;
 
 import java.util.List;
 

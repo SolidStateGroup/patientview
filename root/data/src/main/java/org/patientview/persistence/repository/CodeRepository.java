@@ -21,23 +21,23 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface CodeRepository extends CrudRepository<Code, Long> {
 
-    public Page<Code> findAll(Pageable pageable);
+    Page<Code> findAll(Pageable pageable);
 
     @Query("SELECT c FROM Code c " +
             "WHERE c.code = :code " +
             "AND c.codeType = :codeType")
-    public List<Code> findAllByCodeAndType(@Param("code") String code, @Param("codeType") Lookup codeType);
+    List<Code> findAllByCodeAndType(@Param("code") String code, @Param("codeType") Lookup codeType);
 
     @Query("SELECT c FROM Code c " +
             "WHERE c.codeType = :codeType")
-    public List<Code> findAllByType(@Param("codeType") Lookup codeType);
+    List<Code> findAllByType(@Param("codeType") Lookup codeType);
 
     @Query("SELECT c FROM Code c " +
             "WHERE (UPPER(c.code) LIKE :filterText) " +
             "OR (UPPER(c.description) LIKE :filterText) " +
             "OR (UPPER(c.codeType.value) LIKE :filterText) " +
             "OR (UPPER(c.standardType.value) LIKE :filterText)")
-    public Page<Code> findAllFiltered(
+    Page<Code> findAllFiltered(
             @Param("filterText") String filterText,
             Pageable pageable);
 
@@ -47,7 +47,7 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             "OR (UPPER(c.codeType.value) LIKE :filterText) " +
             "OR (UPPER(c.standardType.value) LIKE :filterText)) " +
             "AND (c.codeType.id IN (:codeTypes))")
-    public Page<Code> findAllByCodeTypesFiltered(
+    Page<Code> findAllByCodeTypesFiltered(
             @Param("filterText") String filterText,
             @Param("codeTypes") List<Long> codeTypes,
             Pageable pageable);
@@ -58,7 +58,7 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             "OR (UPPER(c.codeType.value) LIKE :filterText) " +
             "OR (UPPER(c.standardType.value) LIKE :filterText)) " +
             "AND (c.standardType.id IN (:standardTypes))")
-    public Page<Code> findAllByStandardTypesFiltered(
+    Page<Code> findAllByStandardTypesFiltered(
             @Param("filterText") String filterText,
             @Param("standardTypes") List<Long> standardTypes,
             Pageable pageable);
@@ -70,7 +70,7 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             "OR (UPPER(c.standardType.value) LIKE :filterText)) " +
             "AND (c.codeType.id IN (:codeTypes)) " +
             "AND (c.standardType.id IN (:standardTypes))")
-    public Page<Code> findAllByCodeAndStandardTypesFiltered(
+    Page<Code> findAllByCodeAndStandardTypesFiltered(
             @Param("filterText") String filterText,
             @Param("codeTypes") List<Long> codeTypes,
             @Param("standardTypes") List<Long> standardTypes,
@@ -81,11 +81,11 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             "AND c.description = :description " +
             "AND c.codeType = :codeType " +
             "AND c.standardType = :standardType ")
-    public Iterable<Code> findAllByExistingCodeDetails(@Param("code") String code,
+    Iterable<Code> findAllByExistingCodeDetails(@Param("code") String code,
                                                        @Param("description") String description,
                                                        @Param("codeType") Lookup codeType,
                                                        @Param("standardType") Lookup standardType);
 
     @Query("SELECT c FROM Code c WHERE c.code = :code")
-    public Code findOneByCode(@Param("code") String code);
+    Code findOneByCode(@Param("code") String code);
 }

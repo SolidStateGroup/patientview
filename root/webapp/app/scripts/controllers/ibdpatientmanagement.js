@@ -93,12 +93,13 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     };
 
     $scope.calculateBMI = function() {
-        if ($scope.patientManagement.height !== undefined
-            && $scope.patientManagement.height.length
-            && $scope.patientManagement.weight !== undefined
-            && $scope.patientManagement.weight.length) {
-            var height = parseFloat($scope.patientManagement.height);
-            var weight = parseFloat($scope.patientManagement.weight);
+        var height = $scope.patientManagement.answers['HEIGHT'].value;
+        var weight = $scope.patientManagement.answers['WEIGHT'].value;
+
+        if (height !== undefined && height.length
+            && weight !== undefined && weight.length) {
+            height = parseFloat(height);
+            weight = parseFloat(weight);
 
             return (weight / (height * height)).toFixed(2);
         }
@@ -134,6 +135,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
         // validation function, called when checking patient management
         $scope.patientManagement.validate = function() {
+            var valid = true;
             $scope.patientManagement.errorMessage = '';
 
             // date must be valid
@@ -141,18 +143,22 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             if (!UtilService.validationDate(diagnosisDate.selectedDay,
                     diagnosisDate.selectedMonth, diagnosisDate.selectedYear)) {
                 $scope.patientManagement.errorMessage += 'Date of Diagnosis must be valid<br/>';
+                valid = false;
             }
 
             // diagnosis must be set
             if ($scope.patientManagement.diagnosis === undefined) {
                 $scope.patientManagement.errorMessage += 'Diagnosis must be selected<br/>';
+                valid = false;
             }
+
+            return valid;
         };
 
         // build function to store FhirObjects
         $scope.patientManagement.buildFhirObjects = function() {
             var observations = [];
-            var observation, surgery, practitioner, encounter;
+            var observation, surgery, practitioner, encounter, procedure;
             var answers = $scope.patientManagement.answers;
 
             // build observations (selects and text fields)
@@ -202,6 +208,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 encounter = {};
                 encounter.encounterType = 'SURGERY';
                 encounter.observations = [];
+                encounter.procedures = [];
 
                 // date
                 encounter.date = new Date(parseInt(surgery.selectedYear),
@@ -210,10 +217,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
                 // procedures
                 for (j = 0; j < surgery.selectedProcedures.length; j++) {
-                    observation = {};
-                    observation.name = 'IBD_SURGERYMAINPROCEDURE';
-                    observation.value = surgery.selectedProcedures[j].value;
-                    encounter.observations.push(observation);
+                    procedure = {};
+                    procedure.type = 'IBD_SURGERYMAINPROCEDURE';
+                    procedure.bodySite = surgery.selectedProcedures[j].value;
+                    encounter.procedures.push(procedure);
                 }
 
                 // hospital code
@@ -248,22 +255,22 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 && $scope.patientManagement.namedConsultant.length) {
                 practitioner = {};
                 practitioner.role = 'NAMED_CONSULTANT';
-                practitioner.name = $scope.patientManagement.ibdNurse;
+                practitioner.name = $scope.patientManagement.namedConsultant;
                 $scope.patientManagement.fhirPractitioners.push(practitioner);
             }
 
             // postcode
             $scope.patientManagement.fhirPatient = {};
-            if ($scope.patientManagement.namedConsultant !== undefined
-                && $scope.patientManagement.namedConsultant.length) {
+            if ($scope.patientManagement.postcode !== undefined
+                && $scope.patientManagement.postcode.length) {
                 $scope.patientManagement.fhirPatient.postcode = $scope.patientManagement.postcode;
             }
 
-            console.log($scope.patientManagement);
-            /*console.log($scope.patientManagement.fhirCondition);
-            console.log($scope.patientManagement.fhirEncounters);
-            console.log($scope.patientManagement.fhirObservations);
-            console.log($scope.patientManagement.fhirPractitioners);*/
+            // gender
+            if ($scope.patientManagement.gender !== undefined
+                && $scope.patientManagement.gender.description.length) {
+                $scope.patientManagement.fhirPatient.gender = $scope.patientManagement.gender.description;
+            }
         };
 
         // get lookups and minimal diagnoses list
@@ -334,6 +341,15 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.patientManagement.validate();
         if (!$scope.patientManagement.errorMessage.length) {
             $scope.patientManagement.buildFhirObjects();
+
+            var patientManagement = {};
+            patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
+            patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
+            patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
+            patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
+            patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
+
+            console.log(patientManagement);
         }
 
         // handle modal close (via button click)

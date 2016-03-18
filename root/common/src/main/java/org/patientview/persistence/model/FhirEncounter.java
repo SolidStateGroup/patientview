@@ -26,8 +26,11 @@ public class FhirEncounter extends BaseModel {
     // used during display in UI
     Set<Link> links;
 
-    // used when adding surgery information
+    // used when adding surgery information, IBD patient management
     Set<FhirObservation> observations;
+
+    // used when adding surgery procedures, IBD patient management
+    Set<FhirProcedure> procedures;
 
     public FhirEncounter() {
     }
@@ -87,5 +90,13 @@ public class FhirEncounter extends BaseModel {
 
     public void setObservations(Set<FhirObservation> observations) {
         this.observations = observations;
+    }
+
+    public Set<FhirProcedure> getProcedures() {
+        return procedures;
+    }
+
+    public void setProcedures(Set<FhirProcedure> procedures) {
+        this.procedures = procedures;
     }
 }

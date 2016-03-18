@@ -123,7 +123,7 @@
             <label for="gender" class="control-label">
                 Gender
             </label>
-            <select id="gender" data-ng-model="patientManagement.answers['GENDER'].option"
+            <select id="gender" data-ng-model="patientManagement.gender"
                     data-ng-options="option as option.description for option in lookupMap['GENDER'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>

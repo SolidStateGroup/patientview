@@ -4,6 +4,7 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.Condition;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,8 +36,10 @@ public interface ConditionService {
      */
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
 
-    // used by migration
     void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException;
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException;
+
+    FhirDatabaseEntity update(FhirCondition fhirCondition, FhirLink fhirLink, UUID existingConditionUuid)
+            throws FhirResourceException;
 }

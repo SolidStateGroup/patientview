@@ -41,7 +41,7 @@ public interface UserService {
      * @return Lond ID of newly created User
      * @throws EntityExistsException
      */
-    Long add(User user) throws EntityExistsException;
+    Long add(User user) throws EntityExistsException, ResourceNotFoundException, FhirResourceException;
 
     /**
      * Add a Feature to a User.
@@ -129,7 +129,7 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Long createUserWithPasswordEncryption(User user)
-            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, VerificationException, FhirResourceException;
 
     /**
      * Check if current User has the permissions to get another User.

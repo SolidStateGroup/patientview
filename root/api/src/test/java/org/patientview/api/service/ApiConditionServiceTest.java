@@ -73,6 +73,9 @@ public class ApiConditionServiceTest {
     FhirLinkRepository fhirLinkRepository;
 
     @Mock
+    FhirLinkService fhirLinkService;
+
+    @Mock
     FhirResource fhirResource;
 
     @Mock
@@ -290,12 +293,13 @@ public class ApiConditionServiceTest {
         // fhir link
         FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier);
         fhirLink.setGroup(staffEntered);
-        List<FhirLink> fhirLinks = new ArrayList<>();
-        fhirLinks.add(fhirLink);
+        fhirLink.setResourceId(UUID.randomUUID());
 
         when(codeService.findAllByCodeAndType(eq(code), eq(lookup))).thenReturn(codes);
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(staffEntered), eq(identifier)))
                 .thenReturn(null);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(patient.getIdentifiers().iterator().next()),
+                eq(staffEntered))).thenReturn(fhirLink);
         when(fhirResource.createEntity(any(Resource.class), eq(ResourceType.Patient.name()), eq("patient")))
                 .thenReturn(fhirPatient);
         when(groupService.findByCode(eq(HiddenGroupCodes.STAFF_ENTERED.toString()))).thenReturn(staffEntered);
@@ -313,9 +317,8 @@ public class ApiConditionServiceTest {
                 any(Condition.class), eq(ResourceType.Condition.name()), eq("condition"));
 
         // required in adding FHIR link
-        verify(fhirResource, times(1)).createEntity(
-                any(Patient.class), eq(ResourceType.Patient.name()), eq("patient"));
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(patient.getIdentifiers().iterator().next()),
+                eq(staffEntered));
     }
 
     @Test
@@ -376,12 +379,12 @@ public class ApiConditionServiceTest {
         // fhir link
         FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier);
         fhirLink.setGroup(staffEntered);
-        List<FhirLink> fhirLinks = new ArrayList<>();
-        fhirLinks.add(fhirLink);
 
         when(codeService.findAllByCodeAndType(eq(code), eq(lookup))).thenReturn(codes);
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(staffEntered), eq(identifier)))
                 .thenReturn(null);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(patient.getIdentifiers().iterator().next()),
+                eq(staffEntered))).thenReturn(fhirLink);
         when(fhirResource.createEntity(any(Patient.class), eq(ResourceType.Patient.name()), eq("patient")))
                 .thenReturn(fhirPatient);
         when(fhirResource.createEntity(any(Practitioner.class), eq(ResourceType.Practitioner.name()),
@@ -401,9 +404,8 @@ public class ApiConditionServiceTest {
                 any(Condition.class), eq(ResourceType.Condition.name()), eq("condition"));
 
         // required in adding FHIR link
-        verify(fhirResource, times(1)).createEntity(
-                any(Patient.class), eq(ResourceType.Patient.name()), eq("patient"));
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(patient.getIdentifiers().iterator().next()),
+                eq(staffEntered));
 
         // required when adding practitioner
         verify(fhirResource, times(1)).createEntity(

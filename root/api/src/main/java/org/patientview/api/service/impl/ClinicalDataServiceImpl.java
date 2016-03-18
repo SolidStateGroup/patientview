@@ -175,7 +175,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             }
         }
 
-        // diagnoses (orginally diagnosis, list of diagnoses)
+        // diagnoses (originally diagnosis, list of diagnoses)
         if (fhirClinicalData.getDiagnoses() != null) {
             // erase existing DIAGNOSIS type Condition, could be multiple
             try {

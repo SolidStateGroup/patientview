@@ -182,7 +182,7 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Long> createUser(@RequestBody org.patientview.persistence.model.User user)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException, FhirResourceException {
         try {
             return new ResponseEntity<>(userService.createUserWithPasswordEncryption(user), HttpStatus.CREATED);
         } catch (EntityExistsException eee) {
@@ -402,7 +402,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser migrationUser)
-            throws ResourceNotFoundException, EntityExistsException, MigrationException {
+            throws ResourceNotFoundException, EntityExistsException, MigrationException, FhirResourceException {
         if (migrationUser.isPartialMigration()) {
             return new ResponseEntity<>(migrationService.migrateUserExisting(migrationUser), HttpStatus.CREATED);
         } else {

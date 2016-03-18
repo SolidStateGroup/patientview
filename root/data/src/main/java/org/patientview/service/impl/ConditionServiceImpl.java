@@ -1,15 +1,14 @@
 package org.patientview.service.impl;
 
 import generated.Patientview;
-import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
-import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.builder.ConditionBuilder;
 import org.patientview.builder.ConditionsBuilder;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.resource.FhirResource;
@@ -64,39 +63,10 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
 
     @Override
     public void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException {
+        ConditionBuilder conditionBuilder
+                = new ConditionBuilder(null, fhirCondition, Util.createResourceReference(fhirLink.getResourceId()));
 
-        Condition condition = new Condition();
-        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
-        condition.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
-
-        if (StringUtils.isNotEmpty(fhirCondition.getNotes())) {
-            condition.setNotesSimple(fhirCondition.getNotes());
-        } else {
-            // if code isn't empty and not the same as notes
-            if (StringUtils.isNotEmpty(fhirCondition.getCode())
-                    && !fhirCondition.getCode().equals(fhirCondition.getNotes())) {
-                condition.setNotesSimple(fhirCondition.getCode());
-            }
-        }
-
-        if (StringUtils.isNotEmpty(fhirCondition.getCode())) {
-            CodeableConcept code = new CodeableConcept();
-            code.setTextSimple(fhirCondition.getCode());
-            condition.setCode(code);
-        }
-
-        if (StringUtils.isNotEmpty(fhirCondition.getCategory())) {
-            CodeableConcept category = new CodeableConcept();
-            category.setTextSimple(fhirCondition.getCategory());
-            condition.setCategory(category);
-        }
-
-        if (fhirCondition.getDate() != null) {
-            DateAndTime dateAndTime = new DateAndTime(fhirCondition.getDate());
-            condition.setDateAssertedSimple(dateAndTime);
-        }
-
-        fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+        fhirResource.createEntity(conditionBuilder.build(), ResourceType.Condition.name(), "condition");
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
@@ -131,4 +101,17 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
         return conditions;
     }
 
+    @Override
+    public FhirDatabaseEntity update(FhirCondition fhirCondition, FhirLink fhirLink, UUID existingConditionUuid)
+            throws FhirResourceException {
+        Condition existingCondition = (Condition) fhirResource.get(existingConditionUuid, ResourceType.Condition);
+
+        if (existingCondition == null) {
+            throw new FhirResourceException("error getting existing Condition");
+        }
+
+        return fhirResource.updateEntity(new ConditionBuilder(
+            existingCondition, fhirCondition, Util.createResourceReference(fhirLink.getResourceId())).build(),
+                ResourceType.Condition.name(), "condition", existingConditionUuid);
+    }
 }

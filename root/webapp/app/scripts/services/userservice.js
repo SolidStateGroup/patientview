@@ -119,6 +119,9 @@ function ($q, Restangular, UtilService) {
                 inputUser.dateOfBirth = new Date(inputUser.selectedYear, inputUser.selectedMonth - 1, inputUser.selectedDay);
             }
 
+            // patient management
+            var patientManagement = inputUser.patientManagement;
+
             // clean base user object
             var user = UtilService.cleanObject(inputUser, 'user');
 
@@ -130,6 +133,8 @@ function ($q, Restangular, UtilService) {
             user.changePassword = 'true';
             user.emailVerified = 'false';
             user.verificationCode = UtilService.generateVerificationCode();
+
+            user.patientManagement = patientManagement;
 
             // POST /user
             Restangular.all('user').post(user).then(function(successResult) {
