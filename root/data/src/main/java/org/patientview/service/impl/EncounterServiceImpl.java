@@ -58,7 +58,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         EncountersBuilder encountersBuilder = new EncountersBuilder(data, patientReference, groupReference);
 
         // delete existing
-        deleteBySubjectId(fhirLink.getResourceId());
+        deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TREATMENT);
+        deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TRANSPLANT_STATUS);
 
         int count = 0;
         for (Encounter encounter : encountersBuilder.build()) {
@@ -74,6 +75,16 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                 encountersBuilder.getCount());
     }
 
+    @Override
+    public FhirDatabaseEntity add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+            throws FhirResourceException {
+        EncounterBuilder encounterBuilder = new EncounterBuilder(null, fhirEncounter,
+                Util.createResourceReference(fhirLink.getResourceId()),
+                Util.createResourceReference(organizationUuid));
+
+        return fhirResource.createEntity(encounterBuilder.build(), ResourceType.Encounter.name(), "encounter");
+    }
+
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
         // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
         // as these come from uktstatus table during migration, delete encounter natively
@@ -81,10 +92,23 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
             "DELETE FROM encounter WHERE CONTENT -> 'subject' ->> 'display' = '"
             + subjectId.toString()
             + "' AND CONTENT #> '{identifier,0}' ->> 'value' NOT IN ('"
+            + EncounterTypes.SURGERY.toString() + "','"
             + EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString() + "','"
             + EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString() + "');"
         );
     }
+
+    @Override
+    public void deleteBySubjectIdAndType(UUID subjectId, EncounterTypes encounterType)
+            throws FhirResourceException {
+        fhirResource.executeSQL(
+            "DELETE FROM encounter WHERE CONTENT -> 'subject' ->> 'display' = '"
+            + subjectId.toString()
+            + "' AND CONTENT #> '{identifier,0}' ->> 'value' ='"
+            + encounterType.toString() + "';"
+        );
+    }
+
     @Override
     public void deleteByUserAndType(final User user, final EncounterTypes encounterType) throws FhirResourceException {
         if (encounterType == null) {
@@ -148,16 +172,6 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
 
         return encounters;
-    }
-
-    @Override
-    public FhirDatabaseEntity add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
-            throws FhirResourceException {
-        EncounterBuilder encounterBuilder = new EncounterBuilder(null, fhirEncounter,
-                Util.createResourceReference(fhirLink.getResourceId()),
-                Util.createResourceReference(organizationUuid));
-
-        return fhirResource.createEntity(encounterBuilder.build(), ResourceType.Encounter.name(), "encounter");
     }
 }
 

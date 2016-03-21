@@ -45,6 +45,8 @@ public interface EncounterService {
      */
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
+    void deleteBySubjectIdAndType(UUID subjectId, EncounterTypes encounterType) throws FhirResourceException;
+
     /**
      * Delete FHIR encounters for a User given type, used when deleting UKT data and API importer.
      * @param user User to delete FHIR Encounters for

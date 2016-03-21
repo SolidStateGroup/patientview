@@ -151,7 +151,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
         if (fhirClinicalData.getTreatments() != null) {
             // erase existing TREATMENT Encounters
             try {
-                encounterService.deleteByUserAndType(user, EncounterTypes.TREATMENT);
+                encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TREATMENT);
             } catch (FhirResourceException fre) {
                 return new ServerResponse("error removing existing treatment");
             }

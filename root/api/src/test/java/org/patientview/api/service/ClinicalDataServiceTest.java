@@ -190,7 +190,8 @@ public class ClinicalDataServiceTest {
                 eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS));
         verify(encounterService, times(1)).add(
                 eq(treatment), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
-        verify(encounterService, times(1)).deleteByUserAndType(eq(patient), eq(EncounterTypes.TREATMENT));
+        verify(encounterService, times(1)).deleteBySubjectIdAndType(
+                eq(fhirLink.getResourceId()), eq(EncounterTypes.TREATMENT));
         verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(organizationService, times(1)).add(eq(group));
     }
@@ -258,7 +259,8 @@ public class ClinicalDataServiceTest {
                 eq(fhirLink.getResourceId()), eq(DiagnosisTypes.DIAGNOSIS));
         verify(encounterService, times(0)).add(
                 any(FhirEncounter.class), eq(patient.getFhirLinks().iterator().next()),eq(organizationUuid));
-        verify(encounterService, times(1)).deleteByUserAndType(eq(patient), eq(EncounterTypes.TREATMENT));
+        verify(encounterService, times(1)).deleteBySubjectIdAndType(
+                eq(fhirLink.getResourceId()), eq(EncounterTypes.TREATMENT));
         verify(fhirLinkService, times(1)).createFhirLink(eq(patient), eq(identifier), eq(group));
         verify(organizationService, times(1)).add(eq(group));
     }
