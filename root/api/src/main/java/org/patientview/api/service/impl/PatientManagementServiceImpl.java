@@ -15,6 +15,7 @@ import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
@@ -30,12 +31,14 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
+import org.patientview.service.ObservationService;
 import org.patientview.service.OrganizationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,6 +79,9 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Inject
     private IdentifierRepository identifierRepository;
+
+    @Inject
+    private ObservationService observationService;
 
     @Inject
     private OrganizationService organizationService;
@@ -150,19 +156,12 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (!CollectionUtils.isEmpty(patientManagement.getFhirEncounters())) {
             saveEncounterDetails(fhirLink, patientManagement.getFhirEncounters(), organizationUuid);
         }
-    }
 
-    private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
-            throws FhirResourceException {
-        // erase existing SURGERY Encounters and associated Observations and Procedures
-        encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.SURGERY);
-
-        // store new
-        for (FhirEncounter fhirEncounter : fhirEncounters) {
-            encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+        // update FHIR observations (selects and text fields)
+        if (!CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
+            saveObservationDetails(fhirLink, patientManagement.getFhirObservations());
         }
     }
-
 
     private void saveConditionDetails(FhirLink fhirLink, FhirCondition fhirCondition) throws FhirResourceException {
         // set as MAIN diagnosis
@@ -193,6 +192,36 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             } catch (FhirResourceException fre) {
                 throw new FhirResourceException("error creating diagnosis");
             }
+        }
+    }
+
+    private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
+            throws FhirResourceException {
+        // erase existing SURGERY Encounters and associated Observations and Procedures
+        encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.SURGERY);
+
+        // store new
+        for (FhirEncounter fhirEncounter : fhirEncounters) {
+            encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+        }
+    }
+
+    private void saveObservationDetails(FhirLink fhirLink, List<FhirObservation> fhirObservations)
+            throws FhirResourceException {
+        List<String> observationNames = new ArrayList<>();
+
+        // get names of all observations to delete and store new
+        for (FhirObservation fhirObservation : fhirObservations) {
+            observationNames.add(fhirObservation.getName());
+        }
+
+        // delete existing with names
+        observationService.deleteObservations(fhirResource.getLogicalIdsBySubjectIdAndNames(
+                "observation", fhirLink.getResourceId(), observationNames));
+
+        // store existing
+        for (FhirObservation fhirObservation : fhirObservations) {
+            observationService.add(fhirObservation, fhirLink);
         }
     }
 

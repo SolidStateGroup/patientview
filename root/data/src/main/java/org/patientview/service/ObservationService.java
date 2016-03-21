@@ -25,6 +25,8 @@ public interface ObservationService {
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
 
+    void add(FhirObservation fhirObservation, FhirLink fhirLink) throws FhirResourceException;
+
     Observation buildNonTestObservation(FhirObservation fhirObservation) throws FhirResourceException;
 
     Observation buildObservation(DateTime applies, String value, String comparator, String comments,
