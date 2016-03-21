@@ -15,8 +15,11 @@ import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -24,8 +27,11 @@ import org.patientview.persistence.model.PatientManagement;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
+import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -34,11 +40,16 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
+import org.patientview.service.EncounterService;
+import org.patientview.service.ObservationService;
+import org.patientview.service.OrganizationService;
+import org.patientview.service.PractitionerService;
 import org.patientview.test.util.TestUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -65,6 +76,9 @@ public class PatientManagementServiceTest {
     private ConditionService conditionService;
 
     @Mock
+    private EncounterService encounterService;
+
+    @Mock
     private FhirLinkRepository fhirLinkRepository;
 
     @Mock
@@ -79,8 +93,17 @@ public class PatientManagementServiceTest {
     @Mock
     private IdentifierRepository identifierRepository;
 
+    @Mock
+    private ObservationService observationService;
+
+    @Mock
+    private OrganizationService organizationService;
+
     @InjectMocks
     private PatientManagementService patientManagementService = new PatientManagementServiceImpl();
+
+    @Mock
+    private PractitionerService practitionerService;
 
     @Mock
     private Properties properties;
@@ -101,6 +124,7 @@ public class PatientManagementServiceTest {
     @Test
     public void testSave() throws ResourceNotFoundException, FhirResourceException {
         Date now = new Date();
+        UUID organizationUuid = UUID.randomUUID();
 
         // code (diagnosis)
         Code code = TestUtils.createCode("Crohn's Disease");
@@ -148,24 +172,59 @@ public class PatientManagementServiceTest {
         patientManagement.setFhirPatient(new FhirPatient());
         patientManagement.getFhirPatient().setPostcode("AB1 2CD");
 
+        // encounter (surgery) details
+        FhirEncounter fhirEncounter = new FhirEncounter();
+        patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
+        patientManagement.getFhirEncounters().add(fhirEncounter);
+
+        // observation (selects, text fields) details
+        FhirObservation fhirObservation = new FhirObservation();
+        fhirObservation.setName(NonTestObservationTypes.IBD_ALLERGYSUBSTANCE.toString());
+        fhirObservation.setValue("1");
+        patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
+        patientManagement.getFhirObservations().add(fhirObservation);
+
+        List<UUID> existingObservationUuids = new ArrayList<>();
+        existingObservationUuids.add(UUID.randomUUID());
+
+        // practitioners (ibd nurse, named consultant)
+        FhirPractitioner fhirPractitioner = new FhirPractitioner();
+        fhirPractitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
+        fhirPractitioner.setName("nurse name");
+        patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
+        patientManagement.getFhirPractitioners().add(fhirPractitioner);
+        UUID practitionerUuid = UUID.randomUUID();
+
         when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(fhirPatient);
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(group), eq(identifier)))
                 .thenReturn(new ArrayList<>(patient.getFhirLinks()));
+        when(fhirResource.getLogicalIdsBySubjectIdAndNames(eq("observation"),
+                eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class))).thenReturn(existingObservationUuids);
         when(fhirResource.updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"), eq(patientFhirDatabaseEntity.getLogicalId()))).thenReturn(patientFhirDatabaseEntity);
         when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
         when(identifierRepository.exists(eq(identifier.getId()))).thenReturn(true);
+        when(organizationService.add(eq(group))).thenReturn(organizationUuid);
+        when(practitionerService.add(eq(fhirPractitioner))).thenReturn(practitionerUuid);
         when(userRepository.exists(eq(patient.getId()))).thenReturn(true);
 
         // save
         patientManagementService.save(patient, group, identifier, patientManagement);
 
-        verify(apiPatientService, times(1)).get(eq(patient.getFhirLinks().iterator().next().getResourceId()));
+        verify(apiPatientService, times(2)).get(eq(patient.getFhirLinks().iterator().next().getResourceId()));
         verify(conditionService, times(1)).add(
                 eq(patientManagement.getFhirCondition()), eq(patient.getFhirLinks().iterator().next()));
-        verify(fhirResource, times(1)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
+        verify(fhirResource, times(1)).getLogicalIdsBySubjectIdAndNames(eq("observation"),
+                eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class));
+        verify(fhirResource, times(2)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"), eq(patientFhirDatabaseEntity.getLogicalId()));
         verify(fhirLinkRepository, times(1)).save(eq(fhirLink));
+        verify(encounterService, times(1)).add(eq(fhirEncounter), eq(fhirLink), eq(organizationUuid));
+        verify(encounterService, times(1)).deleteBySubjectIdAndType(
+                eq(fhirLink.getResourceId()), eq(EncounterTypes.SURGERY));
+        verify(observationService, times(1)).add(eq(fhirObservation), eq(fhirLink));
+        verify(observationService, times(1)).deleteObservations(eq(existingObservationUuids));
+        verify(organizationService, times(1)).add(eq(group));
     }
 
     @Test

@@ -2,9 +2,9 @@
 
 // new patient modal instance controller
 angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
-    'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService',
+    'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService', '$route',
 function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService,
-          DiagnosisService, GroupService) {
+          DiagnosisService, GroupService, $route) {
 
     $scope.canAddDiagnosis = function () {
         // only Cardiol specialty and child groups of Cardiol
@@ -35,6 +35,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     };
 
     var init = function() {
+        $scope.loading = true;
         $scope.addPatient = ($location.url().indexOf("newpatient") > 0);
 
         // patient management, referenced by child scope
@@ -178,6 +179,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
 
             clearForm();
             $scope.showForm = true;
+            $scope.loading = false;
         }, function () {
             $scope.fatalErrorMessage = 'Error retrieving groups';
         });
@@ -274,8 +276,8 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     };
     
     $scope.showFormUI = function() {
-        $scope.showForm = true;    
-        delete $scope.successMessage;
+        // force init including all child scopes
+        $route.reload();
     };
     
     var clearForm = function() {        

@@ -139,7 +139,6 @@ function ($q, Restangular, UtilService) {
             // POST /user
             Restangular.all('user').post(user).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.password = user.password;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

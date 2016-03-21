@@ -2,6 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.ApiPatientService;
@@ -17,6 +19,7 @@ import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.PatientManagement;
@@ -33,6 +36,7 @@ import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.OrganizationService;
+import org.patientview.service.PractitionerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -85,6 +89,9 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Inject
     private OrganizationService organizationService;
+
+    @Inject
+    private PractitionerService practitionerService;
 
     @Inject
     private UserRepository userRepository;
@@ -161,6 +168,11 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (!CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
             saveObservationDetails(fhirLink, patientManagement.getFhirObservations());
         }
+
+        // update FHIR practitioners (named consultant & ibd nurse)
+        if (!CollectionUtils.isEmpty(patientManagement.getFhirPractitioners())) {
+            savePractitionerDetails(fhirLink, patientManagement.getFhirPractitioners());
+        }
     }
 
     private void saveConditionDetails(FhirLink fhirLink, FhirCondition fhirCondition) throws FhirResourceException {
@@ -204,6 +216,72 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         for (FhirEncounter fhirEncounter : fhirEncounters) {
             encounterService.add(fhirEncounter, fhirLink, organizationUuid);
         }
+    }
+
+    private void savePractitionerDetails(FhirLink fhirLink, List<FhirPractitioner> fhirPractitioners)
+            throws FhirResourceException {
+        Patient currentPatient;
+
+        try {
+            currentPatient = apiPatientService.get(fhirLink.getResourceId());
+        } catch (FhirResourceException fre) {
+            throw new FhirResourceException("error retrieving patient");
+        }
+
+        if (currentPatient == null) {
+            throw new FhirResourceException("error retrieving current patient");
+        }
+
+
+        // keep any care providers with role not in patient management practitioners list
+        if (!CollectionUtils.isEmpty(currentPatient.getCareProvider())) {
+            List<ResourceReference> toKeep = new ArrayList<>();
+
+            for (ResourceReference resourceReference : currentPatient.getCareProvider()) {
+                Practitioner foundPractitioner = (Practitioner) fhirResource.get(
+                        UUID.fromString(resourceReference.getDisplaySimple()), ResourceType.Practitioner);
+
+                if (foundPractitioner != null && !CollectionUtils.isEmpty(foundPractitioner.getRole())) {
+                    boolean found = false;
+                    for (FhirPractitioner fhirPractitioner : fhirPractitioners) {
+                        if (fhirPractitioner.getRole().equals(foundPractitioner.getRole().get(0).getTextSimple())) {
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        toKeep.add(resourceReference);
+                    }
+                }
+            }
+
+            // add existing care providers for patient (not in fhirPractitioners)
+            currentPatient.getCareProvider().clear();
+            currentPatient.getCareProvider().addAll(toKeep);
+        }
+
+        // check if practitioner with name and role already exists in fhir (should only be one if so)
+        for (FhirPractitioner fhirPractitioner : fhirPractitioners) {
+            List<UUID> existingPractitioners = practitionerService.getPractitionerLogicalUuidsByNameAndRole(
+                    fhirPractitioner.getName(), fhirPractitioner.getRole());
+
+            if (!CollectionUtils.isEmpty(existingPractitioners)) {
+                // practitioner already in fhir, add resource reference to patient
+                ResourceReference careProvider = currentPatient.addCareProvider();
+                careProvider.setDisplaySimple(existingPractitioners.get(0).toString());
+                careProvider.setReferenceSimple("uuid");
+            } else {
+                // practitioner not in fhir, add to fhir and add resource reference to patient
+                UUID practitionerUuid = practitionerService.add(fhirPractitioner);
+                ResourceReference careProvider = currentPatient.addCareProvider();
+                careProvider.setDisplaySimple(practitionerUuid.toString());
+                careProvider.setReferenceSimple("uuid");
+            }
+        }
+
+        // update patient with correct care providers
+        fhirResource.updateEntity(
+                currentPatient, ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
     }
 
     private void saveObservationDetails(FhirLink fhirLink, List<FhirObservation> fhirObservations)

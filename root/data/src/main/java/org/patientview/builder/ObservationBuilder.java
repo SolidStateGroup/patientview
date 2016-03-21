@@ -136,12 +136,13 @@ public class ObservationBuilder {
 
     private Quantity createQuantity(FhirObservation fhirObservation) throws FhirResourceException {
         Quantity quantity = new Quantity();
-        quantity.setValue(createDecimal(fhirObservation.getValue()));
 
         Quantity.QuantityComparator comparator = getComparator(fhirObservation);
         if (comparator != null) {
             quantity.setComparatorSimple(comparator);
         }
+
+        quantity.setValue(createDecimal(fhirObservation.getValue()));
 
         if (StringUtils.isNotEmpty(fhirObservation.getUnits())) {
             quantity.setUnitsSimple(fhirObservation.getUnits());
@@ -151,6 +152,7 @@ public class ObservationBuilder {
 
     private Quantity.QuantityComparator getComparator(FhirObservation fhirObservation) {
         if (StringUtils.isNotEmpty(fhirObservation.getComparator())) {
+            // comparator is set
             if (fhirObservation.getComparator().contains(">=")) {
                 return Quantity.QuantityComparator.greaterOrEqual;
             }
@@ -164,6 +166,23 @@ public class ObservationBuilder {
             }
 
             if (fhirObservation.getComparator().contains("<")) {
+                return Quantity.QuantityComparator.lessThan;
+            }
+        } else if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+            // comparator is inferred
+            if (fhirObservation.getValue().contains(">=")) {
+                return Quantity.QuantityComparator.greaterOrEqual;
+            }
+
+            if (fhirObservation.getValue().contains("<=")) {
+                return Quantity.QuantityComparator.lessOrEqual;
+            }
+
+            if (fhirObservation.getValue().contains(">")) {
+                return Quantity.QuantityComparator.greaterThan;
+            }
+
+            if (fhirObservation.getValue().contains("<")) {
                 return Quantity.QuantityComparator.lessThan;
             }
         }
