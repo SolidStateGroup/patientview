@@ -35,17 +35,6 @@ public class ConditionBuilder {
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         condition.setSubject(patientReference);
 
-        // set notes
-        if (StringUtils.isNotEmpty(fhirCondition.getNotes())) {
-            condition.setNotesSimple(fhirCondition.getNotes());
-        } else {
-            // if code isn't empty and not the same as notes
-            if (StringUtils.isNotEmpty(fhirCondition.getCode())
-                    && !fhirCondition.getCode().equals(fhirCondition.getNotes())) {
-                condition.setNotesSimple(fhirCondition.getCode());
-            }
-        }
-
         // code
         if (fhirCondition.getCode() != null) {
             if (StringUtils.isNotEmpty(fhirCondition.getCode())) {

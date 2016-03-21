@@ -121,6 +121,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             saveConditionDetails(fhirLink, patientManagement.getFhirCondition());
         }
 
+        // update FHIR Encounters (surgeries)
+        if (!CollectionUtils.isEmpty(patientManagement.getFhirEncounters())) {
+
+        }
     }
 
     private void saveConditionDetails(FhirLink fhirLink, FhirCondition fhirCondition) throws FhirResourceException {

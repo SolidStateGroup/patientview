@@ -20,6 +20,10 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ConditionService {
 
+    void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException;
+
+    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException;
+
     /**
      * Delete Condition by UUID subject ID and DiagnosisTypes type, used by API importer.
      * @param subjectId UUID subject ID
@@ -35,10 +39,6 @@ public interface ConditionService {
      * @throws FhirResourceException
      */
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
-
-    void add(FhirCondition fhirCondition, FhirLink fhirLink) throws FhirResourceException;
-
-    void add(Patientview data, FhirLink fhirLink) throws FhirResourceException;
 
     FhirDatabaseEntity update(FhirCondition fhirCondition, FhirLink fhirLink, UUID existingConditionUuid)
             throws FhirResourceException;

@@ -2,13 +2,12 @@ package org.patientview.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
-import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.builder.EncounterBuilder;
 import org.patientview.builder.EncountersBuilder;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.EncounterTypes;
@@ -152,28 +151,13 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     }
 
     @Override
-    public void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+    public FhirDatabaseEntity add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
             throws FhirResourceException {
+        EncounterBuilder encounterBuilder = new EncounterBuilder(null, fhirEncounter,
+                Util.createResourceReference(fhirLink.getResourceId()),
+                Util.createResourceReference(organizationUuid));
 
-        Encounter encounter = new Encounter();
-        encounter.setStatusSimple(Encounter.EncounterState.finished);
-
-        // e.g. "TREATMENT"
-        if (StringUtils.isNotEmpty(fhirEncounter.getEncounterType())) {
-            Identifier identifier = encounter.addIdentifier();
-            identifier.setValueSimple(fhirEncounter.getEncounterType());
-        }
-
-        // e.g. "transfusion"
-        if (StringUtils.isNotEmpty(fhirEncounter.getStatus())) {
-            CodeableConcept code = encounter.addType();
-            code.setTextSimple(fhirEncounter.getStatus());
-        }
-
-        encounter.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
-        encounter.setServiceProvider(Util.createResourceReference(organizationUuid));
-
-        fhirResource.createEntity(encounter, ResourceType.Encounter.name(), "encounter");
+        return fhirResource.createEntity(encounterBuilder.build(), ResourceType.Encounter.name(), "encounter");
     }
 }
 
