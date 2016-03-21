@@ -163,6 +163,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                     try {
                         fhirEncounter.setEncounterType(EncounterTypes.TREATMENT.toString());
                         encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+                        successCount++;
                     } catch (FhirResourceException fre) {
                         return new ServerResponse("error saving treatment, added " + successCount
                                 + " of " + fhirClinicalData.getTreatments().size());
@@ -191,6 +192,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                     try {
                         diagnosis.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
                         conditionService.add(diagnosis, fhirLink);
+                        successCount++;
                     } catch (FhirResourceException fre) {
                         return new ServerResponse("error saving diagnosis, added " + successCount
                                 + " of " + fhirClinicalData.getDiagnoses().size());

@@ -622,6 +622,53 @@ public class FhirResource {
         }
     }
 
+    public List<UUID> getLogicalIdsBySubjectIdAndIdentifierValue(
+            final String tableName, final UUID subjectId, final String identifierValue)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' AND CONTENT #> '{identifier,0}' ->> 'value' ='");
+        query.append(identifierValue);
+        query.append("' ");
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     public List<UUID> getLogicalIdsBySubjectIdAppliesIgnoreNames(
             final String tableName, final UUID subjectId,
             final List<String> namesToIgnore, final Long start, final Long end) throws FhirResourceException {

@@ -13,6 +13,7 @@ import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
@@ -20,6 +21,7 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.PatientManagement;
 import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -27,7 +29,10 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
+import org.patientview.service.EncounterService;
+import org.patientview.service.OrganizationService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -41,6 +46,7 @@ import java.util.UUID;
  * Created on 18/03/2016
  */
 @Service
+@Transactional
 public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientManagementServiceImpl>
         implements PatientManagementService {
 
@@ -52,6 +58,9 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Inject
     private ConditionService conditionService;
+
+    @Inject
+    private EncounterService encounterService;
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
@@ -67,6 +76,9 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Inject
     private IdentifierRepository identifierRepository;
+
+    @Inject
+    private OrganizationService organizationService;
 
     @Inject
     private UserRepository userRepository;
@@ -111,6 +123,19 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new ResourceNotFoundException("error retrieving FHIR patient, no UUID");
         }
 
+        // get FHIR Organization logical id UUID, creating from Group if not present, used by treatment Encounter
+        UUID organizationUuid;
+
+        try {
+            organizationUuid = organizationService.add(group);
+        } catch (FhirResourceException fre) {
+            throw new FhirResourceException("error saving organization");
+        }
+
+        if (organizationUuid == null) {
+            throw new FhirResourceException("error saving organization, is null");
+        }
+
         // update FHIR patient
         if (patientManagement.getFhirPatient() != null) {
             savePatientDetails(fhirLink, patientManagement.getFhirPatient());
@@ -123,9 +148,21 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         // update FHIR Encounters (surgeries)
         if (!CollectionUtils.isEmpty(patientManagement.getFhirEncounters())) {
-
+            saveEncounterDetails(fhirLink, patientManagement.getFhirEncounters(), organizationUuid);
         }
     }
+
+    private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
+            throws FhirResourceException {
+        // erase existing SURGERY Encounters and associated Observations and Procedures
+        encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.SURGERY);
+
+        // store new
+        for (FhirEncounter fhirEncounter : fhirEncounters) {
+            encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+        }
+    }
+
 
     private void saveConditionDetails(FhirLink fhirLink, FhirCondition fhirCondition) throws FhirResourceException {
         // set as MAIN diagnosis

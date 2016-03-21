@@ -16,7 +16,7 @@ import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
- * Created on 18/03/2016
+ * Created on 21/03/2016
  */
 public class EncounterBuilderTest {
 
@@ -24,6 +24,7 @@ public class EncounterBuilderTest {
     public void testBuildNew() throws Exception {
         Date now = new DateTime(new Date()).withMillisOfSecond(0).toDate();
         UUID subjectId = UUID.randomUUID();
+        UUID organizationId = UUID.randomUUID();
 
         FhirEncounter fhirEncounter = new FhirEncounter();
         fhirEncounter.setDate(now);
@@ -32,7 +33,8 @@ public class EncounterBuilderTest {
 
         // build
         EncounterBuilder encounterBuilder
-                = new EncounterBuilder(null, fhirEncounter, Util.createResourceReference(subjectId));
+                = new EncounterBuilder(null, fhirEncounter, Util.createResourceReference(subjectId),
+                Util.createResourceReference(organizationId));
         Encounter encounter = encounterBuilder.build();
 
         Assert.assertNotNull("The encounter should not be null", encounter);

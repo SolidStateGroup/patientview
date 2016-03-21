@@ -15,7 +15,7 @@ import org.patientview.persistence.model.FhirEncounter;
  * empty strings means clear existing data, null strings means leave alone and do not update. For Date, clear if null.
  *
  * Created by jamesr@solidstategroup.com
- * Created on 18/03/2016
+ * Created on 21/03/2016
  */
 public class EncounterBuilder {
 
@@ -23,12 +23,6 @@ public class EncounterBuilder {
     private FhirEncounter fhirEncounter;
     private ResourceReference organizationReference;
     private ResourceReference patientReference;
-
-    public EncounterBuilder(Encounter encounter, FhirEncounter fhirEncounter, ResourceReference patientReference) {
-        this.encounter = encounter;
-        this.fhirEncounter = fhirEncounter;
-        this.patientReference = patientReference;
-    }
 
     public EncounterBuilder(Encounter encounter, FhirEncounter fhirEncounter, ResourceReference patientReference,
                             ResourceReference organizationReference) {
@@ -43,7 +37,6 @@ public class EncounterBuilder {
             encounter = new Encounter();
         }
 
-        encounter.setStatusSimple(Encounter.EncounterState.finished);
         encounter.setSubject(patientReference);
 
         if (organizationReference != null) {
