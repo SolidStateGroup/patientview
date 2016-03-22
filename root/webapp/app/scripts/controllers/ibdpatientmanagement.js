@@ -273,6 +273,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 && $scope.patientManagement.gender.description.length) {
                 $scope.patientManagement.fhirPatient.gender = $scope.patientManagement.gender.description;
             }
+
+            console.log($scope.patientManagement);
         };
 
         // get lookups and minimal diagnoses list
@@ -331,7 +333,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             }
 
             // gender (set based on description)
-            if ($scope.patientManagement.fhirPatient.gender !== undefined) {
+            if ($scope.patientManagement.fhirPatient.gender !== undefined
+                && $scope.patientManagement.fhirPatient.gender !== null) {
                 for (i = 0; i < $scope.lookupMap['GENDER'].length; i++) {
                     if ($scope.lookupMap['GENDER'][i].description.toUpperCase()
                         == $scope.patientManagement.fhirPatient.gender.toUpperCase()) {
@@ -379,8 +382,11 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // fhirPractitioners
         if ($scope.patientManagement.fhirPractitioners !== undefined
             && $scope.patientManagement.fhirPractitioners !== null) {
+            //console.log($scope.patientManagement.fhirPractitioners);
+
             for (i = 0; i < $scope.patientManagement.fhirPractitioners.length; i++) {
                 var practitioner = $scope.patientManagement.fhirPractitioners[i];
+                //console.log(practitioner);
                 if (practitioner.role == 'IBD_NURSE') {
                     $scope.patientManagement.ibdNurse = practitioner.name;
                 }
