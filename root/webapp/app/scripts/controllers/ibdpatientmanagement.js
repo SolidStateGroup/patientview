@@ -398,11 +398,11 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
 
         // fhirEncounters (surgery)
-        if ($scope.patientManagement.fhirEncounters !== undefined
-            && $scope.patientManagement.fhirEncounters !== null) {
-            var surgery = {};
-
-            console.log($scope.patientManagement.fhirEncounters);
+        if ($scope.patientManagement.fhirEncounters !== undefined && $scope.patientManagement.fhirEncounters !== null) {
+            for (i = 0; i < $scope.patientManagement.fhirEncounters.length; i++) {
+                var encounter = $scope.patientManagement.fhirEncounters[i];
+                console.log(encounter);
+            }
         }
     };
 
