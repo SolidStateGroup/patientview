@@ -396,6 +396,14 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
             }
         }
+
+        // fhirEncounters (surgery)
+        if ($scope.patientManagement.fhirEncounters !== undefined
+            && $scope.patientManagement.fhirEncounters !== null) {
+            var surgery = {};
+
+            console.log($scope.patientManagement.fhirEncounters);
+        }
     };
 
     $scope.removeEgimComplication = function (complication) {

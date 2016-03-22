@@ -1,8 +1,11 @@
 package org.patientview.persistence.model;
 
+import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Encounter;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Set;
 
 /**
@@ -41,6 +44,12 @@ public class FhirEncounter extends BaseModel {
         }
         if (!encounter.getType().isEmpty()) {
             setStatus(encounter.getType().get(0).getTextSimple());
+        }
+        if (encounter.getPeriod() != null && encounter.getPeriod().getStart() != null) {
+            DateTime start = encounter.getPeriod().getStart();
+            DateAndTime date = start.getValue();
+            setDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
         }
     }
 

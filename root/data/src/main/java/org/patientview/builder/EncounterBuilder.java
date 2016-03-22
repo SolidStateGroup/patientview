@@ -43,7 +43,7 @@ public class EncounterBuilder {
             encounter.setServiceProvider(organizationReference);
         }
 
-        // set identifier -> value (e.g. TREATMENT, SURGERY, TRANSPLANT_STATUS_KIDNEY)
+        // set identifier -> value (e.g. TREATMENT, SURGERY, TRANSPLANT_STATUS_KIDNEY, SURGERY)
         if (fhirEncounter.getEncounterType() != null) {
             encounter.getIdentifier().clear();
             if (StringUtils.isNotEmpty(fhirEncounter.getEncounterType())) {

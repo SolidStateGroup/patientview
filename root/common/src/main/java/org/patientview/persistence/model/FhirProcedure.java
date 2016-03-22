@@ -23,7 +23,7 @@ public class FhirProcedure extends BaseModel {
     }
 
     public FhirProcedure(Procedure procedure) {
-        if (CollectionUtils.isEmpty(procedure.getBodySite())
+        if (!CollectionUtils.isEmpty(procedure.getBodySite())
                 && StringUtils.isNotEmpty(procedure.getBodySite().get(0).getTextSimple())) {
             this.bodySite = procedure.getBodySite().get(0).getTextSimple();
         }

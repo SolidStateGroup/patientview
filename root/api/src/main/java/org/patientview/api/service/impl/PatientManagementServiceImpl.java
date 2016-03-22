@@ -1,9 +1,11 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.Procedure;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.builder.PatientBuilder;
@@ -21,6 +23,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
+import org.patientview.persistence.model.FhirProcedure;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.PatientManagement;
@@ -47,6 +50,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -130,37 +134,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (patient != null) {
             patientManagement.setFhirPatient(new FhirPatient(patient));
 
-            // testing
-            /*patientManagement.getFhirPatient().setPostcode("abcde");
-            patientManagement.getFhirPatient().setGender("Male");
-
-            patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
-            FhirPractitioner testPractitioner = new FhirPractitioner();
-            testPractitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
-            testPractitioner.setName("ibd nurse");
-            patientManagement.getFhirPractitioners().add(testPractitioner);
-
-            patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
-            FhirObservation fhirObservation = new FhirObservation();
-            fhirObservation.setName("IBD_SMOKINGSTATUS");
-            fhirObservation.setValue("2");
-            patientManagement.getFhirObservations().add(fhirObservation);
-
-            FhirObservation fhirObservation2 = new FhirObservation();
-            fhirObservation2.setName("HEIGHT");
-            fhirObservation2.setValue("2.0");
-            patientManagement.getFhirObservations().add(fhirObservation2);
-
-            FhirObservation fhirObservation3 = new FhirObservation();
-            fhirObservation3.setName("IBD_EGIMCOMPLICATION");
-            fhirObservation3.setValue("05");
-            patientManagement.getFhirObservations().add(fhirObservation3);
-
-            FhirObservation fhirObservation4 = new FhirObservation();
-            fhirObservation4.setName("IBD_EGIMCOMPLICATION");
-            fhirObservation4.setValue("14");
-            patientManagement.getFhirObservations().add(fhirObservation4);*/
-
             // get practitioners
             if (!CollectionUtils.isEmpty(patient.getCareProvider())) {
                 for (ResourceReference practitionerRef : patient.getCareProvider()) {
@@ -184,37 +157,55 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
-        // get fhir observations
-        StringBuilder typeString = new StringBuilder();
-        int count = 0;
-
+        // get fhir observations, using types in PatientManagementObservationTypes
+        List<String> names = new ArrayList<>();
         for (PatientManagementObservationTypes type : PatientManagementObservationTypes.values()) {
-            typeString.append("'").append(type.toString()).append("'");
-            if (count < PatientManagementObservationTypes.values().length - 1) {
-                typeString.append(",");
-            }
-            count++;
+            names.add(type.toString());
         }
 
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT  content::varchar ");
-        query.append("FROM    observation ");
-        query.append("WHERE   content -> 'subject' ->> 'display' = '");
-        query.append(fhirLink.getResourceId().toString());
-        query.append("' ");
-        query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
-        query.append(typeString.toString());
-        query.append(") ");
-
-        List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+        List<Observation> observations = fhirResource.getObservationsBySubjectAndName(fhirLink.getResourceId(), names);
 
         if (!CollectionUtils.isEmpty(observations)) {
-            if (CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
-                patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
-            }
+            patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
 
             for (Observation observation : observations) {
                 patientManagement.getFhirObservations().add(new FhirObservation(observation));
+            }
+        }
+
+        // get fhir surgery encounters
+        List<UUID> encounterUuids = fhirResource.getLogicalIdsBySubjectIdAndIdentifierValue(
+                "encounter", fhirLink.getResourceId(), EncounterTypes.SURGERY.toString());
+
+        if (!CollectionUtils.isEmpty(encounterUuids)) {
+            for (UUID encounterUuid : encounterUuids) {
+                Encounter encounter = (Encounter) fhirResource.get(encounterUuid, ResourceType.Encounter);
+                if (encounter != null) {
+                    patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
+                    FhirEncounter fhirEncounter = new FhirEncounter(encounter);
+
+                    // observations
+                    List<Observation> encounterObservations = fhirResource.getObservationsByPerformer(encounterUuid);
+
+                    if (!CollectionUtils.isEmpty(encounterObservations)) {
+                        fhirEncounter.setObservations(new HashSet<FhirObservation>());
+                        for (Observation observation : encounterObservations) {
+                            fhirEncounter.getObservations().add(new FhirObservation(observation));
+                        }
+                    }
+
+                    // procedures
+                    List<Procedure> encounterProcedures = fhirResource.getProceduresByEncounter(encounterUuid);
+
+                    if (!CollectionUtils.isEmpty(encounterProcedures)) {
+                        fhirEncounter.setProcedures(new HashSet<FhirProcedure>());
+                        for (Procedure procedure : encounterProcedures) {
+                            fhirEncounter.getProcedures().add(new FhirProcedure(procedure));
+                        }
+                    }
+
+                    patientManagement.getFhirEncounters().add(fhirEncounter);
+                }
             }
         }
 
