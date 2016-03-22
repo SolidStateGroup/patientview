@@ -433,6 +433,14 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void emailExistsCaseInsensitive() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setEmail("Test@solidstategroup.com");
+        userRepository.save(user);
+        Assert.assertTrue("Email should exist", userRepository.emailExistsCaseInsensitive("Test@solidstategroup.com"));
+    }
+
+    @Test
     public void findAllPatients() {
         User user = dataTestUtils.createUser("testUser");
         user.setIdentifiers(new HashSet<Identifier>());
