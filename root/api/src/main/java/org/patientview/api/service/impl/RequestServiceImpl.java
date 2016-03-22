@@ -217,7 +217,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
         for (Request request : requestPage.getContent()) {
             org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(request);
-            if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+            if (apiRequest.getEmail() != null && userRepository.emailExistsCaseInsensitive(apiRequest.getEmail())) {
                 apiRequest.setEmailExists(true);
             }
             requests.add(apiRequest);
@@ -354,7 +354,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
 
         org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(entityRequest);
-        if (apiRequest.getEmail() != null && userRepository.emailExists(apiRequest.getEmail())) {
+        if (apiRequest.getEmail() != null && userRepository.emailExistsCaseInsensitive(apiRequest.getEmail())) {
             apiRequest.setEmailExists(true);
         }
 
