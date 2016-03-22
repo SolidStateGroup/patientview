@@ -357,24 +357,25 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     // is a lookup value, either SELECT or MULTI_SELECT
                     if (answer.type === 'SELECT') {
                         for (j = 0; j < lookup.length; j++) {
-                            if (lookup[j].value === observation.value) {
-                                $scope.patientManagement.answers[name].option = lookup[j];
+                            if (lookup[j].value == parseFloat(observation.value)
+                                || lookup[j].value == observation.value) {
+                                answer.option = lookup[j];
                             }
                         }
                     } else if (answer.type === 'MULTI_SELECT') {
-                        if ($scope.patientManagement.answers[name].values == undefined
-                            || $scope.patientManagement.answers[name].values == null) {
-                            $scope.patientManagement.answers[name].values = [];
+                        if (answer.values == undefined || answer.values == null) {
+                            answer.values = [];
                         }
                         for (j = 0; j < lookup.length; j++) {
-                            if (lookup[j].value === observation.value) {
-                                $scope.patientManagement.answers[name].values.push(lookup[j]);
+                            if (lookup[j].value == parseFloat(observation.value)
+                                || lookup[j].value == observation.value) {
+                                answer.values.push(lookup[j]);
                             }
                         }
                     }
-                } else {
+                } else if (answer !== undefined && answer !== null) {
                     // is a simple text value
-                    $scope.patientManagement.answers[name].value = observation.value;
+                    answer.value = observation.value;
                 }
             }
         }

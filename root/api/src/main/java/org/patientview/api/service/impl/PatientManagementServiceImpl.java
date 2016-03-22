@@ -357,7 +357,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new FhirResourceException("error retrieving current patient");
         }
 
-
         // keep any care providers with role not in patient management practitioners list
         if (!CollectionUtils.isEmpty(currentPatient.getCareProvider())) {
             List<ResourceReference> toKeep = new ArrayList<>();
