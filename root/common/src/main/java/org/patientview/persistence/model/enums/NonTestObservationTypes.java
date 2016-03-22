@@ -25,7 +25,7 @@ public enum NonTestObservationTypes {
     VA("Eye Checkup: va"),
     VACCINATION_RECORD("Vaccination Record"), // my IBD
 
-    // added for IBD patient management
+    // added for IBD patient management, see PatientManagementObservationTypes
     IBD_SURGERYMAINPROCEDURE("Surgery Main Procedure"),
     SURGERY_HOSPITAL_CODE("Surgery Hospital Code"),
     SURGERY_OTHER_DETAILS("Surgery Other Details"),

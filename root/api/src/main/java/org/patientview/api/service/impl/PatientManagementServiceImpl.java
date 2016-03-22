@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
@@ -27,6 +28,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
+import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -129,7 +131,35 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             patientManagement.setFhirPatient(new FhirPatient(patient));
 
             // testing
-            patientManagement.getFhirPatient().setPostcode("abcde");
+            /*patientManagement.getFhirPatient().setPostcode("abcde");
+            patientManagement.getFhirPatient().setGender("Male");
+
+            patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
+            FhirPractitioner testPractitioner = new FhirPractitioner();
+            testPractitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
+            testPractitioner.setName("ibd nurse");
+            patientManagement.getFhirPractitioners().add(testPractitioner);
+
+            patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
+            FhirObservation fhirObservation = new FhirObservation();
+            fhirObservation.setName("IBD_SMOKINGSTATUS");
+            fhirObservation.setValue("2");
+            patientManagement.getFhirObservations().add(fhirObservation);
+
+            FhirObservation fhirObservation2 = new FhirObservation();
+            fhirObservation2.setName("HEIGHT");
+            fhirObservation2.setValue("2.0");
+            patientManagement.getFhirObservations().add(fhirObservation2);
+
+            FhirObservation fhirObservation3 = new FhirObservation();
+            fhirObservation3.setName("IBD_EGIMCOMPLICATION");
+            fhirObservation3.setValue("05");
+            patientManagement.getFhirObservations().add(fhirObservation3);
+
+            FhirObservation fhirObservation4 = new FhirObservation();
+            fhirObservation4.setName("IBD_EGIMCOMPLICATION");
+            fhirObservation4.setValue("14");
+            patientManagement.getFhirObservations().add(fhirObservation4);*/
 
             // get practitioners
             if (!CollectionUtils.isEmpty(patient.getCareProvider())) {
@@ -154,7 +184,39 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
-        //
+        // get fhir observations
+        StringBuilder typeString = new StringBuilder();
+        int count = 0;
+
+        for (PatientManagementObservationTypes type : PatientManagementObservationTypes.values()) {
+            typeString.append("'").append(type.toString()).append("'");
+            if (count < PatientManagementObservationTypes.values().length - 1) {
+                typeString.append(",");
+            }
+            count++;
+        }
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT  content::varchar ");
+        query.append("FROM    observation ");
+        query.append("WHERE   content -> 'subject' ->> 'display' = '");
+        query.append(fhirLink.getResourceId().toString());
+        query.append("' ");
+        query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
+        query.append(typeString.toString());
+        query.append(") ");
+
+        List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+        if (!CollectionUtils.isEmpty(observations)) {
+            if (CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
+                patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
+            }
+
+            for (Observation observation : observations) {
+                patientManagement.getFhirObservations().add(new FhirObservation(observation));
+            }
+        }
 
         return patientManagement;
     }

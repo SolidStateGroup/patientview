@@ -278,16 +278,22 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // get lookups and minimal diagnoses list
         PatientService.getPatientManagementLookupTypes().then(function(lookupTypes) {
             for (i = 0; i < lookupTypes.length; i++) {
-                $scope.lookupMap[lookupTypes[i].type] = [];
+                var lookupType = lookupTypes[i].type;
+                $scope.lookupMap[lookupType] = [];
 
                 // create answer object (not surgery procedure)
-                if (lookupTypes[i].type !== 'IBD_SURGERYMAINPROCEDURE') {
-                    $scope.patientManagement.answers[lookupTypes[i].type] = {};
-                    $scope.patientManagement.answers[lookupTypes[i].type].type = 'SELECT';
+                if (lookupType !== 'IBD_SURGERYMAINPROCEDURE') {
+                    $scope.patientManagement.answers[lookupType] = {};
+                    $scope.patientManagement.answers[lookupType].type = 'SELECT';
+                }
+
+                // MULTI_SELECT types
+                if (lookupType === 'IBD_EGIMCOMPLICATION') {
+                    $scope.patientManagement.answers[lookupType].type = 'MULTI_SELECT';
                 }
 
                 for (j = 0; j < lookupTypes[i].lookups.length; j++) {
-                    $scope.lookupMap[lookupTypes[i].type].push(lookupTypes[i].lookups[j]);
+                    $scope.lookupMap[lookupType].push(lookupTypes[i].lookups[j]);
                 }
             }
 
@@ -295,6 +301,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 for (i = 0; i < diagnoses.length; i++) {
                     $scope.patientManagement.diagnoses.push(diagnoses[i]);
                 }
+
+                // populate interface if values are set (when editing patient)
+                populateUi();
+
             }, function () {
                 alert('error getting patient management programme diagnoses')
             });
@@ -306,13 +316,78 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     // handle broadcast message from parent
     $scope.$on('patientManagementInit', function() {
         init();
-        populate();
     });
 
     //
-    var populate = function() {
-        if ($scope.patientManagement.fhirPatient) {
-            $scope.patientManagement.postcode = $scope.patientManagement.fhirPatient.postcode;
+    var populateUi = function() {
+        var i, j;
+        //console.log($scope.patientManagement);
+
+        // fhirPatient
+        if ($scope.patientManagement.fhirPatient !== undefined && $scope.patientManagement.fhirPatient !== null) {
+            // postcode
+            if ($scope.patientManagement.fhirPatient.postcode !== undefined) {
+                $scope.patientManagement.postcode = $scope.patientManagement.fhirPatient.postcode;
+            }
+
+            // gender (set based on description)
+            if ($scope.patientManagement.fhirPatient.gender !== undefined) {
+                for (i = 0; i < $scope.lookupMap['GENDER'].length; i++) {
+                    if ($scope.lookupMap['GENDER'][i].description.toUpperCase()
+                        == $scope.patientManagement.fhirPatient.gender.toUpperCase()) {
+                        $scope.patientManagement.gender = $scope.lookupMap['GENDER'][i];
+                    }
+                }
+            }
+        }
+
+        // fhirObservations
+        if ($scope.patientManagement.fhirObservations !== undefined
+            && $scope.patientManagement.fhirObservations !== null) {
+            for (i = 0; i < $scope.patientManagement.fhirObservations.length; i++) {
+                var observation = $scope.patientManagement.fhirObservations[i];
+                var name = observation.name;
+                var answer = $scope.patientManagement.answers[name];
+                var lookup = $scope.lookupMap[name];
+
+                if (lookup !== undefined  && lookup !== null && answer !== undefined && answer !== null) {
+                    // is a lookup value, either SELECT or MULTI_SELECT
+                    if (answer.type === 'SELECT') {
+                        for (j = 0; j < lookup.length; j++) {
+                            if (lookup[j].value === observation.value) {
+                                $scope.patientManagement.answers[name].option = lookup[j];
+                            }
+                        }
+                    } else if (answer.type === 'MULTI_SELECT') {
+                        if ($scope.patientManagement.answers[name].values == undefined
+                            || $scope.patientManagement.answers[name].values == null) {
+                            $scope.patientManagement.answers[name].values = [];
+                        }
+                        for (j = 0; j < lookup.length; j++) {
+                            if (lookup[j].value === observation.value) {
+                                $scope.patientManagement.answers[name].values.push(lookup[j]);
+                            }
+                        }
+                    }
+                } else {
+                    // is a simple text value
+                    $scope.patientManagement.answers[name].value = observation.value;
+                }
+            }
+        }
+
+        // fhirPractitioners
+        if ($scope.patientManagement.fhirPractitioners !== undefined
+            && $scope.patientManagement.fhirPractitioners !== null) {
+            for (i = 0; i < $scope.patientManagement.fhirPractitioners.length; i++) {
+                var practitioner = $scope.patientManagement.fhirPractitioners[i];
+                if (practitioner.role == 'IBD_NURSE') {
+                    $scope.patientManagement.ibdNurse = practitioner.name;
+                }
+                if (practitioner.role == 'NAMED_CONSULTANT') {
+                    $scope.patientManagement.namedConsultant = practitioner.name;
+                }
+            }
         }
     };
 
@@ -350,6 +425,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
 
             console.log("Save Patient Management");
+            console.log($scope.patientManagement);
             console.log(patientManagement);
         }
     };
