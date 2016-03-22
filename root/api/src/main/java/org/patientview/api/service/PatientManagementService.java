@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface PatientManagementService {
 
+    PatientManagement get(Long userId, Long groupId, Long identifierId)
+            throws ResourceNotFoundException, FhirResourceException;
+
     void save(User user, Group group, Identifier identifier, PatientManagement patientManagement)
             throws ResourceNotFoundException, FhirResourceException;
 

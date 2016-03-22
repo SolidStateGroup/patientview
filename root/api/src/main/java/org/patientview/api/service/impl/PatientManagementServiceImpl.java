@@ -23,9 +23,11 @@ import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.PatientManagement;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
+import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -95,6 +97,67 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Inject
     private UserRepository userRepository;
+
+    @Override
+    public PatientManagement get(Long userId, Long groupId, Long identifierId)
+            throws ResourceNotFoundException, FhirResourceException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("user not found");
+        }
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("group not found");
+        }
+        Identifier identifier = identifierRepository.findOne(identifierId);
+        if (identifier == null) {
+            throw new ResourceNotFoundException("identifier not found");
+        }
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(user, group, identifier);
+
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            return null;
+        }
+
+        FhirLink fhirLink = fhirLinks.get(0);
+        PatientManagement patientManagement = new PatientManagement();
+
+        // get fhir patient
+        Patient patient = (Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
+        if (patient != null) {
+            patientManagement.setFhirPatient(new FhirPatient(patient));
+
+            // testing
+            patientManagement.getFhirPatient().setPostcode("abcde");
+
+            // get practitioners
+            if (!CollectionUtils.isEmpty(patient.getCareProvider())) {
+                for (ResourceReference practitionerRef : patient.getCareProvider()) {
+                    Practitioner practitioner = (Practitioner) fhirResource.get(
+                            UUID.fromString(practitionerRef.getDisplaySimple()), ResourceType.Practitioner);
+
+                    // only add if IBD_NURSE or NAMED_CONSULTANT
+                    if (practitioner != null
+                            && !CollectionUtils.isEmpty(practitioner.getRole())
+                            && (practitioner.getRole().get(0).getTextSimple().equals(
+                                PractitionerRoles.IBD_NURSE.toString())
+                            || practitioner.getRole().get(0).getTextSimple().equals(
+                            PractitionerRoles.NAMED_CONSULTANT.toString()))) {
+                        if (CollectionUtils.isEmpty(patientManagement.getFhirPractitioners())) {
+                            patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
+                        }
+
+                        patientManagement.getFhirPractitioners().add(new FhirPractitioner(practitioner));
+                    }
+                }
+            }
+        }
+
+        //
+
+        return patientManagement;
+    }
 
     @Override
     public void save(org.patientview.persistence.model.User user, Group group, Identifier identifier,

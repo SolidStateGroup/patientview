@@ -178,6 +178,10 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             }
 
             clearForm();
+
+            // set up patient management
+            $scope.$broadcast('patientManagementInit', {});
+
             $scope.showForm = true;
             $scope.loading = false;
         }, function () {

@@ -196,4 +196,6 @@
     </div>
 </div>
 
-<div data-ng-include src="'views/partials/ibdPatientManagement.html'" data-ng-controller="IbdPatientManagementCtrl"></div>
+<div data-ng-show="patientManagement">
+    <div data-ng-include src="'views/partials/ibdPatientManagement.html'" data-ng-controller="IbdPatientManagementCtrl"></div>
+</div>

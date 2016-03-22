@@ -93,19 +93,21 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     };
 
     $scope.calculateBMI = function() {
-        var height = $scope.patientManagement.answers['HEIGHT'].value;
-        var weight = $scope.patientManagement.answers['WEIGHT'].value;
+        if ($scope.patientManagement !== undefined && $scope.patientManagement.answers !== undefined) {
+            var height = $scope.patientManagement.answers['HEIGHT'].value;
+            var weight = $scope.patientManagement.answers['WEIGHT'].value;
 
-        if (height !== undefined && height.length
-            && weight !== undefined && weight.length) {
-            height = parseFloat(height);
-            weight = parseFloat(weight);
+            if (height !== undefined && height.length
+                && weight !== undefined && weight.length) {
+                height = parseFloat(height);
+                weight = parseFloat(weight);
 
-            return (weight / (height * height)).toFixed(2);
+                return (weight / (height * height)).toFixed(2);
+            }
         }
     };
 
-    $scope.init = function() {
+    var init = function() {
         delete $scope.successMessage;
         var i, j;
 
@@ -301,6 +303,19 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         });
     };
 
+    // handle broadcast message from parent
+    $scope.$on('patientManagementInit', function() {
+        init();
+        populate();
+    });
+
+    //
+    var populate = function() {
+        if ($scope.patientManagement.fhirPatient) {
+            $scope.patientManagement.postcode = $scope.patientManagement.fhirPatient.postcode;
+        }
+    };
+
     $scope.removeEgimComplication = function (complication) {
         var complications = [];
         for (var i = 0; i < $scope.patientManagement.answers['IBD_EGIMCOMPLICATION'].values.length; i++) {
@@ -320,6 +335,25 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
         $scope.patientManagement.surgeries = surgeries;
     };
+
+    // used when saving independently of creating user
+    $scope.savePatientManagement = function () {
+        var valid = $scope.patientManagement.validate();
+        if (valid) {
+            $scope.patientManagement.buildFhirObjects();
+
+            var patientManagement = {};
+            patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
+            patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
+            patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
+            patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
+            patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
+
+            console.log("Save Patient Management");
+            console.log(patientManagement);
+        }
+    };
+
 
     $scope.showSurgeryModal = function() {
         // open modal and pass in required objects for use in modal scope
@@ -359,6 +393,4 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
         });
     };
-
-    $scope.init();
 }]);
