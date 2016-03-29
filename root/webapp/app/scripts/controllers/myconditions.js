@@ -320,12 +320,58 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         } else {
             alert('Error getting specialties');
         }
+
+        getPatientManagement($scope.loggedInUser);
     };
 
     $scope.changeSpecialty = function(specialty) {
         $scope.currentSpecialty = specialty;
         $scope.loading = true;
         getMyConditions();
+    };
+
+    var getPatientManagement = function (user) {
+        // get patient management information based on group with IBD_PATIENT_MANAGEMENT feature
+        var patientManagementGroupId = null;
+        var patientManagementIdentifierId = null;
+        var i, j;
+
+        for (i = 0; i < user.groupRoles.length; i++) {
+            if (patientManagementGroupId == null) {
+                var group = user.groupRoles[i].group;
+                for (j = 0; j < group.groupFeatures.length; j++) {
+                    if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
+                        patientManagementGroupId = group.id;
+                    }
+                }
+            }
+        }
+
+        // based on first identifier
+        for (i = 0; i < user.identifiers.length; i++) {
+            if (patientManagementIdentifierId == null) {
+                patientManagementIdentifierId = user.identifiers[i].id;
+            }
+        }
+
+        if (patientManagementGroupId !== null && patientManagementIdentifierId !== null) {
+            PatientService.getPatientManagement(user.id, patientManagementGroupId, patientManagementIdentifierId)
+                .then(function (patientManagement) {
+                    if (patientManagement !== undefined && patientManagement !== null) {
+                        $scope.patientManagement = patientManagement;
+                    } else {
+                        $scope.patientManagement = {};
+                    }
+
+                    $scope.patientManagement.groupId = patientManagementGroupId;
+                    $scope.patientManagement.identifierId = patientManagementIdentifierId;
+                    $scope.patientManagement.userId = user.id;
+
+                    $scope.$broadcast('patientManagementInit', {});
+                }, function () {
+                    alert('Error retrieving patient management information');
+                });
+        }
     };
 
     $scope.init();

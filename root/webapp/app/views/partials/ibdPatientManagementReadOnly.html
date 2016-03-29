@@ -1,0 +1,215 @@
+<style>
+    .name-action-list li .feature-list-name {
+        margin-right: 10px;
+    }
+</style>
+
+<div data-ng-show="!loadingPatientManagement">
+    <table class="table table-bordered">
+        <tbody>
+        <tr>
+            <td class="forced-width">Postcode</td>
+            <td>
+                <span data-ng-if="patientManagement.postcode">
+                    {{patientManagement.postcode}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Gender</td>
+            <td>
+                <span data-ng-if="patientManagement.gender">
+                    {{patientManagement.gender.description}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">IBD Nurse Specialist</td>
+            <td>
+                <span data-ng-if="patientManagement.ibdNurse">
+                    {{patientManagement.ibdNurse}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Named Consultant</td>
+            <td>
+                <span data-ng-if="patientManagement.namedConsultant">
+                    {{patientManagement.namedConsultant}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Height</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['HEIGHT'].value">
+                    {{patientManagement.answers['HEIGHT'].value}}m
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Weight</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['WEIGHT'].value">
+                    {{patientManagement.answers['WEIGHT'].value}}kg
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">BMI (calculated)</td>
+            <td>
+                <span data-ng-if="calculateBMI()">
+                    {{calculateBMI()}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Diagnosis</td>
+            <td>
+                <span data-ng-if="patientManagement.diagnosis">
+                    {{patientManagement.diagnosis.description}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Date of Diagnosis</td>
+            <td>
+                <span data-ng-if="patientManagement.diagnosisDate.date">
+                    {{patientManagement.diagnosisDate.date | date:'dd-MMM-yyyy'}}
+                </span>
+            </td>
+        </tr>
+        <tr data-ng-if="patientManagement.diagnosis.code === 'CD'">
+            <td class="forced-width">Location</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_CROHNSLOCATION'].option">
+                    {{patientManagement.answers['IBD_CROHNSLOCATION'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr data-ng-if="patientManagement.diagnosis.code === 'CD'">
+            <td class="forced-width">Disease Proximal to Terminal Ileum</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option">
+                    {{patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr data-ng-if="patientManagement.diagnosis.code === 'CD'">
+            <td class="forced-width">Perianal</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_CROHNSPERIANAL'].option">
+                    {{patientManagement.answers['IBD_CROHNSPERIANAL'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr data-ng-if="patientManagement.diagnosis.code === 'CD'">
+            <td class="forced-width">Complications</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option">
+                    {{patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr data-ng-if="patientManagement.diagnosis.code === 'UC' || patientManagement.diagnosis.code === 'IBDU'">
+            <td class="forced-width">Location</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_UCEXTENT'].option">
+                    {{patientManagement.answers['IBD_UCEXTENT'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Other Part(s) of The Body Affected</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_EGIMCOMPLICATION'].values">
+                    <span data-ng-repeat="selectedComplication in patientManagement.answers['IBD_EGIMCOMPLICATION'].values track by $index">
+                        {{selectedComplication.description}},
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Other Part(s) of The Body Affected (not in list)</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'].value">
+                    {{patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'].value}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Smoking Status</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_SMOKINGSTATUS'].option">
+                    {{patientManagement.answers['IBD_SMOKINGSTATUS'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Family History of IBD</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_FAMILYHISTORY'].option">
+                    {{patientManagement.answers['IBD_FAMILYHISTORY'].option.description}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Allergies & Drug Reactions</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_ALLERGYSUBSTANCE'].value">
+                    {{patientManagement.answers['IBD_ALLERGYSUBSTANCE'].value}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Vaccination Record</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_VACCINATIONRECORD'].value">
+                    {{patientManagement.answers['IBD_VACCINATIONRECORD'].value}}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="forced-width">Year for Colonoscopy Surveillance</td>
+            <td>
+                <span data-ng-if="patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value">
+                    {{patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value}}
+                </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div data-ng-if="patientManagement.surgeries">
+        <h3>&nbsp;Surgery Details</h3>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Hospital Code</th>
+                <th>Main Surgical Procedure(s)</th>
+                <th>Other Details</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-ng-repeat="surgery in patientManagement.surgeries">
+                <td>{{surgery.date | date:'dd-MMM-yyyy'}}</td>
+                <td>{{surgery.hospitalCode}}</td>
+                <td>
+                    <span data-ng-repeat="procedure in surgery.selectedProcedures">
+                        {{procedure.description}}<span data-ng-if="surgery.selectedProcedures.length > 1">,</span>
+                    </span>
+                </td>
+                <td>
+                    {{surgery.otherDetails}}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div data-ng-show="loadingPatientManagement" class="container">
+    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Patient Management</h3>
+    <br/>
+</div>

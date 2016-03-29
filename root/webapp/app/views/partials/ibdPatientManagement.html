@@ -201,7 +201,7 @@
         </div>
     </div>
 
-    <div class="row" data-ng-if="patientManagement.diagnosis.code === 'Crohn\'s Disease'">
+    <div class="row" data-ng-if="patientManagement.diagnosis.code === 'CD'">
         <div class="col-md-3">
             <label for="location-crohns" class="control-label">
                 Location
@@ -246,7 +246,7 @@
 
     <div data-ng-if="patientManagement.diagnosis !== undefined">
         <div class="row">
-            <div class="col-md-3" data-ng-if="patientManagement.diagnosis.code === 'Ulcerative Colitis' || patientManagement.diagnosis.code === 'IBDU'">
+            <div class="col-md-3" data-ng-if="patientManagement.diagnosis.code === 'UC' || patientManagement.diagnosis.code === 'IBDU'">
                 <label for="ibd_ucextent" class="control-label">
                     Location
                 </label>

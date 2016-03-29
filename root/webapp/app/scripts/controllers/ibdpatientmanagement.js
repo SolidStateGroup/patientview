@@ -463,6 +463,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     = (date.getDate() < 10 ? "0" : null) + (date.getDate());
                 $scope.patientManagement.diagnosisDate.selectedMonth
                     = (date.getMonth()+1 < 10 ? "0" : null) + (date.getMonth()+1);
+
+                // used for read only
+                $scope.patientManagement.diagnosisDate.date = date;
             }
         }
 
