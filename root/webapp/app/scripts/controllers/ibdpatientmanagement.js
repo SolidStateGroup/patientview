@@ -323,7 +323,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
     // handle broadcast message from parent
     $scope.$on('patientManagementInit', function() {
-        console.log('patientManagementInit');
         init();
     });
 
