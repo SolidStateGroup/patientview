@@ -9,7 +9,7 @@
 <div>
     <div>
         <ul class="nav nav-tabs">
-            <li data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD_PATIENT_MANAGEMENT'">My IBD (Patient Management)</a></li>
+            <li data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD_PATIENT_MANAGEMENT'">My IBD (PM)</a></li>
             <li data-ng-class="{active:activeTab === 'MY_IBD'}"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
@@ -19,12 +19,11 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><h3>My IBD</h3></div>
-                            <div data-ng-include src="'views/partials/ibdPatientManagementReadOnly.html'" data-ng-controller="IbdPatientManagementCtrl"></div>
-                        </div>
+                <div data-ng-include src="'views/partials/ibdPatientManagementReadOnly.html'" data-ng-controller="IbdPatientManagementCtrl" data-ng-if="primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!primaryDiagnosis">
+                    <div class="panel-heading"><h3>My IBD</h3></div>
+                    <div class="panel-info">
+                        <p class="no-data">Your details for My IBD have not yet been added to PatientView.</p>
                     </div>
                 </div>
             </div>

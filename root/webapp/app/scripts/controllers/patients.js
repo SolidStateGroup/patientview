@@ -707,6 +707,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 });
             }
 
+            // timeout required to send broadcast after everything else done
             $timeout(function() {
                 getPatientManagement(user);
             });
@@ -756,7 +757,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     $scope.patientManagement.identifierId = patientManagementIdentifierId;
                     $scope.patientManagement.userId = user.id;
 
-                    $scope.$broadcast('patientManagementInit', {});
+                    $timeout(function() {
+                        $scope.$broadcast('patientManagementInit', {});
+                    });
                 }, function () {
                     alert('Error retrieving patient management information');
                 });

@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-    'ObservationService', '$routeParams', 'DiagnosisService',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService) {
+    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout) {
 
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
@@ -269,7 +269,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
                     $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
-                    if ($scope.currentSpecialty.code === "IBD") {
+                    // only SALIBD gets 'old' myIBD without patient management
+                    if ($scope.currentSpecialty.code === "IBD" && $scope.patientDetails[i].group.code === "SALIBD") {
                         // create myIBD object if present
                         $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
@@ -280,6 +281,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                         $scope.patientDetails[i].myIbd.primaryDiagnosis.description = 'Heart Failure';
                     }
                 }
+
+                console.log($scope.patientDetails[0]);
 
                 // used for other my ibd tabs
                 if ($scope.patientDetails[0] && $scope.patientDetails[0].myIbd) {
@@ -328,7 +331,10 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             alert('Error getting specialties');
         }
 
-        getPatientManagement($scope.loggedInUser);
+        // timeout required to send broadcast after everything else done
+        $timeout(function() {
+            getPatientManagement($scope.loggedInUser);
+        });
     };
 
     $scope.changeSpecialty = function(specialty) {
