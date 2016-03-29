@@ -224,7 +224,15 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             Condition condition = (Condition) fhirResource.get(
                     existingMainConditionUuids.get(0), ResourceType.Condition);
             if (condition != null) {
-                patientManagement.setFhirCondition(new FhirCondition(condition));
+                FhirCondition fhirCondition = new FhirCondition(condition);
+
+                // check if code exists, if so then add links (used in ui)
+                Code code = codeRepository.findOneByCode(fhirCondition.getCode());
+                if (code != null) {
+                    fhirCondition.setLinks(code.getLinks());
+                }
+
+                patientManagement.setFhirCondition(fhirCondition);
             }
         }
 

@@ -19,8 +19,8 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}">
-                <div data-ng-include src="'views/partials/ibdPatientManagementReadOnly.html'" data-ng-controller="IbdPatientManagementCtrl" data-ng-if="primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!primaryDiagnosis">
+                <div data-ng-include src="'views/partials/ibdPatientManagementReadOnly.html'" data-ng-controller="IbdPatientManagementCtrl" data-ng-show="primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-show="!primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>
                     <div class="panel-info">
                         <p class="no-data">Your details for My IBD have not yet been added to PatientView.</p>

@@ -215,13 +215,13 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="panel panel-default" data-ng-if="patientManagement.links.length">
+        <div class="panel panel-default" data-ng-if="patientManagement.diagnosis.links">
             <div class="panel-heading">
                 <h3>Useful Links</h3>
             </div>
             <div class="panel-body">
                 <ul>
-                    <li data-ng-repeat="link in patientManagement.links | orderBy:'displayOrder'" class="links-li">
+                    <li data-ng-repeat="link in patientManagement.diagnosis.links | orderBy:'displayOrder'" class="links-li">
                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                     </li>
                 </ul>

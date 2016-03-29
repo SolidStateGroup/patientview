@@ -25,7 +25,7 @@ public class FhirCondition extends BaseModel {
     private Group group;
     private String identifier;
 
-    // used by my IBD to insert links
+    // used by my IBD and patient management to insert links
     private Set<Link> links;
 
     // pulled from Code if present (set separately to constructor)
