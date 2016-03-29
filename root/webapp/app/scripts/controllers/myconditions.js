@@ -275,8 +275,15 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
                         // create myIBD object if present
                         $scope.patientDetails[i].myIbd = {};
-                        $scope.patientDetails[i].myIbd.primaryDiagnosis = 'Heart Failure';
+                        $scope.patientDetails[i].myIbd.primaryDiagnosis = {};
+                        $scope.patientDetails[i].myIbd.primaryDiagnosis.code = 'Heart Failure';
+                        $scope.patientDetails[i].myIbd.primaryDiagnosis.description = 'Heart Failure';
                     }
+                }
+
+                // used for other my ibd tabs
+                if ($scope.patientDetails[0] && $scope.patientDetails[0].myIbd) {
+                    $scope.primaryDiagnosis = $scope.patientDetails[0].myIbd.primaryDiagnosis;
                 }
 
                 $scope.loading = false;

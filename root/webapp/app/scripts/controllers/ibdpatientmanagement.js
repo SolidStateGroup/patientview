@@ -451,6 +451,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             for (i = 0; i < $scope.patientManagement.diagnoses.length; i++) {
                 if ($scope.patientManagement.diagnoses[i].code == $scope.patientManagement.fhirCondition.code) {
                     $scope.patientManagement.diagnosis = $scope.patientManagement.diagnoses[i];
+
+                    // used for other my ibd tabs
+                    $scope.$parent.primaryDiagnosis =  $scope.patientManagement.diagnoses[i];
                 }
             }
 

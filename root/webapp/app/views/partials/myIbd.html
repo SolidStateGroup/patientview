@@ -6,25 +6,25 @@
             <tbody>
             <tr>
                 <td class="forced-width">Primary Diagnosis</td>
-                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosis">
-                    <span data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis.description">
-                        {{patientDetails[0].myIbd.primaryDiagnosis.code}}
+                <td data-ng-if="primaryDiagnosis">
+                    <span data-ng-if="!primaryDiagnosis.description">
+                        {{primaryDiagnosis.code}}
                     </span>
-                    <span data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.description">
-                        {{patientDetails[0].myIbd.primaryDiagnosis.description}}
+                    <span data-ng-if="primaryDiagnosis.description">
+                        {{primaryDiagnosis.description}}
                     </span>
-                    <span data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.code !== patientDetails[0].myIbd.primaryDiagnosis.notes">
-                        ({{patientDetails[0].myIbd.primaryDiagnosis.notes}})
+                    <span data-ng-if="primaryDiagnosis.code !== primaryDiagnosis.notes && primaryDiagnosis.notes">
+                        ({{primaryDiagnosis.notes}})
                     </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis"></td>
+                <td data-ng-if="!primaryDiagnosis"></td>
             </tr>
             <tr>
                 <td class="forced-width">Primary Diagnosis Date</td>
-                <td data-ng-if="patientDetails[0].myIbd.primaryDiagnosis.date">
-                    {{patientDetails[0].myIbd.primaryDiagnosis.date | date:'yyyy'}}
+                <td data-ng-if="primaryDiagnosis.date">
+                    {{primaryDiagnosis.date | date:'yyyy'}}
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis.date"></td>
+                <td data-ng-if="!primaryDiagnosis.date"></td>
             </tr>
             <tr class="hidden for-generic-only" data-ng-if="patientDetails[0].fhirConditions.length">
                 <td class="forced-width">Diagnoses</td>

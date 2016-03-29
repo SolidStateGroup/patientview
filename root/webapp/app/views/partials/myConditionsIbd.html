@@ -1,9 +1,4 @@
-<div data-ng-show="!patientDetails.length">
-    <br/>
-    <p>Your conditions have not yet been added to PatientView.</p><br/>
-</div>
-
-<div class="details-filter clearfix">
+<div class="details-filter clearfix" data-ng-if="patientDetails">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
         <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
             <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected" disabled="disabled">
@@ -34,8 +29,8 @@
                 </div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_IBD'}">
-                <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/myIbd.html'" data-ng-if="primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!primaryDiagnosis">
                     <div class="panel-heading"><h3>My IBD</h3></div>
                     <div class="panel-info">
                         <p class="no-data">Your details for My IBD have not yet been added to PatientView.</p>
@@ -46,8 +41,8 @@
                 <div data-ng-include src="'views/partials/ibdControl.html'" data-ng-controller="IbdControlCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}">
-                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="patientDetails[0].myIbd.primaryDiagnosis"></div>
-                <div class="panel panel-default" data-ng-if="!patientDetails[0].myIbd.primaryDiagnosis">
+                <div data-ng-include src="'views/partials/symptomScores.html'" data-ng-controller="SymptomScoresCtrl" data-ng-if="primaryDiagnosis"></div>
+                <div class="panel panel-default" data-ng-if="!primaryDiagnosis">
                     <div class="panel-heading"><h3>Symptom Checker</h3></div>
                     <div class="panel-info">
                         <p class="no-data">Your details, required for use in the Symptom Checker have not yet been added to PatientView.</p>
