@@ -99,18 +99,10 @@
     </div>
 </script>
 
-<div data-ng-show="!loading">
+<div data-ng-show="!loadingPatientManagement">
     <hr>
+    <h2 class="text-center">IBD Patient Management</h2>
     <h3>Personal Details</h3>
-
-    <div class="row" data-ng-if="patientManagement.errorMessage.length">
-        <br/>
-        <div class="col-md-12">
-            <div class="alert alert-danger">
-                <span ng-bind-html="patientManagement.errorMessage"></span>
-            </div>
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-md-3">
@@ -309,7 +301,7 @@
         <div class="row" data-ng-if="patientManagement.surgeries.length">
             <div class="col-md-12">
                 <table class="table">
-                    <thead class="table-head">
+                    <thead>
                         <tr>
                             <th>Date</th>
                             <th>Hospital Code</th>
@@ -388,8 +380,26 @@
                     Year for Colonoscopy Surveillance
                 </label>
                 <select data-ng-model="patientManagement.answers['IBD_COLONOSCOPYSURVEILLANCE'].value"
-                        data-ng-options="year as year for year in yearsPlusSix"
+                        data-ng-options="year.toString() as year for year in yearsPlusSix"
                         class="form-control" id="colonoscopysurveillance"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="patientManagement.errorMessage.length">
+        <br/>
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                <span ng-bind-html="patientManagement.errorMessage"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="patientManagement.successMessage.length">
+        <br/>
+        <div class="col-md-12">
+            <div class="alert alert-success">
+                <span ng-bind-html="patientManagement.successMessage"></span>
             </div>
         </div>
     </div>
@@ -397,12 +407,14 @@
     <div class="row">
         <div class="col-md-12">
             <button type="button" class="btn blue pull-right" data-ng-click="savePatientManagement()"
-                    data-ng-show="permissions.canEditPatients">Save Patient Management Information</button>
+                    data-ng-show="permissions.canEditPatients" data-ng-disabled="patientManagement.saving">
+                Save Patient Management Information
+            </button>
         </div>
     </div>
 </div>
 
-<div data-ng-show="loading" class="container">
-    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+<div data-ng-show="loadingPatientManagement" class="container">
+    <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Patient Management</h3>
     <br/>
 </div>

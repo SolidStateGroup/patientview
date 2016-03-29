@@ -369,7 +369,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     public List<UUID> getPractitionerLogicalUuidsByNameAndRole(final String name, final String role)
             throws FhirResourceException {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT  version_id, logical_id ");
+        query.append("SELECT logical_id ");
         query.append("FROM practitioner ");
         query.append("WHERE content -> 'name' #>> '{family,0}' = '");
         query.append(name.replace("'","''"));

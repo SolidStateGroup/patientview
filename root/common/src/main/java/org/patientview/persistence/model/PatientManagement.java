@@ -3,7 +3,8 @@ package org.patientview.persistence.model;
 import java.util.List;
 
 /**
- * PatientManagement, used when creating new users, initially for IBD
+ * PatientManagement, used when creating new users and updating existing user's patient management info,
+ * initially for IBD.
  * Created by jamesr@solidstategroup.com
  * Created on 17/03/2016
  */

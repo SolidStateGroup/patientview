@@ -197,7 +197,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public Long add(User user) throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
+    public Long add(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException,
+            FhirResourceException {
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
             throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }

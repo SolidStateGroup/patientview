@@ -41,7 +41,8 @@ public interface UserService {
      * @return Lond ID of newly created User
      * @throws EntityExistsException
      */
-    Long add(User user) throws EntityExistsException, ResourceNotFoundException, FhirResourceException;
+    Long add(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException,
+            FhirResourceException;
 
     /**
      * Add a Feature to a User.

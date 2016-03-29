@@ -10,6 +10,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
@@ -70,9 +71,10 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
-        // native delete
+        // native delete, ignore with severity MAIN as used by ibd patient management
         fhirResource.executeSQL(
-                "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "'"
+                "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
+                "AND CONTENT -> 'severity' ->> 'text' != '" + DiagnosisSeverityTypes.MAIN.toString() + "'"
         );
     }
 

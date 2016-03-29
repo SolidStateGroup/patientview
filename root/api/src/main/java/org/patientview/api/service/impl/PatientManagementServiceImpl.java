@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
@@ -12,7 +13,9 @@ import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.PatientManagementService;
+import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Code;
@@ -104,13 +107,17 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private UserService userService;
+
     @Override
     public PatientManagement get(Long userId, Long groupId, Long identifierId)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("user not found");
         }
+
         Group group = groupRepository.findOne(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("group not found");
@@ -178,10 +185,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                 "encounter", fhirLink.getResourceId(), EncounterTypes.SURGERY.toString());
 
         if (!CollectionUtils.isEmpty(encounterUuids)) {
+            patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
             for (UUID encounterUuid : encounterUuids) {
                 Encounter encounter = (Encounter) fhirResource.get(encounterUuid, ResourceType.Encounter);
                 if (encounter != null) {
-                    patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
                     FhirEncounter fhirEncounter = new FhirEncounter(encounter);
 
                     // observations
@@ -209,29 +216,52 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
+        // get fhir condition (MAIN DIAGNOSIS), should only be one
+        List<UUID> existingMainConditionUuids = fhirResource.getConditionLogicalIds(
+                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString());
+
+        if (!CollectionUtils.isEmpty(existingMainConditionUuids)) {
+            Condition condition = (Condition) fhirResource.get(
+                    existingMainConditionUuids.get(0), ResourceType.Condition);
+            if (condition != null) {
+                patientManagement.setFhirCondition(new FhirCondition(condition));
+            }
+        }
+
         return patientManagement;
     }
 
     @Override
     public void save(org.patientview.persistence.model.User user, Group group, Identifier identifier,
-                     PatientManagement patientManagement) throws ResourceNotFoundException, FhirResourceException {
+                     PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         if (user == null) {
             throw new ResourceNotFoundException("user must be set");
         }
         if (!userRepository.exists(user.getId())) {
             throw new ResourceNotFoundException("user does not exist");
         }
+
+        if (!userService.currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("forbidden");
+        }
+
         if (group == null) {
             throw new ResourceNotFoundException("group must be set");
         }
         if (!groupRepository.exists(group.getId())) {
             throw new ResourceNotFoundException("group does not exist");
         }
+
         if (identifier == null) {
             throw new ResourceNotFoundException("identifier must be set");
         }
         if (!identifierRepository.exists(identifier.getId())) {
             throw new ResourceNotFoundException("identifier does not exist");
+        }
+
+        if (!identifier.getUser().equals(user)) {
+            throw new ResourceNotFoundException("incorrect user identifier");
         }
 
         FhirLink fhirLink = null;
@@ -276,9 +306,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         }
 
         // update FHIR Encounters (surgeries)
-        if (!CollectionUtils.isEmpty(patientManagement.getFhirEncounters())) {
-            saveEncounterDetails(fhirLink, patientManagement.getFhirEncounters(), organizationUuid);
-        }
+        saveEncounterDetails(fhirLink, patientManagement.getFhirEncounters(), organizationUuid);
 
         // update FHIR observations (selects and text fields)
         if (!CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
@@ -289,6 +317,40 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (!CollectionUtils.isEmpty(patientManagement.getFhirPractitioners())) {
             savePractitionerDetails(fhirLink, patientManagement.getFhirPractitioners());
         }
+    }
+
+    @Override
+    public void save(Long userId, Long groupId, Long identifierId, PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        if (userId == null) {
+            throw new ResourceNotFoundException("user must be set");
+        }
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("user does not exist");
+        }
+
+        if (groupId == null) {
+            throw new ResourceNotFoundException("group must be set");
+        }
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("group does not exist");
+        }
+
+        if (identifierId == null) {
+            throw new ResourceNotFoundException("identifier must be set");
+        }
+        Identifier identifier = identifierRepository.findOne(identifierId);
+        if (identifier == null) {
+            throw new ResourceNotFoundException("identifier does not exist");
+        }
+
+        if (patientManagement == null) {
+            throw new ResourceNotFoundException("patient management data must be set");
+        }
+
+        save(user, group, identifier, patientManagement);
     }
 
     private void saveConditionDetails(FhirLink fhirLink, FhirCondition fhirCondition) throws FhirResourceException {

@@ -26,9 +26,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 /**
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
@@ -77,26 +74,9 @@ public class PatientControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
-
-    @Test
-    public void testGetPatientManagementDiagnoses() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/patientmanagement/diagnoses"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(codeService, times(1)).getPatientManagementDiagnoses();
-    }
-
-    @Test
-    public void testGetPatientManagementLookupTypes() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/patientmanagement/lookuptypes"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(lookupService, times(1)).getPatientManagementLookupTypes();
-    }
     
     @Test
     public void testUpdate() throws Exception {
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
@@ -113,7 +93,5 @@ public class PatientControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/patient/" + user.getId() + "/group/" + group.getId())
                 .content(mapper.writeValueAsString(fhirPatient)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        //verify(apiPatientService, Mockito.times(1)).update(eq(user.getId()), eq(group.getId()), eq(fhirPatient));
     }
 }

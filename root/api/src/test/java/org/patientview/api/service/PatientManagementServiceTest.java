@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.PatientManagementServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Code;
@@ -111,6 +112,9 @@ public class PatientManagementServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserService userService;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -122,7 +126,7 @@ public class PatientManagementServiceTest {
     }
 
     @Test
-    public void testSave() throws ResourceNotFoundException, FhirResourceException {
+    public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         Date now = new Date();
         UUID organizationUuid = UUID.randomUUID();
 
@@ -207,6 +211,7 @@ public class PatientManagementServiceTest {
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
         when(practitionerService.add(eq(fhirPractitioner))).thenReturn(practitionerUuid);
         when(userRepository.exists(eq(patient.getId()))).thenReturn(true);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         // save
         patientManagementService.save(patient, group, identifier, patientManagement);

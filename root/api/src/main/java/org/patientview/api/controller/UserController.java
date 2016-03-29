@@ -402,7 +402,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser migrationUser)
-            throws ResourceNotFoundException, EntityExistsException, MigrationException, FhirResourceException {
+            throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException,
+            MigrationException, FhirResourceException {
         if (migrationUser.isPartialMigration()) {
             return new ResponseEntity<>(migrationService.migrateUserExisting(migrationUser), HttpStatus.CREATED);
         } else {

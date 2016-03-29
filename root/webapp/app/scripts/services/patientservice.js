@@ -49,6 +49,18 @@ function ($q, Restangular) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Save IBD patient management given user, group, identifier id
+        savePatientManagement: function (userId, groupId, identifierId, patientManagement) {
+            var deferred = $q.defer();
+            // POST /patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}
+            Restangular.one('patientmanagement', userId).one('group', groupId).one('identifier', identifierId)
+                .customPOST(patientManagement).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
         }
     };
 }]);

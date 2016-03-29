@@ -746,7 +746,16 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         if (patientManagementGroupId !== null && patientManagementIdentifierId !== null) {
             PatientService.getPatientManagement(user.id, patientManagementGroupId, patientManagementIdentifierId)
                 .then(function (patientManagement) {
-                    $scope.patientManagement = patientManagement;
+                    if (patientManagement !== undefined && patientManagement !== null) {
+                        $scope.patientManagement = patientManagement;
+                    } else {
+                        $scope.patientManagement = {};
+                    }
+
+                    $scope.patientManagement.groupId = patientManagementGroupId;
+                    $scope.patientManagement.identifierId = patientManagementIdentifierId;
+                    $scope.patientManagement.userId = user.id;
+
                     $scope.$broadcast('patientManagementInit', {});
                 }, function () {
                     alert('Error retrieving patient management information');

@@ -5,6 +5,7 @@ import org.patientview.api.service.CodeService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.PatientManagement;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -44,7 +46,7 @@ public class PatientManagementController extends BaseController<PatientManagemen
     @ResponseBody
     public ResponseEntity<PatientManagement> getPatientManagement(@PathVariable("userId") Long userId,
             @PathVariable("groupId") Long groupId, @PathVariable("identifierId") Long identifierId)
-            throws ResourceNotFoundException, FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(patientManagementService.get(userId, groupId, identifierId), HttpStatus.OK);
     }
 
@@ -60,5 +62,16 @@ public class PatientManagementController extends BaseController<PatientManagemen
     @ResponseBody
     public ResponseEntity<List<LookupType>> getPatientManagementLookupTypes() {
         return new ResponseEntity<>(lookupService.getPatientManagementLookupTypes(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void savePatientManagement(@PathVariable("userId") Long userId,
+            @PathVariable("groupId") Long groupId, @PathVariable("identifierId") Long identifierId,
+            @RequestBody PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        patientManagementService.save(userId, groupId, identifierId, patientManagement);
     }
 }

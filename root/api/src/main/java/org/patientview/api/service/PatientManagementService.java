@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Group;
@@ -20,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PatientManagementService {
 
     PatientManagement get(Long userId, Long groupId, Long identifierId)
-            throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     void save(User user, Group group, Identifier identifier, PatientManagement patientManagement)
-            throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
+    void save(Long userId, Long groupId, Long identifierId, PatientManagement patientManagement)
+    throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     void validate(PatientManagement patientManagement) throws VerificationException;
 }

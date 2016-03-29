@@ -19,7 +19,8 @@ public interface MigrationService {
 
     @RoleOnly
     Long migrateUser(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, MigrationException, FhirResourceException;
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException,
+            MigrationException, FhirResourceException;
 
     @RoleOnly
     void migrateObservations(MigrationUser migrationUser)

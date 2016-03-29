@@ -21,7 +21,11 @@ public enum PatientManagementObservationTypes {
     IBD_FAMILYHISTORY("Family History"),
     IBD_ALLERGYSUBSTANCE("Allergy Substance"),
     IBD_VACCINATIONRECORD("Vaccination Record"),
-    IBD_COLONOSCOPYSURVEILLANCE("Year For Colonoscopy Surveillance");
+    IBD_COLONOSCOPYSURVEILLANCE("Year For Colonoscopy Surveillance"),
+
+    // test observation types
+    HEIGHT("Height"),
+    WEIGHT("Weight");
 
     private String name;
     PatientManagementObservationTypes(String name) { this.name = name; }

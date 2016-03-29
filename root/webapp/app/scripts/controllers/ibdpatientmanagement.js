@@ -108,6 +108,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     };
 
     var init = function() {
+        $scope.loadingPatientManagement = true;
         delete $scope.successMessage;
         var i, j;
 
@@ -163,6 +164,14 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             var observation, surgery, practitioner, encounter, procedure;
             var answers = $scope.patientManagement.answers;
 
+            // build condition (diagnosis)
+            var condition = {};
+            condition.code = $scope.patientManagement.diagnosis.code;
+            condition.date = new Date(parseInt($scope.patientManagement.diagnosisDate.selectedYear),
+                parseInt($scope.patientManagement.diagnosisDate.selectedMonth) - 1,
+                parseInt($scope.patientManagement.diagnosisDate.selectedDay));
+            $scope.patientManagement.fhirCondition = condition;
+
             // build observations (selects and text fields)
             for (var type in answers) {
                 if (answers.hasOwnProperty(type)) {
@@ -173,6 +182,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                             observation = {};
                             observation.name = type;
                             observation.value = answer.values[i].value;
+                            observation.applies = condition.date;
                             observations.push(observation);
                         }
                     }
@@ -182,26 +192,20 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                         observation = {};
                         observation.name = type;
                         observation.value = answer.option.value;
+                        observation.applies = condition.date;
                         observations.push(observation);
-                    } else if (answer.value !== undefined && answer.value.length) {
+                    } else if (answer.value !== undefined && answer.value !== null) {
                         // text
                         observation = {};
                         observation.name = type;
                         observation.value = answer.value;
+                        observation.applies = condition.date;
                         observations.push(observation);
                     }
                 }
             }
 
             $scope.patientManagement.fhirObservations = observations;
-
-            // build condition (diagnosis)
-            var condition = {};
-            condition.code = $scope.patientManagement.diagnosis.code;
-            condition.date = new Date(parseInt($scope.patientManagement.diagnosisDate.selectedYear),
-                parseInt($scope.patientManagement.diagnosisDate.selectedMonth) - 1,
-                parseInt($scope.patientManagement.diagnosisDate.selectedDay));
-            $scope.patientManagement.fhirCondition = condition;
 
             // build encounters (surgery)
             var encounters = [];
@@ -246,6 +250,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             $scope.patientManagement.fhirPractitioners = [];
 
             if ($scope.patientManagement.ibdNurse !== undefined
+                && $scope.patientManagement.ibdNurse !== null
                 && $scope.patientManagement.ibdNurse.length) {
                 practitioner = {};
                 practitioner.role = 'IBD_NURSE';
@@ -254,6 +259,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             }
 
             if ($scope.patientManagement.namedConsultant !== undefined
+                && $scope.patientManagement.namedConsultant !== null
                 && $scope.patientManagement.namedConsultant.length) {
                 practitioner = {};
                 practitioner.role = 'NAMED_CONSULTANT';
@@ -264,17 +270,17 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             // postcode
             $scope.patientManagement.fhirPatient = {};
             if ($scope.patientManagement.postcode !== undefined
+                && $scope.patientManagement.postcode !== null
                 && $scope.patientManagement.postcode.length) {
                 $scope.patientManagement.fhirPatient.postcode = $scope.patientManagement.postcode;
             }
 
             // gender
             if ($scope.patientManagement.gender !== undefined
+                && $scope.patientManagement.gender !== null
                 && $scope.patientManagement.gender.description.length) {
                 $scope.patientManagement.fhirPatient.gender = $scope.patientManagement.gender.description;
             }
-
-            console.log($scope.patientManagement);
         };
 
         // get lookups and minimal diagnoses list
@@ -320,10 +326,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         init();
     });
 
-    //
     var populateUi = function() {
-        var i, j;
-        //console.log($scope.patientManagement);
+        var i, j, k, date;
 
         // fhirPatient
         if ($scope.patientManagement.fhirPatient !== undefined && $scope.patientManagement.fhirPatient !== null) {
@@ -353,7 +357,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 var answer = $scope.patientManagement.answers[name];
                 var lookup = $scope.lookupMap[name];
 
-                if (lookup !== undefined  && lookup !== null && answer !== undefined && answer !== null) {
+                if (lookup !== undefined && lookup !== null && answer !== undefined && answer !== null) {
                     // is a lookup value, either SELECT or MULTI_SELECT
                     if (answer.type === 'SELECT') {
                         for (j = 0; j < lookup.length; j++) {
@@ -373,9 +377,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                             }
                         }
                     }
-                } else if (answer !== undefined && answer !== null) {
-                    // is a simple text value
-                    answer.value = observation.value;
+                } else if (answer !== undefined && answer !== null
+                    && observation.value !== undefined && observation.value !== null) {
+                    // is a simple text value, strip .0 (added by fhir save) to handle years
+                    answer.value = observation.value.replace('.0', '').toString();
                 }
             }
         }
@@ -383,11 +388,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // fhirPractitioners
         if ($scope.patientManagement.fhirPractitioners !== undefined
             && $scope.patientManagement.fhirPractitioners !== null) {
-            //console.log($scope.patientManagement.fhirPractitioners);
 
             for (i = 0; i < $scope.patientManagement.fhirPractitioners.length; i++) {
                 var practitioner = $scope.patientManagement.fhirPractitioners[i];
-                //console.log(practitioner);
                 if (practitioner.role == 'IBD_NURSE') {
                     $scope.patientManagement.ibdNurse = practitioner.name;
                 }
@@ -398,12 +401,72 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
 
         // fhirEncounters (surgery)
+        $scope.patientManagement.surgeries = [];
+
         if ($scope.patientManagement.fhirEncounters !== undefined && $scope.patientManagement.fhirEncounters !== null) {
             for (i = 0; i < $scope.patientManagement.fhirEncounters.length; i++) {
                 var encounter = $scope.patientManagement.fhirEncounters[i];
-                console.log(encounter);
+                var surgery = {};
+                surgery.selectedProcedures = [];
+
+                // date
+                surgery.date = encounter.date;
+                date = new Date(encounter.date);
+                surgery.selectedYear = date.getFullYear();
+                surgery.selectedDay = (date.getDate() < 10 ? "0" : null) + (date.getDate());
+                surgery.selectedMonth = (date.getMonth()+1 < 10 ? "0" : null) + (date.getMonth()+1);
+
+                // procedures
+                var procedureTypes = $scope.lookupMap['IBD_SURGERYMAINPROCEDURE'];
+
+                for (j = 0; j < encounter.procedures.length; j++) {
+                    for (k = 0; k < procedureTypes.length; k++) {
+                        if (encounter.procedures[j].bodySite == procedureTypes[k].value) {
+                            surgery.selectedProcedures.push(procedureTypes[k]);
+                        }
+                    }
+                }
+
+                // observations
+                for (j = 0; j < encounter.observations.length; j++) {
+                    if (encounter.observations[j].name == 'SURGERY_HOSPITAL_CODE') {
+                        surgery.hospitalCode = encounter.observations[j].value;
+                    } else if (encounter.observations[j].name == 'SURGERY_OTHER_DETAILS') {
+                        surgery.otherDetails = encounter.observations[j].value;
+                    }
+                }
+
+                // for removing
+                surgery.id = Math.floor(Math.random() * 9999999) + 1;
+
+                $scope.patientManagement.surgeries.push(surgery);
             }
         }
+
+        // fhirCondition (diagnosis)
+        if ($scope.patientManagement.fhirCondition !== undefined && $scope.patientManagement.fhirCondition !== null) {
+            $scope.patientManagement.diagnosis = {};
+
+            // diagnosis
+            for (i = 0; i < $scope.patientManagement.diagnoses.length; i++) {
+                if ($scope.patientManagement.diagnoses[i].code == $scope.patientManagement.fhirCondition.code) {
+                    $scope.patientManagement.diagnosis = $scope.patientManagement.diagnoses[i];
+                }
+            }
+
+            // date
+            if ($scope.patientManagement.fhirCondition.date) {
+                date = new Date($scope.patientManagement.fhirCondition.date);
+                $scope.patientManagement.diagnosisDate = {};
+                $scope.patientManagement.diagnosisDate.selectedYear = date.getFullYear();
+                $scope.patientManagement.diagnosisDate.selectedDay
+                    = (date.getDate() < 10 ? "0" : null) + (date.getDate());
+                $scope.patientManagement.diagnosisDate.selectedMonth
+                    = (date.getMonth()+1 < 10 ? "0" : null) + (date.getMonth()+1);
+            }
+        }
+
+        delete $scope.loadingPatientManagement;
     };
 
     $scope.removeEgimComplication = function (complication) {
@@ -420,7 +483,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         var surgeries = [];
         for (var i = 0; i < $scope.patientManagement.surgeries.length; i++) {
             if ($scope.patientManagement.surgeries[i].id !== surgery.id) {
-                surgeries.push(surgery);
+                surgeries.push($scope.patientManagement.surgeries[i]);
             }
         }
         $scope.patientManagement.surgeries = surgeries;
@@ -428,6 +491,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
     // used when saving independently of creating user
     $scope.savePatientManagement = function () {
+        delete $scope.patientManagement.successMessage;
+        $scope.patientManagement.saving = true;
+
         var valid = $scope.patientManagement.validate();
         if (valid) {
             $scope.patientManagement.buildFhirObjects();
@@ -439,12 +505,18 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
             patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
 
-            console.log("Save Patient Management");
-            console.log($scope.patientManagement);
-            console.log(patientManagement);
+            PatientService.savePatientManagement($scope.patientManagement.userId, $scope.patientManagement.groupId,
+                $scope.patientManagement.identifierId, patientManagement).then(function() {
+                $scope.patientManagement.successMessage = "Saved Patient Management Information";
+                $scope.patientManagement.saving = false;
+            }, function () {
+                $scope.patientManagement.errorMessage = "Error Saving Patient Management Information";
+                $scope.patientManagement.saving = false;
+            });
+        } else {
+            $scope.patientManagement.saving = false;
         }
     };
-
 
     $scope.showSurgeryModal = function() {
         // open modal and pass in required objects for use in modal scope
@@ -462,20 +534,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
             }
         });
-
-        $scope.patientManagement.validate();
-        if (!$scope.patientManagement.errorMessage.length) {
-            $scope.patientManagement.buildFhirObjects();
-
-            var patientManagement = {};
-            patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
-            patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
-            patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
-            patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
-            patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
-
-            console.log(patientManagement);
-        }
 
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {

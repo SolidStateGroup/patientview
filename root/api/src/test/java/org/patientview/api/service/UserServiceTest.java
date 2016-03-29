@@ -143,7 +143,8 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAdd_staff() throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
+    public void testAdd_staff() throws EntityExistsException, ResourceForbiddenException,
+            ResourceNotFoundException, FhirResourceException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
