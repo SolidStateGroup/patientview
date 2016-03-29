@@ -13,6 +13,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -191,6 +192,12 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                 for (FhirCondition diagnosis : fhirClinicalData.getDiagnoses()) {
                     try {
                         diagnosis.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+
+                        // set MAIN diagnosis as first in list
+                        if (successCount == 0) {
+                            diagnosis.setSeverity(DiagnosisSeverityTypes.MAIN.toString());
+                        }
+
                         conditionService.add(diagnosis, fhirLink);
                         successCount++;
                     } catch (FhirResourceException fre) {
