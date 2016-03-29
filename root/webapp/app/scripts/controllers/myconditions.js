@@ -140,18 +140,21 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
     var createMyIbd = function(patient) {
         var myIbd = {};
-        var i, j, split;
+        var i, j;
 
         for (i = 0; i < patient.fhirObservations.length; i++) {
             var observation = patient.fhirObservations[i];
+
+            //console.log(observation);
+
             // NonTestObservationTypes
             if (observation.name === "BODY_SITE_AFFECTED") {
                 myIbd.bodySiteAffected = createSplitArray(observation.value);
             }
-            if (observation.name === "COLONOSCOPY_SURVEILLANCE") {
+            if (observation.name === "COLONOSCOPY_SURVEILLANCE" || observation.name === "IBD_COLONOSCOPYSURVEILLANCE") {
                 myIbd.colonoscopySurveillance = observation.applies;
             }
-            if (observation.name === "FAMILY_HISTORY") {
+            if (observation.name === "FAMILY_HISTORY" || observation.name === "IBD_FAMILYHISTORY") {
                 myIbd.familyHistory = createSplitArray(observation.value);
             }
             if (observation.name === "IBD_DISEASE_COMPLICATIONS") {
@@ -169,7 +172,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             if (observation.name === "SMOKING_HISTORY") {
                 myIbd.smokingHistory = createSplitArray(observation.value);
             }
-            if (observation.name === "VACCINATION_RECORD") {
+            if (observation.name === "VACCINATION_RECORD" || observation.name === "IBD_VACCINATIONRECORD") {
                 myIbd.vaccinationRecord = createSplitArray(observation.value);
             }
         }
@@ -281,8 +284,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                         $scope.patientDetails[i].myIbd.primaryDiagnosis.description = 'Heart Failure';
                     }
                 }
-
-                console.log($scope.patientDetails[0]);
 
                 // used for other my ibd tabs
                 if ($scope.patientDetails[0] && $scope.patientDetails[0].myIbd) {

@@ -1,6 +1,6 @@
 <style>
-    .name-action-list li .feature-list-name {
-        margin-right: 10px;
+    .subtitle {
+        margin-left: 10px;
     }
 </style>
 
@@ -9,6 +9,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h3>My IBD</h3></div>
             <div data-ng-show="!loadingPatientManagement">
+                <h3 class="subtitle">Personal Details</h3>
                 <table class="table table-bordered">
                     <tbody>
                     <tr>
@@ -67,6 +68,13 @@
                             </span>
                         </td>
                     </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subtitle">Diagnosis Details</h3>
+
+                <table class="table table-bordered">
+                    <tbody>
                     <tr>
                         <td class="forced-width">Diagnosis</td>
                         <td>
@@ -141,6 +149,13 @@
                             </span>
                         </td>
                     </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subtitle">Further Clinical Information</h3>
+
+                <table class="table table-bordered">
+                    <tbody>
                     <tr>
                         <td class="forced-width">Smoking Status</td>
                         <td>
@@ -184,7 +199,7 @@
                     </tbody>
                 </table>
                 <div data-ng-if="patientManagement.surgeries">
-                    <h3>&nbsp;Surgery Details</h3>
+                    <h3 class="subtitle">Surgeries</h3>
 
                     <table class="table">
                         <thead>

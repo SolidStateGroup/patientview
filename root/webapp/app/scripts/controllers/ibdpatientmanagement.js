@@ -453,7 +453,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 if ($scope.patientManagement.diagnoses[i].code == $scope.patientManagement.fhirCondition.code) {
                     $scope.patientManagement.diagnosis = $scope.patientManagement.diagnoses[i];
 
-                    console.log($scope.patientManagement.fhirCondition);
                     // used for other my ibd tabs
                     $scope.$parent.primaryDiagnosis =  $scope.patientManagement.diagnoses[i];
                 }
