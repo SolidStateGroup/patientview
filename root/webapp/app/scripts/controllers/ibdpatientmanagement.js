@@ -4,7 +4,7 @@
 var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService', 'lookupMap',
     function ($scope, $rootScope, $modalInstance, UtilService, lookupMap) {
         var init = function () {
-            $scope.patientManagement.lookupMap = lookupMap;
+            $scope.lookupMap = lookupMap;
             $scope.months = UtilService.generateMonths();
             $scope.years = UtilService.generateYears();
             $scope.days = UtilService.generateDays();

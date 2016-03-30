@@ -116,7 +116,7 @@
                 Gender
             </label>
             <select id="gender" data-ng-model="patientManagement.gender"
-                    data-ng-options="option as option.description for option in lookupMap['GENDER'] | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.lookupMap['GENDER'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -208,7 +208,7 @@
             </label>
             <br/>
             <select id="location-crohns" data-ng-model="patientManagement.answers['IBD_CROHNSLOCATION'].option"
-                    data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSLOCATION'] | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_CROHNSLOCATION'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -218,7 +218,7 @@
             </label>
             <br/>
             <select id="proximal" data-ng-model="patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option"
-                    data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSPROXIMALTERMINALILEUM'] | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_CROHNSPROXIMALTERMINALILEUM'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -228,7 +228,7 @@
             </label>
             <br/>
             <select id="perianal" data-ng-model="patientManagement.answers['IBD_CROHNSPERIANAL'].option"
-                    data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSPERIANAL'] | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_CROHNSPERIANAL'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -238,7 +238,7 @@
             </label>
             <br/>
             <select id="complications" data-ng-model="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option"
-                    data-ng-options="option as option.description for option in lookupMap['IBD_CROHNSBEHAVIOUR'] | orderBy:'displayOrder'"
+                    data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_CROHNSBEHAVIOUR'] | orderBy:'displayOrder'"
                     class="form-control">
             </select>
         </div>
@@ -252,7 +252,7 @@
                 </label>
                 <br/>
                 <select id="ibd_ucextent" data-ng-model="patientManagement.answers['IBD_UCEXTENT'].option"
-                        data-ng-options="option as option.description for option in lookupMap['IBD_UCEXTENT'] | orderBy:'displayOrder'"
+                        data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_UCEXTENT'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
             </div>
@@ -262,7 +262,7 @@
                 </label>
                 <br/>
                 <select id="ibd_egimcomplications" data-ng-model="complication"
-                        data-ng-options="option as option.description for option in lookupMap['IBD_EGIMCOMPLICATION'] | orderBy:'displayOrder'"
+                        data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_EGIMCOMPLICATION'] | orderBy:'displayOrder'"
                         class="form-control" data-ng-change="addEgimComplication(complication)">
                 </select>
             </div>
@@ -292,7 +292,7 @@
                 </label>
                 <br/>
                 <input type="text" class="form-control" id="ibd_egimcomplicationsother"
-                       data-ng-model="patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'].value" debounce="500">
+                       data-ng-model="patientManagement.answers['IBD_EGIMCOMPLICATIONSOTHER'].value" debounce="300">
             </div>
         </div>
 
@@ -347,7 +347,7 @@
                     Smoking Status
                 </label>
                 <select id="ibd_smokingstatus" data-ng-model="patientManagement.answers['IBD_SMOKINGSTATUS'].option"
-                        data-ng-options="option as option.description for option in lookupMap['IBD_SMOKINGSTATUS'] | orderBy:'displayOrder'"
+                        data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_SMOKINGSTATUS'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
             </div>
@@ -356,7 +356,7 @@
                     Family History of IBD
                 </label>
                 <select id="ibd_familyhistory" data-ng-model="patientManagement.answers['IBD_FAMILYHISTORY'].option"
-                        data-ng-options="option as option.description for option in lookupMap['IBD_FAMILYHISTORY'] | orderBy:'displayOrder'"
+                        data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_FAMILYHISTORY'] | orderBy:'displayOrder'"
                         class="form-control">
                 </select>
             </div>
@@ -364,13 +364,13 @@
                 <label for="allergysubstance" class="control-label">
                     Allergies & Drug Reactions
                 </label>
-                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.answers['IBD_ALLERGYSUBSTANCE'].value" debounce="500">
+                <input type="text" class="form-control" id="allergysubstance" data-ng-model="patientManagement.answers['IBD_ALLERGYSUBSTANCE'].value" debounce="300">
             </div>
             <div class="col-md-3">
                 <label for="vaccinationrecord" class="control-label">
                     Vaccination Record
                 </label>
-                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.answers['IBD_VACCINATIONRECORD'].value" debounce="500">
+                <input type="text" class="form-control" id="vaccinationrecord" data-ng-model="patientManagement.answers['IBD_VACCINATIONRECORD'].value" debounce="300">
             </div>
         </div>
 

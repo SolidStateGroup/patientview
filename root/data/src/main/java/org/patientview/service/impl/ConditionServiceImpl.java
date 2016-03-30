@@ -10,7 +10,6 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
