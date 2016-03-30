@@ -213,6 +213,7 @@ public class PatientManagementServiceTest {
         patientManagement.setIdentifier(identifier.getIdentifier());
 
         when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(fhirPatient);
+        when(codeRepository.findOneByCode(eq(code.getCode()))).thenReturn(code);
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(group), eq(identifier)))
                 .thenReturn(new ArrayList<>(patient.getFhirLinks()));
         when(fhirResource.getLogicalIdsBySubjectIdAndNames(eq("observation"),
@@ -237,6 +238,7 @@ public class PatientManagementServiceTest {
         Assert.assertEquals("Should have saved message", "saved", serverResponse.getSuccessMessage());
 
         verify(apiPatientService, times(2)).get(eq(patient.getFhirLinks().iterator().next().getResourceId()));
+        verify(codeRepository, times(1)).findOneByCode(eq(code.getCode()));
         verify(conditionService, times(1)).add(
                 eq(patientManagement.getCondition()), eq(patient.getFhirLinks().iterator().next()));
         verify(fhirResource, times(1)).getLogicalIdsBySubjectIdAndNames(eq("observation"),

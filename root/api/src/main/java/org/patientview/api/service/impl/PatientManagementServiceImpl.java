@@ -442,6 +442,25 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                 throw new FhirResourceException("error creating diagnosis");
             }
         }
+
+        // update DIAGNOSIS_EDTA if present, used by units still sending XML data e.g. SALIBD
+        List<UUID> existingMainConditionEdtaUuids;
+
+        try {
+            existingMainConditionEdtaUuids = fhirResource.getConditionLogicalIds(
+                    fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_EDTA.toString(), null);
+        } catch (FhirResourceException fre) {
+            throw new FhirResourceException("error getting existing EDTA diagnoses");
+        }
+
+        if (!CollectionUtils.isEmpty(existingMainConditionEdtaUuids)) {
+            // update first Condition (should only be one)
+            try {
+                conditionService.update(fhirCondition, fhirLink, existingMainConditionEdtaUuids.get(0));
+            } catch (FhirResourceException fre) {
+                throw new FhirResourceException("error updating existing EDTA diagnosis");
+            }
+        }
     }
 
     private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
