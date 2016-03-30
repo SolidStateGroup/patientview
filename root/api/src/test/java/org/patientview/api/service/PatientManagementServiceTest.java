@@ -177,25 +177,25 @@ public class PatientManagementServiceTest {
         PatientManagement patientManagement = new PatientManagement();
 
         // diagnosis details
-        patientManagement.setFhirCondition(new FhirCondition());
-        patientManagement.getFhirCondition().setDate(now);
-        patientManagement.getFhirCondition().setCode(code.getCode());
+        patientManagement.setCondition(new FhirCondition());
+        patientManagement.getCondition().setDate(now);
+        patientManagement.getCondition().setCode(code.getCode());
 
         // patient details
-        patientManagement.setFhirPatient(new FhirPatient());
-        patientManagement.getFhirPatient().setPostcode("AB1 2CD");
+        patientManagement.setPatient(new FhirPatient());
+        patientManagement.getPatient().setPostcode("AB1 2CD");
 
         // encounter (surgery) details
         FhirEncounter fhirEncounter = new FhirEncounter();
-        patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
-        patientManagement.getFhirEncounters().add(fhirEncounter);
+        patientManagement.setEncounters(new ArrayList<FhirEncounter>());
+        patientManagement.getEncounters().add(fhirEncounter);
 
         // observation (selects, text fields) details
         FhirObservation fhirObservation = new FhirObservation();
         fhirObservation.setName(NonTestObservationTypes.IBD_ALLERGYSUBSTANCE.toString());
         fhirObservation.setValue("1");
-        patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
-        patientManagement.getFhirObservations().add(fhirObservation);
+        patientManagement.setObservations(new ArrayList<FhirObservation>());
+        patientManagement.getObservations().add(fhirObservation);
 
         List<UUID> existingObservationUuids = new ArrayList<>();
         existingObservationUuids.add(UUID.randomUUID());
@@ -204,8 +204,8 @@ public class PatientManagementServiceTest {
         FhirPractitioner fhirPractitioner = new FhirPractitioner();
         fhirPractitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
         fhirPractitioner.setName("nurse name");
-        patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
-        patientManagement.getFhirPractitioners().add(fhirPractitioner);
+        patientManagement.setPractitioners(new ArrayList<FhirPractitioner>());
+        patientManagement.getPractitioners().add(fhirPractitioner);
         UUID practitionerUuid = UUID.randomUUID();
 
         // import related fields
@@ -238,7 +238,7 @@ public class PatientManagementServiceTest {
 
         verify(apiPatientService, times(2)).get(eq(patient.getFhirLinks().iterator().next().getResourceId()));
         verify(conditionService, times(1)).add(
-                eq(patientManagement.getFhirCondition()), eq(patient.getFhirLinks().iterator().next()));
+                eq(patientManagement.getCondition()), eq(patient.getFhirLinks().iterator().next()));
         verify(fhirResource, times(1)).getLogicalIdsBySubjectIdAndNames(eq("observation"),
                 eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class));
         verify(fhirResource, times(2)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
@@ -295,25 +295,25 @@ public class PatientManagementServiceTest {
         PatientManagement patientManagement = new PatientManagement();
 
         // diagnosis details
-        patientManagement.setFhirCondition(new FhirCondition());
-        patientManagement.getFhirCondition().setDate(now);
-        patientManagement.getFhirCondition().setCode(code.getCode());
+        patientManagement.setCondition(new FhirCondition());
+        patientManagement.getCondition().setDate(now);
+        patientManagement.getCondition().setCode(code.getCode());
 
         // patient details
-        patientManagement.setFhirPatient(new FhirPatient());
-        patientManagement.getFhirPatient().setPostcode("AB1 2CD");
+        patientManagement.setPatient(new FhirPatient());
+        patientManagement.getPatient().setPostcode("AB1 2CD");
 
         // encounter (surgery) details
         FhirEncounter fhirEncounter = new FhirEncounter();
-        patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
-        patientManagement.getFhirEncounters().add(fhirEncounter);
+        patientManagement.setEncounters(new ArrayList<FhirEncounter>());
+        patientManagement.getEncounters().add(fhirEncounter);
 
         // observation (selects, text fields) details
         FhirObservation fhirObservation = new FhirObservation();
         fhirObservation.setName(NonTestObservationTypes.IBD_ALLERGYSUBSTANCE.toString());
         fhirObservation.setValue("1");
-        patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
-        patientManagement.getFhirObservations().add(fhirObservation);
+        patientManagement.setObservations(new ArrayList<FhirObservation>());
+        patientManagement.getObservations().add(fhirObservation);
 
         List<UUID> existingObservationUuids = new ArrayList<>();
         existingObservationUuids.add(UUID.randomUUID());
@@ -322,8 +322,8 @@ public class PatientManagementServiceTest {
         FhirPractitioner fhirPractitioner = new FhirPractitioner();
         fhirPractitioner.setRole(PractitionerRoles.IBD_NURSE.toString());
         fhirPractitioner.setName("nurse name");
-        patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
-        patientManagement.getFhirPractitioners().add(fhirPractitioner);
+        patientManagement.setPractitioners(new ArrayList<FhirPractitioner>());
+        patientManagement.getPractitioners().add(fhirPractitioner);
         UUID practitionerUuid = UUID.randomUUID();
 
         when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(fhirPatient);
@@ -345,7 +345,7 @@ public class PatientManagementServiceTest {
 
         verify(apiPatientService, times(2)).get(eq(patient.getFhirLinks().iterator().next().getResourceId()));
         verify(conditionService, times(1)).add(
-                eq(patientManagement.getFhirCondition()), eq(patient.getFhirLinks().iterator().next()));
+                eq(patientManagement.getCondition()), eq(patient.getFhirLinks().iterator().next()));
         verify(fhirResource, times(1)).getLogicalIdsBySubjectIdAndNames(eq("observation"),
                 eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class));
         verify(fhirResource, times(2)).updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
@@ -369,11 +369,11 @@ public class PatientManagementServiceTest {
         code.setCode("CD");
 
         PatientManagement patientManagement = new PatientManagement();
-        patientManagement.setFhirCondition(new FhirCondition());
-        patientManagement.getFhirCondition().setDate(now);
-        patientManagement.getFhirCondition().setCode(code.getCode());
+        patientManagement.setCondition(new FhirCondition());
+        patientManagement.getCondition().setDate(now);
+        patientManagement.getCondition().setCode(code.getCode());
 
-        when(codeRepository.findOneByCode(eq(patientManagement.getFhirCondition().getCode()))).thenReturn(code);
+        when(codeRepository.findOneByCode(eq(patientManagement.getCondition().getCode()))).thenReturn(code);
 
         patientManagementService.validate(patientManagement);
     }

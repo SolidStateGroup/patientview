@@ -142,7 +142,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         // get fhir patient
         Patient patient = (Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
         if (patient != null) {
-            patientManagement.setFhirPatient(new FhirPatient(patient));
+            patientManagement.setPatient(new FhirPatient(patient));
 
             // get practitioners
             if (!CollectionUtils.isEmpty(patient.getCareProvider())) {
@@ -157,11 +157,11 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                                 PractitionerRoles.IBD_NURSE.toString())
                             || practitioner.getRole().get(0).getTextSimple().equals(
                             PractitionerRoles.NAMED_CONSULTANT.toString()))) {
-                        if (CollectionUtils.isEmpty(patientManagement.getFhirPractitioners())) {
-                            patientManagement.setFhirPractitioners(new ArrayList<FhirPractitioner>());
+                        if (CollectionUtils.isEmpty(patientManagement.getPractitioners())) {
+                            patientManagement.setPractitioners(new ArrayList<FhirPractitioner>());
                         }
 
-                        patientManagement.getFhirPractitioners().add(new FhirPractitioner(practitioner));
+                        patientManagement.getPractitioners().add(new FhirPractitioner(practitioner));
                     }
                 }
             }
@@ -176,10 +176,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         List<Observation> observations = fhirResource.getObservationsBySubjectAndName(fhirLink.getResourceId(), names);
 
         if (!CollectionUtils.isEmpty(observations)) {
-            patientManagement.setFhirObservations(new ArrayList<FhirObservation>());
+            patientManagement.setObservations(new ArrayList<FhirObservation>());
 
             for (Observation observation : observations) {
-                patientManagement.getFhirObservations().add(new FhirObservation(observation));
+                patientManagement.getObservations().add(new FhirObservation(observation));
             }
         }
 
@@ -188,7 +188,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                 "encounter", fhirLink.getResourceId(), EncounterTypes.SURGERY.toString());
 
         if (!CollectionUtils.isEmpty(encounterUuids)) {
-            patientManagement.setFhirEncounters(new ArrayList<FhirEncounter>());
+            patientManagement.setEncounters(new ArrayList<FhirEncounter>());
             for (UUID encounterUuid : encounterUuids) {
                 Encounter encounter = (Encounter) fhirResource.get(encounterUuid, ResourceType.Encounter);
                 if (encounter != null) {
@@ -214,7 +214,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                         }
                     }
 
-                    patientManagement.getFhirEncounters().add(fhirEncounter);
+                    patientManagement.getEncounters().add(fhirEncounter);
                 }
             }
         }
@@ -235,7 +235,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                     fhirCondition.setLinks(code.getLinks());
                 }
 
-                patientManagement.setFhirCondition(fhirCondition);
+                patientManagement.setCondition(fhirCondition);
             }
         }
 
@@ -280,8 +280,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         }
 
         try {
+            validate(patientManagement);
             save(user, group, identifier, patientManagement);
-        } catch (FhirResourceException | ResourceNotFoundException | ResourceForbiddenException e) {
+        } catch (FhirResourceException | ResourceNotFoundException
+                | ResourceForbiddenException | VerificationException e) {
             return new ServerResponse(e.getMessage());
         }
 
@@ -353,26 +355,26 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         }
 
         // update FHIR patient
-        if (patientManagement.getFhirPatient() != null) {
-            savePatientDetails(fhirLink, patientManagement.getFhirPatient());
+        if (patientManagement.getPatient() != null) {
+            savePatientDetails(fhirLink, patientManagement.getPatient());
         }
 
         // update FHIR Condition (diagnosis)
-        if (patientManagement.getFhirCondition() != null) {
-            saveConditionDetails(fhirLink, patientManagement.getFhirCondition());
+        if (patientManagement.getCondition() != null) {
+            saveConditionDetails(fhirLink, patientManagement.getCondition());
         }
 
         // update FHIR Encounters (surgeries)
-        saveEncounterDetails(fhirLink, patientManagement.getFhirEncounters(), organizationUuid);
+        saveEncounterDetails(fhirLink, patientManagement.getEncounters(), organizationUuid);
 
         // update FHIR observations (selects and text fields)
-        if (!CollectionUtils.isEmpty(patientManagement.getFhirObservations())) {
-            saveObservationDetails(fhirLink, patientManagement.getFhirObservations());
+        if (!CollectionUtils.isEmpty(patientManagement.getObservations())) {
+            saveObservationDetails(fhirLink, patientManagement.getObservations());
         }
 
         // update FHIR practitioners (named consultant & ibd nurse)
-        if (!CollectionUtils.isEmpty(patientManagement.getFhirPractitioners())) {
-            savePractitionerDetails(fhirLink, patientManagement.getFhirPractitioners());
+        if (!CollectionUtils.isEmpty(patientManagement.getPractitioners())) {
+            savePractitionerDetails(fhirLink, patientManagement.getPractitioners());
         }
     }
 
@@ -584,17 +586,17 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Override
     public void validate(PatientManagement patientManagement) throws VerificationException {
-        if (patientManagement.getFhirCondition() == null) {
+        if (patientManagement.getCondition() == null) {
             throw new VerificationException("Diagnosis not set");
         }
-        if (StringUtils.isEmpty(patientManagement.getFhirCondition().getCode())) {
+        if (StringUtils.isEmpty(patientManagement.getCondition().getCode())) {
             throw new VerificationException("Diagnosis code not set");
         }
-        if (patientManagement.getFhirCondition().getDate() == null) {
+        if (patientManagement.getCondition().getDate() == null) {
             throw new VerificationException("Diagnosis date not set");
         }
 
-        Code code = codeRepository.findOneByCode(patientManagement.getFhirCondition().getCode());
+        Code code = codeRepository.findOneByCode(patientManagement.getCondition().getCode());
         if (code == null) {
             throw new VerificationException("Invalid diagnosis code");
         }

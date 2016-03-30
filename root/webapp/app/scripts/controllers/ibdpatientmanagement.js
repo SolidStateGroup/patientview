@@ -170,7 +170,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             condition.date = new Date(parseInt($scope.patientManagement.diagnosisDate.selectedYear),
                 parseInt($scope.patientManagement.diagnosisDate.selectedMonth) - 1,
                 parseInt($scope.patientManagement.diagnosisDate.selectedDay));
-            $scope.patientManagement.fhirCondition = condition;
+            $scope.patientManagement.condition = condition;
 
             // build observations (selects and text fields)
             for (var type in answers) {
@@ -205,7 +205,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
             }
 
-            $scope.patientManagement.fhirObservations = observations;
+            $scope.patientManagement.observations = observations;
 
             // build encounters (surgery)
             var encounters = [];
@@ -244,10 +244,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 encounters.push(encounter);
             }
 
-            $scope.patientManagement.fhirEncounters = encounters;
+            $scope.patientManagement.encounters = encounters;
 
             // practitioners (ibdNurse, namedConsultant)
-            $scope.patientManagement.fhirPractitioners = [];
+            $scope.patientManagement.practitioners = [];
 
             if ($scope.patientManagement.ibdNurse !== undefined
                 && $scope.patientManagement.ibdNurse !== null
@@ -255,7 +255,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 practitioner = {};
                 practitioner.role = 'IBD_NURSE';
                 practitioner.name = $scope.patientManagement.ibdNurse;
-                $scope.patientManagement.fhirPractitioners.push(practitioner);
+                $scope.patientManagement.practitioners.push(practitioner);
             }
 
             if ($scope.patientManagement.namedConsultant !== undefined
@@ -264,22 +264,22 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 practitioner = {};
                 practitioner.role = 'NAMED_CONSULTANT';
                 practitioner.name = $scope.patientManagement.namedConsultant;
-                $scope.patientManagement.fhirPractitioners.push(practitioner);
+                $scope.patientManagement.practitioners.push(practitioner);
             }
 
             // postcode
-            $scope.patientManagement.fhirPatient = {};
+            $scope.patientManagement.patient = {};
             if ($scope.patientManagement.postcode !== undefined
                 && $scope.patientManagement.postcode !== null
                 && $scope.patientManagement.postcode.length) {
-                $scope.patientManagement.fhirPatient.postcode = $scope.patientManagement.postcode;
+                $scope.patientManagement.patient.postcode = $scope.patientManagement.postcode;
             }
 
             // gender
             if ($scope.patientManagement.gender !== undefined
                 && $scope.patientManagement.gender !== null
                 && $scope.patientManagement.gender.description.length) {
-                $scope.patientManagement.fhirPatient.gender = $scope.patientManagement.gender.description;
+                $scope.patientManagement.patient.gender = $scope.patientManagement.gender.description;
             }
         };
 
@@ -330,18 +330,18 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         var i, j, k, date;
 
         // fhirPatient
-        if ($scope.patientManagement.fhirPatient !== undefined && $scope.patientManagement.fhirPatient !== null) {
+        if ($scope.patientManagement.patient !== undefined && $scope.patientManagement.patient !== null) {
             // postcode
-            if ($scope.patientManagement.fhirPatient.postcode !== undefined) {
-                $scope.patientManagement.postcode = $scope.patientManagement.fhirPatient.postcode;
+            if ($scope.patientManagement.patient.postcode !== undefined) {
+                $scope.patientManagement.postcode = $scope.patientManagement.patient.postcode;
             }
 
             // gender (set based on description)
-            if ($scope.patientManagement.fhirPatient.gender !== undefined
-                && $scope.patientManagement.fhirPatient.gender !== null) {
+            if ($scope.patientManagement.patient.gender !== undefined
+                && $scope.patientManagement.patient.gender !== null) {
                 for (i = 0; i < $scope.patientManagement.lookupMap['GENDER'].length; i++) {
                     if ($scope.patientManagement.lookupMap['GENDER'][i].description.toUpperCase()
-                        == $scope.patientManagement.fhirPatient.gender.toUpperCase()) {
+                        == $scope.patientManagement.patient.gender.toUpperCase()) {
                         $scope.patientManagement.gender = $scope.patientManagement.lookupMap['GENDER'][i];
                     }
                 }
@@ -349,10 +349,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
 
         // fhirObservations
-        if ($scope.patientManagement.fhirObservations !== undefined
-            && $scope.patientManagement.fhirObservations !== null) {
-            for (i = 0; i < $scope.patientManagement.fhirObservations.length; i++) {
-                var observation = $scope.patientManagement.fhirObservations[i];
+        if ($scope.patientManagement.observations !== undefined
+            && $scope.patientManagement.observations !== null) {
+            for (i = 0; i < $scope.patientManagement.observations.length; i++) {
+                var observation = $scope.patientManagement.observations[i];
                 var name = observation.name;
                 var answer = $scope.patientManagement.answers[name];
                 var lookup = $scope.patientManagement.lookupMap[name];
@@ -386,11 +386,11 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
 
         // fhirPractitioners
-        if ($scope.patientManagement.fhirPractitioners !== undefined
-            && $scope.patientManagement.fhirPractitioners !== null) {
+        if ($scope.patientManagement.practitioners !== undefined
+            && $scope.patientManagement.practitioners !== null) {
 
-            for (i = 0; i < $scope.patientManagement.fhirPractitioners.length; i++) {
-                var practitioner = $scope.patientManagement.fhirPractitioners[i];
+            for (i = 0; i < $scope.patientManagement.practitioners.length; i++) {
+                var practitioner = $scope.patientManagement.practitioners[i];
                 if (practitioner.role == 'IBD_NURSE') {
                     $scope.patientManagement.ibdNurse = practitioner.name;
                 }
@@ -403,9 +403,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // fhirEncounters (surgery)
         $scope.patientManagement.surgeries = [];
 
-        if ($scope.patientManagement.fhirEncounters !== undefined && $scope.patientManagement.fhirEncounters !== null) {
-            for (i = 0; i < $scope.patientManagement.fhirEncounters.length; i++) {
-                var encounter = $scope.patientManagement.fhirEncounters[i];
+        if ($scope.patientManagement.encounters !== undefined && $scope.patientManagement.encounters !== null) {
+            for (i = 0; i < $scope.patientManagement.encounters.length; i++) {
+                var encounter = $scope.patientManagement.encounters[i];
                 var surgery = {};
                 surgery.selectedProcedures = [];
 
@@ -446,12 +446,12 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
 
         // fhirCondition (diagnosis)
-        if ($scope.patientManagement.fhirCondition !== undefined && $scope.patientManagement.fhirCondition !== null) {
+        if ($scope.patientManagement.condition !== undefined && $scope.patientManagement.condition !== null) {
             $scope.patientManagement.diagnosis = {};
 
             // diagnosis
             for (i = 0; i < $scope.patientManagement.diagnoses.length; i++) {
-                if ($scope.patientManagement.diagnoses[i].code == $scope.patientManagement.fhirCondition.code) {
+                if ($scope.patientManagement.diagnoses[i].code == $scope.patientManagement.condition.code) {
                     $scope.patientManagement.diagnosis = $scope.patientManagement.diagnoses[i];
 
                     // used for other my ibd tabs
@@ -460,8 +460,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             }
 
             // date
-            if ($scope.patientManagement.fhirCondition.date) {
-                date = new Date($scope.patientManagement.fhirCondition.date);
+            if ($scope.patientManagement.condition.date) {
+                date = new Date($scope.patientManagement.condition.date);
                 $scope.patientManagement.diagnosisDate = {};
                 $scope.patientManagement.diagnosisDate.selectedYear = date.getFullYear();
                 $scope.patientManagement.diagnosisDate.selectedDay
@@ -510,11 +510,11 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             $scope.patientManagement.buildFhirObjects();
 
             var patientManagement = {};
-            patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
-            patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
-            patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
-            patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
-            patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
+            patientManagement.condition = $scope.patientManagement.condition;
+            patientManagement.encounters = $scope.patientManagement.encounters;
+            patientManagement.observations = $scope.patientManagement.observations;
+            patientManagement.patient = $scope.patientManagement.patient;
+            patientManagement.practitioners = $scope.patientManagement.practitioners;
 
             PatientService.savePatientManagement($scope.patientManagement.userId, $scope.patientManagement.groupId,
                 $scope.patientManagement.identifierId, patientManagement).then(function() {

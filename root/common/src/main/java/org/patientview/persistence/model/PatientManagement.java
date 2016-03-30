@@ -11,61 +11,61 @@ import java.util.List;
 public class PatientManagement extends BaseImport {
 
     // used for surgeries
-    private List<FhirEncounter> fhirEncounters;
+    private List<FhirEncounter> encounters;
 
     // used for selects and text fields
-    private List<org.patientview.persistence.model.FhirObservation> fhirObservations;
+    private List<org.patientview.persistence.model.FhirObservation> observations;
 
     // used for diagnosis
-    private FhirCondition fhirCondition;
+    private FhirCondition condition;
 
     // used staff members (IBD nurse, named consultant)
-    private List<FhirPractitioner> fhirPractitioners;
+    private List<FhirPractitioner> practitioners;
 
     // used for patient information, postcode etc
-    private FhirPatient fhirPatient;
+    private FhirPatient patient;
 
     public PatientManagement() {
 
     }
 
-    public List<FhirEncounter> getFhirEncounters() {
-        return fhirEncounters;
+    public List<FhirEncounter> getEncounters() {
+        return encounters;
     }
 
-    public void setFhirEncounters(List<FhirEncounter> fhirEncounters) {
-        this.fhirEncounters = fhirEncounters;
+    public void setEncounters(List<FhirEncounter> encounters) {
+        this.encounters = encounters;
     }
 
-    public List<org.patientview.persistence.model.FhirObservation> getFhirObservations() {
-        return fhirObservations;
+    public List<FhirObservation> getObservations() {
+        return observations;
     }
 
-    public void setFhirObservations(List<FhirObservation> fhirObservations) {
-        this.fhirObservations = fhirObservations;
+    public void setObservations(List<FhirObservation> observations) {
+        this.observations = observations;
     }
 
-    public FhirCondition getFhirCondition() {
-        return fhirCondition;
+    public FhirCondition getCondition() {
+        return condition;
     }
 
-    public void setFhirCondition(FhirCondition fhirCondition) {
-        this.fhirCondition = fhirCondition;
+    public void setCondition(FhirCondition condition) {
+        this.condition = condition;
     }
 
-    public List<FhirPractitioner> getFhirPractitioners() {
-        return fhirPractitioners;
+    public List<FhirPractitioner> getPractitioners() {
+        return practitioners;
     }
 
-    public void setFhirPractitioners(List<FhirPractitioner> fhirPractitioners) {
-        this.fhirPractitioners = fhirPractitioners;
+    public void setPractitioners(List<FhirPractitioner> practitioners) {
+        this.practitioners = practitioners;
     }
 
-    public FhirPatient getFhirPatient() {
-        return fhirPatient;
+    public FhirPatient getPatient() {
+        return patient;
     }
 
-    public void setFhirPatient(FhirPatient fhirPatient) {
-        this.fhirPatient = fhirPatient;
+    public void setPatient(FhirPatient patient) {
+        this.patient = patient;
     }
 }
