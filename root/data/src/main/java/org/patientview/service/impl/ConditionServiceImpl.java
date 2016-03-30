@@ -73,8 +73,7 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException {
         // native delete, ignore with severity MAIN as used by ibd patient management
         fhirResource.executeSQL(
-                "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
-                "AND CONTENT -> 'severity' ->> 'text' != '" + DiagnosisSeverityTypes.MAIN.toString() + "'"
+                "DELETE FROM condition WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' "
         );
     }
 
