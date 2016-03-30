@@ -14,6 +14,7 @@ import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -30,12 +31,14 @@ import org.patientview.persistence.model.FhirProcedure;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.PatientManagement;
+import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.model.enums.PractitionerRoles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -237,6 +240,52 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         }
 
         return patientManagement;
+    }
+
+    @Override
+    public ServerResponse importPatientManagement(PatientManagement patientManagement) {
+        if (StringUtils.isEmpty(patientManagement.getGroupCode())) {
+            return new ServerResponse("group code not set");
+        }
+        if (StringUtils.isEmpty(patientManagement.getIdentifier())) {
+            return new ServerResponse("identifier not set");
+        }
+
+        Group group = groupRepository.findByCode(patientManagement.getGroupCode());
+
+        if (group == null) {
+            return new ServerResponse("group not found");
+        }
+
+        // check current logged in user has rights to this group
+        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.IMPORTER))) {
+            return new ServerResponse("failed group and role validation");
+        }
+
+        List<Identifier> identifiers = identifierRepository.findByValue(patientManagement.getIdentifier());
+
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return new ServerResponse("identifier not found");
+        }
+        if (identifiers.size() > 1) {
+            return new ServerResponse("identifier not unique");
+        }
+
+        Identifier identifier = identifiers.get(0);
+        User user = identifier.getUser();
+
+        if (user == null) {
+            return new ServerResponse("user not found");
+        }
+
+        try {
+            save(user, group, identifier, patientManagement);
+        } catch (FhirResourceException | ResourceNotFoundException | ResourceForbiddenException e) {
+            return new ServerResponse(e.getMessage());
+        }
+
+        return new ServerResponse(null, "saved", true);
     }
 
     @Override

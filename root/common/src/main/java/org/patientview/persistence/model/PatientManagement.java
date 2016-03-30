@@ -8,7 +8,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 17/03/2016
  */
-public class PatientManagement {
+public class PatientManagement extends BaseImport {
 
     // used for surgeries
     private List<FhirEncounter> fhirEncounters;
