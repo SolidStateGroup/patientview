@@ -21,10 +21,14 @@
             </tr>
             <tr>
                 <td class="forced-width">Primary Diagnosis Date</td>
-                <td data-ng-if="primaryDiagnosis.date">
-                    {{primaryDiagnosis.date | date:'yyyy'}}
+                <td>
+                    <span data-ng-if="primaryDiagnosis.date">
+                        {{primaryDiagnosis.date | date:'yyyy'}}
+                    </span>
+                    <span data-ng-if="primaryDiagnosisDate">
+                        {{primaryDiagnosisDate | date:'yyyy'}}
+                    </span>
                 </td>
-                <td data-ng-if="!primaryDiagnosis.date"></td>
             </tr>
             <tr class="hidden for-generic-only" data-ng-if="patientDetails[0].fhirConditions.length">
                 <td class="forced-width">Diagnoses</td>
@@ -71,10 +75,10 @@
             </tr>
             <tr>
                 <td class="forced-width">Other Parts of the Body Affected</td>
-                <td data-ng-if="patientDetails[0].myIbd.bodySiteAffected.length">
-                    {{patientDetails[0].myIbd.bodySiteAffected}}
+                <td data-ng-if="patientDetails[0].myIbd.bodyPartsAffected.length">
+                    {{patientDetails[0].myIbd.bodyPartsAffected}}
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.bodySiteAffected.length"></td>
+                <td data-ng-if="!patientDetails[0].myIbd.bodyPartsAffected.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Weight</td>

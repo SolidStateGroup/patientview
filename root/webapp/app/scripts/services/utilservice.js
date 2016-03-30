@@ -2,6 +2,70 @@
 
 angular.module('patientviewApp').factory('UtilService', [function () {
     return {
+        // used when converting from angular objects to those suitable for REST
+        cleanObject: function (object, objectType) {
+            var cleanObject = {}, fields = this.getFields(objectType);
+            for (var field in object) {
+                if (object.hasOwnProperty(field) && _.contains(fields, field)) {
+                    cleanObject[field] = object[field];
+                }
+            }
+            return cleanObject;
+        },
+        generateAlphabet: function () {
+            var arr = [];
+            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var i=0; i<letters.length; i++) {
+                arr.push(letters[i])
+            }
+            return letters;
+        },
+        generateDays: function () {
+            var days = [];
+            days.push('');
+            for (var i=1;i<=31;i++) {
+                if (i<10) {
+                    days.push('0' + i);
+                } else {
+                    days.push(i);
+                }
+            }
+            return days;
+        },
+        generateMonths: function () {
+            var months = [];
+            months.push('');
+            for (var i=1;i<=12;i++) {
+                if (i<10) {
+                    months.push('0' + i);
+                } else {
+                    months.push(i);
+                }
+            }
+            return months;
+        },
+        generateHours: function () {
+            var hours = [];
+            for (var i=0;i<=23;i++) {
+                if (i<10) {
+                    hours.push('0' + i);
+                } else {
+                    hours.push(i);
+                }
+            }
+            return hours;
+        },
+        generateMinutes: function () {
+            var minutes = [];
+            for (var i=0;i<60;i++) {
+                if (i<10) {
+                    minutes.push('0' + i);
+                } else {
+                    minutes.push(i);
+                }
+            }
+            return minutes;
+        },
         generatePassword: function () {
             var password = '';
             var possible = 'ABCDEFGHKMNPQRSTUVWXYZabcdefghkmnopqrstuvwxyz123456789';
@@ -18,23 +82,63 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return code;
         },
-        generateAlphabet: function () {
-            var arr = [];
-            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            for (var i=0; i<letters.length; i++) {
-                arr.push(letters[i])
+        generateYears: function (maxYear) {
+            var years = [];
+            years.push('');
+            if (maxYear === undefined || maxYear === null) {
+                maxYear = new Date().getFullYear();
             }
-            return letters;
-        },
 
-        validateEmail: function (email)
-        {
-            var re = /\S+@\S+\.\S+/;
-            return !re.test(email);
+            for (var i=maxYear;i>=1900;i--) {
+                years.push(i);
+            }
+            return years;
         },
-
+        generateYears2000: function () {
+            var years = [];
+            years.push('');
+            for (var i=new Date().getFullYear();i>=2000;i--) {
+                years.push(i);
+            }
+            return years;
+        },
+        // Used when cleaning objects before they are passed to REST service, object fields to keep
+        getFields: function (objectType) {
+            var fields = [];
+            fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy', 'dateOfBirth', 'roleDescription'];
+            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber', 'dateOfBirth', 'roleDescription'];
+            fields.role = ['id','name','description','routes'];
+            fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
+            fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
+            fields.code = ['id','code','codeType','standardType','description','links'];
+            fields.codeType = ['id','value','description','lookupType'];
+            fields.request = ['id','forename','surname', 'nhsNumber', 'status', 'type', 'notes', 'dateOfBirth', 'email', 'captcha'];
+            fields.standardType = ['id','value','description','lookupType'];
+            fields.groupType = ['id','value','lookupType'];
+            fields.identifierType = ['id','value','description','lookupType'];
+            fields.contactPoint = ['id','contactPointType','content'];
+            fields.contactPointType = ['id','value','lookupType'];
+            fields.link = ['id','displayOrder','link','linkType','name'];
+            fields.location = ['id','label','name','phone','address','web','email'];
+            fields.identifier = ['id','identifier','identifierType'];
+            fields.newsItem = ['id','heading','story','newsLinks', 'newsType'];
+            fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
+            fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups', 'decimalPlaces'];
+            fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
+            fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
+            return fields[objectType];
+        },
+        getMonthText: function(month) {
+            var monthNames = [ 'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December' ];
+            return monthNames[parseInt(month)];
+        },
+        getMonthTextShort: function(month) {
+            var monthNames = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+            return monthNames[parseInt(month)];
+        },
         validationDate: function (day, month, year) {
-
             if (day === undefined || month === undefined || year === undefined) {
                 return false;
             }
@@ -71,9 +175,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
             return true;
         },
-
         validationDateNoFuture: function (day, month, year) {
-
             if (day === undefined || month === undefined || year === undefined) {
                 return false;
             }
@@ -111,126 +213,10 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             var now = new Date();
             return now.getTime() > input.getTime();
         },
-
-        // Used when cleaning objects before they are passed to REST service, object fields to keep
-        getFields: function (objectType) {
-            var fields = [];
-            fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy', 'dateOfBirth', 'roleDescription'];
-            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber', 'dateOfBirth', 'roleDescription'];
-            fields.role = ['id','name','description','routes'];
-            fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
-            fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
-            fields.code = ['id','code','codeType','standardType','description','links'];
-            fields.codeType = ['id','value','description','lookupType'];
-            fields.request = ['id','forename','surname', 'nhsNumber', 'status', 'type', 'notes', 'dateOfBirth', 'email', 'captcha'];
-            fields.standardType = ['id','value','description','lookupType'];
-            fields.groupType = ['id','value','lookupType'];
-            fields.identifierType = ['id','value','description','lookupType'];
-            fields.contactPoint = ['id','contactPointType','content'];
-            fields.contactPointType = ['id','value','lookupType'];
-            fields.link = ['id','displayOrder','link','linkType','name'];
-            fields.location = ['id','label','name','phone','address','web','email'];
-            fields.identifier = ['id','identifier','identifierType'];
-            fields.newsItem = ['id','heading','story','newsLinks', 'newsType'];
-            fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
-            fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups', 'decimalPlaces'];
-            fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
-            fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
-            return fields[objectType];
-        },
-        // used when converting from angular objects to those suitable for REST
-        cleanObject: function (object, objectType) {
-            var cleanObject = {}, fields = this.getFields(objectType);
-            for (var field in object) {
-                if (object.hasOwnProperty(field) && _.contains(fields, field)) {
-                    cleanObject[field] = object[field];
-                }
-            }
-            return cleanObject;
-        },
-
-        getMonthText: function(month) {
-            var monthNames = [ 'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December' ];
-            return monthNames[parseInt(month)];
-        },
-
-        getMonthTextShort: function(month) {
-            var monthNames = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-            return monthNames[parseInt(month)];
-        },
-
-        generateDays: function () {
-            var days = [];
-            days.push('');
-            for (var i=1;i<=31;i++) {
-                if (i<10) {
-                    days.push('0' + i);
-                } else {
-                    days.push(i);
-                }
-            }
-            return days;
-        },
-
-        generateMonths: function () {
-            var months = [];
-            months.push('');
-            for (var i=1;i<=12;i++) {
-                if (i<10) {
-                    months.push('0' + i);
-                } else {
-                    months.push(i);
-                }
-            }
-            return months;
-        },
-
-        generateYears: function (maxYear) {
-            var years = [];
-            years.push('');
-            if (maxYear === undefined || maxYear === null) {
-                maxYear = new Date().getFullYear();
-            }
-
-            for (var i=maxYear;i>=1900;i--) {
-                years.push(i);
-            }
-            return years;
-        },
-
-        generateYears2000: function () {
-            var years = [];
-            years.push('');
-            for (var i=new Date().getFullYear();i>=2000;i--) {
-                years.push(i);
-            }
-            return years;
-        },
-
-        generateHours: function () {
-            var hours = [];
-            for (var i=0;i<=23;i++) {
-                if (i<10) {
-                    hours.push('0' + i);
-                } else {
-                    hours.push(i);
-                }
-            }
-            return hours;
-        },
-
-        generateMinutes: function () {
-            var minutes = [];
-            for (var i=0;i<60;i++) {
-                if (i<10) {
-                    minutes.push('0' + i);
-                } else {
-                    minutes.push(i);
-                }
-            }
-            return minutes;
+        validateEmail: function (email)
+        {
+            var re = /\S+@\S+\.\S+/;
+            return !re.test(email);
         }
     };
 }]);

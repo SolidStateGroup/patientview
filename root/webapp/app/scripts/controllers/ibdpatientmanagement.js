@@ -4,7 +4,7 @@
 var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService', 'lookupMap',
     function ($scope, $rootScope, $modalInstance, UtilService, lookupMap) {
         var init = function () {
-            $scope.lookupMap = lookupMap;
+            $scope.patientManagement.lookupMap = lookupMap;
             $scope.months = UtilService.generateMonths();
             $scope.years = UtilService.generateYears();
             $scope.days = UtilService.generateDays();
@@ -116,10 +116,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears();
         $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear() + 6);
-        $scope.lookupMap = [];
 
         // map to parent object so can be used during create patient step, build object
         $scope.patientManagement = $scope.$parent.patientManagement;
+        $scope.patientManagement.lookupMap = [];
         $scope.patientManagement.surgeries = [];
         $scope.patientManagement.diagnoses = [];
         $scope.patientManagement.answers = {};
@@ -287,7 +287,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         PatientService.getPatientManagementLookupTypes().then(function(lookupTypes) {
             for (i = 0; i < lookupTypes.length; i++) {
                 var lookupType = lookupTypes[i].type;
-                $scope.lookupMap[lookupType] = [];
+                $scope.patientManagement.lookupMap[lookupType] = [];
 
                 // create answer object (not surgery procedure)
                 if (lookupType !== 'IBD_SURGERYMAINPROCEDURE') {
@@ -301,7 +301,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
 
                 for (j = 0; j < lookupTypes[i].lookups.length; j++) {
-                    $scope.lookupMap[lookupType].push(lookupTypes[i].lookups[j]);
+                    $scope.patientManagement.lookupMap[lookupType].push(lookupTypes[i].lookups[j]);
                 }
             }
 
@@ -339,10 +339,10 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             // gender (set based on description)
             if ($scope.patientManagement.fhirPatient.gender !== undefined
                 && $scope.patientManagement.fhirPatient.gender !== null) {
-                for (i = 0; i < $scope.lookupMap['GENDER'].length; i++) {
-                    if ($scope.lookupMap['GENDER'][i].description.toUpperCase()
+                for (i = 0; i < $scope.patientManagement.lookupMap['GENDER'].length; i++) {
+                    if ($scope.patientManagement.lookupMap['GENDER'][i].description.toUpperCase()
                         == $scope.patientManagement.fhirPatient.gender.toUpperCase()) {
-                        $scope.patientManagement.gender = $scope.lookupMap['GENDER'][i];
+                        $scope.patientManagement.gender = $scope.patientManagement.lookupMap['GENDER'][i];
                     }
                 }
             }
@@ -355,7 +355,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 var observation = $scope.patientManagement.fhirObservations[i];
                 var name = observation.name;
                 var answer = $scope.patientManagement.answers[name];
-                var lookup = $scope.lookupMap[name];
+                var lookup = $scope.patientManagement.lookupMap[name];
 
                 if (lookup !== undefined && lookup !== null && answer !== undefined && answer !== null) {
                     // is a lookup value, either SELECT or MULTI_SELECT
@@ -417,7 +417,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 surgery.selectedMonth = (date.getMonth()+1 < 10 ? "0" : null) + (date.getMonth()+1);
 
                 // procedures
-                var procedureTypes = $scope.lookupMap['IBD_SURGERYMAINPROCEDURE'];
+                var procedureTypes = $scope.patientManagement.lookupMap['IBD_SURGERYMAINPROCEDURE'];
 
                 for (j = 0; j < encounter.procedures.length; j++) {
                     for (k = 0; k < procedureTypes.length; k++) {
@@ -428,11 +428,13 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 }
 
                 // observations
-                for (j = 0; j < encounter.observations.length; j++) {
-                    if (encounter.observations[j].name == 'SURGERY_HOSPITAL_CODE') {
-                        surgery.hospitalCode = encounter.observations[j].value;
-                    } else if (encounter.observations[j].name == 'SURGERY_OTHER_DETAILS') {
-                        surgery.otherDetails = encounter.observations[j].value;
+                if (encounter.observations != null && encounter.observations != undefined) {
+                    for (j = 0; j < encounter.observations.length; j++) {
+                        if (encounter.observations[j].name == 'SURGERY_HOSPITAL_CODE') {
+                            surgery.hospitalCode = encounter.observations[j].value;
+                        } else if (encounter.observations[j].name == 'SURGERY_OTHER_DETAILS') {
+                            surgery.otherDetails = encounter.observations[j].value;
+                        }
                     }
                 }
 
@@ -453,7 +455,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     $scope.patientManagement.diagnosis = $scope.patientManagement.diagnoses[i];
 
                     // used for other my ibd tabs
-                    $scope.$parent.primaryDiagnosis =  $scope.patientManagement.diagnoses[i];
+                    $scope.$parent.primaryDiagnosis = $scope.patientManagement.diagnoses[i];
                 }
             }
 
@@ -469,6 +471,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
                 // used for read only
                 $scope.patientManagement.diagnosisDate.date = date;
+
+                // used for SALIBD myIBD if no other Conditions
+                $scope.$parent.primaryDiagnosisDate = date;
             }
         }
 
@@ -536,7 +541,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                     return UtilService;
                 },
                 lookupMap: function() {
-                    return $scope.lookupMap;
+                    return $scope.patientManagement.lookupMap;
                 }
             }
         });

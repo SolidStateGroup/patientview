@@ -38,11 +38,20 @@
             <mobile>018118181</mobile>
         </personaldetails>
         <clinicaldetails>
-            <rrtstatus>TP</rrtstatus>
-            <diagnosisedta>80</diagnosisedta>
-            <diagnosis>(EDTA PRD) 80 Diabetes Type 1 (Insulin dependent)</diagnosis>
-            <diagnosis>A second diagnosis</diagnosis>
-            <bloodgroup>A</bloodgroup>
+            <tpstatus></tpstatus>
+            <diagnosisdate>2011-05-01</diagnosisdate>
+            <diagnosis>Ulcerative Colitis</diagnosis>
+            <ibddiseaseextent>Left-sided Colitis</ibddiseaseextent>
+            <ibddiseasecomplications>None</ibddiseasecomplications>
+            <ibdeimanifestations>None</ibdeimanifestations>
+            <familyhistory>Ulcerative Colitis</familyhistory>
+            <smokinghistory>Never smoked</smokinghistory>
+            <surgicalhistory>No Previous operations</surgicalhistory>
+            <vaccinationrecord>some vaccination</vaccinationrecord>
+            <colonoscopysurveillance>2021-01-01</colonoscopysurveillance>
+            <namedconsultant>Dr Robinson</namedconsultant>
+            <ibdnurse>Jane Connard; Justine Newberry</ibdnurse>
+            <bodypartsaffected>legs</bodypartsaffected>
         </clinicaldetails>
         <timelinedetails>
             <test>

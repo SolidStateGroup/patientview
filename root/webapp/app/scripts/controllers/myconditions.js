@@ -138,40 +138,110 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         return arr;
     };
 
+    var createPatientManagementArray = function(lookupType, observationValue) {
+        var toReturn = [];
+        // handle information from patient management
+        if ($scope.patientManagement.lookupMap[lookupType]) {
+            for (var a = 0; a < $scope.patientManagement.lookupMap[lookupType].length; a++) {
+                var lookup = $scope.patientManagement.lookupMap[lookupType][a];
+                var value = lookup.value;
+                observationValue = observationValue.replace('.0', '');
+
+                if (value == observationValue || value == '0' + observationValue) {
+                    toReturn.push(lookup.description);
+                }
+            }
+        }
+        return toReturn;
+    };
+
+    var createPatientManagementString = function(lookupType, observationValue) {
+        var toReturn = '';
+        // handle information from patient management
+        if ($scope.patientManagement.lookupMap[lookupType]) {
+            for (var a = 0; a < $scope.patientManagement.lookupMap[lookupType].length; a++) {
+                var lookup = $scope.patientManagement.lookupMap[lookupType][a];
+                var value = lookup.value;
+                observationValue = observationValue.replace('.0', '');
+
+                if (value == observationValue || value == '0' + observationValue) {
+                    toReturn += ' ' + (lookup.description) + ', ';
+                }
+            }
+        }
+        return toReturn;
+    };
+
     var createMyIbd = function(patient) {
         var myIbd = {};
         var i, j;
 
+        // NonTestObservationTypes
         for (i = 0; i < patient.fhirObservations.length; i++) {
             var observation = patient.fhirObservations[i];
 
-            //console.log(observation);
-
-            // NonTestObservationTypes
-            if (observation.name === "BODY_SITE_AFFECTED") {
-                myIbd.bodySiteAffected = createSplitArray(observation.value);
+            // Other Parts of the Body Affected
+            if (observation.name === "BODY_PARTS_AFFECTED") {
+                myIbd.bodyPartsAffected = createSplitArray(observation.value);
             }
+            if (observation.name === "IBD_EGIMCOMPLICATION") {
+                // handle information from patient management
+                if (myIbd.bodyPartsAffected == null || myIbd.bodyPartsAffected == undefined) {
+                    myIbd.bodyPartsAffected = '';
+                }
+                myIbd.bodyPartsAffected += createPatientManagementString('IBD_EGIMCOMPLICATION', observation.value);
+            }
+
+            // Year for Surveillance Colonoscopy
             if (observation.name === "COLONOSCOPY_SURVEILLANCE" || observation.name === "IBD_COLONOSCOPYSURVEILLANCE") {
                 myIbd.colonoscopySurveillance = observation.applies;
             }
-            if (observation.name === "FAMILY_HISTORY" || observation.name === "IBD_FAMILYHISTORY") {
+
+            // Family History
+            if (observation.name === "FAMILY_HISTORY") {
                 myIbd.familyHistory = createSplitArray(observation.value);
             }
+            if (observation.name === "IBD_FAMILYHISTORY") {
+                // handle information from patient management
+                if (myIbd.familyHistory == null || myIbd.familyHistory == undefined) {
+                    myIbd.familyHistory = [];
+                }
+                myIbd.familyHistory = myIbd.familyHistory.concat(
+                    createPatientManagementArray('IBD_FAMILYHISTORY', observation.value));
+            }
+
+            // Complications
             if (observation.name === "IBD_DISEASE_COMPLICATIONS") {
                 myIbd.ibdDiseaseComplications = createSplitArray(observation.value);
             }
+
+            // Disease Extent
             if (observation.name === "IBD_DISEASE_EXTENT") {
                 myIbd.ibdDiseaseExtent = observation.value;
                 if (observation.diagram.length > 2) {
                     myIbd.ibdDiseaseExtentDiagram = 'images/ibd/' + observation.diagram;
                 }
             }
+
+            // Surgical History
             if (observation.name === "SURGICAL_HISTORY") {
                 myIbd.surgicalHistory = createSplitArray(observation.value);
             }
+
+            // Smoking History
             if (observation.name === "SMOKING_HISTORY") {
                 myIbd.smokingHistory = createSplitArray(observation.value);
             }
+            if (observation.name === "IBD_SMOKINGSTATUS") {
+                // handle information from patient management
+                if (myIbd.smokingHistory == null || myIbd.smokingHistory == undefined) {
+                    myIbd.smokingHistory = [];
+                }
+                myIbd.smokingHistory = myIbd.smokingHistory.concat(
+                    createPatientManagementArray('IBD_SMOKINGSTATUS', observation.value));
+            }
+
+            // Vaccination Record
             if (observation.name === "VACCINATION_RECORD" || observation.name === "IBD_VACCINATIONRECORD") {
                 myIbd.vaccinationRecord = createSplitArray(observation.value);
             }
@@ -221,6 +291,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
     // get conditions (diagnosis etc) from groups under current specialty
     var getMyConditions = function() {
         var childGroupIds = [];
+        var i;
+
         $scope.patientDetails = '';
         delete $scope.staffEnteredDiagnosis;
 
@@ -235,7 +307,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
 
-            for (var i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
+            for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
                 if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
                     canGetStaffEnteredDiagnosis = true;
                 }
@@ -263,7 +335,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 $scope.patientDetails = patientDetails;
 
                 // set checkboxes
-                for (var i = 0; i < $scope.patientDetails.length; i++) {
+                for (i = 0; i < $scope.patientDetails.length; i++) {
                     $scope.patientDetails[i].group.selected = true;
 
                     // create foot checkup object from most recent DPPULSE, PTPULSE observation data
@@ -272,9 +344,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
                     $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
-                    // only SALIBD gets 'old' myIBD without patient management
+                    // only SALIBD gets 'old' myIBD, use patient management lookups as well as standard IBD observations
                     if ($scope.currentSpecialty.code === "IBD" && $scope.patientDetails[i].group.code === "SALIBD") {
-                        // create myIBD object if present
                         $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
                         // create myIBD object if present
