@@ -187,9 +187,10 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             if (observation.name === "IBD_EGIMCOMPLICATION") {
                 // handle information from patient management
                 if (myIbd.bodyPartsAffected == null || myIbd.bodyPartsAffected == undefined) {
-                    myIbd.bodyPartsAffected = '';
+                    myIbd.bodyPartsAffected = [];
                 }
-                myIbd.bodyPartsAffected += createPatientManagementString('IBD_EGIMCOMPLICATION', observation.value);
+                myIbd.bodyPartsAffected = myIbd.bodyPartsAffected.concat(
+                    createPatientManagementArray('IBD_EGIMCOMPLICATION', observation.value));
             }
 
             // Year for Surveillance Colonoscopy

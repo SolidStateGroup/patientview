@@ -76,7 +76,9 @@
             <tr>
                 <td class="forced-width">Other Parts of the Body Affected</td>
                 <td data-ng-if="patientDetails[0].myIbd.bodyPartsAffected.length">
-                    {{patientDetails[0].myIbd.bodyPartsAffected}}
+                    <span data-ng-repeat="bodyPartsAffected in patientDetails[0].myIbd.bodyPartsAffected track by $index">
+                        {{bodyPartsAffected}}<br/>
+                    </span>
                 </td>
                 <td data-ng-if="!patientDetails[0].myIbd.bodyPartsAffected.length"></td>
             </tr>
