@@ -36,6 +36,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
 
     var init = function() {
         $scope.loading = true;
+        $scope.editMode = false;
         $scope.addPatient = ($location.url().indexOf("newpatient") > 0);
 
         // patient management, referenced by child scope
@@ -48,9 +49,18 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         $scope.groupMap = [];
         $scope.permissions = {};
         $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-        
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+
         if ($scope.addPatient) {
             roles = $scope.loggedInUser.userInformation.patientRoles;
+
+            // checked in patient management controller/view
+            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin
+                || $scope.permissions.isUnitAdmin) {
+                $scope.permissions.canEditPatients = true;
+            }
+
         } else {
             roles = $scope.loggedInUser.userInformation.staffRoles;
         }
@@ -100,6 +110,9 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                             }
                         }
                     }
+
+                    // group features used for patient management
+                    minimalGroup.groupFeatures = group.groupFeatures;
 
                     $scope.allGroups.push(minimalGroup);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
@@ -189,6 +202,34 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         });
     };
 
+    // must have group with IBD_PATIENT_MANAGEMENT feature
+    $scope.hasPatientManagementPermission = function (groupRoles) {
+        if (!$scope.addPatient) {
+            return false;
+        }
+
+        if (groupRoles == null || groupRoles == undefined) {
+            return false;
+        }
+
+        if (!groupRoles.length) {
+            return false;
+        }
+
+        for (var i = 0; i < groupRoles.length; i++) {
+            var group = groupRoles[i].group;
+            if (group.groupFeatures != null && group.groupFeatures != undefined) {
+                for (var j = 0; j < group.groupFeatures.length; j++) {
+                    if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
     // check username is not already in use
     $scope.checkUsername = function () {
         UserService.checkUsernameExists($scope.editUser.username).then(function (usernameExists) {
@@ -228,11 +269,11 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                 $scope.patientManagement.buildFhirObjects();
 
                 var patientManagement = {};
-                patientManagement.fhirCondition = $scope.patientManagement.fhirCondition;
-                patientManagement.fhirEncounters = $scope.patientManagement.fhirEncounters;
-                patientManagement.fhirObservations = $scope.patientManagement.fhirObservations;
-                patientManagement.fhirPatient = $scope.patientManagement.fhirPatient;
-                patientManagement.fhirPractitioners = $scope.patientManagement.fhirPractitioners;
+                patientManagement.condition = $scope.patientManagement.condition;
+                patientManagement.encounters = $scope.patientManagement.encounters;
+                patientManagement.observations = $scope.patientManagement.observations;
+                patientManagement.patient = $scope.patientManagement.patient;
+                patientManagement.practitioners = $scope.patientManagement.practitioners;
 
                 $scope.editUser.patientManagement = patientManagement;
             }
@@ -278,13 +319,13 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             });
         }
     };
-    
+
     $scope.showFormUI = function() {
         // force init including all child scopes
         $route.reload();
     };
-    
-    var clearForm = function() {        
+
+    var clearForm = function() {
         delete $scope.errorMessage;
         delete $scope.warningMessage;
 
@@ -329,6 +370,6 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         printWindow.print();
         printWindow.close();
     };
-    
+
     init();
 }]);

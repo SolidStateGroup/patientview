@@ -729,9 +729,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         for (i = 0; i < user.groupRoles.length; i++) {
             if (patientManagementGroupId == null) {
                 var group = user.groupRoles[i].group;
-                for (j = 0; j < group.groupFeatures.length; j++) {
-                    if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
-                        patientManagementGroupId = group.id;
+                if (group.groupFeatures != null && group.groupFeatures != undefined) {
+                    for (j = 0; j < group.groupFeatures.length; j++) {
+                        if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
+                            patientManagementGroupId = group.id;
+                        }
                     }
                 }
             }

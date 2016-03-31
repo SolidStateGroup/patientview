@@ -10,7 +10,11 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.PatientManagementService;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.PatientManagement;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -82,6 +86,13 @@ public class PatientManagementControllerTest {
 
     @Test
     public void testSavePatientManagement() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
+
         mockMvc.perform(MockMvcRequestBuilders.post("/patientmanagement/1/group/2/identifier/3")
                 .content(mapper.writeValueAsString(new PatientManagement())).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());

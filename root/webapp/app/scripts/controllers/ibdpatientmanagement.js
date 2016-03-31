@@ -1,9 +1,10 @@
 'use strict';
 
 // add Surgery modal instance controller
-var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService', 'lookupMap',
-    function ($scope, $rootScope, $modalInstance, UtilService, lookupMap) {
+var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'UtilService', 'lookupMap', 'permissions',
+    function ($scope, $rootScope, $modalInstance, UtilService, lookupMap, permissions) {
         var init = function () {
+            $scope.permissions = permissions;
             $scope.lookupMap = lookupMap;
             $scope.months = UtilService.generateMonths();
             $scope.years = UtilService.generateYears();
@@ -542,6 +543,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 },
                 lookupMap: function() {
                     return $scope.patientManagement.lookupMap;
+                },
+                permissions: function() {
+                    return $scope.permissions;
                 }
             }
         });

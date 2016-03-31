@@ -130,6 +130,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new ResourceNotFoundException("identifier not found");
         }
 
+        if (!userService.currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("forbidden");
+        }
+
         List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(user, group, identifier);
 
         if (CollectionUtils.isEmpty(fhirLinks)) {

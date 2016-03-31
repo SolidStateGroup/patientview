@@ -129,15 +129,12 @@ public class PatientManagementServiceTest {
 
     @Test
     public void testImportPatientManagement() throws Exception {
-        // auth
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
-        User staff = TestUtils.createUser("testStaff");
-        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        staff.getGroupRoles().add(groupRole);
-        TestUtils.authenticateTest(staff, groupRoles);
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
 
         Date now = new Date();
         UUID organizationUuid = UUID.randomUUID();
@@ -256,6 +253,13 @@ public class PatientManagementServiceTest {
 
     @Test
     public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
+
         Date now = new Date();
         UUID organizationUuid = UUID.randomUUID();
 
@@ -264,9 +268,6 @@ public class PatientManagementServiceTest {
         code.setCodeType(TestUtils.createLookup(
                 TestUtils.createLookupType(LookupTypes.CODE_TYPE), DiagnosisTypes.DIAGNOSIS.toString()));
         code.setCode("CD");
-
-        // group
-        Group group = TestUtils.createGroup("testGroup");
 
         // user
         User patient = TestUtils.createUser("patient");
