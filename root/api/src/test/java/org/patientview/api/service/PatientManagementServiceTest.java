@@ -364,6 +364,13 @@ public class PatientManagementServiceTest {
 
     @Test
     public void testValidate() throws VerificationException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
+
         Date now = new Date();
 
         Code code = TestUtils.createCode("Crohn's Disease");
