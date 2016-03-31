@@ -873,13 +873,15 @@ public class FhirResource {
                 "AND UPPER(content-> 'name' ->> 'text') IN (" + nameString.toString() + ") ";
 
         LOG.info(query);
-        
+
         return findResourceByQuery(query, Observation.class);
     }
 
     public List<Observation> getObservationsByPerformer(UUID performerId) throws FhirResourceException{
         String query = "SELECT  content::varchar FROM observation " +
                 "WHERE CONTENT #> '{performer,0}' ->> 'display' ='" + performerId.toString() + "'";
+
+        LOG.info(query);
 
         return findResourceByQuery(query, Observation.class);
     }
@@ -946,6 +948,8 @@ public class FhirResource {
     public List<Procedure> getProceduresByEncounter(UUID encounterId) throws FhirResourceException{
         String query = "SELECT content::varchar FROM procedure " +
                 "WHERE CONTENT -> 'encounter' ->> 'display' = '" + encounterId.toString() + "'";
+
+        LOG.info(query);
 
         return findResourceByQuery(query, Procedure.class);
     }
