@@ -18,6 +18,11 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface LookupService {
 
+    /**
+     * Get List of LookupType (and child Lookups) used by IBD Patient Management e.g. IBD_SURGERYMAINPROCEDURE,
+     * IBD_SMOKINGSTATUS stored in LookupTypesPatientManagement. Used to populate select and multi-select in UI.
+     * @return List of LookupType and child Lookups
+     */
     List<LookupType> getPatientManagementLookupTypes();
 
     /**

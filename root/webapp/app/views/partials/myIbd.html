@@ -1,6 +1,6 @@
 <div class="row">
-    <div class="col-md-12" data-ng-class="{'col-md-9': patientDetails[0].myIbd.links.length}">
-        <div class="panel panel-default" data-ng-show="patientDetails[0].myIbd">
+    <div class="col-md-12" data-ng-class="{'col-md-9': myIbd.links.length}">
+        <div class="panel panel-default" data-ng-show="myIbd">
             <div class="panel-heading"><h3>My IBD</h3></div>
         <table class="table table-bordered">
             <tbody>
@@ -53,34 +53,34 @@
             </tr>
             <tr>
                 <td class="forced-width">Disease Extent</td>
-                <td data-ng-if="patientDetails[0].myIbd.ibdDiseaseExtent.length">
-                    {{patientDetails[0].myIbd.ibdDiseaseExtent}}
+                <td data-ng-if="myIbd.ibdDiseaseExtent.length">
+                    {{myIbd.ibdDiseaseExtent}}
                     <div class="pull-right" style="padding-right: 10px;">
-                        <img data-ng-src={{patientDetails[0].myIbd.ibdDiseaseExtentDiagram}} alt="{{patientDetails[0].myIbd.ibdDiseaseExtent}}"/>
+                        <img data-ng-src={{myIbd.ibdDiseaseExtentDiagram}} alt="{{myIbd.ibdDiseaseExtent}}"/>
                         <br/><br/>
                         <div class="image-colour-key-red"></div>
                         Represents the part of the bowel affected by your condition.
                     </div>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.ibdDiseaseExtent.length"></td>
+                <td data-ng-if="!myIbd.ibdDiseaseExtent.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Complications</td>
-                <td data-ng-if="patientDetails[0].myIbd.ibdDiseaseComplications.length">
-                <span data-ng-repeat="ibdDiseaseComplications in patientDetails[0].myIbd.ibdDiseaseComplications track by $index">
+                <td data-ng-if="myIbd.ibdDiseaseComplications.length">
+                <span data-ng-repeat="ibdDiseaseComplications in myIbd.ibdDiseaseComplications track by $index">
                     {{ibdDiseaseComplications}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.ibdDiseaseComplications.length"></td>
+                <td data-ng-if="!myIbd.ibdDiseaseComplications.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Other Parts of the Body Affected</td>
-                <td data-ng-if="patientDetails[0].myIbd.bodyPartsAffected.length">
-                    <span data-ng-repeat="bodyPartsAffected in patientDetails[0].myIbd.bodyPartsAffected track by $index">
+                <td data-ng-if="myIbd.bodyPartsAffected.length">
+                    <span data-ng-repeat="bodyPartsAffected in myIbd.bodyPartsAffected track by $index">
                         {{bodyPartsAffected}}<br/>
                     </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.bodyPartsAffected.length"></td>
+                <td data-ng-if="!myIbd.bodyPartsAffected.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Weight</td>
@@ -93,30 +93,30 @@
             </tr>
             <tr>
                 <td class="forced-width">Family History</td>
-                <td data-ng-if="patientDetails[0].myIbd.familyHistory.length">
-                <span data-ng-repeat="familyHistory in patientDetails[0].myIbd.familyHistory track by $index">
+                <td data-ng-if="myIbd.familyHistory.length">
+                <span data-ng-repeat="familyHistory in myIbd.familyHistory track by $index">
                     {{familyHistory}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.familyHistory.length"></td>
+                <td data-ng-if="!myIbd.familyHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Surgical History</td>
-                <td data-ng-if="patientDetails[0].myIbd.surgicalHistory.length">
-                <span data-ng-repeat="surgicalHistory in patientDetails[0].myIbd.surgicalHistory track by $index">
+                <td data-ng-if="myIbd.surgicalHistory.length">
+                <span data-ng-repeat="surgicalHistory in myIbd.surgicalHistory track by $index">
                     {{surgicalHistory}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.surgicalHistory.length"></td>
+                <td data-ng-if="!myIbd.surgicalHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Smoking History</td>
-                <td data-ng-if="patientDetails[0].myIbd.smokingHistory.length">
-                <span data-ng-repeat="smokingHistory in patientDetails[0].myIbd.smokingHistory track by $index">
+                <td data-ng-if="myIbd.smokingHistory.length">
+                <span data-ng-repeat="smokingHistory in myIbd.smokingHistory track by $index">
                     {{smokingHistory}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.smokingHistory.length"></td>
+                <td data-ng-if="!myIbd.smokingHistory.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Allergies</td>
@@ -129,37 +129,37 @@
             </tr>
             <tr>
                 <td class="forced-width">Vaccination Record</td>
-                <td data-ng-if="patientDetails[0].myIbd.vaccinationRecord.length">
-                <span data-ng-repeat="vaccinationRecord in patientDetails[0].myIbd.vaccinationRecord track by $index">
+                <td data-ng-if="myIbd.vaccinationRecord.length">
+                <span data-ng-repeat="vaccinationRecord in myIbd.vaccinationRecord track by $index">
                     {{vaccinationRecord}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.vaccinationRecord.length"></td>
+                <td data-ng-if="!myIbd.vaccinationRecord.length"></td>
             </tr>
             <tr>
                 <td class="forced-width">Year for Surveillance Colonoscopy</td>
-                <td data-ng-if="patientDetails[0].myIbd.colonoscopySurveillance">
-                    {{patientDetails[0].myIbd.colonoscopySurveillance | date:'yyyy'}}
+                <td data-ng-if="myIbd.colonoscopySurveillance">
+                    {{myIbd.colonoscopySurveillance | date:'yyyy'}}
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.colonoscopySurveillance"></td>
+                <td data-ng-if="!myIbd.colonoscopySurveillance"></td>
             </tr>
             <tr>
                 <td class="forced-width">Nurse</td>
-                <td data-ng-if="patientDetails[0].myIbd.ibdNurse.length">
-                <span data-ng-repeat="ibdNurse in patientDetails[0].myIbd.ibdNurse track by $index">
+                <td data-ng-if="myIbd.ibdNurse.length">
+                <span data-ng-repeat="ibdNurse in myIbd.ibdNurse track by $index">
                     {{ibdNurse}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.ibdNurse"></td>
+                <td data-ng-if="!myIbd.ibdNurse"></td>
             </tr>
             <tr>
                 <td class="forced-width">Named Consultant</td>
-                <td data-ng-if="patientDetails[0].myIbd.namedConsultant.length">
-                <span data-ng-repeat="namedConsultant in patientDetails[0].myIbd.namedConsultant track by $index">
+                <td data-ng-if="myIbd.namedConsultant.length">
+                <span data-ng-repeat="namedConsultant in myIbd.namedConsultant track by $index">
                     {{namedConsultant}}<br/>
                 </span>
                 </td>
-                <td data-ng-if="!patientDetails[0].myIbd.namedConsultant"></td>
+                <td data-ng-if="!myIbd.namedConsultant"></td>
             </tr>
             <tr data-ng-if="patientDetails[0].group.links">
                 <td class="forced-width">Links specific to your IBD unit</td>
@@ -173,14 +173,14 @@
         </table>
         </div>
     </div>
-    <div class="col-md-3" data-ng-if="patientDetails[0].myIbd.links.length">
+    <div class="col-md-3" data-ng-if="myIbd.links.length">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3>Useful Links</h3>
             </div>
             <div class="panel-body">
                 <ul>
-                    <li data-ng-repeat="link in patientDetails[0].myIbd.links | orderBy:'displayOrder'" class="links-li">
+                    <li data-ng-repeat="link in myIbd.links | orderBy:'displayOrder'" class="links-li">
                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                     </li>
                 </ul>

@@ -357,9 +357,10 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     }
                 }
 
-                // used for other my ibd tabs
                 if ($scope.patientDetails[0] && $scope.patientDetails[0].myIbd) {
+                    // used for other my ibd tabs
                     $scope.primaryDiagnosis = $scope.patientDetails[0].myIbd.primaryDiagnosis;
+                    $scope.myIbd = $scope.patientDetails[0].myIbd;
                 }
 
                 $scope.loading = false;

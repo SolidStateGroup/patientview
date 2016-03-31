@@ -23,7 +23,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * RESTful interface for retrieving the patient management records associated with a User, retrieved from FHIR.
+ * RESTful interface for retrieving/storing the patient management records associated with a User, retrieved from FHIR.
+ * Used by IBD Patient Management.
  *
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
@@ -40,6 +41,16 @@ public class PatientManagementController extends BaseController<PatientManagemen
     @Inject
     private PatientManagementService patientManagementService;
 
+    /**
+     * Get a PatientManagement object containing observations, diagnosis etc for use in IBD Patient Management.
+     * @param userId Long ID of User (patient)
+     * @param groupId Long ID of Group
+     * @param identifierId Long ID of Identifier
+     * @return PatientManagement containing IBD Patient Management information
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
     @RequestMapping(value = "/patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +61,11 @@ public class PatientManagementController extends BaseController<PatientManagemen
         return new ResponseEntity<>(patientManagementService.get(userId, groupId, identifierId), HttpStatus.OK);
     }
 
+    /**
+     * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property
+     * "patient.management.diagnoses.codes" with CD, UC IBDU
+     * @return List of Code
+     */
     @RequestMapping(value = "/patientmanagement/diagnoses", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -57,6 +73,11 @@ public class PatientManagementController extends BaseController<PatientManagemen
         return new ResponseEntity<>(codeService.getPatientManagementDiagnoses(), HttpStatus.OK);
     }
 
+    /**
+     * Get List of LookupType (and child Lookups) used by IBD Patient Management e.g. IBD_SURGERYMAINPROCEDURE,
+     * IBD_SMOKINGSTATUS stored in LookupTypesPatientManagement. Used to populate select and multi-select in UI.
+     * @return List of LookupType and child Lookups
+     */
     @RequestMapping(value = "/patientmanagement/lookuptypes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -64,6 +85,16 @@ public class PatientManagementController extends BaseController<PatientManagemen
         return new ResponseEntity<>(lookupService.getPatientManagementLookupTypes(), HttpStatus.OK);
     }
 
+    /**
+     * Save PatientManagement information, for IBD Patient Management, used when saving from UI
+     * @param userId Long ID of User (patient)
+     * @param groupId Long ID of Group
+     * @param identifierId Long ID of Identifier
+     * @param patientManagement PatientManagement object containing observations, diagnosis etc
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
     @RequestMapping(value = "/patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
