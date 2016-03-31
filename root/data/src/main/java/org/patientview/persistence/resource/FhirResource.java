@@ -872,6 +872,8 @@ public class FhirResource {
                 "WHERE content -> 'subject' ->> 'display' = '" +  subjectId.toString() + "' " +
                 "AND UPPER(content-> 'name' ->> 'text') IN (" + nameString.toString() + ") ";
 
+        LOG.info(query);
+        
         return findResourceByQuery(query, Observation.class);
     }
 
