@@ -314,6 +314,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
     public void save(org.patientview.persistence.model.User user, Group group, Identifier identifier,
                      PatientManagement patientManagement)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        Long now = new Date().getTime();
+
         if (user == null) {
             throw new ResourceNotFoundException("user must be set");
         }
@@ -346,6 +348,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         FhirLink fhirLink = null;
         List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(user, group, identifier);
 
+        LOG.info("1 " + (new Date().getTime() - now));
+
         if (CollectionUtils.isEmpty(fhirLinks)) {
             // fhirlink does not exist
             fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
@@ -361,6 +365,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new ResourceNotFoundException("error retrieving FHIR patient, no UUID");
         }
 
+        LOG.info("2 " + (new Date().getTime() - now));
+
         // get FHIR Organization logical id UUID, creating from Group if not present, used by treatment Encounter
         UUID organizationUuid;
 
@@ -374,28 +380,40 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new FhirResourceException("error saving organization, is null");
         }
 
+        LOG.info("3 " + (new Date().getTime() - now));
+
         // update FHIR patient
         if (patientManagement.getPatient() != null) {
             savePatientDetails(fhirLink, patientManagement.getPatient());
         }
+
+        LOG.info("4 " + (new Date().getTime() - now));
 
         // update FHIR Condition (diagnosis)
         if (patientManagement.getCondition() != null) {
             saveConditionDetails(fhirLink, patientManagement.getCondition());
         }
 
+        LOG.info("5 " + (new Date().getTime() - now));
+
         // update FHIR Encounters (surgeries)
         saveEncounterDetails(fhirLink, patientManagement.getEncounters(), organizationUuid);
+
+        LOG.info("6 " + (new Date().getTime() - now));
 
         // update FHIR observations (selects and text fields)
         if (!CollectionUtils.isEmpty(patientManagement.getObservations())) {
             saveObservationDetails(fhirLink, patientManagement.getObservations());
         }
 
+        LOG.info("7 " + (new Date().getTime() - now));
+
         // update FHIR practitioners (named consultant & ibd nurse)
         if (!CollectionUtils.isEmpty(patientManagement.getPractitioners())) {
             savePractitionerDetails(fhirLink, patientManagement.getPractitioners());
         }
+
+        LOG.info("8 " + (new Date().getTime() - now));
     }
 
     @Override
@@ -485,13 +503,21 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
             throws FhirResourceException {
+        Long now = new Date().getTime();
+
+        LOG.info("a " + (new Date().getTime() - now));
+
         // erase existing SURGERY Encounters and associated Observations and Procedures
         encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.SURGERY);
+
+        LOG.info("b " + (new Date().getTime() - now));
 
         // store new
         for (FhirEncounter fhirEncounter : fhirEncounters) {
             encounterService.add(fhirEncounter, fhirLink, organizationUuid);
         }
+
+        LOG.info("c " + (new Date().getTime() - now));
     }
 
     private void savePractitionerDetails(FhirLink fhirLink, List<FhirPractitioner> fhirPractitioners)

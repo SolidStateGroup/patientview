@@ -640,6 +640,8 @@ public class FhirResource {
         query.append(identifierValue);
         query.append("' ");
 
+        LOG.info(query.toString());
+
         Connection connection = null;
 
         // execute and return UUIDs
