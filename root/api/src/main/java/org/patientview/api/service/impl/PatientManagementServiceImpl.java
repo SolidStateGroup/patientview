@@ -117,8 +117,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
     @Override
     public PatientManagement get(Long userId, Long groupId, Long identifierId)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        Long now = new Date().getTime();
-        LOG.info("1 " + (new Date().getTime() - now));
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("user not found");
@@ -137,7 +135,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             throw new ResourceForbiddenException("forbidden");
         }
 
-        LOG.info("2 " + (new Date().getTime() - now));
         List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(user, group, identifier);
 
         if (CollectionUtils.isEmpty(fhirLinks)) {
@@ -147,7 +144,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         FhirLink fhirLink = fhirLinks.get(0);
         PatientManagement patientManagement = new PatientManagement();
 
-        LOG.info("3 " + (new Date().getTime() - now));
         // get fhir patient
         Patient patient = (Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
         if (patient != null) {
@@ -176,7 +172,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
-        LOG.info("4 " + (new Date().getTime() - now));
         // get fhir observations, using types in PatientManagementObservationTypes
         List<String> names = new ArrayList<>();
         for (PatientManagementObservationTypes type : PatientManagementObservationTypes.values()) {
@@ -193,7 +188,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
-        LOG.info("5 " + (new Date().getTime() - now));
         // get fhir surgery encounters
         List<UUID> encounterUuids = fhirResource.getLogicalIdsBySubjectIdAndIdentifierValue(
                 "encounter", fhirLink.getResourceId(), EncounterTypes.SURGERY.toString());
@@ -245,7 +239,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
-        LOG.info("6 " + (new Date().getTime() - now));
         // get fhir condition (MAIN DIAGNOSIS), should only be one
         List<UUID> existingMainConditionUuids = fhirResource.getConditionLogicalIds(
                 fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString());
@@ -265,7 +258,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                 patientManagement.setCondition(fhirCondition);
             }
         }
-        LOG.info("7 " + (new Date().getTime() - now));
 
         return patientManagement;
     }
