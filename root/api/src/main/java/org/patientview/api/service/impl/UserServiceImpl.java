@@ -8,6 +8,8 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.service.PatientManagementService;
+import org.patientview.persistence.model.PatientManagement;
 import org.patientview.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -144,6 +146,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private ObservationService observationService;
 
     @Inject
+    private PatientManagementService patientManagementService;
+
+    @Inject
     private PatientService patientService;
 
     @Inject
@@ -192,10 +197,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public Long add(User user) throws EntityExistsException {
+    public Long add(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException,
+            FhirResourceException {
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
             throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
+
+        Group firstGroup = null;
+        Identifier firstIdentifier = null;
 
         User creator = getCurrentUser();
         user.setCreator(creator);
@@ -256,6 +265,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
 
+                    if (firstGroup == null) {
+                        firstGroup = groupRole.getGroup();
+                    }
+
                     if (isPatient) {
                         auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, newUser.getUsername(),
                                 getCurrentUser(), newUser.getId(), AuditObjectTypes.User, groupRole.getGroup());
@@ -286,8 +299,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 identifier.setId(null);
                 identifier.setUser(newUser);
                 identifier.setCreator(creator);
-                identifierRepository.save(identifier);
+                Identifier entityIdentifier = identifierRepository.save(identifier);
+
+                if (firstIdentifier == null) {
+                    firstIdentifier = entityIdentifier;
+                }
             }
+        }
+
+        // IBD patient management, save with first saved group and identifier
+        if (user.getPatientManagement() != null) {
+            patientManagementService.save(newUser, firstGroup, firstIdentifier, user.getPatientManagement());
         }
 
         return newUser.getId();
@@ -566,7 +588,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      */
     @Override
     public Long createUserWithPasswordEncryption(User user)
-            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
+            throws ResourceNotFoundException, ResourceForbiddenException,
+            EntityExistsException, VerificationException, FhirResourceException {
         try {
             String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
@@ -590,6 +613,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (userRepository.emailExists(user.getEmail())) {
             throw new EntityExistsException("User already exists (email): " + user.getEmail());
+        }
+
+        // validate IBD patient management if set
+        if (user.getPatientManagement() != null) {
+            patientManagementService.validate(user.getPatientManagement());
         }
 
         return add(user);

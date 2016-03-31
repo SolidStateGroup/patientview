@@ -13,6 +13,7 @@ import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -142,7 +143,8 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAdd_staff() throws EntityExistsException {
+    public void testAdd_staff() throws EntityExistsException, ResourceForbiddenException,
+            ResourceNotFoundException, FhirResourceException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
@@ -373,7 +375,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testCreateUser() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testCreateUser() throws ResourceNotFoundException, ResourceForbiddenException, VerificationException, FhirResourceException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -420,7 +422,8 @@ public class UserServiceTest {
     }
 
     @Test(expected = ResourceForbiddenException.class)
-    public void testCreateUserWrongGroup() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testCreateUserWrongGroup()
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException, FhirResourceException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");

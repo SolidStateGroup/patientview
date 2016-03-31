@@ -337,6 +337,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 
+    @Override
     public List<UUID> getPractitionerLogicalUuidsByName(final String name) throws FhirResourceException {
         StringBuilder query = new StringBuilder();
         query.append("SELECT logical_id ");
@@ -344,6 +345,37 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         query.append("WHERE content -> 'name' -> 'family' = '\"");
         query.append(name);
         query.append("\"' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    @Override
+    public List<UUID> getPractitionerLogicalUuidsByNameAndRole(final String name, final String role)
+            throws FhirResourceException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM practitioner ");
+        query.append("WHERE content -> 'name' #>> '{family,0}' = '");
+        query.append(name.replace("'","''"));
+        query.append("' AND content #> '{role,0}' ->> 'text' = '");
+        query.append(role);
+        query.append("' ");
 
         // execute and return UUIDs
         try {

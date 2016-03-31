@@ -3,6 +3,8 @@ package org.patientview.persistence.resource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
+import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.Procedure;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
@@ -13,6 +15,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.postgresql.util.PGobject;
@@ -226,24 +229,6 @@ public class FhirResource {
         }
     }
 
-    public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-        JSONObject jsonObject = getBundle(uuid, resourceType);
-
-        // return null if not found
-        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
-            return null;
-        }
-
-        JSONArray resultArray = (JSONArray) jsonObject.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-
-        try {
-            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
-        } catch (Exception e) {
-            throw new FhirResourceException(e.getMessage());
-        }
-    }
-
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
         Connection connection = null;
 
@@ -307,6 +292,24 @@ public class FhirResource {
         }
     }
 
+    public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+        JSONObject jsonObject = getBundle(uuid, resourceType);
+
+        // return null if not found
+        if (jsonObject.get("entry").equals(JSONObject.NULL)) {
+            return null;
+        }
+
+        JSONArray resultArray = (JSONArray) jsonObject.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+
+        try {
+            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
+        } catch (Exception e) {
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
         PGobject result;
@@ -326,6 +329,60 @@ public class FhirResource {
             return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to get bundle {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    public List<UUID> getConditionLogicalIds(
+            final UUID subjectId, final String category, final String severity) throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM condition WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' ");
+
+        if (StringUtils.isNotEmpty(category)) {
+            query.append("AND content -> 'category' ->> 'text' = '");
+            query.append(category);
+            query.append("' ");
+        }
+
+        if (StringUtils.isNotEmpty(severity)) {
+            query.append("AND content -> 'severity' ->> 'text' = '");
+            query.append(severity);
+            query.append("' ");
+        }
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
 
             // try and close the open connection
             try {
@@ -568,6 +625,53 @@ public class FhirResource {
         }
     }
 
+    public List<UUID> getLogicalIdsBySubjectIdAndIdentifierValue(
+            final String tableName, final UUID subjectId, final String identifierValue)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' AND CONTENT #> '{identifier,0}' ->> 'value' ='");
+        query.append(identifierValue);
+        query.append("' ");
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     public List<UUID> getLogicalIdsBySubjectIdAppliesIgnoreNames(
             final String tableName, final UUID subjectId,
             final List<String> namesToIgnore, final Long start, final Long end) throws FhirResourceException {
@@ -751,6 +855,33 @@ public class FhirResource {
         }
     }
 
+    public List<Observation> getObservationsBySubjectAndName(UUID subjectId, List<String> names)
+            throws FhirResourceException{
+        StringBuilder nameString = new StringBuilder();
+        int count = 0;
+
+        for (String name : names) {
+            nameString.append("'").append(name).append("'");
+            if (count < PatientManagementObservationTypes.values().length - 1) {
+                nameString.append(",");
+            }
+            count++;
+        }
+
+        String query = "SELECT  content::varchar FROM observation " +
+                "WHERE content -> 'subject' ->> 'display' = '" +  subjectId.toString() + "' " +
+                "AND UPPER(content-> 'name' ->> 'text') IN (" + nameString.toString() + ") ";
+
+        return findResourceByQuery(query, Observation.class);
+    }
+
+    public List<Observation> getObservationsByPerformer(UUID performerId) throws FhirResourceException{
+        String query = "SELECT  content::varchar FROM observation " +
+                "WHERE CONTENT #> '{performer,0}' ->> 'display' ='" + performerId.toString() + "'";
+
+        return findResourceByQuery(query, Observation.class);
+    }
+
     public List<UUID> getObservationUuidsBySubjectNameDateRange(UUID subjectId, String name, Date start, Date end)
             throws FhirResourceException {
 
@@ -808,6 +939,13 @@ public class FhirResource {
 
             throw new FhirResourceException(e.getMessage());
         }
+    }
+
+    public List<Procedure> getProceduresByEncounter(UUID encounterId) throws FhirResourceException{
+        String query = "SELECT content::varchar FROM procedure " +
+                "WHERE CONTENT -> 'encounter' ->> 'display' = '" + encounterId.toString() + "'";
+
+        return findResourceByQuery(query, Procedure.class);
     }
 
     public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {

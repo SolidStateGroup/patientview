@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.CodeService;
+import org.patientview.api.service.LookupService;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -24,14 +26,20 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-
 /**
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
  */
 public class PatientControllerTest {
+
+    @Mock
+    private CodeService codeService;
+
+    @Mock
+    private ApiPatientService apiPatientService;
+
+    @Mock
+    private LookupService lookupService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -39,9 +47,6 @@ public class PatientControllerTest {
 
     @InjectMocks
     private PatientController patientController;
-
-    @Mock
-    private ApiPatientService apiPatientService;
 
     @Before
     public void setup() {
@@ -72,7 +77,6 @@ public class PatientControllerTest {
     
     @Test
     public void testUpdate() throws Exception {
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
@@ -89,7 +93,5 @@ public class PatientControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/patient/" + user.getId() + "/group/" + group.getId())
                 .content(mapper.writeValueAsString(fhirPatient)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        //verify(apiPatientService, Mockito.times(1)).update(eq(user.getId()), eq(group.getId()), eq(fhirPatient));
     }
 }

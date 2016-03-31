@@ -2,14 +2,17 @@ package org.patientview.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
-import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.builder.EncounterBuilder;
 import org.patientview.builder.EncountersBuilder;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.builder.ObservationBuilder;
+import org.patientview.builder.ProcedureBuilder;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.FhirProcedure;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.resource.FhirResource;
@@ -18,6 +21,7 @@ import org.patientview.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -59,7 +63,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         EncountersBuilder encountersBuilder = new EncountersBuilder(data, patientReference, groupReference);
 
         // delete existing
-        deleteBySubjectId(fhirLink.getResourceId());
+        deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TREATMENT);
+        deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TRANSPLANT_STATUS);
 
         int count = 0;
         for (Encounter encounter : encountersBuilder.build()) {
@@ -75,6 +80,46 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                 encountersBuilder.getCount());
     }
 
+    @Override
+    public FhirDatabaseEntity add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+            throws FhirResourceException {
+        // patient reference
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+
+        // build Encounter
+        EncounterBuilder encounterBuilder = new EncounterBuilder(null, fhirEncounter, patientReference,
+                Util.createResourceReference(organizationUuid));
+
+        // store Encounter
+        FhirDatabaseEntity databaseEntity
+                = fhirResource.createEntity(encounterBuilder.build(), ResourceType.Encounter.name(), "encounter");
+
+        // encounter reference
+        ResourceReference encounterReference = Util.createResourceReference(databaseEntity.getLogicalId());
+
+        // build and store observations (used for selects and text fields for SURGERY type encounters)
+        if (!CollectionUtils.isEmpty(fhirEncounter.getObservations())) {
+            for (FhirObservation fhirObservation : fhirEncounter.getObservations()) {
+                fhirObservation.setApplies(fhirEncounter.getDate());
+
+                ObservationBuilder observationBuilder
+                        = new ObservationBuilder(null, fhirObservation, patientReference, encounterReference);
+                fhirResource.createEntity(observationBuilder.build(), ResourceType.Observation.name(), "observation");
+            }
+        }
+
+        // build and store procedures (used for surgery site, e.g. foot)
+        if (!CollectionUtils.isEmpty(fhirEncounter.getProcedures())) {
+            for (FhirProcedure fhirProcedure : fhirEncounter.getProcedures()) {
+                ProcedureBuilder procedureBuilder
+                        = new ProcedureBuilder(null, fhirProcedure, patientReference, encounterReference);
+                fhirResource.createEntity(procedureBuilder.build(), ResourceType.Procedure.name(), "procedure");
+            }
+        }
+
+        return databaseEntity;
+    }
+
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
         // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
         // as these come from uktstatus table during migration, delete encounter natively
@@ -82,10 +127,46 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
             "DELETE FROM encounter WHERE CONTENT -> 'subject' ->> 'display' = '"
             + subjectId.toString()
             + "' AND CONTENT #> '{identifier,0}' ->> 'value' NOT IN ('"
+            + EncounterTypes.SURGERY.toString() + "','"
             + EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString() + "','"
             + EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString() + "');"
         );
     }
+
+    @Override
+    public void deleteBySubjectIdAndType(UUID subjectId, EncounterTypes encounterType)
+            throws FhirResourceException {
+        List<UUID> encounterUuids = fhirResource.getLogicalIdsBySubjectIdAndIdentifierValue(
+                "encounter", subjectId, encounterType.toString());
+
+        if (!CollectionUtils.isEmpty(encounterUuids)) {
+            String encounterUuidString = "";
+
+            for (int i = 0; i < encounterUuids.size(); i++) {
+                encounterUuidString += "'" + encounterUuids.get(i).toString() + "'";
+                if (i != encounterUuids.size() - 1) {
+                    encounterUuidString += ",";
+                }
+            }
+
+            // delete Encounters
+            fhirResource.executeSQL(
+                "DELETE FROM encounter WHERE logical_id IN (" + encounterUuidString + ");"
+            );
+
+            // delete associated Observations
+            fhirResource.executeSQL(
+                "DELETE FROM observation WHERE content #> '{performer,0}' ->> 'display' IN ("
+                        + encounterUuidString + ");"
+            );
+
+            // delete associated Procedures
+            fhirResource.executeSQL(
+                "DELETE FROM procedure WHERE CONTENT -> 'encounter' ->> 'display' IN (" + encounterUuidString + ");"
+            );
+        }
+    }
+
     @Override
     public void deleteByUserAndType(final User user, final EncounterTypes encounterType) throws FhirResourceException {
         if (encounterType == null) {
@@ -150,31 +231,4 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
 
         return encounters;
     }
-
-    @Override
-    public void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
-            throws FhirResourceException {
-
-        Encounter encounter = new Encounter();
-        encounter.setStatusSimple(Encounter.EncounterState.finished);
-
-        // e.g. "TREATMENT"
-        if (StringUtils.isNotEmpty(fhirEncounter.getEncounterType())) {
-            Identifier identifier = encounter.addIdentifier();
-            identifier.setValueSimple(fhirEncounter.getEncounterType());
-        }
-
-        // e.g. "transfusion"
-        if (StringUtils.isNotEmpty(fhirEncounter.getStatus())) {
-            CodeableConcept code = encounter.addType();
-            code.setTextSimple(fhirEncounter.getStatus());
-        }
-
-        encounter.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
-        encounter.setServiceProvider(Util.createResourceReference(organizationUuid));
-
-        fhirResource.createEntity(encounter, ResourceType.Encounter.name(), "encounter");
-    }
 }
-
-

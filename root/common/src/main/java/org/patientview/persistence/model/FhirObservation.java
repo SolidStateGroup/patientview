@@ -20,7 +20,7 @@ public class FhirObservation extends BaseModel {
 
     private Date applies;
 
-    // observation heading code
+    // observation heading code or NonTestObservationTypes string
     private String name;
 
     private String value;

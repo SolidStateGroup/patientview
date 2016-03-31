@@ -13,6 +13,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.DiagnosisSeverityTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -151,7 +152,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
         if (fhirClinicalData.getTreatments() != null) {
             // erase existing TREATMENT Encounters
             try {
-                encounterService.deleteByUserAndType(user, EncounterTypes.TREATMENT);
+                encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.TREATMENT);
             } catch (FhirResourceException fre) {
                 return new ServerResponse("error removing existing treatment");
             }
@@ -163,6 +164,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                     try {
                         fhirEncounter.setEncounterType(EncounterTypes.TREATMENT.toString());
                         encounterService.add(fhirEncounter, fhirLink, organizationUuid);
+                        successCount++;
                     } catch (FhirResourceException fre) {
                         return new ServerResponse("error saving treatment, added " + successCount
                                 + " of " + fhirClinicalData.getTreatments().size());
@@ -175,7 +177,7 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
             }
         }
 
-        // diagnoses (orginally diagnosis, list of diagnoses)
+        // diagnoses (originally diagnosis, list of diagnoses)
         if (fhirClinicalData.getDiagnoses() != null) {
             // erase existing DIAGNOSIS type Condition, could be multiple
             try {
@@ -190,7 +192,14 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
                 for (FhirCondition diagnosis : fhirClinicalData.getDiagnoses()) {
                     try {
                         diagnosis.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+
+                        // set MAIN diagnosis as first in list
+                        if (successCount == 0) {
+                            diagnosis.setSeverity(DiagnosisSeverityTypes.MAIN.toString());
+                        }
+
                         conditionService.add(diagnosis, fhirLink);
+                        successCount++;
                     } catch (FhirResourceException fre) {
                         return new ServerResponse("error saving diagnosis, added " + successCount
                                 + " of " + fhirClinicalData.getDiagnoses().size());

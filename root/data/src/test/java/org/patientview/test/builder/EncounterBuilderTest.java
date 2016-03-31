@@ -1,30 +1,51 @@
 package org.patientview.test.builder;
 
-import generated.Patientview;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Encounter;
-import org.hl7.fhir.instance.model.ResourceReference;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-import org.patientview.builder.EncountersBuilder;
-import org.patientview.test.BaseTest;
+import org.patientview.builder.EncounterBuilder;
+import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.util.Util;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
- * Created on 08/09/2014
+ * Created on 21/03/2016
  */
-public class EncounterBuilderTest extends BaseTest {
+public class EncounterBuilderTest {
 
     @Test
-    public void testEncounterBuilder() throws Exception {
-        Patientview patientview = Util.unmarshallPatientRecord(getTestFile());
-        EncountersBuilder encountersBuilder = new EncountersBuilder(patientview,
-                new ResourceReference(), new ResourceReference());
-        List<Encounter> encounters = encountersBuilder.build();
+    public void testBuildNew() throws Exception {
+        Date now = new DateTime(new Date()).withMillisOfSecond(0).toDate();
+        UUID subjectId = UUID.randomUUID();
+        UUID organizationId = UUID.randomUUID();
 
-        Assert.assertTrue("The conditions list should not be empty", !CollectionUtils.isEmpty(encounters));
+        FhirEncounter fhirEncounter = new FhirEncounter();
+        fhirEncounter.setDate(now);
+        fhirEncounter.setEncounterType(EncounterTypes.SURGERY.toString());
+        fhirEncounter.setStatus("some status");
+
+        // build
+        EncounterBuilder encounterBuilder
+                = new EncounterBuilder(null, fhirEncounter, Util.createResourceReference(subjectId),
+                Util.createResourceReference(organizationId));
+        Encounter encounter = encounterBuilder.build();
+
+        Assert.assertNotNull("The encounter should not be null", encounter);
+        Assert.assertEquals("EncounterType incorrect",
+                encounter.getIdentifier().get(0).getValueSimple(), fhirEncounter.getEncounterType());
+        Assert.assertEquals("Status incorrect", encounter.getType().get(0).getTextSimple(), fhirEncounter.getStatus());
+
+        Assert.assertNotNull("The period should not be null", encounter.getPeriod());
+        DateAndTime date = encounter.getPeriod().getStartSimple();
+        Date expected = new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis());
+        Assert.assertEquals("Start Date incorrect", expected.getTime(), fhirEncounter.getDate().getTime());
     }
 }

@@ -20,7 +20,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,16 +42,17 @@ import static org.mockito.Mockito.when;
 public class FhirLinkServiceTest {
 
     @InjectMocks
-    FhirLinkService fhirLinkService = new FhirLinkServiceImpl();
+    private FhirLinkService fhirLinkService = new FhirLinkServiceImpl();
 
     @Mock
-    FhirResource fhirResource;
+    private FhirResource fhirResource;
 
     @Mock
-    PatientService patientService;
+    private PatientService patientService;
 
     @Mock
-    UserRepository userRepository;
+    private FhirLinkRepository fhirLinkRepository;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -108,6 +110,6 @@ public class FhirLinkServiceTest {
         verify(fhirResource, times(1)).createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"));
         verify(patientService, times(1)).buildPatient(eq(patient), eq(identifier));
-        verify(userRepository, times(1)).save(eq(patient));
+        verify(fhirLinkRepository, times(1)).save(any(FhirLink.class));
     }
 }

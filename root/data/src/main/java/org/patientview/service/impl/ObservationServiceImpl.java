@@ -11,6 +11,8 @@ import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.builder.ObservationBuilder;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.ObservationsBuilder;
 import org.patientview.persistence.model.BasicObservation;
@@ -244,6 +246,14 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             LOG.error("Error creating observations", e);
             throw new FhirResourceException(e);
         }
+    }
+
+    @Override
+    public void add(FhirObservation fhirObservation, FhirLink fhirLink) throws FhirResourceException {
+        ObservationBuilder observationBuilder
+                = new ObservationBuilder(null, fhirObservation, Util.createResourceReference(fhirLink.getResourceId()));
+
+        fhirResource.createEntity(observationBuilder.build(), ResourceType.Observation.name(), "observation");
     }
 
     @Override

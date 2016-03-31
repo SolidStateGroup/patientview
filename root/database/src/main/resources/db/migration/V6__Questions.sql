@@ -11,6 +11,8 @@ INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (5, 'IBD_FATIGUE', 'IBD Fatigue');
 INSERT INTO "pv_survey" ("id", "type", "description")
 VALUES (6, 'IBD_SELF_MANAGEMENT', 'IBD Self-Management Programme');
+INSERT INTO "pv_survey" ("id", "type", "description")
+VALUES (7, 'IBD_PATIENT_MANAGEMENT', 'IBD Patient Management');
 
 /* Question Group */
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
@@ -43,6 +45,9 @@ VALUES (11, 5, 'SECTION III – Additional Questions about your Fatigue', null, 
 
 INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
 VALUES (12, 6, '', null, null, 1);
+
+INSERT INTO "pv_question_group" ("id", "survey_id", "text", "description", "number", "display_order")
+VALUES (13, 7, '', null, null, 1);
 
 /* Questions, see QuestionTypes.java */
 INSERT INTO "pv_question" ("id", "question_group_id", "element_type", "html_type", "text", "description", "number", "display_order", "range_start", "range_end", "type")

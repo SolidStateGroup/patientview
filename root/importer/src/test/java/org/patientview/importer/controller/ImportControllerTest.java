@@ -399,7 +399,8 @@ public class ImportControllerTest {
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
-        String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
+        //String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
+        String fileName = "data/xml/SALIBD_01436_1111111111.xml";
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
 
         // IBD

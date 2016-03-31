@@ -135,6 +135,9 @@ public class User extends RangeModel implements UserDetails {
     @Transient
     private boolean canSwitchUser;
 
+    @Transient
+    private PatientManagement patientManagement;
+
     public String getUsername() {
         return username;
     }
@@ -432,5 +435,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setSecretWord(String secretWord) {
         this.secretWord = secretWord;
+    }
+
+    public PatientManagement getPatientManagement() {
+        return patientManagement;
+    }
+
+    public void setPatientManagement(PatientManagement patientManagement) {
+        this.patientManagement = patientManagement;
     }
 }

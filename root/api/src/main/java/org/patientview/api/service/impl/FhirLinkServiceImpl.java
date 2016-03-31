@@ -9,10 +9,11 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.PatientService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -23,16 +24,17 @@ import java.util.HashSet;
  * Created on 08/03/2016
  */
 @Service
+@Transactional
 public class FhirLinkServiceImpl extends AbstractServiceImpl<FhirLinkServiceImpl> implements FhirLinkService {
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
 
     @Inject
     private FhirResource fhirResource;
 
     @Inject
     private PatientService patientService;
-
-    @Inject
-    private UserRepository userRepository;
 
     @Override
     public FhirLink createFhirLink(User user, Identifier identifier, Group group) throws FhirResourceException {
@@ -68,7 +70,7 @@ public class FhirLinkServiceImpl extends AbstractServiceImpl<FhirLinkServiceImpl
         }
 
         user.getFhirLinks().add(fhirLink);
-        userRepository.save(user);
+        fhirLinkRepository.save(fhirLink);
 
         return fhirLink;
     }

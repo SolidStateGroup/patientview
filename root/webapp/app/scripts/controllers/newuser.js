@@ -2,9 +2,9 @@
 
 // new patient modal instance controller
 angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
-    'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService',
+    'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService', '$route',
 function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService,
-          DiagnosisService, GroupService) {
+          DiagnosisService, GroupService, $route) {
 
     $scope.canAddDiagnosis = function () {
         // only Cardiol specialty and child groups of Cardiol
@@ -35,7 +35,12 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     };
 
     var init = function() {
+        $scope.loading = true;
+        $scope.editMode = false;
         $scope.addPatient = ($location.url().indexOf("newpatient") > 0);
+
+        // patient management, referenced by child scope
+        $scope.patientManagement = {};
 
         var i, j, role, group, roles, allFeatures;
         $scope.allGroups = [];
@@ -44,9 +49,18 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         $scope.groupMap = [];
         $scope.permissions = {};
         $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-        
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+
         if ($scope.addPatient) {
             roles = $scope.loggedInUser.userInformation.patientRoles;
+
+            // checked in patient management controller/view
+            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin
+                || $scope.permissions.isUnitAdmin) {
+                $scope.permissions.canEditPatients = true;
+            }
+
         } else {
             roles = $scope.loggedInUser.userInformation.staffRoles;
         }
@@ -96,6 +110,9 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                             }
                         }
                     }
+
+                    // group features used for patient management
+                    minimalGroup.groupFeatures = group.groupFeatures;
 
                     $scope.allGroups.push(minimalGroup);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
@@ -174,10 +191,43 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             }
 
             clearForm();
+
+            // set up patient management
+            $scope.$broadcast('patientManagementInit', {});
+
             $scope.showForm = true;
+            $scope.loading = false;
         }, function () {
             $scope.fatalErrorMessage = 'Error retrieving groups';
         });
+    };
+
+    // must have group with IBD_PATIENT_MANAGEMENT feature
+    $scope.hasPatientManagementPermission = function (groupRoles) {
+        if (!$scope.addPatient) {
+            return false;
+        }
+
+        if (groupRoles == null || groupRoles == undefined) {
+            return false;
+        }
+
+        if (!groupRoles.length) {
+            return false;
+        }
+
+        for (var i = 0; i < groupRoles.length; i++) {
+            var group = groupRoles[i].group;
+            if (group.groupFeatures != null && group.groupFeatures != undefined) {
+                for (var j = 0; j < group.groupFeatures.length; j++) {
+                    if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     };
 
     // check username is not already in use
@@ -203,11 +253,33 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
 
     // click Create New button
     $scope.create = function () {
+        var valid = true;
+
         // check date of birth if entered
         if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
-            && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
+            && !UtilService.validationDateNoFuture(
+                $scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
             $scope.errorMessage = 'Please enter a valid date of birth (and not in the future)';
-        } else {
+            valid = false;
+        }
+
+        if (valid && ($scope.patientManagement !== undefined)) {
+            valid = $scope.patientManagement.validate();
+            if (valid) {
+                $scope.patientManagement.buildFhirObjects();
+
+                var patientManagement = {};
+                patientManagement.condition = $scope.patientManagement.condition;
+                patientManagement.encounters = $scope.patientManagement.encounters;
+                patientManagement.observations = $scope.patientManagement.observations;
+                patientManagement.patient = $scope.patientManagement.patient;
+                patientManagement.practitioners = $scope.patientManagement.practitioners;
+
+                $scope.editUser.patientManagement = patientManagement;
+            }
+        }
+
+        if (valid) {
             // generate password
             var password = UtilService.generatePassword();
             $scope.editUser.password = password;
@@ -247,13 +319,13 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             });
         }
     };
-    
+
     $scope.showFormUI = function() {
-        $scope.showForm = true;    
-        delete $scope.successMessage;
+        // force init including all child scopes
+        $route.reload();
     };
-    
-    var clearForm = function() {        
+
+    var clearForm = function() {
         delete $scope.errorMessage;
         delete $scope.warningMessage;
 
@@ -298,6 +370,6 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         printWindow.print();
         printWindow.close();
     };
-    
+
     init();
 }]);
