@@ -862,13 +862,13 @@ public class FhirResource {
 
         for (String name : names) {
             nameString.append("'").append(name).append("'");
-            if (count < PatientManagementObservationTypes.values().length - 1) {
+            if (count < names.size() - 1) {
                 nameString.append(",");
             }
             count++;
         }
 
-        String query = "SELECT  content::varchar FROM observation " +
+        String query = "SELECT content::varchar FROM observation " +
                 "WHERE content -> 'subject' ->> 'display' = '" +  subjectId.toString() + "' " +
                 "AND UPPER(content-> 'name' ->> 'text') IN (" + nameString.toString() + ") ";
 
@@ -878,7 +878,7 @@ public class FhirResource {
     }
 
     public List<Observation> getObservationsByPerformer(UUID performerId) throws FhirResourceException{
-        String query = "SELECT  content::varchar FROM observation " +
+        String query = "SELECT content::varchar FROM observation " +
                 "WHERE CONTENT #> '{performer,0}' ->> 'display' ='" + performerId.toString() + "'";
 
         LOG.info(query);

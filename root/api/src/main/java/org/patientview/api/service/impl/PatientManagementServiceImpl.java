@@ -200,13 +200,28 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         if (!CollectionUtils.isEmpty(encounterUuids)) {
             patientManagement.setEncounters(new ArrayList<FhirEncounter>());
+            List<String> surgeryObservationNames = new ArrayList<>();
+            surgeryObservationNames.add(PatientManagementObservationTypes.SURGERY_HOSPITAL_CODE.toString());
+            surgeryObservationNames.add(PatientManagementObservationTypes.SURGERY_OTHER_DETAILS.toString());
+
             for (UUID encounterUuid : encounterUuids) {
                 Encounter encounter = (Encounter) fhirResource.get(encounterUuid, ResourceType.Encounter);
                 if (encounter != null) {
                     FhirEncounter fhirEncounter = new FhirEncounter(encounter);
 
-                    // observations
-                    List<Observation> encounterObservations = fhirResource.getObservationsByPerformer(encounterUuid);
+                    // observations (get by performer too slow as searching in array {performer, 0})
+                    List<Observation> surgeryObservations = fhirResource.getObservationsBySubjectAndName(
+                            fhirLink.getResourceId(), surgeryObservationNames);
+
+                    List<Observation> encounterObservations = new ArrayList<>();
+                    for (Observation surgeryObservation : surgeryObservations) {
+                        if (!CollectionUtils.isEmpty(surgeryObservation.getPerformer())
+                                && StringUtils.isNotEmpty(surgeryObservation.getPerformer().get(0).getDisplaySimple())
+                                && surgeryObservation.getPerformer().get(0).getDisplaySimple().equals(
+                                encounterUuid.toString())) {
+                            encounterObservations.add(surgeryObservation);
+                        }
+                    }
 
                     if (!CollectionUtils.isEmpty(encounterObservations)) {
                         fhirEncounter.setObservations(new HashSet<FhirObservation>());
