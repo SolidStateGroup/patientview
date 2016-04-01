@@ -39,6 +39,7 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.SurgeryObservationTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -195,8 +196,10 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (!CollectionUtils.isEmpty(encounterUuids)) {
             patientManagement.setEncounters(new ArrayList<FhirEncounter>());
             List<String> surgeryObservationNames = new ArrayList<>();
-            surgeryObservationNames.add(PatientManagementObservationTypes.SURGERY_HOSPITAL_CODE.toString());
-            surgeryObservationNames.add(PatientManagementObservationTypes.SURGERY_OTHER_DETAILS.toString());
+            for (SurgeryObservationTypes surgeryObservationType : SurgeryObservationTypes.values()) {
+                surgeryObservationNames.add(surgeryObservationType.toString());
+                surgeryObservationNames.add(surgeryObservationType.toString());
+            }
 
             for (UUID encounterUuid : encounterUuids) {
                 Encounter encounter = (Encounter) fhirResource.get(encounterUuid, ResourceType.Encounter);
@@ -207,20 +210,23 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
                     List<Observation> surgeryObservations = fhirResource.getObservationsBySubjectAndName(
                             fhirLink.getResourceId(), surgeryObservationNames);
 
-                    List<Observation> encounterObservations = new ArrayList<>();
-                    for (Observation surgeryObservation : surgeryObservations) {
-                        if (!CollectionUtils.isEmpty(surgeryObservation.getPerformer())
-                                && StringUtils.isNotEmpty(surgeryObservation.getPerformer().get(0).getDisplaySimple())
-                                && surgeryObservation.getPerformer().get(0).getDisplaySimple().equals(
-                                encounterUuid.toString())) {
-                            encounterObservations.add(surgeryObservation);
+                    if (!CollectionUtils.isEmpty(surgeryObservations)) {
+                        List<Observation> encounterObservations = new ArrayList<>();
+                        for (Observation surgeryObservation : surgeryObservations) {
+                            if (!CollectionUtils.isEmpty(surgeryObservation.getPerformer())
+                                    && StringUtils.isNotEmpty(
+                                        surgeryObservation.getPerformer().get(0).getDisplaySimple())
+                                    && surgeryObservation.getPerformer().get(0).getDisplaySimple().equals(
+                                    encounterUuid.toString())) {
+                                encounterObservations.add(surgeryObservation);
+                            }
                         }
-                    }
 
-                    if (!CollectionUtils.isEmpty(encounterObservations)) {
-                        fhirEncounter.setObservations(new HashSet<FhirObservation>());
-                        for (Observation observation : encounterObservations) {
-                            fhirEncounter.getObservations().add(new FhirObservation(observation));
+                        if (!CollectionUtils.isEmpty(encounterObservations)) {
+                            fhirEncounter.setObservations(new HashSet<FhirObservation>());
+                            for (Observation observation : encounterObservations) {
+                                fhirEncounter.getObservations().add(new FhirObservation(observation));
+                            }
                         }
                     }
 

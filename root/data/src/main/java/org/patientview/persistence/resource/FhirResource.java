@@ -640,8 +640,6 @@ public class FhirResource {
         query.append(identifierValue);
         query.append("' ");
 
-        LOG.info(query.toString());
-
         Connection connection = null;
 
         // execute and return UUIDs
@@ -766,7 +764,6 @@ public class FhirResource {
         query.append("' ");
 
         if (!CollectionUtils.isEmpty(names)) {
-            // names to ignore
             query.append("AND UPPER(content -> 'name' ->> 'text') IN (");
             for (int i = 0; i < names.size(); i++) {
                 query.append("'").append(names.get(i).toUpperCase()).append("'");
