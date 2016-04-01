@@ -201,7 +201,6 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                     }
                 }
             }
-
         }
     }
 
