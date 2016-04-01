@@ -139,14 +139,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     @Override
     public void deleteBySubjectIdAndType(UUID subjectId, EncounterTypes encounterType)
             throws FhirResourceException {
-        Long now = new Date().getTime();
-
-        LOG.info("d1 " + (new Date().getTime() - now));
-
         List<UUID> encounterUuids = fhirResource.getLogicalIdsBySubjectIdAndIdentifierValue(
                 "encounter", subjectId, encounterType.toString());
-
-        LOG.info("d2 " + (new Date().getTime() - now));
 
         if (!CollectionUtils.isEmpty(encounterUuids)) {
             String encounterUuidString = "";
@@ -158,27 +152,15 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                 }
             }
 
-            LOG.info("d3 " + (new Date().getTime() - now));
-
             // delete Encounters
             fhirResource.executeSQL(
                 "DELETE FROM encounter WHERE logical_id IN (" + encounterUuidString + ");"
             );
 
-            LOG.info("d4 " + (new Date().getTime() - now));
-
             // delete associated Procedures
             fhirResource.executeSQL(
                 "DELETE FROM procedure WHERE CONTENT -> 'encounter' ->> 'display' IN (" + encounterUuidString + ");"
             );
-
-            // delete associated Observations
-            /*fhirResource.executeSQL(
-                    "DELETE FROM observation WHERE content #> '{performer,0}' ->> 'display' IN ("
-                            + encounterUuidString + ");"
-            );*/
-
-            LOG.info("d5 " + (new Date().getTime() - now));
 
             // optimised delete observations (get by {performer, 0} is too slow), more queries but overall quicker
             List<String> surgeryObservationNames = new ArrayList<>();

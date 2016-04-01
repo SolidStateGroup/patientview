@@ -509,26 +509,21 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     private void saveEncounterDetails(FhirLink fhirLink, List<FhirEncounter> fhirEncounters, UUID organizationUuid)
             throws FhirResourceException {
-        Long now = new Date().getTime();
-
-        LOG.info("a " + (new Date().getTime() - now));
-
         // erase existing SURGERY Encounters and associated Observations and Procedures
         encounterService.deleteBySubjectIdAndType(fhirLink.getResourceId(), EncounterTypes.SURGERY);
-
-        LOG.info("b " + (new Date().getTime() - now));
 
         // store new
         for (FhirEncounter fhirEncounter : fhirEncounters) {
             encounterService.add(fhirEncounter, fhirLink, organizationUuid);
         }
-
-        LOG.info("c " + (new Date().getTime() - now));
     }
 
     private void savePractitionerDetails(FhirLink fhirLink, List<FhirPractitioner> fhirPractitioners)
             throws FhirResourceException {
         Patient currentPatient;
+
+        Long now = new Date().getTime();
+        LOG.info("p1 " + (new Date().getTime() - now));
 
         try {
             currentPatient = apiPatientService.get(fhirLink.getResourceId());
@@ -539,6 +534,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (currentPatient == null) {
             throw new FhirResourceException("error retrieving current patient");
         }
+
+        LOG.info("p2 " + (new Date().getTime() - now));
 
         // keep any care providers with role not in patient management practitioners list
         if (!CollectionUtils.isEmpty(currentPatient.getCareProvider())) {
@@ -567,6 +564,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             currentPatient.getCareProvider().addAll(toKeep);
         }
 
+        LOG.info("p3 " + (new Date().getTime() - now));
+
         // check if practitioner with name and role already exists in fhir (should only be one if so)
         for (FhirPractitioner fhirPractitioner : fhirPractitioners) {
             List<UUID> existingPractitioners = practitionerService.getPractitionerLogicalUuidsByNameAndRole(
@@ -586,9 +585,13 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
             }
         }
 
+        LOG.info("p4 " + (new Date().getTime() - now));
+
         // update patient with correct care providers
         fhirResource.updateEntity(
                 currentPatient, ResourceType.Patient.name(), "patient", fhirLink.getResourceId());
+
+        LOG.info("p5 " + (new Date().getTime() - now));
     }
 
     private void saveObservationDetails(FhirLink fhirLink, List<FhirObservation> fhirObservations)
