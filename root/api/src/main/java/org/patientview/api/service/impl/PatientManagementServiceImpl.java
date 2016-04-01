@@ -568,27 +568,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         // check if practitioner with name and role already exists in fhir (should only be one if so)
         for (FhirPractitioner fhirPractitioner : fhirPractitioners) {
-            // optimised get practitioners (get by {role, 0} is too slow), more queries but overall quicker
-            List<UUID> existingPractitioners = new ArrayList<>();
-            List<UUID> practitionerUuids = practitionerService.getPractitionerLogicalUuidsByName(
-                    fhirPractitioner.getName());
-
-            if (!CollectionUtils.isEmpty(practitionerUuids)) {
-                for (UUID practitionerUuid : practitionerUuids) {
-                    // get practitioner
-                    Practitioner practitioner
-                            = (Practitioner) fhirResource.get(practitionerUuid, ResourceType.Practitioner);
-
-                    // if role is same as fhirPractitioner add to existing list
-                    if (practitioner != null
-                            && !CollectionUtils.isEmpty(practitioner.getRole())
-                            && StringUtils.isNotEmpty(practitioner.getRole().get(0).getTextSimple())
-                            && practitioner.getRole().get(0).getTextSimple().equals(
-                            fhirPractitioner.getRole())) {
-                        existingPractitioners.add(practitionerUuid);
-                    }
-                }
-            }
+            List<UUID> existingPractitioners = practitionerService.getPractitionerLogicalUuidsByNameAndRole(
+                    fhirPractitioner.getName(), fhirPractitioner.getRole());
 
             if (!CollectionUtils.isEmpty(existingPractitioners)) {
                 // practitioner already in fhir (should be only one), add resource reference to patient

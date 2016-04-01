@@ -371,11 +371,11 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         StringBuilder query = new StringBuilder();
         query.append("SELECT logical_id ");
         query.append("FROM practitioner ");
-        query.append("WHERE content -> 'name' #>> '{family,0}' = '");
+        query.append("WHERE content -> 'name' -> 'family' = '[\"");
         query.append(name.replace("'","''"));
-        query.append("' AND content #> '{role,0}' ->> 'text' = '");
+        query.append("\"]' AND content ->> 'role' = '[{\"text\": \"");
         query.append(role);
-        query.append("' ");
+        query.append("\"}]'");
 
         // execute and return UUIDs
         try {

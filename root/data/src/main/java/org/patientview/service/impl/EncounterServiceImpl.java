@@ -162,44 +162,13 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
                 "DELETE FROM procedure WHERE CONTENT -> 'encounter' ->> 'display' IN (" + encounterUuidString + ");"
             );
 
-            // optimised delete observations (get by {performer, 0} is too slow), more queries but overall quicker
-            List<String> surgeryObservationNames = new ArrayList<>();
-            for (SurgeryObservationTypes surgeryObservationType : SurgeryObservationTypes.values()) {
-                surgeryObservationNames.add(surgeryObservationType.toString());
-                surgeryObservationNames.add(surgeryObservationType.toString());
-            }
-
-            // get logical id of all patient's observations with surgery names
-            List<UUID> surgeryObservationUuids = fhirResource.getLogicalIdsBySubjectIdAndNames("observation",
-                    subjectId, surgeryObservationNames);
-
-            if (!CollectionUtils.isEmpty(surgeryObservationUuids)) {
-                List<UUID> toDelete = new ArrayList<>();
-
-                // get UUID of all Observations associated with found Encounters
-                for (UUID encounterUuid : encounterUuids) {
-                    for (UUID observationUuid : surgeryObservationUuids) {
-                        // get observation
-                        Observation observation
-                                = (Observation) fhirResource.get(observationUuid, ResourceType.Observation);
-
-                        // if performer is encounter UUID add to list to be deleted
-                        if (observation != null && !CollectionUtils.isEmpty(observation.getPerformer())
-                                && StringUtils.isNotEmpty(
-                                observation.getPerformer().get(0).getDisplaySimple())
-                                && observation.getPerformer().get(0).getDisplaySimple().equals(
-                                encounterUuid.toString())) {
-                            toDelete.add(observationUuid);
-                        }
-                    }
-                }
-
-                // delete
-                if (!CollectionUtils.isEmpty(toDelete)) {
-                    for (UUID logicalId : toDelete) {
-                        fhirResource.deleteEntity(logicalId, "observation");
-                    }
-                }
+            // delete observations
+            for (UUID encounterUuid : encounterUuids) {
+                fhirResource.executeSQL(
+                    "DELETE FROM observation WHERE content ->> 'performer' = '[{\"display\": \""
+                    + encounterUuid
+                    + "\", \"reference\": \"uuid\"}]';"
+                );
             }
         }
     }
