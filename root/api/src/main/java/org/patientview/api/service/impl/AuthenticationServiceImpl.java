@@ -213,14 +213,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // if valid CKD api key then can bypass secret word check
         boolean validApiKey = false;
-        List<ApiKey> apiKeys = apiKeyRepository.findByKeyAndType(credentials.getApiKey(), ApiKeyTypes.CKD);
-        if (!CollectionUtils.isEmpty(apiKeys)) {
-            for (ApiKey apiKeyEntity : apiKeys) {
-                if (apiKeyEntity.getExpiryDate() == null) {
-                    validApiKey = true;
-                } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
-                    validApiKey = true;
+        if (StringUtils.isNotEmpty(credentials.getApiKey())) {
+            List<ApiKey> apiKeys = apiKeyRepository.findByKeyAndType(credentials.getApiKey(), ApiKeyTypes.CKD);
+            if (!CollectionUtils.isEmpty(apiKeys)) {
+                for (ApiKey apiKeyEntity : apiKeys) {
+                    if (apiKeyEntity.getExpiryDate() == null) {
+                        validApiKey = true;
+                    } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                        validApiKey = true;
+                    }
                 }
+            }
+
+            if (!validApiKey) {
+                throw new AuthenticationServiceException("Invalid API key");
             }
         }
 
