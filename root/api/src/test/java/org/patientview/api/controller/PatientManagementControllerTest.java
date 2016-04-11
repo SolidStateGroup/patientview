@@ -99,4 +99,13 @@ public class PatientManagementControllerTest {
 
         verify(patientManagementService, times(1)).save(eq(1L), eq(2L), eq(3L), any(PatientManagement.class));
     }
+
+    @Test
+    public void testValidatePatientManagement() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/patientmanagement/validate")
+                .content(mapper.writeValueAsString(new PatientManagement())).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(patientManagementService, times(1)).validate(any(PatientManagement.class));
+    }
 }

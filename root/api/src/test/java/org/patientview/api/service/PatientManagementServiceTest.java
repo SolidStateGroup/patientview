@@ -34,6 +34,7 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
+import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.model.enums.PractitionerRoles;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.CodeRepository;
@@ -382,6 +383,29 @@ public class PatientManagementServiceTest {
         patientManagement.setCondition(new FhirCondition());
         patientManagement.getCondition().setDate(now);
         patientManagement.getCondition().setCode(code.getCode());
+
+        // required observations
+        patientManagement.setObservations(new ArrayList<FhirObservation>());
+
+        List<PatientManagementObservationTypes> requiredObservationTypes = new ArrayList<>();
+        requiredObservationTypes.add(PatientManagementObservationTypes.WEIGHT);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_SMOKINGSTATUS);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSLOCATION);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPROXIMALTERMINALILEUM);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPERIANAL);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSBEHAVIOUR);
+
+        for (PatientManagementObservationTypes type : requiredObservationTypes) {
+            FhirObservation observation = new FhirObservation();
+            observation.setName(type.toString());
+            observation.setValue("00");
+            patientManagement.getObservations().add(observation);
+        }
+
+        // required gender & postcode
+        patientManagement.setPatient(new FhirPatient());
+        patientManagement.getPatient().setPostcode("abc123");
+        patientManagement.getPatient().setGender("Male");
 
         when(codeRepository.findOneByCode(eq(patientManagement.getCondition().getCode()))).thenReturn(code);
 

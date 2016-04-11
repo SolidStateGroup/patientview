@@ -977,6 +977,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.editUser = '';
         $scope.editMode = true;
         $scope.saved = '';
+        delete $scope.patientManagement;
 
         // do not load if already opened
         if (openedUser.showEdit) {

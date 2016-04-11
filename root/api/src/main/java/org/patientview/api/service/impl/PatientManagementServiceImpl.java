@@ -57,7 +57,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -631,6 +630,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
     @Override
     public void validate(PatientManagement patientManagement) throws VerificationException {
+        // diagnosis
         if (patientManagement.getCondition() == null) {
             throw new VerificationException("Diagnosis not set");
         }
@@ -651,5 +651,69 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (!code.getCodeType().getValue().equals(DiagnosisTypes.DIAGNOSIS.toString())) {
             throw new VerificationException("Diagnosis code is wrong type");
         }
+
+        // required postcode and gender
+        if (patientManagement.getPatient() == null) {
+            throw new VerificationException("Must set Postcode and Gender");
+        }
+        if (StringUtils.isEmpty(patientManagement.getPatient().getPostcode())) {
+            throw new VerificationException("'Postcode' not set");
+        }
+        if (StringUtils.isEmpty(patientManagement.getPatient().getGender())) {
+            throw new VerificationException("'Gender' not set");
+        }
+
+        // required observation types
+        List<PatientManagementObservationTypes> requiredObservationTypes = new ArrayList<>();
+        requiredObservationTypes.add(PatientManagementObservationTypes.WEIGHT);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_SMOKINGSTATUS);
+
+        for (PatientManagementObservationTypes type : requiredObservationTypes) {
+            if (!observationExists(type.toString(), patientManagement.getObservations())) {
+                throw new VerificationException("'" + type.getName() + "' not set");
+            }
+        }
+
+        // Crohn's specific observation types, hardcoded
+        if (code.getCode().equals("CD")) {
+            requiredObservationTypes = new ArrayList<>();
+            requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSLOCATION);
+            requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPROXIMALTERMINALILEUM);
+            requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPERIANAL);
+            requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSBEHAVIOUR);
+
+            for (PatientManagementObservationTypes type : requiredObservationTypes) {
+                if (!observationExists(type.toString(), patientManagement.getObservations())) {
+                    throw new VerificationException("'" + type.getName() + "' not set");
+                }
+            }
+        }
+
+        // Ulcerative Colitis & IBD Unknown specific observation types, hardcoded
+        if (code.getCode().equals("UC") || code.getCode().equals("IBDU")) {
+            requiredObservationTypes = new ArrayList<>();
+            requiredObservationTypes.add(PatientManagementObservationTypes.IBD_UCEXTENT);
+
+            for (PatientManagementObservationTypes type : requiredObservationTypes) {
+                if (!observationExists(type.toString(), patientManagement.getObservations())) {
+                    throw new VerificationException("'" + type.getName() + "' not set");
+                }
+            }
+        }
+    }
+
+    private boolean observationExists(String name, List<FhirObservation> observations) {
+        if (CollectionUtils.isEmpty(observations)) {
+            return false;
+        }
+
+        for (FhirObservation observation : observations) {
+            if (observation.getName().toUpperCase().equals(name.toUpperCase())
+                    && StringUtils.isNotEmpty(observation.getValue())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

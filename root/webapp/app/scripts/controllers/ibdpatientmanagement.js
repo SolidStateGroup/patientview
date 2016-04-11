@@ -116,7 +116,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears();
-        $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear() + 6);
+        $scope.yearsPlusSix = UtilService.generateYears(new Date().getFullYear(), new Date().getFullYear() + 6);
 
         // map to parent object so can be used during create patient step, build object
         $scope.patientManagement = $scope.$parent.patientManagement;
@@ -138,7 +138,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         $scope.patientManagement.diagnosisDate.selectedYear = $scope.years[0];
 
         // validation function, called when checking patient management
-        $scope.patientManagement.validate = function() {
+        $scope.patientManagement.validate = function(callback) {
             var valid = true;
             $scope.patientManagement.errorMessage = '';
 
@@ -156,7 +156,25 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 valid = false;
             }
 
-            return valid;
+            if (valid) {
+                $scope.patientManagement.buildFhirObjects();
+
+                var patientManagement = {};
+                patientManagement.condition = $scope.patientManagement.condition;
+                patientManagement.encounters = $scope.patientManagement.encounters;
+                patientManagement.observations = $scope.patientManagement.observations;
+                patientManagement.patient = $scope.patientManagement.patient;
+                patientManagement.practitioners = $scope.patientManagement.practitioners;
+
+                PatientService.validatePatientManagement(patientManagement).then(function() {
+                    callback(true);
+                }, function (err) {
+                    $scope.patientManagement.errorMessage += err.data + '<br/>';
+                    callback(false);
+                });
+            } else {
+                callback(false)
+            }
         };
 
         // build function to store FhirObjects
@@ -506,28 +524,29 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         delete $scope.patientManagement.successMessage;
         $scope.patientManagement.saving = true;
 
-        var valid = $scope.patientManagement.validate();
-        if (valid) {
-            $scope.patientManagement.buildFhirObjects();
+        $scope.patientManagement.validate(function(valid) {
+            if (valid) {
+                $scope.patientManagement.buildFhirObjects();
 
-            var patientManagement = {};
-            patientManagement.condition = $scope.patientManagement.condition;
-            patientManagement.encounters = $scope.patientManagement.encounters;
-            patientManagement.observations = $scope.patientManagement.observations;
-            patientManagement.patient = $scope.patientManagement.patient;
-            patientManagement.practitioners = $scope.patientManagement.practitioners;
+                var patientManagement = {};
+                patientManagement.condition = $scope.patientManagement.condition;
+                patientManagement.encounters = $scope.patientManagement.encounters;
+                patientManagement.observations = $scope.patientManagement.observations;
+                patientManagement.patient = $scope.patientManagement.patient;
+                patientManagement.practitioners = $scope.patientManagement.practitioners;
 
-            PatientService.savePatientManagement($scope.patientManagement.userId, $scope.patientManagement.groupId,
-                $scope.patientManagement.identifierId, patientManagement).then(function() {
-                $scope.patientManagement.successMessage = "Saved Patient Management Information";
+                PatientService.savePatientManagement($scope.patientManagement.userId, $scope.patientManagement.groupId,
+                    $scope.patientManagement.identifierId, patientManagement).then(function() {
+                        $scope.patientManagement.successMessage = "Saved Patient Management Information";
+                        $scope.patientManagement.saving = false;
+                    }, function () {
+                        $scope.patientManagement.errorMessage = "Error Saving Patient Management Information";
+                        $scope.patientManagement.saving = false;
+                    });
+            } else {
                 $scope.patientManagement.saving = false;
-            }, function () {
-                $scope.patientManagement.errorMessage = "Error Saving Patient Management Information";
-                $scope.patientManagement.saving = false;
-            });
-        } else {
-            $scope.patientManagement.saving = false;
-        }
+            }
+        });
     };
 
     $scope.showSurgeryModal = function() {

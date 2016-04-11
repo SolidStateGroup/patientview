@@ -82,14 +82,17 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return code;
         },
-        generateYears: function (maxYear) {
+        generateYears: function (minYear, maxYear) {
             var years = [];
             years.push('');
             if (maxYear === undefined || maxYear === null) {
                 maxYear = new Date().getFullYear();
             }
+            if (minYear === undefined || minYear === null) {
+                minYear = 1900;
+            }
 
-            for (var i=maxYear;i>=1900;i--) {
+            for (var i=maxYear;i>=minYear;i--) {
                 years.push(i);
             }
             return years;

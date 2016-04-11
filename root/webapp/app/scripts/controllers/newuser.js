@@ -251,6 +251,46 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         }
     });
 
+    var save = function() {
+        // generate password
+        var password = UtilService.generatePassword();
+        $scope.editUser.password = password;
+
+        UserService.create($scope.editUser).then(function(userId) {
+            UserService.get(userId).then(function(result) {
+                result.isNewUser = true;
+                result.password = password;
+                $scope.printSuccessMessage = true;
+                $scope.successMessage = 'User successfully created ' +
+                    'with username: ' + $scope.editUser.username + ' ' +
+                    'and password: ' + password;
+                $scope.showForm = false;
+
+                // now add staff entered diagnosis if present
+                if ($scope.editUser.staffEnteredDiagnosis) {
+                    DiagnosisService.add(userId, $scope.editUser.staffEnteredDiagnosis.code).then(function() {
+                        clearForm();
+                    }, function() {
+                        clearForm();
+                        alert('Failed to add diagnosis, patient was created successfully.');
+                    })
+                } else {
+                    clearForm();
+                }
+            }, function() {
+                alert('Cannot get user (has been created)');
+            });
+        }, function(result) {
+            if (result.status === 409) {
+                // 409 = CONFLICT, means user already exists
+                $scope.warningMessage = 'A patient with this username or email already exists. Please choose an alternative or search for an existing patient if you want to add them to your group';
+            } else {
+                // Other errors treated as standard errors
+                $scope.errorMessage = 'There was an error: ' + result.data;
+            }
+        });
+    };
+
     // click Create New button
     $scope.create = function () {
         var valid = true;
@@ -264,59 +304,26 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         }
 
         if (valid && ($scope.patientManagement !== undefined)) {
-            valid = $scope.patientManagement.validate();
-            if (valid) {
-                $scope.patientManagement.buildFhirObjects();
+            $scope.patientManagement.validate(function(valid) {
+                if (valid) {
+                    $scope.patientManagement.buildFhirObjects();
 
-                var patientManagement = {};
-                patientManagement.condition = $scope.patientManagement.condition;
-                patientManagement.encounters = $scope.patientManagement.encounters;
-                patientManagement.observations = $scope.patientManagement.observations;
-                patientManagement.patient = $scope.patientManagement.patient;
-                patientManagement.practitioners = $scope.patientManagement.practitioners;
+                    var patientManagement = {};
+                    patientManagement.condition = $scope.patientManagement.condition;
+                    patientManagement.encounters = $scope.patientManagement.encounters;
+                    patientManagement.observations = $scope.patientManagement.observations;
+                    patientManagement.patient = $scope.patientManagement.patient;
+                    patientManagement.practitioners = $scope.patientManagement.practitioners;
 
-                $scope.editUser.patientManagement = patientManagement;
-            }
-        }
+                    $scope.editUser.patientManagement = patientManagement;
 
-        if (valid) {
-            // generate password
-            var password = UtilService.generatePassword();
-            $scope.editUser.password = password;
-
-            UserService.create($scope.editUser).then(function(userId) {
-                UserService.get(userId).then(function(result) {
-                    result.isNewUser = true;
-                    result.password = password;
-                    $scope.printSuccessMessage = true;
-                    $scope.successMessage = 'User successfully created ' +
-                        'with username: ' + $scope.editUser.username + ' ' +
-                        'and password: ' + password;
-                    $scope.showForm = false;
-
-                    // now add staff entered diagnosis if present
-                    if ($scope.editUser.staffEnteredDiagnosis) {
-                        DiagnosisService.add(userId, $scope.editUser.staffEnteredDiagnosis.code).then(function() {
-                            clearForm();
-                        }, function() {
-                            clearForm();
-                            alert('Failed to add diagnosis, patient was created successfully.');
-                        })
-                    } else {
-                        clearForm();
-                    }
-                }, function() {
-                    alert('Cannot get user (has been created)');
-                });
-            }, function(result) {
-                if (result.status === 409) {
-                    // 409 = CONFLICT, means user already exists
-                    $scope.warningMessage = 'A patient with this username or email already exists. Please choose an alternative or search for an existing patient if you want to add them to your group';
-                } else {
-                    // Other errors treated as standard errors
-                    $scope.errorMessage = 'There was an error: ' + result.data;
+                    save();
                 }
             });
+        }
+
+        if (valid && ($scope.patientManagement == undefined)) {
+            save();
         }
     };
 

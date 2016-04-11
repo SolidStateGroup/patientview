@@ -7,6 +7,7 @@ import org.patientview.api.service.PatientManagementService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.PatientManagement;
 import org.springframework.http.HttpStatus;
@@ -104,5 +105,18 @@ public class PatientManagementController extends BaseController<PatientManagemen
             @RequestBody PatientManagement patientManagement)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         patientManagementService.save(userId, groupId, identifierId, patientManagement);
+    }
+
+    /**
+     * Validate PatientManagement object
+     * @param patientManagement PatientManagement to validate
+     * @throws VerificationException
+     */
+    @RequestMapping(value = "/patientmanagement/validate", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void validatePatientManagement(@RequestBody PatientManagement patientManagement)
+            throws VerificationException {
+        patientManagementService.validate(patientManagement);
     }
 }

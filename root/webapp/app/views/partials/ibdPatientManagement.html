@@ -103,13 +103,14 @@
 
 <div data-ng-show="!loadingPatientManagement">
     <hr>
-    <h2 class="text-center">IBD Patient Management</h2>
+    <h2>Please Complete the Following:</h2>
     <h3>Personal Details</h3>
 
     <div class="row">
         <div class="col-md-3">
             <label for="postcode" class="control-label">
                 Postcode
+                <span class="error" data-ng-if="!patientManagement.postcode">(required)</span>
             </label>
             <input type="text" class="form-control" id="postcode" data-ng-model="patientManagement.postcode"
                    debounce="500" data-ng-disabled="!permissions.canEditPatients">
@@ -117,6 +118,7 @@
         <div class="col-md-3">
             <label for="gender" class="control-label">
                 Gender
+                <span class="error" data-ng-if="!patientManagement.gender">(required)</span>
             </label>
             <select id="gender" data-ng-model="patientManagement.gender"
                     data-ng-options="option as option.description for option in patientManagement.lookupMap['GENDER'] | orderBy:'displayOrder'"
@@ -150,6 +152,7 @@
         <div class="col-md-3">
             <label for="weight" class="control-label">
                 Weight (kg)
+                <span class="error" data-ng-if="!patientManagement.answers['WEIGHT'].value">(required)</span>
             </label>
             <input type="text" class="form-control" id="weight" data-ng-model="patientManagement.answers['WEIGHT'].value"
                    only-num-decimal-1dp debounce="500" data-ng-disabled="!permissions.canEditPatients">
@@ -198,7 +201,8 @@
     <div class="row">
         <div class="col-md-6">
             <label for="diagnosis" class="control-label">
-                Diagnosis <span class="error" data-ng-if="!patientManagement.diagnosis">(required)</span>
+                Diagnosis
+                <span class="error" data-ng-if="!patientManagement.diagnosis">(required)</span>
             </label>
             <br/>
             <select id="diagnosis" data-ng-model="patientManagement.diagnosis"
@@ -212,6 +216,7 @@
         <div class="col-md-3">
             <label for="location-crohns" class="control-label">
                 Location
+                <span class="error" data-ng-if="patientManagement.diagnosis.code === 'CD' && !patientManagement.answers['IBD_CROHNSLOCATION'].option">(required)</span>
             </label>
             <br/>
             <select id="location-crohns" data-ng-model="patientManagement.answers['IBD_CROHNSLOCATION'].option"
@@ -222,6 +227,7 @@
         <div class="col-md-3">
             <label for="proximal" class="control-label">
                 Disease Proximal to Terminal Ileum
+                <span class="error" data-ng-if="patientManagement.diagnosis.code === 'CD' && !patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option">(required)</span>
             </label>
             <br/>
             <select id="proximal" data-ng-model="patientManagement.answers['IBD_CROHNSPROXIMALTERMINALILEUM'].option"
@@ -232,6 +238,7 @@
         <div class="col-md-3">
             <label for="perianal" class="control-label">
                 Perianal
+                <span class="error" data-ng-if="patientManagement.diagnosis.code === 'CD' && !patientManagement.answers['IBD_CROHNSPERIANAL'].option">(required)</span>
             </label>
             <br/>
             <select id="perianal" data-ng-model="patientManagement.answers['IBD_CROHNSPERIANAL'].option"
@@ -242,6 +249,7 @@
         <div class="col-md-3">
             <label for="complications" class="control-label">
                 Complications
+                <span class="error" data-ng-if="patientManagement.diagnosis.code === 'CD' && !patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option">(required)</span>
             </label>
             <br/>
             <select id="complications" data-ng-model="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option"
@@ -256,6 +264,7 @@
             <div class="col-md-3" data-ng-if="patientManagement.diagnosis.code === 'UC' || patientManagement.diagnosis.code === 'IBDU'">
                 <label for="ibd_ucextent" class="control-label">
                     Location
+                    <span class="error" data-ng-if="(patientManagement.diagnosis.code === 'UC' || patientManagement.diagnosis.code === 'IBDU') && !patientManagement.answers['IBD_UCEXTENT'].option">(required)</span>
                 </label>
                 <br/>
                 <select id="ibd_ucextent" data-ng-model="patientManagement.answers['IBD_UCEXTENT'].option"
@@ -354,6 +363,7 @@
             <div class="col-md-3">
                 <label for="ibd_smokingstatus" class="control-label">
                     Smoking Status
+                    <span class="error" data-ng-if="!patientManagement.answers['IBD_SMOKINGSTATUS'].option">(required)</span>
                 </label>
                 <select id="ibd_smokingstatus" data-ng-model="patientManagement.answers['IBD_SMOKINGSTATUS'].option"
                         data-ng-options="option as option.description for option in patientManagement.lookupMap['IBD_SMOKINGSTATUS'] | orderBy:'displayOrder'"

@@ -61,6 +61,17 @@ function ($q, Restangular) {
                     deferred.reject(failureResult);
                 });
             return deferred.promise;
+        },
+        // Validate IBD patient management
+        validatePatientManagement: function (patientManagement) {
+            var deferred = $q.defer();
+            // POST /patientmanagement/validate
+            Restangular.one('patientmanagement/validate').customPOST(patientManagement).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
         }
     };
 }]);
