@@ -57,6 +57,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -639,6 +640,9 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         }
         if (patientManagement.getCondition().getDate() == null) {
             throw new VerificationException("Diagnosis date not set");
+        }
+        if (patientManagement.getCondition().getDate().after(new Date())) {
+            throw new VerificationException("Diagnosis date must be today or in the past");
         }
 
         Code code = codeRepository.findOneByCode(patientManagement.getCondition().getCode());
