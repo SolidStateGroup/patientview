@@ -142,7 +142,7 @@
                         <td>
                             <span data-ng-if="patientManagement.answers['IBD_EGIMCOMPLICATION'].values">
                                 <span data-ng-repeat="selectedComplication in patientManagement.answers['IBD_EGIMCOMPLICATION'].values track by $index">
-                                    {{selectedComplication.description}},
+                                    {{selectedComplication.description}}<br/>
                                 </span>
                             </span>
                         </td>

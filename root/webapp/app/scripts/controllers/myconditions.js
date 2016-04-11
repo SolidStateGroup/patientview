@@ -4,6 +4,21 @@ angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'Patie
     'ObservationService', '$routeParams', 'DiagnosisService', '$timeout',
 function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout) {
 
+    $scope.changeSpecialty = function(specialty) {
+        $scope.currentSpecialty = specialty;
+        $scope.loading = true;
+
+        if (specialty.code === 'IBD') {
+            getPatientManagement($scope.loggedInUser, function() {
+                $timeout(function() {
+                    getAllPublic();
+                });
+            });
+        } else {
+            getAllPublic();
+        }
+    };
+
     // get public listing of groups, used when finding child groups that provide patient information
     var getAllPublic = function() {
         GroupService.getAllPublic().then(function(groups) {
@@ -139,6 +154,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
     };
 
     var createPatientManagementArray = function(lookupType, observationValue) {
+        //console.log($scope.patientManagement.lookupMap);
         var toReturn = [];
         // handle information from patient management
         if ($scope.patientManagement.lookupMap[lookupType]) {
@@ -359,6 +375,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     }
                 }
 
+                //console.log($scope.patientDetails[0]);
+
                 if ($scope.patientDetails[0] && $scope.patientDetails[0].myIbd) {
                     // used for other my ibd tabs
                     $scope.primaryDiagnosis = $scope.patientDetails[0].myIbd.primaryDiagnosis;
@@ -413,13 +431,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         });
     };
 
-    $scope.changeSpecialty = function(specialty) {
-        $scope.currentSpecialty = specialty;
-        $scope.loading = true;
-        getMyConditions();
-    };
-
-    var getPatientManagement = function (user) {
+    var getPatientManagement = function (user, callback) {
         // get patient management information based on group with IBD_PATIENT_MANAGEMENT feature
         var patientManagementGroupId = null;
         var patientManagementIdentifierId = null;
@@ -457,6 +469,10 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     $scope.patientManagement.userId = user.id;
 
                     $scope.$broadcast('patientManagementInit', {});
+
+                    if (callback) {
+                        callback();
+                    }
                 }, function () {
                     alert('Error retrieving patient management information');
                 });
