@@ -8,12 +8,14 @@ public class Lookup {
     private Long id;
     private String value;
     private String description;
+    private String descriptionFriendly;
     private Long displayOrder;
 
     public Lookup(org.patientview.persistence.model.Lookup lookup) {
         this.id = lookup.getId();
         this.value = lookup.getValue();
         this.description = lookup.getDescription();
+        this.descriptionFriendly = lookup.getDescriptionFriendly();
         this.displayOrder = lookup.getDisplayOrder();
     }
 
@@ -39,6 +41,14 @@ public class Lookup {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDescriptionFriendly() {
+        return descriptionFriendly;
+    }
+
+    public void setDescriptionFriendly(String descriptionFriendly) {
+        this.descriptionFriendly = descriptionFriendly;
     }
 
     public Long getDisplayOrder() {

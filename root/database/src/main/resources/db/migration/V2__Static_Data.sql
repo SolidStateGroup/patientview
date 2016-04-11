@@ -90,9 +90,9 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (73, now(), 'NO', 'No', 1, 14, 2);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (74, now(), 'YES', 'Yes', 1, 15, 1);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (75, now(), 'NO', 'No', 1, 15, 2);
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (76, now(), 'B1', 'Inflammation Only', 1, 16, 1);
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (77, now(), 'B2', 'Stricturing Disease', 1, 16, 2);
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (78, now(), 'B3', 'Fistulating Disease', 1, 16, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (76, now(), 'B1', 'Non-Stricturing, Non-Penetrating', 'Inflammation Only', 1, 16, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (77, now(), 'B2', 'Stricturing', 'Stricturing Disease', 1, 16, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (78, now(), 'B3', 'Penetrating', 'Fistulating Disease', 1, 16, 3);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (79, now(), 'E1', 'Ulcerative Proctitis', 1, 17, 1);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (80, now(), 'E2', 'Left Sided UC (Distal UC)', 1, 17, 2);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (81, now(), 'E3', 'Extensive UC (Pancolitis)', 1, 17, 3);

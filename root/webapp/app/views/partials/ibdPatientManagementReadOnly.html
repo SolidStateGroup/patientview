@@ -119,7 +119,12 @@
                         <td class="forced-width">Complications</td>
                         <td>
                             <span data-ng-if="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option">
-                                {{patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.description}}
+                                <span data-ng-if="patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.descriptionFriendly">
+                                    {{patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.descriptionFriendly}}
+                                </span>
+                                <span data-ng-if="!patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.descriptionFriendly">
+                                    {{patientManagement.answers['IBD_CROHNSBEHAVIOUR'].option.description}}
+                                </span>
                             </span>
                         </td>
                     </tr>
