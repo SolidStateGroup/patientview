@@ -113,6 +113,29 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
     };
 
+    $scope.getLocationDiagram = function(option) {
+        var val = option.value;
+
+        // currently hardcoded to specific lookup values
+        switch (val) {
+            case 'E1':
+                return 'images/ibd/crohns.jpg';
+            case 'E2':
+                return 'images/ibd/crohns.jpg';
+            case 'E3':
+                return 'images/ibd/crohns.jpg';
+            case 'L1':
+                return 'images/ibd/crohns.jpg';
+            case 'L2':
+                return 'images/ibd/crohns.jpg';
+            case 'L3':
+                return 'images/ibd/ileo-colonic-disease.jpg';
+                break;
+            default :
+                return null;
+        }
+    };
+
     var init = function() {
         $scope.loadingPatientManagement = true;
         delete $scope.successMessage;

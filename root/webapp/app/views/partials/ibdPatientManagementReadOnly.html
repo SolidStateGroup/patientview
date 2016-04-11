@@ -129,6 +129,12 @@
                             <span data-ng-if="patientManagement.answers['IBD_UCEXTENT'].option">
                                 {{patientManagement.answers['IBD_UCEXTENT'].option.description}}
                             </span>
+                            <div data-ng-if="getLocationDiagram(patientManagement.answers['IBD_UCEXTENT'].option)">
+                                <img data-ng-src={{getLocationDiagram(patientManagement.answers['IBD_UCEXTENT'].option)}} alt="{{patientManagement.answers['IBD_UCEXTENT'].option.description}}"/>
+                                <br/><br/>
+                                <div class="image-colour-key-red"></div>
+                                Represents the part of the bowel affected by your condition.
+                            </div>
                         </td>
                     </tr>
                     <tr>

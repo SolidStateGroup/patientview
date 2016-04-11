@@ -304,7 +304,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         });
 
         if (childGroupIds.length > 0) {
-
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
 
@@ -348,6 +347,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     // only SALIBD gets 'old' myIBD, use patient management lookups as well as standard IBD observations
                     if ($scope.currentSpecialty.code === "IBD" && $scope.patientDetails[i].group.code === "SALIBD") {
                         $scope.patientDetails[i].myIbd = createMyIbd($scope.patientDetails[i]);
+
+                        // used to show/hide correct MyIBD tab
+                        $scope.useOldMyIbd = true;
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
                         // create myIBD object if present
                         $scope.patientDetails[i].myIbd = {};
