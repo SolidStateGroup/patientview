@@ -53,9 +53,14 @@ var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Ut
                 $scope.surgery.date = new Date(parseInt($scope.surgery.selectedYear),
                     parseInt($scope.surgery.selectedMonth) - 1, parseInt($scope.surgery.selectedDay));
 
-                // set id (for removing)
-                $scope.surgery.id = new Date().getTime();
-                $modalInstance.close($scope.surgery);
+                // check date in future
+                if ($scope.surgery.date.getTime() > new Date().getTime()) {
+                    $scope.errorMessage = "Date must not be in future";
+                } else {
+                    // set id (for removing)
+                    $scope.surgery.id = new Date().getTime();
+                    $modalInstance.close($scope.surgery);
+                }
             }
         };
 
