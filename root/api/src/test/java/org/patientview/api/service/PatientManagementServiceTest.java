@@ -182,18 +182,30 @@ public class PatientManagementServiceTest {
         // patient details
         patientManagement.setPatient(new FhirPatient());
         patientManagement.getPatient().setPostcode("AB1 2CD");
+        patientManagement.getPatient().setGender("Male");
 
         // encounter (surgery) details
         FhirEncounter fhirEncounter = new FhirEncounter();
         patientManagement.setEncounters(new ArrayList<FhirEncounter>());
         patientManagement.getEncounters().add(fhirEncounter);
 
-        // observation (selects, text fields) details
-        FhirObservation fhirObservation = new FhirObservation();
-        fhirObservation.setName(NonTestObservationTypes.IBD_ALLERGYSUBSTANCE.toString());
-        fhirObservation.setValue("1");
+        // required observations
         patientManagement.setObservations(new ArrayList<FhirObservation>());
-        patientManagement.getObservations().add(fhirObservation);
+
+        List<PatientManagementObservationTypes> requiredObservationTypes = new ArrayList<>();
+        requiredObservationTypes.add(PatientManagementObservationTypes.WEIGHT);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_SMOKINGSTATUS);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSLOCATION);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPROXIMALTERMINALILEUM);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSPERIANAL);
+        requiredObservationTypes.add(PatientManagementObservationTypes.IBD_CROHNSBEHAVIOUR);
+
+        for (PatientManagementObservationTypes type : requiredObservationTypes) {
+            FhirObservation observation = new FhirObservation();
+            observation.setName(type.toString());
+            observation.setValue("00");
+            patientManagement.getObservations().add(observation);
+        }
 
         List<UUID> existingObservationUuids = new ArrayList<>();
         existingObservationUuids.add(UUID.randomUUID());
@@ -247,7 +259,7 @@ public class PatientManagementServiceTest {
         verify(encounterService, times(1)).add(eq(fhirEncounter), eq(fhirLink), eq(organizationUuid));
         verify(encounterService, times(1)).deleteBySubjectIdAndType(
                 eq(fhirLink.getResourceId()), eq(EncounterTypes.SURGERY));
-        verify(observationService, times(1)).add(eq(fhirObservation), eq(fhirLink));
+        verify(observationService, times(6)).add(any(FhirObservation.class), eq(fhirLink));
         verify(observationService, times(1)).deleteObservations(eq(existingObservationUuids));
         verify(organizationService, times(1)).add(eq(group));
     }

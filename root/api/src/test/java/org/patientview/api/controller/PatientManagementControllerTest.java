@@ -102,6 +102,13 @@ public class PatientManagementControllerTest {
 
     @Test
     public void testValidatePatientManagement() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
+
         mockMvc.perform(MockMvcRequestBuilders.post("/patientmanagement/validate")
                 .content(mapper.writeValueAsString(new PatientManagement())).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
