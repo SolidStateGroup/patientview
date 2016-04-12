@@ -15,21 +15,26 @@
     <div class="modal-body">
         <div class="row">
             <div class="col-md-6">
-                <div class="row">
+                <label class="control-label">
+                    Date of Surgery
+                    <span class="error" data-ng-if="!surgery.selectedDay || !surgery.selectedMonth || !surgery.selectedYear">
+                        (required)
+                    </span>
+                </label>
+                <div class="dob-row">
                     <div class="col-md-4 day">
-                        <label class="control-label" for="surgery-day">Day:</label>
-                        <select data-ng-model="surgery.selectedDay"
-                                data-ng-options="option as option for option in days"
-                                class="form-control" id="surgery-day" data-ng-disabled="!permissions.canEditPatients"></select>
+                        Day:<select data-ng-model="surgery.selectedDay"
+                                    data-ng-options="option as option for option in days"
+                                    class="form-control" id="surgery-day" data-ng-disabled="!permissions.canEditPatients"></select>
                     </div>
                     <div class="col-md-4">
-                        <label class="control-label" for="surgery-month">Month:</label>
+                        Month:
                         <select data-ng-model="surgery.selectedMonth"
                                 data-ng-options="option as option for option in months"
                                 class="form-control" id="surgery-month" data-ng-disabled="!permissions.canEditPatients"></select>
                     </div>
                     <div class="col-md-4 year">
-                        <label class="control-label" for="surgery-year">Year:</label>
+                        Year:
                         <select data-ng-model="surgery.selectedYear"
                                 data-ng-options="option as option for option in years"
                                 class="form-control" id="surgery-year" data-ng-disabled="!permissions.canEditPatients"></select>
@@ -38,7 +43,7 @@
             </div>
             <div class="col-md-6">
                 <label for="hospital-code" class="control-label">
-                    Hospital Code (if different to current)
+                    <br/>Hospital Code (if different to current)
                 </label>
                 <input type="text" class="form-control" id="hospital-code" data-ng-model="surgery.hospitalCode"
                        debounce="500" data-ng-disabled="!permissions.canEditPatients">
@@ -48,6 +53,9 @@
             <div class="col-md-6">
                 <label for="procedure-select" class="control-label">
                     Main Surgical Procedure(s)
+                    <span class="error" data-ng-if="!surgery.selectedProcedures.length">
+                        (required)
+                    </span>
                 </label>
                 <select id="procedure-select" data-ng-model="selectedProcedure"
                         data-ng-options="option as option.description for option in lookupMap['IBD_SURGERYMAINPROCEDURE']"
@@ -386,12 +394,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr data-ng-repeat="surgery in patientManagement.surgeries">
+                    <tr data-ng-repeat="surgery in patientManagement.surgeries | orderBy:'-date'">
                         <td>{{surgery.date | date:'dd-MMM-yyyy'}}</td>
                         <td>{{surgery.hospitalCode}}</td>
                         <td>
-                            <span data-ng-repeat="procedure in surgery.selectedProcedures">
-                                {{procedure.description}}<span data-ng-if="surgery.selectedProcedures.length > 1">,</span>
+                            <span data-ng-repeat="procedure in surgery.selectedProcedures | orderBy:'description'">
+                                {{procedure.description}}<br/>
                             </span>
                         </td>
                         <td>

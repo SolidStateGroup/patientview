@@ -47,7 +47,7 @@ var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Ut
 
             if (!UtilService.validationDate($scope.surgery.selectedDay,
                     $scope.surgery.selectedMonth, $scope.surgery.selectedYear)) {
-                $scope.errorMessage = "Please select a valid date";
+                $scope.errorMessage = 'Please select a valid Date of Surgery';
             } else {
                 // set date
                 $scope.surgery.date = new Date(parseInt($scope.surgery.selectedYear),
@@ -55,11 +55,15 @@ var AddSurgeryModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Ut
 
                 // check date in future
                 if ($scope.surgery.date.getTime() > new Date().getTime()) {
-                    $scope.errorMessage = "Date must not be in future";
+                    $scope.errorMessage = 'Date of Surgery must not be in future';
                 } else {
-                    // set id (for removing)
-                    $scope.surgery.id = new Date().getTime();
-                    $modalInstance.close($scope.surgery);
+                    if (!$scope.surgery.selectedProcedures.length) {
+                        $scope.errorMessage = 'You must select at least one Main Surgical Procedure';
+                    } else {
+                        // set id (for removing)
+                        $scope.surgery.id = new Date().getTime();
+                        $modalInstance.close($scope.surgery);
+                    }
                 }
             }
         };
@@ -564,10 +568,28 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
                 PatientService.savePatientManagement($scope.patientManagement.userId, $scope.patientManagement.groupId,
                     $scope.patientManagement.identifierId, patientManagement).then(function() {
-                        $scope.patientManagement.successMessage = "Saved Patient Management Information";
+                        if (!section) {
+                            $scope.patientManagement.successMessage = 'Saved Patient Management Information';
+                        } else {
+                            switch (section) {
+                                case 'PERSONAL_DETAILS':
+                                    $scope.patientManagement.successMessage =  'Personal Details Saved';
+                                    break;
+                                case 'DIAGNOSIS_DETAILS':
+                                    $scope.patientManagement.successMessage =  'Diagnosis Details Saved';
+                                    break;
+                                case 'FURTHER_CLINICAL_INFORMATION':
+                                    $scope.patientManagement.successMessage =  'Further Clinical Information Saved';
+                                    break;
+                                default:
+                                    $scope.patientManagement.successMessage = 'Saved Patient Management Information';
+                                    break;
+
+                            }
+                        }
                         $scope.patientManagement.saving = false;
                     }, function () {
-                        $scope.patientManagement.errorMessage = "Error Saving Patient Management Information";
+                        $scope.patientManagement.errorMessage = 'Error Saving Patient Management Information';
                         $scope.patientManagement.saving = false;
                     });
             } else {
