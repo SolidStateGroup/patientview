@@ -542,7 +542,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         }
         $scope.patientManagement.surgeries = surgeries;
 
-        savePatientManagementSurgeries();
+        if ($scope.editMode) {
+            savePatientManagementSurgeries();
+        }
     };
 
     // used when saving independently of creating user
@@ -644,7 +646,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {
             $scope.patientManagement.surgeries.push(surgery);
-            savePatientManagementSurgeries();
+            if ($scope.editMode) {
+                savePatientManagementSurgeries();
+            }
         }, function () {
         });
     };
