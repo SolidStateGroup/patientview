@@ -167,42 +167,24 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
 
         // validation function, called when checking patient management
         $scope.patientManagement.validate = function(callback) {
-            var valid = true;
             $scope.patientManagement.errorMessage = '';
+            $scope.patientManagement.buildFhirObjects();
 
-            // date must be valid
-            var diagnosisDate = $scope.patientManagement.diagnosisDate;
-            if (!UtilService.validationDate(diagnosisDate.selectedDay,
-                    diagnosisDate.selectedMonth, diagnosisDate.selectedYear)) {
-                $scope.patientManagement.errorMessage += 'Date of Diagnosis must be valid<br/>';
-                valid = false;
-            }
+            var patientManagement = {};
+            patientManagement.condition = $scope.patientManagement.condition;
+            patientManagement.encounters = $scope.patientManagement.encounters;
+            patientManagement.observations = $scope.patientManagement.observations;
+            patientManagement.patient = $scope.patientManagement.patient;
+            patientManagement.practitioners = $scope.patientManagement.practitioners;
 
-            // diagnosis must be set
-            if ($scope.patientManagement.diagnosis === undefined) {
-                $scope.patientManagement.errorMessage += 'Diagnosis must be selected<br/>';
-                valid = false;
-            }
-
-            if (valid) {
-                $scope.patientManagement.buildFhirObjects();
-
-                var patientManagement = {};
-                patientManagement.condition = $scope.patientManagement.condition;
-                patientManagement.encounters = $scope.patientManagement.encounters;
-                patientManagement.observations = $scope.patientManagement.observations;
-                patientManagement.patient = $scope.patientManagement.patient;
-                patientManagement.practitioners = $scope.patientManagement.practitioners;
-
-                PatientService.validatePatientManagement(patientManagement).then(function() {
-                    callback(true);
-                }, function (err) {
-                    $scope.patientManagement.errorMessage += err.data + '<br/>';
-                    callback(false);
-                });
-            } else {
-                callback(false)
-            }
+            PatientService.validatePatientManagement(patientManagement).then(function() {
+                callback(true);
+            }, function (err) {
+                for (var i = 0; i < err.data.length; i++) {
+                    $scope.patientManagement.errorMessage += err.data[i] + '<br/>';
+                }
+                callback(false);
+            });
         };
 
         // build function to store FhirObjects
@@ -212,12 +194,14 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             var answers = $scope.patientManagement.answers;
 
             // build condition (diagnosis)
-            var condition = {};
-            condition.code = $scope.patientManagement.diagnosis.code;
-            condition.date = new Date(parseInt($scope.patientManagement.diagnosisDate.selectedYear),
-                parseInt($scope.patientManagement.diagnosisDate.selectedMonth) - 1,
-                parseInt($scope.patientManagement.diagnosisDate.selectedDay));
-            $scope.patientManagement.condition = condition;
+            if ($scope.patientManagement.diagnosis) {
+                var condition = {};
+                condition.code = $scope.patientManagement.diagnosis.code;
+                condition.date = new Date(parseInt($scope.patientManagement.diagnosisDate.selectedYear),
+                    parseInt($scope.patientManagement.diagnosisDate.selectedMonth) - 1,
+                    parseInt($scope.patientManagement.diagnosisDate.selectedDay));
+                $scope.patientManagement.condition = condition;
+            }
 
             // build observations (selects and text fields)
             for (var type in answers) {
@@ -229,7 +213,9 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                             observation = {};
                             observation.name = type;
                             observation.value = answer.values[i].value;
-                            observation.applies = condition.date;
+                            if (condition) {
+                                observation.applies = condition.date;
+                            }
                             observations.push(observation);
                         }
                     }
@@ -239,14 +225,18 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                         observation = {};
                         observation.name = type;
                         observation.value = answer.option.value;
-                        observation.applies = condition.date;
+                        if (condition) {
+                            observation.applies = condition.date;
+                        }
                         observations.push(observation);
                     } else if (answer.value !== undefined && answer.value !== null) {
                         // text
                         observation = {};
                         observation.name = type;
                         observation.value = answer.value;
-                        observation.applies = condition.date;
+                        if (condition) {
+                            observation.applies = condition.date;
+                        }
                         observations.push(observation);
                     }
                 }
@@ -552,9 +542,14 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
     };
 
     // used when saving independently of creating user
-    $scope.savePatientManagement = function () {
+    $scope.savePatientManagement = function (section) {
         delete $scope.patientManagement.successMessage;
+        delete $scope.patientManagement.section;
         $scope.patientManagement.saving = true;
+
+        if (section) {
+            $scope.patientManagement.section = section;
+        }
 
         $scope.patientManagement.validate(function(valid) {
             if (valid) {
@@ -578,7 +573,7 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             } else {
                 $scope.patientManagement.saving = false;
             }
-        });
+        }, section);
     };
 
     var savePatientManagementSurgeries = function() {
