@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.PatientManagementService;
-import org.patientview.persistence.model.PatientManagement;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -203,7 +203,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
-        Group firstGroup = null;
+        Group patientManagementGroup = null;
         Identifier firstIdentifier = null;
 
         User creator = getCurrentUser();
@@ -265,8 +265,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
 
-                    if (firstGroup == null) {
-                        firstGroup = groupRole.getGroup();
+                    if (patientManagementGroup == null) {
+                        if (!CollectionUtils.isEmpty(groupRole.getGroup().getGroupFeatures())) {
+                            for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
+                                if (groupFeature.getFeature().getName().equals(FeatureType.IBD_PATIENT_MANAGEMENT.toString())) {
+                                    patientManagementGroup = groupRole.getGroup();
+                                }
+                            }
+                        }
                     }
 
                     if (isPatient) {
@@ -307,9 +313,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        // IBD patient management, save with first saved group and identifier
-        if (user.getPatientManagement() != null) {
-            patientManagementService.save(newUser, firstGroup, firstIdentifier, user.getPatientManagement());
+        // IBD patient management, save with found patient management group and first saved identifier
+        if (user.getPatientManagement() != null && patientManagementGroup != null) {
+            patientManagementService.save(
+                    newUser, patientManagementGroup, firstIdentifier, user.getPatientManagement());
         }
 
         return newUser.getId();

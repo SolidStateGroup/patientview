@@ -584,7 +584,6 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                                 default:
                                     $scope.patientManagement.successMessage = 'Saved Patient Management Information';
                                     break;
-
                             }
                         }
                         $scope.patientManagement.saving = false;
