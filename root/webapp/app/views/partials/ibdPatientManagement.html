@@ -5,6 +5,10 @@
     .name-action-list li .feature-list-delete {
         margin-right: 10px;
     }
+    h4 {
+        margin-top: 20px;
+        margin-bottom: 5px;
+    }
 </style>
 
 <!-- add surgery modal -->
@@ -111,14 +115,14 @@
 
 <div data-ng-show="!loadingPatientManagement">
     <hr>
-    <h2>Please Complete the Following:</h2>
+    <h3>Please Complete the Following:</h3>
     <p data-ng-if="editMode">
         <strong>
             <span class="error">Important:</span>
             You must click the Save Form button under the relevant section whenever a change is made to that section.
         </strong>
     </p>
-    <h3>Personal Details</h3>
+    <h4>Personal Details</h4>
 
     <div class="row">
         <div class="col-md-3">
@@ -205,7 +209,7 @@
     </div>
 
     <hr>
-    <h3>Diagnosis Details</h3>
+    <h4>Diagnosis Details</h4>
     <div class="row">
         <div class="col-md-6">
             <label class="control-label">
@@ -380,7 +384,7 @@
     </div>
 
     <hr>
-    <h3>Surgeries</h3>
+    <h4>Surgeries</h4>
     <div class="row" data-ng-if="patientManagement.surgeries.length">
         <div class="col-md-12">
             <table class="table">
@@ -423,7 +427,7 @@
     </div>
 
     <hr>
-    <h3>Further Clinical Information</h3>
+    <h4>Further Clinical Information</h4>
     <div class="row">
         <div class="col-md-3">
             <label for="ibd_smokingstatus" class="control-label">
