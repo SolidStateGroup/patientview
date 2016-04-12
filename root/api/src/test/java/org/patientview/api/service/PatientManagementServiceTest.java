@@ -376,6 +376,69 @@ public class PatientManagementServiceTest {
     }
 
     @Test
+    public void testSaveSurgeries()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.getGroupRoles().add(TestUtils.createGroupRole(role, group, user));
+        TestUtils.authenticateTest(user, user.getGroupRoles());
+
+        Date now = new Date();
+        UUID organizationUuid = UUID.randomUUID();
+
+        // user
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+        patient.getIdentifiers().add(identifier);
+
+        // fhir links
+        FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier);
+        patient.setFhirLinks(new HashSet<FhirLink>());
+        patient.getFhirLinks().add(fhirLink);
+
+        // FHIR Patient, updated as fhirlink creation creates new patient anyway
+        Patient fhirPatient = new Patient();
+        FhirDatabaseEntity patientFhirDatabaseEntity = new FhirDatabaseEntity();
+        patientFhirDatabaseEntity.setLogicalId(fhirLink.getResourceId());
+        patientFhirDatabaseEntity.setVersionId(UUID.randomUUID());
+
+        // PatientManagement
+        PatientManagement patientManagement = new PatientManagement();
+
+        // encounter (surgery) details
+        FhirEncounter fhirEncounter = new FhirEncounter();
+        patientManagement.setEncounters(new ArrayList<FhirEncounter>());
+        patientManagement.getEncounters().add(fhirEncounter);
+
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(group), eq(identifier)))
+                .thenReturn(new ArrayList<>(patient.getFhirLinks()));
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(organizationService.add(eq(group))).thenReturn(organizationUuid);
+        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
+
+        // save
+        patientManagementService.saveSurgeries(patient.getId(), group.getId(), identifier.getId(), patientManagement);
+
+        verify(encounterService, times(1)).add(eq(fhirEncounter), eq(fhirLink), eq(organizationUuid));
+        verify(encounterService, times(1)).deleteBySubjectIdAndType(
+                eq(fhirLink.getResourceId()), eq(EncounterTypes.SURGERY));
+        verify(organizationService, times(1)).add(eq(group));
+    }
+
+    @Test
     public void testValidate() throws VerificationException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");

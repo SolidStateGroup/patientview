@@ -62,6 +62,18 @@ function ($q, Restangular) {
                 });
             return deferred.promise;
         },
+        // Save surgeries (Encounters) in IBD patient management given user, group, identifier id
+        savePatientManagementSurgeries: function (userId, groupId, identifierId, patientManagement) {
+            var deferred = $q.defer();
+            // POST /patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}
+            Restangular.one('patientmanagement', userId).one('group', groupId).one('identifier', identifierId)
+                .one('surgeries').customPOST(patientManagement).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
         // Validate IBD patient management
         validatePatientManagement: function (patientManagement) {
             var deferred = $q.defer();

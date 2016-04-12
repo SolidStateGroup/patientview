@@ -466,16 +466,18 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
                 // procedures
                 var procedureTypes = $scope.patientManagement.lookupMap['IBD_SURGERYMAINPROCEDURE'];
 
-                for (j = 0; j < encounter.procedures.length; j++) {
-                    for (k = 0; k < procedureTypes.length; k++) {
-                        if (encounter.procedures[j].bodySite == procedureTypes[k].value) {
-                            surgery.selectedProcedures.push(procedureTypes[k]);
+                if (encounter.procedures !== null && encounter.procedures !== undefined) {
+                    for (j = 0; j < encounter.procedures.length; j++) {
+                        for (k = 0; k < procedureTypes.length; k++) {
+                            if (encounter.procedures[j].bodySite == procedureTypes[k].value) {
+                                surgery.selectedProcedures.push(procedureTypes[k]);
+                            }
                         }
                     }
                 }
 
                 // observations
-                if (encounter.observations != null && encounter.observations != undefined) {
+                if (encounter.observations !== null && encounter.observations !== undefined) {
                     for (j = 0; j < encounter.observations.length; j++) {
                         if (encounter.observations[j].name == 'SURGERY_HOSPITAL_CODE') {
                             surgery.hospitalCode = encounter.observations[j].value;
@@ -545,6 +547,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
             }
         }
         $scope.patientManagement.surgeries = surgeries;
+
+        savePatientManagementSurgeries();
     };
 
     // used when saving independently of creating user
@@ -577,6 +581,30 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         });
     };
 
+    var savePatientManagementSurgeries = function() {
+        // now actually save surgeries
+        delete $scope.patientManagement.errorMessage;
+        delete $scope.patientManagement.successMessage;
+        $scope.patientManagement.saving = true;
+        $scope.patientManagement.buildFhirObjects();
+
+        var patientManagement = {};
+        patientManagement.condition = $scope.patientManagement.condition;
+        patientManagement.encounters = $scope.patientManagement.encounters;
+        patientManagement.observations = $scope.patientManagement.observations;
+        patientManagement.patient = $scope.patientManagement.patient;
+        patientManagement.practitioners = $scope.patientManagement.practitioners;
+
+        PatientService.savePatientManagementSurgeries($scope.patientManagement.userId,
+            $scope.patientManagement.groupId, $scope.patientManagement.identifierId, patientManagement)
+            .then(function() {
+                $scope.patientManagement.saving = false;
+            }, function () {
+                $scope.patientManagement.errorMessage = "Error Saving Surgeries";
+                $scope.patientManagement.saving = false;
+            });
+    };
+
     $scope.showSurgeryModal = function() {
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
@@ -600,8 +628,8 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // handle modal close (via button click)
         modalInstance.result.then(function (surgery) {
             $scope.patientManagement.surgeries.push(surgery);
+            savePatientManagementSurgeries();
         }, function () {
-
         });
     };
 }]);

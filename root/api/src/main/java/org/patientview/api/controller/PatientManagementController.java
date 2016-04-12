@@ -108,6 +108,27 @@ public class PatientManagementController extends BaseController<PatientManagemen
     }
 
     /**
+     * Save Encounters (surgeries) in PatientManagement, for IBD Patient Management, used when saving from UI
+     * @param userId Long ID of User (patient)
+     * @param groupId Long ID of Group
+     * @param identifierId Long ID of Identifier
+     * @param patientManagement PatientManagement object containing Encounters
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @RequestMapping(value = "/patientmanagement/{userId}/group/{groupId}/identifier/{identifierId}/surgeries",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void savePatientManagementSurgeries(@PathVariable("userId") Long userId,
+            @PathVariable("groupId") Long groupId, @PathVariable("identifierId") Long identifierId,
+            @RequestBody PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        patientManagementService.saveSurgeries(userId, groupId, identifierId, patientManagement);
+    }
+
+    /**
      * Validate PatientManagement object
      * @param patientManagement PatientManagement to validate
      * @throws VerificationException

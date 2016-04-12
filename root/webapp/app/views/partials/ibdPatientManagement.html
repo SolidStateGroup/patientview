@@ -166,6 +166,15 @@
         </div>
     </div>
 
+    <div class="row" data-ng-show="permissions.canEditPatients && editMode">
+        <div class="col-md-12">
+            <br/>
+            <button type="button" class="btn blue" data-ng-click="savePatientManagement()" data-ng-disabled="patientManagement.saving">
+                Save All
+            </button>
+        </div>
+    </div>
+
     <hr>
     <h3>Diagnosis Details</h3>
     <div class="row">
@@ -315,6 +324,16 @@
             </div>
         </div>
     </div>
+
+    <div class="row" data-ng-show="permissions.canEditPatients && editMode">
+        <div class="col-md-12">
+            <br/>
+            <button type="button" class="btn blue" data-ng-click="savePatientManagement()" data-ng-disabled="patientManagement.saving">
+                Save All
+            </button>
+        </div>
+    </div>
+
     <div>
         <hr>
         <h3>Surgeries</h3>
@@ -344,7 +363,7 @@
                             </td>
                             <td>
                                 <div class="btn-group pull-right" data-ng-if="permissions.canEditPatients">
-                                    <button class="btn btn-danger" data-ng-click="removeSurgery(surgery)">Remove</button>
+                                    <button class="btn btn-danger" data-ng-click="removeSurgery(surgery)" data-ng-disabled="patientManagement.saving">Remove</button>
                                 </div>
                             </td>
                         </tr>
@@ -355,7 +374,7 @@
 
         <div class="row" data-ng-if="permissions.canEditPatients">
             <div class="col-md-2">
-                <button class="btn blue form-control" data-ng-click="showSurgeryModal()">Add Surgery</button>
+                <button class="btn blue form-control" data-ng-click="showSurgeryModal()" data-ng-disabled="patientManagement.saving">Add Surgery</button>
             </div>
         </div>
 
@@ -419,21 +438,21 @@
         </div>
     </div>
 
+    <div class="row" data-ng-show="permissions.canEditPatients && editMode">
+        <div class="col-md-12">
+            <br/>
+            <button type="button" class="btn blue" data-ng-click="savePatientManagement()" data-ng-disabled="patientManagement.saving">
+                Save All
+            </button>
+        </div>
+    </div>
+
     <div class="row" data-ng-if="patientManagement.successMessage.length">
         <br/>
         <div class="col-md-12">
             <div class="alert alert-success">
                 <span ng-bind-html="patientManagement.successMessage"></span>
             </div>
-        </div>
-    </div>
-
-    <div class="row" data-ng-show="permissions.canEditPatients && editMode">
-        <div class="col-md-12">
-            <button type="button" class="btn blue pull-right" data-ng-click="savePatientManagement()"
-                    data-ng-disabled="patientManagement.saving">
-                Save All
-            </button>
         </div>
     </div>
 </div>

@@ -630,6 +630,76 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
     }
 
     @Override
+    public void saveSurgeries(Long userId, Long groupId, Long identifierId, PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        if (userId == null) {
+            throw new ResourceNotFoundException("user must be set");
+        }
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("user does not exist");
+        }
+
+        if (groupId == null) {
+            throw new ResourceNotFoundException("group must be set");
+        }
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("group does not exist");
+        }
+
+        if (identifierId == null) {
+            throw new ResourceNotFoundException("identifier must be set");
+        }
+        Identifier identifier = identifierRepository.findOne(identifierId);
+        if (identifier == null) {
+            throw new ResourceNotFoundException("identifier does not exist");
+        }
+
+        if (patientManagement == null) {
+            throw new ResourceNotFoundException("patient management data must be set");
+        }
+
+        if (!userService.currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("forbidden");
+        }
+
+        FhirLink fhirLink = null;
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(user, group, identifier);
+
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            // fhirlink does not exist
+            fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
+        } else {
+            // fhirlink exists, should only be one
+            fhirLink = fhirLinks.get(0);
+        }
+
+        if (fhirLink == null) {
+            throw new ResourceNotFoundException("error creating FHIR link");
+        }
+        if (fhirLink.getResourceId() == null) {
+            throw new ResourceNotFoundException("error retrieving FHIR patient, no UUID");
+        }
+
+        // get FHIR Organization logical id UUID, creating from Group if not present, used by treatment Encounter
+        UUID organizationUuid;
+
+        try {
+            organizationUuid = organizationService.add(group);
+        } catch (FhirResourceException fre) {
+            throw new FhirResourceException("error saving organization");
+        }
+
+        if (organizationUuid == null) {
+            throw new FhirResourceException("error saving organization, is null");
+        }
+
+        // update FHIR Encounters (surgeries)
+        saveEncounterDetails(fhirLink, patientManagement.getEncounters(), organizationUuid);
+    }
+
+    @Override
     public void validate(PatientManagement patientManagement) throws VerificationException {
         // diagnosis
         if (patientManagement.getCondition() == null) {

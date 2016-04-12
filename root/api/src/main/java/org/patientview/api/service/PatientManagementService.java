@@ -74,6 +74,21 @@ public interface PatientManagementService {
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
+     * Save Encounters (surgeries) in PatientManagement, for IBD Patient Management, used when saving from UI
+     * @param userId Long ID of User (patient)
+     * @param groupId Long ID of Group
+     * @param identifierId Long ID of Identifier
+     * @param patientManagement PatientManagement object containing Encounters
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void saveSurgeries(Long userId, Long groupId, Long identifierId, PatientManagement patientManagement)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
+    /**
      * Validate a PatientManagement object, currently only checks Condition (diagnosis) is set with a suitable code
      * and date.
      * @param patientManagement PatientManagement object to validate
