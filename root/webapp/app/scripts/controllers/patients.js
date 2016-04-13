@@ -302,6 +302,15 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         });
     };
 
+    // click Find by email button
+    $scope.findByEmail = function () {
+        UserService.findByEmail($('#email').val()).then(function(result) {
+            showUserOnScreen(result, "email");
+        }, function () {
+            $scope.warningMessage = 'No patient exists with this email address';
+        });
+    };
+
     var showUserOnScreen = function (result, searchType) {
         $scope.editUser = result;
         $scope.existingUser = true;

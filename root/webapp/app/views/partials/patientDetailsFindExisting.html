@@ -21,3 +21,15 @@
         <button class="btn blue" data-ng-click="findByIdentifier()" data-ng-show="permissions.canCreatePatients">Find</button>
     </div>
 </div>
+<br/>
+<div class="form-horizontal row" role="form">
+    <div class="col-md-3">
+        <label for="identifier" class="control-label">Search by Email</label>
+    </div>
+    <div class="col-md-7">
+        <input type="text" class="form-control" id="email">
+    </div>
+    <div class="col-md-2">
+        <button class="btn blue" data-ng-click="findByEmail()" data-ng-show="permissions.canCreatePatients">Find</button>
+    </div>
+</div>
