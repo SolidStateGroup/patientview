@@ -1,4 +1,4 @@
-<div data-ng-show="!loading">
+<div data-ng-show="!(loading || saving)">
     <h1>Create New Patient User
         <a class="btn blue" href="/#/patients">Back to Patients</a>
     </h1>
@@ -26,7 +26,13 @@
 </div>
 
 <div data-ng-show="loading" class="container"><br/><br/>
-    <div data-ng-show="loading" class="loading">
+    <div class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+    </div>
+</div>
+
+<div data-ng-show="saving" class="container"><br/><br/>
+    <div class="loading">
+        <h3><img src="images/loading.gif" alt="Saving"/>&nbsp; Saving</h3>
     </div>
 </div>
