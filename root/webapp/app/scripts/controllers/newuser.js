@@ -252,6 +252,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     });
 
     var save = function() {
+        $scope.saving = true;
         // generate password
         var password = UtilService.generatePassword();
         $scope.editUser.password = password;
@@ -270,15 +271,19 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                 if ($scope.editUser.staffEnteredDiagnosis) {
                     DiagnosisService.add(userId, $scope.editUser.staffEnteredDiagnosis.code).then(function() {
                         clearForm();
+                        $scope.saving = false;
                     }, function() {
                         clearForm();
                         alert('Failed to add diagnosis, patient was created successfully.');
+                        $scope.saving = false;
                     })
                 } else {
                     clearForm();
+                    $scope.saving = false;
                 }
             }, function() {
                 alert('Cannot get user (has been created)');
+                $scope.saving = false;
             });
         }, function(result) {
             if (result.status === 409) {
@@ -288,12 +293,14 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                 // Other errors treated as standard errors
                 $scope.errorMessage = 'There was an error: ' + result.data;
             }
+            $scope.saving = false;
         });
     };
 
     // click Create New button
     $scope.create = function () {
         var valid = true;
+        $scope.saving = true;
 
         // check date of birth if entered
         if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
@@ -301,6 +308,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                 $scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
             $scope.errorMessage = 'Please enter a valid date of birth (and not in the future)';
             valid = false;
+            $scope.saving = false;
         }
 
         if (valid && ($scope.patientManagement !== undefined)) {
