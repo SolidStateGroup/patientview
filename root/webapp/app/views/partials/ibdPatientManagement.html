@@ -326,11 +326,11 @@
                         data-ng-disabled="!permissions.canEditPatients">
                 </select>
             </div>
-            <div class="col-md-6">
+            <div data-ng-class="patientManagement.diagnosis.code === 'CD' ? 'col-md-9' : 'col-md-6'">
                 <label for="ibd_egimcomplications-list" class="control-label">
                     &nbsp;
                 </label>
-                <ul class="feature-list unstyled name-action-list" id="ibd_egimcomplications-list">
+                <ul class="feature-list unstyled name-action-list clearfix no-pad-top" id="ibd_egimcomplications-list">
                     <li class="feature-list-item" data-ng-repeat="selectedComplication in patientManagement.answers['IBD_EGIMCOMPLICATION'].values track by $index">
                         <div class="feature-list-name pull-left">
                             <span class="feature-list-name">{{selectedComplication.description}}</span>
