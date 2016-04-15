@@ -1,6 +1,7 @@
 package org.patientview.importer.controller;
 
 import generated.Patientview;
+import generated.Survey;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.slf4j.Logger;
@@ -37,18 +38,18 @@ public class ImportController {
     }
 
     @RequestMapping(value = "/import", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<Void> importPatient(@RequestBody Patientview patientview) throws ImportResourceException {
+    public void importPatient(@RequestBody Patientview patientview) throws ImportResourceException {
         queueService.importRecord(patientview);
-        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/import/survey", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
+    public void importSurvey(@RequestBody Survey survey) throws ImportResourceException {
+        queueService.importRecord(survey);
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> getTest() throws ImportResourceException {
-
         return new ResponseEntity<>("Importer OK", HttpStatus.OK);
-
     }
-
 }

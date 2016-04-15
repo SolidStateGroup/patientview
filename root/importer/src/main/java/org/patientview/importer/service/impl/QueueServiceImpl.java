@@ -2,6 +2,7 @@ package org.patientview.importer.service.impl;
 
 import com.rabbitmq.client.Channel;
 import generated.Patientview;
+import generated.Survey;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.io.StringWriter;
 public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> implements QueueService {
 
     private final static String QUEUE_NAME = "patient_import";
+    private final static String QUEUE_NAME_SURVEY = "survey_import";
 
     @Inject
     @Named(value = "write")
@@ -43,7 +45,6 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
 
     @Override
     public void importRecord(final Patientview patientview) throws ImportResourceException {
-
         StringWriter stringWriter = new StringWriter();
 
         try {
@@ -57,13 +58,32 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
 
         try {
             channel.basicPublish("", QUEUE_NAME, true, false, null, stringWriter.toString().getBytes());
+            LOG.info("Successfully sent record to be processed for NHS number {}",
+                    patientview.getPatient().getPersonaldetails().getNhsno());
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");
         }
-        LOG.info("Successfully sent record to be processed for NHS number {}", patientview.getPatient().getPersonaldetails().getNhsno());
 
     }
 
+    @Override
+    public void importRecord(final Survey survey) throws ImportResourceException {
+        StringWriter stringWriter = new StringWriter();
 
+        try {
+            JAXBContext context = JAXBContext.newInstance(Survey.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(survey, stringWriter);
+        } catch (JAXBException jxb) {
+            throw new ImportResourceException("Unable to marshall survey record");
+        }
 
+        /*try {
+            channel.basicPublish("", QUEUE_NAME_SURVEY, true, false, null, stringWriter.toString().getBytes());
+            LOG.info("Added Survey description to queue");
+        } catch (IOException e) {
+            throw new ImportResourceException("Unable to send message onto queue");
+        }*/
+    }
 }

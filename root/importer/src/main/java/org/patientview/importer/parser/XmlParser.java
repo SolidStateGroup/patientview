@@ -35,4 +35,15 @@ public class XmlParser {
             throw jbe;
         }
     }
+
+    public static <T> T parseAny(File xmlFile, Class<T> clazz) throws JAXBException {
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            return (T) jaxbUnmarshaller.unmarshal(xmlFile);
+        } catch (JAXBException jbe) {
+            LOG.error("Unable to bind to generated class");
+            throw jbe;
+        }
+    }
 }

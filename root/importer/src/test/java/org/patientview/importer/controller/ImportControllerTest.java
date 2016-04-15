@@ -60,6 +60,30 @@ public class ImportControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(importController, uriComponentsBuilder).build();
     }
 
+    @Test
+    @Ignore
+    public void testSurveyDescriptionImport() throws Exception {
+        String fileName = "data/xml/survey/survey_1.xml";
+
+        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+        File file = new File(xmlPath.toURI());
+        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+        // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
+        // restart with "sudo service nginx restart"
+        //String postUrl="https://test.patientview.org/importer/import/survey";
+        //String postUrl="https://production.patientview.org/importer/import/survey";
+        String postUrl="http://localhost:8081/importer/import/survey";
+
+        HttpPost post = new HttpPost(postUrl);
+        StringEntity postingString = new StringEntity(content);
+        post.setEntity(postingString);
+        post.setHeader("Content-type", "application/xml");
+        HttpResponse httpResponse = httpClient.execute(post);
+        LOG.info(httpResponse.toString());
+    }
+
     /**
      * Test: Passing an xml in full to the import resource and see if the resource can pass it to the service
      * Fail: The resource is unable to call the resource
