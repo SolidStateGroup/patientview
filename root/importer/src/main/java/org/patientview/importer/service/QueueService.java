@@ -2,6 +2,7 @@ package org.patientview.importer.service;
 
 import generated.Patientview;
 import generated.Survey;
+import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 
 /**
@@ -12,4 +13,6 @@ public interface QueueService {
     void importRecord(Patientview patientview) throws ImportResourceException;
 
     void importRecord(Survey survey) throws ImportResourceException;
+
+    void importRecord(SurveyResponse surveyResponse) throws ImportResourceException;
 }

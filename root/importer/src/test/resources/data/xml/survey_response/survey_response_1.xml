@@ -1,0 +1,34 @@
+<survey_response>
+    <survey_type>CROHNS_SYMPTOM_SCORE</survey_type>
+    <identifier>1234567890</identifier>
+    <date>2016-04-15T16:37:18</date>
+    <survey_response_scores>
+        <survey_response_score>
+            <score>7</score>
+            <severity>MEDIUM</severity>
+            <type>SYMPTOM_SCORE</type>
+        </survey_response_score>
+    </survey_response_scores>
+    <question_answers>
+        <question_answer>
+            <question_type>ABDOMINAL_PAIN</question_type>
+            <question_option>MILD</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>OPEN_BOWELS</question_type>
+            <question_value>6</question_value>
+        </question_answer>
+        <question_answer>
+            <question_type>FEELING</question_type>
+            <question_option>BELOW_PAR</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>COMPLICATIONS</question_type>
+            <question_option>NONE</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>MASS_IN_TUMMY</question_type>
+            <question_option>POSSIBLE</question_option>
+        </question_answer>
+    </question_answers>
+</survey_response>

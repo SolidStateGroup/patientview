@@ -2,6 +2,7 @@ package org.patientview.importer.controller;
 
 import generated.Patientview;
 import generated.Survey;
+import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.slf4j.Logger;
@@ -37,6 +38,12 @@ public class ImportController {
         LOG.info("Import Controller Started");
     }
 
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getTest() throws ImportResourceException {
+        return new ResponseEntity<>("Importer OK", HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/import", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
     public void importPatient(@RequestBody Patientview patientview) throws ImportResourceException {
         queueService.importRecord(patientview);
@@ -47,9 +54,9 @@ public class ImportController {
         queueService.importRecord(survey);
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<String> getTest() throws ImportResourceException {
-        return new ResponseEntity<>("Importer OK", HttpStatus.OK);
+    @RequestMapping(value = "/import/surveyresponse", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_XML_VALUE)
+    public void importSurveyResponse(@RequestBody SurveyResponse surveyResponse) throws ImportResourceException {
+        queueService.importRecord(surveyResponse);
     }
 }

@@ -3,6 +3,7 @@ package org.patientview.importer.service.impl;
 import com.rabbitmq.client.Channel;
 import generated.Patientview;
 import generated.Survey;
+import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.service.QueueService;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,6 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");
         }
-
     }
 
     @Override
@@ -76,7 +76,28 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(survey, stringWriter);
         } catch (JAXBException jxb) {
-            throw new ImportResourceException("Unable to marshall survey record");
+            throw new ImportResourceException("Unable to marshall survey");
+        }
+
+        /*try {
+            channel.basicPublish("", QUEUE_NAME_SURVEY, true, false, null, stringWriter.toString().getBytes());
+            LOG.info("Added Survey description to queue");
+        } catch (IOException e) {
+            throw new ImportResourceException("Unable to send message onto queue");
+        }*/
+    }
+
+    @Override
+    public void importRecord(final SurveyResponse surveyResponse) throws ImportResourceException {
+        StringWriter stringWriter = new StringWriter();
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(SurveyResponse.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(surveyResponse, stringWriter);
+        } catch (JAXBException jxb) {
+            throw new ImportResourceException("Unable to marshall survey response");
         }
 
         /*try {
