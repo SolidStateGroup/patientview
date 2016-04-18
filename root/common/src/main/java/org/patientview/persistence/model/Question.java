@@ -3,7 +3,6 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
-import org.patientview.persistence.model.enums.QuestionTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -18,8 +18,6 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRED)
 public interface SurveyRepository extends CrudRepository<Survey, Long> {
 
-    @Query("SELECT s " +
-            "FROM Survey s " +
-            "WHERE s.type = :type ")
+    @Query("SELECT s FROM Survey s WHERE s.type = :type")
     List<Survey> findByType(@Param("type") String type);
 }

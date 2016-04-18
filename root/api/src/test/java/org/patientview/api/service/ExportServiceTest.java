@@ -114,7 +114,7 @@ public class ExportServiceTest {
             question.setText("stools daytime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("0-3");
 
@@ -136,7 +136,7 @@ public class ExportServiceTest {
             question.setText("stools nighttime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("0-3");
 
@@ -158,7 +158,7 @@ public class ExportServiceTest {
             question.setText("toilet timing");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.DONT_NEED_TO_RUSH);
+            questionOption.setType(QuestionOptionTypes.DONT_NEED_TO_RUSH.toString());
             questionOption.setQuestion(question);
             questionOption.setText("no rush");
 
@@ -179,7 +179,7 @@ public class ExportServiceTest {
             question.setText("toilet timing");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setType(QuestionOptionTypes.NONE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("none");
 
@@ -200,7 +200,7 @@ public class ExportServiceTest {
             question.setText("complication");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setType(QuestionOptionTypes.NONE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("none");
 
@@ -221,7 +221,7 @@ public class ExportServiceTest {
             question.setText("feeling");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.WELL);
+            questionOption.setType(QuestionOptionTypes.WELL.toString());
             questionOption.setQuestion(question);
             questionOption.setText("well");
 
