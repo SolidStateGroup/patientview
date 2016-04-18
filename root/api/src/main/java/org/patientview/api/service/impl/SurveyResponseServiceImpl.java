@@ -442,7 +442,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     private Integer calculateScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type) {
-        Map<QuestionTypes, Integer> questionTypeScoreMap = new HashMap<>();
+        Map<String, Integer> questionTypeScoreMap = new HashMap<>();
         for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             if (questionAnswer.getQuestionOption() != null
                     && questionAnswer.getQuestionOption().getScore() != null
@@ -469,94 +469,94 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         Integer score = 0;
 
         if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())) {
-            if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS);
+            if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN);
+            if (questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.ABDOMINAL_PAIN.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY);
+            if (questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.MASS_IN_TUMMY.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
+            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.FEELING);
+            if (questionTypeScoreMap.get(QuestionTypes.FEELING.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.FEELING.toString());
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())) {
-            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
+            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
+            if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING);
+            if (questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.TOILET_TIMING.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD);
+            if (questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.PRESENT_BLOOD.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION);
+            if (questionTypeScoreMap.get(QuestionTypes.COMPLICATION.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.COMPLICATION.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.FEELING);
+            if (questionTypeScoreMap.get(QuestionTypes.FEELING.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.FEELING.toString());
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_CONTROL.toString())) {
             if (type.equals(SurveyResponseScoreTypes.IBD_CONTROL_EIGHT)) {
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_CURRENT_TREATMENT.toString());
                 } else {
-                    if (questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT) != null) {
-                        score += questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT);
+                    if (questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT.toString()) != null) {
+                        score += questionTypeScoreMap.get(QuestionTypes.IBD_NO_TREATMENT.toString());
                     }
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_MISS_PLANNED_ACTIVITIES.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_WAKE_UP.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_SIGNIFICANT_PAIN.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_LACKING_ENERGY.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_FEEL_ANXIOUS.toString());
                 }
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_NEED_CHANGE.toString());
                 }
             } else if (type.equals(SurveyResponseScoreTypes.IBD_CONTROL_VAS)) {
-                if (questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL) != null) {
-                    score += questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL);
+                if (questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL.toString()) != null) {
+                    score += questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL.toString());
                 }
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE.toString())) {
-            if (questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING);
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE);
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_FATIGUE.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH);
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH.toString());
             }
-            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP) != null) {
-                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP);
+            if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP.toString()) != null) {
+                score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP.toString());
             }
         } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             // section 1 & 2
             for (QuestionTypes questionType : QuestionTypes.values()) {
                 if ((questionType.toString().contains("IBD_FATIGUE_I") || questionType.toString().contains("IBD_DAS"))
-                        && questionTypeScoreMap.get(questionType) != null) {
-                    score += questionTypeScoreMap.get(questionType);
+                        && questionTypeScoreMap.get(questionType.toString()) != null) {
+                    score += questionTypeScoreMap.get(questionType.toString());
                 }
             }
         }

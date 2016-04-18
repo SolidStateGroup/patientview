@@ -185,7 +185,7 @@ public class SurveyResponseServiceTest {
 
         Question question = new Question();
         question.setId(1L);
-        question.setType(QuestionTypes.FEELING);
+        question.setType(QuestionTypes.FEELING.toString());
         question.setElementType(QuestionElementTypes.SINGLE_SELECT_RANGE);
 
         QuestionAnswer questionAnswer = new QuestionAnswer();
@@ -279,7 +279,7 @@ public class SurveyResponseServiceTest {
 
         Question question = new Question();
         question.setId(1L);
-        question.setType(QuestionTypes.IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS);
+        question.setType(QuestionTypes.IBD_SELF_MANAGEMENT_USUAL_SYMPTOMS.toString());
         question.setElementType(QuestionElementTypes.TEXT);
 
         QuestionAnswer questionAnswer = new QuestionAnswer();
@@ -364,7 +364,7 @@ public class SurveyResponseServiceTest {
 
         Question question = new Question();
         question.setId(1L);
-        question.setType(QuestionTypes.FEELING);
+        question.setType(QuestionTypes.FEELING.toString());
         question.setElementType(QuestionElementTypes.SINGLE_SELECT_RANGE);
 
         QuestionAnswer questionAnswer = new QuestionAnswer();

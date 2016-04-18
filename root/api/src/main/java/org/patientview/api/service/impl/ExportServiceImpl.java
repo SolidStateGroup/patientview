@@ -43,6 +43,7 @@ import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -488,11 +489,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // set CSV headers
         for (QuestionTypes questionType : questionTypes) {
             try {
-                Question question = questionRepository.findByType(questionType).iterator().next();
+                Question question = questionRepository.findByType(questionType.toString()).iterator().next();
                 if (StringUtils.isNotEmpty(question.getText())) {
                     document.addHeader(question.getText());
                 } else {
-                    document.addHeader(question.getType().toString());
+                    document.addHeader(question.getType());
                 }
             } catch (NoSuchElementException | NullPointerException nse) {
                 throw new ResourceNotFoundException("Error retrieving questions");
@@ -521,11 +522,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (SurveyResponse surveyResponse : surveyResponses) {
             // create map of specific answers
             List<QuestionAnswer> answers = surveyResponse.getQuestionAnswers();
-            Map<QuestionTypes, String> answerMap = new HashMap<>();
+            Map<String, String> answerMap = new HashMap<>();
 
             for (QuestionAnswer questionAnswer : answers) {
                 // only care about certain questions
-                if (questionTypes.contains(questionAnswer.getQuestion().getType())) {
+                if (Util.isInEnum(questionAnswer.getQuestion().getType(), QuestionTypes.class)
+                        && questionTypes.contains(QuestionTypes.valueOf(questionAnswer.getQuestion().getType()))) {
                     // if is a select, then get the text of the question option
                     if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT)) {
                         answerMap.put(questionAnswer.getQuestion().getType(),
@@ -560,8 +562,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
             // set answer columns
             for (QuestionTypes questionType : questionTypes) {
-                if (answerMap.containsKey(questionType)) {
-                    document.addValueToNextCell(answerMap.get(questionType));
+                if (answerMap.containsKey(questionType.toString())) {
+                    document.addValueToNextCell(answerMap.get(questionType.toString()));
                 } else {
                     document.addValueToNextCell("");
                 }
@@ -578,7 +580,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             }
         }
 
-        return getDownloadContent(survey.getType().toString(),
+        return getDownloadContent(survey.getType(),
                 makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId,
                         new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
                         new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);

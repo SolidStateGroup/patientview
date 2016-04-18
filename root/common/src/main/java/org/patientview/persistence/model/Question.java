@@ -39,8 +39,7 @@ public class Question extends BaseModel {
     private QuestionHtmlTypes htmlType;
 
     @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private QuestionTypes type;
+    private String type;
 
     @Column(name = "text", nullable = false)
     private String text;
@@ -77,7 +76,7 @@ public class Question extends BaseModel {
 
     public Question() {}
 
-    public Question(QuestionTypes type) {
+    public Question(String type) {
         this.type = type;
     }
 
@@ -105,11 +104,11 @@ public class Question extends BaseModel {
         this.htmlType = htmlType;
     }
 
-    public QuestionTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(QuestionTypes type) {
+    public void setType(String type) {
         this.type = type;
     }
 
