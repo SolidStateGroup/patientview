@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.SurveyService;
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,7 +20,7 @@ public class SurveyServiceImpl extends AbstractServiceImpl<SurveyServiceImpl> im
     private SurveyRepository surveyRepository;
 
     @Override
-    public Survey getByType(final SurveyTypes type) {
+    public Survey getByType(final String type) {
         List<Survey> surveys = surveyRepository.findByType(type);
         if (!CollectionUtils.isEmpty(surveys)) {
             return surveys.get(0);

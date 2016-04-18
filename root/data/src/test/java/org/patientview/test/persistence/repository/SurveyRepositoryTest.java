@@ -50,7 +50,7 @@ public class SurveyRepositoryTest {
     @Test
     public void testFindAll() {
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         survey.setDescription("Crohns Survey");
 
         QuestionGroup questionGroup = new QuestionGroup();
@@ -99,7 +99,7 @@ public class SurveyRepositoryTest {
     @Test
     public void testFindByType() {
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         survey.setDescription("Crohns Survey");
 
         QuestionGroup questionGroup = new QuestionGroup();
@@ -133,7 +133,7 @@ public class SurveyRepositoryTest {
         Assert.assertEquals("Question option should be correct", questionOption.getText(),
                 saved.getQuestionGroups().get(0).getQuestions().get(0).getQuestionOptions().get(0).getText());
 
-        List<Survey> all = convertIterable(surveyRepository.findByType(SurveyTypes.CROHNS_SYMPTOM_SCORE));
+        List<Survey> all = convertIterable(surveyRepository.findByType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString()));
 
         Assert.assertTrue("Survey should be found", !all.isEmpty());
         Assert.assertEquals("1 Survey should be found", 1, all.size());

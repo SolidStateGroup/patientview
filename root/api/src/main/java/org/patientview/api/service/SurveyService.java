@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.enums.SurveyTypes;
 
 /**
  * Survey service, used by IBD
@@ -11,5 +10,5 @@ import org.patientview.persistence.model.enums.SurveyTypes;
  */
 public interface SurveyService {
 
-    Survey getByType(SurveyTypes type);
+    Survey getByType(String type);
 }

@@ -3,7 +3,6 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.SurveyService;
 import org.patientview.persistence.model.Survey;
-import org.patientview.persistence.model.enums.SurveyTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +28,7 @@ public class SurveyController extends BaseController<SurveyController> {
 
     @RequestMapping(value = "/surveys/type/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Survey> getByType(@PathVariable("type") SurveyTypes type) {
+    public ResponseEntity<Survey> getByType(@PathVariable("type") String type) {
         return new ResponseEntity<>(surveyService.getByType(type), HttpStatus.OK);
     }
 }

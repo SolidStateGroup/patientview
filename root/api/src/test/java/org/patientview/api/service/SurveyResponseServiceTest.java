@@ -175,7 +175,7 @@ public class SurveyResponseServiceTest {
 
         // survey
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         survey.setId(1L);
 
         SurveyResponse surveyResponse = new SurveyResponse();
@@ -268,7 +268,7 @@ public class SurveyResponseServiceTest {
 
         // survey
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.IBD_SELF_MANAGEMENT);
+        survey.setType(SurveyTypes.IBD_SELF_MANAGEMENT.toString());
         survey.setId(1L);
 
         SurveyResponse surveyResponse = new SurveyResponse();
@@ -354,7 +354,7 @@ public class SurveyResponseServiceTest {
 
         // survey
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         survey.setId(1L);
 
         SurveyResponse surveyResponse = new SurveyResponse();
@@ -420,7 +420,7 @@ public class SurveyResponseServiceTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
 
         SurveyResponse surveyResponse
                 = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);

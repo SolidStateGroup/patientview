@@ -98,7 +98,7 @@ public class ExportServiceTest {
         user.getIdentifiers().add(identifier);
 
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString());
 
         SurveyResponse surveyResponse
             = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);

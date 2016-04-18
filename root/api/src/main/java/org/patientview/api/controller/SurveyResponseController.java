@@ -5,7 +5,6 @@ import org.patientview.api.service.SurveyResponseService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.SurveyResponse;
-import org.patientview.persistence.model.enums.SurveyTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +40,7 @@ public class SurveyResponseController extends BaseController<SurveyResponseContr
     @RequestMapping(value = "/user/{userId}/surveyresponses/type/{surveyType}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<SurveyResponse>> getByUserAndSurveyType(
-            @PathVariable("userId") Long userId, @PathVariable("surveyType") SurveyTypes surveyType)
+            @PathVariable("userId") Long userId, @PathVariable("surveyType") String surveyType)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(surveyResponseService.getByUserIdAndSurveyType(userId, surveyType), HttpStatus.OK);
     }

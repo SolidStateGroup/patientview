@@ -415,7 +415,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         List<SurveyResponse> surveyResponses
-                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), SurveyTypes.valueOf(type));
+                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), type);
 
         if (CollectionUtils.isEmpty(surveyResponses)) {
             throw new ResourceNotFoundException("No survey responses found");
@@ -433,10 +433,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         // question types
         switch (survey.getType()) {
-            case IBD_CONTROL:
+            case "IBD_CONTROL":
                 includeScore = true;
                 break;
-            case CROHNS_SYMPTOM_SCORE:
+            case "CROHNS_SYMPTOM_SCORE":
                 questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
                 questionTypes.add(QuestionTypes.OPEN_BOWELS);
                 questionTypes.add(QuestionTypes.FEELING);
@@ -445,7 +445,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 includeScore = true;
                 includeSeverity = true;
                 break;
-            case COLITIS_SYMPTOM_SCORE:
+            case "COLITIS_SYMPTOM_SCORE":
                 questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
                 questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
                 questionTypes.add(QuestionTypes.TOILET_TIMING);
@@ -455,7 +455,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 includeScore = true;
                 includeSeverity = true;
                 break;
-            case IBD_FATIGUE:
+            case "IBD_FATIGUE":
                 // section 1
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_FATIGUE_I")) {

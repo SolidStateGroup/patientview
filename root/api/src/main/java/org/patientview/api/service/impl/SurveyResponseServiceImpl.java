@@ -52,6 +52,7 @@ import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
@@ -137,7 +138,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         }
 
         // if survey type is IBD_SELF_MANAGEMENT then need to check that a staff user is viewing as another user
-        if (survey.getType().equals(SurveyTypes.IBD_SELF_MANAGEMENT)) {
+        if (survey.getType().equals(SurveyTypes.IBD_SELF_MANAGEMENT.toString())) {
             // check survey response has a staff token
             if (StringUtils.isEmpty(surveyResponse.getStaffToken())) {
                 throw new ResourceForbiddenException("Forbidden (must be staff)");
@@ -205,15 +206,15 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             throw new ResourceNotFoundException("No valid answers");
         }
 
-        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
+        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())
+                || survey.getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
             Integer score = calculateScore(newSurveyResponse, type);
 
             newSurveyResponse.getSurveyResponseScores().add(
                 new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
-        } else if (survey.getType().equals(SurveyTypes.IBD_CONTROL)) {
+        } else if (survey.getType().equals(SurveyTypes.IBD_CONTROL.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_CONTROL_EIGHT;
             Integer score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(
@@ -223,7 +224,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(
                 new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
-        } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE)) {
+        } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
             Integer score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(
@@ -241,9 +242,9 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
     private void sendScoringAlerts(User user, Survey survey, SurveyResponse surveyResponse) {
         // send emails, secure messages if staff present in patient groups with IBD_SCORING_ALERTS feature
-        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)
-                || survey.getType().equals(SurveyTypes.IBD_FATIGUE)) {
+        if (survey.getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())
+                || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())
+                || survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
 
             // check if score warrants an alert sending
             boolean sendAlerts = false;
@@ -258,6 +259,12 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                 Set<Long> groupIds = new HashSet<>();
                 Set<Long> roleIds = new HashSet<>();
                 List<Long> featureIds = new ArrayList<>();
+
+                // attempt to get survey name from enum if matches known survey type
+                String surveyName = survey.getType();
+                if (Util.isInEnum(survey.getType(), SurveyTypes.class)) {
+                    surveyName = SurveyTypes.valueOf(survey.getType()).getName();
+                }
 
                 // get specialty group type, used to avoid getting all staff users in a user's specialty
                 Lookup specialtyGroupType
@@ -312,7 +319,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             // patient details and score
                             Date now = new Date();
                             Conversation conversation = new Conversation();
-                            conversation.setTitle("Poor " + survey.getType().getName() + ": " + user.getUsername());
+                            conversation.setTitle("Poor " + surveyName + ": " + user.getUsername());
                             conversation.setType(ConversationTypes.MESSAGE);
                             conversation.setCreator(notificationUser);
                             conversation.setCreated(now);
@@ -360,7 +367,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                             }
 
                             msg.append("<br/>Score Type: ");
-                            msg.append(survey.getType().getName());
+                            msg.append(surveyName);
                             msg.append("<br/>Score Date: ");
                             msg.append(CommonUtils.dateToSimpleString(surveyResponse.getDate()));
 
@@ -403,12 +410,12 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                                 Email email = new Email();
                                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));
                                 email.setSenderName(properties.getProperty("smtp.sender.name"));
-                                email.setSubject("PatientView - " + survey.getType().getName() + " Alert Recorded");
+                                email.setSubject("PatientView - " + surveyName + " Alert Recorded");
                                 email.setRecipients(new String[]{staffUser.getEmail()});
 
                                 email.setBody("Dear " + staffUser.getName()
                                         + ", <br/><br/>A patient has recorded a poor "
-                                        + survey.getType().getName()
+                                        + surveyName
                                         + "  on <a href=\""
                                         + properties.getProperty("site.url")
                                         + "\">PatientView</a>"
@@ -461,7 +468,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
         Integer score = 0;
 
-        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())) {
             if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS);
             }
@@ -477,7 +484,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.FEELING);
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())) {
             if (questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
             }
@@ -496,7 +503,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (questionTypeScoreMap.get(QuestionTypes.FEELING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.FEELING);
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_CONTROL)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_CONTROL.toString())) {
             if (type.equals(SurveyResponseScoreTypes.IBD_CONTROL_EIGHT)) {
                 if (questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS) != null) {
                     score += questionTypeScoreMap.get(QuestionTypes.IBD_CONTROLLED_TWO_WEEKS);
@@ -531,7 +538,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     score += questionTypeScoreMap.get(QuestionTypes.IBD_OVERALL_CONTROL);
                 }
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE.toString())) {
             if (questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.HEART_SWELLING);
             }
@@ -544,7 +551,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP) != null) {
                 score += questionTypeScoreMap.get(QuestionTypes.HEART_SHORTNESS_OF_BREATH_SLEEP);
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             // section 1 & 2
             for (QuestionTypes questionType : QuestionTypes.values()) {
                 if ((questionType.toString().contains("IBD_FATIGUE_I") || questionType.toString().contains("IBD_DAS"))
@@ -559,7 +566,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
     // note: these are hardcoded
     private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse, Integer score) {
-        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE)) {
+        if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())) {
             if (score != null) {
                 if (score >= 16) {
                     return ScoreSeverity.HIGH;
@@ -569,7 +576,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     return ScoreSeverity.LOW;
                 }
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())) {
             if (score != null) {
                 if (score >= 10) {
                     return ScoreSeverity.HIGH;
@@ -579,7 +586,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     return ScoreSeverity.LOW;
                 }
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE.toString())) {
             if (score != null) {
                 if (score >= 16) {
                     return ScoreSeverity.LOW;
@@ -589,7 +596,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     return ScoreSeverity.HIGH;
                 }
             }
-        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE)) {
+        } else if (surveyResponse.getSurvey().getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             if (score != null) {
                 if (score >= 80) {
                     return ScoreSeverity.HIGH;
@@ -605,7 +612,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     @Override
-    public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, SurveyTypes surveyType)
+    public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, String surveyType)
             throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {

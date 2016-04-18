@@ -52,7 +52,7 @@ public class SurveyResponseRepositoryTest {
         User user = dataTestUtils.createUser("TestUser");
 
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         surveyRepository.save(survey);
 
         SurveyResponse surveyResponse
