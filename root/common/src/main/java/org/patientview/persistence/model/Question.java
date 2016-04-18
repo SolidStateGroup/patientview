@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -67,7 +68,7 @@ public class Question extends BaseModel {
     @Column(name = "help_link")
     private String helpLink;
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
     @Column(name= "required")

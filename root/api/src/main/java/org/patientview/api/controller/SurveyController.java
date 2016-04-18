@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.service.SurveyService;
+import org.patientview.service.SurveyService;
 import org.patientview.persistence.model.Survey;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +26,12 @@ public class SurveyController extends BaseController<SurveyController> {
     @Inject
     private SurveyService surveyService;
 
+    /**
+     * Get the first stored instance of a Survey given a type.
+     *
+     * @param type String type of Survey
+     * @return First instance of a Survey given type
+     */
     @RequestMapping(value = "/surveys/type/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Survey> getByType(@PathVariable("type") String type) {

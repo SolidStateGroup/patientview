@@ -1,9 +1,11 @@
-package org.patientview.api.service.impl;
+package org.patientview.service.impl;
 
-import org.patientview.api.service.SurveyService;
+import org.patientview.builder.SurveyBuilder;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.repository.SurveyRepository;
+import org.patientview.service.SurveyService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -20,12 +22,14 @@ public class SurveyServiceImpl extends AbstractServiceImpl<SurveyServiceImpl> im
     private SurveyRepository surveyRepository;
 
     @Override
+    @Transactional
+    public Survey add(generated.Survey survey) throws Exception {
+        return surveyRepository.save(new SurveyBuilder(survey).build());
+    }
+
+    @Override
     public Survey getByType(final String type) {
         List<Survey> surveys = surveyRepository.findByType(type);
-        if (!CollectionUtils.isEmpty(surveys)) {
-            return surveys.get(0);
-        } else {
-            return null;
-        }
+        return !CollectionUtils.isEmpty(surveys) ? surveys.get(0) : null;
     }
 }

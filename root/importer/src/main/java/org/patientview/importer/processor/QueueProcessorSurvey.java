@@ -6,14 +6,11 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Survey;
 import org.patientview.config.exception.ImportResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.manager.ImportManager;
-import org.patientview.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,11 +30,6 @@ public class QueueProcessorSurvey extends DefaultConsumer {
 
     private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurvey.class);
 
-    private Long importerUserId;
-
-    @Inject
-    private AuditService auditService;
-
     @Inject
     private ExecutorService executor;
 
@@ -47,16 +39,6 @@ public class QueueProcessorSurvey extends DefaultConsumer {
     private ImportManager importManager;
 
     private final static String QUEUE_NAME_SURVEY = "survey_import";
-
-    @PostConstruct
-    public void init() throws ResourceNotFoundException {
-        try {
-            importerUserId = auditService.getImporterUserId();
-        } catch (ResourceNotFoundException e) {
-            LOG.error(e.getMessage());
-            throw e;
-        }
-    }
 
     @Inject
     public QueueProcessorSurvey(@Named(value = "read") Channel channel) {
@@ -113,7 +95,7 @@ public class QueueProcessorSurvey extends DefaultConsumer {
             // Process XML
             if (!fail) {
                 try {
-                    importManager.process(survey, message, importerUserId);
+                    importManager.process(survey);
                 } catch (ImportResourceException ire) {
                     LOG.error("Survey type '" + survey.getType() + "' could not be added", ire);
                 }

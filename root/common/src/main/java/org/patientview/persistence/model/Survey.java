@@ -1,7 +1,9 @@
 package org.patientview.persistence.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class Survey extends BaseModel {
     @Column(name = "type", nullable = false)
     private String type;
 
-    @OneToMany(mappedBy = "survey")
+    @OneToMany(mappedBy = "survey", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<QuestionGroup> questionGroups = new ArrayList<>();
 
     public Survey() {}

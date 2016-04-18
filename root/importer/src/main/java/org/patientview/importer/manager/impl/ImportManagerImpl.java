@@ -23,6 +23,7 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.OrganizationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
+import org.patientview.service.SurveyService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
@@ -76,6 +77,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private PractitionerService practitionerService;
+
+    @Inject
+    private SurveyService surveyService;
 
     @Override
     public void process(Patientview patientview, String xml, Long importerUserId) throws ImportResourceException {
@@ -151,9 +155,14 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     @Override
-    public void process(Survey survey, String xml, Long importerUserId) throws ImportResourceException {
-        LOG.info(survey.getType());
-        // todo
+    public void process(Survey survey) throws ImportResourceException {
+        try {
+            surveyService.add(survey);
+            LOG.info(survey.getType() + " added");
+        } catch (Exception e) {
+            LOG.error("Survey process error", e);
+            throw new ImportResourceException(e.getMessage());
+        }
     }
 
     @Override
