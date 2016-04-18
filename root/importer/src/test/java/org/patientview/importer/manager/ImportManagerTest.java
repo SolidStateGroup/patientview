@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.Utility.Util;
 import org.patientview.importer.manager.impl.ImportManagerImpl;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.service.AllergyService;
@@ -23,8 +22,6 @@ import org.patientview.service.OrganizationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.test.util.TestUtils;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.UUID;
@@ -33,7 +30,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Util.class)
 public class ImportManagerTest extends BaseTest {
 
     @Mock
@@ -81,7 +77,6 @@ public class ImportManagerTest extends BaseTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        PowerMockito.mockStatic(Util.class);
     }
 
     @Test

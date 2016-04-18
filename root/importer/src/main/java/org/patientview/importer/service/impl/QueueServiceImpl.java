@@ -26,6 +26,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
 
     private final static String QUEUE_NAME = "patient_import";
     private final static String QUEUE_NAME_SURVEY = "survey_import";
+    private final static String QUEUE_NAME_SURVEY_RESPONSE = "survey_response_import";
 
     @Inject
     @Named(value = "write")
@@ -79,12 +80,12 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             throw new ImportResourceException("Unable to marshall survey");
         }
 
-        /*try {
+        try {
             channel.basicPublish("", QUEUE_NAME_SURVEY, true, false, null, stringWriter.toString().getBytes());
-            LOG.info("Added Survey description to queue");
+            LOG.info("Added Survey description to '" + QUEUE_NAME_SURVEY + "' queue");
         } catch (IOException e) {
-            throw new ImportResourceException("Unable to send message onto queue");
-        }*/
+            throw new ImportResourceException("Unable to send Survey description to '" + QUEUE_NAME_SURVEY + "' queue");
+        }
     }
 
     @Override
@@ -101,7 +102,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         }
 
         /*try {
-            channel.basicPublish("", QUEUE_NAME_SURVEY, true, false, null, stringWriter.toString().getBytes());
+            channel.basicPublish("", QUEUE_NAME_SURVEY_RESPONSE, true, false, null, stringWriter.toString().getBytes());
             LOG.info("Added Survey description to queue");
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");

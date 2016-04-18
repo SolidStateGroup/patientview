@@ -1,6 +1,7 @@
 package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
+import generated.Survey;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -150,6 +151,12 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     @Override
+    public void process(Survey survey, String xml, Long importerUserId) throws ImportResourceException {
+        LOG.info(survey.getType());
+        // todo
+    }
+
+    @Override
     public void validate(Patientview patientview) throws ImportResourceException {
 
         // Patient exists with this identifier
@@ -169,6 +176,12 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.error(errorMessage);
             throw new ImportResourceException(errorMessage);
         }
+    }
+
+    @Override
+    public void validate(Survey survey) throws ImportResourceException {
+        LOG.info(survey.getType());
+        // todo
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
