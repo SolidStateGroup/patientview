@@ -428,7 +428,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         Survey survey = surveyResponses.get(0).getSurvey();
         CSVDocumentBuilder document = new CSVDocumentBuilder();
 
-        List<QuestionTypes> questionTypes = new ArrayList<>();
+        List<String> questionTypes = new ArrayList<>();
         boolean includeScore = false;
         boolean includeSeverity = false;
 
@@ -438,21 +438,21 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 includeScore = true;
                 break;
             case "CROHNS_SYMPTOM_SCORE":
-                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
-                questionTypes.add(QuestionTypes.OPEN_BOWELS);
-                questionTypes.add(QuestionTypes.FEELING);
-                questionTypes.add(QuestionTypes.COMPLICATION);
-                questionTypes.add(QuestionTypes.MASS_IN_TUMMY);
+                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN.toString());
+                questionTypes.add(QuestionTypes.OPEN_BOWELS.toString());
+                questionTypes.add(QuestionTypes.FEELING.toString());
+                questionTypes.add(QuestionTypes.COMPLICATION.toString());
+                questionTypes.add(QuestionTypes.MASS_IN_TUMMY.toString());
                 includeScore = true;
                 includeSeverity = true;
                 break;
             case "COLITIS_SYMPTOM_SCORE":
-                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
-                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
-                questionTypes.add(QuestionTypes.TOILET_TIMING);
-                questionTypes.add(QuestionTypes.PRESENT_BLOOD);
-                questionTypes.add(QuestionTypes.FEELING);
-                questionTypes.add(QuestionTypes.COMPLICATION);
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString());
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString());
+                questionTypes.add(QuestionTypes.TOILET_TIMING.toString());
+                questionTypes.add(QuestionTypes.PRESENT_BLOOD.toString());
+                questionTypes.add(QuestionTypes.FEELING.toString());
+                questionTypes.add(QuestionTypes.COMPLICATION.toString());
                 includeScore = true;
                 includeSeverity = true;
                 break;
@@ -460,25 +460,26 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 // section 1
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_FATIGUE_I")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 // section 2
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_DAS")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 // section 3
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_FATIGUE_EXTRA")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 includeScore = true;
                 includeSeverity = true;
                 break;
             default:
+                // if not a known survey type, only export score and severity
                 includeScore = true;
                 includeSeverity = true;
                 break;
@@ -487,9 +488,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Date Taken");
 
         // set CSV headers
-        for (QuestionTypes questionType : questionTypes) {
+        for (String questionType : questionTypes) {
             try {
-                Question question = questionRepository.findByType(questionType.toString()).iterator().next();
+                Question question = questionRepository.findByType(questionType).iterator().next();
                 if (StringUtils.isNotEmpty(question.getText())) {
                     document.addHeader(question.getText());
                 } else {
@@ -527,19 +528,16 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             for (QuestionAnswer questionAnswer : answers) {
                 // only care about certain questions
                 if (Util.isInEnum(questionAnswer.getQuestion().getType(), QuestionTypes.class)
-                        && questionTypes.contains(QuestionTypes.valueOf(questionAnswer.getQuestion().getType()))) {
+                        && questionTypes.contains(questionAnswer.getQuestion().getType())) {
                     // if is a select, then get the text of the question option
                     if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT)) {
                         answerMap.put(questionAnswer.getQuestion().getType(),
                                 questionAnswer.getQuestionOption().getText());
                     }
                     // if is a ranged value then get value
-                    if (questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.SINGLE_SELECT_RANGE)
-                        || questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.TEXT)
-                        || questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.TEXT_NUMERIC)) {
+                    if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT_RANGE)
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }
@@ -561,9 +559,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(surveyResponse.getDate()));
 
             // set answer columns
-            for (QuestionTypes questionType : questionTypes) {
-                if (answerMap.containsKey(questionType.toString())) {
-                    document.addValueToNextCell(answerMap.get(questionType.toString()));
+            for (String questionType : questionTypes) {
+                if (answerMap.containsKey(questionType)) {
+                    document.addValueToNextCell(answerMap.get(questionType));
                 } else {
                     document.addValueToNextCell("");
                 }
