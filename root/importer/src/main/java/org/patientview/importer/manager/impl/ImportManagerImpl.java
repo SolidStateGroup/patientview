@@ -2,6 +2,7 @@ package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
 import generated.Survey;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -10,6 +11,8 @@ import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.QuestionElementTypes;
+import org.patientview.persistence.model.enums.QuestionHtmlTypes;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.service.AllergyService;
 import org.patientview.service.AuditService;
@@ -26,6 +29,7 @@ import org.patientview.service.PractitionerService;
 import org.patientview.service.SurveyService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -165,6 +169,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         }
     }
 
+    void throwImportResourceException(String error) throws ImportResourceException {
+        LOG.error(error);
+        throw new ImportResourceException(error);
+    }
+
     @Override
     public void validate(Patientview patientview) throws ImportResourceException {
 
@@ -172,25 +181,76 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         try {
             patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
-            String errorMessage =  "Patient with identifier '"
-                    + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView";
-            LOG.error(errorMessage);
-            throw new ImportResourceException(errorMessage);
+            throwImportResourceException("Patient with identifier '"
+                    + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView");
         }
 
         // Group exists
         if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
-            String errorMessage = "Group with code '" + patientview.getCentredetails().getCentrecode()
-                    + "' does not exist in PatientView";
-            LOG.error(errorMessage);
-            throw new ImportResourceException(errorMessage);
+            throwImportResourceException("Group with code '" + patientview.getCentredetails().getCentrecode()
+                    + "' does not exist in PatientView");
         }
     }
 
     @Override
     public void validate(Survey survey) throws ImportResourceException {
-        LOG.info(survey.getType());
-        // todo
+        // survey validation
+        if (StringUtils.isEmpty(survey.getType())) {
+            throwImportResourceException("Survey type must be defined");
+        }
+        if (surveyService.getByType(survey.getType()) != null) {
+            throwImportResourceException("Survey type '" + survey.getType() + "' already defined");
+        }
+        if (survey.getQuestionGroups() == null) {
+            throwImportResourceException("Survey must have question groups");
+        }
+        if (CollectionUtils.isEmpty(survey.getQuestionGroups().getQuestionGroup())) {
+            throwImportResourceException("Survey must at least one question group");
+        }
+
+        // question group validation
+        for (Survey.QuestionGroups.QuestionGroup questionGroup : survey.getQuestionGroups().getQuestionGroup()) {
+            if (questionGroup.getQuestions() == null) {
+                throwImportResourceException("All question groups must contain questions");
+            }
+            if (CollectionUtils.isEmpty(questionGroup.getQuestions().getQuestion())) {
+                throwImportResourceException("All question groups must contain at least one question");
+            }
+            if (StringUtils.isEmpty(questionGroup.getText())) {
+                throwImportResourceException("All question groups must contain text");
+            }
+
+            // question validation
+            for (Survey.QuestionGroups.QuestionGroup.Questions.Question question :
+                questionGroup.getQuestions().getQuestion()) {
+                if (question.getElementType() == null) {
+                    throwImportResourceException("All questions must have an element type");
+                }
+                if (!Util.isInEnum(question.getElementType().toString(), QuestionElementTypes.class)) {
+                    throwImportResourceException("All questions must have a valid element type");
+                }
+                if (question.getHtmlType() == null) {
+                    throwImportResourceException("All questions must have an html type");
+                }
+                if (!Util.isInEnum(question.getHtmlType().toString(), QuestionHtmlTypes.class)) {
+                    throwImportResourceException("All questions must have a valid html type");
+                }
+                if (StringUtils.isEmpty(question.getText())) {
+                    throwImportResourceException("All questions must contain text");
+                }
+
+                // question option validation
+                if (question.getQuestionOptions() != null
+                        && !CollectionUtils.isEmpty(question.getQuestionOptions().getQuestionOption())) {
+                    for (Survey.QuestionGroups.QuestionGroup.Questions.Question.QuestionOptions.QuestionOption
+                            questionOption : question.getQuestionOptions().getQuestionOption()) {
+                        if (StringUtils.isEmpty(questionOption.getText())) {
+                            throwImportResourceException("All question options must contain text");
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {

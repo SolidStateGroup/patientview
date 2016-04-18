@@ -1,6 +1,8 @@
 package org.patientview.importer.manager;
 
 import generated.Patientview;
+import generated.Survey;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +23,13 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.OrganizationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
+import org.patientview.service.SurveyService;
 import org.patientview.test.util.TestUtils;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.util.UUID;
 
 import static org.mockito.Matchers.eq;
@@ -74,6 +80,9 @@ public class ImportManagerTest extends BaseTest {
     @Mock
     PractitionerService practitionerService;
 
+    @Mock
+    SurveyService surveyService;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -89,5 +98,16 @@ public class ImportManagerTest extends BaseTest {
                 .thenReturn(TestUtils.createGroup("testGroup"));
 
         importManager.process(patientview, getTestFile(), 1L);
+    }
+
+    @Test
+    public void testValidateSurvey() throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Survey.class).createUnmarshaller();
+        Survey survey = (Survey) unmarshaller.unmarshal(new File(
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/survey/survey_1.xml").toURI()));
+
+        Assert.assertNotNull("Should have Survey object", survey);
+
+        importManager.validate(survey);
     }
 }
