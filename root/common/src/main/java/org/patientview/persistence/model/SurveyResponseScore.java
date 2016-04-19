@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
-import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,12 +31,11 @@ public class SurveyResponseScore extends BaseModel {
     private ScoreSeverity severity;
 
     @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private SurveyResponseScoreTypes type;
+    private String type;
 
     public SurveyResponseScore() {}
 
-    public SurveyResponseScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type,
+    public SurveyResponseScore(SurveyResponse surveyResponse, String type,
                                Integer score, ScoreSeverity severity) {
         this.surveyResponse = surveyResponse;
         this.type = type;
@@ -70,11 +68,11 @@ public class SurveyResponseScore extends BaseModel {
         this.score = score;
     }
 
-    public SurveyResponseScoreTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(SurveyResponseScoreTypes type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

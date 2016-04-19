@@ -56,7 +56,8 @@ public class SurveyResponseRepositoryTest {
         surveyRepository.save(survey);
 
         SurveyResponse surveyResponse
-                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
+                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(),
+                    SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);
 

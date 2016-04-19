@@ -2,6 +2,7 @@ package org.patientview.importer.manager;
 
 import generated.Patientview;
 import generated.Survey;
+import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,8 @@ public interface ImportManager {
      */
     void process(Survey survey) throws ImportResourceException;
 
+    void process(SurveyResponse surveyResponse) throws ImportResourceException;
+
     /**
      * Validate that imported patient data meets requirements for storing, patient and group exist in PatientView.
      * @param patientview Object generated from imported PatientView 1 XML
@@ -37,9 +40,11 @@ public interface ImportManager {
     void validate(Patientview patientview) throws ImportResourceException;
 
     /**
-     * Validate that imported Survey meets requirements for storing, todo: confirm and write validation
+     * Validate that imported Survey meets requirements for storing.
      * @param survey Object generated from imported Survey description data
      * @throws ImportResourceException
      */
     void validate(Survey survey) throws ImportResourceException;
+
+    void validate(SurveyResponse surveyResponse) throws ImportResourceException;
 }

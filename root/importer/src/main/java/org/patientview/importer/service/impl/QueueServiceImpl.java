@@ -101,11 +101,11 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             throw new ImportResourceException("Unable to marshall survey response");
         }
 
-        /*try {
+        try {
             channel.basicPublish("", QUEUE_NAME_SURVEY_RESPONSE, true, false, null, stringWriter.toString().getBytes());
-            LOG.info("Added Survey description to queue");
+            LOG.info("Added SurveyResponse to '" + QUEUE_NAME_SURVEY_RESPONSE + "' queue");
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");
-        }*/
+        }
     }
 }

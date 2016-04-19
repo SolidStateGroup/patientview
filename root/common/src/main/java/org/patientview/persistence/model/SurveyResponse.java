@@ -55,12 +55,12 @@ public class SurveyResponse extends BaseModel {
 
     public SurveyResponse() {}
 
-    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date, SurveyResponseScoreTypes type) {
+    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date, String scoreType) {
         this.user = user;
         this.date = date;
 
         if (score != null || severity != null) {
-            surveyResponseScores.add(new SurveyResponseScore(this, type, score, severity));
+            surveyResponseScores.add(new SurveyResponseScore(this, scoreType, score, severity));
         }
     }
 

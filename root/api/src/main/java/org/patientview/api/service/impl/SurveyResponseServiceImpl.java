@@ -134,7 +134,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         }
 
         if (surveyResponse.getDate() == null) {
-            throw new ResourceNotFoundException("Must include symptom score date");
+            throw new ResourceNotFoundException("Must include date");
         }
 
         // if survey type is IBD_SELF_MANAGEMENT then need to check that a staff user is viewing as another user
@@ -212,26 +212,26 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
             Integer score = calculateScore(newSurveyResponse, type);
 
-            newSurveyResponse.getSurveyResponseScores().add(
-                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+            newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
+                    newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_CONTROL.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_CONTROL_EIGHT;
             Integer score = calculateScore(newSurveyResponse, type);
-            newSurveyResponse.getSurveyResponseScores().add(
-                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+            newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
+                    newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
 
             type = SurveyResponseScoreTypes.IBD_CONTROL_VAS;
             score = calculateScore(newSurveyResponse, type);
-            newSurveyResponse.getSurveyResponseScores().add(
-                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+            newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
+                    newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
             Integer score = calculateScore(newSurveyResponse, type);
-            newSurveyResponse.getSurveyResponseScores().add(
-                new SurveyResponseScore(newSurveyResponse, type, score, calculateSeverity(newSurveyResponse, score)));
+            newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
+                    newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else {
-            newSurveyResponse.getSurveyResponseScores().add(
-                new SurveyResponseScore(newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN, 0, ScoreSeverity.UNKNOWN));
+            newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
+                    newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0, ScoreSeverity.UNKNOWN));
         }
 
         surveyResponseRepository.save(newSurveyResponse);

@@ -100,8 +100,8 @@ public class ExportServiceTest {
         Survey survey = new Survey();
         survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString());
 
-        SurveyResponse surveyResponse
-            = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
+        SurveyResponse surveyResponse = new SurveyResponse(
+                user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);

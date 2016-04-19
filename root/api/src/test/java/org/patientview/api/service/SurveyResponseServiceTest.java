@@ -422,8 +422,8 @@ public class SurveyResponseServiceTest {
         Survey survey = new Survey();
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
 
-        SurveyResponse surveyResponse
-                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
+        SurveyResponse surveyResponse = new SurveyResponse(
+                user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
         surveyResponse.setSurvey(survey);

@@ -38,6 +38,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
@@ -504,7 +505,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // set score header if required
         if (includeScore) {
             for (SurveyResponseScore score : surveyResponses.get(0).getSurveyResponseScores()) {
-                String header = score.getType().getName() + " Score";
+                String header = "Score";
+                if (Util.isInEnum(score.getType(), SurveyResponseScoreTypes.class)) {
+                    header = SurveyResponseScoreTypes.valueOf(score.getType()).getName() + " " + header;
+                }
                 if (includeSeverity) {
                     header += " (severity)";
                 }

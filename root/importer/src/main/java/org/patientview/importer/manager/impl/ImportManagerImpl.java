@@ -2,6 +2,7 @@ package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
 import generated.Survey;
+import generated.SurveyResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
@@ -10,10 +11,15 @@ import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.QuestionGroup;
+import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.service.AllergyService;
 import org.patientview.service.AuditService;
 import org.patientview.service.ConditionService;
@@ -33,6 +39,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +75,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private MedicationService medicationService;
@@ -169,6 +181,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         }
     }
 
+    @Override
+    public void process(SurveyResponse surveyResponse) throws ImportResourceException {
+        LOG.info(surveyResponse.getSurveyType());
+    }
+
     void throwImportResourceException(String error) throws ImportResourceException {
         LOG.error(error);
         throw new ImportResourceException(error);
@@ -176,7 +193,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Override
     public void validate(Patientview patientview) throws ImportResourceException {
-
         // Patient exists with this identifier
         try {
             patientService.matchPatientByIdentifierValue(patientview);
@@ -248,6 +264,106 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                             throwImportResourceException("All question options must contain text");
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void validate(SurveyResponse surveyResponse) throws ImportResourceException {
+        if (StringUtils.isEmpty(surveyResponse.getSurveyType())) {
+            throwImportResourceException("Survey type must be defined");
+        }
+        org.patientview.persistence.model.Survey survey = surveyService.getByType(surveyResponse.getSurveyType());
+        if (survey == null) {
+            throwImportResourceException("Survey type '" + surveyResponse.getSurveyType() + "' is not defined");
+        }
+        if (CollectionUtils.isEmpty(survey.getQuestionGroups())) {
+            throwImportResourceException("Survey type '" + surveyResponse.getSurveyType()
+                    + "' does not have any questions");
+        }
+        if (StringUtils.isEmpty(surveyResponse.getIdentifier())) {
+            throwImportResourceException("Identifier must be set");
+        }
+        if (surveyResponse.getDate() == null) {
+            throwImportResourceException("Date must be set");
+        }
+        List<Identifier> identifiers = identifierRepository.findByValue(surveyResponse.getIdentifier());
+        if (CollectionUtils.isEmpty(identifiers)) {
+            throwImportResourceException("No patient found with identifier '" + surveyResponse.getIdentifier() + "'");
+        }
+        if (identifiers.size() != 1) {
+            throwImportResourceException("Multiple identifiers found with value '" + surveyResponse.getIdentifier()
+                    + "', cannot continue");
+        }
+        if (surveyResponse.getQuestionAnswers() == null) {
+            throwImportResourceException("Must have survey answers");
+        }
+        if (CollectionUtils.isEmpty(surveyResponse.getQuestionAnswers().getQuestionAnswer())) {
+            throwImportResourceException("Must have at least one survey answer");
+        }
+
+        // answers
+        Map<String, Question> questionMap = new HashMap<>();
+        for (QuestionGroup questionGroup : survey.getQuestionGroups()) {
+            for (Question question : questionGroup.getQuestions()) {
+                questionMap.put(question.getType(), question);
+            }
+        }
+
+        for (SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
+                : surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
+            if (StringUtils.isEmpty(questionAnswer.getQuestionType())) {
+                throwImportResourceException("All answers must have a question type");
+            }
+            Question question = questionMap.get(questionAnswer.getQuestionType());
+            if (question == null) {
+                throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                        + "' does not match any questions for survey type '"
+                        + surveyResponse.getSurveyType() + "'");
+            }
+
+            // check if has options and if matches
+            List<QuestionOption> questionOptions = question.getQuestionOptions();
+            if (CollectionUtils.isEmpty(questionOptions)) {
+                // simple value response expected
+                if (StringUtils.isEmpty(questionAnswer.getQuestionValue())) {
+                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                            + "' must have a value set");
+                }
+            } else {
+                // option response expected
+                if (StringUtils.isEmpty(questionAnswer.getQuestionOption())) {
+                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                            + "' must have an option set");
+                }
+                // check option in survey question answer is in list of actual question options
+                boolean found = false;
+                for (QuestionOption questionOption : questionOptions) {
+                    if (questionOption.getType().equals(questionAnswer.getQuestionOption())) {
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                            + "' must have a known option");
+                }
+            }
+        }
+
+        // scores
+        if (surveyResponse.getSurveyResponseScores() != null) {
+            if (CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
+                throwImportResourceException("Scores must be defined");
+            }
+            for (SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore
+                    : surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
+                if (StringUtils.isEmpty(surveyResponseScore.getType())) {
+                    throwImportResourceException("Score type must be defined");
+                }
+                if (surveyResponseScore.getScore() == null) {
+                    throwImportResourceException("Score for type '" + surveyResponseScore.getType()
+                            + "' must be defined");
                 }
             }
         }
