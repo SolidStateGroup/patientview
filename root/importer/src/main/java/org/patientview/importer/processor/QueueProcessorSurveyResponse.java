@@ -54,7 +54,7 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
             throw new IllegalStateException("The '" + QUEUE_NAME + "' queue is not available");
         }
         this.channel = channel;
-        LOG.info("Created queue processor for Surveys with queue name '" + QUEUE_NAME + "'");
+        LOG.info("Created queue processor for SurveyResponses with queue name '" + QUEUE_NAME + "'");
     }
 
     @PreDestroy

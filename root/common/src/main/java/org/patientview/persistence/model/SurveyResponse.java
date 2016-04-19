@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
-import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
