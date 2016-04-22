@@ -10,7 +10,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         $scope.loading = true;
         if ($scope.$parent.patientDetails[0].myIbd && $scope.$parent.patientDetails[0].myIbd.primaryDiagnosis) {
             var primaryDiagnosis = $scope.$parent.patientDetails[0].myIbd.primaryDiagnosis;
-            if (primaryDiagnosis === 'Crohn\'s Disease') {
+            if (primaryDiagnosis.code === 'Crohn\'s Disease') {
                 $scope.surveyType = 'CROHNS_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
@@ -30,8 +30,8 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 30;
 
                 getSurveyResponses();
-            } else if (primaryDiagnosis === 'Ulcerative Colitis'
-                    || primaryDiagnosis === 'IBD - Unclassified (IBDU)') {
+            } else if (primaryDiagnosis.code === 'Ulcerative Colitis'
+                    || primaryDiagnosis.code === 'IBD - Unclassified (IBDU)') {
                 $scope.surveyType = 'COLITIS_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
@@ -51,7 +51,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                 $scope.max = 16;
 
                 getSurveyResponses();
-            } else if (primaryDiagnosis === 'Heart Failure') {
+            } else if (primaryDiagnosis.code === 'Heart Failure') {
                 $scope.surveyType = 'HEART_SYMPTOM_SCORE';
 
                 $scope.plotLines = [{
