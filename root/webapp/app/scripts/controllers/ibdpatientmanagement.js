@@ -123,17 +123,22 @@ function ($scope, $rootScope, SurveyService, SurveyResponseService, $modal, Util
         // currently hardcoded to specific lookup values
         switch (val) {
             case 'E1':
-                return 'images/ibd/crohns.jpg';
+                return 'images/ibd/proctitis.png';
+                break;
             case 'E2':
-                return 'images/ibd/crohns.jpg';
+                return 'images/ibd/left-sided-colitis.png';
+                break;
             case 'E3':
-                return 'images/ibd/crohns.jpg';
+                return 'images/ibd/extensive-colitis.png';
+                break;
             case 'L1':
-                return 'images/ibd/crohns.jpg';
+                return 'images/ibd/ileal-crohns.png';
+                break;
             case 'L2':
-                return 'images/ibd/crohns.jpg';
+                return 'images/ibd/crohns-colitis.png';
+                break;
             case 'L3':
-                return 'images/ibd/ileo-colonic-disease.jpg';
+                return 'images/ibd/ileo-colonic-disease.png';
                 break;
             default :
                 return null;
