@@ -1,3 +1,8 @@
+<style>
+    .current {
+        background-color: #DDDDDD;
+    }
+</style>
 <h1>Your Overall Health
     <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
         <i class="icon-back-to pull-left"> </i>
@@ -7,58 +12,45 @@
 <br/>
 <div class="content-panel">
     <div class="content-inner">
-
-        <div class="row">
-            <div class="col-md-12">
-                <p>This screen shows your overall health.</p>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-md-6">
                 <table class="table">
                     <thead>
                     <tr>
                         <th>Your Overall Health</th>
-                        <th>01-May-2016</th>
                         <th>01-Apr-2016</th>
-                        <th>01-Mar-2016</th>
+                        <th>01-May-2016</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td>Mobility</td>
-                        <td>I have no problems walking about</td>
-                        <td>I have moderate problems in walking about</td>
+                        <td class="current">I have moderate problems in walking about</td>
                         <td>I can't walk</td>
                         <td><a href="#">View Graph</a></td>
                     </tr>
                     <tr>
                         <td>Self-Care</td>
-                        <td>I have severe problems washing or dressing myself</td>
-                        <td>I have no problems washing or dressing myself</td>
+                        <td class="current">I have no problems washing or dressing myself</td>
                         <td>I cannot wash</td>
                         <td><a href="#">View Graph</a></td>
                     </tr>
                     <tr>
                         <td>Usual Activities</td>
-                        <td>I have moderate problems doing my usual activities</td>
-                        <td>I am unable to do my usual activities</td>
+                        <td class="current">I am unable to do my usual activities</td>
                         <td>I cannot do activities</td>
                         <td><a href="#">View Graph</a></td>
                     </tr>
                     <tr>
                         <td>Pain / Discomfort</td>
-                        <td>I have no pain or discomfort</td>
-                        <td>I have moderate pain or discomfort</td>
+                        <td class="current">I have moderate pain or discomfort</td>
                         <td>I have severe pain or discomfort</td>
                         <td><a href="#">View Graph</a></td>
                     </tr>
                     <tr>
                         <td>Anxiety / Depression</td>
-                        <td>I am not anxious or depressed</td>
-                        <td>I am slightly anxious or depressed</td>
+                        <td class="current">I am slightly anxious or depressed</td>
                         <td>I am anxious and depressed</td>
                         <td><a href="#">View Graph</a></td>
                     </tr>
@@ -72,6 +64,7 @@
                 </select>
             </div>
             <div class="col-md-6">
+                <div id="chart_div"></div>
                 [CHART]
             </div>
         </div>
@@ -93,7 +86,8 @@
 
         <br/>
         <p>
-            <a href="#" class="btn blue">Save</a>
+            <a href="#" class="btn blue">Save</a> &nbsp;
+            <a href="#" class="btn blue">Send to clinical team for review</a>
         </p>
     </div>
 </div>
