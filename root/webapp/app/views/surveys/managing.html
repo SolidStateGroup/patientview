@@ -1,9 +1,73 @@
 <h1>Managing Your Health
-    <a href="/#/myconditions" class="btn blue pull-right"><i class="icon-back-to pull-left"> </i>Back to My Conditions</a>
+    <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <i class="icon-back-to pull-left"> </i>
+        Back
+    </a>
 </h1>
-
+<br/>
 <div class="content-panel">
     <div class="content-inner">
-        <p>Something</p>
+        <div class="row">
+            <div class="col-md-8">
+                <p>Here are the results of Your Health Survey. This takes into account your knowledge, skills and confidence when it comes to looking
+                    after your own health and being involved in your care – this is referred to as your activation level.</p>
+
+                <div>
+                    <p>
+                        Your overall self-assessed activation level shows you to be <strong>moderately</strong> activated.
+                        Your overall score is <strong>60</strong>.
+                        <a href="#"><strong>Tell me more.</strong></a>
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        [ARROW DIAGRAM]
+                    </div>
+                    <div class="col-md-9 hidden">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <p>Based on the information you answered in the Your Health survey, you scored yourself <strong>highly</strong>
+                                    on the following in relation to your knowledge, skills and confidence:</p>
+                                <ul>
+                                    <li>I have been able to maintain lifestyle changes, like healthy eating or exercising</li>
+                                    <li>I am confident I can work out solutions when new problems arise with my health</li>
+                                </ul>
+                                <p>Based on the information you answered in the Your Health survey, you scored yourself as <strong>less activated</strong>
+                                    on the following in relation to your knowledge, skills and confidence:</p>
+                                <ul>
+                                    <li>I am the person who is responsible for taking care of my health</li>
+                                    <li>I know what each of my prescribed medications do</li>
+                                    <li>I am confident that I can carry out medical treatments I may need to do at home</li>
+                                </ul>
+                                <p><strong>You may want to discuss your score or level with your clinical team at your next visit
+                                    to the hospital and discuss further support that may be useful.</strong></p>
+                                <p>Please <a href="#">click here</a> for more information about your activation levels.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>04-May-2016</td>
+                            <td>60</td>
+                        </tr>
+                        <tr>
+                            <td>02-Jun-2015</td>
+                            <td>50</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

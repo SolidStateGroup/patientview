@@ -1,9 +1,81 @@
 <h1>Your Symptoms
-    <a href="/#/myconditions" class="btn blue pull-right"><i class="icon-back-to pull-left"> </i>Back to My Conditions</a>
+    <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <i class="icon-back-to pull-left"> </i>
+        Back
+    </a>
 </h1>
-
+<br/>
 <div class="content-panel">
     <div class="content-inner">
-        <p>Something</p>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p>This screen shows how much you have been bothered by symptoms.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Your Symptoms</th>
+                        <th>01-May-2016</th>
+                        <th>01-Apr-2016</th>
+                        <th>01-Mar-2016</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pain</td>
+                            <td>Not at all</td>
+                            <td>Slightly</td>
+                            <td>Severe</td>
+                            <td><a href="#">View Graph</a></td>
+                        </tr>
+                        <tr>
+                            <td>Shortness of breath</td>
+                            <td>Not at all</td>
+                            <td>Slightly</td>
+                            <td>Severe</td>
+                            <td><a href="#">View Graph</a></td>
+                        </tr>
+                        <tr>
+                            <td>Weakness or lack of energy</td>
+                            <td>Not at all</td>
+                            <td>Slightly</td>
+                            <td>Severe</td>
+                            <td><a href="#">View Graph</a></td>
+                        </tr>
+                        <tr>
+                            <td>Nausea (feeling like you are going to be sick)</td>
+                            <td>Not at all</td>
+                            <td>Slightly</td>
+                            <td>Severe</td>
+                            <td><a href="#">View Graph</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <select class="form-control pull-right" data-ng-model="selectedCode"
+                        data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                        data-ng-change="changeObservationHeading(selectedCode)" >
+                    <option value="">Compare with a past survey:</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                [CHART]
+
+                <br/><br/>
+
+                <select class="form-control" data-ng-model="compareCode"
+                        data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
+                                | orderBy:'heading' | addCodeFilter:codes"
+                        data-ng-change="compareResults(compareCode)">
+                    <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
+                </select>
+            </div>
+        </div>
     </div>
 </div>

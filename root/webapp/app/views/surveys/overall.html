@@ -1,9 +1,99 @@
 <h1>Your Overall Health
-    <a href="/#/myconditions" class="btn blue pull-right"><i class="icon-back-to pull-left"> </i>Back to My Conditions</a>
+    <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <i class="icon-back-to pull-left"> </i>
+        Back
+    </a>
 </h1>
-
+<br/>
 <div class="content-panel">
     <div class="content-inner">
-        <p>Something</p>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p>This screen shows your overall health.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Your Overall Health</th>
+                        <th>01-May-2016</th>
+                        <th>01-Apr-2016</th>
+                        <th>01-Mar-2016</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Mobility</td>
+                        <td>I have no problems walking about</td>
+                        <td>I have moderate problems in walking about</td>
+                        <td>I can't walk</td>
+                        <td><a href="#">View Graph</a></td>
+                    </tr>
+                    <tr>
+                        <td>Self-Care</td>
+                        <td>I have severe problems washing or dressing myself</td>
+                        <td>I have no problems washing or dressing myself</td>
+                        <td>I cannot wash</td>
+                        <td><a href="#">View Graph</a></td>
+                    </tr>
+                    <tr>
+                        <td>Usual Activities</td>
+                        <td>I have moderate problems doing my usual activities</td>
+                        <td>I am unable to do my usual activities</td>
+                        <td>I cannot do activities</td>
+                        <td><a href="#">View Graph</a></td>
+                    </tr>
+                    <tr>
+                        <td>Pain / Discomfort</td>
+                        <td>I have no pain or discomfort</td>
+                        <td>I have moderate pain or discomfort</td>
+                        <td>I have severe pain or discomfort</td>
+                        <td><a href="#">View Graph</a></td>
+                    </tr>
+                    <tr>
+                        <td>Anxiety / Depression</td>
+                        <td>I am not anxious or depressed</td>
+                        <td>I am slightly anxious or depressed</td>
+                        <td>I am anxious and depressed</td>
+                        <td><a href="#">View Graph</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <select class="form-control pull-right" data-ng-model="selectedCode"
+                        data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                        data-ng-change="changeObservationHeading(selectedCode)" >
+                    <option value="">Compare with a past survey:</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                [CHART]
+            </div>
+        </div>
+
+        <br/>
+
+        <p>If any of your symptoms or results worry you, you will have a chance to discuss these at your next visit.
+            Your nurse or doctor will have a copy of your completed health survey.</p>
+
+        <label for="medications" class="control-label">
+            To help you prepare for your next visit/appointment please complete and save the below:
+        </label>
+
+        <div>
+            <textarea id="medications" data-ng-model="selfManagement.IBD_SELF_MANAGEMENT_MEDICATIONS" class="form-control"
+                      style="height: 100px;">
+            </textarea>
+        </div>
+
+        <br/>
+        <p>
+            <a href="#" class="btn blue">Save</a>
+        </p>
     </div>
 </div>

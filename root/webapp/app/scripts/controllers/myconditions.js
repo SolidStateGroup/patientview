@@ -8,6 +8,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.currentSpecialty = specialty;
         $scope.loading = true;
 
+        delete $scope.activeTab;
+        delete $routeParams.activeTab;
+
         if (specialty.code === 'IBD') {
             getPatientManagement($scope.loggedInUser, function() {
                 $timeout(function() {
@@ -398,6 +401,11 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.specialties = [];
         $scope.currentSpecialty = '';
         $scope.loading = true;
+
+        // handle linking to specific tabs
+        if ($routeParams.activeTab !== undefined) {
+            $scope.activeTab = $routeParams.activeTab;
+        }
 
         // get list of specialties for logged in user
         for (i=0;i<$scope.loggedInUser.groupRoles.length;i++) {
