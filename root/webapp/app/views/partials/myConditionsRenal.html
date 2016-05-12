@@ -1,77 +1,79 @@
-<div data-ng-show="!patientDetails.length">
-    <br/>
-    <p>Your conditions have not yet been added to PatientView by the {{currentSpecialty.name}} specialty.</p>
-</div>
-
-<div class="details-filter clearfix" data-ng-show="patientDetails.length">
+<div class="details-filter clearfix" data-ng-if="patientDetails">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
         <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
-            <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
+            <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected" disabled="disabled">
             <span class="checkbox-label">{{patient.group.shortName}}</span>
         </span>
     </div>
 </div>
-
-<div data-ng-show="patientDetails.length">
-    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-        <div class="panel panel-default">
-            <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
-            <div class="panel-body">
-                <h5 data-ng-show="!patient.diagnosisCodes.length && !patient.fhirConditions.length
+<div>
+    <div>
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_CONDITIONS'">My Conditions</a></li>
+            <li data-ng-class="{active:activeTab === 'SURVEYS'}"><a data-ng-click="activeTab = 'SURVEYS'">Surveys</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-show="patientDetails.length">
+                    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
+                            <div class="panel-body">
+                                <h5 data-ng-show="!patient.diagnosisCodes.length && !patient.fhirConditions.length
                     && !patient.fhirEncounters.length">No condition information has been provided by this group</h5>
-                <br/>
-                <table class="table table-bordered" data-ng-show="patient.diagnosisCodes.length
+                                <br/>
+                                <table class="table table-bordered" data-ng-show="patient.diagnosisCodes.length
                         || patient.fhirConditions.length || patient.fhirEncounters.length">
-                    <tbody>
-                    <tr><td colspan="2"><h4>Condition Information</h4></td></tr>
-                    <tr>
-                        <td class="forced-width">
-                            Diagnosis
-                            <span data-ng-if="staffEnteredDiagnosis"> (from your unit)</span>
-                        </td>
-                        <td>
-                            <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
-                                <dt><h5>{{code.description}}</h5></dt>
-                                <dd>
+                                    <tbody>
+                                    <tr><td colspan="2"><h4>Condition Information</h4></td></tr>
+                                    <tr>
+                                        <td class="forced-width">
+                                            Diagnosis
+                                            <span data-ng-if="staffEnteredDiagnosis"> (from your unit)</span>
+                                        </td>
+                                        <td>
+                                            <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
+                                                <dt><h5>{{code.description}}</h5></dt>
+                                                <dd>
                                     <span data-ng-repeat="link in code.links | orderBy:'displayOrder'">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                     </span>
-                                </dd>
-                            </dl>
-                        </td>
-                    </tr>
-                    <tr data-ng-if="staffEnteredDiagnosis">
-                        <td class="forced-width">
-                            Diagnosis (PatientView entered)
-                        </td>
-                        <td>
-                            <dl class="conditions-link-list unstyled">
-                                <dt>
-                                <h5>{{staffEnteredDiagnosis.description}}</h5>
-                                <span class="light-text asserter">Set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}}</span>
-                                </dt>
-                                <dd>
+                                                </dd>
+                                            </dl>
+                                        </td>
+                                    </tr>
+                                    <tr data-ng-if="staffEnteredDiagnosis">
+                                        <td class="forced-width">
+                                            Diagnosis (PatientView entered)
+                                        </td>
+                                        <td>
+                                            <dl class="conditions-link-list unstyled">
+                                                <dt>
+                                                <h5>{{staffEnteredDiagnosis.description}}</h5>
+                                                <span class="light-text asserter">Set {{staffEnteredDiagnosis.date | date:'dd-MMM-yyyy HH:mm'}} by {{staffEnteredDiagnosis.asserter}}</span>
+                                                </dt>
+                                                <dd>
                             <span data-ng-repeat="link in staffEnteredDiagnosis.links | orderBy:'displayOrder'">
                                 <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                             </span>
-                                </dd>
-                            </dl>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="forced-width">Diagnosis Date</td>
-                        <td>
+                                                </dd>
+                                            </dl>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="forced-width">Diagnosis Date</td>
+                                        <td>
                             <span data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS_EDTA'">
                                 {{condition.date | date:'dd-MMM-yyyy' }}
                             </span>
-                        </td>
-                    </tr>
+                                        </td>
+                                    </tr>
 
-                    <tr>
-                        <td class="forced-width">Other Conditions</td>
-                        <td>
-                            <ul class="unstyled">
-                                <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS'">
+                                    <tr>
+                                        <td class="forced-width">Other Conditions</td>
+                                        <td>
+                                            <ul class="unstyled">
+                                                <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS'">
                                     <span data-ng-if="!condition.description">
                                         {{condition.code}}
                                     </span>
@@ -81,14 +83,14 @@
                                     <span data-ng-if="condition.code !== condition.notes">
                                         ({{condition.notes}})
                                     </span>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
 
-                    <tr>
-                        <td class="forced-width">Treatment</td>
-                        <td>
+                                    <tr>
+                                        <td class="forced-width">Treatment</td>
+                                        <td>
                             <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TREATMENT'">
                                 {{encounter.status}}
                                 <br data-ng-show="encounter.links.length"/>
@@ -96,102 +98,110 @@
                                     <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                 </span>
                             </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="forced-width">Transplant Status</td>
-                        <td>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="forced-width">Transplant Status</td>
+                                        <td>
                             <span data-ng-repeat="encounter in patient.fhirEncounters"
                                   data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
                                 Kidney: {{encounter.status}} &nbsp;
                                 <a href="http://www.rixg.org/rpv/transplant.html" target="_blank">(Explain This)</a>
                             </span>
-                        </td>
-                    </tr>
+                                        </td>
+                                    </tr>
 
-                    </tbody>
-                </table>
+                                    </tbody>
+                                </table>
 
-                <!-- foot checkup -->
-                <table class="table table-bordered" data-ng-show="patient.footCheckup.applies > 0">
-                    <tbody>
-                    <tr><td colspan="2"><h4>Feet</h4></td></tr>
-                    <tr>
-                        <td colspan="2">
-                            <strong>
-                                <span>Last recorded {{patient.footCheckup.applies | date:'dd-MMM-yyyy'}},</span>
-                                <span data-ng-show="patient.footCheckup.location"> recorded at {{patient.footCheckup.location}},</span>
-                                <span>information provided by {{patient.footCheckup.group.name}}</span>
-                            </strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Left</strong></td>
-                        <td><strong>Right</strong></td>
-                    </tr>
-                    <tr>
-                        <td>DPPULSE: {{patient.footCheckup.leftFoot.DPPULSE}}<br/>
-                            PTPULSE: {{patient.footCheckup.leftFoot.PTPULSE}}</td>
-                        <td>DPPULSE: {{patient.footCheckup.rightFoot.DPPULSE}}<br/>
-                            PTPULSE: {{patient.footCheckup.rightFoot.PTPULSE}}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                                <!-- foot checkup -->
+                                <table class="table table-bordered" data-ng-show="patient.footCheckup.applies > 0">
+                                    <tbody>
+                                    <tr><td colspan="2"><h4>Feet</h4></td></tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <strong>
+                                                <span>Last recorded {{patient.footCheckup.applies | date:'dd-MMM-yyyy'}},</span>
+                                                <span data-ng-show="patient.footCheckup.location"> recorded at {{patient.footCheckup.location}},</span>
+                                                <span>information provided by {{patient.footCheckup.group.name}}</span>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Left</strong></td>
+                                        <td><strong>Right</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>DPPULSE: {{patient.footCheckup.leftFoot.DPPULSE}}<br/>
+                                            PTPULSE: {{patient.footCheckup.leftFoot.PTPULSE}}</td>
+                                        <td>DPPULSE: {{patient.footCheckup.rightFoot.DPPULSE}}<br/>
+                                            PTPULSE: {{patient.footCheckup.rightFoot.PTPULSE}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
 
-                <!-- eye checkup -->
-                <table class="table table-bordered" data-ng-show="patient.eyeCheckup.applies > 0">
-                    <tbody>
-                    <tr><td colspan="2"><h4>Eyes</h4></td></tr>
-                    <tr>
-                        <td colspan="2">
-                            <strong>
-                                <span>Last recorded {{patient.eyeCheckup.applies | date:'dd-MMM-yyyy'}},</span>
-                                <span data-ng-show="patient.eyeCheckup.location"> recorded at {{patient.eyeCheckup.location}},</span>
-                                <span>information provided by {{patient.eyeCheckup.group.name}}</span>
-                            </strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Left</strong></td>
-                        <td><strong>Right</strong></td>
-                    </tr>
-                    <tr>
-                        <td>MGRADE: {{patient.eyeCheckup.leftEye.MGRADE}}<br/>
-                            RGRADE: {{patient.eyeCheckup.leftEye.RGRADE}}<br/>
-                            VA: {{patient.eyeCheckup.leftEye.VA}}</td>
-                        <td>MGRADE: {{patient.eyeCheckup.rightEye.MGRADE}}<br/>
-                            RGRADE: {{patient.eyeCheckup.rightEye.RGRADE}}<br/>
-                            VA: {{patient.eyeCheckup.rightEye.VA}}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                                <!-- eye checkup -->
+                                <table class="table table-bordered" data-ng-show="patient.eyeCheckup.applies > 0">
+                                    <tbody>
+                                    <tr><td colspan="2"><h4>Eyes</h4></td></tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <strong>
+                                                <span>Last recorded {{patient.eyeCheckup.applies | date:'dd-MMM-yyyy'}},</span>
+                                                <span data-ng-show="patient.eyeCheckup.location"> recorded at {{patient.eyeCheckup.location}},</span>
+                                                <span>information provided by {{patient.eyeCheckup.group.name}}</span>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Left</strong></td>
+                                        <td><strong>Right</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>MGRADE: {{patient.eyeCheckup.leftEye.MGRADE}}<br/>
+                                            RGRADE: {{patient.eyeCheckup.leftEye.RGRADE}}<br/>
+                                            VA: {{patient.eyeCheckup.leftEye.VA}}</td>
+                                        <td>MGRADE: {{patient.eyeCheckup.rightEye.MGRADE}}<br/>
+                                            RGRADE: {{patient.eyeCheckup.rightEye.RGRADE}}<br/>
+                                            VA: {{patient.eyeCheckup.rightEye.VA}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
 
-                <table class="table table-bordered" data-ng-show="patient.group.links">
-                    <tbody>
-                        <tr><td colspan="2"><h4>Information Links</h4></td></tr>
-                        <tr>
-                            <td colspan="2">
-                                <ul>
-                                    <li data-ng-repeat="link in patient.group.links | orderBy:'displayOrder'">
-                                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <table class="table table-bordered" data-ng-show="patient.group.links">
+                                    <tbody>
+                                    <tr><td colspan="2"><h4>Information Links</h4></td></tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <ul>
+                                                <li data-ng-repeat="link in patient.group.links | orderBy:'displayOrder'">
+                                                    <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'SURVEYS'}">
+                <div data-ng-include src="'views/partials/myConditionsSurveys.html'" data-ng-controller="IbdFatigueCtrl"></div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" data-ng-if="currentSpecialty.links && (activeTab === 'MY_CONDITIONS' || activeTab === 'SURVEYS' || activeTab === null || activeTab === undefined)">
+            <div class="panel-heading"><h3>Other Helpful Information</h3></div>
+            <div class="panel-body">
+                <ul class="helpful-links">
+                    <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
+                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
-<div class="panel panel-default" data-ng-show="currentSpecialty.links">
-    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
-    <div class="panel-body">
-        <ul>
-            <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
-                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
-            </li>
-        </ul>
-    </div>
-</div>
