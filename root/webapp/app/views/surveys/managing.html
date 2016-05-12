@@ -16,15 +16,16 @@
                     <p>
                         Your overall self-assessed activation level shows you to be <strong>moderately</strong> activated.
                         Your overall score is <strong>60</strong>.
-                        <a href="#"><strong>Tell me more.</strong></a>
+                        <a href="" data-ng-click="showInfo = true"><strong>Tell me more.</strong></a>
                     </p>
                 </div>
 
                 <div class="row">
                     <div class="col-md-3">
                         [ARROW DIAGRAM]
+                        <img src="http://placehold.it/350x150">
                     </div>
-                    <div class="col-md-9 hidden">
+                    <div class="col-md-9" data-ng-show="showInfo">
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <p>Based on the information you answered in the Your Health survey, you scored yourself <strong>highly</strong>
