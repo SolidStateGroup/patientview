@@ -1,9 +1,47 @@
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3>Your Surveys</h3>
+        <h3>My Health Surveys</h3>
     </div>
-    <div class="panel-body" data-ng-if="!unknownPrimaryDiagnosis">
-        <p>Surveys</p>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-10">
+                <h4>Managing Your Health</h4>
+                <p>This takes into account your knowledge, skills and confidence when it comes to looking
+                    after your own health and being involved in your care.</p>
+                <p>Last completed on xxxxxx</p>
+            </div>
+            <div class="col-md-2">
+                <a href="/#/surveys/managing" class="btn blue">
+                    View Surveys
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-10">
+                <h4>Your Symptoms</h4>
+                <p>This shows how much you have been bothered by symptoms.</p>
+                <p>Last completed on xxxxxx</p>
+            </div>
+            <div class="col-md-2">
+                <a href="/#/surveys/symptoms" class="btn blue">
+                    View Surveys
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-10">
+                <h4>Your Overall Health</h4>
+                <p>This shows your overall health.</p>
+                <p>Last completed on xxxxxx</p>
+            </div>
+            <div class="col-md-2">
+                <a href="/#/surveys/overall" class="btn blue">
+                    View Surveys
+                </a>
+            </div>
+        </div>
     </div>
     <div data-ng-show="loading" class="container">
         <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Surveys</h3>
