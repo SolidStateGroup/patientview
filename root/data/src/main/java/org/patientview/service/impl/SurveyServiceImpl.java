@@ -28,6 +28,7 @@ public class SurveyServiceImpl extends AbstractServiceImpl<SurveyServiceImpl> im
     }
 
     @Override
+    @Transactional
     public Survey getByType(final String type) {
         List<Survey> surveys = surveyRepository.findByType(type);
         return !CollectionUtils.isEmpty(surveys) ? surveys.get(0) : null;

@@ -14,45 +14,22 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" data-ng-show="!loading && surveyResponses">
             <div class="col-md-6">
                 <table class="table">
                     <thead>
                     <tr>
-                        <th>Your Symptoms</th>
-                        <th>01-May-2016</th>
-                        <th>01-Apr-2016</th>
-                        <th>01-Mar-2016</th>
+                        <th data-ng-repeat="header in tableHeader">
+                            {{header}}
+                        </th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Pain</td>
-                            <td>Not at all</td>
-                            <td>Slightly</td>
-                            <td>Severe</td>
-                            <td><a href="#">View Graph</a></td>
-                        </tr>
-                        <tr>
-                            <td>Shortness of breath</td>
-                            <td>Not at all</td>
-                            <td>Slightly</td>
-                            <td>Severe</td>
-                            <td><a href="#">View Graph</a></td>
-                        </tr>
-                        <tr>
-                            <td>Weakness or lack of energy</td>
-                            <td>Not at all</td>
-                            <td>Slightly</td>
-                            <td>Severe</td>
-                            <td><a href="#">View Graph</a></td>
-                        </tr>
-                        <tr>
-                            <td>Nausea (feeling like you are going to be sick)</td>
-                            <td>Not at all</td>
-                            <td>Slightly</td>
-                            <td>Severe</td>
+                        <tr data-ng-repeat="row in tableRows">
+                            <td data-ng-repeat="cell in row">
+                                {{cell}}
+                            </td>
                             <td><a href="#">View Graph</a></td>
                         </tr>
                     </tbody>
@@ -77,5 +54,15 @@
                 </select>
             </div>
         </div>
+
+        <div data-ng-show="loading" class="container">
+            <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Symptoms</h3>
+            <br/>
+        </div>
+
+        <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
+            <h5>No Data is currently available for your symptoms</h5>
+        </div>
+
     </div>
 </div>

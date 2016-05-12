@@ -85,7 +85,8 @@ public class ImportControllerTest {
     @Ignore
     public void testSurveyResponseImport() throws Exception {
         //String fileName = "data/xml/survey_response/survey_response_1.xml";
-        String fileName = "data/xml/survey_response/survey_response_2.xml";
+        //String fileName = "data/xml/survey_response/survey_response_2.xml";
+        String fileName = "data/xml/survey_response/survey_response_ukrdc_symptoms_(proms)_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
