@@ -1,0 +1,379 @@
+<patientview>
+    <sequence>01436</sequence>
+    <dateofreport>2013-11-13T16:38:18</dateofreport>
+    <datereportprocessed>2013-10-12T15:38:18</datereportprocessed>
+    <flag>Follow-up-report</flag>
+    <centredetails>
+        <centrecode>SALIBD</centrecode>
+        <centrename>sal</centrename>
+        <centreaddress1>sal 1</centreaddress1>
+        <centreaddress2>sal 2</centreaddress2>
+        <centreaddress3></centreaddress3>
+        <centreaddress4></centreaddress4>
+        <centrepostcode></centrepostcode>
+        <centretelephone>01563 521133</centretelephone>
+    </centredetails>
+    <gpdetails>
+        <gpname>Dr John Smith</gpname>
+        <gpaddress1>O'Donnel Practice</gpaddress1>
+        <gpaddress2>24 Templehill</gpaddress2>
+        <gpaddress3>Troon</gpaddress3>
+        <gpaddress4>Ayrshire</gpaddress4>
+        <gppostcode>KA10 6BQ</gppostcode>
+        <gptelephone>01292 312012</gptelephone>
+    </gpdetails>
+    <patient>
+        <personaldetails>
+            <surname>Cohen</surname>
+            <forename>Mark</forename>
+            <!--<dateofbirth>1944-03-17</dateofbirth>-->
+            <dateofbirth>1952-10-31</dateofbirth>
+            <sex>Female</sex>
+            <nhsno>1111111111</nhsno>
+            <hospitalnumber>125634</hospitalnumber>
+            <address1>1 street road</address1>
+            <address2>townsville</address2>
+            <postcode>BS10 5NB</postcode>
+            <telephone1>0118 999881</telephone1>
+            <mobile>018118181</mobile>
+        </personaldetails>
+        <clinicaldetails>
+            <tpstatus></tpstatus>
+            <diagnosisdate>2011-05-01</diagnosisdate>
+            <diagnosis>Ulcerative Colitis</diagnosis>
+            <ibddiseaseextent>Left-sided Colitis</ibddiseaseextent>
+            <ibddiseasecomplications>None</ibddiseasecomplications>
+            <ibdeimanifestations>None</ibdeimanifestations>
+            <familyhistory>Ulcerative Colitis</familyhistory>
+            <smokinghistory>Never smoked</smokinghistory>
+            <surgicalhistory>No Previous operations</surgicalhistory>
+            <vaccinationrecord>some vaccination</vaccinationrecord>
+            <colonoscopysurveillance>2021-01-01</colonoscopysurveillance>
+            <namedconsultant>Dr Robinson</namedconsultant>
+            <ibdnurse>Jane Connard; Justine Newberry</ibdnurse>
+            <bodypartsaffected>legs</bodypartsaffected>
+        </clinicaldetails>
+        <timelinedetails>
+            <test>
+                <testname>Modality</testname>
+                <testcode>event</testcode>
+                <units>text</units>
+                <daterange start="2007-12-19" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2012-09-07T08:00:00</datestamp>
+                    <value>Transplant</value>
+                </result>
+                <result>
+                    <datestamp>2007-12-19T08:00:00</datestamp>
+                    <value>Hospital HD</value>
+                </result>
+            </test>
+        </timelinedetails>
+        <testdetails>
+            <test>
+                <testname>weight</testname>
+                <testcode>weight</testcode>
+                <units>kg</units>
+                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2013-11-06T13:01:47</datestamp>
+                    <value>102</value>
+                </result>
+            </test>
+            <test>
+                <testname>Hb</testname>
+                <testcode>hb</testcode>
+                <units>gm/l</units>
+                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2013-11-06T13:01:47</datestamp>
+                    <prepost>PRE</prepost>
+                    <value>Result not available™</value>
+                </result>
+            </test>
+            <test>
+                <testname>creatinine</testname>
+                <testcode>creatinine</testcode>
+                <units></units>
+                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <value>112.40</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-05T08:00:00</datestamp>
+                    <value>123.00</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-02T08:00:00</datestamp>
+                    <value>113.20</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-01T08:00:00</datestamp>
+                    <value>112.40</value>
+                </result>
+                <result>
+                    <datestamp>2013-10-31T00:00:00</datestamp>
+                    <value>112.90</value>
+                </result>
+            </test>
+            <test>
+                <testname>urea</testname>
+                <testcode>urea</testcode>
+                <units>mg</units>
+                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <result>
+                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <value>113</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <value>114</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <value>115</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <value>116</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-05T08:00:00</datestamp>
+                    <value>123.00</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-02T08:00:00</datestamp>
+                    <value>113.20</value>
+                </result>
+                <result>
+                    <datestamp>2013-11-01T08:00:00</datestamp>
+                    <value>112.40</value>
+                </result>
+                <result>
+                    <datestamp>2013-10-31T00:00:00</datestamp>
+                    <value>112.90</value>
+                </result>
+            </test>
+            <test>
+                <testcode>hdl</testcode>
+                <units>mmol/L</units>
+                <daterange start="2008-09-23" stop="2014-09-22" />
+                <result>
+                    <datestamp>2008-09-23T00:00:00</datestamp>
+                    <value>2.09</value>
+                </result>
+                <result>
+                    <datestamp>2008-11-25T00:00:00</datestamp>
+                    <value>2.61</value>
+                </result>
+                <result>
+                    <datestamp>2008-11-25T00:00:00</datestamp>
+                    <value>2.61</value>
+                </result>
+                <result>
+                    <datestamp>2009-11-02T00:00:00</datestamp>
+                    <value>2.18</value>
+                </result>
+                <result>
+                    <datestamp>2009-11-02T00:00:00</datestamp>
+                    <value>2.18</value>
+                </result>
+                <result>
+                    <datestamp>2009-11-02T00:00:00</datestamp>
+                    <value>2.18</value>
+                </result>
+                <result>
+                    <datestamp>2009-11-02T00:00:00</datestamp>
+                    <value>2.18</value>
+                </result>
+                <result>
+                    <datestamp>2010-06-21T00:00:00</datestamp>
+                    <value>2.77</value>
+                </result>
+                <result>
+                    <datestamp>2010-10-04T00:00:00</datestamp>
+                    <value>3.07</value>
+                </result>
+                <result>
+                    <datestamp>2011-01-25T00:00:00</datestamp>
+                    <value>3.34</value>
+                </result>
+                <result>
+                    <datestamp>2011-01-25T00:00:00</datestamp>
+                    <value>3.34</value>
+                </result>
+                <result>
+                    <datestamp>2011-04-15T00:00:00</datestamp>
+                    <value>2.88</value>
+                </result>
+                <result>
+                    <datestamp>2011-04-15T00:00:00</datestamp>
+                    <value>2.88</value>
+                </result>
+                <result>
+                    <datestamp>2011-09-26T00:00:00</datestamp>
+                    <value>2.45</value>
+                </result>
+                <result>
+                    <datestamp>2012-04-02T00:00:00</datestamp>
+                    <value>2.84</value>
+                </result>
+                <result>
+                    <datestamp>2012-10-01T00:00:00</datestamp>
+                    <value>2.73</value>
+                </result>
+                <result>
+                    <datestamp>2012-12-05T00:00:00</datestamp>
+                    <value>3.81</value>
+                </result>
+                <result>
+                    <datestamp>2012-12-05T00:00:00</datestamp>
+                    <value>3.81</value>
+                </result>
+                <result>
+                    <datestamp>2012-12-05T00:00:00</datestamp>
+                    <value>3.81</value>
+                </result>
+                <result>
+                    <datestamp>2012-12-05T00:00:00</datestamp>
+                    <value>3.81</value>
+                </result>
+                <result>
+                    <datestamp>2013-07-10T00:00:00</datestamp>
+                    <value>3.02</value>
+                </result>
+                <result>
+                    <datestamp>2013-07-10T00:00:00</datestamp>
+                    <value>3.02</value>
+                </result>
+                <result>
+                    <datestamp>2013-10-01T00:00:00</datestamp>
+                    <value>2.64</value>
+                </result>
+                <result>
+                    <datestamp>2014-06-19T00:00:00</datestamp>
+                    <value>3.03</value>
+                </result>
+                <result>
+                    <datestamp>2014-09-22T00:00:00</datestamp>
+                    <value>3.61</value>
+                </result>
+            </test>
+        </testdetails>
+        <drugdetails>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>Levemir FlexPen 100units/ml solution for injection 3ml pr...</drugname>
+                <drugdose>1 (10) AS DIRECTED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>NovoRapid FlexPen 100units/ml soluti'on for injection 3ml ...</drugname>
+                <drugdose>2 (10) AS DIRECTED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>Ursodeoxycholic acid 250mg capsules</drugname>
+                <drugdose>3 (150) 2 EVERY MORNING 3 AT NIGHT</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>GlucaGen Hypokit 1mg powder and solvent for solution for ...</drugname>
+                <drugdose>4 (1) WHEN REQUIRED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>Multiclix lancets 0.3mm/30gauge (Roche Diagnostics Ltd)</drugname>
+                <drugdose>5 (204) WHEN REQUIRED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>FreeStyle Lite testing strips (Abbott Laboratories Ltd)</drugname>
+                <drugdose>6 (200) AS DIRECTED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-03-18</drugstartdate>
+                <drugname>BD Micro-Fine Ultra hypodermic insulin needles for pre-fi...</drugname>
+                <drugdose>7 (100) AS DIRECTED</drugdose>
+            </drug>
+            <drug>
+                <drugstartdate>2014-06-17</drugstartdate>
+                <drugname>FreeStyle Lite testing strips (Abbott Laboratories Ltd)</drugname>
+                <drugdose>8 (200) AS DIRECTED</drugdose>
+            </drug>
+        </drugdetails>
+        <footcheckup>
+            <datestamp>2011-01-25</datestamp>
+            <foot side="left">
+                <ptpulse>O/E - Left posterior tibial pulse normal</ptpulse>
+            </foot>
+            <foot side="left">
+                <dppulse>O/E - left dorsalis pedis normal</dppulse>
+            </foot>
+            <foot side="right">
+                <ptpulse>O/E - Right posterior tibial pulse normal</ptpulse>
+            </foot>
+            <foot side="right">
+                <dppulse>O/E - Right dorsalis pedis normal</dppulse>
+            </foot>
+        </footcheckup>
+        <footcheckup>
+            <datestamp>2013-07-10</datestamp>
+            <foot side="left">
+                <ptpulse>O/E - L.post.tib.pulse present</ptpulse>
+            </foot>
+            <foot side="left">
+                <dppulse>O/E - L.dorsalis pedis present</dppulse>
+            </foot>
+            <foot side="right">
+                <ptpulse>O/E - R.post.tib.pulse present</ptpulse>
+            </foot>
+            <foot side="right">
+                <dppulse>O/E - R.dorsalis pedis present</dppulse>
+            </foot>
+        </footcheckup>
+        <eyecheckup>
+            <datestamp>2014-08-20</datestamp>
+            <location>GP Surgery</location>
+            <eye side="left">
+                <rgrade>Rx</rgrade>
+                <mgrade>Mx</mgrade>
+                <va>6/x</va>
+            </eye>
+            <eye side="right">
+                <rgrade>Rx</rgrade>
+                <mgrade>Mx</mgrade>
+                <va>6/x</va>
+            </eye>
+        </eyecheckup>
+        <letterdetails>
+            <letter>
+                <letterdate>2015-11-24T14:58:52</letterdate>
+                <lettertype>Clinic Letter x</lettertype><lettercontent><![CDATA[This is the content's
+                of a letter]]></lettercontent>
+            </letter>
+
+        </letterdetails>
+        <diagnostics>
+            <diagnostic>
+                <diagnosticresult>99.9</diagnosticresult>
+                <diagnosticname>Image taken</diagnosticname>
+                <diagnostictype>IMAGING</diagnostictype>
+                <diagnosticdate>2014-08-09T15:58:25</diagnosticdate>
+            </diagnostic>
+        </diagnostics>
+        <allergydetails>
+            <allergy>
+                <allergysubstance>Some substance</allergysubstance>
+                <allergytypecode>Drug</allergytypecode>
+                <allergyreaction>Itching</allergyreaction>
+                <allergyconfidencelevel>Confirmed no YC</allergyconfidencelevel>
+                <allergyinfosource>Patient</allergyinfosource>
+                <allergystatus>Active</allergystatus>
+                <allergydescription>Causes itching</allergydescription>
+                <allergyrecordeddate>2014-08-09</allergyrecordeddate>
+            </allergy>
+        </allergydetails>
+    </patient>
+</patientview>

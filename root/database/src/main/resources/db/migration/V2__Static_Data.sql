@@ -26,6 +26,17 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (9, now(), 'Contact point type','CONTACT_POINT_TYPE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (10, now(), 'Types of statistic','STATISTIC_TYPE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (11, now(), 'Types of news items','NEWS_TYPE', '1');
+/* IBD patient management */
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (12, now(), 'Gender','GENDER', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (13, now(), 'Crohns Location','IBD_CROHNSLOCATION', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (14, now(), 'Disease Proximal to Terminal Ileum','IBD_CROHNSPROXIMALTERMINALILEUM', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (15, now(), 'Perianal','IBD_CROHNSPERIANAL', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (16, now(), 'Complications','IBD_CROHNSBEHAVIOUR', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (17, now(), 'Other Location','IBD_UCEXTENT', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (18, now(), 'Other Part(s) of The Body Affected','IBD_EGIMCOMPLICATION', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (19, now(), 'Surgery Main Procedure','IBD_SURGERYMAINPROCEDURE', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (20, now(), 'Smoking Status','IBD_SMOKINGSTATUS', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (21, now(), 'Family History','IBD_FAMILYHISTORY', '1');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (1, now(), 'UNIT','Unit','1', '1');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (2, now(), 'SPECIALTY','Specialty','1','1');
@@ -67,9 +78,78 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (62, now(), 'DASHBOARD','Dashboard News Item','1','11');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (63, now(), 'ALL','All News Items','1','11');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (64, now(), 'GENERAL_PRACTICE','General Practice','1', '1');
+/* IBD patient management */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (65, now(), '0', 'Not Known', 1, 12, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (66, now(), '1', 'Male', 1, 12, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (67, now(), '2', 'Female', 1, 12, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (68, now(), 'L1', 'Terminal Ileum +/- limited caecal disease', 1, 13, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (69, now(), 'L2', 'Colonic', 1, 13, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (70, now(), 'L3', 'Ileocolonic', 1, 13, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (71, now(), 'None', 'None of the above', 1, 13, 4);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (72, now(), 'YES', 'Yes', 1, 14, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (73, now(), 'NO', 'No', 1, 14, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (74, now(), 'YES', 'Yes', 1, 15, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (75, now(), 'NO', 'No', 1, 15, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (76, now(), 'B1', 'Non-Stricturing, Non-Penetrating', 'Inflammation Only', 1, 16, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (77, now(), 'B2', 'Stricturing', 'Stricturing Disease', 1, 16, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, description_friendly, created_by, lookup_type_id, display_order) VALUES (78, now(), 'B3', 'Penetrating', 'Fistulating Disease', 1, 16, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (79, now(), 'E1', 'Ulcerative Proctitis', 1, 17, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (80, now(), 'E2', 'Left Sided UC (Distal UC)', 1, 17, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (81, now(), 'E3', 'Extensive UC (Pancolitis)', 1, 17, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (82, now(), '00', 'None', 1, 18, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (83, now(), '01', 'Bone: Osteopenia', 1, 18, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (84, now(), '02', 'Bone: Osteoporosis', 1, 18, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (85, now(), '03', 'Bone: Fracture', 1, 18, 4);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (86, now(), '04', 'Joints: Arthralgia', 1, 18, 5);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (87, now(), '05', 'Joints: Monoarthritis', 1, 18, 6);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (88, now(), '06', 'Joints: Polyarthritis', 1, 18, 7);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (89, now(), '25', 'Joints: Spondyloarthropathy', 1, 18, 8);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (90, now(), '07', 'Joints: Ankylosing Spondylitis', 1, 18, 9);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (91, now(), '08', 'Joints: Sacro-iliitis', 1, 18, 10);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (92, now(), '09', 'Skin: Erythema Nodosum', 1, 18, 11);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (93, now(), '10', 'Skin: Pyoderma gangrenosum', 1, 18, 12);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (94, now(), '11', 'Skin: Metastatic Crohn''s Disease', 1, 18, 13);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (95, now(), '26', 'Skin: Oro-facial granulomatosis', 1, 18, 14);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (96, now(), '24', 'Skin: Aphthous ulcers', 1, 18, 15);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (97, now(), '12', 'Eye: Uveitis', 1, 18, 16);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (98, now(), '13', 'Eye: Episcleritis', 1, 18, 17);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (99, now(), '14', 'Eye: Iritis', 1, 18, 18);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (100, now(), '15', 'Vascular: DVT', 1, 18, 19);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (101, now(), '16', 'Vascular: PE', 1, 18, 20);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (102, now(), '17', 'Hepatobiliary: Sclerosing cholangitis', 1, 18, 21);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (103, now(), '18', 'Hepatobiliary: Hepatitis (auto-immune)', 1, 18, 22);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (104, now(), '19', 'Hepatobiliary: Raised Transaminases', 1, 18, 23);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (105, now(), '20', 'Hepatobiliary: Gallstones', 1, 18, 24);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (106, now(), '21', 'Renal: Glomerulopathy', 1, 18, 25);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (107, now(), '22', 'Renal: Stones', 1, 18, 26);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (108, now(), '23', 'Other', 1, 18, 27);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (109, now(), '01.1', 'Apendicectomy', 1, 19, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (110, now(), '04.1', 'Total proctocolectomy', 1, 19, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (111, now(), '04.2', 'Ileonal pouch', 1, 19, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (112, now(), '05.1', 'Partial colectomy & colostomy with retained rectal stump', 1, 19, 4);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (113, now(), '05.2', 'Colectomy ileostomy with retained rectal stump', 1, 19, 5);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (114, now(), '05.3', 'Pancolectomy', 1, 19, 6);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (115, now(), '06.1', 'Partial (segmental) colectomy', 1, 19, 7);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (116, now(), '07.1', 'Right hemicolectomy', 1, 19, 8);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (117, now(), '09.1', 'Left hemicolectomy', 1, 19, 9);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (118, now(), '55.4', 'Insertion of seton', 1, 19, 10);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (119, now(), '55.5', 'Fistulectomy', 1, 19, 11);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (120, now(), '58.2', 'Drainage of perianal sepsis', 1, 19, 12);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (121, now(), '27.2', 'Gastric surgery', 1, 19, 13);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (122, now(), '58.1', 'Small bowel resection', 1, 19, 14);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (123, now(), '73.3', 'Permanent ileostomy', 1, 19, 15);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (124, now(), '78.2', 'Stricturoplasty', 1, 19, 16);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (125, now(), 'J18.1', 'Cholecystectomy', 1, 19, 17);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (126, now(), 'Y53.1', 'Radiological drainage of abscess', 1, 19, 18);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (127, now(), '99', 'Other surgery (not specified)', 1, 19, 19);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (128, now(), '1', 'Current Smoker', 1, 20, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (129, now(), '2', 'Ex-Smoker', 1, 20, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (130, now(), '3', 'Non-Smoker - History Unknown', 1, 20, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (131, now(), '4', 'Never Smoked', 1, 20, 4);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (132, now(), 'YES', 'Yes', 1, 21, 3);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (133, now(), 'NO', 'No', 1, 21, 4);
 
 /* Group Statistics (see AuditActions.java) */
-
 /* pv1 "admin add" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),
 'ADMIN_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''ADMIN_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
@@ -196,6 +276,7 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (8, 'KEEP_ALL_DATA', 'Keep All Data', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (9, 'CENTRAL_SUPPORT_CONTACT', 'Central Support Contact', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (10, 'IBD_SCORING_ALERTS', 'IBD Scoring Alerts (needs Messaging)', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (11, 'IBD_PATIENT_MANAGEMENT', 'IBD Patient Management', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -208,6 +289,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (13, 8, 14)
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (14, 4, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (15, 9, 15);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (16, 10, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (17, 11, 14);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );

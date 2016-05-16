@@ -4,6 +4,7 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
@@ -30,9 +31,11 @@ public interface EncounterService {
      * @param fhirEncounter FhirEncounter, containing all fields required to store Encounter in FHIR
      * @param fhirLink FhirLink, link between patient and records in FHIR
      * @param organizationUuid UUID of FHIR Organization, same as Group
+     * @return FhirDatabaseEntity details on object stored in FHIR
      * @throws FhirResourceException
      */
-    void add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid) throws FhirResourceException;
+    FhirDatabaseEntity add(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+            throws FhirResourceException;
 
     /**
      * Get a List of FHIR Encounters given a patient UUID, typically retrieved from FhirLink resourceId.
@@ -41,6 +44,8 @@ public interface EncounterService {
      * @throws FhirResourceException
      */
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
+
+    void deleteBySubjectIdAndType(UUID subjectId, EncounterTypes encounterType) throws FhirResourceException;
 
     /**
      * Delete FHIR encounters for a User given type, used when deleting UKT data and API importer.

@@ -11,6 +11,7 @@ import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
+import org.patientview.api.service.PatientManagementService;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
@@ -18,6 +19,7 @@ import org.patientview.persistence.model.FhirMedicationStatementRange;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
+import org.patientview.persistence.model.PatientManagement;
 import org.patientview.persistence.model.ServerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +59,9 @@ public class ImportController extends BaseController<ImportController> {
     @Inject
     private LetterService letterService;
 
+    @Inject
+    private PatientManagementService patientManagementService;
+
     @RequestMapping(value = "/import/clinicaldata", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importClinicalData(@RequestBody FhirClinicalData fhirClinicalData) {
         return new ResponseEntity<>(clinicalDataService.importClinicalData(fhirClinicalData), HttpStatus.OK);
@@ -93,6 +98,11 @@ public class ImportController extends BaseController<ImportController> {
     @RequestMapping(value = "/import/patient", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importPatient(@RequestBody FhirPatient fhirPatient) {
         return new ResponseEntity<>(apiPatientService.importPatient(fhirPatient), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/import/patientmanagement", method = RequestMethod.POST)
+    public ResponseEntity<ServerResponse> importPatientManagement(@RequestBody PatientManagement patientManagement) {
+        return new ResponseEntity<>(patientManagementService.importPatientManagement(patientManagement), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/import/practitioner", method = RequestMethod.POST)

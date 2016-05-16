@@ -9,9 +9,9 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ApiConditionService;
+import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
-import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
 import org.patientview.api.service.UserService;
 import org.patientview.util.Util;
@@ -41,7 +41,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +59,9 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     private FhirLinkRepository fhirLinkRepository;
 
     @Inject
+    private FhirLinkService fhirLinkService;
+
+    @Inject
     private FhirResource fhirResource;
 
     @Inject
@@ -67,9 +69,6 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
     @Inject
     private LookupService lookupService;
-
-    @Inject
-    private PatientService patientService;
 
     @Inject
     private PractitionerService practitionerService;
@@ -156,7 +155,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
         if (CollectionUtils.isEmpty(fhirLinks)) {
             // create FHIR Patient & fhirlink if not exists with STAFF_ENTERED group, userId and identifier
-            fhirLink = addFhirLink(patientUser, patientIdentifier, staffEnteredGroup);
+            fhirLink = fhirLinkService.createFhirLink(patientUser, patientIdentifier, staffEnteredGroup);
         } else {
             fhirLink = fhirLinks.get(0);
         }
@@ -236,31 +235,6 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
                         condition, ResourceType.Condition.getPath(), ResourceType.Condition.getPath(), uuid);
             }
         }
-    }
-
-    private FhirLink addFhirLink(User patientUser, Identifier identifier, Group group) throws FhirResourceException {
-        FhirDatabaseEntity fhirPatient
-                = fhirResource.createEntity(
-                    patientService.buildPatient(patientUser, identifier), ResourceType.Patient.name(), "patient");
-
-        // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
-        FhirLink fhirLink = new FhirLink();
-        fhirLink.setUser(patientUser);
-        fhirLink.setIdentifier(identifier);
-        fhirLink.setGroup(group);
-        fhirLink.setResourceId(fhirPatient.getLogicalId());
-        fhirLink.setVersionId(fhirPatient.getVersionId());
-        fhirLink.setResourceType(ResourceType.Patient.name());
-        fhirLink.setActive(true);
-
-        if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
-            patientUser.setFhirLinks(new HashSet<FhirLink>());
-        }
-
-        patientUser.getFhirLinks().add(fhirLink);
-        userRepository.save(patientUser);
-
-        return fhirLink;
     }
 
     private UUID getPractitionerUuid(User user) throws FhirResourceException {

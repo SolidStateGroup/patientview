@@ -9,7 +9,8 @@ public enum QuestionHtmlTypes {
     RADIO("radio"),
     SLIDER("slider"),
     TEXT("text"),
-    TEXT_NUMERIC("text (numeric)");
+    TEXT_NUMERIC("text (numeric)"),
+    DATE("date");
 
     private String name;
     QuestionHtmlTypes(String name) { this.name = name; }

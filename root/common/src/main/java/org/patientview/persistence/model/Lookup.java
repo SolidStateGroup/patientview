@@ -23,9 +23,15 @@ public class Lookup extends AuditModel {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "description_friendly")
+    private String descriptionFriendly;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "lookup_type_id")
     private LookupType lookupType;
+
+    @Column(name = "display_order")
+    private Long displayOrder;
 
     public String getValue() {
         return value;
@@ -49,5 +55,21 @@ public class Lookup extends AuditModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDescriptionFriendly() {
+        return descriptionFriendly;
+    }
+
+    public void setDescriptionFriendly(String descriptionFriendly) {
+        this.descriptionFriendly = descriptionFriendly;
+    }
+
+    public Long getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Long displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }

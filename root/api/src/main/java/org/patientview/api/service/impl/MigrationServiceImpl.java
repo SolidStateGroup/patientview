@@ -732,8 +732,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         });
     }
 
+    @Override
     public Long migrateUser(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, MigrationException {
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException,
+            MigrationException, FhirResourceException {
 
         Date start = new Date();
         UserMigration userMigration = null;

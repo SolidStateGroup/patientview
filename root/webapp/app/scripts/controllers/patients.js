@@ -302,6 +302,15 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         });
     };
 
+    // click Find by email button
+    $scope.findByEmail = function () {
+        UserService.findByEmail($('#email').val()).then(function(result) {
+            showUserOnScreen(result, "email");
+        }, function () {
+            $scope.warningMessage = 'No patient exists with this email address';
+        });
+    };
+
     var showUserOnScreen = function (result, searchType) {
         $scope.editUser = result;
         $scope.existingUser = true;
@@ -528,10 +537,10 @@ function ($scope, $modalInstance, user, UserService) {
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    'DiagnosisService', 'CodeService',
+    'DiagnosisService', 'CodeService', 'PatientService',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies, DiagnosisService, CodeService) {
+        ConversationService, $cookies, DiagnosisService, CodeService, PatientService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -707,12 +716,65 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 });
             }
 
+            // timeout required to send broadcast after everything else done
+            $timeout(function() {
+                getPatientManagement(user);
+            });
+
             openedUser.editLoading = false;
         }, function(failureResult) {
             openedUser.showEdit = false;
             openedUser.editLoading = false;
             alert('Cannot open patient: ' + failureResult.data);
         });
+    };
+
+    var getPatientManagement = function (user) {
+        // get patient management information based on group with IBD_PATIENT_MANAGEMENT feature
+        var patientManagementGroupId = null;
+        var patientManagementIdentifierId = null;
+        var i, j;
+
+        for (i = 0; i < user.groupRoles.length; i++) {
+            if (patientManagementGroupId == null) {
+                var group = user.groupRoles[i].group;
+                if (group.groupFeatures != null && group.groupFeatures != undefined) {
+                    for (j = 0; j < group.groupFeatures.length; j++) {
+                        if (group.groupFeatures[j].feature.name === 'IBD_PATIENT_MANAGEMENT') {
+                            patientManagementGroupId = group.id;
+                        }
+                    }
+                }
+            }
+        }
+
+        // based on first identifier
+        for (i = 0; i < user.identifiers.length; i++) {
+            if (patientManagementIdentifierId == null) {
+                patientManagementIdentifierId = user.identifiers[i].id;
+            }
+        }
+
+        if (patientManagementGroupId !== null && patientManagementIdentifierId !== null) {
+            PatientService.getPatientManagement(user.id, patientManagementGroupId, patientManagementIdentifierId)
+                .then(function (patientManagement) {
+                    if (patientManagement !== undefined && patientManagement !== null) {
+                        $scope.patientManagement = patientManagement;
+                    } else {
+                        $scope.patientManagement = {};
+                    }
+
+                    $scope.patientManagement.groupId = patientManagementGroupId;
+                    $scope.patientManagement.identifierId = patientManagementIdentifierId;
+                    $scope.patientManagement.userId = user.id;
+
+                    $timeout(function() {
+                        $scope.$broadcast('patientManagementInit', {});
+                    });
+                }, function () {
+                    alert('Error retrieving patient management information');
+                });
+        }
     };
 
     // Init
@@ -924,6 +986,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.editUser = '';
         $scope.editMode = true;
         $scope.saved = '';
+        delete $scope.patientManagement;
 
         // do not load if already opened
         if (openedUser.showEdit) {

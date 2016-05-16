@@ -17,6 +17,7 @@ import org.patientview.api.service.ApiPractitionerService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
+import org.patientview.api.service.PatientManagementService;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
@@ -26,6 +27,7 @@ import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.PatientManagement;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
@@ -76,6 +78,9 @@ public class ImportControllerTest {
     private LetterService letterService;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @Mock
+    private PatientManagementService patientManagementService;
 
     private MockMvc mockMvc;
 
@@ -205,12 +210,29 @@ public class ImportControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-
         mockMvc.perform(MockMvcRequestBuilders.post("/import/patient")
                 .content(mapper.writeValueAsString(new FhirPatient())).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(apiPatientService, Mockito.times(1)).importPatient(any(FhirPatient.class));
+    }
+
+    @Test
+    public void testImportPatientManagement() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/import/patientmanagement")
+                .content(mapper.writeValueAsString(new PatientManagement())).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(patientManagementService, Mockito.times(1)).importPatientManagement(any(PatientManagement.class));
     }
 
     @Test

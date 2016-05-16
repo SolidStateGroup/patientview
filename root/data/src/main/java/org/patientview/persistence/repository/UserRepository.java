@@ -39,6 +39,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByEmail(String email);
 
+    @Query("SELECT u FROM User u WHERE UPPER(u.email) = UPPER(:email)")
+    List<User> findByEmailCaseInsensitive(@Param("email") String email);
+
     @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +

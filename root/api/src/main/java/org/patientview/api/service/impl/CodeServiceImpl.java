@@ -20,8 +20,11 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -38,8 +41,87 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Inject
     private LinkRepository linkRepository;
     @Inject
+    private Properties properties;
+    @Inject
     private UserRepository userRepository;
 
+    @Override
+    public Code add(final Code code) throws EntityExistsException {
+        Code newCode;
+
+        Set<Link> links;
+        // get links and features, avoid persisting until code created successfully
+        if (!CollectionUtils.isEmpty(code.getLinks())) {
+            links = new HashSet<>(code.getLinks());
+            code.getLinks().clear();
+        } else {
+            links = new HashSet<>();
+        }
+
+        // save basic details, checking if identical code already exists
+        if (codeExists(code)) {
+            LOG.debug("Code not created, Code already exists with these details");
+            throw new EntityExistsException("Code already exists with these details");
+        }
+        newCode = codeRepository.save(code);
+
+        // save links
+        for (Link link : links) {
+            link.setCode(newCode);
+            link = linkRepository.save(link);
+            newCode.getLinks().add(link);
+        }
+
+        return newCode;
+    }
+
+    @Override
+    public Code cloneCode(final Long codeId) {
+        // clone original
+        Code entityCode = codeRepository.findOne(codeId);
+        Code newCode = (Code) SerializationUtils.clone(entityCode);
+        newCode.setCode(newCode.getCode() + "_new");
+
+        // set up links
+        newCode.setLinks(new HashSet<Link>());
+        for (Link link : entityCode.getLinks()) {
+            Link newLink = new Link();
+            newLink.setLink(link.getLink());
+            newLink.setName(link.getName());
+            newLink.setDisplayOrder(link.getDisplayOrder());
+            newLink.setCode(newCode);
+            newLink.setLinkType(link.getLinkType());
+            newLink.setCreator(userRepository.findOne(1L));
+            newCode.getLinks().add(newLink);
+        }
+        newCode.setId(null);
+        return codeRepository.save(newCode);
+    }
+
+    private boolean codeExists(Code code) {
+        return codeRepository.findOneByCode(code.getCode()) != null;
+    }
+
+    @Override
+    public void delete(final Long codeId) {
+        codeRepository.delete(codeId);
+    }
+
+    @Override
+    public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
+        return codeRepository.findAllByCodeAndType(code, codeType);
+    }
+
+    @Override
+    public Code get(final Long codeId) throws ResourceNotFoundException {
+        Code code = codeRepository.findOne(codeId);
+        if (code == null) {
+            throw new ResourceNotFoundException("Code does not exist");
+        }
+        return code;
+    }
+
+    @Override
     public Page<Code> getAllCodes(GetParameters getParameters) {
 
         String size = getParameters.getSize();
@@ -88,45 +170,28 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return codeRepository.findAllFiltered(filterText, pageable);
     }
 
-    private boolean codeExists(Code code) {
-        return codeRepository.findOneByCode(code.getCode()) != null;
-    }
+    @Override
+    public List<Code> getPatientManagementDiagnoses() {
+        List<Code> codes = new ArrayList<>();
 
-    public Code add(final Code code) throws EntityExistsException {
-        Code newCode;
+        // todo: make generic, currently hardcoded
+        String diagnosesCodeString = properties.getProperty("patient.management.diagnoses.codes");
 
-        Set<Link> links;
-        // get links and features, avoid persisting until code created successfully
-        if (!CollectionUtils.isEmpty(code.getLinks())) {
-            links = new HashSet<>(code.getLinks());
-            code.getLinks().clear();
-        } else {
-            links = new HashSet<>();
+        if (StringUtils.isNotEmpty(diagnosesCodeString)) {
+            List<String> diagnosesCodeArr = Arrays.asList(diagnosesCodeString.split(","));
+            if (!CollectionUtils.isEmpty(diagnosesCodeArr)) {
+                for (String code : diagnosesCodeArr) {
+                    Code codeEntity = codeRepository.findOneByCode(code);
+                    if (codeEntity != null) {
+                        codes.add(codeEntity);
+                    }
+                }
+            }
+
+
         }
 
-        // save basic details, checking if identical code already exists
-        if (codeExists(code)) {
-            LOG.debug("Code not created, Code already exists with these details");
-            throw new EntityExistsException("Code already exists with these details");
-        }
-        newCode = codeRepository.save(code);
-
-        // save links
-        for (Link link : links) {
-            link.setCode(newCode);
-            link = linkRepository.save(link);
-            newCode.getLinks().add(link);
-        }
-
-        return newCode;
-    }
-
-    public Code get(final Long codeId) throws ResourceNotFoundException {
-        Code code = codeRepository.findOne(codeId);
-        if (code == null) {
-            throw new ResourceNotFoundException("Code does not exist");
-        }
-        return code;
+        return codes;
     }
 
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
@@ -146,35 +211,5 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         entityCode.setCodeType(code.getCodeType());
         entityCode.setStandardType(code.getStandardType());
         return codeRepository.save(entityCode);
-    }
-
-    public Code cloneCode(final Long codeId) {
-        // clone original
-        Code entityCode = codeRepository.findOne(codeId);
-        Code newCode = (Code) SerializationUtils.clone(entityCode);
-        newCode.setCode(newCode.getCode() + "_new");
-
-        // set up links
-        newCode.setLinks(new HashSet<Link>());
-        for (Link link : entityCode.getLinks()) {
-            Link newLink = new Link();
-            newLink.setLink(link.getLink());
-            newLink.setName(link.getName());
-            newLink.setDisplayOrder(link.getDisplayOrder());
-            newLink.setCode(newCode);
-            newLink.setLinkType(link.getLinkType());
-            newLink.setCreator(userRepository.findOne(1L));
-            newCode.getLinks().add(newLink);
-        }
-        newCode.setId(null);
-        return codeRepository.save(newCode);
-    }
-
-    public void delete(final Long codeId) {
-        codeRepository.delete(codeId);
-    }
-
-    public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
-        return codeRepository.findAllByCodeAndType(code, codeType);
     }
 }

@@ -1,7 +1,7 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * Taken from original IBD portal
+ * QuestionOptionTypes, used with V6__Questions.sql
  * Created by jamesr@solidstategroup.com
  * Created on 10/06/2015
  */

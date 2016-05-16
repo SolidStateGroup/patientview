@@ -14,15 +14,18 @@ import java.util.Set;
 public class FhirCondition extends BaseModel {
 
     private String code;
+    // DiagnosisTypes.DIAGNOSIS, DiagnosisTypes.DIAGNOSIS_EDTA etc
     private String category;
     private String notes;
     private Date date;
+    // used to denote main diagnosis, DiagnosisSeverityTypes.MAIN
+    private String severity;
 
     // only used by migration
     private Group group;
     private String identifier;
 
-    // used by my IBD to insert links
+    // used by my IBD and patient management to insert links
     private Set<Link> links;
 
     // pulled from Code if present (set separately to constructor)
@@ -54,6 +57,10 @@ public class FhirCondition extends BaseModel {
 
         if (condition.getStatusSimple() != null) {
             setStatus(condition.getStatusSimple().toCode());
+        }
+
+        if (condition.getSeverity() != null) {
+            setSeverity(condition.getSeverity().getTextSimple());
         }
     }
 
@@ -135,5 +142,13 @@ public class FhirCondition extends BaseModel {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 }
