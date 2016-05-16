@@ -18,6 +18,8 @@ public class User extends BaseUser {
     private String email;
     private Set<UserFeature> userFeatures = new HashSet<>();
     private Set<GroupRole> groupRoles = new HashSet<>();
+    private Date currentLogin;
+    private String currentLoginIpAddress;
     private Date lastLogin;
     private String lastLoginIpAddress;
     private Set<Identifier> identifiers;
@@ -46,6 +48,8 @@ public class User extends BaseUser {
         setSurname(user.getSurname());
         setEmail(user.getEmail());
         setUserFeatures(user.getUserFeatures());
+        setCurrentLogin(user.getCurrentLogin());
+        setCurrentLoginIpAddress(user.getCurrentLoginIpAddress());
         setLastLogin(user.getLastLogin());
         setLastLoginIpAddress(user.getLastLoginIpAddress());
         setLocked(user.getLocked());
@@ -99,6 +103,22 @@ public class User extends BaseUser {
 
     public void setGroupRoles(Set<GroupRole> groupRoles) {
         this.groupRoles = groupRoles;
+    }
+
+    public Date getCurrentLogin() {
+        return currentLogin;
+    }
+
+    public void setCurrentLogin(Date currentLogin) {
+        this.currentLogin = currentLogin;
+    }
+
+    public String getCurrentLoginIpAddress() {
+        return currentLoginIpAddress;
+    }
+
+    public void setCurrentLoginIpAddress(String currentLoginIpAddress) {
+        this.currentLoginIpAddress = currentLoginIpAddress;
     }
 
     public Date getLastLogin() {

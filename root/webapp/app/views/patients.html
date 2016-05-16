@@ -288,7 +288,7 @@
                 <div class="head-item accordion-title-text ">Identifiers&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text ">Date Of Birth</div>
                 <div class="head-item accordion-title-text ">Groups</div>
-                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('currentLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
             </div>
             <!-- body -->
@@ -317,7 +317,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                    <div class="row-item accordion-heading-text">{{user.currentLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
@@ -348,8 +348,8 @@
                             <div data-ng-include src="'views/partials/patientDetails.html'" data-ng-controller="UserDetailsCtrl"></div>
                         </form>
                         <hr>
-                        <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
-                        <div class="last-login pull-left" data-ng-show="!user.lastLogin">The user has not yet logged in</div>
+                        <div class="last-login pull-left" data-ng-show="user.currentLogin">Last login: {{user.currentLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="last-login pull-left" data-ng-show="!user.currentLogin">The user has not yet logged in</div>
                         <div class="user-save-cancel pull-right">
                             <button type="button" class="btn btn-grey close-edit" data-ng-click="user.showEdit = false">Close</button>
                         </div>

@@ -227,7 +227,7 @@
                 <div class="head-item accordion-title-text">Email</div>
                 <div class="head-item accordion-title-text">Group (Role)</div>
                 <div class="head-item accordion-title-text">Features</div>
-                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('currentLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item"><a class="sort-title"> </a></div>
             </div>
             <!-- body -->
@@ -247,7 +247,7 @@
                         </ul>
                     </div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures | orderBy:'feature.description'">{{userFeature.feature.description.replace(' (needs Messaging)', '')}}</li></ul></div>
-                    <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                    <div class="row-item accordion-heading-text">{{user.currentLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
 
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
@@ -275,7 +275,7 @@
                             <div data-ng-include src="'views/partials/staffDetails.html'" data-ng-controller="UserDetailsCtrl"></div>
                         </form>
                         <hr>
-                        <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="last-login pull-left" data-ng-show="user.currentLogin">Last login: {{user.currentLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="user-save-cancel panel-body-footer">
                             <button type="button" class="btn btn-grey close-edit pull-right" data-ng-click="user.showEdit = false">Close</button>
                         </div>
