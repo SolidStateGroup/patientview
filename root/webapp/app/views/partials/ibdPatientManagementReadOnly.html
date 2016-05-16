@@ -97,6 +97,13 @@
                             <span data-ng-if="patientManagement.answers['IBD_CROHNSLOCATION'].option">
                                 {{patientManagement.answers['IBD_CROHNSLOCATION'].option.description}}
                             </span>
+                            <div data-ng-if="getLocationDiagram(patientManagement.answers['IBD_CROHNSLOCATION'].option)">
+                                <br/>
+                                <img data-ng-src={{getLocationDiagram(patientManagement.answers['IBD_CROHNSLOCATION'].option)}} alt="{{patientManagement.answers['IBD_CROHNSLOCATION'].option.description}}"/>
+                                <br/><br/>
+                                <div class="image-colour-key-red"></div>
+                                Represents the part of the bowel affected by your condition.
+                            </div>
                         </td>
                     </tr>
                     <tr data-ng-if="patientManagement.diagnosis.code === 'CD'">
