@@ -1,3 +1,8 @@
+<style>
+    .latest-td {
+        background-color: #eee;
+    }
+</style>
 <h1>Your Symptoms
     <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
         <i class="icon-back-to pull-left"> </i>
@@ -19,25 +24,25 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th data-ng-repeat="header in tableHeader">
-                            {{header}}
+                        <th data-ng-repeat="header in tableHeader track by $index">
+                            {{header.text}}
                         </th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                        <tr data-ng-repeat="row in tableRows">
-                            <td data-ng-repeat="cell in row">
-                                {{cell}}
+                        <tr data-ng-repeat="row in tableRows track by $index">
+                            <td data-ng-repeat="cell in row track by $index" data-ng-class="{'latest-td': cell.isLatest}">
+                                {{cell.text}}
                             </td>
-                            <td><a href="#">View Graph</a></td>
+                            <td><a href="">View Graph</a></td>
                         </tr>
                     </tbody>
                 </table>
                 <br/>
-                <select class="form-control pull-right" data-ng-model="selectedCode"
-                        data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
-                        data-ng-change="changeObservationHeading(selectedCode)" >
+                <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
+                        data-ng-options="surveyReponseSelectOptions.id as surveyReponseSelectOptions.date for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'id'"
+                        data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                     <option value="">Compare with a past survey:</option>
                 </select>
             </div>
