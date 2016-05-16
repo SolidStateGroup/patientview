@@ -63,8 +63,6 @@ public class ImportControllerTest {
     @Test
     @Ignore
     public void testSurveyDescriptionImport() throws Exception {
-        //String fileName = "data/xml/survey/survey_1.xml";
-        //String fileName = "data/xml/survey/survey_ukrdc_symptoms_(proms)_1.xml";
         String fileName = "data/xml/survey/survey_PROMS_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -72,7 +70,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/survey";
+        //String postUrl="http://localhost:8081/importer/import/survey";
+        String postUrl="https://test.patientview.org/importer/import/survey";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
@@ -85,9 +84,6 @@ public class ImportControllerTest {
     @Test
     @Ignore
     public void testSurveyResponseImport() throws Exception {
-        //String fileName = "data/xml/survey_response/survey_response_1.xml";
-        //String fileName = "data/xml/survey_response/survey_response_2.xml";
-        //String fileName = "data/xml/survey_response/survey_response_ukrdc_symptoms_(proms)_1.xml";
         String fileName = "data/xml/survey_response/survey_response_PROMS_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -95,7 +91,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/surveyresponse";
+        //String postUrl="http://localhost:8081/importer/import/surveyresponse";
+        String postUrl="https://test.patientview.org/importer/import/surveyresponse";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);

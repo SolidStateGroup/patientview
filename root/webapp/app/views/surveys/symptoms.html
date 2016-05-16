@@ -39,12 +39,14 @@
                         </tr>
                     </tbody>
                 </table>
-                <br/>
-                <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                        data-ng-options="surveyReponseSelectOptions.id as surveyReponseSelectOptions.date for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'id'"
-                        data-ng-change="compareSurvey(selectedSurveyResponseId)" >
-                    <option value="">Compare with a past survey:</option>
-                </select>
+                <div data-ng-if="surveyReponseSelectOptions.length">
+                    <br/>
+                    <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
+                            data-ng-options="surveyReponseSelectOptions.id as surveyReponseSelectOptions.date for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'id'"
+                            data-ng-change="compareSurvey(selectedSurveyResponseId)" >
+                        <option value="">Compare with a past survey:</option>
+                    </select>
+                </div>
             </div>
             <div class="col-md-6">
                 [CHART]
