@@ -105,7 +105,10 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             xAxis: {
                 categories: xAxisLabels,
                 crosshair: false,
-                rotation: 90
+                rotation: 90,
+                labels: {
+                    enabled: xAxisLabels.length < 6
+                }
             },
             yAxis: [{
                 min: 1,
