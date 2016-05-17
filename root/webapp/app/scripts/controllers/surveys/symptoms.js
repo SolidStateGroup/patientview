@@ -14,7 +14,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             var response = $scope.surveyResponses[i];
 
             // aXis labels
-            var dateString = $filter("date")(response.date, "dd-MMM-yyyy");
+            var dateString = $scope.filterDate(response.date);
             xAxis.push(dateString);
 
             // get question answer data for question with correct type
@@ -88,7 +88,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             var questionAnswers = _.sortBy(response.questionAnswers, 'question.displayOrder');
 
             // header other columns
-            var dateString = $filter("date")(response.date, "dd-MMM-yyyy");
+            var dateString = $scope.filterDate(response.date);
             tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
 
             // rows
@@ -119,6 +119,10 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             visibleSurveyResponses.push($scope.latestSurveyResponse);
             buildTable(visibleSurveyResponses);
         }
+    };
+
+    $scope.filterDate = function(date) {
+        return $filter("date")(date, "dd-MMM-yyyy");
     };
 
     var getSurveyResponses = function() {

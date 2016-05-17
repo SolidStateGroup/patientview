@@ -2,6 +2,9 @@
     .latest-td {
         background-color: #eee;
     }
+    .view-graph-td {
+        /* width: 90px; */
+    }
 </style>
 <h1>Your Symptoms
     <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
@@ -35,14 +38,14 @@
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
                                 {{cell.text}}
                             </td>
-                            <td><a href="" data-ng-click="viewGraph(row.type)">View Graph</a></td>
+                            <td class="view-graph-td"><a href="" data-ng-click="viewGraph(row.type)">View</a></td>
                         </tr>
                     </tbody>
                 </table>
                 <div data-ng-if="surveyReponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                            data-ng-options="surveyReponseSelectOptions.id as surveyReponseSelectOptions.date for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'id'"
+                            data-ng-options="surveyReponseSelectOptions.id as filterDate(surveyReponseSelectOptions.date) for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'date'"
                             data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                         <option value="">Compare with a past survey:</option>
                     </select>
@@ -51,14 +54,15 @@
             <div class="col-md-6">
                 <!-- chart populated in controller -->
                 <div id="chart_div"></div>
-                <br/><br/>
-
-                <select class="form-control" data-ng-model="compareCode"
-                        data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
+                <div data-ng-if="observationHeadings">
+                    <br/><br/>
+                    <select class="form-control" data-ng-model="compareCode"
+                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
                                 | orderBy:'heading' | addCodeFilter:codes"
-                        data-ng-change="compareResults(compareCode)">
-                    <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
-                </select>
+                            data-ng-change="compareResults(compareCode)">
+                        <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
+                    </select>
+                </div>
             </div>
         </div>
 

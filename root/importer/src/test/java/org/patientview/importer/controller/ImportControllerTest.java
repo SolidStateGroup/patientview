@@ -60,14 +60,24 @@ public class ImportControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(importController, uriComponentsBuilder).build();
     }
 
+    // local clear survey & response
     /*
-    DELETE FROM pv_question_answer WHERE question_id > 4944340;
-    DELETE FROM pv_question_option WHERE question_id > 4944340;
-
+    DELETE FROM pv_question_answer WHERE id > 4944340;
+    DELETE FROM pv_question_option WHERE id > 4944340;
     DELETE FROM pv_question WHERE id > 4957410;
     DELETE FROM pv_question_group WHERE id > 4957309;
     DELETE FROM pv_survey_response WHERE id > 4957512;
     DELETE FROM pv_survey WHERE id > 4957408;
+    */
+
+    // staging clear survey & response
+    /*
+    DELETE FROM pv_question_answer WHERE id > 14883223;
+    DELETE FROM pv_question_option WHERE id > 14883121;
+    DELETE FROM pv_question WHERE id > 14883119;
+    DELETE FROM pv_question_group WHERE id > 14883119;
+    DELETE FROM pv_survey_response WHERE id > 14883222;
+    DELETE FROM pv_survey WHERE id > 14883118;
     */
 
     @Test
@@ -80,8 +90,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/survey";
-        //String postUrl="https://test.patientview.org/importer/import/survey";
+        //String postUrl="http://localhost:8081/importer/import/survey";
+        String postUrl="https://test.patientview.org/importer/import/survey";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
@@ -101,8 +111,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/surveyresponse";
-        //String postUrl="https://test.patientview.org/importer/import/surveyresponse";
+        //String postUrl="http://localhost:8081/importer/import/surveyresponse";
+        String postUrl="https://test.patientview.org/importer/import/surveyresponse";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
