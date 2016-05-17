@@ -14,6 +14,8 @@ import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,5 +66,33 @@ public class SurveyResponseRepositoryTest {
         List<SurveyResponse> surveyResponses = surveyResponseRepository.findByUserAndSurveyType(user, survey.getType());
         Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.size());
         Assert.assertTrue("The symptom score should be the one created", surveyResponses.get(0).equals(surveyResponse));
+    }
+    @Test
+    public void testFindLatestByUserAndType() {
+        User user = dataTestUtils.createUser("TestUser");
+
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
+        surveyRepository.save(survey);
+
+        {
+            SurveyResponse surveyResponse
+                    = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(),
+                    SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+            surveyResponse.setSurvey(survey);
+            surveyResponseRepository.save(surveyResponse);
+        }
+
+        SurveyResponse surveyResponse
+                = new SurveyResponse(user, 2, ScoreSeverity.MEDIUM, new Date(),
+                SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+        surveyResponse.setSurvey(survey);
+        surveyResponseRepository.save(surveyResponse);
+
+        Page<SurveyResponse> surveyResponses
+                = surveyResponseRepository.findLatestByUserAndSurveyType(user, survey.getType(), new PageRequest(0,1));
+        Assert.assertNotNull("Should return symptom scores", surveyResponses);
+        Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.getSize());
+        Assert.assertTrue("The symptom score should be the one created", surveyResponses.getContent().get(0).equals(surveyResponse));
     }
 }

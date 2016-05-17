@@ -56,7 +56,6 @@ public class SurveyResponseControllerTest {
 
     @Test
     public void testAdd() {
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -78,7 +77,6 @@ public class SurveyResponseControllerTest {
 
     @Test
     public void testGetSurveyResponsesByUserIdAndType() throws Exception {
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -91,6 +89,23 @@ public class SurveyResponseControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/user/" + user.getId() + "/surveyresponses/type/" + SurveyTypes.CROHNS_SYMPTOM_SCORE))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testGetLatestSurveyResponsesByUserIdAndType() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/user/" + user.getId() + "/surveyresponses/latest?" + SurveyTypes.CROHNS_SYMPTOM_SCORE))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

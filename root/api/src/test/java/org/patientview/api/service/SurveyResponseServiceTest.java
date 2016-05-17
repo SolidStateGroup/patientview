@@ -222,7 +222,6 @@ public class SurveyResponseServiceTest {
     @Test
     public void testAdd_IBD_SELF_MANAGEMENT()
             throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
-
         String staffToken = "1234567890";
 
         User user = TestUtils.createUser("testUser");
@@ -307,7 +306,6 @@ public class SurveyResponseServiceTest {
 
     @Test
     public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
-
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -400,7 +398,6 @@ public class SurveyResponseServiceTest {
 
     @Test
     public void testGetByUserIdAndType() throws ResourceNotFoundException {
-
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -434,6 +431,49 @@ public class SurveyResponseServiceTest {
         List<SurveyResponse> returned = surveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
 
         verify(surveyResponseRepository, Mockito.times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
+        Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
+    }
+
+    @Test
+    public void testGetLatestByUserIdAndType() throws ResourceNotFoundException {
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
+
+        List<String> types = new ArrayList<>();
+        types.add(survey.getType());
+
+        SurveyResponse surveyResponse = new SurveyResponse(
+                user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+        List<SurveyResponse> surveyResponses = new ArrayList<>();
+        surveyResponses.add(surveyResponse);
+        surveyResponse.setSurvey(survey);
+
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyResponseRepository.findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
+                any(Pageable.class))).thenReturn(new PageImpl<>(surveyResponses));
+        List<SurveyResponse> returned = surveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
+
+        verify(surveyResponseRepository, Mockito.times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
+                any(Pageable.class));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
     }
 }

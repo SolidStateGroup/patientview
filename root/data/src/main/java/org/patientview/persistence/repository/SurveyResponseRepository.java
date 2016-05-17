@@ -2,6 +2,8 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,8 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
 
     @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType")
     List<SurveyResponse> findByUserAndSurveyType(@Param("user") User user, @Param("surveyType") String surveyType);
+
+    @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType ORDER BY s.date DESC")
+    Page<SurveyResponse> findLatestByUserAndSurveyType(@Param("user") User user, @Param("surveyType") String surveyType,
+                                                 Pageable pageable);
 }

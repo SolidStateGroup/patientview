@@ -638,6 +638,39 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     @Override
+    public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+        if (CollectionUtils.isEmpty(types)) {
+            throw new ResourceNotFoundException("Must set survey type");
+        }
+
+        List<SurveyResponse> responses = new ArrayList<>();
+
+        for (String type : types) {
+            Page<SurveyResponse> latest
+                    = surveyResponseRepository.findLatestByUserAndSurveyType(user, type, new PageRequest(0,1));
+            if (!CollectionUtils.isEmpty(latest.getContent())) {
+                responses.add(latest.getContent().get(0));
+            }
+        }
+
+        // clean up and reduced info about staff user if present
+        if (!CollectionUtils.isEmpty(responses)) {
+            List<SurveyResponse> reducedResponses = new ArrayList<>();
+            for (SurveyResponse surveyResponse : responses) {
+                reducedResponses.add(reduceStaffUser(surveyResponse));
+            }
+
+            responses = reducedResponses;
+        }
+
+        return responses;
+    }
+
+    @Override
     public SurveyResponse getSurveyResponse(Long userId, Long surveyResponseId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {

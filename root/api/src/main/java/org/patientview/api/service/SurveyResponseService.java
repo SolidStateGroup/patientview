@@ -23,4 +23,8 @@ public interface SurveyResponseService {
 
     @UserOnly
     SurveyResponse getSurveyResponse(Long userId, Long surveyResponseId) throws ResourceNotFoundException;
+
+    @UserOnly
+    List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types)
+            throws ResourceNotFoundException;
 }

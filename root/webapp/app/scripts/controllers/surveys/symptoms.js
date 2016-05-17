@@ -66,7 +66,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
 
         chartSeries.push({
-            'color': '#428bca',
+            'color': '#00adc6',
             'name': questionName,
             'data': questionChartData,
             'yAxis': 0
@@ -79,16 +79,16 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         if ($scope.observations) {
             chartSeries.push({
-                'color': '#00adc6',
+                'color': '#f0ad4e',
                 'name': $scope.observationHeading.heading + numericText,
                 'data': observationChartData,
                 'yAxis': 1
             });
         }
 
-        var titleText = '<span style="color:#428bca">' + questionName + '</span>';
+        var titleText = '<span style="color:#00adc6">' + questionName + '</span>';
         if ($scope.observations) {
-            titleText = 'Comparing ' + titleText + ' with ' + '<span style="color:#00adc6">' + $scope.observationHeading.heading + '</span>';
+            titleText = 'Comparing ' + titleText + ' with ' + '<span style="color:#f0ad4e">' + $scope.observationHeading.heading + '</span>';
         }
 
         // set chart data
@@ -129,7 +129,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 },
                 title: {
                     text: chartSeries.length > 1 ? questionName : '',
-                    style: {'color':'#428bca'}
+                    style: {'color':'#00adc6'}
                 }
             }, {
                 gridLineWidth: 0,
@@ -140,7 +140,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 },
                 title: {
                     text: $scope.observations ? $scope.observationHeading.heading : '',
-                    style: {'color':'#00adc6'}
+                    style: {'color':'#f0ad4e'}
                 },
                 opposite: true
             }]
