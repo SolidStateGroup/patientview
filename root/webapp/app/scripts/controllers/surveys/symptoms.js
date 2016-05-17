@@ -3,7 +3,78 @@
 angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'SurveyResponseService', '$filter',
     function ($scope, SurveyResponseService, $filter) {
 
+    var buildChart = function(type) {
+        if (!$scope.surveyResponses.length) {
+            return;
+        }
+
+        var i, j, xAxis = [], series = [], chartSeries = [];
+
+        for (i = $scope.surveyResponses.length -1; i >= 0; i--) {
+            var response = $scope.surveyResponses[i];
+
+            // aXis labels
+            var dateString = $filter("date")(response.date, "dd-MMM-yyyy");
+            xAxis.push(dateString);
+
+            // get question answer data for question with correct type
+            for (j = 0; j < response.questionAnswers.length; j++) {
+                var questionAnswer = response.questionAnswers[j];
+                if (questionAnswer.question.type == type) {
+                    if (series[questionAnswer.question.type] == undefined
+                        || series[questionAnswer.question.type] == null) {
+                        series[questionAnswer.question.type] = {};
+                        series[questionAnswer.question.type].name = questionAnswer.question.text;
+                        series[questionAnswer.question.type].data = [];
+                    }
+                    series[questionAnswer.question.type].data.push(questionAnswer.questionOption.score);
+                }
+            }
+        }
+
+        for (var key in series) {
+            chartSeries.push(series[key]);
+        }
+
+        // set chart data
+        $('#chart_div').highcharts({
+            credits : {
+                enabled: false
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: chartSeries,
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: xAxis,
+                crosshair: false
+            },
+            yAxis: {
+                min: 1,
+                max: 5,
+                labels: {
+                    formatter: function() {
+                        return $scope.scoreLabels[this.value];
+                    }
+                },
+                title: {
+                    text: ''
+                }
+            }
+        });
+    };
+
     var buildTable = function(visibleResponses) {
+        if (!visibleResponses.length) {
+            return;
+        }
+
         // format survey response suitable for table view
         var tableRows = [];
         var tableHeader = [];
@@ -17,21 +88,25 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             var questionAnswers = _.sortBy(response.questionAnswers, 'question.displayOrder');
 
             // header other columns
-            tableHeader.push({'text':$filter("date")(response.date, "dd-MMM-yyyy"), 'isLatest':response.isLatest});
+            var dateString = $filter("date")(response.date, "dd-MMM-yyyy");
+            tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
 
             // rows
             for (j = 0; j < questionAnswers.length; j++) {
                 var questionAnswer = questionAnswers[j];
 
+                // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
-                    tableRows[j] = [];
-                    tableRows[j].push({'text':questionAnswer.question.text});
+                    tableRows[j] = {};
+                    tableRows[j].type = questionAnswer.question.type;
+                    tableRows[j].data = [];
+                    tableRows[j].data.push({'text':questionAnswer.question.text});
                 }
 
-                tableRows[j].push({'text':questionAnswer.questionOption.text, 'isLatest':response.isLatest});
+                // set response text, e.g. Moderately
+                tableRows[j].data.push({'text':questionAnswer.questionOption.text, 'isLatest':response.isLatest});
             }
         }
-
 
         $scope.tableHeader = tableHeader;
         $scope.tableRows = tableRows;
@@ -69,11 +144,15 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
     };
 
     var initialiseChart = function() {
-        // set latest
+        if (!$scope.surveyResponses.length) {
+            return;
+        }
+
+        // set latest response property to allow styling
         $scope.surveyResponses[0].isLatest = true;
         $scope.latestSurveyResponse = $scope.surveyResponses[0];
 
-        // date options used in select when comparing to latest
+        // generate date options used in select when comparing responses to latest
         var surveyReponseSelectOptions = [];
         for (var i = 0; i < $scope.surveyResponses.length; i++) {
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
@@ -92,7 +171,24 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             visibleSurveyResponses.push($scope.surveyResponses[1]);
         }
         visibleSurveyResponses.push($scope.latestSurveyResponse);
+
+        // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
+
+        // set up question options, used for chart y axis labels, assumes 1 question group and same for all questions
+        var scoreLabels = [];
+        var firstOptions = $scope.surveyResponses[0].survey.questionGroups[0].questions[0].questionOptions;
+        for (i = 0; i < firstOptions.length; i++) {
+            scoreLabels[firstOptions[i].score] = firstOptions[i].text;
+        }
+        $scope.scoreLabels = scoreLabels;
+
+        // build chart from all responses, using first question's type e.g. YSQ1
+        buildChart($scope.surveyResponses[0].survey.questionGroups[0].questions[0].type);
+    };
+
+    $scope.viewGraph = function(type) {
+        buildChart(type);
     };
 
     init();

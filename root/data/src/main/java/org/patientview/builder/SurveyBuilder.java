@@ -86,6 +86,9 @@ public class SurveyBuilder {
                                 ? questionOption.getText() : null);
                         newQuestionOption.setType(StringUtils.isNotEmpty(questionOption.getType())
                                 ? questionOption.getType() : null);
+                        if (questionOption.getScore() != null) {
+                            newQuestionOption.setScore(questionOption.getScore().intValue());
+                        }
 
                         // add question option to question
                         newQuestion.getQuestionOptions().add(newQuestionOption);

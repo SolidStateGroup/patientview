@@ -32,10 +32,10 @@
                     </thead>
                     <tbody>
                         <tr data-ng-repeat="row in tableRows track by $index">
-                            <td data-ng-repeat="cell in row track by $index" data-ng-class="{'latest-td': cell.isLatest}">
+                            <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
                                 {{cell.text}}
                             </td>
-                            <td><a href="">View Graph</a></td>
+                            <td><a href="" data-ng-click="viewGraph(row.type)">View Graph</a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -49,8 +49,8 @@
                 </div>
             </div>
             <div class="col-md-6">
-                [CHART]
-
+                <!-- chart populated in controller -->
+                <div id="chart_div"></div>
                 <br/><br/>
 
                 <select class="form-control" data-ng-model="compareCode"
