@@ -66,6 +66,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
 
         chartSeries.push({
+            'color': '#428bca',
             'name': questionName,
             'data': questionChartData,
             'yAxis': 0
@@ -78,10 +79,16 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         if ($scope.observations) {
             chartSeries.push({
+                'color': '#00adc6',
                 'name': $scope.observationHeading.heading + numericText,
                 'data': observationChartData,
                 'yAxis': 1
             });
+        }
+
+        var titleText = '<span style="color:#428bca">' + questionName + '</span>';
+        if ($scope.observations) {
+            titleText = 'Comparing ' + titleText + ' with ' + '<span style="color:#00adc6">' + $scope.observationHeading.heading + '</span>';
         }
 
         // set chart data
@@ -100,7 +107,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             },
             series: chartSeries,
             title: {
-                text: ''
+                text: titleText,
+                useHtml: true
             },
             xAxis: {
                 categories: xAxisLabels,
@@ -116,16 +124,23 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 gridLineWidth: 0,
                 labels: {
                     formatter: function () {
-                        return $scope.scoreLabels[this.value];
+                        return '<span style="color:#606060">' + $scope.scoreLabels[this.value] + '</span>';
                     }
                 },
                 title: {
-                    text: chartSeries.length > 1 ? questionName : ''
+                    text: chartSeries.length > 1 ? questionName : '',
+                    style: {'color':'#428bca'}
                 }
             }, {
                 gridLineWidth: 0,
+                labels: {
+                    formatter: function () {
+                        return '<span style="color:#606060">' + this.value + '</span>';
+                    }
+                },
                 title: {
-                    text: $scope.observations ? $scope.observationHeading.heading : ''
+                    text: $scope.observations ? $scope.observationHeading.heading : '',
+                    style: {'color':'#00adc6'}
                 },
                 opposite: true
             }]
