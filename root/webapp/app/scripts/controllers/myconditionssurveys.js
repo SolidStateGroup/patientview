@@ -5,6 +5,7 @@ angular.module('patientviewApp').controller('MyConditionsSurveysCtrl',['$scope',
 
     var init = function() {
         var types = [];
+        types.push('PAMS');
         types.push('PROMS');
         types.push('EDQ4');
         var foundSurveys = [];
