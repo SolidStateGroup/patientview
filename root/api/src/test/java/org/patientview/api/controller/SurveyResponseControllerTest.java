@@ -25,8 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
-
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
@@ -55,7 +53,7 @@ public class SurveyResponseControllerTest {
     }
 
     @Test
-    public void testAdd() {
+    public void testAdd() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -66,13 +64,9 @@ public class SurveyResponseControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/surveyresponses")
-                    .content(mapper.writeValueAsString(new SurveyResponse())).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/surveyresponses")
+                .content(mapper.writeValueAsString(new SurveyResponse())).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -105,7 +99,7 @@ public class SurveyResponseControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/user/" + user.getId() + "/surveyresponses/latest?" + SurveyTypes.CROHNS_SYMPTOM_SCORE))
+                .get("/user/" + user.getId() + "/surveyresponses/latest?types=" + SurveyTypes.CROHNS_SYMPTOM_SCORE))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
