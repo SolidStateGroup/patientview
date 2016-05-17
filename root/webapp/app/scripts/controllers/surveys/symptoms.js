@@ -244,16 +244,16 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         $scope.latestSurveyResponse = $scope.surveyResponses[0];
 
         // generate date options used in select when comparing responses to latest
-        var surveyReponseSelectOptions = [];
+        var surveyResponseSelectOptions = [];
         for (var i = 0; i < $scope.surveyResponses.length; i++) {
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
-                surveyReponseSelectOptions.push({
+                surveyResponseSelectOptions.push({
                     'id': $scope.surveyResponses[i].id,
                     'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy")
                 });
             }
         }
-        $scope.surveyReponseSelectOptions = surveyReponseSelectOptions;
+        $scope.surveyResponseSelectOptions = surveyResponseSelectOptions;
 
         // add latest to table
         var visibleSurveyResponses = [];
