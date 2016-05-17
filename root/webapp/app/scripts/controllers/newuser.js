@@ -311,27 +311,30 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
             $scope.saving = false;
         }
 
-        if (valid && ($scope.patientManagement !== undefined)) {
-            $scope.patientManagement.validate(function(valid) {
-                if (valid) {
-                    $scope.patientManagement.buildFhirObjects();
+        if (valid) {
+            if ($scope.hasPatientManagementPermission($scope.editUser.groupRoles)) {
+                $scope.patientManagement.validate(function(validPatientManagement) {
+                    if (validPatientManagement) {
+                        $scope.patientManagement.buildFhirObjects();
 
-                    var patientManagement = {};
-                    patientManagement.condition = $scope.patientManagement.condition;
-                    patientManagement.encounters = $scope.patientManagement.encounters;
-                    patientManagement.observations = $scope.patientManagement.observations;
-                    patientManagement.patient = $scope.patientManagement.patient;
-                    patientManagement.practitioners = $scope.patientManagement.practitioners;
+                        var patientManagement = {};
+                        patientManagement.condition = $scope.patientManagement.condition;
+                        patientManagement.encounters = $scope.patientManagement.encounters;
+                        patientManagement.observations = $scope.patientManagement.observations;
+                        patientManagement.patient = $scope.patientManagement.patient;
+                        patientManagement.practitioners = $scope.patientManagement.practitioners;
 
-                    $scope.editUser.patientManagement = patientManagement;
+                        $scope.editUser.patientManagement = patientManagement;
 
-                    save();
-                }
-            });
-        }
-
-        if (valid && ($scope.patientManagement == undefined)) {
-            save();
+                        save();
+                    } else {
+                        $scope.errorMessage = 'Please ensure all required fields are set';
+                        $scope.saving = false;
+                    }
+                });
+            } else {
+                save();
+            }
         }
     };
 
