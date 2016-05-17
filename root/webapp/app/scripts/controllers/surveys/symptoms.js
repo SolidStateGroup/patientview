@@ -1,43 +1,94 @@
 'use strict';
 
 angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'SurveyResponseService', '$filter',
-    function ($scope, SurveyResponseService, $filter) {
+    'ObservationHeadingService', 'ObservationService',
+    function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService) {
 
-    var buildChart = function(type) {
-        if (!$scope.surveyResponses.length) {
+    var buildChart = function() {
+        if (!$scope.surveyResponses.length || $scope.questionType == undefined || $scope.questionType == null) {
             return;
         }
 
-        var i, j, xAxis = [], series = [], chartSeries = [];
+        var i, j, xAxis = [], chartSeries = [], questionData = [], obsData = [], xAxisArr = [], xAxisLabels = [],
+            observationChartData = [], questionChartData = [];
 
         for (i = $scope.surveyResponses.length -1; i >= 0; i--) {
             var response = $scope.surveyResponses[i];
 
-            // aXis labels
-            var dateString = $scope.filterDate(response.date);
-            xAxis.push(dateString);
+            // x axis dates (map)
+            xAxis[response.date] = response.date;
 
             // get question answer data for question with correct type
             for (j = 0; j < response.questionAnswers.length; j++) {
                 var questionAnswer = response.questionAnswers[j];
-                if (questionAnswer.question.type == type) {
-                    if (series[questionAnswer.question.type] == undefined
-                        || series[questionAnswer.question.type] == null) {
-                        series[questionAnswer.question.type] = {};
-                        series[questionAnswer.question.type].name = questionAnswer.question.text;
-                        series[questionAnswer.question.type].data = [];
-                    }
-                    series[questionAnswer.question.type].data.push(questionAnswer.questionOption.score);
+                if (questionAnswer.question.type == $scope.questionType) {
+                    questionData.push({'date':response.date, 'value':questionAnswer.questionOption.score});
                 }
             }
         }
 
-        for (var key in series) {
-            chartSeries.push(series[key]);
+        if ($scope.observations) {
+            for (i = $scope.observations.length - 1; i >= 0; i--) {
+                var observation = $scope.observations[i];
+                xAxis[observation.applies] = observation.applies;
+
+                // don't display textual results on graph
+                if (!isNaN(parseFloat(observation.value))) {
+                    obsData.push({'date':observation.applies, 'value':parseFloat(observation.value)});
+                }
+            }
+        }
+
+        // convert xAxis map to array and sort
+        for (var key in xAxis) {
+            xAxisArr.push(xAxis[key]);
+        }
+        xAxisArr = _.sortBy(xAxisArr);
+
+        // for each x axis point, get data for question and observation if present
+        for (i = 0; i < xAxisArr.length; i++) {
+            observationChartData[i] = null;
+            questionChartData[i] = null;
+
+            xAxisLabels[i] = $scope.filterDate(xAxisArr[i]);
+            for (j = 0; j < obsData.length; j++) {
+                if (obsData[j].date == xAxisArr[i]) {
+                    observationChartData[i] = obsData[j].value;
+                }
+            }
+            for (j = 0; j < questionData.length; j++) {
+                if (questionData[j].date == xAxisArr[i]) {
+                    questionChartData[i] = questionData[j].value;
+                }
+            }
+        }
+
+        var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
+
+        chartSeries.push({
+            'name': questionName,
+            'data': questionChartData,
+            'yAxis': 0
+        });
+
+        var numericText = '';
+        if (!obsData.length) {
+            numericText = ' (no numeric data)'
+        }
+
+        if ($scope.observations) {
+            chartSeries.push({
+                'name': $scope.observationHeading.heading + numericText,
+                'data': observationChartData,
+                'yAxis': 1
+            });
         }
 
         // set chart data
         $('#chart_div').highcharts({
+            chart: {
+                alignTicks: false
+            },
             credits : {
                 enabled: false
             },
@@ -52,21 +103,29 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 text: ''
             },
             xAxis: {
-                categories: xAxis,
-                crosshair: false
+                categories: xAxisLabels,
+                crosshair: false,
+                rotation: 90
             },
-            yAxis: {
+            yAxis: [{
                 min: 1,
                 max: 5,
+                gridLineWidth: 0,
                 labels: {
-                    formatter: function() {
+                    formatter: function () {
                         return $scope.scoreLabels[this.value];
                     }
                 },
                 title: {
-                    text: ''
+                    text: chartSeries.length > 1 ? questionName : ''
                 }
-            }
+            }, {
+                gridLineWidth: 0,
+                title: {
+                    text: $scope.observations ? $scope.observationHeading.heading : ''
+                },
+                opposite: true
+            }]
         });
     };
 
@@ -112,6 +171,21 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         $scope.tableRows = tableRows;
     };
 
+    $scope.compareResults = function(code) {
+        if (code !== undefined && code !== null) {
+            $scope.observationHeading = _.findWhere($scope.observationHeadings, {code: code});
+
+            ObservationService.getByCode($scope.loggedInUser.id, code).then(function (observations) {
+                if (observations.length) {
+                    $scope.observations = observations;
+                    buildChart();
+                }
+            }, function () {
+                alert('Error retrieving results');
+            })
+        }
+    };
+
     $scope.compareSurvey = function(id) {
         if (id !== undefined && id !== null) {
             var visibleSurveyResponses = [];
@@ -123,6 +197,15 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
     $scope.filterDate = function(date) {
         return $filter("date")(date, "dd-MMM-yyyy");
+    };
+
+    var getObservationHeadings = function() {
+        ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
+            .then(function(observationHeadings) {
+            $scope.observationHeadings = observationHeadings;
+        }, function() {
+            alert('Error retrieving result types');
+        });
     };
 
     var getSurveyResponses = function() {
@@ -145,6 +228,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
     var init = function() {
         $scope.surveyType = 'PROMS';
         getSurveyResponses();
+        getObservationHeadings();
     };
 
     var initialiseChart = function() {
@@ -186,13 +270,16 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             scoreLabels[firstOptions[i].score] = firstOptions[i].text;
         }
         $scope.scoreLabels = scoreLabels;
+        $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
 
         // build chart from all responses, using first question's type e.g. YSQ1
-        buildChart($scope.surveyResponses[0].survey.questionGroups[0].questions[0].type);
+        $scope.questionType = $scope.surveyResponses[0].survey.questionGroups[0].questions[0].type;
+        buildChart();
     };
 
     $scope.viewGraph = function(type) {
-        buildChart(type);
+        $scope.questionType = type;
+        buildChart();
     };
 
     init();

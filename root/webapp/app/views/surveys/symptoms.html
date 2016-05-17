@@ -38,14 +38,16 @@
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
                                 {{cell.text}}
                             </td>
-                            <td class="view-graph-td"><a href="" data-ng-click="viewGraph(row.type)">View</a></td>
+                            <td class="view-graph-td">
+                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="row.type !== questionType">View</a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-                <div data-ng-if="surveyReponseSelectOptions.length">
+                <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                            data-ng-options="surveyReponseSelectOptions.id as filterDate(surveyReponseSelectOptions.date) for surveyReponseSelectOptions in surveyReponseSelectOptions | orderBy:'date'"
+                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
                             data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                         <option value="">Compare with a past survey:</option>
                     </select>
