@@ -1,0 +1,27 @@
+<survey_response>
+    <survey_type>EQ5D</survey_type>
+    <identifier>ibdtest1</identifier>
+    <date>2016-05-05T16:37:18</date>
+    <question_answers>
+        <question_answer>
+            <question_type>YOHQ1</question_type>
+            <question_option>WALKING_SEVERE_PROBLEMS</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ2</question_type>
+            <question_option>ANXIOUS_DEPRESSED_MODERATE</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ3</question_type>
+            <question_option>ACTIVITIES_SEVERE_PROBLEMS</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ4</question_type>
+            <question_option>PAIN_EXTREME</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ5</question_type>
+            <question_option>WASHING_DRESSING_SEVERE_PROBLEMS</question_option>
+        </question_answer>
+    </question_answers>
+</survey_response>

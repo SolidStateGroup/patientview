@@ -83,7 +83,7 @@ public class ImportControllerTest {
     @Test
     @Ignore
     public void testSurveyDescriptionImport() throws Exception {
-        String fileName = "data/xml/survey/survey_PAMS_1.xml";
+        String fileName = "data/xml/survey/survey_EQ5D_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -104,7 +104,7 @@ public class ImportControllerTest {
     @Test
     @Ignore
     public void testSurveyResponseImport() throws Exception {
-        String fileName = "data/xml/survey_response/survey_response_PAMS_1.xml";
+        String fileName = "data/xml/survey_response/survey_response_EQ5D_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());

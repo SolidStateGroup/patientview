@@ -1,13 +1,8 @@
 'use strict';
 
+// PAMS
 angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'SurveyResponseService',
     function ($scope, SurveyResponseService) {
-
-    var init = function() {
-        $scope.surveyType = 'MANAGING';
-        $scope.loading = true;
-        getSurveyResponses();
-    };
 
     var getSurveyResponses = function() {
         $scope.loading = true;
@@ -15,7 +10,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'Su
             .then(function(surveyResponses) {
                 if (surveyResponses.length) {
                     $scope.surveyResponses = _.sortBy(surveyResponses, 'date').reverse();
-                    $scope.initialiseChart();
+                    //$scope.initialiseChart();
                 } else {
                     delete $scope.surveyResponses;
                 }
@@ -24,6 +19,12 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'Su
                 alert('Error retrieving responses');
                 $scope.loading = false;
             });
+    };
+
+    var init = function() {
+        $scope.surveyType = 'PAMS';
+        $scope.loading = true;
+        getSurveyResponses();
     };
 
     init();

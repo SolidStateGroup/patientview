@@ -132,32 +132,32 @@
                     <display_order>3</display_order>
                     <question_options>
                         <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
+                            <type>PAIN_NO</type>
+                            <text>I have no pain or discomfort</text>
                             <display_order>0</display_order>
                             <score>1</score>
                         </question_option>
                         <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
+                            <type>PAIN_SLIGHT</type>
+                            <text>I have slight pain or discomfort</text>
                             <display_order>1</display_order>
                             <score>2</score>
                         </question_option>
                         <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
+                            <type>PAIN_MODERATE</type>
+                            <text>I have moderate pain or discomfort</text>
                             <display_order>2</display_order>
                             <score>3</score>
                         </question_option>
                         <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
+                            <type>PAIN_SEVERE</type>
+                            <text>I have severe pain or discomfort</text>
                             <display_order>3</display_order>
                             <score>4</score>
                         </question_option>
                         <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
+                            <type>PAIN_EXTREME</type>
+                            <text>I have extreme pain or discomfort</text>
                             <display_order>4</display_order>
                             <score>5</score>
                         </question_option>
@@ -166,354 +166,43 @@
                 <question>
                     <element_type>SINGLE_SELECT</element_type>
                     <html_type>RADIO</html_type>
-                    <type>MYHQ5</type>
-                    <text>I am confident that I can tell whether I need to go to the doctor or whether I can take care of a health problem myself</text>
+                    <type>YOHQ5</type>
+                    <text>Self-Care</text>
                     <display_order>4</display_order>
                     <question_options>
                         <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
+                            <type>WASHING_DRESSING_NO_PROBLEMS</type>
+                            <text>I have no problems washing or dressing myself</text>
                             <display_order>0</display_order>
                             <score>1</score>
                         </question_option>
                         <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
+                            <type>WASHING_DRESSING_SLIGHT_PROBLEMS</type>
+                            <text>I have slight problems washing or dressing myself</text>
                             <display_order>1</display_order>
                             <score>2</score>
                         </question_option>
                         <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
+                            <type>WASHING_DRESSING_MODERATE_PROBLEMS</type>
+                            <text>I have moderate problems washing or dressing myself</text>
                             <display_order>2</display_order>
                             <score>3</score>
                         </question_option>
                         <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
+                            <type>WASHING_DRESSING_SEVERE_PROBLEMS</type>
+                            <text>I have severe problems washing or dressing myself</text>
                             <display_order>3</display_order>
                             <score>4</score>
                         </question_option>
                         <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
+                            <type>WASHING_DRESSING_UNABLE</type>
+                            <!--<text>I am unable to washing dressing myself</text>-->
+                            <text>I am unable to wash or dress myself</text>
                             <display_order>4</display_order>
                             <score>5</score>
                         </question_option>
                     </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ6</type>
-                    <text>I have been able to maintain (keep up with) lifestyle changes, like eating right or exercising</text>
-                    <display_order>5</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ7</type>
-                    <text>I am confident I can work out solutions when new problems arise with my health</text>
-                    <display_order>6</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ8</type>
-                    <text>I know how to prevent problems with my health</text>
-                    <display_order>7</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ9</type>
-                    <text>I know what treatments are available for my health problems</text>
-                    <display_order>8</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ10</type>
-                    <text>I am confident that I can tell a doctor or nurse specialist concerns I have even when he or she does not ask</text>
-                    <display_order>9</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ11</type>
-                    <text>I am confident that I can follow through on medical treatments I may need to do at home</text>
-                    <display_order>10</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ12</type>
-                    <text>I understand my health problems and what causes them</text>
-                    <display_order>11</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
-                <question>
-                    <element_type>SINGLE_SELECT</element_type>
-                    <html_type>RADIO</html_type>
-                    <type>MYHQ13</type>
-                    <text>I am confident I can maintain lifestyle changes, like eating right and exercising, even during times of stress</text>
-                    <display_order>12</display_order>
-                    <question_options>
-                        <question_option>
-                            <type>STRONGLY_DISAGREE</type>
-                            <text>Strongly Disagree</text>
-                            <display_order>0</display_order>
-                            <score>1</score>
-                        </question_option>
-                        <question_option>
-                            <type>DISAGREE</type>
-                            <text>Disagree</text>
-                            <display_order>1</display_order>
-                            <score>2</score>
-                        </question_option>
-                        <question_option>
-                            <type>AGREE</type>
-                            <text>Agree</text>
-                            <display_order>2</display_order>
-                            <score>3</score>
-                        </question_option>
-                        <question_option>
-                            <type>STRONGLY_AGREE</type>
-                            <text>Strongly Agree</text>
-                            <display_order>3</display_order>
-                            <score>4</score>
-                        </question_option>
-                        <question_option>
-                            <type>N_A</type>
-                            <text>N/A</text>
-                            <display_order>4</display_order>
-                            <score>5</score>
-                        </question_option>
-                    </question_options>
-                </question>
+                </question>                
             </questions>
         </question_group>
     </question_groups>

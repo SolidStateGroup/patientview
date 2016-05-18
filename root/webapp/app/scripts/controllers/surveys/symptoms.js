@@ -1,5 +1,6 @@
 'use strict';
 
+// PAMS
 angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'SurveyResponseService', '$filter',
     'ObservationHeadingService', 'ObservationService',
     function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService) {
