@@ -424,8 +424,16 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
             $scope.currentSpecialty = specialty;
 
+            // handle routing to specific specialty
+            if ($routeParams.specialty !== undefined) {
+                specialty = _.findWhere($scope.specialties, {code: $routeParams.specialty});
+                if (specialty != null && specialty != undefined) {
+                    $scope.currentSpecialty = specialty;
+                }
+            }
+
             // handle linking to specific tabs in Renal
-            if (specialty.code === 'Renal') {
+            if ($scope.currentSpecialty.code === 'Renal') {
                 if ($routeParams.activeTab !== undefined) {
                     $scope.activeTab = $routeParams.activeTab;
                 }
