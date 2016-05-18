@@ -67,6 +67,7 @@ public class ImportControllerTest {
     DELETE FROM pv_question WHERE id > 4957410;
     DELETE FROM pv_question_group WHERE id > 4957309;
     DELETE FROM pv_survey_response WHERE id > 4957512;
+    DELETE FROM pv_survey_feedback WHERE id > 4964549;
     DELETE FROM pv_survey WHERE id > 4957408;
     */
 

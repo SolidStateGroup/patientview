@@ -177,11 +177,18 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         $scope.loading = true;
 
         SurveyService.getByType($scope.surveyType).then(function(survey) {
-            $scope.survey = survey;
-            getSurveyFeedbackText();
+            if (survey != null) {
+                $scope.survey = survey;
+                getSurveyFeedbackText();
+            } else {
+                alert('Error retrieving survey');
+                $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
+                $scope.savingSurveyFeedbackText = true;
+            }
         }, function () {
             alert('Error retrieving survey');
             $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
+            $scope.savingSurveyFeedbackText = true;
         });
 
         getSurveyResponses();
