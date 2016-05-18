@@ -139,6 +139,10 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         return $filter("date")(date, "dd-MMM-yyyy");
     };
 
+    var getSurveyFeedbackText = function() {
+        $scope.surveyFeedbackText = 'I would like to talk about the following: \n1. \n2. \n3. ';
+    };
+
     var getSurveyResponses = function() {
         $scope.loading = true;
         SurveyResponseService.getByUserAndSurveyType($scope.loggedInUser.id, $scope.surveyType)
@@ -160,6 +164,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         $scope.surveyType = 'EQ5D';
         $scope.loading = true;
         getSurveyResponses();
+        getSurveyFeedbackText();
     };
 
     var initialiseChart = function() {
@@ -198,6 +203,26 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         // get next survey date (3 months from last survey
         var threeMonths = moment($scope.latestSurveyResponse.date).add(3, 'months');
         $scope.nextSurveyDate = threeMonths.format('MMMM') + ' ' + threeMonths.format('YYYY');
+    };
+
+    $scope.saveSurveyFeedbackText = function(text) {
+        delete $scope.surveyFeedbackSuccessMessage;
+        delete $scope.surveyFeedbackErrorMessage;
+        $scope.savingSurveyFeedbackText = true;
+        console.log(text);
+
+        delete $scope.savingSurveyFeedbackText;
+        $scope.surveyFeedbackSuccessMessage = 'Saved your comments';
+    };
+
+    $scope.sendSurveyFeedbackText = function(text) {
+        delete $scope.surveyFeedbackSuccessMessage;
+        delete $scope.surveyFeedbackErrorMessage;
+        $scope.sendingSurveyFeedbackText = true;
+        console.log(text);
+
+        delete $scope.sendingSurveyFeedbackText;
+        $scope.surveyFeedbackSuccessMessage = 'Sent your comments to your clinical staff';
     };
 
     init();

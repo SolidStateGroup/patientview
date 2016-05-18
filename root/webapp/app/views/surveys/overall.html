@@ -2,6 +2,14 @@
     .latest-td {
         background-color: #eee;
     }
+    .surveyFeedback-success-message {
+        font-weight: bold;
+        color: darkgreen;
+    }
+    .surveyFeedback-error-message {
+        font-weight: bold;
+        color: darkred;
+    }
 </style>
 <h1>Your Overall Health
     <a href="/#/myconditions?activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
@@ -62,15 +70,19 @@
                 </label>
 
                 <div>
-                    <textarea id="medications" data-ng-model="prepareText" class="form-control"
-                              style="height: 100px;">
+                    <textarea id="medications" data-ng-model="surveyFeedbackText" class="form-control"
+                              style="height: 100px;" data-ng-disabled="savingSurveyFeedbackText">
                     </textarea>
                 </div>
 
                 <br/>
                 <p>
-                    <a href="" class="btn blue" data-ng-click="savePrepareText(prepareText)">Save</a> &nbsp;
-                    <a href="" class="btn blue" data-ng-click="sendPrepareText(prepareText)">Send to clinical team for review</a>
+                    <a href="" class="btn blue" data-ng-click="saveSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText">Save</a>
+                    &nbsp;
+                    <a href="" class="btn blue" data-ng-click="sendSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText">Send to clinical team for review</a>
+                    &nbsp;
+                    <span data-ng-if="surveyFeedbackSuccessMessage" class="surveyFeedback-success-message">{{surveyFeedbackSuccessMessage}}</span>
+                    <span data-ng-if="surveyFeedbackErrorMessage" class="surveyFeedback-error-message">{{surveyFeedbackErrorMessage}}</span>
                 </p>
 
                 <br/>
