@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * RESTful interface for Symptom Scores, used by IBD
+ * RESTful interface for SurveyResponses
  *
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015

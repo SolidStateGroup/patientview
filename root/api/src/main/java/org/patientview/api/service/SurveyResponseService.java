@@ -8,7 +8,7 @@ import org.patientview.persistence.model.SurveyResponse;
 import java.util.List;
 
 /**
- * SurveyResponse service, used by IBD
+ * SurveyResponse service
  *
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015

@@ -797,6 +797,19 @@ CREATE TABLE PV_Api_Key
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Survey_Feedback
+(
+  Id                  BIGINT NOT NULL,
+  Feedback            TEXT NOT NULL,
+  User_Id             BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Survey_Id           BIGINT REFERENCES PV_Survey (Id) NOT NULL,
+  Created_By          BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date       TIMESTAMP NOT NULL,
+  Last_Update_Date    TIMESTAMP,
+  Last_Updated_By     BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
