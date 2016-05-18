@@ -72,7 +72,8 @@ public class SurveyController extends BaseController<SurveyController> {
      */
     @RequestMapping(value = "/user/{userId}/surveys/{surveyId}/feedback", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<SurveyFeedback>> getFeedback(@PathVariable("userId") Long userId,
+    public ResponseEntity<List<org.patientview.api.model.SurveyFeedback>> getFeedback(
+            @PathVariable("userId") Long userId,
             @PathVariable("surveyId") Long surveyId) throws ResourceNotFoundException {
         return new ResponseEntity<>(surveyFeedbackService.getByUserIdAndSurveyId(userId, surveyId), HttpStatus.OK);
     }

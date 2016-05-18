@@ -1,7 +1,5 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,7 +15,7 @@ import javax.persistence.Table;
 @Table(name = "pv_survey_feedback")
 public class SurveyFeedback extends AuditModel {
 
-    @Column(name = "feedback")
+    @Column(name = "feedback", nullable = false)
     private String feedback;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,7 +36,6 @@ public class SurveyFeedback extends AuditModel {
         this.feedback = feedback;
     }
 
-    @JsonIgnore
     public Survey getSurvey() {
         return survey;
     }
@@ -47,7 +44,6 @@ public class SurveyFeedback extends AuditModel {
         this.survey = survey;
     }
 
-    @JsonIgnore
     public User getUser() {
         return user;
     }

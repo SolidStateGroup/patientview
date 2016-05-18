@@ -139,7 +139,8 @@ public class SurveyFeedbackServiceTest {
         when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
         when(surveyFeedbackRepository.findBySurveyAndUser(eq(survey), eq(user))).thenReturn(surveyFeedbacks);
 
-        List<SurveyFeedback> returned = surveyFeedbackService.getByUserIdAndSurveyId(user.getId(), survey.getId());
+        List<org.patientview.api.model.SurveyFeedback> returned
+                = surveyFeedbackService.getByUserIdAndSurveyId(user.getId(), survey.getId());
 
         verify(surveyFeedbackRepository, Mockito.times(1)).findBySurveyAndUser(eq(survey), eq(user));
         Assert.assertEquals("Should return 1 SurveyFeedback", 1, returned.size());

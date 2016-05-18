@@ -13,6 +13,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -72,8 +73,17 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
         surveyFeedbackRepository.save(toSave);
     }
 
+    private List<org.patientview.api.model.SurveyFeedback> convertSurveyFeedback(List<SurveyFeedback> surveyFeedbacks) {
+        List<org.patientview.api.model.SurveyFeedback> toReturn = new ArrayList<>();
+        for (SurveyFeedback surveyFeedback : surveyFeedbacks) {
+            toReturn.add(new org.patientview.api.model.SurveyFeedback(surveyFeedback));
+        }
+        return toReturn;
+    }
+
     @Override
-    public List<SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId) throws ResourceNotFoundException {
+    public List<org.patientview.api.model.SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId)
+            throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -84,6 +94,6 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
             throw new ResourceNotFoundException("Could not find survey");
         }
 
-        return surveyFeedbackRepository.findBySurveyAndUser(survey, user);
+        return convertSurveyFeedback(surveyFeedbackRepository.findBySurveyAndUser(survey, user));
     }
 }

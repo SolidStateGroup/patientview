@@ -1,8 +1,8 @@
 'use strict';
 
 // EQ5D
-angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'SurveyResponseService', '$filter',
-    function ($scope, SurveyResponseService, $filter) {
+angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'SurveyService', 'SurveyResponseService',
+    '$filter', function ($scope, SurveyService, SurveyResponseService, $filter) {
 
     var buildChart = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -140,7 +140,19 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
     };
 
     var getSurveyFeedbackText = function() {
-        $scope.surveyFeedbackText = 'I would like to talk about the following: \n1. \n2. \n3. ';
+        $scope.savingSurveyFeedbackText = true;
+        SurveyService.getFeedback($scope.loggedInUser.id, $scope.survey.id)
+            .then(function(feedback) {
+                if (feedback == undefined || feedback == null || !feedback.length) {
+                    $scope.surveyFeedbackText = 'I would like to talk about the following: \n1. \n2. \n3. ';
+                } else {
+                    $scope.surveyFeedbackText = feedback[feedback.length - 1].feedback;
+                }
+                delete $scope.savingSurveyFeedbackText;
+            }, function() {
+                alert('Error retrieving feedback');
+                $scope.surveyFeedbackErrorMessage = 'Error retrieving feedback';
+            });
     };
 
     var getSurveyResponses = function() {
@@ -163,8 +175,16 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
     var init = function() {
         $scope.surveyType = 'EQ5D';
         $scope.loading = true;
+
+        SurveyService.getByType($scope.surveyType).then(function(survey) {
+            $scope.survey = survey;
+            getSurveyFeedbackText();
+        }, function () {
+            alert('Error retrieving survey');
+            $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
+        });
+
         getSurveyResponses();
-        getSurveyFeedbackText();
     };
 
     var initialiseChart = function() {
@@ -209,10 +229,22 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         delete $scope.surveyFeedbackSuccessMessage;
         delete $scope.surveyFeedbackErrorMessage;
         $scope.savingSurveyFeedbackText = true;
-        console.log(text);
 
-        delete $scope.savingSurveyFeedbackText;
-        $scope.surveyFeedbackSuccessMessage = 'Saved your comments';
+        var surveyFeedback = {};
+        surveyFeedback.user = {};
+        surveyFeedback.user.id = $scope.loggedInUser.id;
+        surveyFeedback.survey = {};
+        surveyFeedback.survey.id = $scope.survey.id;
+        surveyFeedback.feedback = text;
+
+        SurveyService.addFeedback($scope.loggedInUser.id, surveyFeedback)
+            .then(function() {
+                delete $scope.savingSurveyFeedbackText;
+                $scope.surveyFeedbackSuccessMessage = 'Saved your feedback';
+            }, function(error) {
+                delete $scope.savingSurveyFeedbackText;
+                $scope.surveyFeedbackErrorMessage = 'Error saving feedback: ' + error.data;
+            });
     };
 
     $scope.sendSurveyFeedbackText = function(text) {

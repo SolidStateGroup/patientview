@@ -35,5 +35,6 @@ public interface SurveyFeedbackService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    List<SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId) throws ResourceNotFoundException;
+    List<org.patientview.api.model.SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId)
+            throws ResourceNotFoundException;
 }
