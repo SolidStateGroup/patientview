@@ -402,11 +402,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.currentSpecialty = '';
         $scope.loading = true;
 
-        // handle linking to specific tabs
-        if ($routeParams.activeTab !== undefined) {
-            $scope.activeTab = $routeParams.activeTab;
-        }
-
         // get list of specialties for logged in user
         for (i=0;i<$scope.loggedInUser.groupRoles.length;i++) {
             if ($scope.loggedInUser.groupRoles[i].group.groupType.value === 'SPECIALTY'
@@ -428,6 +423,14 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             }
 
             $scope.currentSpecialty = specialty;
+
+            // handle linking to specific tabs in Renal
+            if (specialty.code === 'Renal') {
+                if ($routeParams.activeTab !== undefined) {
+                    $scope.activeTab = $routeParams.activeTab;
+                }
+            }
+
             getAllPublic();
         } else {
             alert('Error getting specialties');
