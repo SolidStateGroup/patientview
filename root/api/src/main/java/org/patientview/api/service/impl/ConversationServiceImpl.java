@@ -1209,6 +1209,41 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return convertUsersToTransportBaseUsers(page.getContent());
     }
 
+    @Override
+    public Long getRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException {
+        User user = findEntityUser(userId);
+
+        // feature
+        Feature feature = featureRepository.findByName(featureName);
+        if (feature == null) {
+            throw new ResourceNotFoundException("Feature not found");
+        }
+        List<Long> featureIds = new ArrayList<>();
+        featureIds.add(feature.getId());
+
+        // get non specialty UNIT and DISEASE_GROUP groups that a user is in
+        List<Long> groupIds = new ArrayList<>();
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            String groupType = groupRole.getGroup().getGroupType().getValue();
+            if (groupType.equals(GroupTypes.UNIT.toString())
+                    || groupType.equals(GroupTypes.DISEASE_GROUP.toString())) {
+                groupIds.add(groupRole.getGroup().getId());
+            }
+        }
+
+        // staff roles
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+        List<Long> roleIds = new ArrayList<>();
+        for (Role role : staffRoles) {
+            roleIds.add(role.getId());
+        }
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
+
+        return page.getTotalElements();
+    }
+
     /**
      * Get a Map of BaseUsers organised by Role type for global admins, used for potential Conversation recipients.
      * @param groupId ID of Group to get recipients for (optional, will get for all Groups if null)

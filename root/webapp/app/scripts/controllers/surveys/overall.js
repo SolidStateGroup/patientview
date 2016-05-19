@@ -1,8 +1,9 @@
 'use strict';
 
 // EQ5D
-angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'SurveyService', 'SurveyResponseService',
-    '$filter', function ($scope, SurveyService, SurveyResponseService, $filter) {
+angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'ConversationService', 'SurveyService',
+    'SurveyResponseService', '$filter',
+    function ($scope, ConversationService, SurveyService, SurveyResponseService, $filter) {
 
     var buildChart = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -162,6 +163,15 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         return $filter("date")(date, "dd-MMM-yyyy");
     };
 
+    var getFeedbackRecipientCount = function() {
+        ConversationService.getRecipientCountByFeature($scope.loggedInUser.id, 'RENAL_SURVEY_FEEDBACK_RECIPIENT')
+            .then(function(count) {
+                $scope.feedbackRecipientCount = count;
+            }, function() {
+                alert('Cannot get feedback recipients');
+            });
+    };
+
     var getSurveyFeedbackText = function() {
         $scope.savingSurveyFeedbackText = true;
         SurveyService.getFeedback($scope.loggedInUser.id, $scope.survey.id)
@@ -205,6 +215,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
                 $scope.questions = survey.questionGroups[0].questions;
                 getSurveyFeedbackText();
                 getSurveyResponses();
+                getFeedbackRecipientCount();
             } else {
                 $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
                 $scope.savingSurveyFeedbackText = true;

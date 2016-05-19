@@ -138,6 +138,17 @@ public interface ConversationService extends CrudService<Conversation> {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Given a user Id and Feature name, get the number of staff Users that have the Feature in the User's Groups,
+     * used by EQ5D survey page (overall health)
+     * @param userId ID of User to get count of recipients for
+     * @param featureName String name of Feature
+     * @return Long count of recipients
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    Long getRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException;
+
+    /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
@@ -193,5 +204,4 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
-
 }

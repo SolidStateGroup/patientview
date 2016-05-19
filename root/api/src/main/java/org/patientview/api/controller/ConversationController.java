@@ -205,6 +205,22 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
+     * Given a user Id and Feature name, get the number of staff Users that have the Feature in the User's Groups,
+     * used by EQ5D survey page (overall health)
+     * @param userId ID of User to get count of recipients for
+     * @param featureName String name of Feature
+     * @return Long count of recipients
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/recipientcountbyfeature/{featureName}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Long> getRecipientCountByFeature(@PathVariable("userId") Long userId,
+            @PathVariable(value = "featureName") String featureName) throws ResourceNotFoundException {
+        return new ResponseEntity<>(conversationService.getRecipientCountByFeature(userId, featureName), HttpStatus.OK);
+    }
+
+    /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.

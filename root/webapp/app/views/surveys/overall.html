@@ -80,14 +80,17 @@
 
                 <br/>
                 <p>
-                    <a href="" class="btn blue" data-ng-click="saveSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Save</a>
+                    <a href="" class="btn blue" data-ng-click="saveSurveyFeedbackText(surveyFeedbackText)"
+                       data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Save</a>
                     &nbsp;
-                    <a href="" class="btn blue" data-ng-click="sendSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Send to clinical team for review *</a>
+                    <a href="" class="btn blue" data-ng-click="sendSurveyFeedbackText(surveyFeedbackText)"
+                       data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText"
+                            data-ng-if="feedbackRecipientCount && feedbackRecipientCount > 0">Send to clinical team for review *</a>
                     &nbsp;
                     <span data-ng-if="surveyFeedbackSuccessMessage" class="surveyFeedback-success-message">{{surveyFeedbackSuccessMessage}}</span>
                     <span data-ng-if="surveyFeedbackErrorMessage" class="surveyFeedback-error-message">{{surveyFeedbackErrorMessage}}</span>
                 </p>
-                <p>* At last one week prior to your next clinic appointment.</p>
+                <p data-ng-if="feedbackRecipientCount && feedbackRecipientCount > 0">* At last one week prior to your next clinic appointment.</p>
 
                 <br/>
                 <h4 data-ng-show="nextSurveyDate">Your next survey is planned for {{nextSurveyDate}}</h4>

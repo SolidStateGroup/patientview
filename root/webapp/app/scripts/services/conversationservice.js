@@ -104,6 +104,17 @@ function ($http, $q, Restangular, UserService, $rootScope) {
                 });
             return deferred.promise;
         },
+        getRecipientCountByFeature: function (userId, featureName) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/conversations/recipientcountbyfeature/{featureName}
+            Restangular.one('user', userId).one('conversations/recipientcountbyfeature', featureName).get()
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
         getUnreadConversationCount: function (userId) {
             var deferred = $q.defer();
             // GET /user/{userId}/conversations/unreadcount
