@@ -10,6 +10,9 @@
         font-weight: bold;
         color: darkred;
     }
+    .table-th {
+        text-align: center;
+    }
 </style>
 <h1>Your Overall Health
     <a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
@@ -30,8 +33,8 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th data-ng-repeat="header in tableHeader track by $index">
-                            {{header.text}}
+                        <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
+                            {{header.text}} <span data-ng-if="header.isLatest"><br/>LATEST</span>
                         </th>
                     </tr>
                     </thead>
@@ -66,7 +69,7 @@
                     Your nurse or doctor will have a copy of your completed health survey.</p>
 
                 <label for="medications" class="control-label">
-                    To help you prepare for your next visit/appointment please complete and save the below:
+                    I would like to talk about the following (remember to click Save):
                 </label>
 
                 <div>
@@ -79,11 +82,12 @@
                 <p>
                     <a href="" class="btn blue" data-ng-click="saveSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Save</a>
                     &nbsp;
-                    <a href="" class="btn blue" data-ng-click="sendSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Send to clinical team for review</a>
+                    <a href="" class="btn blue" data-ng-click="sendSurveyFeedbackText(surveyFeedbackText)" data-ng-disabled="savingSurveyFeedbackText || sendingSurveyFeedbackText || !surveyFeedbackText">Send to clinical team for review *</a>
                     &nbsp;
                     <span data-ng-if="surveyFeedbackSuccessMessage" class="surveyFeedback-success-message">{{surveyFeedbackSuccessMessage}}</span>
                     <span data-ng-if="surveyFeedbackErrorMessage" class="surveyFeedback-error-message">{{surveyFeedbackErrorMessage}}</span>
                 </p>
+                <p>* At last one week prior to your next clinic appointment.</p>
 
                 <br/>
                 <h4 data-ng-show="nextSurveyDate">Your next survey is planned for {{nextSurveyDate}}</h4>

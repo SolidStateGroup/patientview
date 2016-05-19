@@ -20,10 +20,19 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             xAxis[response.date] = response.date;
 
             // get question answer data for question with correct type
+            var questions = $scope.questions;
+            var questionAnswerMap = [];
             for (j = 0; j < response.questionAnswers.length; j++) {
-                var questionAnswer = response.questionAnswers[j];
-                if (questionAnswer.question.type == $scope.questionType) {
-                    questionData.push({'date':response.date, 'value':questionAnswer.questionOption.score});
+                questionAnswerMap[response.questionAnswers[j].question.type] = response.questionAnswers[j];
+            }
+
+            for (j = 0; j < questions.length; j++) {
+                var questionType = questions[j].type;
+
+                if (questionAnswerMap[questionType]) {
+                    if (questionAnswerMap[questionType].question.type == $scope.questionType) {
+                        questionData.push({'date':response.date, 'value':questionAnswerMap[questionType].questionOption.score});
+                    }
                 }
             }
         }
@@ -52,6 +61,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             questionChartData[i] = null;
 
             xAxisLabels[i] = $scope.filterDate(xAxisArr[i]);
+
             for (j = 0; j < obsData.length; j++) {
                 if (obsData[j].date == xAxisArr[i]) {
                     observationChartData[i] = obsData[j].value;
@@ -170,19 +180,31 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
 
             // rows
+            var questions = $scope.questions;
+            var questionAnswerMap = [];
             for (j = 0; j < questionAnswers.length; j++) {
-                var questionAnswer = questionAnswers[j];
+                questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
+            }
+
+            for (j = 0; j < questions.length; j++) {
+                var questionText = questions[j].text;
+                var questionType = questions[j].type;
+                var questionOptionText = '-';
+
+                if (questionAnswerMap[questionType]) {
+                    questionOptionText = questionAnswerMap[questionType].questionOption.text;
+                }
 
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
-                    tableRows[j].type = questionAnswer.question.type;
+                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
-                    tableRows[j].data.push({'text':questionAnswer.question.text});
+                    tableRows[j].data.push({'text':questionText});
                 }
 
                 // set response text, e.g. Moderately
-                tableRows[j].data.push({'text':questionAnswer.questionOption.text, 'isLatest':response.isLatest});
+                tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
         }
 
@@ -279,9 +301,6 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
         visibleSurveyResponses.push($scope.latestSurveyResponse);
 
-        // build table from visible responses (2 most recent) responses
-        buildTable(visibleSurveyResponses);
-
         // set up question options, used for chart y axis labels, assumes 1 question group and same for all questions
         var scoreLabels = [];
         var firstOptions = $scope.surveyResponses[0].survey.questionGroups[0].questions[0].questionOptions;
@@ -291,8 +310,11 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         $scope.scoreLabels = scoreLabels;
         $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
 
+        // build table from visible responses (2 most recent) responses
+        buildTable(visibleSurveyResponses);
+
         // build chart from all responses, using first question's type e.g. YSQ1
-        $scope.questionType = $scope.surveyResponses[0].survey.questionGroups[0].questions[0].type;
+        $scope.questionType = $scope.questions[0].type;
         buildChart();
     };
 

@@ -144,7 +144,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         SurveyService.getFeedback($scope.loggedInUser.id, $scope.survey.id)
             .then(function(feedback) {
                 if (feedback == undefined || feedback == null || !feedback.length) {
-                    $scope.surveyFeedbackText = 'I would like to talk about the following: \n1. \n2. \n3. ';
+                    $scope.surveyFeedbackText = '1. \n2. \n3. ';
                 } else {
                     $scope.surveyFeedbackText = feedback[feedback.length - 1].feedback;
                 }

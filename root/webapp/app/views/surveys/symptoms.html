@@ -2,6 +2,9 @@
     .latest-td {
         background-color: #eee;
     }
+    .table-th {
+        text-align: center;
+    }
 </style>
 <h1>Your Symptoms
     <a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
@@ -15,7 +18,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <p>This screen shows how much you have been bothered by symptoms.</p>
+                <p>This shows a list of symptoms and your assessment of how each one has been affecting you.</p>
             </div>
         </div>
 
@@ -24,8 +27,8 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th data-ng-repeat="header in tableHeader track by $index">
-                            {{header.text}}
+                        <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
+                            {{header.text}} <span data-ng-if="header.isLatest"><br/>LATEST</span>
                         </th>
                         <th></th>
                     </tr>
