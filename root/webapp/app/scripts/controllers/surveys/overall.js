@@ -11,6 +11,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
 
         var i, j, series = [], chartSeries = [];
         var colours = ['#f0ad4e', '#7CB5EC'];
+        var questions = $scope.questions;
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];
@@ -22,8 +23,18 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
             }
 
             // get question answer data for question with correct type
+
+            var questionAnswerMap = [];
             for (j = 0; j < response.questionAnswers.length; j++) {
-                series[response.date].data.push(response.questionAnswers[j].questionOption.score);
+                questionAnswerMap[response.questionAnswers[j].question.type] = response.questionAnswers[j];
+            }
+
+            for (j = 0; j < questions.length; j++) {
+                if (questionAnswerMap[questions[j].type]) {
+                    series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
+                } else {
+                    series[response.date].data[j] = 0;
+                }
             }
         }
 
@@ -105,19 +116,31 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
             tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
 
             // rows
+            var questions = $scope.questions;
+            var questionAnswerMap = [];
             for (j = 0; j < questionAnswers.length; j++) {
-                var questionAnswer = questionAnswers[j];
+                questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
+            }
+
+            for (j = 0; j < questions.length; j++) {
+                var questionText = questions[j].text;
+                var questionType = questions[j].type;
+                var questionOptionText = '-';
+
+                if (questionAnswerMap[questionType]) {
+                    questionOptionText = questionAnswerMap[questionType].questionOption.text;
+                }
 
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
-                    tableRows[j].type = questionAnswer.question.type;
+                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
-                    tableRows[j].data.push({'text':questionAnswer.question.text});
+                    tableRows[j].data.push({'text':questionText});
                 }
 
                 // set response text, e.g. Moderately
-                tableRows[j].data.push({'text':questionAnswer.questionOption.text, 'isLatest':response.isLatest});
+                tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
         }
 
@@ -179,19 +202,17 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Su
         SurveyService.getByType($scope.surveyType).then(function(survey) {
             if (survey != null) {
                 $scope.survey = survey;
+                $scope.questions = survey.questionGroups[0].questions;
                 getSurveyFeedbackText();
+                getSurveyResponses();
             } else {
-                alert('Error retrieving survey');
                 $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
                 $scope.savingSurveyFeedbackText = true;
             }
         }, function () {
-            alert('Error retrieving survey');
             $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
             $scope.savingSurveyFeedbackText = true;
         });
-
-        getSurveyResponses();
     };
 
     var initialiseChart = function() {
