@@ -236,8 +236,5 @@ public class ConversationControllerTest {
                 + feature.getName())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(conversationService, Mockito.times(1))
-                .getRecipientCountByFeature(eq(user.getId()), eq(feature.getName()));
     }
 }
