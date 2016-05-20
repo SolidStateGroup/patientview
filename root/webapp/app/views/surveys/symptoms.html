@@ -56,7 +56,7 @@
             <div class="col-md-6">
                 <!-- chart populated in controller -->
                 <div id="chart_div"></div>
-                <div data-ng-if="observationHeadings">
+                <div data-ng-if="observationHeadings && surveyResponses">
                     <br/><br/>
                     <select class="form-control" data-ng-model="compareCode"
                             data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
