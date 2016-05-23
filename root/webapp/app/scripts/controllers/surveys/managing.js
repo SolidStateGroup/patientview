@@ -1,8 +1,8 @@
 'use strict';
 
 // PAMS
-angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'SurveyResponseService',
-    function ($scope, SurveyResponseService) {
+angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'SurveyService', 'SurveyResponseService',
+    function ($scope, SurveyService, SurveyResponseService) {
 
     var getSurveyResponses = function() {
         $scope.loading = true;
@@ -24,7 +24,21 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', 'Su
     var init = function() {
         $scope.surveyType = 'PAMS';
         $scope.loading = true;
-        getSurveyResponses();
+        delete $scope.errorMessage;
+
+        SurveyService.getByType($scope.surveyType).then(function(survey) {
+            if (survey != null) {
+                $scope.survey = survey;
+                $scope.questions = survey.questionGroups[0].questions;
+                getSurveyResponses();
+            } else {
+                $scope.errorMessage = 'Error retrieving surveys';
+                $scope.loading = false;
+            }
+        }, function () {
+            $scope.errorMessage = 'Error retrieving survey';
+            $scope.loading = false;
+        });
     };
 
     init();

@@ -1,6 +1,7 @@
+<!-- PAMS -->
 <div class="row">
     <div class="col-md-6">
-        <h1>Your Overall Health</h1>
+        <h1>Managing Your Health</h1>
     </div>
     <div class="col-md-6">
         <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
@@ -13,66 +14,121 @@
 <br/>
 <div class="content-panel">
     <div class="content-inner">
-        <div class="row">
-            <div class="col-md-8">
-                <p>The following results take into account your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care – this is referred to as your activation level.</p>
+
+        <div class="alert alert-danger" data-ng-show="!loading && errorMessage">
+            <h5>{{errorMessage}}</h5>
+        </div>
+
+        <div data-ng-show="loading" class="container">
+            <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Health</h3>
+            <br/>
+        </div>
+
+        <div class="row" data-ng-if="!loading && surveyResponses">
+            <div class="col-md-12">
+                <p>The following results show how you assessed your knowledge, skills and your confidence to look after your own health and be involved in your care – this is known as your activation level.
+                    In order to live your best life your clinical team would like to work closely with you to support you to grow your skills and knowledge and build your confidence.</p>
 
                 <div>
                     <p>
-                        You assessed yourself as <strong>moderately</strong> activated.
-                        Your overall score is <strong>60</strong>.
-                        <a href="" data-ng-click="showInfo = true"><strong>Tell me more.</strong></a>
+                        Your overall score is <strong>60</strong>, which is <strong>level 3</strong>
+                        <a href="" data-ng-click="showLevels = true">(tell me more)</a>.
                     </p>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-3">
-                        [ARROW DIAGRAM]
-                        <img src="http://placehold.it/350x150">
-                    </div>
-                    <div class="col-md-9" data-ng-show="showInfo">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <p>Based on the information you answered in the Your Health survey, you scored yourself <strong>highly activated</strong>
-                                    on the following in relation to your knowledge, skills and confidence:</p>
-                                <ul>
-                                    <li>I have been able to maintain lifestyle changes, like healthy eating or exercising</li>
-                                    <li>I am confident I can work out solutions when new problems arise with my health</li>
-                                </ul>
-                                <p>You scored yourself as <strong>lowly activated</strong>
-                                    on the following in relation to your knowledge, skills and confidence:</p>
-                                <ul>
-                                    <li>I am the person who is responsible for taking care of my health</li>
-                                    <li>I know what each of my prescribed medications do</li>
-                                    <li>I am confident that I can carry out medical treatments I may need to do at home</li>
-                                </ul>
-                                <p><strong>You may want to discuss your activation level with your clinical team at your next visit
-                                    to the hospital and discuss further support that may be useful.</strong></p>
-                                <p>Please <a href="#">click here</a> for more information about your activation levels.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <table class="table">
+                <table class="table" data-ng-show="showLevels">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Score</th>
+                            <th>Level 1 - The Beginning</th>
+                            <th>Level 2 - Building knowledge and confidence</th>
+                            <th>Level 3 - Taking Action</th>
+                            <th>Level 4 - Maintaining Behaviours</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>04-May-2016</td>
-                            <td>60</td>
-                        </tr>
-                        <tr>
-                            <td>02-Jun-2015</td>
-                            <td>50</td>
+                            <td>
+                                You may feel overwhelmed by your illness and all the information that you are given.<br/>
+                                You may feel that you don’t have a role in managing your health and that your doctor or nurse will make the decisions about your care.<br/>
+                                You may be feeling very negative and down.<br/>
+                                You may not feel confident to share your opinion or view about what might be best for you.
+                            </td>
+                            <td>
+                                You may have an understanding of some basic facts about your condition but not about how you might begin to play a role in managing it.<br/>
+                                You may not have the skills in place to problem solve.
+                            </td>
+                            <td>
+                                You are beginning to understand facts and take on board information about your condition.<br/>
+                                You are beginning to change some behaviours relating to caring for yourself.<br/>
+                                You may not feel confident in doing this on your own.
+                            </td>
+                            <td>
+                                You have gained the knowledge, new skills and confidence to change some of your behaviours but during periods of stress or change these may lapse.<br/>
+                                You prepare before attending an appointment with your GP or hospital team.<br/>
+                                You may feel confident to ask questions during an appointment that will help you make decisions that best suit you and your family.<br/>
+                                You may feel positive about your life.
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="http://placehold.it/150x550">
+                    </div>
+                    <div class="col-md-9">
+                        <p>
+                            It is important to discuss your score or level with your clinical team at your next visit to the hospital. They can work in partnership with you to set goals and actions that are important to you and support you in achieving these.
+                        </p>
+                        <p>
+                            <a href="" data-ng-click="showTable = true">Tell me more (shows a breakdown of your responses).</a>
+                        </p>
+                        <div data-ng-show="showTable">
+                            <h2>Managing Your Health - Breakdown</h2>
+                            <p>The following table shows your results which calculate your overall activation score. This is based on your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care.</p>
+                            <table class="table" data-ng-show="showTable">
+                                <thead>
+                                    <tr>
+                                        <th>Managing Your Health - Question</th>
+                                        <th>Your Answer<br/> 01/04/2016</th>
+                                        <th>Your Answer<br/> 01/06/2016</th>
+                                        <th>Your Answer<br/> 01/08/2016</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            I am the person who is responsible for taking care of my health
+                                        </td>
+                                        <td>
+                                            Agree
+                                        </td>
+                                        <td>
+                                            Disagree
+                                        </td>
+                                        <td>
+                                            Agree Strongly
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Taking an active role in my own healthcare is the most important thing that affects my health
+                                        </td>
+                                        <td>
+                                            Agree
+                                        </td>
+                                        <td>
+                                            Disagree
+                                        </td>
+                                        <td>
+                                            Agree Strongly
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
