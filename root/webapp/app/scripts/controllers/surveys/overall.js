@@ -279,7 +279,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
         SurveyService.addFeedback($scope.loggedInUser.id, surveyFeedback)
             .then(function() {
                 delete $scope.savingSurveyFeedbackText;
-                $scope.surveyFeedbackSuccessMessage = 'Saved your feedback';
+                $scope.surveyFeedbackSuccessMessage = 'Feedback saved';
             }, function(error) {
                 delete $scope.savingSurveyFeedbackText;
                 $scope.surveyFeedbackErrorMessage = 'Error saving feedback: ' + error.data;
