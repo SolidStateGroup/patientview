@@ -1,8 +1,16 @@
 'use strict';
 
 // PAMS
-angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', 'SurveyService', 'SurveyResponseService',
-    function ($scope, $filter, SurveyService, SurveyResponseService) {
+// levels modal instance controller
+var LevelsModalInstanceCtrl = ['$scope', '$modalInstance',
+    function ($scope, $modalInstance) {
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', '$modal', 'SurveyService', 'SurveyResponseService',
+    function ($scope, $filter, $modal, SurveyService, SurveyResponseService) {
 
     var buildTable = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -147,6 +155,20 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
 
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
+    };
+
+    $scope.showLevels = function() {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/levelsModal.html',
+            controller: LevelsModalInstanceCtrl,
+            size: 'lg'
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            init();
+        });
     };
 
     init();
