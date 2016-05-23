@@ -5,6 +5,7 @@ import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.User;
@@ -35,6 +36,19 @@ public interface ConversationService extends CrudService<Conversation> {
     @UserOnly
     void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Creates a conversation between a User with userId and all staff members with a specific Feature with
+     * featureName. Used in EQ5D survey page (Your Overall Health) when patients send feedback to staff users.
+     * @param userId Long ID of User with survey
+     * @param featureName Name of feature that staff Users must have to be added to conversation
+     * @param conversation Conversation, containing user entered message to staff users
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void addConversationToRecipientsByFeature(Long userId, String featureName, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException;
 
     /**
      * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
@@ -146,7 +160,7 @@ public interface ConversationService extends CrudService<Conversation> {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    Long getRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException;
+    Long getStaffRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException;
 
     /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new

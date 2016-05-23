@@ -83,6 +83,26 @@ public class ConversationControllerTest {
     }
 
     @Test
+    public void testAddConversationToRecipientsByFeature() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Feature feature = TestUtils.createFeature(FeatureType.RENAL_SURVEY_FEEDBACK_RECIPIENT.toString());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations/feature/"
+                + feature.getName())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
     public void testAddConversationUser() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -219,7 +239,7 @@ public class ConversationControllerTest {
     }
 
     @Test
-    public void testGetRecipientCountByFeature() throws Exception {
+    public void testGetStaffRecipientCountByFeature() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -232,7 +252,8 @@ public class ConversationControllerTest {
 
         Feature feature = TestUtils.createFeature(FeatureType.RENAL_SURVEY_FEEDBACK_RECIPIENT.toString());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations/recipientcountbyfeature/"
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId()
+                + "/conversations/staffrecipientcountbyfeature/"
                 + feature.getName())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());

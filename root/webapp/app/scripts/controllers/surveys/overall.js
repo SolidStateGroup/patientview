@@ -164,7 +164,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     };
 
     var getFeedbackRecipientCount = function() {
-        ConversationService.getRecipientCountByFeature($scope.loggedInUser.id, 'RENAL_SURVEY_FEEDBACK_RECIPIENT')
+        ConversationService.getStaffRecipientCountByFeature($scope.loggedInUser.id, 'RENAL_SURVEY_FEEDBACK_RECIPIENT')
             .then(function(count) {
                 $scope.feedbackRecipientCount = count;
             }, function() {
@@ -289,11 +289,32 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     $scope.sendSurveyFeedbackText = function(text) {
         delete $scope.surveyFeedbackSuccessMessage;
         delete $scope.surveyFeedbackErrorMessage;
-        $scope.sendingSurveyFeedbackText = true;
-        console.log(text);
+        $scope.savingSurveyFeedbackText = true;
 
-        delete $scope.sendingSurveyFeedbackText;
-        $scope.surveyFeedbackSuccessMessage = 'Sent your comments to your clinical staff';
+        // build correct conversation
+        var conversation = {};
+        conversation.type = 'MESSAGE';
+        conversation.title = 'Your Overall Health Feedback';
+        conversation.messages = [];
+        conversation.open = true;
+
+        // build message
+        var message = {};
+        message.user = {};
+        message.user.id = $scope.loggedInUser.id;
+        message.message = text;
+        message.type = 'MESSAGE';
+        conversation.messages[0] = message;
+
+        ConversationService.addConversationToRecipientsByFeature($scope.loggedInUser.id,
+            'RENAL_SURVEY_FEEDBACK_RECIPIENT', conversation)
+            .then(function() {
+                delete $scope.savingSurveyFeedbackText;
+                $scope.surveyFeedbackSuccessMessage = 'Sent your comments to your clinical staff';
+            }, function(error) {
+                delete $scope.savingSurveyFeedbackText;
+                $scope.surveyFeedbackErrorMessage = 'Error sending feedback: ' + error.data;
+            });
     };
 
     init();

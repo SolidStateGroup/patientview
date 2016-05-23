@@ -3,6 +3,17 @@
 angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', 'UserService', '$rootScope',
 function ($http, $q, Restangular, UserService, $rootScope) {
     return {
+        addConversationToRecipientsByFeature: function (userId, featureName, conversation) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/conversations/feature/{featureName}
+            Restangular.one('user', userId).one('conversations/feature', featureName).customPOST(conversation)
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
         addConversationUser: function (conversationId, userId) {
             var deferred = $q.defer();
             // POST /conversation/{conversationId}/conversationuser/{userId}
@@ -104,10 +115,10 @@ function ($http, $q, Restangular, UserService, $rootScope) {
                 });
             return deferred.promise;
         },
-        getRecipientCountByFeature: function (userId, featureName) {
+        getStaffRecipientCountByFeature: function (userId, featureName) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipientcountbyfeature/{featureName}
-            Restangular.one('user', userId).one('conversations/recipientcountbyfeature', featureName).get()
+            // GET /user/{userId}/conversations/staffrecipientcountbyfeature/{featureName}
+            Restangular.one('user', userId).one('conversations/staffrecipientcountbyfeature', featureName).get()
                 .then(function(successResult) {
                     deferred.resolve(successResult);
                 }, function(failureResult) {

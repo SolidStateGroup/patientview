@@ -6,6 +6,7 @@ import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.model.enums.DummyUsernames;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.repository.ApiKeyRepository;
@@ -196,6 +197,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversation.setType(conversation.getType());
             newConversation.setStaffFeature(conversation.getStaffFeature());
             newConversation.setGroupId(conversation.getGroupId());
+            newConversation.setCreator(conversation.getCreator() == null ? entityUser : conversation.getCreator());
 
             // get first message from passed in conversation
             Iterator iter = conversation.getMessages().iterator();
@@ -209,6 +211,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setType(message.getType());
             newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
             newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
+            newMessage.setCreator(newMessage.getCreator() == null ? entityUser : newMessage.getCreator());
 
             List<Message> messageSet = new ArrayList<>();
             messageSet.add(newMessage);
@@ -239,6 +242,79 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
         }
+    }
+
+    @Override
+    public void addConversationToRecipientsByFeature(Long userId, String featureName, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException {
+        if (!loggedInUserHasMessagingFeatures()) {
+            throw new ResourceForbiddenException("Forbidden (current user features)");
+        }
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        if (featureName == null) {
+            throw new ResourceNotFoundException("Feature not set");
+        }
+
+        Feature feature = featureRepository.findByName(featureName);
+        if (feature == null) {
+            throw new ResourceNotFoundException("Feature not found");
+        }
+
+        if (conversation == null) {
+            throw new VerificationException("Conversation not set");
+        }
+
+        if (CollectionUtils.isEmpty(conversation.getMessages())) {
+            throw new VerificationException("Conversation has no messages");
+        }
+
+        if (StringUtils.isEmpty(conversation.getMessages().get(0).getMessage())) {
+            throw new VerificationException("Message is empty");
+        }
+
+        // get recipients
+        List<Long> featureIds = new ArrayList<>();
+        featureIds.add(feature.getId());
+
+        // get non specialty UNIT and DISEASE_GROUP groups that a user is in
+        List<Long> groupIds = new ArrayList<>();
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            String groupType = groupRole.getGroup().getGroupType().getValue();
+            if (groupType.equals(GroupTypes.UNIT.toString())
+                    || groupType.equals(GroupTypes.DISEASE_GROUP.toString())) {
+                groupIds.add(groupRole.getGroup().getId());
+            }
+        }
+
+        // staff roles
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+        List<Long> roleIds = new ArrayList<>();
+        for (Role role : staffRoles) {
+            roleIds.add(role.getId());
+        }
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
+
+        if (CollectionUtils.isEmpty(page.getContent())) {
+            throw new VerificationException("No staff exist to receive message");
+        }
+
+        // add found staff as conversation users
+        conversation.setConversationUsers(new HashSet<ConversationUser>());
+        for (User staffUser : page.getContent()) {
+            conversation.getConversationUsers().add(new ConversationUser(conversation, staffUser));
+        }
+
+        // add current user as conversation user
+        conversation.getConversationUsers().add(new ConversationUser(conversation, user));
+
+        addConversation(userId, conversation);
     }
 
     /**
@@ -811,7 +887,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             ConversationUser newConversationUser = new ConversationUser();
             newConversationUser.setConversation(conversation);
             newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
-            newConversationUser.setAnonymous(conversationUser.getAnonymous());
+            newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
+                    ? false : conversationUser.getAnonymous());
             newConversationUser.setCreator(creator);
             newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
             conversationUserSet.add(newConversationUser);
@@ -1210,7 +1287,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     @Override
-    public Long getRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException {
+    public Long getStaffRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException {
         User user = findEntityUser(userId);
 
         // feature
@@ -1241,7 +1318,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
         Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
 
-        return page.getTotalElements();
+        Long count = 0L;
+
+        // validate that users are members of groups with MESSAGING etc
+        if (!CollectionUtils.isEmpty(page.getContent())) {
+            for (User staffUser : page.getContent()) {
+                if (userGroupsHaveMessagingFeature(staffUser)) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
     /**
