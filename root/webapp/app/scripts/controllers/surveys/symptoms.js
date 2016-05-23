@@ -1,6 +1,6 @@
 'use strict';
 
-// PAMS
+// PROM
 angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'SurveyResponseService', '$filter',
     'ObservationHeadingService', 'ObservationService',
     function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService) {
@@ -267,7 +267,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
     };
 
     var init = function() {
-        $scope.surveyType = 'PROMS';
+        $scope.surveyType = 'PROM';
         getSurveyResponses();
         getObservationHeadings();
     };
