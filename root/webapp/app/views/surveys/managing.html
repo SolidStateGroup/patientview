@@ -1,4 +1,13 @@
 <!-- PAMS -->
+<style>
+    .latest-td {
+        background-color: #eee;
+    }
+    .table-th {
+        text-align: center;
+    }
+</style>
+
 <div class="row">
     <div class="col-md-6">
         <h1>Managing Your Health</h1>
@@ -73,60 +82,47 @@
                 </table>
 
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-12">
+                        <p>The following table shows your results which calculate your overall activation score. This is based on your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care.</p>
+                    </div>
+                    <div class="col-md-2">
+                        <br/>
                         <img src="http://placehold.it/150x550">
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-md-10">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
+                                    {{header.text}} <span data-ng-if="header.isLatest"><br/>LATEST</span>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-ng-repeat="row in tableRows track by $index">
+                                <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
+                                    {{cell.text}}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div data-ng-show="surveyResponseSelectOptions">
+                            <br/>
+                            <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
+                                    data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                                    data-ng-change="compareSurvey(selectedSurveyResponseId)" >
+                                <option value="">Compare with a past survey:</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <br/>
                         <p>
                             It is important to discuss your score or level with your clinical team at your next visit to the hospital. They can work in partnership with you to set goals and actions that are important to you and support you in achieving these.
                         </p>
-                        <p>
-                            <a href="" data-ng-click="showTable = true">Tell me more (shows a breakdown of your responses).</a>
-                        </p>
-                        <div data-ng-show="showTable">
-                            <h2>Managing Your Health - Breakdown</h2>
-                            <p>The following table shows your results which calculate your overall activation score. This is based on your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care.</p>
-                            <table class="table" data-ng-show="showTable">
-                                <thead>
-                                    <tr>
-                                        <th>Managing Your Health - Question</th>
-                                        <th>Your Answer<br/> 01/04/2016</th>
-                                        <th>Your Answer<br/> 01/06/2016</th>
-                                        <th>Your Answer<br/> 01/08/2016</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            I am the person who is responsible for taking care of my health
-                                        </td>
-                                        <td>
-                                            Agree
-                                        </td>
-                                        <td>
-                                            Disagree
-                                        </td>
-                                        <td>
-                                            Agree Strongly
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            Taking an active role in my own healthcare is the most important thing that affects my health
-                                        </td>
-                                        <td>
-                                            Agree
-                                        </td>
-                                        <td>
-                                            Disagree
-                                        </td>
-                                        <td>
-                                            Agree Strongly
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
