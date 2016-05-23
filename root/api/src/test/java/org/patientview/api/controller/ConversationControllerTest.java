@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -96,9 +97,10 @@ public class ConversationControllerTest {
 
         Feature feature = TestUtils.createFeature(FeatureType.RENAL_SURVEY_FEEDBACK_RECIPIENT.toString());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations/feature/"
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/conversations/feature/"
                 + feature.getName())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(new Conversation())))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
