@@ -87,7 +87,8 @@ public class ImportControllerTest {
         //String fileName = "data/xml/survey/survey_EQ5D_1.xml";
         //String fileName = "data/xml/survey/survey_PROMS_1.xml";
         //String fileName = "data/xml/survey/survey_PAMS_1.xml";
-        String fileName = "data/xml/survey/survey_PROM_1.xml";
+        //String fileName = "data/xml/survey/survey_PROM_1.xml";
+        String fileName = "data/xml/survey/survey_PAM_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -113,7 +114,8 @@ public class ImportControllerTest {
         //String fileName = "data/xml/survey_response/survey_response_EQ5D_1.xml";
         //String fileName = "data/xml/survey_response/survey_response_EQ5D_2_missing.xml";
         //String fileName = "data/xml/survey_response/survey_response_PAMS_1.xml";
-        String fileName = "data/xml/survey_response/survey_response_PROM_1.xml";
+        //String fileName = "data/xml/survey_response/survey_response_PROM_1.xml";
+        String fileName = "data/xml/survey_response/survey_response_PAM_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());

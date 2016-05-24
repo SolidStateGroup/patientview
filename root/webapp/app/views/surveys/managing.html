@@ -1,4 +1,4 @@
-<!-- PAMS -->
+<!-- PAM -->
 <style>
     .latest-td {
         background-color: #eee;
@@ -26,6 +26,10 @@
 
         <div class="alert alert-danger" data-ng-show="!loading && errorMessage">
             <h5>{{errorMessage}}</h5>
+        </div>
+
+        <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
+            <h5>No Data is currently available for managing your health</h5>
         </div>
 
         <div data-ng-show="loading" class="container">

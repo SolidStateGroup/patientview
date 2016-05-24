@@ -1,6 +1,6 @@
 'use strict';
 
-// PAMS
+// PAM
 // levels modal instance controller
 var LevelsModalInstanceCtrl = ['$scope', '$modalInstance',
     function ($scope, $modalInstance) {
@@ -97,7 +97,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
     };
 
     var init = function() {
-        $scope.surveyType = 'PAMS';
+        $scope.surveyType = 'PAM';
         $scope.loading = true;
         delete $scope.errorMessage;
 

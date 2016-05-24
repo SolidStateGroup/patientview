@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('MyConditionsSurveysCtrl',['$scope',
     function ($scope, SurveyResponseService) {
 
     var init = function() {
-        var types = ['PAMS', 'PROM', 'EQ5D'];
+        var types = ['PAM', 'PROM', 'EQ5D'];
         var foundSurveys = [];
 
         SurveyResponseService.getLatestByUserAndSurveyType($scope.loggedInUser.id, types)
