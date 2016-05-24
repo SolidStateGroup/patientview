@@ -6,6 +6,28 @@
     .table-th {
         text-align: center;
     }
+    .arrow-div {
+        background-image: url("../../images/arrow.png");
+        background-size: 150px 500px;
+        background-repeat: no-repeat;
+        width: 150px;
+        height: 500px;
+        margin-left: 20px;
+    }
+    .arrow-score {
+        position: relative;
+        background-color: #ffffff;
+        border: 2px solid #4D7FB9;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+    }
+    .arrow-score-text {
+        position: relative;
+        left: 60px;
+        font-weight: bold;
+        padding: 5px 0px 5px 0px;
+    }
 </style>
 
 <div class="row">
@@ -55,7 +77,11 @@
                     </div>
                     <div class="col-md-2">
                         <br/>
-                        <img src="http://placehold.it/150x550">
+                        <div class="arrow-div">
+                            <div class="arrow-score" style="top: {{500 - (5 * otherQuestions['PAM_SCORE'])}}px">
+                                <div class="arrow-score-text">{{otherQuestions['PAM_SCORE']}}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-10">
                         <table class="table">
