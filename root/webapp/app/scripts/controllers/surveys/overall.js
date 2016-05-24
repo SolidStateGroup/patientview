@@ -219,10 +219,12 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             } else {
                 $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
                 $scope.savingSurveyFeedbackText = true;
+                delete $scope.loading;
             }
         }, function () {
             $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
             $scope.savingSurveyFeedbackText = true;
+            delete $scope.loading;
         });
     };
 
