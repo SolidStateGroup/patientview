@@ -93,14 +93,14 @@
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
                     <p class="your-score">
                         Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is <strong>level {{otherQuestions['PAM_LEVEL']}}</strong>.
-                        <a href="" data-ng-click="showLevels()">(tell me more)</a>.
+                        <a href="" data-ng-click="showLevels()">Tell me more</a>.
                     </p>
                     <p>Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p>The following table shows your results which calculate your overall activation score. This is based on your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care.</p>
+                        <p>The following table shows your results which calculate your overall activation score.</p>
                     </div>
                     <div class="col-md-2">
                         <br/>
@@ -150,14 +150,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <br/>
-                        <p>
-                            It is important to discuss your score or level with your clinical team at your next visit to the hospital. They can work in partnership with you to set goals and actions that are important to you and support you in achieving these.
-                        </p>
-                    </div>
-                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+                <p>
+                    <strong>It is important to discuss your score or level with your clinical team at your next visit to the hospital. They can work in partnership with you to set goals and actions that are important to you and support you in achieving these.</strong>
+                </p>
             </div>
         </div>
     </div>
