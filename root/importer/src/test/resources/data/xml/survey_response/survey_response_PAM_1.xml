@@ -61,7 +61,7 @@
         </question_answer>
         <question_answer>
             <question_type>PAM_LEVEL</question_type>
-            <question_value>3</question_value>
+            <question_value>1</question_value>
         </question_answer>
         <question_answer>
             <question_type>WHERE_COMPLETED</question_type>

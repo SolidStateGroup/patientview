@@ -78,6 +78,7 @@ public class ImportControllerTest {
     DELETE FROM pv_question WHERE id > 14883119;
     DELETE FROM pv_question_group WHERE id > 14883119;
     DELETE FROM pv_survey_response WHERE id > 14883222;
+    DELETE FROM pv_survey_feedback WHERE id > 14890074;
     DELETE FROM pv_survey WHERE id > 14883118;
     */
 
@@ -95,8 +96,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/survey";
-        //String postUrl="https://test.patientview.org/importer/import/survey";
+        //String postUrl="http://localhost:8081/importer/import/survey";
+        String postUrl="https://test.patientview.org/importer/import/survey";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
@@ -122,8 +123,8 @@ public class ImportControllerTest {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/surveyresponse";
-        //String postUrl="https://test.patientview.org/importer/import/surveyresponse";
+        //String postUrl="http://localhost:8081/importer/import/surveyresponse";
+        String postUrl="https://test.patientview.org/importer/import/surveyresponse";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
@@ -499,9 +500,9 @@ public class ImportControllerTest {
 
         // will need to allow IP to post to this "sudo vi /etc/nginx/conf.d/patientview-nginx.conf" then
         // restart with "sudo service nginx restart"
-        //String postUrl="https://test.patientview.org/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
         //String postUrl="https://production.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

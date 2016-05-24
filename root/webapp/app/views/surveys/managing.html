@@ -21,12 +21,38 @@
         -webkit-border-radius: 5px;
         -moz-border-radius: 5px;
         border-radius: 5px;
+        z-index: 99;
     }
     .arrow-score-text {
         position: relative;
-        left: 60px;
+        left: 55px;
+        width: 100px;
         font-weight: bold;
         padding: 5px 0px 5px 0px;
+    }
+    .arrow-level-one {
+        position: absolute;
+        top: 480px;
+    }
+    .arrow-level-two {
+        position: absolute;
+        top: 285px;
+    }
+    .arrow-level-three {
+        position: absolute;
+        top: 235px;
+    }
+    .arrow-level-four {
+        position: absolute;
+        top: 180px;
+    }
+    .arrow-level-text {
+        position: relative;
+        left: 52px;
+        font-weight: bold;
+    }
+    .your-score {
+        font-size: 16px;
     }
 </style>
 
@@ -65,10 +91,11 @@
                     In order to live your best life your clinical team would like to work closely with you to support you to grow your skills and knowledge and build your confidence.</p>
 
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
-                    <p>
+                    <p class="your-score">
                         Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is <strong>level {{otherQuestions['PAM_LEVEL']}}</strong>.
                         <a href="" data-ng-click="showLevels()">(tell me more)</a>.
                     </p>
+                    <p>Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
                 </div>
 
                 <div class="row">
@@ -78,8 +105,20 @@
                     <div class="col-md-2">
                         <br/>
                         <div class="arrow-div">
-                            <div class="arrow-score" style="top: {{500 - (5 * otherQuestions['PAM_SCORE'])}}px">
+                            <div class="arrow-score" style="top: {{475 - (4.75 * otherQuestions['PAM_SCORE'])}}px">
                                 <div class="arrow-score-text">{{otherQuestions['PAM_SCORE']}}</div>
+                            </div>
+                            <div class="arrow-level-one">
+                                <div class="arrow-level-text">Level 1</div>
+                            </div>
+                            <div class="arrow-level-two">
+                                <div class="arrow-level-text">Level 2</div>
+                            </div>
+                            <div class="arrow-level-three">
+                                <div class="arrow-level-text">Level 3</div>
+                            </div>
+                            <div class="arrow-level-four">
+                                <div class="arrow-level-text">Level 4</div>
                             </div>
                         </div>
                     </div>
