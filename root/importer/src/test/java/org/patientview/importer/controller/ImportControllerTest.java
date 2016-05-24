@@ -116,15 +116,16 @@ public class ImportControllerTest {
         //String fileName = "data/xml/survey_response/survey_response_EQ5D_2_missing.xml";
         //String fileName = "data/xml/survey_response/survey_response_PAMS_1.xml";
         //String fileName = "data/xml/survey_response/survey_response_PROM_1.xml";
-        String fileName = "data/xml/survey_response/survey_response_PAM_2.xml";
+        String fileName = "data/xml/survey_response/survey_response_PAM_1.xml";
+        //String fileName = "data/xml/survey_response/survey_response_PAM_2.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/surveyresponse";
-        //String postUrl="https://test.patientview.org/importer/import/surveyresponse";
+        //String postUrl="http://localhost:8081/importer/import/surveyresponse";
+        String postUrl="https://test.patientview.org/importer/import/surveyresponse";
 
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(content);
