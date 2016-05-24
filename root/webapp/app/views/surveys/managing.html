@@ -42,9 +42,9 @@
                 <p>The following results show how you assessed your knowledge, skills and your confidence to look after your own health and be involved in your care – this is known as your activation level.
                     In order to live your best life your clinical team would like to work closely with you to support you to grow your skills and knowledge and build your confidence.</p>
 
-                <div>
+                <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
                     <p>
-                        Your overall score is <strong>60</strong>, which is <strong>level 3</strong>
+                        Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is <strong>level {{otherQuestions['PAM_LEVEL']}}</strong>.
                         <a href="" data-ng-click="showLevels()">(tell me more)</a>.
                     </p>
                 </div>

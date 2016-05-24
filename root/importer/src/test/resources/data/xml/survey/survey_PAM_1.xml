@@ -515,5 +515,39 @@
                 </question>
             </questions>
         </question_group>
+        <question_group>
+            <text>Other Questions</text>
+            <display_order>1</display_order>
+            <questions>
+                <question>
+                    <element_type>TEXT</element_type>
+                    <html_type>TEXT</html_type>
+                    <type>PAM_SCORE</type>
+                    <text>Your PAM Score</text>
+                    <display_order>0</display_order>
+                </question>
+                <question>
+                    <element_type>TEXT</element_type>
+                    <html_type>TEXT</html_type>
+                    <type>PAM_LEVEL</type>
+                    <text>Your PAM Level</text>
+                    <display_order>1</display_order>
+                </question>
+                <question>
+                    <element_type>TEXT</element_type>
+                    <html_type>TEXT</html_type>
+                    <type>WHERE_COMPLETED</type>
+                    <text>Where did you complete this survey?</text>
+                    <display_order>2</display_order>
+                </question>
+                <question>
+                    <element_type>TEXT</element_type>
+                    <html_type>TEXT</html_type>
+                    <type>HAD_HELP</type>
+                    <text>Did you have help completing the survey?</text>
+                    <display_order>3</display_order>
+                </question>
+            </questions>
+        </question_group>
     </question_groups>
 </survey>

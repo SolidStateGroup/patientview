@@ -54,6 +54,22 @@
         <question_answer>
             <question_type>MYHQ13</question_type>
             <question_option>3</question_option>
-        </question_answer>        
+        </question_answer>
+        <question_answer>
+            <question_type>PAM_SCORE</question_type>
+            <question_value>40.0</question_value>
+        </question_answer>
+        <question_answer>
+            <question_type>PAM_LEVEL</question_type>
+            <question_value>3</question_value>
+        </question_answer>
+        <question_answer>
+            <question_type>WHERE_COMPLETED</question_type>
+            <question_value>In hospital</question_value>
+        </question_answer>
+        <question_answer>
+            <question_type>HAD_HELP</question_type>
+            <question_value>Yes, from my clinician</question_value>
+        </question_answer>
     </question_answers>
 </survey_response>

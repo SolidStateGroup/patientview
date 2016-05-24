@@ -125,9 +125,11 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
         $scope.surveyResponses[0].isLatest = true;
         $scope.latestSurveyResponse = $scope.surveyResponses[0];
 
+        var i, j;
+
         // generate date options used in select when comparing responses to latest
         var surveyResponseSelectOptions = [];
-        for (var i = 0; i < $scope.surveyResponses.length; i++) {
+        for (i = 0; i < $scope.surveyResponses.length; i++) {
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
                 surveyResponseSelectOptions.push({
                     'id': $scope.surveyResponses[i].id,
@@ -155,6 +157,22 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
 
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
+
+        // if second group of questions exist store in array to be used for PAM score and PAM level
+        if ($scope.survey.questionGroups[1] != undefined
+            && $scope.survey.questionGroups[1] != null
+            && $scope.survey.questionGroups[1].questions.length) {
+            var otherQuestions = [];
+            for (i = 0; i < $scope.survey.questionGroups[1].questions.length; i++) {
+                var question = $scope.survey.questionGroups[1].questions[i];
+                for (j = 0; j < $scope.latestSurveyResponse.questionAnswers.length; j++) {
+                    if ($scope.latestSurveyResponse.questionAnswers[j].question.type == question.type) {
+                        otherQuestions[question.type] = $scope.latestSurveyResponse.questionAnswers[j].value;
+                    }
+                }
+            }
+            $scope.otherQuestions = otherQuestions;
+        }
     };
 
     $scope.showLevels = function() {
