@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,6 +24,10 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
 
     @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType")
     List<SurveyResponse> findByUserAndSurveyType(@Param("user") User user, @Param("surveyType") String surveyType);
+
+    @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType AND s.date = :date")
+    List<SurveyResponse> findByUserAndSurveyTypeAndDate(@Param("user") User user,
+                                                    @Param("surveyType") String surveyType, @Param("date") Date date);
 
     @Query("SELECT s FROM SurveyResponse s WHERE s.user = :user AND s.survey.type = :surveyType ORDER BY s.date DESC")
     Page<SurveyResponse> findLatestByUserAndSurveyType(@Param("user") User user, @Param("surveyType") String surveyType,

@@ -50,6 +50,28 @@ public class SurveyResponseRepositoryTest {
     }
 
     @Test
+    public void testFindByUserAndSurveyTypeAndDate() {
+        User user = dataTestUtils.createUser("TestUser");
+
+        Survey survey = new Survey();
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
+        surveyRepository.save(survey);
+
+        Date now = new Date();
+
+        SurveyResponse surveyResponse
+                = new SurveyResponse(user, 1, ScoreSeverity.LOW, now,
+                    SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+        surveyResponse.setSurvey(survey);
+        surveyResponseRepository.save(surveyResponse);
+
+        List<SurveyResponse> surveyResponses
+                = surveyResponseRepository.findByUserAndSurveyTypeAndDate(user, survey.getType(), now);
+        Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.size());
+        Assert.assertTrue("The symptom score should be the one created", surveyResponses.get(0).equals(surveyResponse));
+    }
+
+    @Test
     public void testFindByUserAndType() {
         User user = dataTestUtils.createUser("TestUser");
 
@@ -67,6 +89,7 @@ public class SurveyResponseRepositoryTest {
         Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.size());
         Assert.assertTrue("The symptom score should be the one created", surveyResponses.get(0).equals(surveyResponse));
     }
+
     @Test
     public void testFindLatestByUserAndType() {
         User user = dataTestUtils.createUser("TestUser");

@@ -257,7 +257,14 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             }
         }
 
+        // delete existing by user, type, date
+        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
+                identifiers.get(0).getUser(), surveyResponse.getSurveyType(),
+                surveyResponse.getDate().toGregorianCalendar().getTime()));
+
+        // save new
         surveyResponseRepository.save(newSurveyResponse);
+
         LOG.info(surveyResponse.getSurveyType() + " response added");
     }
 
