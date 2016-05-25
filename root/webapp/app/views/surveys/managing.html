@@ -66,6 +66,9 @@
         position: relative;
         top: 17px;
     }
+    .score-span {
+        font-weight: bold;
+    }
 </style>
 
 <div class="row">
@@ -144,7 +147,7 @@
                             <tbody>
                             <tr data-ng-repeat="row in tableRows track by $index">
                                 <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                                    {{cell.text}}
+                                    <span data-ng-class="{'score-span': cell.isScore}">{{cell.text}}</span>
                                 </td>
                             </tr>
                             </tbody>

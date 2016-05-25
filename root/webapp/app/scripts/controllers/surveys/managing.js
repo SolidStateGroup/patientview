@@ -73,10 +73,10 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
                 tableRows[questions.length] = {};
                 tableRows[questions.length].type = questionType;
                 tableRows[questions.length].data = [];
-                tableRows[questions.length].data.push({'text':'Score'});
+                tableRows[questions.length].data.push({'text':'Score', 'isScore':true});
             }
 
-            tableRows[questions.length].data.push({'text': score, 'isLatest':response.isLatest});
+            tableRows[questions.length].data.push({'text': score, 'isLatest':response.isLatest, 'isScore':true});
         }
 
         $scope.tableHeader = tableHeader;
