@@ -29,6 +29,9 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             var response = visibleResponses[i];
             var questionAnswers = _.sortBy(response.questionAnswers, 'question.displayOrder');
 
+            // score is special question type PAM_SCORE, may be moved to score element
+            var score = '-';
+
             // header other columns
             var dateString = $scope.filterDate(response.date);
             tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
@@ -38,6 +41,10 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             var questionAnswerMap = [];
             for (j = 0; j < questionAnswers.length; j++) {
                 questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
+
+                if (questionAnswers[j].question.type == 'PAM_SCORE') {
+                    score = questionAnswers[j].value;
+                }
             }
 
             for (j = 0; j < questions.length; j++) {
@@ -60,6 +67,16 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
                 // set response text, e.g. Moderately
                 tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
+
+            // special score row
+            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
+                tableRows[questions.length] = {};
+                tableRows[questions.length].type = questionType;
+                tableRows[questions.length].data = [];
+                tableRows[questions.length].data.push({'text':'Score'});
+            }
+
+            tableRows[questions.length].data.push({'text': score, 'isLatest':response.isLatest});
         }
 
         $scope.tableHeader = tableHeader;
