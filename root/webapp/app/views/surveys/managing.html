@@ -35,27 +35,35 @@
     .arrow-level-one {
         position: absolute;
         top: 480px;
-        color: #ADA6C6;
     }
     .arrow-level-two {
         position: absolute;
         top: 285px;
-        color: #AD554A;
     }
     .arrow-level-three {
         position: absolute;
         top: 235px;
-        color: #A5BA39;
     }
     .arrow-level-four {
         position: absolute;
         top: 180px;
-        color: #F7aB00;
     }
     .arrow-level-text {
         position: relative;
         left: -10px;
         font-weight: bold;
+    }
+    .text-level-one {
+        color: #ADA6C6;
+    }
+    .text-level-two {
+        color: #AD554A;
+    }
+    .text-level-three {
+        color: #A5BA39;
+    }
+    .text-level-four {
+        color: #F7aB00;
     }
     .your-score {
         font-size: 16px;
@@ -107,7 +115,13 @@
 
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
                     <p class="your-score">
-                        Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is <strong>level {{otherQuestions['PAM_LEVEL']}}</strong>.
+                        Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is
+                        <strong>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 1" class="text-level-one">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 2" class="text-level-two">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 3" class="text-level-three">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 4" class="text-level-four">level {{otherQuestions['PAM_LEVEL']}}</span>
+                        </strong>.
                         <a href="" data-ng-click="showLevels()">Tell me more about activation levels</a>.
                     </p>
                     <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
@@ -121,16 +135,16 @@
                                 <div class="arrow-score-text">{{otherQuestions['PAM_SCORE']}}</div>
                             </div>
                             <div class="arrow-level-one">
-                                <div class="arrow-level-text">Level 1</div>
+                                <div class="arrow-level-text text-level-one">Level 1</div>
                             </div>
                             <div class="arrow-level-two">
-                                <div class="arrow-level-text">Level 2</div>
+                                <div class="arrow-level-text text-level-two">Level 2</div>
                             </div>
                             <div class="arrow-level-three">
-                                <div class="arrow-level-text">Level 3</div>
+                                <div class="arrow-level-text text-level-three">Level 3</div>
                             </div>
                             <div class="arrow-level-four">
-                                <div class="arrow-level-text">Level 4</div>
+                                <div class="arrow-level-text text-level-four">Level 4</div>
                             </div>
                         </div>
                     </div>
