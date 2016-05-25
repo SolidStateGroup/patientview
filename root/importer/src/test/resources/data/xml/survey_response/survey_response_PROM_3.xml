@@ -1,11 +1,11 @@
 <survey_response>
     <survey_type>PROM</survey_type>
     <identifier>ibdtest1</identifier>
-    <date>2015-10-01T00:00:00</date>
+    <date>2016-04-01T00:00:00</date>
     <question_answers>
         <question_answer>
             <question_type>YSQ1</question_type>
-            <question_option>5</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ2</question_type>
@@ -17,7 +17,7 @@
         </question_answer>
         <question_answer>
             <question_type>YSQ4</question_type>
-            <question_option>5</question_option>
+            <question_option>4</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ5</question_type>
@@ -25,15 +25,15 @@
         </question_answer>
         <question_answer>
             <question_type>YSQ6</question_type>
-            <question_option>3</question_option>
+            <question_option>1</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ7</question_type>
-            <question_option>5</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ8</question_type>
-            <question_option>1</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ9</question_type>
@@ -49,11 +49,11 @@
         </question_answer>
         <question_answer>
             <question_type>YSQ12</question_type>
-            <question_option>5</question_option>
+            <question_option>4</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ13</question_type>
-            <question_option>1</question_option>
+            <question_option>5</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ14</question_type>
@@ -65,11 +65,11 @@
         </question_answer>
         <question_answer>
             <question_type>YSQ16</question_type>
-            <question_option>4</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>YSQ17</question_type>
-            <question_option>5</question_option>
+            <question_option>1</question_option>
         </question_answer>
     </question_answers>
 </survey_response>

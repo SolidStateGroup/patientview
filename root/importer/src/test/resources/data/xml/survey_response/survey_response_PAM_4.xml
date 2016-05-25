@@ -1,15 +1,15 @@
 <survey_response>
     <survey_type>PAM</survey_type>
     <identifier>ibdtest1</identifier>
-    <date>2016-01-01T00:00:00</date>
+    <date>2016-07-01T00:00:00</date>
     <question_answers>
         <question_answer>
             <question_type>MYHQ1</question_type>
-            <question_option>1</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ2</question_type>
-            <question_option>4</question_option>
+            <question_option>3</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ3</question_type>
@@ -17,11 +17,11 @@
         </question_answer>
         <question_answer>
             <question_type>MYHQ4</question_type>
-            <question_option>5</question_option>
+            <question_option>4</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ5</question_type>
-            <question_option>5</question_option>
+            <question_option>4</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ6</question_type>
@@ -29,11 +29,11 @@
         </question_answer>
         <question_answer>
             <question_type>MYHQ7</question_type>
-            <question_option>2</question_option>
+            <question_option>4</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ8</question_type>
-            <question_option>3</question_option>
+            <question_option>5</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ9</question_type>
@@ -41,7 +41,7 @@
         </question_answer>
         <question_answer>
             <question_type>MYHQ10</question_type>
-            <question_option>4</question_option>
+            <question_option>2</question_option>
         </question_answer>
         <question_answer>
             <question_type>MYHQ11</question_type>
@@ -57,7 +57,7 @@
         </question_answer>
         <question_answer>
             <question_type>PAM_SCORE</question_type>
-            <question_value>80.0</question_value>
+            <question_value>75.0</question_value>
         </question_answer>
         <question_answer>
             <question_type>PAM_LEVEL</question_type>
@@ -69,7 +69,7 @@
         </question_answer>
         <question_answer>
             <question_type>HAD_HELP</question_type>
-            <question_value>No</question_value>
+            <question_value>Not this time</question_value>
         </question_answer>
     </question_answers>
 </survey_response>

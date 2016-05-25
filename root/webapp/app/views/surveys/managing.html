@@ -54,6 +54,12 @@
     .your-score {
         font-size: 16px;
     }
+    .table-description-text {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 17px;
+    }
 </style>
 
 <div class="row">
@@ -93,15 +99,12 @@
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
                     <p class="your-score">
                         Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is <strong>level {{otherQuestions['PAM_LEVEL']}}</strong>.
-                        <a href="" data-ng-click="showLevels()">Tell me more</a>.
+                        <a href="" data-ng-click="showLevels()">Tell me more about activation levels</a>.
                     </p>
-                    <p>Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
+                    <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-12">
-                        <p>The following table shows your results which calculate your overall activation score.</p>
-                    </div>
                     <div class="col-md-2">
                         <br/>
                         <div class="arrow-div">
@@ -123,6 +126,7 @@
                         </div>
                     </div>
                     <div class="col-md-10">
+                        <p class="table-description-text">The following table shows your results which calculate your overall activation score.</p>
                         <table class="table">
                             <thead>
                             <tr>

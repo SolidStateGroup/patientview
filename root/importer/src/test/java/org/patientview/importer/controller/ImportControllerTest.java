@@ -88,8 +88,8 @@ public class ImportControllerTest {
         //String fileName = "data/xml/survey/survey_EQ5D_1.xml";
         //String fileName = "data/xml/survey/survey_PROMS_1.xml";
         //String fileName = "data/xml/survey/survey_PAMS_1.xml";
-        //String fileName = "data/xml/survey/survey_PROM_1.xml";
-        String fileName = "data/xml/survey/survey_PAM_1.xml";
+        String fileName = "data/xml/survey/survey_PROM_1.xml";
+        //String fileName = "data/xml/survey/survey_PAM_1.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -106,6 +106,31 @@ public class ImportControllerTest {
         HttpResponse httpResponse = httpClient.execute(post);
         LOG.info(httpResponse.toString());
     }
+    @Test
+    @Ignore
+    public void testBulkSurveyDescriptionImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/survey/survey_PROM_1.xml");
+        files.add("data/xml/survey/survey_PAM_1.xml");
+        files.add("data/xml/survey/survey_EQ5D_1.xml");
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            //String postUrl="http://localhost:8081/importer/import/survey";
+            String postUrl = "https://test.patientview.org/importer/import/survey";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
+    }
 
     @Test
     @Ignore
@@ -115,9 +140,9 @@ public class ImportControllerTest {
         //String fileName = "data/xml/survey_response/survey_response_EQ5D_1.xml";
         //String fileName = "data/xml/survey_response/survey_response_EQ5D_2_missing.xml";
         //String fileName = "data/xml/survey_response/survey_response_PAMS_1.xml";
-        //String fileName = "data/xml/survey_response/survey_response_PROM_1.xml";
+        String fileName = "data/xml/survey_response/survey_response_PROM_1.xml";
         //String fileName = "data/xml/survey_response/survey_response_PAM_1.xml";
-        String fileName = "data/xml/survey_response/survey_response_PAM_3.xml";
+        //String fileName = "data/xml/survey_response/survey_response_PAM_3.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
@@ -133,6 +158,41 @@ public class ImportControllerTest {
         post.setHeader("Content-type", "application/xml");
         HttpResponse httpResponse = httpClient.execute(post);
         LOG.info(httpResponse.toString());
+    }
+
+    @Test
+    @Ignore
+    public void testBulkSurveyResponseImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/survey_response/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_2.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_3.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_4.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_1.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_2.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_3.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_4.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_1.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_2.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_3.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            //String postUrl="http://localhost:8081/importer/import/surveyresponse";
+            String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
     }
 
     /**

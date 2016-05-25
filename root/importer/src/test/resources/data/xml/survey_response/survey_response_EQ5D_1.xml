@@ -1,7 +1,7 @@
 <survey_response>
     <survey_type>EQ5D</survey_type>
     <identifier>ibdtest1</identifier>
-    <date>2016-05-10T16:37:18</date>
+    <date>2015-10-01T00:00:00</date>
     <question_answers>
         <question_answer>
             <question_type>YOHQ1</question_type>
