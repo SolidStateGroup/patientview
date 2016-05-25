@@ -38,13 +38,20 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
 
         if ($scope.observations) {
+            // use min and max date to only include observations within 3 months or survey data
+            var minDate = moment($scope.minDate).subtract(3, 'months').valueOf();
+            var maxDate = moment($scope.maxDate).add(3, 'months').valueOf();
+
             for (i = $scope.observations.length - 1; i >= 0; i--) {
                 var observation = $scope.observations[i];
-                xAxis[observation.applies] = observation.applies;
 
-                // don't display textual results on graph
-                if (!isNaN(parseFloat(observation.value))) {
-                    obsData.push({'date':observation.applies, 'value':parseFloat(observation.value)});
+                if (observation.applies > minDate && observation.applies < maxDate) {
+                    xAxis[observation.applies] = observation.applies;
+
+                    // don't display textual results on graph
+                    if (!isNaN(parseFloat(observation.value))) {
+                        obsData.push({'date': observation.applies, 'value': parseFloat(observation.value)});
+                    }
                 }
             }
         }
@@ -85,7 +92,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         var numericText = '';
         if (!obsData.length) {
-            numericText = ' (no numeric data)'
+            numericText = ' (no data)'
         }
 
         if ($scope.observations) {
@@ -168,6 +175,10 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         var tableHeader = [];
         var i, j;
 
+        // min and max dates to show results
+        var minDate = 9999999999999;
+        var maxDate = 0;
+
         // header left most column
         tableHeader.push({'text':'Your Symptoms'});
 
@@ -178,6 +189,14 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             // header other columns
             var dateString = $scope.filterDate(response.date);
             tableHeader.push({'text':dateString, 'isLatest':response.isLatest});
+
+            // set min and max date (used when showing results)
+            if (response.date > maxDate) {
+                maxDate = response.date;
+            }
+            if (response.date < minDate) {
+                minDate = response.date;
+            }
 
             // rows
             var questions = $scope.questions;
@@ -210,6 +229,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         $scope.tableHeader = tableHeader;
         $scope.tableRows = tableRows;
+        $scope.minDate = minDate;
+        $scope.maxDate = maxDate;
     };
 
     $scope.compareResults = function(code) {
