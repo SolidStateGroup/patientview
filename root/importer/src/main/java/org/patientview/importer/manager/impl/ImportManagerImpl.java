@@ -185,7 +185,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     + "' added");
 
             // audit
-            auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, null, null, null, xml, importerUserId);
+            auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, surveyResponse.getIdentifier(), null, null,
+                    xml, importerUserId);
         } catch (Exception e) {
             LOG.error(surveyResponse.getIdentifier() + ": survey response type '" + surveyResponse.getSurveyType()
                     + "' process error");
