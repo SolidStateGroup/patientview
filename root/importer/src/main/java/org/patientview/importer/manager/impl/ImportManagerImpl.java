@@ -190,7 +190,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     @Override
-    public void process(SurveyResponse surveyResponse) throws ImportResourceException {
+    public void process(SurveyResponse surveyResponse, String xml, Long importerUserId) throws ImportResourceException {
         org.patientview.persistence.model.SurveyResponse newSurveyResponse
                 = new org.patientview.persistence.model.SurveyResponse();
 
@@ -267,6 +267,10 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         surveyResponseRepository.save(newSurveyResponse);
 
         LOG.info(surveyResponse.getSurveyType() + " response added");
+
+        // audit
+        auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS,
+                surveyResponse.getIdentifier(), null, null, xml, importerUserId);
     }
 
     void throwImportResourceException(String error) throws ImportResourceException {

@@ -36,7 +36,7 @@ public interface ImportManager {
      * @param surveyResponse SurveyResponse generated from SurveyResponse XML, used to describe responses to a Survey
      * @throws ImportResourceException
      */
-    void process(SurveyResponse surveyResponse) throws ImportResourceException;
+    void process(SurveyResponse surveyResponse, String xml, Long importerUserId) throws ImportResourceException;
 
     /**
      * Validate that imported patient data meets requirements for storing, patient and group exist in PatientView.

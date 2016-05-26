@@ -6,11 +6,14 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.manager.ImportManager;
+import org.patientview.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,17 +31,32 @@ import java.util.concurrent.ExecutorService;
 @Component
 public class QueueProcessorSurveyResponse extends DefaultConsumer {
 
-    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurveyResponse.class);
-
     @Inject
-    private ExecutorService executor;
+    private AuditService auditService;
 
     private Channel channel;
 
     @Inject
+    private ExecutorService executor;
+
+    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurveyResponse.class);
+
+    @Inject
     private ImportManager importManager;
 
+    private Long importerUserId;
+
     private final static String QUEUE_NAME = "survey_response_import";
+
+    @PostConstruct
+    public void init() throws ResourceNotFoundException {
+        try {
+            importerUserId = auditService.getImporterUserId();
+        } catch (ResourceNotFoundException e) {
+            LOG.error(e.getMessage());
+            throw e;
+        }
+    }
 
     @Inject
     public QueueProcessorSurveyResponse(@Named(value = "read") Channel channel) {
@@ -84,7 +102,7 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
             // Process XML (already validated before being added to queue)
             if (!fail) {
                 try {
-                    importManager.process(surveyResponse);
+                    importManager.process(surveyResponse, message, importerUserId);
                 } catch (ImportResourceException ire) {
                     LOG.error("Survey type '" + surveyResponse.getSurveyType() + "' could not be added", ire);
                 }
