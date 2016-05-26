@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.SurveyResponse;
@@ -29,20 +29,22 @@ import java.util.List;
 public class SurveyResponseController extends BaseController<SurveyResponseController> {
 
     @Inject
-    private SurveyResponseService surveyResponseService;
+    private ApiSurveyResponseService apiSurveyResponseService;
 
     @RequestMapping(value = "/user/{userId}/surveyresponses", method = RequestMethod.POST)
     @ResponseBody
     public void add(@PathVariable("userId") Long userId, @RequestBody SurveyResponse surveyResponse)
             throws ResourceForbiddenException, ResourceNotFoundException {
-        surveyResponseService.add(userId, surveyResponse);
+        apiSurveyResponseService.add(userId, surveyResponse);
     }
 
     @RequestMapping(value = "/user/{userId}/surveyresponses/{surveyResponseId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<SurveyResponse> get(@PathVariable("userId") Long userId,
-                                              @PathVariable("surveyResponseId") Long surveyResponseId) throws ResourceNotFoundException {
-        return new ResponseEntity<>(surveyResponseService.getSurveyResponse(userId, surveyResponseId), HttpStatus.OK);
+                                              @PathVariable("surveyResponseId") Long surveyResponseId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(
+                apiSurveyResponseService.getSurveyResponse(userId, surveyResponseId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/surveyresponses/type/{surveyType}", method = RequestMethod.GET)
@@ -50,7 +52,8 @@ public class SurveyResponseController extends BaseController<SurveyResponseContr
     public ResponseEntity<List<SurveyResponse>> getByUserAndSurveyType(
             @PathVariable("userId") Long userId, @PathVariable("surveyType") String surveyType)
             throws ResourceNotFoundException {
-        return new ResponseEntity<>(surveyResponseService.getByUserIdAndSurveyType(userId, surveyType), HttpStatus.OK);
+        return new ResponseEntity<>(
+                apiSurveyResponseService.getByUserIdAndSurveyType(userId, surveyType), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/surveyresponses/latest", method = RequestMethod.GET)
@@ -58,6 +61,7 @@ public class SurveyResponseController extends BaseController<SurveyResponseContr
     public ResponseEntity<List<SurveyResponse>> getLatestByUserAndSurveyType(
             @PathVariable("userId") Long userId, @RequestParam List<String> types)
             throws ResourceNotFoundException {
-        return new ResponseEntity<>(surveyResponseService.getLatestByUserIdAndSurveyType(userId, types), HttpStatus.OK);
+        return new ResponseEntity<>(
+                apiSurveyResponseService.getLatestByUserIdAndSurveyType(userId, types), HttpStatus.OK);
     }
 }

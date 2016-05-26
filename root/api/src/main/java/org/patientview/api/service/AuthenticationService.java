@@ -10,7 +10,6 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public interface AuthenticationService extends UserDetailsService {
      * @param credentials Credentials object containing username, password and api key if present
      * @return UserToken containing authentication token, used in all future authenticated requests
      * @throws AuthenticationServiceException
-     * @throws UsernameNotFoundException
      */
     UserToken authenticate(Credentials credentials) throws AuthenticationServiceException;
 
@@ -42,6 +40,12 @@ public interface AuthenticationService extends UserDetailsService {
      */
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
 
+    /**
+     * Authenticate importer user, must have API key
+     * @param credentials Credentials object containing username, password and api key
+     * @return UserToken containing authentication token, used in all future authenticated requests
+     * @throws AuthenticationServiceException
+     */
     UserToken authenticateImporter(Credentials credentials) throws AuthenticationServiceException;
 
     /**

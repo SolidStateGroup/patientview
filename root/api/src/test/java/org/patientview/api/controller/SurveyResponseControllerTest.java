@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -34,7 +34,7 @@ public class SurveyResponseControllerTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
-    private SurveyResponseService surveyResponseService;
+    private ApiSurveyResponseService apiSurveyResponseService;
 
     @InjectMocks
     private SurveyResponseController surveyResponseController;

@@ -5,7 +5,7 @@ import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
-import org.patientview.api.service.SurveyResponseService;
+import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -77,8 +77,8 @@ import java.util.Set;
  * Created on 05/06/2015
  */
 @Service
-public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyResponseServiceImpl>
-        implements SurveyResponseService {
+public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyResponseServiceImpl>
+        implements ApiSurveyResponseService {
 
     @Inject
     private ConversationRepository conversationRepository;
@@ -638,7 +638,8 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     @Override
-    public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types) throws ResourceNotFoundException {
+    public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types)
+            throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -651,7 +652,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
         for (String type : types) {
             Page<SurveyResponse> latest
-                    = surveyResponseRepository.findLatestByUserAndSurveyType(user, type, new PageRequest(0,1));
+                    = surveyResponseRepository.findLatestByUserAndSurveyType(user, type, new PageRequest(0, 1));
             if (!CollectionUtils.isEmpty(latest.getContent())) {
                 responses.add(latest.getContent().get(0));
             }

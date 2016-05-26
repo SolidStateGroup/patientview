@@ -724,7 +724,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         try {
             observations
-                    = apiObservationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
+                = apiObservationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
         } catch (FhirResourceException | ResourceNotFoundException | ResourceForbiddenException e) {
             return getErrorXml("Error getting results");
         }

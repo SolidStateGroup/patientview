@@ -19,7 +19,6 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FileDataRepository;

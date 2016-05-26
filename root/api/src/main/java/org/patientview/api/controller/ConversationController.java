@@ -236,7 +236,8 @@ public class ConversationController extends BaseController<ConversationControlle
     @ResponseBody
     public ResponseEntity<Long> getStaffRecipientCountByFeature(@PathVariable("userId") Long userId,
             @PathVariable(value = "featureName") String featureName) throws ResourceNotFoundException {
-        return new ResponseEntity<>(conversationService.getStaffRecipientCountByFeature(userId, featureName), HttpStatus.OK);
+        return new ResponseEntity<>(
+                conversationService.getStaffRecipientCountByFeature(userId, featureName), HttpStatus.OK);
     }
 
     /**

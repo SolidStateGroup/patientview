@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.enums.DummyUsernames;
-import org.patientview.api.service.impl.SurveyResponseServiceImpl;
+import org.patientview.api.service.impl.ApiSurveyResponseServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
  */
-public class SurveyResponseServiceTest {
+public class ApiSurveyResponseServiceTest {
 
     User creator;
 
@@ -112,7 +112,7 @@ public class SurveyResponseServiceTest {
     UserTokenRepository userTokenRepository;
 
     @InjectMocks
-    SurveyResponseService surveyResponseService = new SurveyResponseServiceImpl();
+    ApiSurveyResponseService apiSurveyResponseService = new ApiSurveyResponseServiceImpl();
 
     @Before
     public void setup() {
@@ -212,7 +212,7 @@ public class SurveyResponseServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(eq(notificationsUser.getUsername())))
                 .thenReturn(notificationsUser);
 
-        surveyResponseService.add(user.getId(), surveyResponse);
+        apiSurveyResponseService.add(user.getId(), surveyResponse);
 
         verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
         verify(conversationRepository, Mockito.times(1)).save(any(Conversation.class));
@@ -299,7 +299,7 @@ public class SurveyResponseServiceTest {
         when(userRepository.findStaffByGroupsRolesFeatures(eq("%%"), any(List.class), any(List.class), any(List.class),
                 any(Pageable.class))).thenReturn(new PageImpl<>(staffUsers));
 
-        surveyResponseService.add(user.getId(), surveyResponse);
+        apiSurveyResponseService.add(user.getId(), surveyResponse);
 
         verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
     }
@@ -389,7 +389,7 @@ public class SurveyResponseServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(eq(notificationsUser.getUsername())))
                 .thenReturn(notificationsUser);
 
-        surveyResponseService.add(user.getId(), surveyResponse);
+        apiSurveyResponseService.add(user.getId(), surveyResponse);
 
         verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
         verify(conversationRepository, Mockito.times(0)).save(any(Conversation.class));
@@ -428,7 +428,7 @@ public class SurveyResponseServiceTest {
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(surveyResponseRepository.findByUserAndSurveyType(eq(user), eq(survey.getType())))
                 .thenReturn(surveyResponses);
-        List<SurveyResponse> returned = surveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
+        List<SurveyResponse> returned = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
 
         verify(surveyResponseRepository, Mockito.times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
@@ -470,7 +470,7 @@ public class SurveyResponseServiceTest {
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(surveyResponseRepository.findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class))).thenReturn(new PageImpl<>(surveyResponses));
-        List<SurveyResponse> returned = surveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
+        List<SurveyResponse> returned = apiSurveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
 
         verify(surveyResponseRepository, Mockito.times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class));

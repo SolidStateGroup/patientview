@@ -13,7 +13,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015
  */
-public interface SurveyResponseService {
+public interface ApiSurveyResponseService {
 
     @UserOnly
     void add(Long userId, SurveyResponse surveyResponse) throws ResourceForbiddenException, ResourceNotFoundException;
