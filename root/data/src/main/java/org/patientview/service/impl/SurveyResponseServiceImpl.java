@@ -1,14 +1,18 @@
 package org.patientview.service.impl;
 
-import generated.SurveyResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.patientview.builder.SurveyResponseBuilder;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
+import org.patientview.persistence.model.Survey;
+import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.util.Util;
@@ -34,46 +38,69 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     IdentifierRepository identifierRepository;
 
     @Inject
+    SurveyResponseRepository surveyResponseRepository;
+
+    @Inject
     SurveyService surveyService;
 
-    void throwImportResourceException(String error) throws ImportResourceException {
-        //LOG.error(error);
-        throw new ImportResourceException(error);
+    @Override
+    @Transactional
+    public SurveyResponse add(generated.SurveyResponse surveyResponse) throws Exception {
+        // user
+        List<Identifier> identifiers = identifierRepository.findByValue(surveyResponse.getIdentifier());
+        User user = identifiers.get(0).getUser();
+
+        // survey
+        Survey survey = surveyService.getByType(surveyResponse.getSurveyType());
+
+        // build
+        SurveyResponse newSurveyResponse = new SurveyResponseBuilder(surveyResponse, survey, user).build();
+
+        // delete existing by user, type, date
+        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
+                user, surveyResponse.getSurveyType(),
+                surveyResponse.getDate().toGregorianCalendar().getTime()));
+
+        // save new
+        surveyResponseRepository.save(newSurveyResponse);
+
+        return newSurveyResponse;
     }
 
     @Override
     @Transactional
-    public void validate(SurveyResponse surveyResponse) throws ImportResourceException {
+    public void validate(generated.SurveyResponse surveyResponse) throws ImportResourceException {
         if (StringUtils.isEmpty(surveyResponse.getSurveyType())) {
-            throwImportResourceException("Survey type must be defined");
+            throw new ImportResourceException("Survey type must be defined");
         }
         org.patientview.persistence.model.Survey survey = surveyService.getByType(surveyResponse.getSurveyType());
         if (survey == null) {
-            throwImportResourceException("Survey type '" + surveyResponse.getSurveyType() + "' is not defined");
+            throw new ImportResourceException("Survey type '" + surveyResponse.getSurveyType() + "' is not defined");
         }
         if (CollectionUtils.isEmpty(survey.getQuestionGroups())) {
-            throwImportResourceException("Survey type '" + surveyResponse.getSurveyType()
+            throw new ImportResourceException("Survey type '" + surveyResponse.getSurveyType()
                     + "' does not have any questions");
         }
         if (StringUtils.isEmpty(surveyResponse.getIdentifier())) {
-            throwImportResourceException("Identifier must be set");
+            throw new ImportResourceException("Identifier must be set");
         }
         if (surveyResponse.getDate() == null) {
-            throwImportResourceException("Date must be set");
+            throw new ImportResourceException("Date must be set");
         }
         List<Identifier> identifiers = identifierRepository.findByValue(surveyResponse.getIdentifier());
         if (CollectionUtils.isEmpty(identifiers)) {
-            throwImportResourceException("No patient found with identifier '" + surveyResponse.getIdentifier() + "'");
+            throw new ImportResourceException("No patient found with identifier '"
+                    + surveyResponse.getIdentifier() + "'");
         }
         if (identifiers.size() != 1) {
-            throwImportResourceException("Multiple identifiers found with value '" + surveyResponse.getIdentifier()
+            throw new ImportResourceException("Multiple identifiers found with value '" + surveyResponse.getIdentifier()
                     + "'");
         }
         if (surveyResponse.getQuestionAnswers() == null) {
-            throwImportResourceException("Must have survey question answers");
+            throw new ImportResourceException("Must have survey question answers");
         }
         if (CollectionUtils.isEmpty(surveyResponse.getQuestionAnswers().getQuestionAnswer())) {
-            throwImportResourceException("Must have at least one survey question answer");
+            throw new ImportResourceException("Must have at least one survey question answer");
         }
 
         // answers
@@ -86,14 +113,14 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
         List<String> includedQuestionTypes = new ArrayList<>();
 
-        for (SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
+        for (generated.SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
                 : surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
             if (StringUtils.isEmpty(questionAnswer.getQuestionType())) {
-                throwImportResourceException("All answers must have a question type");
+                throw new ImportResourceException("All answers must have a question type");
             }
             Question question = questionMap.get(questionAnswer.getQuestionType());
             if (question == null) {
-                throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
                         + "' does not match any questions for survey type '"
                         + surveyResponse.getSurveyType() + "'");
             }
@@ -103,13 +130,13 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             if (CollectionUtils.isEmpty(questionOptions)) {
                 // simple value response expected
                 if (StringUtils.isEmpty(questionAnswer.getQuestionValue())) {
-                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
                             + "' must have a value set (is a value based question)");
                 }
             } else {
                 // option response expected
                 if (StringUtils.isEmpty(questionAnswer.getQuestionOption())) {
-                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
                             + "' must have an option set (is an option based question)");
                 }
                 // check option in survey question answer is in list of actual question options
@@ -120,14 +147,14 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
                     }
                 }
                 if (!found) {
-                    throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
                             + "' must have a known option (is an option based question)");
                 }
             }
 
             // check no duplicate questions
             if (includedQuestionTypes.contains(question.getType())) {
-                throwImportResourceException("Question type '" + question.getType() + "' is duplicated");
+                throw new ImportResourceException("Question type '" + question.getType() + "' is duplicated");
             }
             includedQuestionTypes.add(question.getType());
         }
@@ -135,20 +162,20 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         // scores
         if (surveyResponse.getSurveyResponseScores() != null) {
             if (CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
-                throwImportResourceException("Scores must be defined");
+                throw new ImportResourceException("Scores must be defined");
             }
-            for (SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore
+            for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore
                     : surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
                 if (StringUtils.isEmpty(surveyResponseScore.getType())) {
-                    throwImportResourceException("Score type must be defined");
+                    throw new ImportResourceException("Score type must be defined");
                 }
                 if (surveyResponseScore.getScore() == null) {
-                    throwImportResourceException("Score for type '" + surveyResponseScore.getType()
+                    throw new ImportResourceException("Score for type '" + surveyResponseScore.getType()
                             + "' must be defined");
                 }
                 if (surveyResponseScore.getSeverity() != null
                         && !Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
-                    throwImportResourceException("Score severity must be a known severity type");
+                    throw new ImportResourceException("Score severity must be a known severity type");
                 }
             }
         }

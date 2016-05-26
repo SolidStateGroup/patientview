@@ -95,7 +95,7 @@
                 <question>
                     <element_type>SINGLE_SELECT</element_type>
                     <html_type>SELECT</html_type>
-                    <type>COMPLICATIONS</type>
+                    <type>COMPLICATION</type>
                     <text>Do you have any complications from your IBD?</text>
                     <description></description>
                     <number></number>

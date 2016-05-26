@@ -3,7 +3,6 @@ package org.patientview.importer.manager.impl;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -11,19 +10,8 @@ import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Question;
-import org.patientview.persistence.model.QuestionAnswer;
-import org.patientview.persistence.model.QuestionGroup;
-import org.patientview.persistence.model.QuestionOption;
-import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.QuestionElementTypes;
-import org.patientview.persistence.model.enums.QuestionHtmlTypes;
-import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.service.AllergyService;
 import org.patientview.service.AuditService;
 import org.patientview.service.ConditionService;
@@ -36,16 +24,13 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.OrganizationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.PractitionerService;
+import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -81,9 +66,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private GroupRepository groupRepository;
 
     @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
     private MedicationService medicationService;
 
     @Inject
@@ -102,7 +84,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private SurveyService surveyService;
 
     @Inject
-    private SurveyResponseRepository surveyResponseRepository;
+    private SurveyResponseService surveyResponseService;
 
     @Override
     public void process(Patientview patientview, String xml, Long importerUserId) throws ImportResourceException {
@@ -187,98 +169,33 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             auditService.createAudit(AuditActions.SURVEY_SUCCESS, null, null, null, xml, importerUserId);
         } catch (Exception e) {
             LOG.error("Survey setup data type '" + survey.getType() + "' process error", e);
+
+            // audit
+            auditService.createAudit(AuditActions.SURVEY_FAIL, null, null, null, xml, importerUserId);
+
             throw new ImportResourceException(e.getMessage());
         }
     }
 
     @Override
     public void process(SurveyResponse surveyResponse, String xml, Long importerUserId) throws ImportResourceException {
-        org.patientview.persistence.model.SurveyResponse newSurveyResponse
-                = new org.patientview.persistence.model.SurveyResponse();
+        try {
+            surveyResponseService.add(surveyResponse);
+            LOG.info(surveyResponse.getIdentifier() + ": survey response type '" + surveyResponse.getSurveyType()
+                    + "' added");
 
-        // date
-        newSurveyResponse.setDate(surveyResponse.getDate().toGregorianCalendar().getTime());
+            // audit
+            auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, null, null, null, xml, importerUserId);
+        } catch (Exception e) {
+            LOG.error(surveyResponse.getIdentifier() + ": survey response type '" + surveyResponse.getSurveyType()
+                    + "' process error");
 
-        // user
-        List<Identifier> identifiers = identifierRepository.findByValue(surveyResponse.getIdentifier());
-        newSurveyResponse.setUser(identifiers.get(0).getUser());
+            // audit
+            auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL,
+                    surveyResponse.getIdentifier(), null, null, xml, importerUserId);
 
-        // survey
-        org.patientview.persistence.model.Survey survey = surveyService.getByType(surveyResponse.getSurveyType());
-        newSurveyResponse.setSurvey(survey);
-
-        // create map of question types to Questions
-        Map<String, Question> questionMap = new HashMap<>();
-        for (QuestionGroup questionGroup : survey.getQuestionGroups()) {
-            for (Question question : questionGroup.getQuestions()) {
-                questionMap.put(question.getType(), question);
-            }
+            throw new ImportResourceException(e.getMessage());
         }
-
-        // question answers
-        for (SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
-                : surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
-            // get question
-            Question question = questionMap.get(questionAnswer.getQuestionType());
-            QuestionAnswer newQuestionAnswer = new QuestionAnswer();
-            newQuestionAnswer.setQuestion(question);
-            newQuestionAnswer.setSurveyResponse(newSurveyResponse);
-
-            if (StringUtils.isNotEmpty(questionAnswer.getQuestionOption())) {
-                // is a question answer with an option, get question options for this question
-                Map<String, QuestionOption> questionOptionMap = new HashMap<>();
-                for (QuestionOption questionOption : question.getQuestionOptions()) {
-                    questionOptionMap.put(questionOption.getType(), questionOption);
-                }
-                newQuestionAnswer.setQuestionOption(questionOptionMap.get(questionAnswer.getQuestionOption()));
-            } else {
-                // is a simple value question answer
-                newQuestionAnswer.setValue(questionAnswer.getQuestionValue());
-            }
-
-            newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
-        }
-
-        // scores
-        if (surveyResponse.getSurveyResponseScores() != null
-                && !CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
-            for (SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore :
-                  surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
-                SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
-                if (surveyResponseScore.getScore() != null) {
-                    newSurveyResponseScore.setScore(surveyResponseScore.getScore().intValue());
-                }
-                if (StringUtils.isNotEmpty(surveyResponseScore.getSeverity().toString())) {
-                    if (Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
-                        newSurveyResponseScore.setSeverity(
-                                ScoreSeverity.valueOf(surveyResponseScore.getSeverity().toString()));
-                    }
-                }
-                newSurveyResponseScore.setSurveyResponse(newSurveyResponse);
-                newSurveyResponseScore.setType(surveyResponseScore.getType());
-                newSurveyResponse.getSurveyResponseScores().add(newSurveyResponseScore);
-            }
-        }
-
-        // delete existing by user, type, date
-        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
-                identifiers.get(0).getUser(), surveyResponse.getSurveyType(),
-                surveyResponse.getDate().toGregorianCalendar().getTime()));
-
-        // save new
-        surveyResponseRepository.save(newSurveyResponse);
-
-        LOG.info(surveyResponse.getIdentifier() + ": survey response type '" + surveyResponse.getSurveyType()
-                + "' added");
-
-        // audit
-        auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS,
-                surveyResponse.getIdentifier(), null, null, xml, importerUserId);
-    }
-
-    void throwImportResourceException(String error) throws ImportResourceException {
-        //LOG.error(error);
-        throw new ImportResourceException(error);
     }
 
     @Override
@@ -287,75 +204,14 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         try {
             patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
-            throwImportResourceException("Patient with identifier '"
+            throw new ImportResourceException("Patient with identifier '"
                     + patientview.getPatient().getPersonaldetails().getNhsno() + "' does not exist in PatientView");
         }
 
         // Group exists
         if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
-            throwImportResourceException("Group with code '" + patientview.getCentredetails().getCentrecode()
+            throw new ImportResourceException("Group with code '" + patientview.getCentredetails().getCentrecode()
                     + "' does not exist in PatientView");
-        }
-    }
-
-    @Override
-    public void validate(Survey survey) throws ImportResourceException {
-        // survey validation
-        if (StringUtils.isEmpty(survey.getType())) {
-            throwImportResourceException("Survey type must be defined");
-        }
-        if (surveyService.getByType(survey.getType()) != null) {
-            throwImportResourceException("Survey type '" + survey.getType() + "' already defined");
-        }
-        if (survey.getQuestionGroups() == null) {
-            throwImportResourceException("Survey must have question groups");
-        }
-        if (CollectionUtils.isEmpty(survey.getQuestionGroups().getQuestionGroup())) {
-            throwImportResourceException("Survey must at least one question group");
-        }
-
-        // question group validation
-        for (Survey.QuestionGroups.QuestionGroup questionGroup : survey.getQuestionGroups().getQuestionGroup()) {
-            if (questionGroup.getQuestions() == null) {
-                throwImportResourceException("All question groups must contain questions");
-            }
-            if (CollectionUtils.isEmpty(questionGroup.getQuestions().getQuestion())) {
-                throwImportResourceException("All question groups must contain at least one question");
-            }
-            if (StringUtils.isEmpty(questionGroup.getText())) {
-                throwImportResourceException("All question groups must contain text");
-            }
-
-            // question validation
-            for (Survey.QuestionGroups.QuestionGroup.Questions.Question question :
-                questionGroup.getQuestions().getQuestion()) {
-                if (question.getElementType() == null) {
-                    throwImportResourceException("All questions must have an element type");
-                }
-                if (!Util.isInEnum(question.getElementType().toString(), QuestionElementTypes.class)) {
-                    throwImportResourceException("All questions must have a valid element type");
-                }
-                if (question.getHtmlType() == null) {
-                    throwImportResourceException("All questions must have an html type");
-                }
-                if (!Util.isInEnum(question.getHtmlType().toString(), QuestionHtmlTypes.class)) {
-                    throwImportResourceException("All questions must have a valid html type");
-                }
-                if (StringUtils.isEmpty(question.getText())) {
-                    throwImportResourceException("All questions must contain text");
-                }
-
-                // question option validation
-                if (question.getQuestionOptions() != null
-                        && !CollectionUtils.isEmpty(question.getQuestionOptions().getQuestionOption())) {
-                    for (Survey.QuestionGroups.QuestionGroup.Questions.Question.QuestionOptions.QuestionOption
-                            questionOption : question.getQuestionOptions().getQuestionOption()) {
-                        if (StringUtils.isEmpty(questionOption.getText())) {
-                            throwImportResourceException("All question options must contain text");
-                        }
-                    }
-                }
-            }
         }
     }
 

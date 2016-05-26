@@ -49,4 +49,14 @@ public class SurveyServiceTest extends BaseTest {
 
         assertNotNull("Should create Survey", saved);
     }
+
+    @Test
+    public void testValidateSurvey() throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(Survey.class).createUnmarshaller();
+        Survey survey = (Survey) unmarshaller.unmarshal(new File(
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/survey/survey_1.xml").toURI()));
+        Assert.assertNotNull("Should have Survey object", survey);
+
+        surveyService.validate(survey);
+    }
 }

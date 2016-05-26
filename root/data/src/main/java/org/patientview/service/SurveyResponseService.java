@@ -1,6 +1,7 @@
 package org.patientview.service;
 
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.persistence.model.SurveyResponse;
 
 /**
  * SurveyResponse service, used by importer
@@ -9,6 +10,15 @@ import org.patientview.config.exception.ImportResourceException;
  * Created on 26/05/2016
  */
 public interface SurveyResponseService {
+
+    /**
+     * Add a PatientView SurveyResponse given an XML-based generated SurveyResponse, used by importer.
+     *
+     * @param surveyResponse SurveyResponse generated from XML
+     * @return Saved PatientView SurveyResponse object
+     * @throws Exception
+     */
+    SurveyResponse add(generated.SurveyResponse surveyResponse) throws Exception;
 
     /**
      * Validate a SurveyResponse. Errors include:
