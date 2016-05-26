@@ -39,12 +39,12 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
     @Inject
     private ExecutorService executor;
 
-    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurveyResponse.class);
-
     @Inject
     private ImportManager importManager;
 
     private Long importerUserId;
+
+    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurveyResponse.class);
 
     private final static String QUEUE_NAME = "survey_response_import";
 
@@ -56,6 +56,11 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
             LOG.error(e.getMessage());
             throw e;
         }
+    }
+
+    @PreDestroy
+    public void shutdown() throws IOException {
+        channel.close();
     }
 
     @Inject
@@ -72,11 +77,6 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
         }
         this.channel = channel;
         LOG.info("Created queue processor for SurveyResponses with queue name '" + QUEUE_NAME + "'");
-    }
-
-    @PreDestroy
-    public void shutdown() throws IOException {
-        channel.close();
     }
 
     private class SurveyResponseTask implements Runnable {

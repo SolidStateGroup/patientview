@@ -26,14 +26,18 @@ public interface ImportManager {
     /**
      * Process a Survey object, used when adding new Surveys, generated from imported Survey XML.
      * @param survey Survey generated from Survey XML, used to describe a new Survey
+     * @param xml String of XML
+     * @param importerUserId Long ID of Importer User
      * @throws ImportResourceException
      */
-    void process(Survey survey) throws ImportResourceException;
+    void process(Survey survey, String xml, Long importerUserId) throws ImportResourceException;
 
     /**
      * Process a SurveyResponse object, used when adding responses to surveys, generated from imported SurveyResponse
      * XML.
      * @param surveyResponse SurveyResponse generated from SurveyResponse XML, used to describe responses to a Survey
+     * @param xml String of XML
+     * @param importerUserId Long ID of Importer User
      * @throws ImportResourceException
      */
     void process(SurveyResponse surveyResponse, String xml, Long importerUserId) throws ImportResourceException;

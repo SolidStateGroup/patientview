@@ -111,7 +111,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         // validate
         try {
             importManager.validate(surveyResponse);
-            LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType() + "' Received, valid XML");
+            //LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType() + "' Received, valid XML");
         } catch (ImportResourceException ire) {
             LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType() + "' Received, failed XML validation ("
                     + ire.getMessage() + ")");
@@ -131,7 +131,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         // push to queue for processing
         try {
             channel.basicPublish("", QUEUE_NAME_SURVEY_RESPONSE, true, false, null, stringWriter.toString().getBytes());
-            LOG.info("Added SurveyResponse to '" + QUEUE_NAME_SURVEY_RESPONSE + "' queue");
+            //LOG.info("Added SurveyResponse to '" + QUEUE_NAME_SURVEY_RESPONSE + "' queue");
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");
         }

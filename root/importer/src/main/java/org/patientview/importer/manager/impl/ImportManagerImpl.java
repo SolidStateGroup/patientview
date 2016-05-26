@@ -179,12 +179,15 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     @Override
-    public void process(Survey survey) throws ImportResourceException {
+    public void process(Survey survey, String xml, Long importerUserId) throws ImportResourceException {
         try {
             surveyService.add(survey);
-            LOG.info(survey.getType() + " added");
+            LOG.info("Survey setup data type '" + survey.getType() + "' added");
+
+            // audit
+            auditService.createAudit(AuditActions.SURVEY_SUCCESS, null, null, null, xml, importerUserId);
         } catch (Exception e) {
-            LOG.error("Survey process error", e);
+            LOG.error("Survey setup data type '" + survey.getType() + "' process error", e);
             throw new ImportResourceException(e.getMessage());
         }
     }
@@ -266,7 +269,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         // save new
         surveyResponseRepository.save(newSurveyResponse);
 
-        LOG.info(surveyResponse.getSurveyType() + " response added");
+        LOG.info(surveyResponse.getIdentifier() + ": survey response type '" + surveyResponse.getSurveyType()
+                + "' added");
 
         // audit
         auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS,

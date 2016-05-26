@@ -6,11 +6,14 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Survey;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.manager.ImportManager;
+import org.patientview.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,17 +31,37 @@ import java.util.concurrent.ExecutorService;
 @Component
 public class QueueProcessorSurvey extends DefaultConsumer {
 
-    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurvey.class);
-
     @Inject
-    private ExecutorService executor;
+    private AuditService auditService;
 
     private Channel channel;
 
     @Inject
+    private ExecutorService executor;
+
+    @Inject
     private ImportManager importManager;
 
+    private Long importerUserId;
+
+    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessorSurvey.class);
+
     private final static String QUEUE_NAME = "survey_import";
+
+    @PostConstruct
+    public void init() throws ResourceNotFoundException {
+        try {
+            importerUserId = auditService.getImporterUserId();
+        } catch (ResourceNotFoundException e) {
+            LOG.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() throws IOException {
+        channel.close();
+    }
 
     @Inject
     public QueueProcessorSurvey(@Named(value = "read") Channel channel) {
@@ -54,11 +77,6 @@ public class QueueProcessorSurvey extends DefaultConsumer {
         }
         this.channel = channel;
         LOG.info("Created queue processor for Surveys with queue name '" + QUEUE_NAME + "'");
-    }
-
-    @PreDestroy
-    public void shutdown() throws IOException {
-        channel.close();
     }
 
     private class SurveyTask implements Runnable {
@@ -84,7 +102,7 @@ public class QueueProcessorSurvey extends DefaultConsumer {
             // Process XML (already validated before being added to queue)
             if (!fail) {
                 try {
-                    importManager.process(survey);
+                    importManager.process(survey, message, importerUserId);
                 } catch (ImportResourceException ire) {
                     LOG.error("Survey type '" + survey.getType() + "' could not be added", ire);
                 }
