@@ -377,13 +377,13 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         }
         if (identifiers.size() != 1) {
             throwImportResourceException("Multiple identifiers found with value '" + surveyResponse.getIdentifier()
-                    + "', cannot continue");
+                    + "'");
         }
         if (surveyResponse.getQuestionAnswers() == null) {
-            throwImportResourceException("Must have survey answers");
+            throwImportResourceException("Must have survey question answers");
         }
         if (CollectionUtils.isEmpty(surveyResponse.getQuestionAnswers().getQuestionAnswer())) {
-            throwImportResourceException("Must have at least one survey answer");
+            throwImportResourceException("Must have at least one survey question answer");
         }
 
         // answers
@@ -414,13 +414,13 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                 // simple value response expected
                 if (StringUtils.isEmpty(questionAnswer.getQuestionValue())) {
                     throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                            + "' must have a value set");
+                            + "' must have a value set (is a value based question)");
                 }
             } else {
                 // option response expected
                 if (StringUtils.isEmpty(questionAnswer.getQuestionOption())) {
                     throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                            + "' must have an option set");
+                            + "' must have an option set (is an option based question)");
                 }
                 // check option in survey question answer is in list of actual question options
                 boolean found = false;
@@ -431,7 +431,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                 }
                 if (!found) {
                     throwImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                            + "' must have a known option");
+                            + "' must have a known option (is an option based question)");
                 }
             }
 
