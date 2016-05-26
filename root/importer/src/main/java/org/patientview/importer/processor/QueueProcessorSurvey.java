@@ -81,18 +81,7 @@ public class QueueProcessorSurvey extends DefaultConsumer {
                 fail = true;
             }
 
-            // validate XML
-            if (!fail) {
-                try {
-                    importManager.validate(survey);
-                    LOG.info("Survey type '" + survey.getType() + "' Received, valid XML");
-                } catch (ImportResourceException ire) {
-                    LOG.info("Survey type '" + survey.getType() + "' Received, failed XML validation");
-                    fail = true;
-                }
-            }
-
-            // Process XML
+            // Process XML (already validated before being added to queue)
             if (!fail) {
                 try {
                     importManager.process(survey);

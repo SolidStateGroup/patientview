@@ -4,7 +4,6 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import generated.Survey;
 import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
@@ -82,20 +81,7 @@ public class QueueProcessorSurveyResponse extends DefaultConsumer {
                 fail = true;
             }
 
-            // validate XML
-            if (!fail) {
-                try {
-                    importManager.validate(surveyResponse);
-                    LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType()
-                            + "' Received, valid XML");
-                } catch (ImportResourceException ire) {
-                    LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType()
-                            + "' Received, failed XML validation");
-                    fail = true;
-                }
-            }
-
-            // Process XML
+            // Process XML (already validated before being added to queue)
             if (!fail) {
                 try {
                     importManager.process(surveyResponse);

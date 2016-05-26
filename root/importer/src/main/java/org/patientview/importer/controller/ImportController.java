@@ -10,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
@@ -58,5 +60,12 @@ public class ImportController {
             consumes = MediaType.APPLICATION_XML_VALUE)
     public void importSurveyResponse(@RequestBody SurveyResponse surveyResponse) throws ImportResourceException {
         queueService.importRecord(surveyResponse);
+    }
+
+    @ExceptionHandler(ImportResourceException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleImportResourceException(ImportResourceException e) {
+        return e.getMessage();
     }
 }

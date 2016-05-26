@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -269,7 +270,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     void throwImportResourceException(String error) throws ImportResourceException {
-        LOG.error(error);
+        //LOG.error(error);
         throw new ImportResourceException(error);
     }
 
@@ -393,6 +394,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             }
         }
 
+        List<String> includedQuestionTypes = new ArrayList<>();
+
         for (SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
                 : surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
             if (StringUtils.isEmpty(questionAnswer.getQuestionType())) {
@@ -431,6 +434,12 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                             + "' must have a known option");
                 }
             }
+
+            // check no duplicate questions
+            if (includedQuestionTypes.contains(question.getType())) {
+                throwImportResourceException("Question type '" + question.getType() + "' is duplicated");
+            }
+            includedQuestionTypes.add(question.getType());
         }
 
         // scores

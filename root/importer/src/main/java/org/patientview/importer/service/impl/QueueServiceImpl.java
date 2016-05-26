@@ -5,6 +5,7 @@ import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.QueueService;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,9 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
     @Inject
     @Named(value = "write")
     private Channel channel;
+
+    @Inject
+    private ImportManager importManager;
 
     public QueueServiceImpl() {
 
@@ -71,6 +75,17 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
     public void importRecord(final Survey survey) throws ImportResourceException {
         StringWriter stringWriter = new StringWriter();
 
+        // validate
+        try {
+            importManager.validate(survey);
+            LOG.info("Survey type '" + survey.getType() + "' Received, valid XML");
+        } catch (ImportResourceException ire) {
+            LOG.info("Survey type '" + survey.getType() + "' Received, failed XML validation (" + ire.getMessage()
+                    + ")");
+            throw(ire);
+        }
+
+        // attempt to convert to objects
         try {
             JAXBContext context = JAXBContext.newInstance(Survey.class);
             Marshaller marshaller = context.createMarshaller();
@@ -80,6 +95,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             throw new ImportResourceException("Unable to marshall survey");
         }
 
+        // push to queue for processing
         try {
             channel.basicPublish("", QUEUE_NAME_SURVEY, true, false, null, stringWriter.toString().getBytes());
             LOG.info("Added Survey description to '" + QUEUE_NAME_SURVEY + "' queue");
@@ -92,6 +108,17 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
     public void importRecord(final SurveyResponse surveyResponse) throws ImportResourceException {
         StringWriter stringWriter = new StringWriter();
 
+        // validate
+        try {
+            importManager.validate(surveyResponse);
+            LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType() + "' Received, valid XML");
+        } catch (ImportResourceException ire) {
+            LOG.info("SurveyResponse type '" + surveyResponse.getSurveyType() + "' Received, failed XML validation ("
+                    + ire.getMessage() + ")");
+            throw(ire);
+        }
+
+        // attempt to convert to objects
         try {
             JAXBContext context = JAXBContext.newInstance(SurveyResponse.class);
             Marshaller marshaller = context.createMarshaller();
@@ -101,6 +128,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             throw new ImportResourceException("Unable to marshall survey response");
         }
 
+        // push to queue for processing
         try {
             channel.basicPublish("", QUEUE_NAME_SURVEY_RESPONSE, true, false, null, stringWriter.toString().getBytes());
             LOG.info("Added SurveyResponse to '" + QUEUE_NAME_SURVEY_RESPONSE + "' queue");
