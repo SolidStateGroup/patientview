@@ -107,15 +107,16 @@ public class SurveyResponseRepositoryTest {
         }
 
         SurveyResponse surveyResponse
-                = new SurveyResponse(user, 2, ScoreSeverity.MEDIUM, new Date(),
+                = new SurveyResponse(user, 2, ScoreSeverity.MEDIUM, new Date(new Date().getTime() + 100),
                 SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);
 
         Page<SurveyResponse> surveyResponses
-                = surveyResponseRepository.findLatestByUserAndSurveyType(user, survey.getType(), new PageRequest(0,1));
+                = surveyResponseRepository.findLatestByUserAndSurveyType(user, survey.getType(), new PageRequest(0, 1));
         Assert.assertNotNull("Should return symptom scores", surveyResponses);
         Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.getSize());
-        Assert.assertTrue("The symptom score should be the one created", surveyResponses.getContent().get(0).equals(surveyResponse));
+        Assert.assertTrue("The symptom score should be the one created",
+                surveyResponses.getContent().get(0).equals(surveyResponse));
     }
 }
