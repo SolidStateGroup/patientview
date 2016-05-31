@@ -1,0 +1,139 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+    <xs:include schemaLocation="Patient.xsd"/>
+    <xs:include schemaLocation="LabOrders/LabOrder.xsd"/>
+    <xs:include schemaLocation="SocialHistories/SocialHistory.xsd"/>
+    <xs:include schemaLocation="FamilyHistories/FamilyHistory.xsd"/>
+    <xs:include schemaLocation="Observations/Observation.xsd"/>
+    <xs:include schemaLocation="Allergies/Allergy.xsd"/>
+    <xs:include schemaLocation="Procedures/Procedure.xsd"/>
+    <xs:include schemaLocation="Procedures/DialysisSession.xsd"/>
+    <xs:include schemaLocation="Procedures/Transplant.xsd"/>
+    <xs:include schemaLocation="Procedures/VascularAccess.xsd"/>
+    <xs:include schemaLocation="Diagnoses/Diagnosis.xsd"/>
+    <xs:include schemaLocation="Diagnoses/CauseOfDeath.xsd"/>
+    <xs:include schemaLocation="Diagnoses/RenalDiagnosis.xsd"/>
+    <xs:include schemaLocation="Documents/Document.xsd"/>
+    <xs:include schemaLocation="Encounters/Encounter.xsd"/>
+    <xs:include schemaLocation="Encounters/Treatment.xsd"/>
+    <xs:include schemaLocation="Encounters/Transplant.xsd"/>
+    <xs:include schemaLocation="ProgramMemberships/ProgramMembership.xsd"/>
+    <xs:include schemaLocation="ClinicalRelationships/ClinicalRelationship.xsd"/>
+    <xs:include schemaLocation="Medications/Medication.xsd"/>
+
+    <!-- SDA: Container -->
+    <xs:element name="PatientRecord">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="SendingFacility">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:maxLength value="220"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="Patient" type="Patient" minOccurs="1"/>
+                <xs:element name="LabOrders" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="LabOrder" type="LabOrder" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="start" type="xs:date" use="required"/>
+                        <xs:attribute name="stop" type="xs:date" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="SocialHistories" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="SocialHistory" type="SocialHistory" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="FamilyHistories" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="FamilyHistory" type="FamilyHistory" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Observations" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Observation" type="Observation" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="start" type="xs:date" use="required"/>
+                        <xs:attribute name="stop" type="xs:date" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Allergies" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Allergy" type="Allergy" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Diagnoses" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Diagnosis" type="Diagnosis" maxOccurs="unbounded"/>
+                            <xs:element name="CauseOfDeath" type="CauseOfDeath" maxOccurs="unbounded"/>
+                            <xs:element name="RenalDiagnosis" type="RenalDiagnosis" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Medications" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Medication" type="Medication" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Procedures" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Procedure" type="Procedure" maxOccurs="unbounded"/>
+                            <xs:element name="DialysisSession" type="DialysisSession" maxOccurs="unbounded"/>
+                            <xs:element name="Transplant" type="Transplant" maxOccurs="unbounded"/>
+                            <xs:element name="VasciularAccess" type="VascularAccess" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="start" type="xs:date" use="required"/>
+                        <xs:attribute name="stop" type="xs:date" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Documents" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Document" type="Document" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Encounters" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Encounter" type="Encounter" maxOccurs="unbounded"/>
+                            <!-- SDA: Encounter -->
+                            <xs:element name="Treatment" type="Treatment" maxOccurs="unbounded"/>
+                            <!-- SDA: Encounter -->
+                            <xs:element name="Transplant" type="Transplant" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="ProgramMemberships" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ProgramMembership" type="ProgramMembership" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="ClinicalRelationships" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ClinicalRelationship" type="ClinicalRelationship" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

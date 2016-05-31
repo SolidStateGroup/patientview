@@ -1,0 +1,161 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+	<xs:include schemaLocation="../Types/Location.xsd"/>
+	<xs:include schemaLocation="../Types/ActionCode.xsd"/>
+    
+    <xs:element name="Survey">
+        <xs:complexType>
+            <xs:sequence>        
+                <xs:element name="SurveyType" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Survey Type</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="CodingStandard" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:maxLength value="32000"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Code" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:maxLength value="32000"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Description" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:maxLength value="32000"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Questions">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Question">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                    
+                                        <xs:element name="QuestionType" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>Question Type</xs:documentation>
+                                            </xs:annotation>
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="CodingStandard" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                    <xs:element name="Code" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                    <xs:element name="Description" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="Response" type="xs:string"/>
+                                        
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            
+                <xs:element name="Scores">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Score">
+                                <xs:complexType>
+                                    <xs:sequence>
+
+                                        <xs:element name="ScoreType" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>Score Type</xs:documentation>
+                                            </xs:annotation>
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="CodingStandard" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                    <xs:element name="Code" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                    <xs:element name="Description" minOccurs="0">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:maxLength value="32000"/>
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="Value" type="xs:string"/>
+                                        
+                                        <xs:element name="Level" type="xs:string"/>
+                                        
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="EnteredAt" type="Location" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Where the Survey was completed</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                
+                <xs:element minOccurs="0" name="UpdatedOn" type="xs:dateTime">
+                    <xs:annotation>
+                        <xs:documentation>Last Modified Date</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                
+                <xs:element minOccurs="0" name="ActionCode" type="ActionCode">
+                    <xs:annotation>
+                        <xs:documentation>Add/Update/Delete Control</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+        
+            </xs:sequence>
+    
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
