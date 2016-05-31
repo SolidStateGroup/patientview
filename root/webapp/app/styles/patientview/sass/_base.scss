@@ -304,6 +304,15 @@ hr{
     }
 }
 
+.health-surveys{
+    > .row{
+        position: relative;
+    }
+    .list-date{
+        color:$light-grey;
+    }
+}
+
 .chart-content-panel {
     box-shadow: none;
     padding: 0 10px 10px 10px;
@@ -329,6 +338,10 @@ hr{
         h4{
             margin-top:0px;
             margin-bottom:0px;
+
+            &.survey{
+                margin-bottom:5px;
+            }
         }
         h5, h6{
             margin-top:20px;
@@ -510,8 +523,6 @@ hr{
     }
 }
 
-
-
 .add-form{
     margin-top:10px;
 }
@@ -597,6 +608,10 @@ ul {
     font-weight: normal;
 }
 
+.prepend{
+    height:100%;
+}
+
 .badge{
     @include bootstrap-border-radius(50%);
     height:30px;
@@ -637,6 +652,17 @@ ul {
     }
     &.ignored{
         background-color:$error;
+    }
+
+    &.icon-large{
+        height:50px;
+        width:50px;
+        padding-top:5px;
+        line-height:40px;
+
+        img{
+            width:90%;
+        }
     }
 }
 
