@@ -2,16 +2,21 @@
     <div class="panel-heading">
         <h3>My Health Surveys</h3>
     </div>
-    <div class="panel-body">
+    <div class="panel-body health-surveys">
         <div class="row">
-            <div class="col-md-10">
-                <h4>Managing Your Health</h4>
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/manage-health.png" alt="Manage your health"/>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h4 class="survey">Managing Your Health</h4>
                 <p>This shows your knowledge, skills and confidence when it comes to looking after your own health and being involved in your care – this is referred to as your activation level.</p>
-                <p data-ng-if="foundSurveys['PAM']">
+                <p class="list-date" data-ng-if="foundSurveys['PAM']">
                     Last completed on {{foundSurveys['PAM'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 align-bottom">
                 <a href="/#/surveys/managing" class="btn blue">
                     View Surveys
                 </a>
@@ -19,14 +24,19 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-md-10">
-                <h4>Your Symptoms</h4>
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/symptoms.png" alt="Symptoms"/>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h4 class="survey">Your Symptoms</h4>
                 <p>This shows a list of symptoms and your assessment of how each one has been affecting you.</p>
-                <p data-ng-if="foundSurveys['PROM']">
+                <p class="list-date" data-ng-if="foundSurveys['PROM']">
                     Last completed on {{foundSurveys['PROM'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 align-bottom">
                 <a href="/#/surveys/symptoms" class="btn blue">
                     View Surveys
                 </a>
@@ -34,14 +44,19 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-md-10">
-                <h4>Your Overall Health</h4>
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/overall-health.png" alt="Overall health"/>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h4 class="survey">Your Overall Health</h4>
                 <p>This shows your overall health.</p>
-                <p data-ng-if="foundSurveys['EQ5D']">
+                <p class="list-date" data-ng-if="foundSurveys['EQ5D']">
                     Last completed on {{foundSurveys['EQ5D'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 align-bottom">
                 <a href="/#/surveys/overall" class="btn blue">
                     View Surveys
                 </a>
