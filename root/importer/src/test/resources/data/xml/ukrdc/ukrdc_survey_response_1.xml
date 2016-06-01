@@ -1,0 +1,31 @@
+<PatientRecord>
+    <Patient>
+        <PatientNumbers>
+            <PatientNumber>
+                <Number>ibdtest1</Number>
+            </PatientNumber>
+        </PatientNumbers>
+    </Patient>
+    <Surveys>
+        <Survey>
+            <SurveyType>
+                <Code>PAM</Code>
+            </SurveyType>
+            <Questions>
+                <Question>
+                    <QuestionType>
+                        <Code>MYHQ1</Code>
+                    </QuestionType>
+                    <Response>1</Response>
+                </Question>
+                <Question>
+                    <QuestionType>
+                        <Code>MYHQ2</Code>
+                    </QuestionType>
+                    <Response>2</Response>
+                </Question>
+            </Questions>
+            <UpdatedOn>2015-10-01T00:00:00</UpdatedOn>
+        </Survey>
+    </Surveys>
+</PatientRecord>

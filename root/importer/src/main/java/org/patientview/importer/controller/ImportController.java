@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.org.rixg.PatientRecord;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -60,6 +61,12 @@ public class ImportController {
             consumes = MediaType.APPLICATION_XML_VALUE)
     public void importSurveyResponse(@RequestBody SurveyResponse surveyResponse) throws ImportResourceException {
         queueService.importRecord(surveyResponse);
+    }
+
+    @RequestMapping(value = "/import/ukrdc", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_XML_VALUE)
+    public void importPatientRecord(@RequestBody PatientRecord patientRecord) throws ImportResourceException {
+        queueService.importRecord(patientRecord);
     }
 
     @ExceptionHandler(ImportResourceException.class)

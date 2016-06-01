@@ -12,6 +12,7 @@ import org.patientview.service.AuditService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.springframework.stereotype.Service;
+import uk.org.rixg.PatientRecord;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -69,6 +70,20 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             channel.close();
         } catch (IOException io) {
             LOG.error("Error closing channel");
+        }
+    }
+
+    @Override
+    public void importRecord(PatientRecord patientRecord) throws ImportResourceException {
+        StringWriter stringWriter = new StringWriter();
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(PatientRecord.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(patientRecord, stringWriter);
+        } catch (JAXBException jxb) {
+            throw new ImportResourceException("Unable to marshall UKRDC xml");
         }
     }
 

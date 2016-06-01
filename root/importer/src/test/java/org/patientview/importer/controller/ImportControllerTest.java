@@ -84,26 +84,6 @@ public class ImportControllerTest {
 
     @Test
     @Ignore
-    public void testSurveyDescriptionImport() throws Exception {
-        String fileName = "data/xml/survey/survey_PROM_1.xml";
-
-        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
-        File file = new File(xmlPath.toURI());
-        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
-
-        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/survey";
-        //String postUrl="https://test.patientview.org/importer/import/survey";
-
-        HttpPost post = new HttpPost(postUrl);
-        StringEntity postingString = new StringEntity(content);
-        post.setEntity(postingString);
-        post.setHeader("Content-type", "application/xml");
-        HttpResponse httpResponse = httpClient.execute(post);
-        LOG.info(httpResponse.toString());
-    }
-    @Test
-    @Ignore
     public void testBulkSurveyDescriptionImport() throws Exception {
         List<String> files = new ArrayList<>();
         files.add("data/xml/survey/survey_PROM_1.xml");
@@ -126,27 +106,6 @@ public class ImportControllerTest {
             HttpResponse httpResponse = httpClient.execute(post);
             LOG.info(httpResponse.toString());
         }
-    }
-
-    @Test
-    @Ignore
-    public void testSurveyResponseImport() throws Exception {
-        String fileName = "data/xml/survey_response/survey_response_PAM_1_error.xml";
-
-        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
-        File file = new File(xmlPath.toURI());
-        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
-
-        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        String postUrl="http://localhost:8081/importer/import/surveyresponse";
-        //String postUrl="https://test.patientview.org/importer/import/surveyresponse";
-
-        HttpPost post = new HttpPost(postUrl);
-        StringEntity postingString = new StringEntity(content);
-        post.setEntity(postingString);
-        post.setHeader("Content-type", "application/xml");
-        HttpResponse httpResponse = httpClient.execute(post);
-        LOG.info(httpResponse.toString());
     }
 
     @Test
@@ -174,6 +133,30 @@ public class ImportControllerTest {
             org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
             //String postUrl="http://localhost:8081/importer/import/surveyresponse";
             String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testBulkUkrdcImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/ukrdc/ukrdc_survey_response_1.xml");
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            String postUrl="http://localhost:8081/importer/import/ukrdc";
+            //String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
 
             HttpPost post = new HttpPost(postUrl);
             StringEntity postingString = new StringEntity(content);
