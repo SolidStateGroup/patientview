@@ -215,6 +215,20 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             }
             $scope.otherQuestions = otherQuestions;
         }
+
+        // set score and level if present from latest response
+        if ($scope.latestSurveyResponse.surveyResponseScores != null
+            && $scope.latestSurveyResponse.surveyResponseScores != undefined
+            && $scope.latestSurveyResponse.surveyResponseScores.length) {
+            for (i = 0; i < $scope.latestSurveyResponse.surveyResponseScores.length; i++) {
+                var surveyResponseScore = $scope.latestSurveyResponse.surveyResponseScores[i];
+                if (surveyResponseScore.type == 'PAM_SCORE') {
+                    $scope.latestScore = surveyResponseScore.score;
+                    $scope.latestLevel = surveyResponseScore.level;
+                }
+            }
+        }
+
     };
 
     $scope.showLevels = function() {

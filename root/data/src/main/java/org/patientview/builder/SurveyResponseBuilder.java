@@ -115,7 +115,7 @@ public class SurveyResponseBuilder {
                     = new org.patientview.persistence.model.SurveyResponse();
 
             // date
-            newSurveyResponse.setDate(this.surveyResponseUkrdc.getUpdatedOn().toGregorianCalendar().getTime());
+            newSurveyResponse.setDate(this.surveyResponseUkrdc.getSurveyTime().toGregorianCalendar().getTime());
 
             // user
             newSurveyResponse.setUser(this.user);
@@ -135,7 +135,7 @@ public class SurveyResponseBuilder {
             for (uk.org.rixg.Survey.Questions.Question question
                     : this.surveyResponseUkrdc.getQuestions().getQuestion()) {
                 // get question
-                Question entityQuestion = questionMap.get(question.getQuestionType().get(0).getCode());
+                Question entityQuestion = questionMap.get(question.getQuestionType().getCode());
                 QuestionAnswer newQuestionAnswer = new QuestionAnswer();
                 newQuestionAnswer.setQuestion(entityQuestion);
                 newQuestionAnswer.setSurveyResponse(newSurveyResponse);
@@ -171,7 +171,7 @@ public class SurveyResponseBuilder {
                     }
 
                     newSurveyResponseScore.setSurveyResponse(newSurveyResponse);
-                    newSurveyResponseScore.setType(surveyResponseScore.getScoreType().get(0).getCode());
+                    newSurveyResponseScore.setType(surveyResponseScore.getScoreType().getCode());
                     newSurveyResponse.getSurveyResponseScores().add(newSurveyResponseScore);
                 }
             }

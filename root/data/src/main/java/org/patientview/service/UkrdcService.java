@@ -30,7 +30,7 @@ public interface UkrdcService {
      * Survey Date must be set
      * Survey must have Questions
      * Survey must have at least one Question
-     * All Question must have at least one QuestionType
+     * All Question must have a QuestionType
      * All Question must have a QuestionType Code
      * Question type 'YYY' does not match any questions for survey type 'XXX'
      * Question type 'YYY' must have a Response set (is a value based question)
@@ -38,8 +38,8 @@ public interface UkrdcService {
      * Question type 'YYY' must have a known option (is an option based question)
      * Question type 'YYY' is duplicated
      * Must have at least one Question with a Response
-     * All Score must have at least one ScoreType
-     * Score first ScoreType must have Code
+     * Score must have ScoreType
+     * Score ScoreType must have Code
      * Score must have Value
      * Score Value must be integer
      *

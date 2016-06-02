@@ -113,6 +113,7 @@
                 <p>The following results show how you assessed your knowledge, skills and your confidence to look after your own health and be involved in your care – this is known as your activation level.
                     In order to live your best life your clinical team would like to work closely with you to support you to grow your skills and knowledge and build your confidence.</p>
 
+                <!-- if scores stored in second QuestionGroup (deprecated) -->
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
                     <p class="your-score">
                         Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is
@@ -127,11 +128,29 @@
                     <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
                 </div>
 
+                <!-- if scores stored in Scores -->
+                <div data-ng-if="latestScore">
+                    <p class="your-score">
+                        Your most recent overall score is <strong>{{latestScore}}</strong><span data-ng-if="latestLevel">, which is
+                        <strong>
+                            <span data-ng-if="latestLevel == 1" class="text-level-one">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 2" class="text-level-two">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 3" class="text-level-three">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 4" class="text-level-four">level {{latestLevel}}</span>
+                        </strong>.
+                        <a href="" data-ng-click="showLevels()">Tell me more about activation levels</a>.</span>
+                    </p>
+                    <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
+                </div>
+
                 <div class="row">
                     <div class="col-md-3">
                         <br/>
-                        <div class="arrow-div">
-                            <div class="arrow-score" style="top: {{475 - (4.75 * otherQuestions['PAM_SCORE'])}}px">
+                        <div class="arrow-div" data-ng-if="latestScore || otherQuestions['PAM_SCORE']">
+                            <div class="arrow-score" style="top: {{475 - (4.75 * latestScore)}}px" data-ng-if="latestScore">
+                                <div class="arrow-score-text">{{latestScore}}</div>
+                            </div>
+                            <div class="arrow-score" style="top: {{475 - (4.75 * otherQuestions['PAM_SCORE'])}}px" data-ng-if="otherQuestions['PAM_SCORE']">
                                 <div class="arrow-score-text">{{otherQuestions['PAM_SCORE']}}</div>
                             </div>
                             <div class="arrow-level-one">

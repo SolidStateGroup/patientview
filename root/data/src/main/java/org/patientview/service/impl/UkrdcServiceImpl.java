@@ -78,7 +78,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     private void processSurvey(uk.org.rixg.Survey survey, User user) throws Exception {
         // survey
         String surveyType = survey.getSurveyType().getCode();
-        Date surveyDate = survey.getUpdatedOn().toGregorianCalendar().getTime();
+        Date surveyDate = survey.getSurveyTime().toGregorianCalendar().getTime();
         Survey entitySurvey = surveyService.getByType(surveyType);
 
         // build
@@ -145,7 +145,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                     + "' in database does not have any questions");
         }
 
-        if (survey.getUpdatedOn() == null) {
+        if (survey.getSurveyTime() == null) {
             throw new ImportResourceException("Survey Date must be set");
         }
         if (survey.getQuestions() == null) {
@@ -167,12 +167,12 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         List<String> includedQuestionTypes = new ArrayList<>();
 
         for (uk.org.rixg.Survey.Questions.Question question : survey.getQuestions().getQuestion()) {
-            if (CollectionUtils.isEmpty(question.getQuestionType())) {
-                throw new ImportResourceException("All Question must have at least one QuestionType");
+            if (question.getQuestionType() == null) {
+                throw new ImportResourceException("All Question must have a QuestionType");
             }
 
-            // use first question type
-            String code = question.getQuestionType().get(0).getCode();
+            // get question type
+            String code = question.getQuestionType().getCode();
 
             if (StringUtils.isEmpty(code)) {
                 throw new ImportResourceException("All Question must have a QuestionType Code");
@@ -230,13 +230,12 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         // scores
         if (survey.getScores() != null && !CollectionUtils.isEmpty(survey.getScores().getScore())) {
             for (uk.org.rixg.Survey.Scores.Score score : survey.getScores().getScore()) {
-                if (CollectionUtils.isEmpty(score.getScoreType())) {
-                    throw new ImportResourceException("All Score must have at least one ScoreType");
+                if (score.getScoreType() == null) {
+                    throw new ImportResourceException("Score must have ScoreType");
                 }
 
-                // use first score type
-                if (StringUtils.isEmpty(score.getScoreType().get(0).getCode())) {
-                    throw new ImportResourceException("Score first ScoreType must have Code");
+                if (StringUtils.isEmpty(score.getScoreType().getCode())) {
+                    throw new ImportResourceException("Score ScoreType must have Code");
                 }
 
                 if (StringUtils.isEmpty(score.getValue())) {

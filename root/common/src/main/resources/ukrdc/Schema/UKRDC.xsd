@@ -34,13 +34,6 @@
                     </xs:simpleType>
                 </xs:element>
                 <xs:element name="Patient" type="Patient" minOccurs="1"/>
-                <xs:element name="Surveys" minOccurs="0">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="Survey" type="Survey" maxOccurs="unbounded"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
                 <xs:element name="LabOrders" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>
@@ -140,6 +133,14 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <!-- Custom SDA below here -->
+                <xs:element name="Surveys" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Survey" type="Survey" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element> 
             </xs:sequence>
         </xs:complexType>
     </xs:element>
