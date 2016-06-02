@@ -11,6 +11,7 @@ import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.service.AuditService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
+import org.patientview.service.UkrdcService;
 import org.springframework.stereotype.Service;
 import uk.org.rixg.PatientRecord;
 
@@ -50,6 +51,9 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
     @Inject
     private SurveyService surveyService;
 
+    @Inject
+    private UkrdcService ukrdcService;
+
     public QueueServiceImpl() {
 
     }
@@ -84,6 +88,18 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             marshaller.marshal(patientRecord, stringWriter);
         } catch (JAXBException jxb) {
             throw new ImportResourceException("Unable to marshall UKRDC xml");
+        }
+
+        // validate
+        try {
+            ukrdcService.validate(patientRecord);
+        } catch (ImportResourceException ire) {
+            LOG.info("PatientRecord received, failed XML validation (" + ire.getMessage() + ")");
+
+            // audit
+            //auditService.createAudit(AuditActions.SURVEY_RESPONSE_VALIDATE_FAIL, surveyResponse.getIdentifier(),
+            //        null, ire.getMessage(), stringWriter.toString(), importerUserId);
+            throw(ire);
         }
     }
 
