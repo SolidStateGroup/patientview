@@ -112,7 +112,7 @@ public class ImportControllerTest {
     @Ignore
     public void testBulkSurveyResponseImport() throws Exception {
         List<String> files = new ArrayList<>();
-        files.add("data/xml/survey_response/survey_response_PROM_1.xml");
+        /*files.add("data/xml/survey_response/survey_response_PROM_1.xml");
         files.add("data/xml/survey_response/survey_response_PROM_2.xml");
         files.add("data/xml/survey_response/survey_response_PROM_3.xml");
         files.add("data/xml/survey_response/survey_response_PROM_4.xml");
@@ -123,7 +123,19 @@ public class ImportControllerTest {
         files.add("data/xml/survey_response/survey_response_EQ5D_1.xml");
         files.add("data/xml/survey_response/survey_response_EQ5D_2.xml");
         files.add("data/xml/survey_response/survey_response_EQ5D_3.xml");
-        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");*/
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_4.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_4.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_4.xml");
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -509,13 +521,16 @@ public class ImportControllerTest {
         //String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
         //String fileName = "data/xml/SALIBD_01436_1111111111.xml";
         //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
-        String fileName = "data/xml/ibdtest1_1.xml";
+        //String fileName = "data/xml/ibdtest1_1.xml";
 
         // IBD
         //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
         //String fileName = "data/xml/partialmigration/test1.xml";
+
+        // survey testing
+        String fileName = "data/xml/surveytestuser.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
