@@ -66,6 +66,7 @@ public class ImportController {
     @RequestMapping(value = "/import/ukrdc", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_XML_VALUE)
     public void importPatientRecord(@RequestBody PatientRecord patientRecord) throws ImportResourceException {
+        //LOG.info(patientRecord.getPatient().toString());
         queueService.importRecord(patientRecord);
     }
 

@@ -1,4 +1,4 @@
-<PatientRecord>
+<ns:PatientRecord xmlns:ns='http://www.rixg.org.uk/'>
     <Patient>
         <PatientNumbers>
             <PatientNumber>
@@ -28,4 +28,4 @@
             <UpdatedOn>2015-10-01T00:00:00</UpdatedOn>
         </Survey>
     </Surveys>
-</PatientRecord>
+</ns:PatientRecord>
