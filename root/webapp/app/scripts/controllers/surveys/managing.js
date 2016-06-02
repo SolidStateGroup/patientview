@@ -29,8 +29,9 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             var response = visibleResponses[i];
             var questionAnswers = _.sortBy(response.questionAnswers, 'question.displayOrder');
 
-            // score is special question type PAM_SCORE, may be moved to score element
+            // score/level are special question type PAM_SCORE, may be in score element
             var score = '-';
+            var level = '-';
 
             // header other columns
             var dateString = $scope.filterDate(response.date);
@@ -42,8 +43,22 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             for (j = 0; j < questionAnswers.length; j++) {
                 questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
 
+                // handle specific question type for score (expect this to be in score element)
                 if (questionAnswers[j].question.type == 'PAM_SCORE') {
                     score = questionAnswers[j].value;
+                }
+            }
+
+            // check for scores
+            if (response.surveyResponseScores != null
+                && response.surveyResponseScores != undefined
+                && response.surveyResponseScores.length) {
+                for (j = 0; j < response.surveyResponseScores.length; j++) {
+                    var surveyResponseScore = response.surveyResponseScores[j];
+                    if (surveyResponseScore.type == 'PAM_SCORE') {
+                        score = surveyResponseScore.score;
+                        level = surveyResponseScore.level;
+                    }
                 }
             }
 
@@ -77,6 +92,16 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             }
 
             tableRows[questions.length].data.push({'text': score, 'isLatest':response.isLatest, 'isScore':true});
+
+            // special level row
+            if (tableRows[questions.length + 1] == undefined || tableRows[questions.length + 1] == null) {
+                tableRows[questions.length + 1] = {};
+                tableRows[questions.length + 1].type = questionType;
+                tableRows[questions.length + 1].data = [];
+                tableRows[questions.length + 1].data.push({'text':'Level', 'isScore':true});
+            }
+
+            tableRows[questions.length + 1].data.push({'text': level, 'isLatest':response.isLatest, 'isScore':true});
         }
 
         $scope.tableHeader = tableHeader;
