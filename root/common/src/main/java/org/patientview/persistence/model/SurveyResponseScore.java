@@ -33,6 +33,9 @@ public class SurveyResponseScore extends BaseModel {
     @Column(name = "type")
     private String type;
 
+    @Column(name = "level")
+    private String level;
+
     public SurveyResponseScore() {}
 
     public SurveyResponseScore(SurveyResponse surveyResponse, String type,
@@ -74,5 +77,13 @@ public class SurveyResponseScore extends BaseModel {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

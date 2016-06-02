@@ -6,6 +6,7 @@ import generated.SurveyResponse;
 import org.patientview.config.exception.ImportResourceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import uk.org.rixg.PatientRecord;
 
 /**
  * Created by james@solidstategroup.com
@@ -13,6 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ImportManager {
+
+    /**
+     * Process a UKRDC PatientRecord object containing Patient and Surveys
+     * @param patientRecord PatientRecord object generated from UKRDC XML
+     * @param xml String of XML
+     * @param importerUserId Long ID of Importer User
+     * @throws ImportResourceException
+     */
+    void process(PatientRecord patientRecord, String xml, Long importerUserId) throws ImportResourceException;
 
     /**
      * Process a PatientView object containing patient data for import, generated from imported PatientView 1 XML.

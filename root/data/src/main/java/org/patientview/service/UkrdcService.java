@@ -1,41 +1,49 @@
 package org.patientview.service;
 
 import org.patientview.config.exception.ImportResourceException;
-import org.patientview.persistence.model.SurveyResponse;
 import uk.org.rixg.PatientRecord;
 
 /**
  * UKRDC service, used by importer to handle data in UKRDC xml format
  *
  * Created by jamesr@solidstategroup.com
- * Created on 26/05/2016
+ * Created on 02/06/2016
  */
 public interface UkrdcService {
 
+    void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception;
+
     /**
-     * Validate a SurveyResponse. Errors include:
+     * Validate UKRDC xml, including basic Patient and Surveys. Errors include:
      *
-     * Survey type must be defined
-     * Survey type 'SURVEY_TYPE' is not defined
-     * Survey type 'SURVEY_TYPE' does not have any questions
-     * Identifier must be set
-     * Date must be set
+     * Patient must be defined
+     * PatientNumbers must be defined
+     * PatientNumbers must have at least one Number
+     * PatientNumbers Number must not be empty
      * No patient found with identifier '1111111111'
      * Multiple identifiers found with value '1111111111'
-     * Must have survey question answers
-     * Must have at least one survey question answer
-     * All answers must have a question type
-     * Question type 'XXX1' does not match any questions for survey type 'SURVEY_TYPE'
-     * Question type 'XXX1' must have a value set (is a value based question)
-     * Question type 'XXX1' must have an option set (is an option based question)
-     * Question type 'XXX1' must have a known option (is an option based question)
-     * Question type 'XXX1' is duplicated
-     * Scores must be defined
-     * Score type must be defined
-     * Score for type 'SCORE_TYPE' must be defined
-     * Score severity must be a known severity type
      *
-     * @param surveyResponse SurveyResponse to validate
+     * SurveyType must be defined
+     * SurveyType Code must be defined
+     * Survey type 'XXX' is not defined
+     * Survey type 'XXX' in database does not have any questions
+     * Survey Date must be set
+     * Survey must have Questions
+     * Survey must have at least one Question
+     * All Question must have at least one QuestionType
+     * All Question must have a QuestionType Code
+     * Question type 'YYY' does not match any questions for survey type 'XXX'
+     * Question type 'YYY' must have a Response set (is a value based question)
+     * Question type 'YYY' must have a Response set (is an option based question)
+     * Question type 'YYY' must have a known option (is an option based question)
+     * Question type 'YYY' is duplicated
+     * Must have at least one Question with a Response
+     * All Score must have at least one ScoreType
+     * Score first ScoreType must have Code
+     * Score must have Value
+     * Score Value must be integer
+     *
+     * @param patientRecord UKRDC xml based object
      * @throws ImportResourceException
      */
     void validate(PatientRecord patientRecord) throws ImportResourceException;

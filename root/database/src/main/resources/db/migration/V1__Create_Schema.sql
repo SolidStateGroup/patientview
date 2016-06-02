@@ -672,6 +672,7 @@ CREATE TABLE PV_Survey_Response_Score
   Survey_Response_Id       BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
   Score           INT NOT NULL,
   Severity        TEXT,
+  Level           TEXT,
   PRIMARY KEY (Id)
 );
 

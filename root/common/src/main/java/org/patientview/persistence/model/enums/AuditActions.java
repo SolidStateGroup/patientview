@@ -103,6 +103,7 @@ public enum AuditActions {
     SURVEY_RESPONSE_SUCCESS("Survey answers imported"),
     SURVEY_RESPONSE_FAIL("Survey answers failed import"),
     SURVEY_RESPONSE_VALIDATE_FAIL("Survey answers failed validation"),
+    UKRDC_VALIDATE_FAIL("UKRDC PatientRecord failed validation"),
 
     // ECS (GP Medication)
     GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)"),

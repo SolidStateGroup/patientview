@@ -10,13 +10,12 @@ import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.ScoreSeverity;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
-import org.patientview.service.SurveyResponseService;
+import org.patientview.service.AuditService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
-import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -24,17 +23,20 @@ import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by jamesr@solidstategroup.com
- * Created on 26/05/2016
+ * Created on 02/06/2016
  */
 @Service
-public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl>
-        implements UkrdcService {
+public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> implements UkrdcService {
+
+    @Inject
+    AuditService auditService;
 
     @Inject
     IdentifierRepository identifierRepository;
@@ -44,6 +46,51 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl>
 
     @Inject
     SurveyService surveyService;
+
+    @Override
+    public void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception {
+        // user
+        List<Identifier> identifiers = identifierRepository.findByValue(
+                patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber());
+        User user = identifiers.get(0).getUser();
+
+        // if surveys, then process surveys
+        if (patientRecord.getSurveys() != null
+                && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
+            for (uk.org.rixg.Survey survey : patientRecord.getSurveys().getSurvey()) {
+                try {
+                    processSurvey(survey, user);
+                    LOG.info(identifiers.get(0).getIdentifier() + ": survey response type '"
+                            + survey.getSurveyType().getCode() + "' added");
+                    // audit
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, identifiers.get(0).getIdentifier(),
+                            null, null, xml, importerUserId);
+                } catch (Exception e) {
+                    // audit
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, identifiers.get(0).getIdentifier(),
+                            null, e.getMessage(), xml, importerUserId);
+                    throw(e);
+                }
+            }
+        }
+    }
+
+    private void processSurvey(uk.org.rixg.Survey survey, User user) throws Exception {
+        // survey
+        String surveyType = survey.getSurveyType().getCode();
+        Date surveyDate = survey.getUpdatedOn().toGregorianCalendar().getTime();
+        Survey entitySurvey = surveyService.getByType(surveyType);
+
+        // build
+        SurveyResponse newSurveyResponse = new SurveyResponseBuilder(survey, entitySurvey, user).build();
+
+        // delete existing by user, type, date
+        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
+                user, surveyType, surveyDate));
+
+        // save new
+        surveyResponseRepository.save(newSurveyResponse);
+    }
 
     @Override
     @Transactional
@@ -83,10 +130,10 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl>
 
     private void validateSurvey(uk.org.rixg.Survey survey) throws ImportResourceException {
         if (survey.getSurveyType() == null) {
-            throw new ImportResourceException("Survey type must be defined");
+            throw new ImportResourceException("SurveyType must be defined");
         }
         if (StringUtils.isEmpty(survey.getSurveyType().getCode())) {
-            throw new ImportResourceException("Survey type code must be defined");
+            throw new ImportResourceException("SurveyType Code must be defined");
         }
 
         Survey entitySurvey = surveyService.getByType(survey.getSurveyType().getCode());
@@ -95,95 +142,113 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl>
         }
         if (CollectionUtils.isEmpty(entitySurvey.getQuestionGroups())) {
             throw new ImportResourceException("Survey type '" + survey.getSurveyType().getCode()
-                    + "' does not have any questions");
+                    + "' in database does not have any questions");
         }
 
         if (survey.getUpdatedOn() == null) {
-            throw new ImportResourceException("Date must be set");
+            throw new ImportResourceException("Survey Date must be set");
         }
         if (survey.getQuestions() == null) {
-            throw new ImportResourceException("Must have Questions");
+            throw new ImportResourceException("Survey must have Questions");
         }
         if (CollectionUtils.isEmpty(survey.getQuestions().getQuestion())) {
-            throw new ImportResourceException("Must have at least one Question");
+            throw new ImportResourceException("Survey must have at least one Question");
         }
 
-        // question type to response
-        Map<String, String> typeResponseMap = new HashMap<>();
+        // map of question type to question from survey
+        Map<String, Question> questionMap = new HashMap<>();
+
+        for (QuestionGroup questionGroup : entitySurvey.getQuestionGroups()) {
+            for (Question question : questionGroup.getQuestions()) {
+                questionMap.put(question.getType(), question);
+            }
+        }
+
+        List<String> includedQuestionTypes = new ArrayList<>();
+
         for (uk.org.rixg.Survey.Questions.Question question : survey.getQuestions().getQuestion()) {
             if (CollectionUtils.isEmpty(question.getQuestionType())) {
                 throw new ImportResourceException("All Question must have at least one QuestionType");
             }
-        }
 
-        /*
-        List<String> includedQuestionTypes = new ArrayList<>();
+            // use first question type
+            String code = question.getQuestionType().get(0).getCode();
 
-        for (generated.SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
-                : surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
-            if (StringUtils.isEmpty(questionAnswer.getQuestionType())) {
-                throw new ImportResourceException("All answers must have a question type");
+            if (StringUtils.isEmpty(code)) {
+                throw new ImportResourceException("All Question must have a QuestionType Code");
             }
-            Question question = questionMap.get(questionAnswer.getQuestionType());
-            if (question == null) {
-                throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                        + "' does not match any questions for survey type '"
-                        + surveyResponse.getSurveyType() + "'");
+
+            Question entityQuestion = questionMap.get(code);
+
+            if (entityQuestion == null) {
+                throw new ImportResourceException("Question type '" + code
+                        + "' does not match any questions for survey type '" + entitySurvey.getType() + "'");
             }
+
+            // todo: can have empty Response?, don't include if no Response?
+            //if (StringUtils.isNotEmpty(question.getResponse())) {
 
             // check if has options and if matches
-            List<QuestionOption> questionOptions = question.getQuestionOptions();
+            List<QuestionOption> questionOptions = entityQuestion.getQuestionOptions();
             if (CollectionUtils.isEmpty(questionOptions)) {
                 // simple value response expected
-                if (StringUtils.isEmpty(questionAnswer.getQuestionValue())) {
-                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                            + "' must have a value set (is a value based question)");
+                if (StringUtils.isEmpty(question.getResponse())) {
+                    throw new ImportResourceException("Question type '" + code
+                            + "' must have a Response set (is a value based question)");
                 }
             } else {
                 // option response expected
-                if (StringUtils.isEmpty(questionAnswer.getQuestionOption())) {
-                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
-                            + "' must have an option set (is an option based question)");
+                if (StringUtils.isEmpty(question.getResponse())) {
+                    throw new ImportResourceException("Question type '" + code
+                            + "' must have a Response set (is an option based question)");
                 }
                 // check option in survey question answer is in list of actual question options
                 boolean found = false;
                 for (QuestionOption questionOption : questionOptions) {
-                    if (questionOption.getType().equals(questionAnswer.getQuestionOption())) {
+                    if (questionOption.getType().equals(question.getResponse())) {
                         found = true;
                     }
                 }
                 if (!found) {
-                    throw new ImportResourceException("Question type '" + questionAnswer.getQuestionType()
+                    throw new ImportResourceException("Question type '" + code
                             + "' must have a known option (is an option based question)");
                 }
             }
 
             // check no duplicate questions
-            if (includedQuestionTypes.contains(question.getType())) {
-                throw new ImportResourceException("Question type '" + question.getType() + "' is duplicated");
+            if (includedQuestionTypes.contains(code)) {
+                throw new ImportResourceException("Question type '" + code + "' is duplicated");
             }
-            includedQuestionTypes.add(question.getType());
+            includedQuestionTypes.add(code);
+            //}
+        }
+
+        if (includedQuestionTypes.isEmpty()) {
+            throw new ImportResourceException("Must have at least one Question with a Response");
         }
 
         // scores
-        if (surveyResponse.getSurveyResponseScores() != null) {
-            if (CollectionUtils.isEmpty(surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
-                throw new ImportResourceException("Scores must be defined");
+        if (survey.getScores() != null && !CollectionUtils.isEmpty(survey.getScores().getScore())) {
+            for (uk.org.rixg.Survey.Scores.Score score : survey.getScores().getScore()) {
+                if (CollectionUtils.isEmpty(score.getScoreType())) {
+                    throw new ImportResourceException("All Score must have at least one ScoreType");
+                }
+
+                // use first score type
+                if (StringUtils.isEmpty(score.getScoreType().get(0).getCode())) {
+                    throw new ImportResourceException("Score first ScoreType must have Code");
+                }
+
+                if (StringUtils.isEmpty(score.getValue())) {
+                    throw new ImportResourceException("Score must have Value");
+                }
+
+                try {
+                    Integer.parseInt(score.getValue());
+                } catch (NumberFormatException nfe) {
+                    throw new ImportResourceException("Score Value must be integer");
+                }
             }
-            for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore
-                    : surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
-                if (StringUtils.isEmpty(surveyResponseScore.getType())) {
-                    throw new ImportResourceException("Score type must be defined");
-                }
-                if (surveyResponseScore.getScore() == null) {
-                    throw new ImportResourceException("Score for type '" + surveyResponseScore.getType()
-                            + "' must be defined");
-                }
-                if (surveyResponseScore.getSeverity() != null
-                        && !Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
-                    throw new ImportResourceException("Score severity must be a known severity type");
-                }
-            }
-        }*/
+        }
     }
 }

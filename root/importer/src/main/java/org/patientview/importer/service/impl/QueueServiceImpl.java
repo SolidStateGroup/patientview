@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.service.QueueService;
@@ -13,6 +14,7 @@ import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import uk.org.rixg.PatientRecord;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +37,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
     private final static String QUEUE_NAME = "patient_import";
     private final static String QUEUE_NAME_SURVEY = "survey_import";
     private final static String QUEUE_NAME_SURVEY_RESPONSE = "survey_response_import";
+    private final static String QUEUE_NAME_UKRDC = "ukrdc_import";
 
     @Inject
     private AuditService auditService;
@@ -87,19 +90,37 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(patientRecord, stringWriter);
         } catch (JAXBException jxb) {
-            throw new ImportResourceException("Unable to marshall UKRDC xml");
+            throw new ImportResourceException("Unable to marshall UKRDC PatientRecord");
         }
 
         // validate
         try {
             ukrdcService.validate(patientRecord);
         } catch (ImportResourceException ire) {
-            LOG.info("PatientRecord received, failed XML validation (" + ire.getMessage() + ")");
+            LOG.info("UKRDC PatientRecord received, failed XML validation (" + ire.getMessage() + ")");
+
+            String identifier = null;
+
+            // attempt to get identifier if exists, used by audit
+            if (patientRecord.getPatient() != null
+                    && patientRecord.getPatient().getPatientNumbers() != null
+                    && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
+                    && StringUtils.isNotEmpty(
+                        patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
+                identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
+            }
 
             // audit
-            //auditService.createAudit(AuditActions.SURVEY_RESPONSE_VALIDATE_FAIL, surveyResponse.getIdentifier(),
-            //        null, ire.getMessage(), stringWriter.toString(), importerUserId);
+            auditService.createAudit(AuditActions.UKRDC_VALIDATE_FAIL, identifier,
+                    null, ire.getMessage(), stringWriter.toString(), importerUserId);
             throw(ire);
+        }
+
+        // push to queue for processing
+        try {
+            channel.basicPublish("", QUEUE_NAME_UKRDC, true, false, null, stringWriter.toString().getBytes());
+        } catch (IOException e) {
+            throw new ImportResourceException("Unable to send UKRDC PatientRecord onto queue");
         }
     }
 

@@ -26,6 +26,7 @@ public class SurveyResponseBuilder {
 
     private Survey survey;
     private SurveyResponse surveyResponse;
+    private uk.org.rixg.Survey surveyResponseUkrdc;
     private User user;
 
     public SurveyResponseBuilder(SurveyResponse surveyResponse, Survey survey, User user) {
@@ -34,72 +35,150 @@ public class SurveyResponseBuilder {
         this.user = user;
     }
 
+    public SurveyResponseBuilder(uk.org.rixg.Survey surveyResponse, Survey survey, User user) {
+        this.surveyResponseUkrdc = surveyResponse;
+        this.survey = survey;
+        this.user = user;
+    }
+
+    // handle both PatientView SurveyResponse and UKRDC Survey as inputs
     public org.patientview.persistence.model.SurveyResponse build() throws Exception {
-        org.patientview.persistence.model.SurveyResponse newSurveyResponse
-                = new org.patientview.persistence.model.SurveyResponse();
+        if (this.surveyResponse != null) {
+            org.patientview.persistence.model.SurveyResponse newSurveyResponse
+                    = new org.patientview.persistence.model.SurveyResponse();
 
-        // date
-        newSurveyResponse.setDate(this.surveyResponse.getDate().toGregorianCalendar().getTime());
+            // date
+            newSurveyResponse.setDate(this.surveyResponse.getDate().toGregorianCalendar().getTime());
 
-        // user
-        newSurveyResponse.setUser(this.user);
+            // user
+            newSurveyResponse.setUser(this.user);
 
-        // survey
-        newSurveyResponse.setSurvey(this.survey);
+            // survey
+            newSurveyResponse.setSurvey(this.survey);
 
-        // create map of question types to Questions
-        Map<String, Question> questionMap = new HashMap<>();
-        for (QuestionGroup questionGroup : this.survey.getQuestionGroups()) {
-            for (Question question : questionGroup.getQuestions()) {
-                questionMap.put(question.getType(), question);
-            }
-        }
-
-        // question answers
-        for (generated.SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
-                : this.surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
-            // get question
-            Question question = questionMap.get(questionAnswer.getQuestionType());
-            QuestionAnswer newQuestionAnswer = new QuestionAnswer();
-            newQuestionAnswer.setQuestion(question);
-            newQuestionAnswer.setSurveyResponse(newSurveyResponse);
-
-            if (StringUtils.isNotEmpty(questionAnswer.getQuestionOption())) {
-                // is a question answer with an option, get question options for this question
-                Map<String, QuestionOption> questionOptionMap = new HashMap<>();
-                for (QuestionOption questionOption : question.getQuestionOptions()) {
-                    questionOptionMap.put(questionOption.getType(), questionOption);
+            // create map of question types to Questions
+            Map<String, Question> questionMap = new HashMap<>();
+            for (QuestionGroup questionGroup : this.survey.getQuestionGroups()) {
+                for (Question question : questionGroup.getQuestions()) {
+                    questionMap.put(question.getType(), question);
                 }
-                newQuestionAnswer.setQuestionOption(questionOptionMap.get(questionAnswer.getQuestionOption()));
-            } else {
-                // is a simple value question answer
-                newQuestionAnswer.setValue(questionAnswer.getQuestionValue());
             }
 
-            newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
-        }
+            // question answers
+            for (generated.SurveyResponse.QuestionAnswers.QuestionAnswer questionAnswer
+                    : this.surveyResponse.getQuestionAnswers().getQuestionAnswer()) {
+                // get question
+                Question question = questionMap.get(questionAnswer.getQuestionType());
+                QuestionAnswer newQuestionAnswer = new QuestionAnswer();
+                newQuestionAnswer.setQuestion(question);
+                newQuestionAnswer.setSurveyResponse(newSurveyResponse);
 
-        // scores
-        if (this.surveyResponse.getSurveyResponseScores() != null
-                && !CollectionUtils.isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
-            for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore :
-                    this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
-                SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
-                if (surveyResponseScore.getScore() != null) {
-                    newSurveyResponseScore.setScore(surveyResponseScore.getScore().intValue());
-                }
-                if (StringUtils.isNotEmpty(surveyResponseScore.getSeverity().toString())) {
-                    if (Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
-                        newSurveyResponseScore.setSeverity(
-                                ScoreSeverity.valueOf(surveyResponseScore.getSeverity().toString()));
+                if (StringUtils.isNotEmpty(questionAnswer.getQuestionOption())) {
+                    // is a question answer with an option, get question options for this question
+                    Map<String, QuestionOption> questionOptionMap = new HashMap<>();
+                    for (QuestionOption questionOption : question.getQuestionOptions()) {
+                        questionOptionMap.put(questionOption.getType(), questionOption);
                     }
+                    newQuestionAnswer.setQuestionOption(questionOptionMap.get(questionAnswer.getQuestionOption()));
+                } else {
+                    // is a simple value question answer
+                    newQuestionAnswer.setValue(questionAnswer.getQuestionValue());
                 }
-                newSurveyResponseScore.setSurveyResponse(newSurveyResponse);
-                newSurveyResponseScore.setType(surveyResponseScore.getType());
-                newSurveyResponse.getSurveyResponseScores().add(newSurveyResponseScore);
+
+                newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
             }
+
+            // scores
+            if (this.surveyResponse.getSurveyResponseScores() != null
+                    && !CollectionUtils.isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
+                for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore :
+                        this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
+                    SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
+                    if (surveyResponseScore.getScore() != null) {
+                        newSurveyResponseScore.setScore(surveyResponseScore.getScore().intValue());
+                    }
+                    if (StringUtils.isNotEmpty(surveyResponseScore.getSeverity().toString())) {
+                        if (Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
+                            newSurveyResponseScore.setSeverity(
+                                    ScoreSeverity.valueOf(surveyResponseScore.getSeverity().toString()));
+                        }
+                    }
+                    newSurveyResponseScore.setSurveyResponse(newSurveyResponse);
+                    newSurveyResponseScore.setType(surveyResponseScore.getType());
+                    newSurveyResponse.getSurveyResponseScores().add(newSurveyResponseScore);
+                }
+            }
+
+            return newSurveyResponse;
+        } else if (this.surveyResponseUkrdc != null) {
+            org.patientview.persistence.model.SurveyResponse newSurveyResponse
+                    = new org.patientview.persistence.model.SurveyResponse();
+
+            // date
+            newSurveyResponse.setDate(this.surveyResponseUkrdc.getUpdatedOn().toGregorianCalendar().getTime());
+
+            // user
+            newSurveyResponse.setUser(this.user);
+
+            // survey
+            newSurveyResponse.setSurvey(this.survey);
+
+            // create map of question types to Questions
+            Map<String, Question> questionMap = new HashMap<>();
+            for (QuestionGroup questionGroup : this.survey.getQuestionGroups()) {
+                for (Question question : questionGroup.getQuestions()) {
+                    questionMap.put(question.getType(), question);
+                }
+            }
+
+            // question answers
+            for (uk.org.rixg.Survey.Questions.Question question
+                    : this.surveyResponseUkrdc.getQuestions().getQuestion()) {
+                // get question
+                Question entityQuestion = questionMap.get(question.getQuestionType().get(0).getCode());
+                QuestionAnswer newQuestionAnswer = new QuestionAnswer();
+                newQuestionAnswer.setQuestion(entityQuestion);
+                newQuestionAnswer.setSurveyResponse(newSurveyResponse);
+
+                if (!CollectionUtils.isEmpty(entityQuestion.getQuestionOptions())) {
+                    // is a question answer with an option, get question options for this question
+                    Map<String, QuestionOption> questionOptionMap = new HashMap<>();
+                    for (QuestionOption questionOption : entityQuestion.getQuestionOptions()) {
+                        questionOptionMap.put(questionOption.getType(), questionOption);
+                    }
+                    newQuestionAnswer.setQuestionOption(questionOptionMap.get(question.getResponse()));
+                } else {
+                    // is a simple value question answer
+                    newQuestionAnswer.setValue(question.getResponse());
+                }
+
+                newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
+            }
+
+            // scores
+            if (this.surveyResponseUkrdc.getScores() != null
+                    && !CollectionUtils.isEmpty(this.surveyResponseUkrdc.getScores().getScore())) {
+                for (uk.org.rixg.Survey.Scores.Score surveyResponseScore :
+                        this.surveyResponseUkrdc.getScores().getScore()) {
+
+                    SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
+
+                    if (surveyResponseScore.getValue() != null) {
+                        newSurveyResponseScore.setScore(Integer.parseInt(surveyResponseScore.getValue()));
+                    }
+                    if (surveyResponseScore.getLevel() != null) {
+                        newSurveyResponseScore.setLevel(surveyResponseScore.getLevel());
+                    }
+
+                    newSurveyResponseScore.setSurveyResponse(newSurveyResponse);
+                    newSurveyResponseScore.setType(surveyResponseScore.getScoreType().get(0).getCode());
+                    newSurveyResponse.getSurveyResponseScores().add(newSurveyResponseScore);
+                }
+            }
+
+            return newSurveyResponse;
         }
 
-        return newSurveyResponse;
+        return null;
     }
 }
