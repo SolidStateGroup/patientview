@@ -5,7 +5,9 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
 import generated.Patientview;
@@ -61,6 +63,8 @@ import java.util.Set;
  */
 @Service
 public class GpLetterServiceImpl implements GpLetterService {
+
+    private static final float POINTS_IN_CM = 28.346456692913386f;
 
     protected final Logger LOG = LoggerFactory.getLogger(GpLetterService.class);
 
@@ -339,9 +343,9 @@ public class GpLetterServiceImpl implements GpLetterService {
             throws DocumentException {
 
         // create new itext pdf document
-        Document document = new Document();
+        Document document = new Document(PageSize.A4);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter.getInstance(document, baos);
+        PdfWriter writer = PdfWriter.getInstance(document, baos);
         document.open();
 
         // add header
@@ -359,48 +363,67 @@ public class GpLetterServiceImpl implements GpLetterService {
         document.add(new Paragraph(" "));
 
         // GP name
-        document.add(new Paragraph(new Chunk(gpLetter.getGpName())));
+        Paragraph contact = new Paragraph(new Chunk(gpLetter.getGpName()));
+        contact.add(Chunk.NEWLINE);
 
         // GP address
         if (gpMaster == null) {
             // enough information to set address based on gp letter
             if (StringUtils.isNotEmpty(gpLetter.getGpAddress1())
                     && !gpLetter.getGpAddress1().equals(gpLetter.getGpName())) {
-                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress1())));
+                contact.add(new Chunk(gpLetter.getGpAddress1()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpLetter.getGpAddress2())) {
-                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress2())));
+                contact.add(new Chunk(gpLetter.getGpAddress2()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpLetter.getGpAddress3())) {
-                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress3())));
+                contact.add(new Chunk(gpLetter.getGpAddress3()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpLetter.getGpAddress4())) {
-                document.add(new Paragraph(new Chunk(gpLetter.getGpAddress4())));
+                contact.add(new Chunk(gpLetter.getGpAddress4()));
+                contact.add(Chunk.NEWLINE);
             }
         } else {
             // not enough information for address, use gp master information instead
             if (StringUtils.isNotEmpty(gpMaster.getAddress1())) {
-                document.add(new Paragraph(new Chunk(gpMaster.getAddress1())));
+                contact.add(new Chunk(gpMaster.getAddress1()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpMaster.getAddress2())) {
-                document.add(new Paragraph(new Chunk(gpMaster.getAddress2())));
+                contact.add(new Chunk(gpMaster.getAddress2()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpMaster.getAddress3())) {
-                document.add(new Paragraph(new Chunk(gpMaster.getAddress3())));
+                contact.add(new Chunk(gpMaster.getAddress3()));
+                contact.add(Chunk.NEWLINE);
             }
             if (StringUtils.isNotEmpty(gpMaster.getAddress4())) {
-                document.add(new Paragraph(new Chunk(gpMaster.getAddress4())));
+                contact.add(new Chunk(gpMaster.getAddress4()));
+                contact.add(Chunk.NEWLINE);
             }
         }
 
         // GP postcode
-        document.add(new Paragraph(new Chunk(gpLetter.getGpPostcode())));
-        document.add(Chunk.NEWLINE);
+        contact.add(new Chunk(gpLetter.getGpPostcode()));
 
-        // date
-        Paragraph date = new Paragraph();
-        date.add(new Chunk(new SimpleDateFormat("dd-MMM-yyyy").format(gpLetter.getCreated())));
-        document.add(date);
+        // position contact info for A5 window
+        ColumnText ct = new ColumnText(writer.getDirectContent());
+        ct.setSimpleColumn(POINTS_IN_CM * 3.5f, POINTS_IN_CM * 18f, POINTS_IN_CM * 12f, POINTS_IN_CM * 24f);
+        ct.addElement(contact);
+        ct.go();
+
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
+        document.add(Chunk.NEWLINE);
         document.add(Chunk.NEWLINE);
 
         document.add(new Paragraph(new Chunk(gpLetter.getGpName() + ",")));
@@ -415,10 +438,10 @@ public class GpLetterServiceImpl implements GpLetterService {
                 p.add(new Chunk(" (DOB: " + new SimpleDateFormat("dd-MMM-yyyy").format(gpLetter.getPatientDateOfBirth())
                         + ")"));
             }
-            p.add(new Chunk(" has been given access to their records via PatientView ("));
+            p.add(new Chunk(" has been given access to their clinical records via PatientView ("));
             p.add(new Chunk(siteUrl.replace("http://", "").replace("https://", ""), bold));
-            p.add(new Chunk("). It is recorded that they are registered with your practice. PatientView is explained " +
-                    "in the enclosed leaflet; more information is available at "));
+            p.add(new Chunk("). PatientView is explained " +
+                    "in more detail in the enclosed leaflet and additional information is available at "));
             p.add(new Chunk("www.rixg.org/patientview2", bold));
             p.add(new Chunk("."));
             document.add(p);
@@ -428,8 +451,12 @@ public class GpLetterServiceImpl implements GpLetterService {
 
         {
             Paragraph p = new Paragraph();
+            p.add(new Chunk("According to our records "));
+            p.add(new Chunk(gpLetter.getPatientForename() + " " + gpLetter.getPatientSurname()));
+            p.add(new Chunk(" is registered with your practice and we would like to offer you free staff access " +
+                    "to PatientView also. "));
             p.add(new Chunk("If PatientView is not yet set up for staff access in your practice, you can obtain a " +
-                    "free login to see the records of patients who are members by going to "));
+                    "login to see the records of patients who are members by going to "));
             p.add(new Chunk(siteUrl.replace("http://", "").replace("https://", ""), bold));
             p.add(new Chunk("/gplogin", bold));
             p.add(new Chunk(" and entering the following details:"));
@@ -440,20 +467,20 @@ public class GpLetterServiceImpl implements GpLetterService {
 
         {
             Paragraph p = new Paragraph();
-            p.add(new Chunk("Your one-time signup key: "));
+            p.add(new Chunk("* Your one-time signup key: "));
             p.add(new Chunk(gpLetter.getSignupKey(), bold));
             p.add(Chunk.NEWLINE);
-            p.add(new Chunk("Your email address to send the login to (must be an NHS email ending" +
+            p.add(new Chunk("* An email address to send the login to (this must be an NHS email ending " +
                     ".nhs.net, .nhs.uk or hscni.net)."));
             p.add(Chunk.NEWLINE);
-            p.add(new Chunk("The NHS number of the patient that this letter refers to."));
+            p.add(new Chunk("* The NHS number of the patient that this letter refers to."));
             document.add(p);
         }
 
         document.add(Chunk.NEWLINE);
 
-        document.add(new Paragraph(new Chunk("This will set you up as an Administrator for your practice, " +
-                "but you can also create others (for example your practice manager could do this). " +
+        document.add(new Paragraph(new Chunk("This will initially set you up as an Administrator for your practice, " +
+                "but you can also allow access for others e.g. your practice manager. " +
                 "Please take a look! ")));
         document.add(Chunk.NEWLINE);
 
@@ -510,6 +537,37 @@ public class GpLetterServiceImpl implements GpLetterService {
 
         // return as base64
         return Base64.encodeBytes(bytes);
+    }
+
+    @Override
+    public void generateLetterPdfs() {
+        List<GpLetter> letters = gpLetterRepository.findAll();
+
+        for (GpLetter gpLetter : letters) {
+            // letter (generated)
+            try {
+                // if not enough information to produce letter address then use gp master
+                if (!hasValidPracticeDetails(gpLetter)) {
+                    List<GpMaster> gpMasters
+                            = gpMasterRepository.findByPostcode(gpLetter.getGpPostcode().replace(" ", ""));
+
+                    if (!gpMasters.isEmpty()) {
+                        gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0),
+                                properties.getProperty("site.url"),
+                                properties.getProperty("gp.letter.output.directory")));
+                    } else {
+                        gpLetter.setLetterContent(generateLetter(gpLetter, gpMasters.get(0),
+                                properties.getProperty("site.url"),
+                                properties.getProperty("gp.letter.output.directory")));
+                    }
+                } else {
+                    gpLetter.setLetterContent(generateLetter(gpLetter, null, properties.getProperty("site.url"),
+                            properties.getProperty("gp.letter.output.directory")));
+                }
+            } catch (DocumentException de) {
+                LOG.error("Could not generate GP letter, continuing: " + de.getMessage());
+            }
+        }
     }
 
     @Override

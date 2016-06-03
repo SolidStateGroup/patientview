@@ -6,6 +6,7 @@ import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.GpDetails;
 import org.patientview.api.service.GpService;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.service.GpLetterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,9 @@ public class GpController extends BaseController<GpController> {
     @Inject
     private GpService gpService;
 
+    @Inject
+    private GpLetterService gpLetterService;
+
     @RequestMapping(value = "/gp/claim", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<GpDetails> claim(@RequestBody GpDetails gpDetails) throws VerificationException {
@@ -59,5 +63,11 @@ public class GpController extends BaseController<GpController> {
     @ResponseBody
     public ResponseEntity<GpDetails> validateDetails(@RequestBody GpDetails gpDetails) throws VerificationException {
         return new ResponseEntity<>(gpService.validateDetails(gpDetails), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/gp/generateletterpdfs", method = RequestMethod.POST)
+    @ResponseBody
+    public void generateletters() throws VerificationException {
+        gpLetterService.generateLetterPdfs();
     }
 }

@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "pv_gp_letter")
-public class GpLetter  extends BaseModel {
+public class GpLetter extends BaseModel {
 
     @Column(name = "claimed_date")
     @Temporal(TemporalType.TIMESTAMP)
