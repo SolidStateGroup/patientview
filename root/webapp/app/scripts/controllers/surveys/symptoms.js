@@ -82,6 +82,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
 
         var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
+        $scope.comparingText = questionName;
 
         chartSeries.push({
             'color': '#00adc6',
@@ -234,6 +235,12 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         $scope.tableRows = tableRows;
         $scope.minDate = minDate;
         $scope.maxDate = maxDate;
+    };
+
+    $scope.clearComparison = function() {
+        delete $scope.observations;
+        $("#result-compare-select").val('');
+        buildChart();
     };
 
     $scope.compareResults = function(code) {

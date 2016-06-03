@@ -66,13 +66,14 @@
                 <div id="chart_div"></div>
                 <div data-ng-if="observationHeadings && surveyResponses">
                     <br/><br/>
-                    <select class="form-control" data-ng-model="compareCode"
+                    <select class="form-control" id="result-compare-select" data-ng-model="compareCode"
                             data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
                                 | orderBy:'heading' | addCodeFilter:codes"
                             data-ng-change="compareResults(compareCode)">
-                        <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
+                        <option value="">Select a result type to compare with "{{comparingText}}"</option>
                     </select>
                     <br/>
+                    <p data-ng-if="observations"><a href="" data-ng-click="clearComparison()">Clear comparison with result</a> </p>
                     <p>Note: The results are those taken within 3 months of your surveys being filled in.</p>
                 </div>
             </div>
