@@ -41,7 +41,8 @@
                     <thead>
                     <tr>
                         <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
-                            {{header.text}} <span data-ng-if="header.isLatest"><br/>LATEST</span>
+                            <span data-ng-if="header.isLatest">LATEST<br/></span>
+                            {{header.text}}
                         </th>
                     </tr>
                     </thead>
