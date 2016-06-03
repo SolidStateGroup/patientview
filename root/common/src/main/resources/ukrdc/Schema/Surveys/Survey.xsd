@@ -5,7 +5,7 @@
 
     <xs:complexType name="Survey">
             <xs:sequence>
-                <xs:element name="SurveyTime" type="xs:dateTime" minOccurs="0">
+                <xs:element name="SurveyTime" type="xs:dateTime" minOccurs="1">
                     <xs:annotation>
                         <xs:documentation>When the survey was completed.</xs:documentation>
                     </xs:annotation>
