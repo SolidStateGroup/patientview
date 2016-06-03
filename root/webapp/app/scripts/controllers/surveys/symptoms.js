@@ -121,6 +121,9 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 column: {
                     pointPadding: 0.2,
                     borderWidth: 0
+                },
+                series: {
+                    connectNulls: true
                 }
             },
             series: chartSeries,
