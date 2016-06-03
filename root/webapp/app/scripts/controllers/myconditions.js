@@ -35,7 +35,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     $scope.unitGroups.push(group);
                 }
                 group.groupFeatures.forEach(function(feature) {
-                    if (feature.feature.name == 'RENAL_HEALTH_SURVEY') {
+                    if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
                         $scope.showRenalHealthSurveys = true;
                     }
                 })
