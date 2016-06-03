@@ -312,7 +312,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             'RENAL_SURVEY_FEEDBACK_RECIPIENT', conversation)
             .then(function() {
                 delete $scope.savingSurveyFeedbackText;
-                $scope.surveyFeedbackSuccessMessage = 'Sent your comments to your clinical staff';
+                $scope.surveyFeedbackSuccessMessage = 'Comments sent to your clinical staff';
             }, function(error) {
                 delete $scope.savingSurveyFeedbackText;
                 $scope.surveyFeedbackErrorMessage = 'Error sending feedback: ' + error.data;

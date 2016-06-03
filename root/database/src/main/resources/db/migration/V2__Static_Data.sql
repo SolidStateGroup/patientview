@@ -278,6 +278,7 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (10, 'IBD_SCORING_ALERTS', 'IBD Scoring Alerts (needs Messaging)', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (11, 'IBD_PATIENT_MANAGEMENT', 'IBD Patient Management', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (12, 'RENAL_SURVEY_FEEDBACK_RECIPIENT', 'Renal Survey Feedback Recipient', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (13, 'RENAL_HEALTH_SURVEYS', 'Renal Health Surveys', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -292,6 +293,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (15, 9, 15)
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (16, 10, 15);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (17, 11, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (18, 12, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (19, 13, 14);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );

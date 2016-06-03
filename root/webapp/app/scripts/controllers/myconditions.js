@@ -27,11 +27,18 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         GroupService.getAllPublic().then(function(groups) {
             $scope.unitGroups = [];
 
-            // only need UNIT and DISEASE_GROUP groups
+            $scope.showRenalHealthSurveys = false;
+
+            // only need UNIT and DISEASE_GROUP groups, also check if any has the RENAL_HEALTH_SURVEY feature
             groups.forEach(function(group) {
                 if (group.groupType.value === 'UNIT' || group.groupType.value === 'DISEASE_GROUP') {
                     $scope.unitGroups.push(group);
                 }
+                group.groupFeatures.forEach(function(feature) {
+                    if (feature.feature.name == 'RENAL_HEALTH_SURVEY') {
+                        $scope.showRenalHealthSurveys = true;
+                    }
+                })
             });
 
             getMyConditions();
