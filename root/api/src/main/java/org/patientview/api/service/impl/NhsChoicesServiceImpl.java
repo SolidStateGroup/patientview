@@ -51,6 +51,18 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     private Properties properties;
 
     @Override
+    public void updateConditions()
+            throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        String apiKey = properties.getProperty("nhschoices.api.key");
+
+        String[] pages = {"A"};
+
+        for (String page : pages) {
+            LOG.info("Page '" + page + "'");
+        }
+    }
+
+    @Override
     public Map<String, String> getDetailsByPracticeCode(String practiceCode) {
         if (StringUtils.isEmpty(practiceCode)) {
             return null;

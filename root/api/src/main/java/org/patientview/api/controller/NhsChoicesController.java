@@ -27,6 +27,13 @@ public class NhsChoicesController extends BaseController<NhsChoicesController> {
     @Inject
     private NhsChoicesService nhsChoicesService;
 
+    @RequestMapping(value = "/nhschoices/conditions/update", method = RequestMethod.POST)
+    @ResponseBody
+    public void updateConditions()
+            throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+        nhsChoicesService.updateConditions();
+    }
+
     @RequestMapping(value = "/nhschoices/organisations/update", method = RequestMethod.POST)
     @ResponseBody
     public void updateOrganisations()

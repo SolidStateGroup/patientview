@@ -411,7 +411,7 @@ public class GpLetterServiceImpl implements GpLetterService {
 
         // position contact info for A5 window
         ColumnText ct = new ColumnText(writer.getDirectContent());
-        ct.setSimpleColumn(POINTS_IN_CM * 3.5f, POINTS_IN_CM * 18f, POINTS_IN_CM * 21f, POINTS_IN_CM * 24f);
+        ct.setSimpleColumn(POINTS_IN_CM * 3f, POINTS_IN_CM * 18f, POINTS_IN_CM * 21f, POINTS_IN_CM * 24.5f);
         ct.addElement(contact);
         ct.go();
 
