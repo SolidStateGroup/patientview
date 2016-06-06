@@ -811,6 +811,23 @@ CREATE TABLE PV_Survey_Feedback
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Nhschoices_Condition
+(
+  Id                              BIGINT NOT NULL,
+  Name                            TEXT NOT NULL,
+  Uri                             TEXT NOT NULL,
+  Code                            TEXT NOT NULL,
+  Description                     TEXT,
+  Description_Last_Update_Date    TIMESTAMP,
+  Introduction_Url                TEXT,
+  Introduction_Url_Status         INT,
+  Created_By                      BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date                   TIMESTAMP NOT NULL,
+  Last_Update_Date                TIMESTAMP,
+  Last_Updated_By                 BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

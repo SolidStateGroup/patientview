@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface NhsChoicesService {
 
-    @RoleOnly
+    //@RoleOnly
     void updateConditions() throws ParserConfigurationException, IOException, SAXException, XPathExpressionException;
 
     Map<String, String> getDetailsByPracticeCode(String practiceCode);
