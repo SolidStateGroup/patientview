@@ -109,9 +109,9 @@
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('standardType');" class="sort-title"><i class="icon-sort pull-right"></i>Standard</a></div>
-                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('lastUpdate');" class="sort-title"><i class="icon-sort pull-right"></i>Updated</a></div>
                 <div class="head-item accordion-title-text "><a class="sort-title"></a></div>
             </div>
@@ -121,9 +121,9 @@
                 <div class="faux-row">
                     <div class="row-item hidden">{{code.id}}</div>
                     <div class="row-item accordion-heading-text">{{code.code}}</div>
+                    <div class="row-item accordion-heading-text">{{code.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.codeType.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.standardType.description}}</div>
-                    <div class="row-item accordion-heading-text">{{code.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->

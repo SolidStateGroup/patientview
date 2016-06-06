@@ -113,7 +113,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.role = ['id','name','description','routes'];
             fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
             fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
-            fields.code = ['id','code','codeType','standardType','description','links'];
+            fields.code = ['id','code','codeType','standardType','description','links','fullDescription'];
             fields.codeType = ['id','value','description','lookupType'];
             fields.request = ['id','forename','surname', 'nhsNumber', 'status', 'type', 'notes', 'dateOfBirth', 'email', 'captcha'];
             fields.standardType = ['id','value','description','lookupType'];

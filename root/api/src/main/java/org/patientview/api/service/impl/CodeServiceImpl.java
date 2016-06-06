@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -63,6 +64,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             LOG.debug("Code not created, Code already exists with these details");
             throw new EntityExistsException("Code already exists with these details");
         }
+
+        code.setCreated(new Date());
+        code.setCreator(getCurrentUser());
+        code.setLastUpdate(code.getCreated());
+        code.setLastUpdater(getCurrentUser());
         newCode = codeRepository.save(code);
 
         // save links
@@ -95,6 +101,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             newCode.getLinks().add(newLink);
         }
         newCode.setId(null);
+        newCode.setCreated(new Date());
+        newCode.setCreator(getCurrentUser());
+        newCode.setLastUpdate(newCode.getCreated());
+        newCode.setLastUpdater(getCurrentUser());
         return codeRepository.save(newCode);
     }
 
@@ -187,8 +197,6 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
                     }
                 }
             }
-
-
         }
 
         return codes;
@@ -208,8 +216,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         entityCode.setCode(code.getCode());
         entityCode.setDescription(code.getDescription());
+        entityCode.setFullDescription(code.getFullDescription());
         entityCode.setCodeType(code.getCodeType());
         entityCode.setStandardType(code.getStandardType());
+        entityCode.setLastUpdate(new Date());
+        entityCode.setLastUpdater(getCurrentUser());
         return codeRepository.save(entityCode);
     }
 }

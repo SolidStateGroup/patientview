@@ -31,6 +31,10 @@ public class Code extends AuditModel {
     @Column(name = "description")
     private String description;
 
+    // from NHS choices initially
+    @Column(name = "full_description")
+    private String fullDescription;
+
     @OneToOne
     @JoinColumn(name = "standard_type_id")
     private Lookup standardType;
@@ -68,6 +72,14 @@ public class Code extends AuditModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getFullDescription() {
+        return fullDescription;
+    }
+
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
     }
 
     public Lookup getStandardType() {

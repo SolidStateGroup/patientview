@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -211,6 +212,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
     }
 
+    // to clear local:
+    // DELETE FROM pv_link WHERE id > 5007022;
+    // DELETE FROM pv_code WHERE standard_type_id = 134;
     @Override
     @Transactional
     public void synchroniseConditions() throws ResourceNotFoundException {
@@ -256,6 +260,20 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setCodeType(codeType);
                 code.setStandardType(standardType);
                 code.setDescription(condition.getName());
+                code.setFullDescription(condition.getDescription());
+
+                code.setLinks(new HashSet<org.patientview.persistence.model.Link>());
+                org.patientview.persistence.model.Link nhschoicesLink = new org.patientview.persistence.model.Link();
+                nhschoicesLink.setLink(condition.getIntroductionUrl());
+                nhschoicesLink.setName("NHS Choices Information");
+                nhschoicesLink.setCode(code);
+                nhschoicesLink.setCreator(currentUser);
+                nhschoicesLink.setCreated(code.getCreated());
+                nhschoicesLink.setLastUpdater(currentUser);
+                nhschoicesLink.setLastUpdate(code.getCreated());
+                nhschoicesLink.setDisplayOrder(1);
+                code.getLinks().add(nhschoicesLink);
+
                 newCodes.add(code);
             }
         }
