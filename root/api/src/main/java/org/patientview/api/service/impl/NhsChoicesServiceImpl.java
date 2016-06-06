@@ -250,6 +250,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 Code code = new Code();
                 code.setCreator(currentUser);
                 code.setCreated(new Date());
+                code.setLastUpdater(currentUser);
+                code.setLastUpdate(new Date());
                 code.setCode(condition.getCode());
                 code.setCodeType(codeType);
                 code.setStandardType(standardType);

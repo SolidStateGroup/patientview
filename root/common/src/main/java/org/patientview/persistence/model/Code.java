@@ -27,6 +27,7 @@ public class Code extends AuditModel {
     @Column(name = "display_order" )
     private Integer displayOrder;
 
+    // called Name in ui
     @Column(name = "description")
     private String description;
 

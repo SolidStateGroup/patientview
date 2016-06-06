@@ -30,7 +30,6 @@ public abstract class AuditModel extends SimpleAuditModel {
 
     }
 
-    @JsonIgnore
     public Date getLastUpdate() {
         return lastUpdate;
     }
