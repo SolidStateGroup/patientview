@@ -149,6 +149,9 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (132, now(), 'YES', 'Yes', 1, 21, 3);
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (133, now(), 'NO', 'No', 1, 21, 4);
 
+/* for vanilla PV */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (134, now(), 'PATIENTVIEW','PatientView','1','4');
+
 /* Group Statistics (see AuditActions.java) */
 /* pv1 "admin add" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),

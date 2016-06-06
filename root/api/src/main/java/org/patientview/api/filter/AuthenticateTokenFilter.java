@@ -94,6 +94,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         // TESTING
         publicUrls.add("/nhschoices/conditions/update");
+        publicUrls.add("/nhschoices/conditions/synchronise");
 
 
         for (String publicUrl : this.publicUrls) {

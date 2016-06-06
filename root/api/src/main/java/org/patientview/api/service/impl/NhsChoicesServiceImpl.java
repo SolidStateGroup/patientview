@@ -15,8 +15,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.patientview.api.service.NhsChoicesService;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhschoicesCondition;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.NhschoicesConditionRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -60,7 +67,13 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     // https://abdera.apache.org/ - An Open Source Atom Implementation
     private Abdera abdera;
 
+    @Inject
+    private CodeRepository codeRepository;
+
     private DocumentBuilderFactory documentBuilderFactory;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     @Inject
     private NhschoicesConditionRepository nhschoicesConditionRepository;
@@ -71,128 +84,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Inject
     private Properties properties;
 
-    @Override
-    @Transactional
-    public void updateConditions()
-            throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
-        String apiKey = properties.getProperty("nhschoices.api.key");
-        String urlString = "http://v1.syndication.nhschoices.nhs.uk/conditions/atoz.xml?apikey=" + apiKey;
-
-        if (documentBuilderFactory == null) {
-            documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        }
-
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-        // get alphabetical listing of urls for conditions
-        org.w3c.dom.Document doc = documentBuilder.parse(new URL(urlString).openStream());
-        List<String> aToZPages = new ArrayList<>();
-
-        for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
-            for (Node childNode : XmlUtil.asList(node.getChildNodes())) {
-                if (childNode.getNodeName().equals("Uri")) {
-                    aToZPages.add(childNode.getTextContent().replace("?apikey", ".xml?apikey"));
-                }
-            }
-        }
-
-        // now have list of all a-z and 0-9 pages with conditions lists in xml representation
-        Map<String, NhschoicesCondition> uriMap = new HashMap<>();
-
-        for (String pageUrl : aToZPages) {
-            doc = documentBuilder.parse(new URL(pageUrl).openStream());
-
-            for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
-                String text = null;
-                String uri = null;
-
-                for (Node childNode : XmlUtil.asList(node.getChildNodes())) {
-                    if (childNode.getNodeName().equals("Text")) {
-                        text = childNode.getTextContent();
-                    }
-                    if (childNode.getNodeName().equals("Uri")) {
-                        // handle broken links from nhs choices as produce .aspx error page
-                        //if (!childNode.getTextContent().contains(".aspx")) {
-                            uri = childNode.getTextContent().split("\\?apikey")[0];
-                        //}
-                    }
-                }
-
-                if (text != null && uri != null) {
-                    uriMap.put(uri, new NhschoicesCondition(text, uri));
-                }
-            }
-        }
-
-        // compare to existing using uri, adding if required with correct details
-        List<NhschoicesCondition> currentConditions = nhschoicesConditionRepository.findAll();
-        Map<String, NhschoicesCondition> currentUriMap = new HashMap<>();
-
-        for (NhschoicesCondition currentCondition : currentConditions) {
-            currentUriMap.put(currentCondition.getUri(), currentCondition);
-        }
-
-        // set creator to importer if not called by a user from endpoint (e.g. run as task)
-        User currentUser = getCurrentUser();
-        if (currentUser == null) {
-            currentUser = userRepository.findByUsernameCaseInsensitive("importer");
-        }
-
-        for (String uri : uriMap.keySet()) {
-            if (!currentUriMap.keySet().contains(uri)) {
-                // new entry
-                NhschoicesCondition newCondition = uriMap.get(uri);
-                newCondition.setCreator(currentUser);
-                newCondition.setCreated(new Date());
-                newCondition.setCode(getConditionCodeFromUri(uri));
-
-                // set introduction url and status (note: request goes from 3s to 60s, IP blocked after 3 runs)
-                //setConditionIntroductionUrl(newCondition);
-                newCondition.setIntroductionUrl("http://www.nhs.uk/conditions/" + newCondition.getCode()
-                        + "/Pages/Introduction.aspx");
-
-                nhschoicesConditionRepository.save(newCondition);
-            }
-        }
-    }
-
     private String getConditionCodeFromUri(String uri) {
         return uri.split("/")[uri.split("/").length - 1];
-    }
-
-    private void setConditionIntroductionUrl(NhschoicesCondition condition) {
-        String introductionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Introduction.aspx";
-        String definitionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Definition.aspx";
-
-        Integer status = getUrlStatus(introductionUrl);
-
-        if (status != null && status.equals(200)) {
-            // as expected
-            condition.setIntroductionUrl(introductionUrl);
-            condition.setIntroductionUrlStatus(status);
-        } else {
-            status = getUrlStatus(definitionUrl);
-            if (status != null && status.equals(200)) {
-                // as expected with alternate url
-                condition.setIntroductionUrl(definitionUrl);
-                condition.setIntroductionUrlStatus(status);
-            } else {
-                condition.setIntroductionUrlStatus(status);
-            }
-        }
-    }
-
-    private Integer getUrlStatus(String url) {
-        try {
-            HttpURLConnection huc = (HttpURLConnection) new URL(url).openConnection();
-            huc.setRequestMethod("HEAD");  //OR  huc.setRequestMethod ("GET");
-            huc.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; " +
-                    ".NET CLR 1.0.3705; .NET CLR 1.1.4322; .NET CLR 1.2.30703)");
-            huc.connect();
-            return huc.getResponseCode();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     @Override
@@ -283,6 +176,177 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         return null;
     }
 
+    private Integer getUrlStatus(String url) {
+        try {
+            HttpURLConnection huc = (HttpURLConnection) new URL(url).openConnection();
+            huc.setRequestMethod("HEAD");  //OR  huc.setRequestMethod ("GET");
+            huc.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; " +
+                    ".NET CLR 1.0.3705; .NET CLR 1.1.4322; .NET CLR 1.2.30703)");
+            huc.connect();
+            return huc.getResponseCode();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void setConditionIntroductionUrl(NhschoicesCondition condition) {
+        String introductionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Introduction.aspx";
+        String definitionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Definition.aspx";
+
+        Integer status = getUrlStatus(introductionUrl);
+
+        if (status != null && status.equals(200)) {
+            // as expected
+            condition.setIntroductionUrl(introductionUrl);
+            condition.setIntroductionUrlStatus(status);
+        } else {
+            status = getUrlStatus(definitionUrl);
+            if (status != null && status.equals(200)) {
+                // as expected with alternate url
+                condition.setIntroductionUrl(definitionUrl);
+                condition.setIntroductionUrlStatus(status);
+            } else {
+                condition.setIntroductionUrlStatus(status);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void synchroniseConditions() throws ResourceNotFoundException {
+        // synchronise conditions previously retrieved from nhs choices, may be consolidated into once function call
+        Lookup standardType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, "PATIENTVIEW");
+        if (standardType == null) {
+            throw new ResourceNotFoundException("Could not find PATIENTVIEW code standard type Lookup");
+        }
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("Could not find DIAGNOSIS code type Lookup");
+        }
+
+        // set creator to importer if not called by a user from endpoint (e.g. run as task)
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            currentUser = userRepository.findByUsernameCaseInsensitive("importer");
+        }
+
+        // get codes and conditions to synchronise
+        List<Code> codes = codeRepository.findAllByStandardType(standardType);
+        List<NhschoicesCondition> conditions = nhschoicesConditionRepository.findAll();
+
+        Map<String, Code> codesMap = new HashMap<>();
+
+        for (Code code : codes) {
+            codesMap.put(code.getCode(), code);
+        }
+
+        List<Code> newCodes = new ArrayList<>();
+
+        for (NhschoicesCondition condition : conditions) {
+            if (codesMap.keySet().contains(condition.getCode())) {
+                // exists in patientview already
+            } else {
+                // is new and must be converted and saved
+                Code code = new Code();
+                code.setCreator(currentUser);
+                code.setCreated(new Date());
+                code.setCode(condition.getCode());
+                code.setCodeType(codeType);
+                code.setStandardType(standardType);
+                code.setDescription(condition.getName());
+                newCodes.add(code);
+            }
+        }
+
+        codeRepository.save(newCodes);
+    }
+
+    // helper to convert NodeList to List of Nodes
+    @Override
+    @Transactional
+    public void updateConditions()
+            throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+        String apiKey = properties.getProperty("nhschoices.api.key");
+        String urlString = "http://v1.syndication.nhschoices.nhs.uk/conditions/atoz.xml?apikey=" + apiKey;
+
+        if (documentBuilderFactory == null) {
+            documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        }
+
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+        // get alphabetical listing of urls for conditions
+        org.w3c.dom.Document doc = documentBuilder.parse(new URL(urlString).openStream());
+        List<String> aToZPages = new ArrayList<>();
+
+        for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
+            for (Node childNode : XmlUtil.asList(node.getChildNodes())) {
+                if (childNode.getNodeName().equals("Uri")) {
+                    aToZPages.add(childNode.getTextContent().replace("?apikey", ".xml?apikey"));
+                }
+            }
+        }
+
+        // now have list of all a-z and 0-9 pages with conditions lists in xml representation
+        Map<String, NhschoicesCondition> uriMap = new HashMap<>();
+
+        for (String pageUrl : aToZPages) {
+            doc = documentBuilder.parse(new URL(pageUrl).openStream());
+
+            for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
+                String text = null;
+                String uri = null;
+
+                for (Node childNode : XmlUtil.asList(node.getChildNodes())) {
+                    if (childNode.getNodeName().equals("Text")) {
+                        text = childNode.getTextContent();
+                    }
+                    if (childNode.getNodeName().equals("Uri")) {
+                        // handle broken links from nhs choices as produce .aspx error page
+                        //if (!childNode.getTextContent().contains(".aspx")) {
+                        uri = childNode.getTextContent().split("\\?apikey")[0];
+                        //}
+                    }
+                }
+
+                if (text != null && uri != null) {
+                    uriMap.put(uri, new NhschoicesCondition(text, uri));
+                }
+            }
+        }
+
+        // compare to existing using uri, adding if required with correct details
+        List<NhschoicesCondition> currentConditions = nhschoicesConditionRepository.findAll();
+        Map<String, NhschoicesCondition> currentUriMap = new HashMap<>();
+
+        for (NhschoicesCondition currentCondition : currentConditions) {
+            currentUriMap.put(currentCondition.getUri(), currentCondition);
+        }
+
+        // set creator to importer if not called by a user from endpoint (e.g. run as task)
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            currentUser = userRepository.findByUsernameCaseInsensitive("importer");
+        }
+
+        for (String uri : uriMap.keySet()) {
+            if (!currentUriMap.keySet().contains(uri)) {
+                // new entry
+                NhschoicesCondition newCondition = uriMap.get(uri);
+                newCondition.setCreator(currentUser);
+                newCondition.setCreated(new Date());
+                newCondition.setCode(getConditionCodeFromUri(uri));
+
+                // set introduction url and status (note: request goes from 3s to 60s, IP blocked after 3 runs)
+                //setConditionIntroductionUrl(newCondition);
+                newCondition.setIntroductionUrl("http://www.nhs.uk/conditions/" + newCondition.getCode()
+                        + "/Pages/Introduction.aspx");
+
+                nhschoicesConditionRepository.save(newCondition);
+            }
+        }
+    }
+
     // testing only
     @Override
     public void updateOrganisations()
@@ -345,7 +409,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
     }
 
-    // helper to convert NodeList to List of Nodes
     private static final class XmlUtil {
         private XmlUtil() {}
 

@@ -33,6 +33,10 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
     List<Code> findAllByType(@Param("codeType") Lookup codeType);
 
     @Query("SELECT c FROM Code c " +
+            "WHERE c.standardType = :standardType")
+    List<Code> findAllByStandardType(@Param("standardType") Lookup standardType);
+
+    @Query("SELECT c FROM Code c " +
             "WHERE (UPPER(c.code) LIKE :filterText) " +
             "OR (UPPER(c.description) LIKE :filterText) " +
             "OR (UPPER(c.codeType.value) LIKE :filterText) " +
