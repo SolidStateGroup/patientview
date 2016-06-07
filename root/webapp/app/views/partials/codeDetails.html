@@ -2,11 +2,11 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-4">
             <label for="code-code" class="control-label">Code <span class="error" data-ng-show="codeForm.code.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100"></div>
+            <div><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100" data-ng-disabled="editCode.standardType.value == 'PATIENTVIEW'"></div>
         </div>
         <div class="col-md-4">
             <label for="code-description" class="control-label">Name <span class="error" data-ng-show="codeForm.description.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="code-description" placeholder="Name" name="description" data-ng-model="editCode.description" required maxlength="255"></div>
+            <div><input type="text" class="form-control" id="code-description" placeholder="Name" name="description" data-ng-model="editCode.description" required maxlength="255" data-ng-disabled="editCode.standardType.value == 'PATIENTVIEW'"></div>
         </div>
         <div class="col-md-2">
             <label for="code-codeType" class="control-label">Code Type<span class="error" data-ng-show="!editCode.codeTypeId"> *required</span></label>
