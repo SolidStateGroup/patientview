@@ -217,6 +217,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                             + "/introduction.xml?apikey=" + properties.getProperty("nhschoices.api.key");
 
                     LOG.info("Updating '" + code + "' with description from " + urlString);
+                    User currentUser = getCurrentUser();
 
                     // atom XML format
                     if (abdera == null) {
@@ -251,10 +252,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                                 // save NHS Choices Condition
                                 condition.setDescription(summary);
                                 condition.setDescriptionLastUpdateDate(new Date());
+                                condition.setLastUpdater(currentUser);
+                                condition.setLastUpdate(new Date());
                                 nhschoicesConditionRepository.save(condition);
 
                                 // save Code
                                 entityCode.setFullDescription(summary);
+                                entityCode.setLastUpdate(new Date());
+                                entityCode.setLastUpdater(currentUser);
                                 codeRepository.save(entityCode);
 
                                 return entityCode;
@@ -278,6 +283,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         Date oneMonthAgo = new DateTime(new Date()).minusMonths(1).toDate();
         Date now = new Date();
+        User currentUser = getCurrentUser();
 
         // if NHS Choices Condition is found and not already set to status 200 and not updated in last month
         if (condition != null &&
@@ -298,6 +304,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 condition.setIntroductionUrl(introductionUrl);
                 condition.setIntroductionUrlStatus(status);
                 condition.setIntroductionUrlLastUpdateDate(now);
+                condition.setLastUpdate(now);
+                condition.setLastUpdater(currentUser);
                 foundIntroductionPage = true;
             } else {
                 LOG.info("Updating '" + code + "' with introduction url " + definitionUrl);
@@ -315,6 +323,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     condition.setIntroductionUrl(definitionUrl);
                     condition.setIntroductionUrlStatus(status);
                     condition.setIntroductionUrlLastUpdateDate(now);
+                    condition.setLastUpdate(now);
+                    condition.setLastUpdater(currentUser);
                     foundIntroductionPage = true;
                 } else {
                     // 404, 403 or otherwise
@@ -358,7 +368,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     foundLink.setLastUpdate(now);
                 }
 
-                entityCode.setLastUpdater(getCurrentUser());
+                entityCode.setLastUpdater(currentUser);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             }
@@ -401,6 +411,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         List<NhschoicesCondition> conditionsToSave = new ArrayList<>();
         List<String> newOrUpdatedCodes = new ArrayList<>();
 
+        LOG.info("Synchronising " + conditions.size() + " NhschoicesConditions with " + currentCodes.size()
+                + " PATIENTVIEW standard type Codes");
+
         // iterate through all NHS Choices conditions
         for (NhschoicesCondition condition : conditions) {
             newOrUpdatedCodes.add(condition.getCode());
@@ -411,6 +424,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 condition.setIntroductionUrlLastUpdateDate(null);
                 condition.setDescriptionLastUpdateDate(null);
                 conditionsToSave.add(condition);
+
+                // revert removed externally if set
+                Code currentCode = currentCodesMap.get(condition.getCode());
+                if (currentCode.isRemovedExternally()) {
+                    currentCode.setRemovedExternally(false);
+                    codesToSave.add(currentCode);
+                }
+
             } else {
                 // NhschoicesCondition is new, create and save new Code
                 Code code = new Code();
@@ -423,6 +444,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setStandardType(standardType);
                 code.setDescription(condition.getName());
                 code.setFullDescription(condition.getDescription());
+                code.setLastUpdate(code.getCreated());
+                code.setLastUpdater(currentUser);
 
                 // add Link to new Code if introduction URL is present on NhschoiceCondition
                 if (StringUtils.isNotEmpty(condition.getIntroductionUrl())) {
@@ -448,6 +471,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             if (!newOrUpdatedCodes.contains(code.getCode())) {
                 // Code has been removed externally
                 code.setRemovedExternally(true);
+                code.setLastUpdate(new Date());
+                code.setLastUpdater(currentUser);
                 codesToSave.add(code);
             }
         }
@@ -459,6 +484,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         if (!conditionsToSave.isEmpty()) {
             nhschoicesConditionRepository.save(conditionsToSave);
         }
+
+        LOG.info("Finished synchronising " + conditions.size() + " NhschoicesConditions with " + currentCodes.size()
+                + " PATIENTVIEW standard type Codes.");
     }
 
     @Override
@@ -485,7 +513,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         try {
             doc = documentBuilder.parse(new URL(urlString).openStream());
         } catch (SAXException | IOException e) {
-            throw new ImportResourceException("Error reading alphabetical listing of Conditions: " + urlString);
+            throw new ImportResourceException("Error reading alphabetical listing of NHS Choices conditions: "
+                    + urlString);
         }
 
         List<String> aToZPages = new ArrayList<>();
@@ -502,12 +531,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Map<String, NhschoicesCondition> newUriMap = new HashMap<>();
 
         for (String pageUrl : aToZPages) {
-            LOG.info("Synchronising page: " + pageUrl);
+            LOG.info("Updating NhschoicesConditions from page: " + pageUrl);
 
             try {
                 doc = documentBuilder.parse(new URL(pageUrl).openStream());
             } catch (SAXException | IOException e) {
-                throw new ImportResourceException("Error reading page of Conditions: " + pageUrl);
+                throw new ImportResourceException("Error reading page of conditions: " + pageUrl);
             }
 
             for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
@@ -569,6 +598,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 newCondition.setCreator(currentUser);
                 newCondition.setCreated(new Date());
                 newCondition.setCode(conditionCode);
+                newCondition.setLastUpdate(newCondition.getCreated());
+                newCondition.setLastUpdater(currentUser);
                 nhschoicesConditionRepository.save(newCondition);
             } else {
                 // existing entry, clear dates for introduction url and description so updated on next get Code
@@ -576,6 +607,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 if (existingCondition != null) {
                     existingCondition.setIntroductionUrlLastUpdateDate(null);
                     existingCondition.setDescriptionLastUpdateDate(null);
+                    existingCondition.setLastUpdate(new Date());
+                    existingCondition.setLastUpdater(currentUser);
                     nhschoicesConditionRepository.save(existingCondition);
                 }
             }
@@ -583,7 +616,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         // delete old NhschoiceCondition, no longer on NHS Choices
         currentConditionCodes.removeAll(newConditionCodes);
-        nhschoicesConditionRepository.deleteByCode(currentConditionCodes);
+
+        if (!currentConditionCodes.isEmpty()) {
+            nhschoicesConditionRepository.deleteByCode(currentConditionCodes);
+        }
     }
 
     // testing only
