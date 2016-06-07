@@ -327,47 +327,59 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     condition.setLastUpdater(currentUser);
                     foundIntroductionPage = true;
                 } else {
-                    // 404, 403 or otherwise
+                    // 404, 403 or otherwise, remove introduction url
+                    condition.setIntroductionUrl(null);
                     condition.setIntroductionUrlStatus(status);
                     condition.setIntroductionUrlLastUpdateDate(now);
+                    condition.setLastUpdate(now);
+                    condition.setLastUpdater(currentUser);
                 }
             }
 
             nhschoicesConditionRepository.save(condition);
 
-            if (foundIntroductionPage) {
-                // update Code with link if does not exist
-                Code entityCode = codeRepository.findOneByCode(code);
-                if (entityCode == null) {
-                    throw new ResourceNotFoundException("Could not find Code with code '" + code + "'");
+            // update Code with link if does not exist
+            Code entityCode = codeRepository.findOneByCode(code);
+            if (entityCode == null) {
+                throw new ResourceNotFoundException("Could not find Code with code '" + code + "'");
+            }
+
+            org.patientview.persistence.model.Link foundLink = null;
+
+            // check Link exists already with NHS Choices description
+            for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
+                if (link.getName().equals(NHS_CHOICES_LINK_DESCRIPTION)) {
+                    foundLink = link;
                 }
+            }
 
-                org.patientview.persistence.model.Link foundLink = null;
+            if (foundLink == null && foundIntroductionPage) {
+                // no existing link, introduction page exists, create new Link
+                org.patientview.persistence.model.Link nhschoicesLink
+                        = new org.patientview.persistence.model.Link();
+                nhschoicesLink.setLink(condition.getIntroductionUrl());
+                nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
+                nhschoicesLink.setCode(entityCode);
+                nhschoicesLink.setCreator(getCurrentUser());
+                nhschoicesLink.setCreated(now);
+                nhschoicesLink.setLastUpdater(getCurrentUser());
+                nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
-                for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-                    if (link.getName().equals(NHS_CHOICES_LINK_DESCRIPTION)) {
-                        foundLink = link;
-                    }
-                }
-
-                if (foundLink == null) {
-                    org.patientview.persistence.model.Link nhschoicesLink
-                            = new org.patientview.persistence.model.Link();
-                    nhschoicesLink.setLink(condition.getIntroductionUrl());
-                    nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
-                    nhschoicesLink.setCode(entityCode);
-                    nhschoicesLink.setCreator(getCurrentUser());
-                    nhschoicesLink.setCreated(now);
-                    nhschoicesLink.setLastUpdater(getCurrentUser());
-                    nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
-
-                    entityCode.getLinks().add(nhschoicesLink);
-                } else {
-                    foundLink.setLink(condition.getIntroductionUrl());
-                    foundLink.setLastUpdater(getCurrentUser());
-                    foundLink.setLastUpdate(now);
-                }
-
+                entityCode.getLinks().add(nhschoicesLink);
+                entityCode.setLastUpdater(currentUser);
+                entityCode.setLastUpdate(now);
+                codeRepository.save(entityCode);
+            } else if (foundLink != null && foundIntroductionPage) {
+                // existing link, introduction page exists, update link
+                foundLink.setLink(condition.getIntroductionUrl());
+                foundLink.setLastUpdater(getCurrentUser());
+                foundLink.setLastUpdate(now);
+                entityCode.setLastUpdater(currentUser);
+                entityCode.setLastUpdate(now);
+                codeRepository.save(entityCode);
+            } else if (foundLink != null && !foundIntroductionPage){
+                // existing link, introduction page does not exist, remove link
+                entityCode.getLinks().remove(foundLink);
                 entityCode.setLastUpdater(currentUser);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
