@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
  * Created by james@solidstategroup.com
  * Created on 07/06/2016
  */
-public class NhschoicesServiceTest {
+public class NhsChoicesServiceTest {
 
     @Mock
     CodeRepository codeRepository;
