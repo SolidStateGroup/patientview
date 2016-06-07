@@ -326,6 +326,7 @@ CREATE TABLE PV_Code (
   Description      VARCHAR(255),
   Full_Description TEXT,
   Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Removed_Externally         BOOL      NOT NULL DEFAULT FALSE,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,

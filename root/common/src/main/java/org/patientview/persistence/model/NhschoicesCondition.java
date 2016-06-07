@@ -44,6 +44,12 @@ public class NhschoicesCondition extends AuditModel {
         this.uri = uri;
     }
 
+    public NhschoicesCondition(String code, String name, String uri) {
+        this.code = code;
+        this.name = name;
+        this.uri = uri;
+    }
+
     public String getCode() {
         return code;
     }

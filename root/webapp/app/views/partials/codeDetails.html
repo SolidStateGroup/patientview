@@ -91,5 +91,9 @@
 <div class="row">
     <div class="col-md-12">
         <span class="created-span" data-ng-if="editCode.created">Created {{editCode.created | date:'dd-MMM-yyyy HH:mm'}}</span><span class="created-span" data-ng-if="editCode.lastUpdate">, updated {{editCode.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
+        <br/><br/>
+        <div class="alert alert-warning" data-ng-if="editCode.removedExternally">
+            <span>This Code has been removed externally</span>
+        </div>
     </div>
 </div>

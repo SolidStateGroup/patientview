@@ -36,6 +36,10 @@ public class Code extends AuditModel {
     @Column(name = "full_description")
     private String fullDescription;
 
+    // used when comparing to NHS Choices
+    @Column(name = "removed_externally")
+    private boolean removedExternally = false;
+
     @OneToOne
     @JoinColumn(name = "standard_type_id")
     private Lookup standardType;
@@ -81,6 +85,14 @@ public class Code extends AuditModel {
 
     public void setFullDescription(String fullDescription) {
         this.fullDescription = fullDescription;
+    }
+
+    public boolean isRemovedExternally() {
+        return removedExternally;
+    }
+
+    public void setRemovedExternally(boolean removedExternally) {
+        this.removedExternally = removedExternally;
     }
 
     public Lookup getStandardType() {

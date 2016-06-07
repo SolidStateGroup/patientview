@@ -18,15 +18,44 @@ import java.util.Map;
  * Created on 18/01/2016
  */
 public interface NhsChoicesService {
+    /**
+     * Set the NhschoicesCondition description and Code fullDescription using NHS Choices API.
+     * Done on get Code with 3s delay to avoid NHS Choices API limits.
+     * @param code String code, used for finding NhschoicesCondition and Code
+     * @return Code object
+     * @throws ResourceNotFoundException
+     * @throws ImportResourceException
+     */
     Code setDescription(String code) throws ResourceNotFoundException, ImportResourceException;
 
+    /**
+     * Get GP details from NHS Choices API, used to update GpMaster url if url is not set.
+     * @param practiceCode String code of practice
+     * @return Map of details, just url -> "http://www.nhs.uk/somepractice.com"
+     */
     Map<String, String> getDetailsByPracticeCode(String practiceCode);
 
+    /**
+     * Set the introduction URL (actual link to NHS Choices website) for NhschoicesCondition by calling NHS Choices API.
+     * Also updates Link on Code. Done on get Code with 3s delay to avoid NHS Choices API limits.
+     * @param code String code, used for finding NhschoicesCondition and Code
+     * @throws ResourceNotFoundException
+     * @throws ImportResourceException
+     */
     void setIntroductionUrl(String code) throws ResourceNotFoundException, ImportResourceException;
 
+    /**
+     * Step 2 of update PV Codes, synchronises NhschoicesConditions with Codes.
+     * If an NhschoicesCondition has been deleted, marks Code as externallyRemoved = true.
+     * @throws ResourceNotFoundException
+     */
     void synchroniseConditions() throws ResourceNotFoundException;
 
-    //@RoleOnly
+    /**
+     * Step 1 of update PV Codes from NHS Choices, reads from API and stores each condition as NhschoicesCondition.
+     * Will create new NhschoicesConditions and delete from PV if no longer found in API.
+     * @throws ImportResourceException
+     */
     void updateConditions() throws ImportResourceException;
 
     // testing only

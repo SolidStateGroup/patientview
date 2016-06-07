@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -357,7 +356,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     foundLink.setLink(condition.getIntroductionUrl());
                     foundLink.setLastUpdater(getCurrentUser());
                     foundLink.setLastUpdate(now);
-
                 }
 
                 entityCode.setLastUpdater(getCurrentUser());
@@ -389,23 +387,32 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             currentUser = userRepository.findByUsernameCaseInsensitive("importer");
         }
 
-        // get codes and conditions to synchronise
-        List<Code> codes = codeRepository.findAllByStandardType(standardType);
+        // get codes and conditions to synchronise, finding all PATIENTVIEW Codes and all NhschoicesCondition
+        List<Code> currentCodes = codeRepository.findAllByStandardType(standardType);
         List<NhschoicesCondition> conditions = nhschoicesConditionRepository.findAll();
 
-        Map<String, Code> codesMap = new HashMap<>();
-
-        for (Code code : codes) {
-            codesMap.put(code.getCode(), code);
+        // map to store current Codes
+        Map<String, Code> currentCodesMap = new HashMap<>();
+        for (Code code : currentCodes) {
+            currentCodesMap.put(code.getCode(), code);
         }
 
-        List<Code> newCodes = new ArrayList<>();
+        List<Code> codesToSave = new ArrayList<>();
+        List<NhschoicesCondition> conditionsToSave = new ArrayList<>();
+        List<String> newOrUpdatedCodes = new ArrayList<>();
 
+        // iterate through all NHS Choices conditions
         for (NhschoicesCondition condition : conditions) {
-            if (codesMap.keySet().contains(condition.getCode())) {
-                // exists in patientview already
+            newOrUpdatedCodes.add(condition.getCode());
+
+            // check if Code with same code as NhschoicesCondition exists in PV already
+            if (currentCodesMap.keySet().contains(condition.getCode())) {
+                // exists in patientview already, clear introduction url date and description date so updated next get
+                condition.setIntroductionUrlLastUpdateDate(null);
+                condition.setDescriptionLastUpdateDate(null);
+                conditionsToSave.add(condition);
             } else {
-                // is new and must be converted and saved
+                // NhschoicesCondition is new, create and save new Code
                 Code code = new Code();
                 code.setCreator(currentUser);
                 code.setCreated(new Date());
@@ -417,26 +424,43 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setDescription(condition.getName());
                 code.setFullDescription(condition.getDescription());
 
-                code.setLinks(new HashSet<org.patientview.persistence.model.Link>());
-                org.patientview.persistence.model.Link nhschoicesLink = new org.patientview.persistence.model.Link();
-                nhschoicesLink.setLink(condition.getIntroductionUrl());
-                nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
-                nhschoicesLink.setCode(code);
-                nhschoicesLink.setCreator(currentUser);
-                nhschoicesLink.setCreated(code.getCreated());
-                nhschoicesLink.setLastUpdater(currentUser);
-                nhschoicesLink.setLastUpdate(code.getCreated());
-                nhschoicesLink.setDisplayOrder(1);
-                code.getLinks().add(nhschoicesLink);
+                // add Link to new Code if introduction URL is present on NhschoiceCondition
+                if (StringUtils.isNotEmpty(condition.getIntroductionUrl())) {
+                    org.patientview.persistence.model.Link nhschoicesLink
+                            = new org.patientview.persistence.model.Link();
+                    nhschoicesLink.setLink(condition.getIntroductionUrl());
+                    nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
+                    nhschoicesLink.setCode(code);
+                    nhschoicesLink.setCreator(currentUser);
+                    nhschoicesLink.setCreated(code.getCreated());
+                    nhschoicesLink.setLastUpdater(currentUser);
+                    nhschoicesLink.setLastUpdate(code.getCreated());
+                    nhschoicesLink.setDisplayOrder(1);
+                    code.getLinks().add(nhschoicesLink);
+                }
 
-                newCodes.add(code);
+                codesToSave.add(code);
             }
         }
 
-        codeRepository.save(newCodes);
+        // handle PATIENTVIEW codes that are no longer in NHS Choices Condition list, mark as removed externally
+        for (Code code : currentCodes) {
+            if (!newOrUpdatedCodes.contains(code.getCode())) {
+                // Code has been removed externally
+                code.setRemovedExternally(true);
+                codesToSave.add(code);
+            }
+        }
+
+        if (!codesToSave.isEmpty()) {
+            codeRepository.save(codesToSave);
+        }
+
+        if (!conditionsToSave.isEmpty()) {
+            nhschoicesConditionRepository.save(conditionsToSave);
+        }
     }
 
-    // helper to convert NodeList to List of Nodes
     @Override
     @Transactional
     public void updateConditions() throws ImportResourceException {
@@ -475,7 +499,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
 
         // now have list of all a-z and 0-9 pages with conditions lists in xml representation
-        Map<String, NhschoicesCondition> uriMap = new HashMap<>();
+        Map<String, NhschoicesCondition> newUriMap = new HashMap<>();
 
         for (String pageUrl : aToZPages) {
             LOG.info("Synchronising page: " + pageUrl);
@@ -503,7 +527,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 }
 
                 if (text != null && uri != null) {
-                    uriMap.put(uri, new NhschoicesCondition(text, uri));
+                    newUriMap.put(uri, new NhschoicesCondition(text, uri));
                 }
             }
 
@@ -517,10 +541,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         // compare to existing using uri, adding if required with correct details
         List<NhschoicesCondition> currentConditions = nhschoicesConditionRepository.findAll();
+        List<String> currentConditionCodes = new ArrayList<>();
         Map<String, NhschoicesCondition> currentUriMap = new HashMap<>();
+        Map<String, NhschoicesCondition> currentCodeMap = new HashMap<>();
 
         for (NhschoicesCondition currentCondition : currentConditions) {
             currentUriMap.put(currentCondition.getUri(), currentCondition);
+            currentConditionCodes.add(currentCondition.getCode());
+            currentCodeMap.put(currentCondition.getCode(), currentCondition);
         }
 
         // set creator to importer if not called by a user from endpoint (e.g. run as task)
@@ -529,22 +557,33 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             currentUser = userRepository.findByUsernameCaseInsensitive("importer");
         }
 
-        for (String uri : uriMap.keySet()) {
+        List<String> newConditionCodes = new ArrayList<>();
+
+        for (String uri : newUriMap.keySet()) {
+            String conditionCode = getConditionCodeFromUri(uri);
+            newConditionCodes.add(conditionCode);
+
             if (!currentUriMap.keySet().contains(uri)) {
-                // new entry
-                NhschoicesCondition newCondition = uriMap.get(uri);
+                // new entry, introduction url and description are set on get Code to avoid limit
+                NhschoicesCondition newCondition = newUriMap.get(uri);
                 newCondition.setCreator(currentUser);
                 newCondition.setCreated(new Date());
-                newCondition.setCode(getConditionCodeFromUri(uri));
-
-                // set introduction url and status (note: request goes from 3s to 60s, IP blocked after 3 runs)
-                //setConditionIntroductionUrl(newCondition);
-                newCondition.setIntroductionUrl("http://www.nhs.uk/conditions/" + newCondition.getCode()
-                        + "/Pages/Introduction.aspx");
-
+                newCondition.setCode(conditionCode);
                 nhschoicesConditionRepository.save(newCondition);
+            } else {
+                // existing entry, clear dates for introduction url and description so updated on next get Code
+                NhschoicesCondition existingCondition = currentCodeMap.get(conditionCode);
+                if (existingCondition != null) {
+                    existingCondition.setIntroductionUrlLastUpdateDate(null);
+                    existingCondition.setDescriptionLastUpdateDate(null);
+                    nhschoicesConditionRepository.save(existingCondition);
+                }
             }
         }
+
+        // delete old NhschoiceCondition, no longer on NHS Choices
+        currentConditionCodes.removeAll(newConditionCodes);
+        nhschoicesConditionRepository.deleteByCode(currentConditionCodes);
     }
 
     // testing only
