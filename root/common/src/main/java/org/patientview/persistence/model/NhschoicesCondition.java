@@ -28,6 +28,9 @@ public class NhschoicesCondition extends AuditModel {
     @Column(name = "introduction_url_status")
     private Integer introductionUrlStatus;
 
+    @Column(name = "introduction_url_last_update_date")
+    private Date introductionUrlLastUpdateDate;
+
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -79,6 +82,14 @@ public class NhschoicesCondition extends AuditModel {
 
     public void setIntroductionUrlStatus(Integer introductionUrlStatus) {
         this.introductionUrlStatus = introductionUrlStatus;
+    }
+
+    public Date getIntroductionUrlLastUpdateDate() {
+        return introductionUrlLastUpdateDate;
+    }
+
+    public void setIntroductionUrlLastUpdateDate(Date introductionUrlLastUpdateDate) {
+        this.introductionUrlLastUpdateDate = introductionUrlLastUpdateDate;
     }
 
     public String getName() {

@@ -822,6 +822,7 @@ CREATE TABLE PV_Nhschoices_Condition
   Description_Last_Update_Date    TIMESTAMP,
   Introduction_Url                TEXT,
   Introduction_Url_Status         INT,
+  Introduction_Url_Last_Update_Date    TIMESTAMP,
   Created_By                      BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date                   TIMESTAMP NOT NULL,
   Last_Update_Date                TIMESTAMP,

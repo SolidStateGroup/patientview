@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.NhsChoicesService;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,8 +31,7 @@ public class NhsChoicesController extends BaseController<NhsChoicesController> {
 
     @RequestMapping(value = "/nhschoices/conditions/update", method = RequestMethod.POST)
     @ResponseBody
-    public void updateConditions()
-            throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
+    public void updateConditions() throws ImportResourceException {
         nhsChoicesService.updateConditions();
     }
 

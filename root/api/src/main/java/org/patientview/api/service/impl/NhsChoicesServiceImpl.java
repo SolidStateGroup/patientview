@@ -14,7 +14,9 @@ import org.apache.abdera.parser.Parser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
+import org.joda.time.DateTime;
 import org.patientview.api.service.NhsChoicesService;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Lookup;
@@ -88,6 +90,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     private String getConditionCodeFromUri(String uri) {
         return uri.split("/")[uri.split("/").length - 1];
     }
+
+    private static final String NHS_CHOICES_LINK_DESCRIPTION = "NHS Choices Information";
 
     @Override
     public Map<String, String> getDetailsByPracticeCode(String practiceCode) {
@@ -190,24 +194,175 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
     }
 
-    private void setConditionIntroductionUrl(NhschoicesCondition condition) {
-        String introductionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Introduction.aspx";
-        String definitionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Definition.aspx";
+    @Override
+    public Code setDescription(String code) throws ResourceNotFoundException, ImportResourceException {
+        NhschoicesCondition condition = nhschoicesConditionRepository.findOneByCode(code);
 
-        Integer status = getUrlStatus(introductionUrl);
+        if (condition != null) {
+            // get Code
+            Code entityCode = codeRepository.findOneByCode(code);
+            if (entityCode == null) {
+                throw new ResourceNotFoundException("Could not find Code with code '" + code + "'");
+            }
 
-        if (status != null && status.equals(200)) {
-            // as expected
-            condition.setIntroductionUrl(introductionUrl);
-            condition.setIntroductionUrlStatus(status);
-        } else {
-            status = getUrlStatus(definitionUrl);
+            Date oneMonthAgo = new DateTime(new Date()).minusMonths(1).toDate();
+
+            // check if Code already has a description
+            if (StringUtils.isEmpty(entityCode.getFullDescription())) {
+                // description is empty, check if NHS Choices Condition description has been updated in the last month
+                if (condition.getDescriptionLastUpdateDate() == null
+                        || condition.getDescriptionLastUpdateDate().before(oneMonthAgo)) {
+                    // extract introduction text from NHS Choices and store in Condition and Code, uses standard url
+                    // format for introduction
+                    String urlString = "http://v1.syndication.nhschoices.nhs.uk/conditions/articles/" + code
+                            + "/introduction.xml?apikey=" + properties.getProperty("nhschoices.api.key");
+
+                    LOG.info("Updating '" + code + "' with description from " + urlString);
+
+                    // atom XML format
+                    if (abdera == null) {
+                        abdera = new Abdera();
+                    }
+
+                    if (documentBuilderFactory == null) {
+                        documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    }
+
+                    Parser parser = abdera.getParser();
+
+                    // try and retrieve XML representation from NHS Choices
+                    try {
+                        // sleep for 3 seconds to avoid 3.1.xiv in nhs-choices-standard-license-terms.pdf
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ie) {
+                            throw new ImportResourceException("Thread interrupted");
+                        }
+
+                        URL url = new URL(urlString);
+                        Document<Feed> doc = parser.parse(url.openStream(), url.toString());
+                        Feed feed = doc.getRoot();
+
+                        // get first entry
+                        if (!CollectionUtils.isEmpty(feed.getEntries())) {
+                            // try to set from summary (long description)
+                            String summary = feed.getEntries().get(0).getSummary();
+
+                            if (StringUtils.isNotEmpty(summary)) {
+                                // save NHS Choices Condition
+                                condition.setDescription(summary);
+                                condition.setDescriptionLastUpdateDate(new Date());
+                                nhschoicesConditionRepository.save(condition);
+
+                                // save Code
+                                entityCode.setFullDescription(summary);
+                                codeRepository.save(entityCode);
+
+                                return entityCode;
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new ImportResourceException("Could not read from " + urlString);
+                    }
+                }
+            }
+        }
+
+        // Code not updated
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void setIntroductionUrl(String code) throws ResourceNotFoundException, ImportResourceException {
+        NhschoicesCondition condition = nhschoicesConditionRepository.findOneByCode(code);
+
+        Date oneMonthAgo = new DateTime(new Date()).minusMonths(1).toDate();
+        Date now = new Date();
+
+        // if NHS Choices Condition is found and not already set to status 200 and not updated in last month
+        if (condition != null &&
+                (condition.getIntroductionUrlStatus() == null || !condition.getIntroductionUrlStatus().equals(200))
+                && (condition.getIntroductionUrlLastUpdateDate() == null
+                    || condition.getIntroductionUrlLastUpdateDate().before(oneMonthAgo))) {
+            // check against both urls
+            String introductionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Introduction.aspx";
+            String definitionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Definition.aspx";
+
+            LOG.info("Updating '" + code + "' with introduction url " + introductionUrl);
+
+            Integer status = getUrlStatus(introductionUrl);
+            boolean foundIntroductionPage = false;
+
             if (status != null && status.equals(200)) {
-                // as expected with alternate url
-                condition.setIntroductionUrl(definitionUrl);
+                // as expected
+                condition.setIntroductionUrl(introductionUrl);
                 condition.setIntroductionUrlStatus(status);
+                condition.setIntroductionUrlLastUpdateDate(now);
+                foundIntroductionPage = true;
             } else {
-                condition.setIntroductionUrlStatus(status);
+                LOG.info("Updating '" + code + "' with introduction url " + definitionUrl);
+
+                // sleep for 3 seconds to avoid 3.1.xiv in nhs-choices-standard-license-terms.pdf
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ie) {
+                    throw new ImportResourceException("Thread interrupted");
+                }
+
+                status = getUrlStatus(definitionUrl);
+                if (status != null && status.equals(200)) {
+                    // as expected with alternate url
+                    condition.setIntroductionUrl(definitionUrl);
+                    condition.setIntroductionUrlStatus(status);
+                    condition.setIntroductionUrlLastUpdateDate(now);
+                    foundIntroductionPage = true;
+                } else {
+                    // 404, 403 or otherwise
+                    condition.setIntroductionUrlStatus(status);
+                    condition.setIntroductionUrlLastUpdateDate(now);
+                }
+            }
+
+            nhschoicesConditionRepository.save(condition);
+
+            if (foundIntroductionPage) {
+                // update Code with link if does not exist
+                Code entityCode = codeRepository.findOneByCode(code);
+                if (entityCode == null) {
+                    throw new ResourceNotFoundException("Could not find Code with code '" + code + "'");
+                }
+
+                org.patientview.persistence.model.Link foundLink = null;
+
+                for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
+                    if (link.getName().equals(NHS_CHOICES_LINK_DESCRIPTION)) {
+                        foundLink = link;
+                    }
+                }
+
+                if (foundLink == null) {
+                    org.patientview.persistence.model.Link nhschoicesLink
+                            = new org.patientview.persistence.model.Link();
+                    nhschoicesLink.setLink(condition.getIntroductionUrl());
+                    nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
+                    nhschoicesLink.setCode(entityCode);
+                    nhschoicesLink.setCreator(getCurrentUser());
+                    nhschoicesLink.setCreated(now);
+                    nhschoicesLink.setLastUpdater(getCurrentUser());
+                    nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
+
+                    entityCode.getLinks().add(nhschoicesLink);
+                } else {
+                    foundLink.setLink(condition.getIntroductionUrl());
+                    foundLink.setLastUpdater(getCurrentUser());
+                    foundLink.setLastUpdate(now);
+
+                }
+
+                entityCode.setLastUpdater(getCurrentUser());
+                entityCode.setLastUpdate(now);
+                codeRepository.save(entityCode);
             }
         }
     }
@@ -265,7 +420,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setLinks(new HashSet<org.patientview.persistence.model.Link>());
                 org.patientview.persistence.model.Link nhschoicesLink = new org.patientview.persistence.model.Link();
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
-                nhschoicesLink.setName("NHS Choices Information");
+                nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
                 nhschoicesLink.setCode(code);
                 nhschoicesLink.setCreator(currentUser);
                 nhschoicesLink.setCreated(code.getCreated());
@@ -284,8 +439,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     // helper to convert NodeList to List of Nodes
     @Override
     @Transactional
-    public void updateConditions()
-            throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
+    public void updateConditions() throws ImportResourceException {
         String apiKey = properties.getProperty("nhschoices.api.key");
         String urlString = "http://v1.syndication.nhschoices.nhs.uk/conditions/atoz.xml?apikey=" + apiKey;
 
@@ -293,10 +447,23 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
         }
 
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        DocumentBuilder documentBuilder;
+
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException pce) {
+            throw new ImportResourceException("Error building DocumentBuilder");
+        }
 
         // get alphabetical listing of urls for conditions
-        org.w3c.dom.Document doc = documentBuilder.parse(new URL(urlString).openStream());
+        org.w3c.dom.Document doc;
+
+        try {
+            doc = documentBuilder.parse(new URL(urlString).openStream());
+        } catch (SAXException | IOException e) {
+            throw new ImportResourceException("Error reading alphabetical listing of Conditions: " + urlString);
+        }
+
         List<String> aToZPages = new ArrayList<>();
 
         for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
@@ -311,7 +478,13 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Map<String, NhschoicesCondition> uriMap = new HashMap<>();
 
         for (String pageUrl : aToZPages) {
-            doc = documentBuilder.parse(new URL(pageUrl).openStream());
+            LOG.info("Synchronising page: " + pageUrl);
+
+            try {
+                doc = documentBuilder.parse(new URL(pageUrl).openStream());
+            } catch (SAXException | IOException e) {
+                throw new ImportResourceException("Error reading page of Conditions: " + pageUrl);
+            }
 
             for (Node node : XmlUtil.asList(doc.getDocumentElement().getElementsByTagName("Link"))) {
                 String text = null;
@@ -332,6 +505,13 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 if (text != null && uri != null) {
                     uriMap.put(uri, new NhschoicesCondition(text, uri));
                 }
+            }
+
+            // sleep for 3 seconds to avoid 3.1.xiv in nhs-choices-standard-license-terms.pdf
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ie) {
+                throw new ImportResourceException("Thread interrupted");
             }
         }
 

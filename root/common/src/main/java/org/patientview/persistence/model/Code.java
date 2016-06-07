@@ -7,6 +7,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public class Code extends AuditModel {
     private Lookup standardType;
 
     @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
-    private Set<Link> links;
+    private Set<Link> links = new HashSet<>();
 
     public String getCode() {
         return code;

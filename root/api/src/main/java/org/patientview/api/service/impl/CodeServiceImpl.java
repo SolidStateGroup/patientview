@@ -4,6 +4,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CodeService;
+import org.patientview.api.service.NhsChoicesService;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
@@ -41,6 +43,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     private CodeRepository codeRepository;
     @Inject
     private LinkRepository linkRepository;
+    @Inject
+    private NhsChoicesService nhsChoicesService;
     @Inject
     private Properties properties;
     @Inject
@@ -128,6 +132,28 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         if (code == null) {
             throw new ResourceNotFoundException("Code does not exist");
         }
+
+        // handle check against NHS Choices, avoid hitting NHS api too much during sync
+        if (code.getStandardType().getValue().equals("PATIENTVIEW")) {
+            try {
+                // sets introduction url on NhschoicesCondition and adds/updates link on Code if not set in last month
+                nhsChoicesService.setIntroductionUrl(code.getCode());
+            } catch (ResourceNotFoundException | ImportResourceException e) {
+                LOG.info("Error updating Introduction URL Link, continuing: " + e.getMessage());
+            }
+            try {
+                // sets description on NhsChoiceCondition and updates Code fullDescription if available and not
+                // already set and not set in last month
+                Code updatedCode = nhsChoicesService.setDescription(code.getCode());
+                if (updatedCode != null) {
+                    // has had description updated
+                    return updatedCode;
+                }
+            } catch (ResourceNotFoundException | ImportResourceException e) {
+                LOG.info("Error updating Description, continuing: " + e.getMessage());
+            }
+        }
+
         return code;
     }
 
