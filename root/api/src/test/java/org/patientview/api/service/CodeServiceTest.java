@@ -14,6 +14,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -72,7 +73,7 @@ public class CodeServiceTest {
         code.setCodeType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.CODE_TYPE),
                 CodeTypes.DIAGNOSIS.toString()));
         code.setStandardType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.CODE_STANDARD),
-                "PATIENTVIEW"));
+                CodeStandardTypes.PATIENTVIEW.toString()));
         code.setCode("code");
         code.setId(1L);
 

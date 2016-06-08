@@ -22,6 +22,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhschoicesCondition;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
@@ -385,7 +386,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Transactional
     public void synchroniseConditions() throws ResourceNotFoundException {
         // synchronise conditions previously retrieved from nhs choices, may be consolidated into once function call
-        Lookup standardType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, "PATIENTVIEW");
+        Lookup standardType = lookupRepository.findByTypeAndValue(
+                LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
         if (standardType == null) {
             throw new ResourceNotFoundException("Could not find PATIENTVIEW code standard type Lookup");
         }

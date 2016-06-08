@@ -11,6 +11,7 @@ import org.patientview.api.service.impl.NhsChoicesServiceImpl;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhschoicesCondition;
+import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
@@ -68,7 +69,7 @@ public class NhsChoicesServiceTest {
         Lookup codeType = TestUtils.createLookup(
                 TestUtils.createLookupType(LookupTypes.CODE_TYPE), CodeTypes.DIAGNOSIS.toString());
         Lookup standardType = TestUtils.createLookup(
-                TestUtils.createLookupType(LookupTypes.CODE_STANDARD), "PATIENTVIEW");
+                TestUtils.createLookupType(LookupTypes.CODE_STANDARD), CodeStandardTypes.PATIENTVIEW.toString());
 
         // existing Codes
         List<Code> existingCodes = new ArrayList<>();

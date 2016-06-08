@@ -11,6 +11,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -134,7 +135,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         // handle check against NHS Choices, avoid hitting NHS api too much during sync
-        if (code.getStandardType().getValue().equals("PATIENTVIEW")) {
+        if (code.getStandardType().getValue().equals(CodeStandardTypes.PATIENTVIEW.toString())) {
             try {
                 // sets introduction url on NhschoicesCondition and adds/updates link on Code if not set in last month
                 nhsChoicesService.setIntroductionUrl(code.getCode());
