@@ -46,6 +46,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
@@ -206,6 +207,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             }
 
             Date oneMonthAgo = new DateTime(new Date()).minusMonths(1).toDate();
+            Date now = new Date();
 
             // check if Code already has a description
             if (StringUtils.isEmpty(entityCode.getFullDescription())) {
@@ -231,16 +233,25 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     Parser parser = abdera.getParser();
 
                     // try and retrieve XML representation from NHS Choices
+                    // sleep for 3 seconds to avoid 3.1.xiv in nhs-choices-standard-license-terms.pdf
                     try {
-                        // sleep for 3 seconds to avoid 3.1.xiv in nhs-choices-standard-license-terms.pdf
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException ie) {
-                            throw new ImportResourceException("Thread interrupted");
-                        }
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ie) {
+                        throw new ImportResourceException("Thread interrupted");
+                    }
 
-                        URL url = new URL(urlString);
-                        Document<Feed> doc = parser.parse(url.openStream(), url.toString());
+                    URL url;
+
+                    try {
+                        url = new URL(urlString);
+                    } catch (IOException e) {
+                        throw new ImportResourceException("IOException creating URL for " + urlString);
+                    }
+
+                    Document<Feed> doc;
+
+                    try {
+                        doc = parser.parse(url.openStream(), url.toString());
                         Feed feed = doc.getRoot();
 
                         // get first entry
@@ -251,20 +262,43 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                             if (StringUtils.isNotEmpty(summary)) {
                                 // save NHS Choices Condition
                                 condition.setDescription(summary);
-                                condition.setDescriptionLastUpdateDate(new Date());
-                                condition.setLastUpdate(new Date());
+                                condition.setDescriptionLastUpdateDate(now);
+                                condition.setLastUpdate(now);
                                 nhschoicesConditionRepository.save(condition);
 
                                 // save Code
                                 entityCode.setFullDescription(summary);
-                                entityCode.setLastUpdate(new Date());
+                                entityCode.setLastUpdate(now);
                                 codeRepository.save(entityCode);
 
                                 return entityCode;
                             }
                         }
+                    } catch (FileNotFoundException e) {
+                        // manually catch 404 errors from server
+                        LOG.info("404 error updating '" + code + "' with description from " + urlString);
+
+                        // remove condition description
+                        condition.setDescription(null);
+                        condition.setDescriptionLastUpdateDate(now);
+                        condition.setLastUpdate(now);
+                        nhschoicesConditionRepository.save(condition);
                     } catch (IOException e) {
-                        throw new ImportResourceException("Could not read from " + urlString);
+                        // manually catch errors from server (workaround for API 404 reported as 500)
+                        if (e.getMessage().contains("500")) {
+                            // API can return 500 instead of 404 if not found
+                            LOG.info("500 error updating '" + code + "' with description from " + urlString);
+                        } else {
+                            // not 404 or 500 error, could be 403
+                            LOG.info("Error updating '" + code + "' with description from " + urlString + ": "
+                                    + e.getMessage());
+                        }
+
+                        // remove condition description
+                        condition.setDescription(null);
+                        condition.setDescriptionLastUpdateDate(now);
+                        condition.setLastUpdate(now);
+                        nhschoicesConditionRepository.save(condition);
                     }
                 }
             }
