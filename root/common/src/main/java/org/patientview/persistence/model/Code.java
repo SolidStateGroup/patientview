@@ -36,12 +36,18 @@ public class Code extends AuditModel {
     @Column(name = "description")
     private String description;
 
+    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
+    private Set<CodeExternalStandard> externalStandards;
+
     // from NHS choices initially
     @Column(name = "full_description")
     private String fullDescription;
 
     @Column(name = "hide_from_patients")
     private boolean hideFromPatients = false;
+
+    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
+    private Set<Link> links = new HashSet<>();
 
     // used for PATIENTVIEW code standard Codes, from NHS choices initially
     @Column(name = "patient_friendly_name")
@@ -58,9 +64,6 @@ public class Code extends AuditModel {
     @OneToOne
     @JoinColumn(name = "standard_type_id")
     private Lookup standardType;
-
-    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
-    private Set<Link> links = new HashSet<>();
 
     public String getCode() {
         return code;
@@ -94,6 +97,14 @@ public class Code extends AuditModel {
         this.description = description;
     }
 
+    public Set<CodeExternalStandard> getExternalStandards() {
+        return externalStandards;
+    }
+
+    public void setExternalStandards(Set<CodeExternalStandard> externalStandards) {
+        this.externalStandards = externalStandards;
+    }
+
     public String getFullDescription() {
         return fullDescription;
     }
@@ -108,6 +119,14 @@ public class Code extends AuditModel {
 
     public void setHideFromPatients(boolean hideFromPatients) {
         this.hideFromPatients = hideFromPatients;
+    }
+
+    public Set<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Set<Link> links) {
+        this.links = links;
     }
 
     public String getPatientFriendlyName() {
@@ -140,13 +159,5 @@ public class Code extends AuditModel {
 
     public void setStandardType(Lookup standardType) {
         this.standardType = standardType;
-    }
-
-    public Set<Link> getLinks() {
-        return links;
-    }
-
-    public void setLinks(Set<Link> links) {
-        this.links = links;
     }
 }

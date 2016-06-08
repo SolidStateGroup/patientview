@@ -478,3 +478,9 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (59, 29, null, 1, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (60, 30, null, 1, null, now(), 1 );
+
+/* External Standards, used by Codes */
+INSERT INTO PV_External_Standard (Id, Name, Description) VALUES
+  (1, 'ICD-10', 'ICD-10');
+INSERT INTO PV_External_Standard (Id, Name, Description) VALUES
+  (2, 'SNOMED-CT', 'SNOMED-CT');

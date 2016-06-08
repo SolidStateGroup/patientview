@@ -834,6 +834,22 @@ CREATE TABLE PV_Nhschoices_Condition
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_External_Standard
+(
+  Id            BIGINT NOT NULL,
+  Name          TEXT NOT NULL,
+  Description   TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Code_External_Standard
+(
+  Id                        BIGINT NOT NULL,
+  Code_Id                   BIGINT REFERENCES PV_Code (Id) NOT NULL,
+  External_Standard_Id      BIGINT REFERENCES PV_External_Standard (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
