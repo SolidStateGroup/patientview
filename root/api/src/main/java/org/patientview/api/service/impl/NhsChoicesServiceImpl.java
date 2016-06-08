@@ -217,7 +217,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                             + "/introduction.xml?apikey=" + properties.getProperty("nhschoices.api.key");
 
                     LOG.info("Updating '" + code + "' with description from " + urlString);
-                    User currentUser = getCurrentUser();
 
                     // atom XML format
                     if (abdera == null) {
@@ -252,14 +251,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                                 // save NHS Choices Condition
                                 condition.setDescription(summary);
                                 condition.setDescriptionLastUpdateDate(new Date());
-                                condition.setLastUpdater(currentUser);
                                 condition.setLastUpdate(new Date());
                                 nhschoicesConditionRepository.save(condition);
 
                                 // save Code
                                 entityCode.setFullDescription(summary);
                                 entityCode.setLastUpdate(new Date());
-                                entityCode.setLastUpdater(currentUser);
                                 codeRepository.save(entityCode);
 
                                 return entityCode;
@@ -283,7 +280,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         Date oneMonthAgo = new DateTime(new Date()).minusMonths(1).toDate();
         Date now = new Date();
-        User currentUser = getCurrentUser();
 
         // if NHS Choices Condition is found and not already set to status 200 and not updated in last month
         if (condition != null &&
@@ -305,7 +301,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 condition.setIntroductionUrlStatus(status);
                 condition.setIntroductionUrlLastUpdateDate(now);
                 condition.setLastUpdate(now);
-                condition.setLastUpdater(currentUser);
                 foundIntroductionPage = true;
             } else {
                 LOG.info("Updating '" + code + "' with introduction url " + definitionUrl);
@@ -324,7 +319,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     condition.setIntroductionUrlStatus(status);
                     condition.setIntroductionUrlLastUpdateDate(now);
                     condition.setLastUpdate(now);
-                    condition.setLastUpdater(currentUser);
                     foundIntroductionPage = true;
                 } else {
                     // 404, 403 or otherwise, remove introduction url
@@ -332,7 +326,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     condition.setIntroductionUrlStatus(status);
                     condition.setIntroductionUrlLastUpdateDate(now);
                     condition.setLastUpdate(now);
-                    condition.setLastUpdater(currentUser);
                 }
             }
 
@@ -366,7 +359,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
                 entityCode.getLinks().add(nhschoicesLink);
-                entityCode.setLastUpdater(currentUser);
+                entityCode.setLastUpdater(getCurrentUser());
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             } else if (foundLink != null && foundIntroductionPage) {
@@ -374,13 +367,11 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 foundLink.setLink(condition.getIntroductionUrl());
                 foundLink.setLastUpdater(getCurrentUser());
                 foundLink.setLastUpdate(now);
-                entityCode.setLastUpdater(currentUser);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             } else if (foundLink != null && !foundIntroductionPage){
                 // existing link, introduction page does not exist, remove link
                 entityCode.getLinks().remove(foundLink);
-                entityCode.setLastUpdater(currentUser);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             }
