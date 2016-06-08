@@ -1,8 +1,12 @@
 package org.patientview.persistence.model;
 
+import org.patientview.persistence.model.enums.CodeSourceTypes;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -46,6 +50,10 @@ public class Code extends AuditModel {
     // used when comparing to NHS Choices
     @Column(name = "removed_externally")
     private boolean removedExternally = false;
+
+    @Column(name = "source_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CodeSourceTypes sourceType = CodeSourceTypes.PATIENTVIEW;
 
     @OneToOne
     @JoinColumn(name = "standard_type_id")
@@ -116,6 +124,14 @@ public class Code extends AuditModel {
 
     public void setRemovedExternally(boolean removedExternally) {
         this.removedExternally = removedExternally;
+    }
+
+    public CodeSourceTypes getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(CodeSourceTypes sourceType) {
+        this.sourceType = sourceType;
     }
 
     public Lookup getStandardType() {

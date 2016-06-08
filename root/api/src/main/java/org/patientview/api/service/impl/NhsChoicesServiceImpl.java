@@ -22,6 +22,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhschoicesCondition;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeSourceTypes;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -522,6 +523,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setLastUpdate(new Date());
                 code.setCode(condition.getCode());
                 code.setCodeType(codeType);
+                code.setSourceType(CodeSourceTypes.NHS_CHOICES);
                 code.setStandardType(standardType);
                 code.setDescription(condition.getName());
                 code.setFullDescription(condition.getDescription());

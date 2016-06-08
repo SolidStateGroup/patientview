@@ -126,7 +126,7 @@
                     <div class="row-item accordion-heading-text">{{code.standardType.description}}</div>
                     <div class="row-item accordion-heading-text">
                         <span>{{code.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
-                        <span data-ng-if="code.removedExternally" class="error">removed externally</span>
+                        <span data-ng-if="code.removedExternally && code.sourceType == 'NHS_CHOICES'" class="error">removed externally</span>
                     </div>
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->

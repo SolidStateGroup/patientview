@@ -12,6 +12,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
@@ -66,38 +67,46 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         if (StringUtils.isEmpty(code.getDescription())) {
             throw new ResourceInvalidException("Name must be set");
         }
-
-        Code newCode;
-
-        Set<Link> links;
-        // get links and features, avoid persisting until code created successfully
-        if (!CollectionUtils.isEmpty(code.getLinks())) {
-            links = new HashSet<>(code.getLinks());
-            code.getLinks().clear();
-        } else {
-            links = new HashSet<>();
-        }
-
-        // save basic details, checking if identical code already exists
         if (codeExists(code)) {
-            LOG.debug("Code not created, Code already exists with these details");
             throw new EntityExistsException("Code already exists with these details");
         }
 
-        code.setCreated(new Date());
-        code.setCreator(getCurrentUser());
-        code.setLastUpdate(code.getCreated());
-        code.setLastUpdater(getCurrentUser());
-        newCode = codeRepository.save(code);
+        Date now = new Date();
+        User currentUser = getCurrentUser();
+        Code newCode = new Code();
+        Set<Link> links = new HashSet<>();
+        
+        // get links avoid persisting until code created successfully
+        if (!CollectionUtils.isEmpty(code.getLinks())) {
+            links = new HashSet<>(code.getLinks());
+        }
+
+        // save basic details
+        newCode.setCode(code.getCode());
+        newCode.setCodeType(code.getCodeType());
+        newCode.setDescription(code.getDescription());
+        newCode.setFullDescription(code.getFullDescription());
+        newCode.setHideFromPatients(code.isHideFromPatients());
+        newCode.setPatientFriendlyName(code.getPatientFriendlyName());
+        newCode.setStandardType(code.getStandardType());
+        newCode.setCreated(now);
+        newCode.setCreator(getCurrentUser());
+        newCode.setLastUpdate(now);
+        newCode.setLastUpdater(getCurrentUser());
+        Code entityCode = codeRepository.save(newCode);
 
         // save links
         for (Link link : links) {
-            link.setCode(newCode);
+            link.setCode(entityCode);
+            link.setCreated(now);
+            link.setCreator(currentUser);
+            link.setLastUpdate(now);
+            link.setLastUpdater(getCurrentUser());
             link = linkRepository.save(link);
-            newCode.getLinks().add(link);
+            entityCode.getLinks().add(link);
         }
 
-        return newCode;
+        return entityCode;
     }
 
     @Override
