@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
@@ -20,7 +21,7 @@ import java.util.List;
  * Created on 25/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface CodeService extends CrudService<Code> {
+public interface CodeService {
 
     /**
      * Create a new Code.
@@ -30,7 +31,7 @@ public interface CodeService extends CrudService<Code> {
      * @throws EntityExistsException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
-    Code add(Code code) throws EntityExistsException;
+    Code add(Code code) throws EntityExistsException, ResourceInvalidException;
 
     /**
      * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in

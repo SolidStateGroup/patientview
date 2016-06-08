@@ -34,6 +34,14 @@
         </div>
     </div>
 </div>
+<br/>
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <input type="checkbox" data-ng-model="editCode.hideFromPatients" class="alert-checkbox">Hide from patients</input>
+        </div>
+    </div>
+</div>
 
 <button type="button" class="btn blue pull-right" data-ng-click="save(codeForm, editCode)" data-ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
 <span class="saved-notification pull-right" data-ng-show="codeForm.$pristine && saved">Saved Successfully! &nbsp;</span>

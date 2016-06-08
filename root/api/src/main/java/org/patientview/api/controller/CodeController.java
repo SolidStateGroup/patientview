@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.CodeService;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
@@ -36,13 +37,12 @@ public class CodeController extends BaseController<CodeController> {
      * Create a new Code.
      * @param code Code object containing all required properties
      * @return Code object, newly created (note: consider only returning ID or HTTP OK)
-     * @throws ResourceNotFoundException
+     * @throws ResourceInvalidException
      * @throws EntityExistsException
      */
     @RequestMapping(value = "/code", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> add(@RequestBody Code code)
-            throws ResourceNotFoundException, EntityExistsException {
+    public ResponseEntity<Code> add(@RequestBody Code code) throws EntityExistsException, ResourceInvalidException {
         return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 

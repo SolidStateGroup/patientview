@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
@@ -52,7 +53,20 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     private UserRepository userRepository;
 
     @Override
-    public Code add(final Code code) throws EntityExistsException {
+    public Code add(final Code code) throws EntityExistsException, ResourceInvalidException {
+        if (code.getCodeType() == null || code.getCodeType().getId() == null) {
+            throw new ResourceInvalidException("Code Type must be set");
+        }
+        if (code.getStandardType() == null || code.getStandardType().getId() == null) {
+            throw new ResourceInvalidException("Standard Type must be set");
+        }
+        if (StringUtils.isEmpty(code.getCode())) {
+            throw new ResourceInvalidException("Code must be set");
+        }
+        if (StringUtils.isEmpty(code.getDescription())) {
+            throw new ResourceInvalidException("Name must be set");
+        }
+
         Code newCode;
 
         Set<Link> links;
@@ -242,10 +256,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         entityCode.setCode(code.getCode());
+        entityCode.setCodeType(code.getCodeType());
         entityCode.setDescription(code.getDescription());
         entityCode.setFullDescription(code.getFullDescription());
+        entityCode.setHideFromPatients(code.isHideFromPatients());
         entityCode.setPatientFriendlyName(code.getPatientFriendlyName());
-        entityCode.setCodeType(code.getCodeType());
         entityCode.setStandardType(code.getStandardType());
         entityCode.setLastUpdate(new Date());
         entityCode.setLastUpdater(getCurrentUser());

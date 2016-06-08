@@ -36,6 +36,9 @@ public class Code extends AuditModel {
     @Column(name = "full_description")
     private String fullDescription;
 
+    @Column(name = "hide_from_patients")
+    private boolean hideFromPatients = false;
+
     // used for PATIENTVIEW code standard Codes, from NHS choices initially
     @Column(name = "patient_friendly_name")
     private String patientFriendlyName;
@@ -89,6 +92,14 @@ public class Code extends AuditModel {
 
     public void setFullDescription(String fullDescription) {
         this.fullDescription = fullDescription;
+    }
+
+    public boolean isHideFromPatients() {
+        return hideFromPatients;
+    }
+
+    public void setHideFromPatients(boolean hideFromPatients) {
+        this.hideFromPatients = hideFromPatients;
     }
 
     public String getPatientFriendlyName() {

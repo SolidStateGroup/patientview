@@ -319,19 +319,20 @@ CREATE TABLE PV_User_Information (
 );
 
 CREATE TABLE PV_Code (
-  Id               BIGINT    NOT NULL,
-  Code             VARCHAR(100),
-  Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
-  Display_Order    INTEGER,
-  Description      VARCHAR(255),
-  Full_Description TEXT,
-  Patient_Friendly_Name      TEXT,
-  Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
-  Removed_Externally         BOOL      NOT NULL DEFAULT FALSE,
-  Creation_Date    TIMESTAMP NOT NULL,
-  Created_By       BIGINT REFERENCES PV_User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  Id                        BIGINT NOT NULL,
+  Code                      VARCHAR(100),
+  Type_Id                   BIGINT NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Display_Order             INTEGER,
+  Description               VARCHAR(255),
+  Full_Description          TEXT,
+  Hide_From_Patients        BOOL NOT NULL DEFAULT FALSE,
+  Patient_Friendly_Name     TEXT,
+  Standard_Type_Id BIGINT   NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Removed_Externally        BOOL NOT NULL DEFAULT FALSE,
+  Creation_Date             TIMESTAMP NOT NULL,
+  Created_By                BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date          TIMESTAMP,
+  Last_Updated_By           BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
