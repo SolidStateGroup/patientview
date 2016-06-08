@@ -141,7 +141,9 @@
                 <div class="panel-body" data-ng-show="code.showEdit">
                     <div data-ng-show="code.editLoading" class="loading">
                         <img src="images/loading.gif" alt="Loading"/>
-                        <p class="text-center" data-ng-if="code.standardType.value == 'PATIENTVIEW'"><br/>PatientView Codes may take longer to load the first time they are opened.</p>
+                        <p class="text-center" data-ng-if="code.standardType.value == 'PATIENTVIEW'">
+                            <br/>Please be patient while we retrieve data from external sources...
+                        </p>
                     </div>
                     <div data-ng-show="!code.editLoading">
                         <form name="codeForm" class="edit-code">
