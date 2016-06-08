@@ -129,6 +129,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups', 'decimalPlaces'];
             fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
             fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
+            fields.externalStandard = ['id', 'name','description'];
             return fields[objectType];
         },
         getMonthText: function(month) {

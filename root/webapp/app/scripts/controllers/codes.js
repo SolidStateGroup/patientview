@@ -189,7 +189,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     // Opened for edit
     $scope.opened = function (openedCode) {
-        var i;
+        var i, j;
 
         if (openedCode.showEdit) {
             $scope.editCode = '';
@@ -210,8 +210,31 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 $scope.saved = '';
                 code.codeTypeId = code.codeType.id;
                 code.standardTypeId = code.standardType.id;
+                
+                // prepare external standards
+                // create list of available external standards (all - what code already has)
+                code.availableExternalStandards = _.clone($scope.loggedInUser.userInformation.externalStandards);
+                if (code.externalStandards) {
+                    for (i = 0; i < code.externalStandards.length; i++) {
+                        for (j = 0; j < code.availableExternalStandards.length; j++) {
+                            if (code.externalStandards[i].id === code.availableExternalStandards[j].id) {
+                                code.availableExternalStandards.splice(j, 1);
+                            }
+                        }
+                    }
+                } else {
+                    code.externalStandards = [];
+                }
+
+                if (code.availableExternalStandards != null
+                    && code.availableExternalStandards != undefined
+                    && code.availableExternalStandards[0]) {
+                    $scope.externalStandardToAdd = code.availableExternalStandards[0].id;
+                }
+
                 $scope.editCode = _.clone(code);
                 $scope.editMode = true;
+
                 openedCode.editLoading = false;
             });
         }

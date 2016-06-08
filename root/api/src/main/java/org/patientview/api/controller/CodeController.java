@@ -46,6 +46,13 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/code/{codeId}/externalstandards/{externalstandardId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public void addExternalStandard(@PathVariable("codeId") Long codeId,
+                           @PathVariable("externalstandardId") Long externalstandardId) {
+        codeService.addExternalStandard(codeId, externalstandardId);
+    }
+
     /**
      * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in
      * UI.
@@ -66,6 +73,13 @@ public class CodeController extends BaseController<CodeController> {
     @ResponseBody
     public void delete(@PathVariable("codeId") Long codeId) {
         codeService.delete(codeId);
+    }
+
+    @RequestMapping(value = "/code/{codeId}/externalstandards/{externalstandardId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteExternalStandard(@PathVariable("codeId") Long codeId,
+                                       @PathVariable("externalstandardId") Long externalstandardId) {
+        codeService.deleteExternalStandard(codeId, externalstandardId);
     }
 
     /**

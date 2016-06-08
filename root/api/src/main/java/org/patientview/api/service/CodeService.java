@@ -27,11 +27,13 @@ public interface CodeService {
      * Create a new Code.
      * @param code Code object containing all required properties
      * @return Code object, newly created (note: consider only returning ID or HTTP OK)
-     * @throws ResourceNotFoundException
+     * @throws ResourceInvalidException
      * @throws EntityExistsException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code add(Code code) throws EntityExistsException, ResourceInvalidException;
+
+    void addExternalStandard(Long codeId, Long externalstandardId);
 
     /**
      * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in
@@ -48,6 +50,8 @@ public interface CodeService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long codeId);
+
+    void deleteExternalStandard(Long codeId, Long externalstandardId);
 
     /**
      * Get a List of Codes given a code String and code type.

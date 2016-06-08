@@ -110,6 +110,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    public void addExternalStandard(Long codeId, Long externalstandardId) {
+
+    }
+
+    @Override
     public Code cloneCode(final Long codeId) {
         // clone original
         Code entityCode = codeRepository.findOne(codeId);
@@ -143,6 +148,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Override
     public void delete(final Long codeId) {
         codeRepository.delete(codeId);
+    }
+
+    @Override
+    public void deleteExternalStandard(Long codeId, Long externalstandardId) {
+
     }
 
     @Override

@@ -95,6 +95,28 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new externalStandard to code
+        addExternalStandard: function (code, externalStandardId) {
+            var deferred = $q.defer();
+            // PUT /code/{codeId}/externalstandards/{externalStandardId}
+            Restangular.one('code', code.id).one('externalStandards', externalStandardId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete externalStandard from code
+        deleteExternalStandard: function (code, externalStandard) {
+            var deferred = $q.defer();
+            // DELETE /code/{codeId}/externalstandards/{externalStandardId}
+            Restangular.one('code', code.id).one('externalStandards',externalStandard.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

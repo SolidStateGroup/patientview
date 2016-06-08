@@ -18,6 +18,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.ApiKey;
+import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -33,6 +34,7 @@ import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ApiKeyRepository;
+import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -87,6 +89,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private AuditService auditService;
+
+    @Inject
+    private ExternalStandardRepository externalStandardRepository;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -454,6 +459,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setPatientFeatures(staticDataManager.getFeaturesByType("PATIENT"));
             transportUserToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
             setAuditActions(transportUserToken);
+            setExternalStandards(transportUserToken);
         }
 
         // global admins
@@ -598,6 +604,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 return false;
             }
         }
+    }
+
+    private void setExternalStandards(org.patientview.api.model.UserToken userToken) {
+        List<ExternalStandard> externalStandards = new ArrayList<>();
+        for (ExternalStandard externalStandard : externalStandardRepository.findAll()) {
+            externalStandards.add(externalStandard);
+        }
+        userToken.setExternalStandards(externalStandards);
     }
 
     private void setFhirInformation(org.patientview.api.model.UserToken userToken, User user) {

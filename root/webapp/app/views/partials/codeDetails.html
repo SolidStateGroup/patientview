@@ -104,6 +104,38 @@
     </div>
 </div>
 <hr>
+
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>External Standards</label>
+        <div data-ng-hide="editCode.externalStandards.length > 0" class="no-items">No External Standards are associated with this Code</div>
+    </div>
+    <div class="col-md-6">
+        <ul class="name-action-list inline">
+            <li class="externalStandard-list-item" data-ng-repeat="externalStandard in editCode.externalStandards">
+                <div class="feature-list-name pull-left"><span class="externalStandard-list-name"> {{externalStandard.name}}</span></div>
+                <div class="feature-list-delete pull-left">
+                    <span class="feature-list-delete">
+                        <a id="remove-externalStandard-modal-{{externalStandard.id}}" href="" data-ng-click="removeExternalStandard(codeForm, editCode, externalStandard)" >
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    </span>
+                </div>
+            </li>
+        </ul>
+        <div class="feature-add-container item-add-container" data-ng-show="editCode.availableExternalStandards.length > 0">
+            <div class="custom-select">
+                <select class="form-control feature-select group-select" data-ng-model="externalStandardToAdd"
+                        data-ng-options="externalStandard.id as externalStandard.name for externalStandard in editCode.availableExternalStandards | orderBy:'externalStandard.name'"></select>
+            </div>
+            <button type="button" class="btn blue feature-add-button pull-left" data-ng-click="addExternalStandard(codeForm, editCode, externalStandardToAdd)">Add</button>
+        </div>
+    </div>
+</div>
+
+<hr>
+
 <div class="row">
     <div class="col-md-12">
         <span class="created-span" data-ng-if="editCode.created">Created {{editCode.created | date:'dd-MMM-yyyy HH:mm'}}</span><span class="created-span" data-ng-if="editCode.lastUpdate">, updated {{editCode.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
