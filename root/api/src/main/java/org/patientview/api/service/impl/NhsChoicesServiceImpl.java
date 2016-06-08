@@ -283,6 +283,13 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                         condition.setDescriptionLastUpdateDate(now);
                         condition.setLastUpdate(now);
                         nhschoicesConditionRepository.save(condition);
+
+                        // remove Code full description
+                        entityCode.setFullDescription(null);
+                        entityCode.setLastUpdate(now);
+                        codeRepository.save(entityCode);
+
+                        return entityCode;
                     } catch (IOException e) {
                         // manually catch errors from server (workaround for API 404 reported as 500)
                         if (e.getMessage().contains("500")) {
@@ -299,6 +306,26 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                         condition.setDescriptionLastUpdateDate(now);
                         condition.setLastUpdate(now);
                         nhschoicesConditionRepository.save(condition);
+
+                        // remove Code full description
+                        entityCode.setFullDescription(null);
+                        entityCode.setLastUpdate(now);
+                        codeRepository.save(entityCode);
+
+                        return entityCode;
+                    } catch (ParseException e) {
+                        // error with abdera parsing, remove condition description
+                        condition.setDescription(null);
+                        condition.setDescriptionLastUpdateDate(now);
+                        condition.setLastUpdate(now);
+                        nhschoicesConditionRepository.save(condition);
+
+                        // remove Code full description
+                        entityCode.setFullDescription(null);
+                        entityCode.setLastUpdate(now);
+                        codeRepository.save(entityCode);
+
+                        return entityCode;
                     }
                 }
             }

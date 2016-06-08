@@ -139,7 +139,10 @@
                 </div>
                 <!-- edit pane -->
                 <div class="panel-body" data-ng-show="code.showEdit">
-                    <div data-ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="code.editLoading" class="loading">
+                        <img src="images/loading.gif" alt="Loading"/>
+                        <p class="text-center" data-ng-if="code.standardType.value == 'PATIENTVIEW'"><br/>PatientView Codes may take longer to load the first time they are opened.</p>
+                    </div>
                     <div data-ng-show="!code.editLoading">
                         <form name="codeForm" class="edit-code">
                             <div data-ng-include src="'views/partials/codeDetails.html'" data-ng-controller="CodeDetailsCtrl"></div>
