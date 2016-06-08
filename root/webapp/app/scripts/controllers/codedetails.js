@@ -1,80 +1,70 @@
 'use strict';
 
-angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeService', 'LinkService',
-    function ($scope, CodeService, LinkService) {
+angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeService', 'LinkService', 'CodeExternalStandardService',
+    function ($scope, CodeService, LinkService, CodeExternalStandardService) {
 
-    $scope.addExternalStandard = function (form, code, externalStandardId) {
+    $scope.addExternalStandard = function (form, code, externalStandard) {
         // only do POST if in edit mode, otherwise just add to object
         if ($scope.editMode) {
-            CodeService.addExternalStandard(code, externalStandardId).then(function () {
-                // added externalStandard
-                for (var j = 0; j < code.availableExternalStandards.length; j++) {
-                    if (code.availableExternalStandards[j].externalStandard.id === externalStandardId) {
-                        code.externalStandards.push(code.availableExternalStandards[j]);
-                        code.availableExternalStandards.splice(j, 1);
-                    }
-                }
 
-                // update accordion header with data from GET
-                CodeService.get(code.id).then(function (successResult) {
-                    for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id === code.id) {
-                            var headerDetails = $scope.pagedItems[i];
-                            headerDetails.externalStandards = successResult.externalStandards;
-                        }
-                    }
-                }, function () {
-                    alert('Error updating header (saved successfully)');
-                });
+            externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandardId});
+
+            delete externalStandard.externalStandardId;
+
+            CodeService.addExternalStandard(code, externalStandard).then(function (successResult) {
+                externalStandard.id = successResult.id;
+                code.externalStandards.push(_.clone(externalStandard));
+                delete externalStandard.id;
+                delete externalStandard.externalStandard;
+                delete externalStandard.codeString;
             }, function () {
-                alert('Error saving externalStandard');
+                alert('Error adding external standard');
             });
         } else {
-            for (var j = 0; j < code.availableExternalStandards.length; j++) {
-                if (code.availableExternalStandards[j].externalStandard.id === externalStandardId) {
-                    code.externalStandards.push(code.availableExternalStandards[j]);
-                    code.availableExternalStandards.splice(j, 1);
-                }
-            }
+            externalStandard.id = (new Date()).getTime() * -1;
+            externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandardId});
+            code.externalStandards.push(_.clone(externalStandard));
+            delete externalStandard.id;
+            delete externalStandard.externalStandard;
+            delete externalStandard.codeString;
             form.$setDirty(true);
         }
+    };
+
+    $scope.updateExternalStandard = function (event, form, code, externalStandard) {
+        externalStandard.saved = false;
+        externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandard.id});
+
+        var toSave = _.clone(externalStandard);
+        delete toSave.saved;
+
+        // try and save externalStandard
+        CodeExternalStandardService.save(toSave).then(function () {
+            externalStandard.saved = true;
+        }, function() {
+            alert('Error saving external standard');
+        });
     };
 
     $scope.removeExternalStandard = function (form, code, externalStandard) {
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            CodeService.deleteExternalStandard(code, externalStandard.externalStandard).then(function () {
+            CodeExternalStandardService.remove(externalStandard).then(function () {
                 // deleted externalStandard
                 for (var j = 0; j < code.externalStandards.length; j++) {
-                    if (code.externalStandards[j].externalStandard.id === externalStandard.externalStandard.id) {
-                        code.availableExternalStandards.push(code.externalStandards[j]);
+                    if (code.externalStandards[j].id === externalStandard.id) {
                         code.externalStandards.splice(j, 1);
                     }
                 }
-
-                // update accordion header with data from GET
-                CodeService.get(code.id).then(function (successResult) {
-                    for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id === code.id) {
-                            var headerDetails = $scope.pagedItems[i];
-                            headerDetails.externalStandards = successResult.externalStandards;
-                        }
-                    }
-                }, function () {
-                    alert('Error updating header (saved successfully)');
-                });
             }, function () {
-                // failure
-                alert('Error deleting externalStandard');
+                alert('Error deleting external standard');
             });
         } else {
             for (var j = 0; j < code.externalStandards.length; j++) {
-                if (code.externalStandards[j].externalStandard.id === externalStandard.externalStandard.id) {
-                    code.availableExternalStandards.push(code.externalStandards[j]);
+                if (code.externalStandards[j].id === externalStandard.id) {
                     code.externalStandards.splice(j, 1);
                 }
             }
-
             form.$setDirty(true);
         }
     };

@@ -845,6 +845,7 @@ CREATE TABLE PV_External_Standard
 CREATE TABLE PV_Code_External_Standard
 (
   Id                        BIGINT NOT NULL,
+  Code                      TEXT NOT NULL,
   Code_Id                   BIGINT REFERENCES PV_Code (Id) NOT NULL,
   External_Standard_Id      BIGINT REFERENCES PV_External_Standard (Id) NOT NULL,
   PRIMARY KEY (Id)

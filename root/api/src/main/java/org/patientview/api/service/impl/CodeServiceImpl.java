@@ -9,12 +9,16 @@ import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeExternalStandard;
+import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
+import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -44,12 +48,22 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Inject
     private CodeRepository codeRepository;
+
+    @Inject
+    private CodeExternalStandardRepository codeExternalStandardRepository;
+
+    @Inject
+    private ExternalStandardRepository externalStandardRepository;
+
     @Inject
     private LinkRepository linkRepository;
+
     @Inject
     private NhsChoicesService nhsChoicesService;
+
     @Inject
     private Properties properties;
+
     @Inject
     private UserRepository userRepository;
 
@@ -110,8 +124,39 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
-    public void addExternalStandard(Long codeId, Long externalstandardId) {
+    public CodeExternalStandard addCodeExternalStandard(Long codeId, CodeExternalStandard codeExternalStandard)
+            throws ResourceNotFoundException {
+        Code code = codeRepository.findOne(codeId);
 
+        if (code == null) {
+            throw new ResourceNotFoundException("Code not found");
+        }
+
+        if (codeExternalStandard.getExternalStandard() == null) {
+            throw new ResourceNotFoundException("External standard must be set");
+        }
+
+        ExternalStandard externalStandard
+                = externalStandardRepository.findOne(codeExternalStandard.getExternalStandard().getId());
+
+        if (externalStandard == null) {
+            throw new ResourceNotFoundException("External standard not found");
+        }
+
+        String codeString = codeExternalStandard.getCodeString();
+
+        if (StringUtils.isEmpty(codeString)) {
+            throw new ResourceNotFoundException("External Standard Code must be set");
+        }
+
+        CodeExternalStandard newCodeExternalStandard = new CodeExternalStandard(code, externalStandard, codeString);
+
+        code.getExternalStandards().add(newCodeExternalStandard);
+        code.setLastUpdate(new Date());
+        code.setLastUpdater(getCurrentUser());
+        codeRepository.save(code);
+
+        return newCodeExternalStandard;
     }
 
     @Override
@@ -151,8 +196,23 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
-    public void deleteExternalStandard(Long codeId, Long externalstandardId) {
+    public void deleteCodeExternalStandard(Long codeExternalStandardId) throws ResourceNotFoundException {
+        CodeExternalStandard codeExternalStandard = codeExternalStandardRepository.findOne(codeExternalStandardId);
+        if (codeExternalStandard == null) {
+            throw new ResourceNotFoundException("Code External Standard not found");
+        }
 
+        Code code = codeExternalStandard.getCode();
+        if (code == null) {
+            throw new ResourceNotFoundException("Code not found");
+        }
+
+        code.getExternalStandards().remove(codeExternalStandard);
+        code.setLastUpdate(new Date());
+        code.setLastUpdater(getCurrentUser());
+        codeRepository.save(code);
+
+        codeExternalStandardRepository.delete(codeExternalStandardId);
     }
 
     @Override
@@ -284,5 +344,29 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         entityCode.setLastUpdate(new Date());
         entityCode.setLastUpdater(getCurrentUser());
         return codeRepository.save(entityCode);
+    }
+
+    @Override
+    public void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
+        CodeExternalStandard entityCodeExternalStandard
+                = codeExternalStandardRepository.findOne(codeExternalStandard.getId());
+        if (entityCodeExternalStandard == null) {
+            throw new ResourceNotFoundException("Code External Standard not found");
+        }
+
+        if (codeExternalStandard.getExternalStandard() == null) {
+            throw new ResourceNotFoundException("External Standard must be set");
+        }
+
+        ExternalStandard externalStandard
+                = externalStandardRepository.findOne(codeExternalStandard.getExternalStandard().getId());
+
+        if (externalStandard == null) {
+            throw new ResourceNotFoundException("External Standard not found");
+        }
+
+        entityCodeExternalStandard.setCodeString(codeExternalStandard.getCodeString());
+        entityCodeExternalStandard.setExternalStandard(externalStandard);
+        codeExternalStandardRepository.save(entityCodeExternalStandard);
     }
 }

@@ -5,6 +5,7 @@ import org.patientview.api.service.CodeService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.GetParameters;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -46,11 +47,13 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/code/{codeId}/externalstandards/{externalstandardId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/code/{codeId}/externalstandards", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void addExternalStandard(@PathVariable("codeId") Long codeId,
-                           @PathVariable("externalstandardId") Long externalstandardId) {
-        codeService.addExternalStandard(codeId, externalstandardId);
+    public ResponseEntity<CodeExternalStandard> addCodeExternalStandard(@PathVariable("codeId") Long codeId,
+            @RequestBody CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
+        return new ResponseEntity<>(
+                codeService.addCodeExternalStandard(codeId, codeExternalStandard), HttpStatus.CREATED);
     }
 
     /**
@@ -63,23 +66,6 @@ public class CodeController extends BaseController<CodeController> {
             , produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) {
         return new ResponseEntity<>(codeService.cloneCode(codeId), HttpStatus.CREATED);
-    }
-
-    /**
-     * Delete a Code.
-     * @param codeId ID of Code to delete
-     */
-    @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public void delete(@PathVariable("codeId") Long codeId) {
-        codeService.delete(codeId);
-    }
-
-    @RequestMapping(value = "/code/{codeId}/externalstandards/{externalstandardId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public void deleteExternalStandard(@PathVariable("codeId") Long codeId,
-                                       @PathVariable("externalstandardId") Long externalstandardId) {
-        codeService.deleteExternalStandard(codeId, externalstandardId);
     }
 
     /**

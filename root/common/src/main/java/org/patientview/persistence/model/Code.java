@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -36,8 +37,8 @@ public class Code extends AuditModel {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
-    private Set<CodeExternalStandard> externalStandards;
+    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<CodeExternalStandard> externalStandards = new HashSet<>();
 
     // from NHS choices initially
     @Column(name = "full_description")

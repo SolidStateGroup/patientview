@@ -3,6 +3,7 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -23,6 +24,9 @@ public class CodeExternalStandard extends BaseModel {
     @JoinColumn(name = "code_id", nullable = false)
     private Code code;
 
+    @Column(name = "code")
+    private String codeString;
+
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "external_standard_id", nullable = false)
     private ExternalStandard externalStandard;
@@ -34,12 +38,26 @@ public class CodeExternalStandard extends BaseModel {
         this.externalStandard = externalStandard;
     }
 
+    public CodeExternalStandard(Code code, ExternalStandard externalStandard, String codeString) {
+        this.code = code;
+        this.codeString = codeString;
+        this.externalStandard = externalStandard;
+    }
+
     public Code getCode() {
         return code;
     }
 
     public void setCode(Code code) {
         this.code = code;
+    }
+
+    public String getCodeString() {
+        return codeString;
+    }
+
+    public void setCodeString(String codeString) {
+        this.codeString = codeString;
     }
 
     public ExternalStandard getExternalStandard() {

@@ -4,6 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.RoleName;
@@ -33,7 +34,8 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code add(Code code) throws EntityExistsException, ResourceInvalidException;
 
-    void addExternalStandard(Long codeId, Long externalstandardId);
+    CodeExternalStandard addCodeExternalStandard(Long codeId, CodeExternalStandard codeExternalStandard)
+            throws ResourceNotFoundException;
 
     /**
      * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in
@@ -51,7 +53,7 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long codeId);
 
-    void deleteExternalStandard(Long codeId, Long externalstandardId);
+    void deleteCodeExternalStandard(Long codeExternalStandardId) throws ResourceNotFoundException;
 
     /**
      * Get a List of Codes given a code String and code type.
@@ -80,6 +82,13 @@ public interface CodeService {
     Page<Code> getAllCodes(GetParameters getParameters);
 
     /**
+     * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property
+     * "patient.management.diagnoses.codes" with CD, UC IBDU
+     * @return List of Code
+     */
+    List<Code> getPatientManagementDiagnoses();
+
+    /**
      * Update an existing Code.
      * @param code Code object with updated properties
      * @return Code object, updated (note: consider only returning ID or HTTP OK)
@@ -89,10 +98,5 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws ResourceNotFoundException, EntityExistsException;
 
-    /**
-     * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property
-     * "patient.management.diagnoses.codes" with CD, UC IBDU
-     * @return List of Code
-     */
-    List<Code> getPatientManagementDiagnoses();
+    void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException;
 }

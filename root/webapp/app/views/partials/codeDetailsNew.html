@@ -13,7 +13,7 @@
             <div><select id="code-codeType" class="form-control codeType-select" data-ng-model="editCode.codeTypeId" data-ng-options="codeType.id as codeType.value for codeType in codeTypes | orderBy:'value'"></select></div>
         </div>
         <div class="col-md-2">
-            <label for="code-standardType" class="control-label">Standard Type <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
+            <label for="code-standardType" class="control-label">Code Standard <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
             <div><select id="code-standardType" class="form-control codeType-select" data-ng-model="editCode.standardTypeId" data-ng-options="standardType.id as standardType.value for standardType in standardTypes | orderBy:'value'"></select></div>
         </div>
     </div>
