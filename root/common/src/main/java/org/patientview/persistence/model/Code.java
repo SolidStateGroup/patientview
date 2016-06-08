@@ -36,6 +36,10 @@ public class Code extends AuditModel {
     @Column(name = "full_description")
     private String fullDescription;
 
+    // used for PATIENTVIEW code standard Codes, from NHS choices initially
+    @Column(name = "patient_friendly_name")
+    private String patientFriendlyName;
+
     // used when comparing to NHS Choices
     @Column(name = "removed_externally")
     private boolean removedExternally = false;
@@ -85,6 +89,14 @@ public class Code extends AuditModel {
 
     public void setFullDescription(String fullDescription) {
         this.fullDescription = fullDescription;
+    }
+
+    public String getPatientFriendlyName() {
+        return patientFriendlyName;
+    }
+
+    public void setPatientFriendlyName(String patientFriendlyName) {
+        this.patientFriendlyName = patientFriendlyName;
     }
 
     public boolean isRemovedExternally() {

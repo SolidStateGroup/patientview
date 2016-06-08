@@ -325,6 +325,7 @@ CREATE TABLE PV_Code (
   Display_Order    INTEGER,
   Description      VARCHAR(255),
   Full_Description TEXT,
+  Patient_Friendly_Name      TEXT,
   Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
   Removed_Externally         BOOL      NOT NULL DEFAULT FALSE,
   Creation_Date    TIMESTAMP NOT NULL,

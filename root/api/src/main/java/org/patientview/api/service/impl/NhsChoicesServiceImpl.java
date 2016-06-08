@@ -56,10 +56,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.RandomAccess;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -473,7 +475,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             currentCodesMap.put(code.getCode(), code);
         }
 
-        List<Code> codesToSave = new ArrayList<>();
+        Set<Code> codesToSave = new HashSet<>();
         List<NhschoicesCondition> conditionsToSave = new ArrayList<>();
         List<String> newOrUpdatedCodes = new ArrayList<>();
 
@@ -491,13 +493,26 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 condition.setDescriptionLastUpdateDate(null);
                 conditionsToSave.add(condition);
 
-                // revert removed externally if set
+
                 Code currentCode = currentCodesMap.get(condition.getCode());
+                boolean saveCurrentCode = false;
+
+                // revert removed externally if set
                 if (currentCode.isRemovedExternally()) {
                     currentCode.setRemovedExternally(false);
-                    codesToSave.add(currentCode);
+                    saveCurrentCode = true;
                 }
 
+                // if no patient friendly name then update with condition name
+                if (StringUtils.isEmpty(currentCode.getPatientFriendlyName())) {
+                    currentCode.setPatientFriendlyName(condition.getName());
+                    saveCurrentCode = true;
+                }
+
+                // if changed, then save
+                if (saveCurrentCode) {
+                    codesToSave.add(currentCode);
+                }
             } else {
                 // NhschoicesCondition is new, create and save new Code
                 Code code = new Code();
@@ -510,6 +525,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 code.setStandardType(standardType);
                 code.setDescription(condition.getName());
                 code.setFullDescription(condition.getDescription());
+                code.setPatientFriendlyName(condition.getName());
                 code.setLastUpdate(code.getCreated());
                 code.setLastUpdater(currentUser);
 

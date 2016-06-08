@@ -244,6 +244,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         entityCode.setCode(code.getCode());
         entityCode.setDescription(code.getDescription());
         entityCode.setFullDescription(code.getFullDescription());
+        entityCode.setPatientFriendlyName(code.getPatientFriendlyName());
         entityCode.setCodeType(code.getCodeType());
         entityCode.setStandardType(code.getStandardType());
         entityCode.setLastUpdate(new Date());

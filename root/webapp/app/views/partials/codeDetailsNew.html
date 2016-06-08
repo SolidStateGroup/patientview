@@ -1,24 +1,31 @@
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="code-code" class="control-label">Code <span class="error" data-ng-show="codeFormNew.code.$error.required"> *required</span></label>
             <div><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100"></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="code-description" class="control-label">Name <span class="error" data-ng-show="codeFormNew.description.$error.required"> *required</span></label>
             <div><input type="text" class="form-control" id="code-description" placeholder="Name" name="description" data-ng-model="editCode.description" required maxlength="255"></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="code-codeType" class="control-label">Code Type<span class="error" data-ng-show="!editCode.codeTypeId"> *required</span></label>
             <div><select id="code-codeType" class="form-control codeType-select" data-ng-model="editCode.codeTypeId" data-ng-options="codeType.id as codeType.value for codeType in codeTypes | orderBy:'value'"></select></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="code-standardType" class="control-label">Standard Type <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
             <div><select id="code-standardType" class="form-control codeType-select" data-ng-model="editCode.standardTypeId" data-ng-options="standardType.id as standardType.value for standardType in standardTypes | orderBy:'value'"></select></div>
         </div>
     </div>
 </div>
-<br/>
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="code-patient-friendly-name" class="control-label">Patient Friendly Name</label>
+            <div><input type="text" class="form-control" id="code-patient-friendly-name" placeholder="Patient Friendly Name" name="patient-friendly-name" data-ng-model="editCode.patientFriendlyName"></div>
+        </div>
+    </div>
+</div>
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
@@ -34,7 +41,7 @@
         <div class="col-md-12">
             <label>Links</label>
         </div>
-        <div class="link-list-item" data-ng-repeat="link in editCode.links | orderBy:'displayOrder'">
+        <div class="link-list-item cleared-row" data-ng-repeat="link in editCode.links | orderBy:'displayOrder'">
             <div class="col-md-3">
                 <label>URL</label>
                 <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="URL" name="link" data-ng-model="link.link" required>
@@ -50,6 +57,7 @@
                 </select>
             </div>
             <div>
+                <label>&nbsp;</label><br/>
                 <button type="button" class="btn negative link-delete-button" data-ng-click="removeLink(codeFormNew, editCode, link)">Delete</button>
             </div>
         </div>
