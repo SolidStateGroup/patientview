@@ -88,11 +88,15 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         Date now = new Date();
         User currentUser = getCurrentUser();
         Code newCode = new Code();
+
         Set<Link> links = new HashSet<>();
-        
-        // get links avoid persisting until code created successfully
         if (!CollectionUtils.isEmpty(code.getLinks())) {
             links = new HashSet<>(code.getLinks());
+        }
+
+        Set<CodeExternalStandard> codeExternalStandards = new HashSet<>();
+        if (!CollectionUtils.isEmpty(code.getExternalStandards())) {
+            codeExternalStandards = new HashSet<>(code.getExternalStandards());
         }
 
         // save basic details
@@ -116,8 +120,13 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             link.setCreator(currentUser);
             link.setLastUpdate(now);
             link.setLastUpdater(getCurrentUser());
-            link = linkRepository.save(link);
-            entityCode.getLinks().add(link);
+            entityCode.getLinks().add(linkRepository.save(link));
+        }
+
+        // save code external standards
+        for (CodeExternalStandard codeExternalStandard : codeExternalStandards) {
+            codeExternalStandard.setCode(entityCode);
+            entityCode.getExternalStandards().add(codeExternalStandardRepository.save(codeExternalStandard));
         }
 
         return entityCode;
@@ -151,12 +160,12 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         CodeExternalStandard newCodeExternalStandard = new CodeExternalStandard(code, externalStandard, codeString);
 
-        code.getExternalStandards().add(newCodeExternalStandard);
+        //code.getExternalStandards().add(newCodeExternalStandard);
         code.setLastUpdate(new Date());
         code.setLastUpdater(getCurrentUser());
         codeRepository.save(code);
 
-        return newCodeExternalStandard;
+        return codeExternalStandardRepository.save(newCodeExternalStandard);
     }
 
     @Override

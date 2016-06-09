@@ -3,56 +3,79 @@
 angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeService', 'LinkService', 'CodeExternalStandardService',
     function ($scope, CodeService, LinkService, CodeExternalStandardService) {
 
-    $scope.addExternalStandard = function (form, code, externalStandard) {
+    $scope.addCodeExternalStandard = function (form, code, codeExternalStandard) {
+        if (code.externalStandards != null && code.externalStandards != undefined) {
+            for (var i = 0; i < code.externalStandards.length; i++) {
+                delete code.externalStandards[i].saved;
+            }
+        }
+
         // only do POST if in edit mode, otherwise just add to object
         if ($scope.editMode) {
 
-            externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandardId});
+            codeExternalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: codeExternalStandard.externalStandardId});
 
-            delete externalStandard.externalStandardId;
+            delete codeExternalStandard.externalStandardId;
 
-            CodeService.addExternalStandard(code, externalStandard).then(function (successResult) {
-                externalStandard.id = successResult.id;
-                code.externalStandards.push(_.clone(externalStandard));
-                delete externalStandard.id;
-                delete externalStandard.externalStandard;
-                delete externalStandard.codeString;
+            CodeService.addCodeExternalStandard(code, codeExternalStandard).then(function (successResult) {
+                //codeExternalStandard.id = successResult.id;
+                code.externalStandards.push(successResult);
+                delete codeExternalStandard.externalStandard;
+                delete codeExternalStandard.codeString;
             }, function () {
                 alert('Error adding external standard');
             });
         } else {
-            externalStandard.id = (new Date()).getTime() * -1;
-            externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandardId});
-            code.externalStandards.push(_.clone(externalStandard));
-            delete externalStandard.id;
-            delete externalStandard.externalStandard;
-            delete externalStandard.codeString;
+            if (code.externalStandards == null || code.externalStandards == undefined) {
+                code.externalStandards = [];
+            }
+
+            var newCodeExternalStandard = {};
+            newCodeExternalStandard.codeString = codeExternalStandard.codeString;
+            newCodeExternalStandard.id = (new Date()).getTime() * -1;
+            newCodeExternalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: codeExternalStandard.externalStandard.id});
+
+            code.externalStandards.push(newCodeExternalStandard);
+
+            delete codeExternalStandard.externalStandard;
+            delete codeExternalStandard.codeString;
+
             form.$setDirty(true);
         }
     };
 
-    $scope.updateExternalStandard = function (event, form, code, externalStandard) {
-        externalStandard.saved = false;
-        externalStandard.externalStandard = _.findWhere($scope.externalStandards, {id: externalStandard.externalStandard.id});
+    $scope.updateCodeExternalStandard = function (event, form, code, codeExternalStandard) {
+        if (code.externalStandards != null && code.externalStandards != undefined) {
+            for (var i = 0; i < code.externalStandards.length; i++) {
+                delete code.externalStandards[i].saved;
+            }
+        }
 
-        var toSave = _.clone(externalStandard);
+        var toSave = _.clone(codeExternalStandard);
+        toSave.externalStandard = _.findWhere($scope.externalStandards, {id: toSave.externalStandard.id});
         delete toSave.saved;
 
         // try and save externalStandard
         CodeExternalStandardService.save(toSave).then(function () {
-            externalStandard.saved = true;
+            codeExternalStandard.saved = true;
         }, function() {
             alert('Error saving external standard');
         });
     };
 
-    $scope.removeExternalStandard = function (form, code, externalStandard) {
+    $scope.removeCodeExternalStandard = function (form, code, codeExternalStandard) {
+        if (code.externalStandards != null && code.externalStandards != undefined) {
+            for (var i = 0; i < code.externalStandards.length; i++) {
+                delete code.externalStandards[i].saved;
+            }
+        }
+
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            CodeExternalStandardService.remove(externalStandard).then(function () {
+            CodeExternalStandardService.remove(codeExternalStandard).then(function () {
                 // deleted externalStandard
                 for (var j = 0; j < code.externalStandards.length; j++) {
-                    if (code.externalStandards[j].id === externalStandard.id) {
+                    if (code.externalStandards[j].id === codeExternalStandard.id) {
                         code.externalStandards.splice(j, 1);
                     }
                 }
@@ -61,15 +84,14 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
             });
         } else {
             for (var j = 0; j < code.externalStandards.length; j++) {
-                if (code.externalStandards[j].id === externalStandard.id) {
+                if (code.externalStandards[j].id === codeExternalStandard.id) {
                     code.externalStandards.splice(j, 1);
                 }
             }
             form.$setDirty(true);
         }
     };
-        
-        
+
     $scope.addLink = function (form, code, link) {
         link.displayOrder = code.links.length +1;
 

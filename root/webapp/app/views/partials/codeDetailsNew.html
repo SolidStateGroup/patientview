@@ -1,3 +1,9 @@
+<style>
+    .link-list-item {
+        margin-top: 5px;
+    }
+</style>
+
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
         <div class="col-md-4">
@@ -44,7 +50,7 @@
 </div>
 
 <br/>
-<hr />
+<hr>
 <div class="row">
     <div class="links-container">
         <div class="col-md-12">
@@ -90,5 +96,56 @@
             </div>
             <div class="col-md-12"><br/><button type="button" class="btn blue link-add-button" data-ng-click="addLink(codeFormNew, editCode, newLink)" data-ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
         </div>
+    </div>
+</div>
+
+<br/>
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <label>External Standards</label>
+        <div data-ng-hide="editCode.externalStandards.length > 0" class="no-items">No external standards associated with this code<br/><br/></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <label for="code-newExternalStandard-type">External Standard</label>
+    </div>
+    <div class="col-md-5">
+        <label for="code-newExternalStandard-type">External Standard Code</label>
+    </div>
+</div>
+<div class="link-list-item clearfix row" data-ng-repeat="codeExternalStandard in editCode.externalStandards | orderBy:'-id'">
+    <div class="col-md-1 hidden">{{codeExternalStandard.id}}</div>
+    <div class="col-md-3">
+        <select id="code-externalStandard-type-{{externalStandard.id}}" class="form-control"
+                data-ng-model="codeExternalStandard.externalStandard"
+                data-ng-options="externalStandard as externalStandard.name for externalStandard in externalStandards | orderBy:'name'"></select>
+    </div>
+    <div class="col-md-5">
+        <input type="text" class="form-control" id="code-externalStandard-content-{{codeExternalStandard.id}}"
+               placeholder="Content" name="content" data-ng-model="codeExternalStandard.codeString" required>
+    </div>
+    <div class="btn-code">
+        <button type="button" class="btn negative externalStandard-delete-button" data-ng-click="removeCodeExternalStandard(codeFormNew, editCode, codeExternalStandard)">Delete</button>
+        <span class="saved-notification" data-ng-show="codeExternalStandard.saved">&nbsp; Saved</span>
+    </div>
+</div>
+<div class="add-form row" data-ng-model="newExternalStandard">
+    <div class="col-md-3">
+        <select id="code-newExternalStandard-type" class="form-control"
+                data-ng-model="newExternalStandard.externalStandard.id"
+                data-ng-options="externalStandard.id as externalStandard.name for externalStandard in externalStandards | orderBy:'name'">
+        </select>
+    </div>
+    <div class="col-md-5">
+        <input type="text" class="form-control" id="code-newExternalStandard-code" placeholder="Code"
+               name="newExternalStandard" data-ng-model="newExternalStandard.codeString">
+    </div>
+    <div class="modal-hack">
+        <button type="button" class="btn blue"
+                data-ng-click="addCodeExternalStandard(codeFormNew, editCode, newExternalStandard)"
+                data-ng-disabled="!(newExternalStandard.codeString && newExternalStandard.externalStandard.id)">Add</button>
     </div>
 </div>

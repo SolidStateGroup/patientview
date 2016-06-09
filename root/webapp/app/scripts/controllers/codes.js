@@ -22,6 +22,8 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
     $scope.standardTypes = standardTypes;
     $scope.editMode = false;
 
+    $scope.externalStandards = _.clone($scope.loggedInUser.userInformation.externalStandards);
+
     $scope.ok = function () {
         CodeService.create($scope.editCode, codeTypes, standardTypes).then(function(result) {
             $scope.editCode = result;

@@ -97,10 +97,11 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // Add new externalStandard to code
-        addExternalStandard: function (code, externalStandard) {
+        addCodeExternalStandard: function (code, codeExternalStandard) {
             var deferred = $q.defer();
             // POST /code/{codeId}/externalstandards
-            Restangular.one('code', code.id).all('externalstandards').post(externalStandard).then(function(successResult) {
+            Restangular.one('code', code.id).all('externalstandards').post(codeExternalStandard)
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
