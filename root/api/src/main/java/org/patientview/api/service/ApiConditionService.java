@@ -22,12 +22,14 @@ public interface ApiConditionService {
      * Get user entered Conditions for a patient if present
      * @param userId Long User ID of patient to get user entered Conditions for
      * @param diagnosisType DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED or DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED
+     * @param isLogin boolean used to change security, used when checking if patient should be prompted to enter
+     *                their own diagnosis
      * @return List of staff entered Conditions
      * @throws FhirResourceException
      * @throws ResourceForbiddenException
      * @throws ResourceNotFoundException
      */
-    List<FhirCondition> getUserEntered(Long userId, DiagnosisTypes diagnosisType)
+    List<FhirCondition> getUserEntered(Long userId, DiagnosisTypes diagnosisType, boolean isLogin)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
     /**

@@ -166,7 +166,7 @@ public class ApiConditionServiceTest {
                 + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
 
         List<FhirCondition> conditionsList
-                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
+                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED, false);
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"
@@ -533,7 +533,7 @@ public class ApiConditionServiceTest {
 
         // get
         List<FhirCondition> conditionsList
-                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
+                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED, false);
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"

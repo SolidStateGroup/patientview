@@ -8,12 +8,14 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.Role;
+import org.patientview.api.service.ApiConditionService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -28,6 +30,7 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
@@ -83,6 +86,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
     private static Integer sessionLength;
+
+    @Inject
+    private ApiConditionService apiConditionService;
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
@@ -448,6 +454,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setPatientMessagingFeatureTypes(
                     new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
             transportUserToken.setGroupMessagingEnabled(true);
+
+            setShouldEnterCondition(transportUserToken, userToken.getUser());
         }
 
         // staff
@@ -606,6 +614,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
+    private void setAuditActions(org.patientview.api.model.UserToken userToken) {
+        // use name of AuditActions for nicer UI in front end
+        List<String> auditActions = new ArrayList<>();
+        for (AuditActions auditAction : AuditActions.class.getEnumConstants()) {
+            auditActions.add(auditAction.getName());
+        }
+        userToken.setAuditActions(auditActions);
+    }
+
     private void setExternalStandards(org.patientview.api.model.UserToken userToken) {
         List<ExternalStandard> externalStandards = new ArrayList<>();
         for (ExternalStandard externalStandard : externalStandardRepository.findAll()) {
@@ -636,6 +653,55 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 userToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
             }
         }
+    }
+
+    private void setPatientRoles(org.patientview.api.model.UserToken userToken) {
+        List<Role> patientRoles = new ArrayList<>();
+        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.PATIENT)) {
+            patientRoles.add(new Role(role));
+        }
+        userToken.setPatientRoles(patientRoles);
+    }
+
+    private void setShouldEnterCondition(org.patientview.api.model.UserToken userToken, User user) {
+        // user must be member of group with ENTER_OWN_DIAGNOSES feature
+        boolean groupHasFeature = false;
+
+        if (user != null && !CollectionUtils.isEmpty(user.getGroupRoles())) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (!CollectionUtils.isEmpty(groupRole.getGroup().getGroupFeatures())) {
+                    for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
+                        if (groupFeature.getFeature() != null
+                                && groupFeature.getFeature().getName().equals(
+                                        FeatureType.ENTER_OWN_DIAGNOSES.toString())) {
+                            groupHasFeature = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!groupHasFeature) {
+            return;
+        }
+
+        // check patient has a DIAGNOSIS_PATIENT_ENTERED Condition
+        try {
+            if (CollectionUtils.isEmpty(
+                    apiConditionService.getUserEntered(user.getId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, true))) {
+                userToken.setShouldEnterCondition(true);
+            }
+        } catch (FhirResourceException | ResourceForbiddenException | ResourceNotFoundException e) {
+            LOG.info("Error retrieving patient Conditions on authenticate, continuing..");
+        }
+    }
+
+    private void setStaffRoles(org.patientview.api.model.UserToken userToken) {
+        List<Role> staffRoles = new ArrayList<>();
+        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.STAFF)) {
+            staffRoles.add(new Role(role));
+        }
+        userToken.setStaffRoles(staffRoles);
     }
 
     private void setSecurityRoles(org.patientview.api.model.UserToken userToken) {
@@ -677,31 +743,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 }
             }
         }
-    }
-
-    private void setPatientRoles(org.patientview.api.model.UserToken userToken) {
-        List<Role> patientRoles = new ArrayList<>();
-        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.PATIENT)) {
-            patientRoles.add(new Role(role));
-        }
-        userToken.setPatientRoles(patientRoles);
-    }
-
-    private void setStaffRoles(org.patientview.api.model.UserToken userToken) {
-        List<Role> staffRoles = new ArrayList<>();
-        for (org.patientview.persistence.model.Role role : roleRepository.findByRoleType(RoleType.STAFF)) {
-            staffRoles.add(new Role(role));
-        }
-        userToken.setStaffRoles(staffRoles);
-    }
-
-    private void setAuditActions(org.patientview.api.model.UserToken userToken) {
-        // use name of AuditActions for nicer UI in front end
-        List<String> auditActions = new ArrayList<>();
-        for (AuditActions auditAction : AuditActions.class.getEnumConstants()) {
-            auditActions.add(auditAction.getName());
-        }
-        userToken.setAuditActions(auditActions);
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)

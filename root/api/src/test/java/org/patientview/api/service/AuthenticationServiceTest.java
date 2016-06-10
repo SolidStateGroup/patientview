@@ -18,6 +18,7 @@ import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -25,6 +26,7 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -68,6 +70,9 @@ import static org.mockito.Mockito.when;
  * Created on 16/06/2014
  */
 public class AuthenticationServiceTest {
+
+    @Mock
+    ApiConditionService apiConditionService;
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
@@ -571,6 +576,51 @@ public class AuthenticationServiceTest {
     }
 
     @Test
+    public void testGetUserInformation_Patient() throws Exception {
+        String token = "abc123456";
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        User user = TestUtils.createUser("testUser");
+
+        // ENTER_OWN_DIAGNOSES group feature
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(TestUtils.createGroupFeature(
+                TestUtils.createFeature(FeatureType.ENTER_OWN_DIAGNOSES.toString()), group));
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+
+        Assert.assertNotNull("UserToken must not be null", userToken);
+        Assert.assertNotNull("token must not be null", userToken.getToken());
+        Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
+        Assert.assertTrue("user should have shouldEnterCondition as true", userToken.isShouldEnterCondition());
+
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(apiConditionService, times(1)).getUserEntered(
+                eq(foundUserToken.getUser().getId()), eq(DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED), eq(true));
+    }
+
+    @Test
     public void testGetUserInformation_enteredSecretWord()
             throws ResourceNotFoundException, ResourceForbiddenException {
         String token = "abc123456";
@@ -729,7 +779,7 @@ public class AuthenticationServiceTest {
         authenticationService.switchToUser(switchUser.getId());
     }
 
-    @Test(expected = ResourceForbiddenException.class)
+    @Test(expected = AuthenticationServiceException.class)
     public void testSwitchUser_CurrentlyPatient() throws AuthenticationServiceException {
 
         // current user and security
@@ -759,7 +809,7 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(true);
+        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(false);
 
         authenticationService.switchToUser(switchUser.getId());
     }

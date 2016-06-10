@@ -223,10 +223,10 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     }
 
     @Override
-    public List<FhirCondition> getUserEntered(Long userId, DiagnosisTypes diagnosisType)
+    public List<FhirCondition> getUserEntered(Long userId, DiagnosisTypes diagnosisType, boolean isLogin)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
         User patientUser = userService.get(userId);
-        if (!userService.currentUserCanGetUser(patientUser)) {
+        if (!isLogin && !userService.currentUserCanGetUser(patientUser)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 

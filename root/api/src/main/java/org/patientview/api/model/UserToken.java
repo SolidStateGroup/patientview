@@ -46,6 +46,9 @@ public class UserToken {
     private String secretWordToken;
     private boolean mustSetSecretWord;
 
+    // used to show/hide enter own diagnosis on dashboard
+    private boolean shouldEnterCondition = false;
+
     public UserToken() {
     }
 
@@ -238,5 +241,13 @@ public class UserToken {
 
     public void setMustSetSecretWord(boolean mustSetSecretWord) {
         this.mustSetSecretWord = mustSetSecretWord;
+    }
+
+    public boolean isShouldEnterCondition() {
+        return shouldEnterCondition;
+    }
+
+    public void setShouldEnterCondition(boolean shouldEnterCondition) {
+        this.shouldEnterCondition = shouldEnterCondition;
     }
 }

@@ -72,7 +72,7 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
     public ResponseEntity<List<FhirCondition>> getStaffEntered(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         return new ResponseEntity<>(
-                apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED), HttpStatus.OK);
+            apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED, false), HttpStatus.OK);
     }
 
     /**
