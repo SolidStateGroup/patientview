@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.model.BaseCode;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
@@ -87,6 +88,9 @@ public interface CodeService {
      * @return List of Code
      */
     List<Code> getPatientManagementDiagnoses();
+
+    @RoleOnly(roles = { RoleName.PATIENT })
+    List<BaseCode> getPatientViewStandardCodes(String searchTerm) throws ResourceNotFoundException;
 
     /**
      * Update an existing Code.

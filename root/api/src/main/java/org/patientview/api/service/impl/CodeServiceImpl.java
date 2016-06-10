@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseCode;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
@@ -16,10 +17,13 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
+import org.patientview.persistence.model.enums.CodeTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.LinkRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +61,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Inject
     private LinkRepository linkRepository;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     @Inject
     private NhsChoicesService nhsChoicesService;
@@ -329,6 +336,45 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         return codes;
+    }
+
+    @Override
+    public List<BaseCode> getPatientViewStandardCodes(String searchTerm) throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("DIAGNOSIS Code type not found");
+        }
+
+        List<Long> codeTypesList = new ArrayList<>();
+        codeTypesList.add(codeType.getId());
+
+        Lookup standardType
+            = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
+        if (standardType == null) {
+            throw new ResourceNotFoundException("PATIENTVIEW Code standard not found");
+        }
+
+        List<Long> standardTypesList = new ArrayList<>();
+        standardTypesList.add(standardType.getId());
+
+        if (searchTerm == null) {
+            searchTerm = "%%";
+        } else {
+            searchTerm = "%" + searchTerm.toUpperCase() + "%";
+        }
+
+        Page<Code> found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
+                standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+
+        List<BaseCode> reduced = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(found.getContent())) {
+            for (Code code : found.getContent()) {
+                reduced.add(new BaseCode(code));
+            }
+        }
+
+        return reduced;
     }
 
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {

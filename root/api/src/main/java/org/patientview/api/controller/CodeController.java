@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.model.BaseCode;
 import org.patientview.api.service.CodeService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.List;
 
 /**
  * RESTful interface for the basic Crud operation for Codes (treatment and diagnosis).
@@ -88,6 +90,22 @@ public class CodeController extends BaseController<CodeController> {
     @ResponseBody
     public ResponseEntity<Page<Code>> getAllCodes(GetParameters getParameters) {
         return new ResponseEntity<>(codeService.getAllCodes(getParameters), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/codes/patientviewstandard", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> getAllPatientViewStandardCodes()
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.getPatientViewStandardCodes(null), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/codes/patientviewstandard/{searchTerm}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> getPatientViewStandardCodes(@PathVariable("searchTerm") String searchTerm)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.getPatientViewStandardCodes(searchTerm), HttpStatus.OK);
     }
 
     /**

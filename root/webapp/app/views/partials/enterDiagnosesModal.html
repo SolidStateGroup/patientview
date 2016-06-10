@@ -1,0 +1,27 @@
+<style>
+    .welcome-title {
+        position: relative;
+        top: 5px;
+    }
+</style>
+
+<div class="modal-header">
+    <h3 class="modal-title"><span class="welcome-title">Welcome to</span> <img src="images/pv-logo.png"/></h3>
+</div>
+<div class="modal-body">
+    <h5>PatientView provides information and links about your condition(s) from trust sources, enabling you to stay up-to-date
+        with the latest findings and suggested treatments.</h5>
+
+    <div data-ng-show="loading" class="container"><br/>
+        <div class="loading">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp;Loading</h3>
+        </div>
+    </div>
+
+    <div data-ng-show="!loading">
+        <p>To get started please enter your conditions(s) below</p>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" data-ng-click="cancel()">No thanks, I will enter my conditions later</button>
+</div>

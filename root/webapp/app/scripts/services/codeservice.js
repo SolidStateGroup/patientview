@@ -12,6 +12,16 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        getPatientViewStandardCodes: function (searchTerm) {
+            var deferred = $q.defer();
+            // GET /codes/patientviewstandard/{searchTerm}
+            Restangular.one('codes/patientviewstandard', searchTerm).getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         get: function (codeId) {
             var deferred = $q.defer();
             Restangular.one('code',codeId).get().then(function(successResult) {

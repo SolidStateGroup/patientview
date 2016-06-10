@@ -1,10 +1,30 @@
 'use strict';
+// view news modal instance controller
+var EnterDiagnosesModalInstanceCtrl = ['$scope', '$modalInstance', 'StaticDataService', 'CodeService', 'DiagnosisService',
+    function ($scope, $modalInstance, StaticDataService, CodeService, DiagnosisService) {
+
+        var init = function() {
+            $scope.loading = true;
+            CodeService.getPatientViewStandardCodes('').then(function(codes) {
+                console.log(codes);
+                $scope.loading = false;
+            }, function() {
+                $scope.loading = false;
+            });
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
+        init();
+    }];
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
     'NewsService', 'UtilService', 'StaticDataService', 'MedicationService', 'ObservationService',
-    'ObservationHeadingService', 'AlertService', '$rootScope',
+    'ObservationHeadingService', 'AlertService', '$rootScope', 'DiagnosisService', 'CodeService',
     function (UserService, $modal, $scope, GroupService, NewsService, UtilService, StaticDataService, MedicationService,
-              ObservationService, ObservationHeadingService, AlertService, $rootScope) {
+              ObservationService, ObservationHeadingService, AlertService, $rootScope, DiagnosisService, CodeService) {
 
         // get graph every time group is changed
         $scope.$watch('graphGroupId', function (newValue) {
@@ -191,7 +211,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     }
                 });
 
-
                 NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
                     $scope.newsItems = page.content;
                     $scope.newsItemsTotalElements = page.totalElements;
@@ -207,6 +226,10 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     $scope.loading = false;
                 });
             });
+
+            if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
+                $scope.showEnterDiagnosesModal();
+            }
         };
 
         $scope.getAlerts = function () {
@@ -466,7 +489,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
         };
 
         var getAlerts = function () {
-
             delete $scope.alertObservationHeadings;
             delete $scope.letterAlert;
 
@@ -489,6 +511,31 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 }, function () {
                     alert('Error getting letter alerts');
                 });
+        };
+
+        $scope.showEnterDiagnosesModal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/enterDiagnosesModal.html',
+                controller: EnterDiagnosesModalInstanceCtrl,
+                size: 'lg',
+                resolve: {
+                    CodeService: function () {
+                        return CodeService;
+                    },
+                    DiagnosisService: function () {
+                        return DiagnosisService;
+                    },
+                    StaticDataService: function () {
+                        return StaticDataService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok (not used)
+            }, function () {
+                // closed
+            });
         };
 
         init();
