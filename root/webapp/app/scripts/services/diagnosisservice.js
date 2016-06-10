@@ -2,10 +2,20 @@
 
 angular.module('patientviewApp').factory('DiagnosisService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
-        add: function (userId, code) {
+        addStaffEntered: function (userId, code) {
             var deferred = $q.defer();
-            // POST /user/{userId}/diagnosis/{code}
-            Restangular.one('user', userId).one('diagnosis', code).post().then(function(successResult) {
+            // POST /user/{userId}/diagnosis/{code}/staffentered
+            Restangular.one('user', userId).one('diagnosis', code).one('staffentered').post().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        addPatientEntered: function (userId, code) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/diagnosis/{code}/patiententered
+            Restangular.one('user', userId).one('diagnosis', code).one('patiententered').post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

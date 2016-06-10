@@ -8,6 +8,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ApiConditionService;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -15,6 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -45,12 +52,31 @@ public class DiagnosisControllerTest {
     }
 
     @Test
-    public void testAdd() throws Exception {
+    public void testAddPatientEntered() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String code = "00";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/diagnosis/" + code + "/patiententered"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(apiConditionService, Mockito.times(1)).patientAddCondition(eq(user.getId()), eq(code));
+    }
+
+    @Test
+    public void testAddStaffEntered() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         Long userId = 1L;
         String code = "00";
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + userId + "/diagnosis/" + code))
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + userId + "/diagnosis/" + code + "/staffentered"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(apiConditionService, Mockito.times(1)).staffAddCondition(eq(userId), eq(code));
     }

@@ -69,6 +69,16 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
+     * Delete a Code.
+     * @param codeId ID of Code to delete
+     */
+    @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void delete(@PathVariable("codeId") Long codeId) {
+        codeService.delete(codeId);
+    }
+
+    /**
      * Get a Page of Code object, with pagination parameters (page, size of page etc) passed in as GetParameters object.
      * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * of page etc

@@ -565,7 +565,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.addDiagnosis = function (userId, selectedDiagnosis) {
         if (selectedDiagnosis !== undefined && selectedDiagnosis) {
             var diag = JSON.parse(selectedDiagnosis);
-            DiagnosisService.add(userId, diag.code).then(function () {
+            DiagnosisService.addStaffEntered(userId, diag.code).then(function () {
                 $scope.getUser($scope.editUser);
             }, function () {
                 alert('Failed to add ' + diag.description + ' diagnosis with code "' + diag.code + '"');

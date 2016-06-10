@@ -16,6 +16,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.ApiKey;
+import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -29,6 +30,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -75,6 +77,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private ExternalStandardRepository externalStandardRepository;
 
     @Mock
     private FeatureRepository featureRepository;
@@ -551,8 +556,9 @@ public class AuthenticationServiceTest {
         foundUserToken.setToken(token);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
 
@@ -560,6 +566,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token must not be null", userToken.getToken());
         Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
 
+        verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
     }
 
@@ -604,6 +611,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setCheckSecretWord(true);
         foundUserToken.setSecretWordToken(secretWordToken);
 
+        when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
@@ -613,6 +621,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
 
+        verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
         verify(userTokenRepository, times(1)).save(eq(foundUserToken));
         verify(userRepository, times(1)).save(any(User.class));

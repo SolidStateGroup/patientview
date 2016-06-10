@@ -27,6 +27,7 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -164,7 +165,8 @@ public class ApiConditionServiceTest {
                 + "WHERE content -> 'subject' ->> 'display' = '"
                 + fhirLink.getResourceId() + "' "), eq(Condition.class))).thenReturn(conditions);
 
-        List<FhirCondition> conditionsList = apiConditionService.getStaffEntered(patient.getId());
+        List<FhirCondition> conditionsList
+                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar " + "FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"
@@ -235,6 +237,59 @@ public class ApiConditionServiceTest {
         when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         apiConditionService.staffAddCondition(patient.getId(), code);
+
+        verify(fhirResource, times(1)).createEntity(
+                any(Condition.class), eq(ResourceType.Condition.name()), eq("condition"));
+    }
+
+    @Test
+    public void testPatientAddCondition() throws Exception {
+        String code = "00";
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User patientUser = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, patientUser);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        patientUser.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(patientUser, groupRoles);
+
+        // patient identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // patient entered results group
+        Group patientEntered = TestUtils.createGroup("staffEntered");
+        patientEntered.setCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+
+        // code
+        Lookup lookup = TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.CODE_TYPE), CodeTypes.DIAGNOSIS.toString());
+        Code codeEntity = TestUtils.createCode(code);
+        List<Code> codes = new ArrayList<>();
+        codes.add(codeEntity);
+
+        // fhir link
+        FhirLink fhirLink = TestUtils.createFhirLink(patientUser, identifier);
+        fhirLink.setGroup(patientEntered);
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(fhirLink);
+
+        when(codeService.findAllByCodeAndType(eq(code), eq(lookup))).thenReturn(codes);
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patientUser), eq(patientEntered), eq(identifier)))
+                .thenReturn(fhirLinks);
+        when(groupService.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString()))).thenReturn(patientEntered);
+        when(lookupService.findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(CodeTypes.DIAGNOSIS.toString())))
+                .thenReturn(lookup);
+        when(userService.get(eq(patientUser.getId()))).thenReturn(patientUser);
+        when(userService.currentUserCanGetUser(eq(patientUser))).thenReturn(true);
+
+        apiConditionService.patientAddCondition(patientUser.getId(), code);
 
         verify(fhirResource, times(1)).createEntity(
                 any(Condition.class), eq(ResourceType.Condition.name()), eq("condition"));
@@ -477,7 +532,8 @@ public class ApiConditionServiceTest {
         when(DataUtils.getResource(any(JSONObject.class))).thenReturn(condition);
 
         // get
-        List<FhirCondition> conditionsList = apiConditionService.getStaffEntered(patient.getId());
+        List<FhirCondition> conditionsList
+                = apiConditionService.getUserEntered(patient.getId(), DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
 
         verify(fhirResource, times(1)).findResourceByQuery(eq("SELECT content::varchar FROM condition "
                 + "WHERE content -> 'subject' ->> 'display' = '"

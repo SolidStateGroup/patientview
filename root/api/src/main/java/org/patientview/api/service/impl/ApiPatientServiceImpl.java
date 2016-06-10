@@ -473,7 +473,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private org.patientview.api.model.Patient setStaffEnteredConditions(
             org.patientview.api.model.Patient patient, Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
-            patient.getFhirConditions().addAll(apiConditionService.getStaffEntered(userId));
+        patient.getFhirConditions().addAll(
+                apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED));
         return patient;
     }
 

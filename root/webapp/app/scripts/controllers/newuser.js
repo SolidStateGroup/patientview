@@ -269,7 +269,8 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
 
                 // now add staff entered diagnosis if present
                 if ($scope.editUser.staffEnteredDiagnosis) {
-                    DiagnosisService.add(userId, $scope.editUser.staffEnteredDiagnosis.code).then(function() {
+                    DiagnosisService.addStaffEntered(userId, $scope.editUser.staffEnteredDiagnosis.code)
+                        .then(function() {
                         clearForm();
                         $scope.saving = false;
                     }, function() {

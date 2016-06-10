@@ -61,7 +61,7 @@ public class CodeServiceTest {
     public void testGet_PATIENTVIEW() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -80,7 +80,6 @@ public class CodeServiceTest {
         when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
 
         Code foundCode = codeService.get(code.getId());
-
 
         Assert.assertNotNull("The returned Code should not be null", foundCode);
 
