@@ -326,6 +326,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
             $scope.showRenalHealthSurveys = false;
+            $scope.showEnterConditions = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
                 if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
@@ -335,6 +336,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
                     if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
                         $scope.showRenalHealthSurveys = true;
+                    }
+                    if (feature.feature.name == 'ENTER_OWN_DIAGNOSES') {
+                        $scope.showEnterConditions = true;
                     }
                 })
             }
