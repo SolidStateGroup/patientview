@@ -28,7 +28,8 @@
                 <div data-ng-include src="'views/partials/myConditionsDiabetes.html'" data-ng-if="currentSpecialty.code === 'Diabetes'"></div>
                 <div data-ng-include src="'views/partials/myConditionsIbd.html'" data-ng-if="currentSpecialty.code === 'IBD'"></div>
                 <div data-ng-include src="'views/partials/myConditionsHeart.html'" data-ng-if="currentSpecialty.code === 'Cardiol'"></div>
-                <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes' && currentSpecialty.code !== 'IBD' && currentSpecialty.code !== 'Cardiol'">
+                <div data-ng-include src="'views/partials/myConditionsPatientView.html'" data-ng-if="currentSpecialty.code === 'patientview'"></div>
+                <div data-ng-show="['Renal', 'Diabetes', 'IBD', 'Cardiol', 'patientview'].indexOf(currentSpecialty.code) == -1">
                     <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
                 </div>
             </div>
