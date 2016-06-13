@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +21,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -40,6 +43,8 @@ public class DiagnosisControllerTest {
 
     private MockMvc mockMvc;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -51,6 +56,26 @@ public class DiagnosisControllerTest {
         TestUtils.removeAuthentication();
     }
 
+    @Test
+    public void testAddMultiplePatientEntered() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<String> codes = new ArrayList<>();
+        codes.add("00");
+        codes.add("01");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/diagnosis/patiententered")
+                .content(mapper.writeValueAsString(codes)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
     @Test
     public void testAddPatientEntered() throws Exception {
         // user and security

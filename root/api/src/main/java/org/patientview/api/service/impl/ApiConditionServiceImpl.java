@@ -79,7 +79,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     @Inject
     private UserService userService;
 
-    private void addCondition(Long patientUserId, String code, DiagnosisTypes diagnosisType)
+    private void addConditions(Long patientUserId, List<String> codes, DiagnosisTypes diagnosisType)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         User patientUser = userService.get(patientUserId);
         if (!userService.currentUserCanGetUser(patientUser)) {
@@ -114,9 +114,12 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
         // check
         Lookup codeLookup = lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
-        List<Code> codes = codeService.findAllByCodeAndType(code, codeLookup);
-        if (CollectionUtils.isEmpty(codes)) {
-            throw new ResourceNotFoundException("Cannot find code");
+
+        for (String code : codes) {
+            List<Code> entityCodes = codeService.findAllByCodeAndType(code, codeLookup);
+            if (CollectionUtils.isEmpty(entityCodes)) {
+                throw new ResourceNotFoundException("Cannot find code '" + code + "'");
+            }
         }
 
         List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
@@ -134,35 +137,41 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
         // fhir link now exists, get patient reference used when building Condition
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+        ResourceReference staffReference = null;
 
-        // create new Condition with subject
-        Condition condition = new Condition();
-        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
-        condition.setSubject(patientReference);
-
-        // get or create practitioner reference if does not exist, used to store staff user id in condition asserter
         if (diagnosisType.equals(DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED)) {
-            ResourceReference staffReference = Util.createResourceReference(getPractitionerUuid(getCurrentUser()));
-            condition.setAsserter(staffReference);
+            staffReference = Util.createResourceReference(getPractitionerUuid(getCurrentUser()));
         }
 
-        // set code
-        condition.setNotesSimple(code);
-        CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.setTextSimple(code);
-        condition.setCode(codeableConcept);
+        for (String code : codes) {
+            // create new Condition with subject
+            Condition condition = new Condition();
+            condition.setStatusSimple(Condition.ConditionStatus.confirmed);
+            condition.setSubject(patientReference);
 
-        // set category DIAGNOSIS_STAFF_ENTERED or DIAGNOSIS_PATIENT_ENTERED
-        CodeableConcept category = new CodeableConcept();
-        category.setTextSimple(diagnosisType.toString());
-        condition.setCategory(category);
+            // get or create practitioner reference if does not exist, used to store staff user id in condition asserter
+            if (diagnosisType.equals(DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED) && staffReference != null) {
+                condition.setAsserter(staffReference);
+            }
 
-        // set assertion date
-        DateAndTime dateAndTime = new DateAndTime(new Date());
-        condition.setDateAssertedSimple(dateAndTime);
+            // set code
+            condition.setNotesSimple(code);
+            CodeableConcept codeableConcept = new CodeableConcept();
+            codeableConcept.setTextSimple(code);
+            condition.setCode(codeableConcept);
 
-        // store in FHIR
-        fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+            // set category DIAGNOSIS_STAFF_ENTERED or DIAGNOSIS_PATIENT_ENTERED
+            CodeableConcept category = new CodeableConcept();
+            category.setTextSimple(diagnosisType.toString());
+            condition.setCategory(category);
+
+            // set assertion date
+            DateAndTime dateAndTime = new DateAndTime(new Date());
+            condition.setDateAssertedSimple(dateAndTime);
+
+            // store in FHIR
+            fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+        }
     }
 
     private FhirCondition createFhirCondition(Condition condition) throws FhirResourceException {
@@ -279,13 +288,23 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     @Override
     public void patientAddCondition(Long userId, String code)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
-        addCondition(userId, code, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED);
+        ArrayList<String> codes = new ArrayList<>();
+        codes.add(code);
+        addConditions(userId, codes, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED);
+    }
+
+    @Override
+    public void patientAddConditions(Long userId, List<String> codes)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        addConditions(userId, codes, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED);
     }
 
     @Override
     public void staffAddCondition(Long patientUserId, String code)
             throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException {
-        addCondition(patientUserId, code, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
+        ArrayList<String> codes = new ArrayList<>();
+        codes.add(code);
+        addConditions(patientUserId, codes, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED);
     }
 
     @Override

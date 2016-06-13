@@ -10,6 +10,7 @@ import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,21 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
 
     @Inject
     private ApiConditionService apiConditionService;
+
+    /**
+     * Add multiple diagnoses (Conditions) to your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED
+     * @param userId User ID of current User
+     * @param codes List of String code of diagnoses
+     * @throws ResourceNotFoundException
+     * @throws EntityExistsException
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/diagnosis/patiententered", method = RequestMethod.POST)
+    public void addMultiplePatientEntered(@PathVariable("userId") Long userId, @RequestBody List<String> codes)
+            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+        apiConditionService.patientAddConditions(userId, codes);
+    }
 
     /**
      * Add a diagnosis (Condition) to your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED

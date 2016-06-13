@@ -9,6 +9,7 @@ import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.RoleName;
 
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -42,6 +43,19 @@ public interface ApiConditionService {
      */
     @UserOnly
     void patientAddCondition(Long userId, String code)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
+
+    /**
+     * Add multiple diagnoses (Conditions) to your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED
+     * @param userId User ID of current User
+     * @param codes List of String code of diagnoses
+     * @throws ResourceNotFoundException
+     * @throws EntityExistsException
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void patientAddConditions(Long userId, List<String> codes)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
     /**
