@@ -66,6 +66,7 @@ public class ImportControllerTest {
     DELETE FROM pv_question_option WHERE id > 4944340;
     DELETE FROM pv_question WHERE id > 4957410;
     DELETE FROM pv_question_group WHERE id > 4957309;
+    DELETE FROM pv_survey_response_score WHERE id > 4996932;
     DELETE FROM pv_survey_response WHERE id > 4957512;
     DELETE FROM pv_survey_feedback WHERE id > 4964549;
     DELETE FROM pv_survey WHERE id > 4957408;
@@ -86,9 +87,9 @@ public class ImportControllerTest {
     @Ignore
     public void testBulkSurveyDescriptionImport() throws Exception {
         List<String> files = new ArrayList<>();
-        files.add("data/xml/survey/survey_PROM_1.xml");
+        files.add("data/xml/survey/survey_PROM_2.xml");
         files.add("data/xml/survey/survey_PAM_1.xml");
-        files.add("data/xml/survey/survey_EQ5D_1.xml");
+        files.add("data/xml/survey/survey_EQ5D_2.xml");
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -112,7 +113,7 @@ public class ImportControllerTest {
     @Ignore
     public void testBulkSurveyResponseImport() throws Exception {
         List<String> files = new ArrayList<>();
-        /*files.add("data/xml/survey_response/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_1.xml");
         files.add("data/xml/survey_response/survey_response_PROM_2.xml");
         files.add("data/xml/survey_response/survey_response_PROM_3.xml");
         files.add("data/xml/survey_response/survey_response_PROM_4.xml");
@@ -123,8 +124,8 @@ public class ImportControllerTest {
         files.add("data/xml/survey_response/survey_response_EQ5D_1.xml");
         files.add("data/xml/survey_response/survey_response_EQ5D_2.xml");
         files.add("data/xml/survey_response/survey_response_EQ5D_3.xml");
-        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");*/
-        files.add("data/xml/survey_response/4354569111/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");
+        /*files.add("data/xml/survey_response/4354569111/survey_response_PROM_1.xml");
         files.add("data/xml/survey_response/4354569111/survey_response_PROM_2.xml");
         files.add("data/xml/survey_response/4354569111/survey_response_PROM_3.xml");
         files.add("data/xml/survey_response/4354569111/survey_response_PROM_4.xml");
@@ -135,7 +136,7 @@ public class ImportControllerTest {
         files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_1.xml");
         files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_2.xml");
         files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_3.xml");
-        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_4.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_4.xml");*/
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -143,8 +144,8 @@ public class ImportControllerTest {
             String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
             org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-            //String postUrl="http://localhost:8081/importer/import/surveyresponse";
-            String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
+            String postUrl="http://localhost:8081/importer/import/surveyresponse";
+            //String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
 
             HttpPost post = new HttpPost(postUrl);
             StringEntity postingString = new StringEntity(content);
