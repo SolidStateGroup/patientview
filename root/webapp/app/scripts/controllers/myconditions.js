@@ -27,18 +27,11 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         GroupService.getAllPublic().then(function(groups) {
             $scope.unitGroups = [];
 
-            $scope.showRenalHealthSurveys = false;
-
             // only need UNIT and DISEASE_GROUP groups, also check if any has the RENAL_HEALTH_SURVEY feature
             groups.forEach(function(group) {
                 if (group.groupType.value === 'UNIT' || group.groupType.value === 'DISEASE_GROUP') {
                     $scope.unitGroups.push(group);
                 }
-                group.groupFeatures.forEach(function(feature) {
-                    if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
-                        $scope.showRenalHealthSurveys = true;
-                    }
-                })
             });
 
             getMyConditions();
@@ -332,11 +325,18 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         if (childGroupIds.length > 0) {
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
+            $scope.showRenalHealthSurveys = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
                 if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
                     canGetStaffEnteredDiagnosis = true;
                 }
+
+                $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
+                    if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
+                        $scope.showRenalHealthSurveys = true;
+                    }
+                })
             }
 
             if (canGetStaffEnteredDiagnosis) {
