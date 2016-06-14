@@ -6,13 +6,16 @@
     .selectize-diagnosis .loading {
         text-align: left;
     }
+    .selectize-dropdown-content {
+        max-height: 400px;
+    }
 </style>
 
 <div class="modal-header">
     <h3 class="modal-title"><span class="welcome-title">Welcome to</span> <img src="images/pv-logo.png"/></h3>
 </div>
 <div class="modal-body" data-ng-if="!successMessage && !saving">
-    <h5>PatientView provides information and links about your condition(s) from trust sources, enabling you to stay up-to-date
+    <h5>PatientView provides information and links about your condition(s) from trusted sources, enabling you to stay up-to-date
         with the latest findings and suggested treatments.</h5>
 
     <div data-ng-show="loading" class="container"><br/>

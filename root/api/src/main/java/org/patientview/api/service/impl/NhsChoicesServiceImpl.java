@@ -642,9 +642,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     }
                     if (childNode.getNodeName().equals("Uri")) {
                         // handle broken links from nhs choices as produce .aspx error page
-                        //if (!childNode.getTextContent().contains(".aspx")) {
-                        uri = childNode.getTextContent().split("\\?apikey")[0];
-                        //}
+                        if (!childNode.getTextContent().contains(".aspx")) {
+                            uri = childNode.getTextContent().split("\\?apikey")[0];
+                        }
                     }
                 }
 
