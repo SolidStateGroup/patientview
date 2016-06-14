@@ -207,10 +207,11 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 });
             });
 
-            console.log($scope.loggedInUser);
-
-            if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
-                $scope.showEnterDiagnosesModal();
+            if (!$scope.showedEnterDiagnosisModal) {
+                if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
+                    $scope.showEnterDiagnosesModal();
+                    $scope.showedEnterDiagnosisModal = true;
+                }
             }
         };
 
