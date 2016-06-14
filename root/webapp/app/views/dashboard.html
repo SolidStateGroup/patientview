@@ -6,7 +6,7 @@
     }
 </style>
 
-<div data-ng-show="!loading || (!loading && initStarted)" data-in-view="init()">
+<div data-ng-show="!loading && initFinished" data-in-view="init()">
     <br/>
     <div class="row" data-ng-if="!loggedInUser.hideSecretWordNotification">
         <div class="alert alert-warning">
