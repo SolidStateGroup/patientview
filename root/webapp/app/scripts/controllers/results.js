@@ -1,14 +1,5 @@
 'use strict';
 
-// observation heading information modal instance controller
-var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
-    function ($scope, $modalInstance, result) {
-        $scope.result = result;
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
-
 angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', '$routeParams',
 function ($scope, $modal, ObservationService, $routeParams) {
 

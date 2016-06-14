@@ -16,12 +16,6 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
             value: 13
         }];
 
-        /*$scope.plotLines2 = [{
-            color: '#77DD77',
-            width: 2,
-            value: 85
-        }];*/
-
         $scope.max = 30;
         getSurveyResponses();
     };
@@ -106,19 +100,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                     radius : 2
                 },
                 yAxis: 0
-            }/*,{
-                name : 'Self Rating Scale',
-                data : data2,
-                color: '#aeaeae',
-                tooltip: {
-                    valueDecimals: 1
-                },
-                marker : {
-                    enabled : true,
-                    radius : 2
-                },
-                yAxis: 1
-            }*/],
+            }],
             chart: {
                 events: {
                     zoomType: 'x',
@@ -158,20 +140,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
                         color: '#585858'
                     }
                 }
-            }/*,{
-                offset: 40,
-                plotLines: $scope.plotLines2,
-                min: 0,
-                max: 100,
-                floor: 0,
-                endOnTick: false,
-                title : {
-                    text: 'Self Rating Scale',
-                    style: {
-                        color: '#aeaeae'
-                    }
-                }
-            }*/],
+            }],
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',
@@ -243,7 +212,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/surveyResponseDetailNew.html',
-            controller: SurveyResponseDetailsNewModalInstanceCtrl,
+            controller: SurveyResponseDetailNewModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
             resolve: {

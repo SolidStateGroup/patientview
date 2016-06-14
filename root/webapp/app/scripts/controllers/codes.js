@@ -1,47 +1,4 @@
 'use strict';
-
-// delete code modal instance controller
-var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code', 'CodeService',
-function ($scope, $modalInstance, code, CodeService) {
-    $scope.code = code;
-    $scope.ok = function () {
-        CodeService.remove(code).then(function() {
-            $modalInstance.close();
-        });
-    };
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
-// new code modal instance controller
-var NewCodeModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'codeTypes', 'standardTypes', 'editCode', 'CodeService',
-function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode, CodeService) {
-    $scope.editCode = editCode;
-    $scope.codeTypes = codeTypes;
-    $scope.standardTypes = standardTypes;
-    $scope.editMode = false;
-
-    $scope.externalStandards = _.clone($scope.loggedInUser.userInformation.externalStandards);
-
-    $scope.ok = function () {
-        CodeService.create($scope.editCode, codeTypes, standardTypes).then(function(result) {
-            $scope.editCode = result;
-            $modalInstance.close($scope.editCode);
-        }, function(result) {
-            if (result.data) {
-                $scope.errorMessage = ' - ' + result.data;
-            } else {
-                $scope.errorMessage = ' ';
-            }
-        });
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
 angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
 function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 

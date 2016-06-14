@@ -1,6 +1,5 @@
 'use strict';
 
-// new patient modal instance controller
 angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
     'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService', '$route',
 function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService,
