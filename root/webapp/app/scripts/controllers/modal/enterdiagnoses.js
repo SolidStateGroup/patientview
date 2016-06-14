@@ -64,7 +64,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                 codes.push($scope.selectedConditions[i].code);
             }
 
-            DiagnosisService.addPatientEntered($scope.loggedInUser.id, codes).then(function() {
+            DiagnosisService.addMultiplePatientEntered($scope.loggedInUser.id, codes).then(function() {
                 $scope.successMessage = "Your condition(s) have been successfully saved.";
                 $scope.saving = false;
             }, function() {

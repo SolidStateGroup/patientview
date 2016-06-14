@@ -71,6 +71,18 @@ public interface ApiConditionService {
             throws ResourceForbiddenException, ResourceNotFoundException, FhirResourceException;
 
     /**
+     * Remove a diagnosis (Condition) from your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED
+     * @param patientUserId User ID of current User
+     * @param code String code of diagnosis
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    void patientRemoveCondition(Long patientUserId, String code)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    /**
      * Set the status of all a User's staff entered Conditions to "refuted", equivalent to deleting
      * @param patientUserId User ID of user to set staff entered Conditions status to "refuted"
      * @throws Exception

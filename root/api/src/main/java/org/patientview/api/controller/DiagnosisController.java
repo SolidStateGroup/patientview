@@ -77,6 +77,21 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
     }
 
     /**
+     * Get patient entered Conditions for a patient if present
+     * @param userId Long User ID of patient to get patient entered Conditions for
+     * @return List of patient entered Conditions
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/diagnosis/patiententered", method = RequestMethod.GET)
+    public ResponseEntity<List<FhirCondition>> getPatientEntered(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+        return new ResponseEntity<>(
+            apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, false), HttpStatus.OK);
+    }
+
+    /**
      * Get staff entered Conditions for a patient if present
      * @param userId Long User ID of patient to get staff entered Conditions for
      * @return List of staff entered Conditions
@@ -89,6 +104,20 @@ public class DiagnosisController extends BaseController<DiagnosisController> {
             throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
         return new ResponseEntity<>(
             apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_STAFF_ENTERED, false), HttpStatus.OK);
+    }
+
+    /**
+     * Remove a diagnosis (Condition) from your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED
+     * @param userId User ID of current User
+     * @param code String code of diagnosis
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/diagnosis/{code}/patiententered", method = RequestMethod.DELETE)
+    public void removePatientEntered(@PathVariable("userId") Long userId, @PathVariable("code") String code)
+            throws ResourceNotFoundException, EntityExistsException, FhirResourceException, ResourceForbiddenException {
+        apiConditionService.patientRemoveCondition(userId, code);
     }
 
     /**

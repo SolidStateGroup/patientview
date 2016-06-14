@@ -308,6 +308,40 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     }
 
     @Override
+    public void patientRemoveCondition(Long patientUserId, String code)
+            throws ResourceNotFoundException, FhirResourceException {
+        User patientUser = userService.get(patientUserId);
+
+        // get PATIENT_ENTERED group
+        Group patientEnteredGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+        if (patientEnteredGroup == null) {
+            throw new ResourceNotFoundException("Group for patient entered data does not exist");
+        }
+
+        // sort identifiers and choose first (must have fhir link with identifier to link to fhir database
+        List<Identifier> identifiersSorted = new ArrayList<>(patientUser.getIdentifiers());
+        Collections.sort(identifiersSorted);
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                patientUser, patientEnteredGroup, identifiersSorted.get(0));
+
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            throw new ResourceNotFoundException("No patient data exists for this patient");
+        }
+
+        FhirLink fhirLink = fhirLinks.get(0);
+
+        // get DIAGNOSIS_PATIENT_ENTERED fhir conditions
+        List<UUID> uuids = fhirResource.getConditionLogicalIds(
+                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED.toString(), null);
+
+        if (!CollectionUtils.isEmpty(uuids)) {
+            for (UUID uuid : uuids)
+            fhirResource.deleteEntity(uuid, "condition");
+        }
+    }
+
+    @Override
     public void staffRemoveCondition(Long patientUserId) throws Exception {
 
         User patientUser = userService.get(patientUserId);
