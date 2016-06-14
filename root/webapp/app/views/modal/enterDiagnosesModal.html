@@ -3,6 +3,9 @@
         position: relative;
         top: 5px;
     }
+    .selectize-diagnosis .loading {
+        text-align: left;
+    }
 </style>
 
 <div class="modal-header">
@@ -20,7 +23,9 @@
 
     <div data-ng-show="!loading">
         <p>To get started please enter your conditions(s) below:</p>
-        <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        <div class="selectize-diagnosis">
+            <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        </div>
         <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
         <div data-ng-if="selectedConditions.length">
             <h5>You have selected the following condition(s)</h5>
