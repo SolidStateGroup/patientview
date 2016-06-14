@@ -49,6 +49,7 @@ public interface NhsChoicesService {
      * If an NhschoicesCondition has been deleted, marks Code as externallyRemoved = true.
      * @throws ResourceNotFoundException
      */
+    @RoleOnly
     void synchroniseConditions() throws ResourceNotFoundException;
 
     /**
@@ -56,6 +57,7 @@ public interface NhsChoicesService {
      * Will create new NhschoicesConditions and delete from PV if no longer found in API.
      * @throws ImportResourceException
      */
+    @RoleOnly
     void updateConditions() throws ImportResourceException;
 
     // testing only
