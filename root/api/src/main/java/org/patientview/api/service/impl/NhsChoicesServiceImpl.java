@@ -297,7 +297,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                         // manually catch errors from server (workaround for API 404 reported as 500)
                         if (e.getMessage().contains("500")) {
                             // API can return 500 instead of 404 if not found
-                            LOG.info("500 error updating '" + code + "' with description from " + urlString);
+                            LOG.info("500 error updating '" + code + "' with description from " + urlString + ": "
+                                + e.getMessage());
                         } else {
                             // not 404 or 500 error, could be 403
                             LOG.info("Error updating '" + code + "' with description from " + urlString + ": "

@@ -779,8 +779,8 @@ public class AuthenticationServiceTest {
         authenticationService.switchToUser(switchUser.getId());
     }
 
-    @Test(expected = AuthenticationServiceException.class)
-    public void testSwitchUser_CurrentlyPatient() throws AuthenticationServiceException {
+    @Test(expected = ResourceForbiddenException.class)
+    public void testSwitchUser_CurrentlyPatient() throws Exception {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
