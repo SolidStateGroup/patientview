@@ -18,6 +18,8 @@ function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
                         searchField: 'description',
                         sortField: 'description',
                         onChange: function (code) {
+                            $scope.noResults = false;
+
                             if (code != null && code != undefined && code != '') {
                                 CodeService.getPatientViewStandardCodes(code).then(function (codes) {
                                     addCondition(codes[0]);
@@ -32,11 +34,18 @@ function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
                         },
                         load: function (query, callback) {
                             if (!query.length) return callback();
-                            //if (query.length < 3) return callback();
+
+                            $scope.noResults = false;
 
                             CodeService.getPatientViewStandardCodes(query).then(function (codes) {
-                                callback(codes);
-                                $scope.loading = false;
+                                if (!codes.length) {
+                                    $scope.noResults = true;
+                                    callback(codes);
+                                    $scope.loading = false;
+                                } else {
+                                    callback(codes);
+                                    $scope.loading = false;
+                                }
                             }, function () {
                                 $scope.loading = false;
                             });

@@ -30,6 +30,7 @@
 
         <p>To add a diagnosis please enter your conditions(s) below:</p>
         <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
     </div>
     <div data-ng-show="loading" class="container">
         <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>

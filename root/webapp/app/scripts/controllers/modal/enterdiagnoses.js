@@ -14,7 +14,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                     sortField: 'description',
                     onChange: function(code) {
                         $scope.noResults = false;
-                        
+
                         if (code != null && code != undefined && code != '') {
                             CodeService.getPatientViewStandardCodes(code).then(function (codes) {
                                 $scope.selectedConditions.push(codes[0]);
@@ -29,7 +29,6 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                     },
                     load: function(query, callback) {
                         if (!query.length) return callback();
-                        //if (query.length < 3) return callback();
 
                         $scope.noResults = false;
 
