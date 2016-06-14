@@ -140,77 +140,80 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             }
         });
 
-        var init = function () {
-            $scope.loading = true;
+        $scope.init = function () {
+            if (!$scope.initStarted) {
+                $scope.initStarted = true;
+                $scope.loading = true;
 
-            $scope.allGroups = [];
-            $scope.permissions = {};
-            var i;
+                $scope.allGroups = [];
+                $scope.permissions = {};
+                var i;
 
-            $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
+                $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
-            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
-                $scope.permissions.showRequestButton = true;
-                $scope.permissions.showStaffAlerts = true;
-            }
+                if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+                    $scope.permissions.showRequestButton = true;
+                    $scope.permissions.showStaffAlerts = true;
+                }
 
-            if ($scope.permissions.isPatient) {
-                // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
-                MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function (gpMedicationStatus) {
-                    $scope.gpMedicationStatus = gpMedicationStatus;
-                }, function () {
-                    alert('Cannot get GP medication status');
+                if ($scope.permissions.isPatient) {
+                    // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
+                    MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function (gpMedicationStatus) {
+                        $scope.gpMedicationStatus = gpMedicationStatus;
+                    }, function () {
+                        alert('Cannot get GP medication status');
+                    });
+
+                    getAvailableObservationHeadings();
+                }
+
+                // set the list of groups to show in the data grid
+                $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
+
+                // hide Generic group
+                _.remove($scope.graphGroups, {code: 'Generic'});
+
+                for (i = 0; i < $scope.graphGroups.length; i++) {
+                    $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+                }
+
+                // set group (avoid blank option)
+                if ($scope.graphGroups && $scope.graphGroups.length > 0) {
+                    $scope.graphGroupId = $scope.graphGroups[0].id;
+                }
+
+                StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
+                    var newsTypes = [];
+                    page.forEach(function (newsType) {
+                        if (newsType.value != "ALL") {
+                            newsTypes[newsType.value] = newsType.id;
+                        }
+                    });
+
+                    NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
+                        $scope.newsItems = page.content;
+                        $scope.newsItemsTotalElements = page.totalElements;
+                        $scope.loading = false;
+                    }, function () {
+                        $scope.loading = false;
+                    });
+
+                    NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
+                        $scope.featuredNewsItems = page.content;
+                        $scope.loading = false;
+                    }, function () {
+                        $scope.loading = false;
+                    });
                 });
 
-                getAvailableObservationHeadings();
-            }
-
-            // set the list of groups to show in the data grid
-            $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
-
-            // hide Generic group
-            _.remove($scope.graphGroups, {code: 'Generic'});
-
-            for (i = 0; i < $scope.graphGroups.length; i++) {
-                $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
-            }
-
-            // set group (avoid blank option)
-            if ($scope.graphGroups && $scope.graphGroups.length > 0) {
-                $scope.graphGroupId = $scope.graphGroups[0].id;
-            }
-
-            StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
-                var newsTypes = [];
-                page.forEach(function (newsType) {
-                    if (newsType.value != "ALL") {
-                        newsTypes[newsType.value] = newsType.id;
+                if (!$scope.showedEnterDiagnosisModal) {
+                    if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
+                        $scope.showEnterDiagnosesModal();
+                        $scope.showedEnterDiagnosisModal = true;
                     }
-                });
-
-                NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
-                    $scope.newsItems = page.content;
-                    $scope.newsItemsTotalElements = page.totalElements;
-                    $scope.loading = false;
-                }, function () {
-                    $scope.loading = false;
-                });
-
-                NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
-                    $scope.featuredNewsItems = page.content;
-                    $scope.loading = false;
-                }, function () {
-                    $scope.loading = false;
-                });
-            });
-
-            if (!$scope.showedEnterDiagnosisModal) {
-                if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
-                    $scope.showEnterDiagnosesModal();
-                    $scope.showedEnterDiagnosisModal = true;
                 }
             }
         };
@@ -521,5 +524,4 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             });
         };
 
-        init();
     }]);

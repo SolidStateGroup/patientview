@@ -6,7 +6,7 @@
     }
 </style>
 
-<div data-ng-show="!loading" data-ng-cloak>
+<div data-ng-show="!loading || (!loading && initStarted)" data-in-view="init()">
     <br/>
     <div class="row" data-ng-if="!loggedInUser.hideSecretWordNotification">
         <div class="alert alert-warning">
@@ -596,8 +596,8 @@
         </aside>
     </div>
 </div>
-<div data-ng-show="loading" class="container"><br/><br/>
 
+<div data-ng-show="loading || (!loading && !initStarted)" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Home</h3>
     </div>
