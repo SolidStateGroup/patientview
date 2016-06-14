@@ -423,6 +423,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 nhschoicesLink.setLastUpdater(getCurrentUser());
                 nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
+                if (entityCode.getLinks().isEmpty()) {
+                    nhschoicesLink.setDisplayOrder(1);
+                } else {
+                    nhschoicesLink.setDisplayOrder(entityCode.getLinks().size() + 1);
+                }
+
                 entityCode.getLinks().add(nhschoicesLink);
                 entityCode.setLastUpdater(getCurrentUser());
                 entityCode.setLastUpdate(now);

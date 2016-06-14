@@ -35,7 +35,7 @@ public class Link extends AuditModel {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "display_order" )
+    @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
     public Lookup getLinkType() {
