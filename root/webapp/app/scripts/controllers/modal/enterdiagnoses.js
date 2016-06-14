@@ -16,10 +16,14 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                         $scope.noResults = false;
 
                         if (code != null && code != undefined && code != '') {
-                            CodeService.getPatientViewStandardCodes(code).then(function (codes) {
-                                $scope.selectedConditions.push(codes[0]);
+                            if (!_.findWhere($scope.selectedConditions, {code : code})) {
+                                CodeService.getPatientViewStandardCodes(code).then(function (codes) {
+                                    $scope.selectedConditions.push(codes[0]);
+                                    $select[0].selectize.clear();
+                                });
+                            } else {
                                 $select[0].selectize.clear();
-                            });
+                            }
                         }
                     },
                     render: {

@@ -21,10 +21,14 @@ function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
                             $scope.noResults = false;
 
                             if (code != null && code != undefined && code != '') {
-                                CodeService.getPatientViewStandardCodes(code).then(function (codes) {
-                                    addCondition(codes[0]);
+                                if (!_.findWhere($scope.selectedConditions, {code : code})) {
+                                    CodeService.getPatientViewStandardCodes(code).then(function (codes) {
+                                        addCondition(codes[0]);
+                                        $select[0].selectize.clear();
+                                    });
+                                } else {
                                     $select[0].selectize.clear();
-                                });
+                                }
                             }
                         },
                         render: {
