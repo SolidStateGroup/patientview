@@ -654,7 +654,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/resetPasswordModal.html',
+                templateUrl: 'views/modal/resetPasswordModal.html',
                 controller: ResetPasswordModalInstanceCtrl,
                 resolve: {
                     user: function(){
@@ -732,7 +732,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/sendVerificationEmailModal.html',
+                templateUrl: 'views/modal/sendVerificationEmailModal.html',
                 controller: SendVerificationEmailModalInstanceCtrl,
                 resolve: {
                     user: function(){

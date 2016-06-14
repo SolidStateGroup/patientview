@@ -21,7 +21,7 @@ function ($scope, $modal, LetterService) {
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',
@@ -43,7 +43,7 @@ function ($scope, $modal, LetterService) {
         $scope.successMessage = '';
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewLetterModal.html',
+            templateUrl: 'views/modal/viewLetterModal.html',
             controller: ViewLetterModalInstanceCtrl,
             size: 'lg',
             resolve: {
@@ -65,7 +65,7 @@ function ($scope, $modal, LetterService) {
         $scope.successMessage = '';
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/deleteLetterModal.html',
+            templateUrl: 'views/modal/deleteLetterModal.html',
             controller: DeleteLetterModalInstanceCtrl,
             size: 'lg',
             resolve: {

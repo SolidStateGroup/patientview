@@ -237,7 +237,7 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
 
     $scope.viewXml = function(audit) {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewXmlModal.html',
+            templateUrl: 'views/modal/viewXmlModal.html',
             controller: ViewXmlModalInstanceCtrl,
             size: 'lg',
             resolve: {

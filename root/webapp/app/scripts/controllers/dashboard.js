@@ -289,7 +289,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
         $scope.viewNewsItem = function (news) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/viewNewsModal.html',
+                templateUrl: 'views/modal/viewNewsModal.html',
                 controller: ViewNewsModalInstanceCtrl,
                 size: 'lg',
                 resolve: {
@@ -495,7 +495,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
         $scope.showEnterDiagnosesModal = function () {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/enterDiagnosesModal.html',
+                templateUrl: 'views/modal/enterDiagnosesModal.html',
                 controller: EnterDiagnosesModalInstanceCtrl,
                 size: 'lg',
                 resolve: {

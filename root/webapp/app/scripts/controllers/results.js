@@ -81,7 +81,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openObservationHeadingInformation = function (result) {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            templateUrl: 'views/modal/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
             size: 'sm',
             windowClass: 'results-modal',
@@ -101,7 +101,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',

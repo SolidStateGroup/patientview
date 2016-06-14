@@ -26,7 +26,7 @@ function ($scope, $http, $modal, NewsService) {
 
     $scope.viewNewsItem = function(news) {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewNewsModal.html',
+            templateUrl: 'views/modal/viewNewsModal.html',
             controller: ViewNewsModalInstanceCtrl,
             size: 'lg',
             resolve: {

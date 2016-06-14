@@ -284,7 +284,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
         $scope.viewNewsItem = function (news) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/viewNewsModal.html',
+                templateUrl: 'views/modal/viewNewsModal.html',
                 controller: ViewNewsModalInstanceCtrl,
                 size: 'lg',
                 resolve: {

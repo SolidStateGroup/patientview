@@ -243,7 +243,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
     $scope.openModalSurveyResponseDetail = function (surveyResponseId) {
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/surveyResponseDetailModal.html',
+            templateUrl: 'views/modal/surveyResponseDetailModal.html',
             controller: SurveyResponseDetailModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',

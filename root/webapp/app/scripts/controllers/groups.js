@@ -342,7 +342,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
         GroupService.getStatistics(groupId).then(function(statistics) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/groupStatisticsModal.html',
+                templateUrl: 'views/modal/groupStatisticsModal.html',
                 controller: GroupStatisticsModalInstanceCtrl,
                 windowClass: 'stats-modal',
                 resolve: {

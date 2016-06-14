@@ -14,7 +14,7 @@ function ($scope, $modal, FoodDiaryService, UtilService) {
         $scope.successMessage = '';
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/deleteFoodDiaryModal.html',
+            templateUrl: 'views/modal/deleteFoodDiaryModal.html',
             controller: DeleteFoodDiaryModalInstanceCtrl,
             size: 'lg',
             resolve: {
@@ -54,7 +54,7 @@ function ($scope, $modal, FoodDiaryService, UtilService) {
         $scope.editFoodDiary = {};
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/newFoodDiaryModal.html',
+            templateUrl: 'views/modal/newFoodDiaryModal.html',
             controller: NewFoodDiaryModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
@@ -94,7 +94,7 @@ function ($scope, $modal, FoodDiaryService, UtilService) {
         $scope.successMessage = '';
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/newFoodDiaryModal.html',
+            templateUrl: 'views/modal/newFoodDiaryModal.html',
             controller: UpdateFoodDiaryModalInstanceCtrl,
             size: 'lg',
             resolve: {
