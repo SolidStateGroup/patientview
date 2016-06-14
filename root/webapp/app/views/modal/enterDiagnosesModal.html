@@ -21,6 +21,7 @@
     <div data-ng-show="!loading">
         <p>To get started please enter your conditions(s) below:</p>
         <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
         <div data-ng-if="selectedConditions.length">
             <h5>You have selected the following condition(s)</h5>
             <div class="row">
