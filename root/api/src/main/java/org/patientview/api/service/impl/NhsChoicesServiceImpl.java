@@ -277,6 +277,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                                 return entityCode;
                             }
                         }
+
+                        return null;
                     } catch (FileNotFoundException e) {
                         // manually catch 404 errors from server
                         LOG.info("404 error updating '" + code + "' with description from " + urlString);
