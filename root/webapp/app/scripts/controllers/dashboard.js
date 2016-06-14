@@ -197,15 +197,27 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         $scope.newsItems = page.content;
                         $scope.newsItemsTotalElements = page.totalElements;
                         $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
                     }, function () {
                         $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
                     });
 
                     NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
                         $scope.featuredNewsItems = page.content;
                         $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
                     }, function () {
                         $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
                     });
                 });
 
