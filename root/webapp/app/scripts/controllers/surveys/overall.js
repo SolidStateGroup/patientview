@@ -106,7 +106,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
         var i, j;
 
         // header left most column
-        tableHeader.push({'text':'Your Overall Health'});
+        tableHeader.push({'text':''});
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];

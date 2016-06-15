@@ -17,6 +17,9 @@
     .table-th {
         text-align: center;
     }
+    .survey-table-header {
+        background-color: #E7ECF2;
+    }
 </style>
 
 <div class="row">
@@ -43,9 +46,9 @@
             <div class="col-md-6" data-ng-show="!loading && surveyResponses">
                 <table class="table">
                     <thead>
-                    <tr>
+                    <tr class="survey-table-header">
                         <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
-                            <span data-ng-if="header.isLatest">LATEST<br/></span>
+                            <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
                             {{header.text}}
                         </th>
                     </tr>
@@ -53,7 +56,7 @@
                     <tbody>
                     <tr data-ng-repeat="row in tableRows track by $index">
                         <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                            <span  data-ng-class="{'bold': $index == 0}">
+                            <span data-ng-class="{'bold': $index == 0}">
                                 {{cell.text}}
                             </span>
                         </td>

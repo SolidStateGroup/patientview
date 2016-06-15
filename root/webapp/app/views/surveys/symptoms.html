@@ -1,12 +1,19 @@
 <style>
+    .bold {
+        font-weight: bold;
+    }
     .latest-td {
         background-color: #eee;
+        font-weight: bold;
     }
     .table-th {
         text-align: center;
     }
     .current-question {
         background-color: #d5ebfc;
+    }
+    .survey-table-header {
+        background-color: #E7ECF2;
     }
 </style>
 <div class="row">
@@ -34,9 +41,9 @@
             <div class="col-md-6" data-ng-show="!loading && surveyResponses">
                 <table class="table">
                     <thead>
-                    <tr>
+                    <tr class="survey-table-header">
                         <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
-                            <span data-ng-if="header.isLatest">LATEST<br/></span>
+                            <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
                             {{header.text}}
                         </th>
                         <th></th>
@@ -45,7 +52,7 @@
                     <tbody>
                         <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                                {{cell.text}}
+                                <span data-ng-class="{'bold': $index == 0}">{{cell.text}}</span>
                             </td>
                             <td class="view-graph-td">
                                 <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="row.type !== questionType">View</a>

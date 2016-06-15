@@ -81,6 +81,9 @@
     .bold {
         font-weight: bold;
     }
+    .survey-table-header {
+        background-color: #E7ECF2;
+    }
 </style>
 
 <div class="row">
@@ -177,9 +180,9 @@
                         <p class="table-description-text">The following table shows your results which calculate your overall activation score.<br/><br/></p>
                         <table class="table">
                             <thead>
-                            <tr>
+                            <tr class="survey-table-header">
                                 <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
-                                    <span data-ng-if="header.isLatest">LATEST<br/></span>
+                                    <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
                                     {{header.text}}
                                 </th>
                             </tr>

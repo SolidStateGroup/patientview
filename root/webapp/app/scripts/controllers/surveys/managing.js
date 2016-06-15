@@ -23,7 +23,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
         var i, j;
 
         // header left most column
-        tableHeader.push({'text':'Managing Your Health'});
+        tableHeader.push({'text':''});
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];
