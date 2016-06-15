@@ -352,7 +352,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
         // get DIAGNOSIS_PATIENT_ENTERED fhir conditions
         List<UUID> uuids = fhirResource.getConditionLogicalIds(
-                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED.toString(), null);
+                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED.toString(), null, code);
 
         if (!CollectionUtils.isEmpty(uuids)) {
             for (UUID uuid : uuids)

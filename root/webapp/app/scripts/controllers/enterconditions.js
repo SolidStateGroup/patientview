@@ -84,39 +84,14 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
 
     $scope.removeCondition = function (condition) {
         DiagnosisService.removePatientEntered($scope.loggedInUser.id, condition.code).then(function() {
-            var reduced = [];
-
-            for (var i = 0; i < $scope.$parent.selectedConditions.length; i++) {
-                if ($scope.$parent.selectedConditions[i].code !== condition.code) {
-                    reduced.push($scope.$parent.selectedConditions[i]);
+            DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                $scope.$parent.selectedConditions = conditions;
+                if (conditions.length == 0) {
+                    $rootScope.loggedInUser.userInformation.shouldEnterCondition = true;
                 }
-            }
-
-            if (reduced.length == 0) {
-                $rootScope.loggedInUser.userInformation.shouldEnterCondition = true;
-            }
-
-            //$scope.$parent.selectedConditions = reduced;
-            $scope.$parent.selectedConditions = reduced;
+            });
         }, function() {
             alert("There was a problem removing your conditions");
-        });
-    };
-
-    $scope.saveConditions = function () {
-        $scope.saving = true;
-        var codes = [];
-
-        for (var i = 0; i < $scope.$parent.selectedConditions.length; i++) {
-            codes.push($scope.$parent.selectedConditions[i].code);
-        }
-
-        DiagnosisService.addMultiplePatientEntered($scope.loggedInUser.id, codes).then(function() {
-            $scope.successMessage = "Your condition(s) have been successfully saved.";
-            $scope.saving = false;
-        }, function() {
-            alert("There was a problem saving your conditions");
-            $scope.saving = false;
         });
     };
 }]);
