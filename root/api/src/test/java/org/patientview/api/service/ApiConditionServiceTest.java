@@ -32,6 +32,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -66,6 +67,9 @@ public class ApiConditionServiceTest {
 
     @InjectMocks
     ApiConditionService apiConditionService = new ApiConditionServiceImpl();
+
+    @Mock
+    CodeRepository codeRepository;
 
     @Mock
     CodeService codeService;
