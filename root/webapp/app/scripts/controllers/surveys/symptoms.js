@@ -184,7 +184,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         var maxDate = 0;
 
         // header left most column
-        tableHeader.push({'text':'Your Symptoms'});
+        tableHeader.push({'text':''});
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];
