@@ -108,7 +108,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
                 if (username.length >= 3
                     && username.substring(username.length - 3, username.length).toUpperCase() == '-GP') {
-                    $scope.showGpLoginMessage = true;
+                    //$scope.showGpLoginMessage = true;
                 }
 
                 $scope.loading = false;
