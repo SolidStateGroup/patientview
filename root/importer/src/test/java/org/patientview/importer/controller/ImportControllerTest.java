@@ -532,13 +532,13 @@ public class ImportControllerTest {
         //String fileName = "data/xml/ibdtest1_1.xml";
 
         // IBD
-        //String fileName = "data/xml/ibd/1111111111_ibd.xml";
+        String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
         //String fileName = "data/xml/partialmigration/test1.xml";
 
         // survey testing
-        String fileName = "data/xml/surveytestuser.xml";
+        //String fileName = "data/xml/surveytestuser.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
