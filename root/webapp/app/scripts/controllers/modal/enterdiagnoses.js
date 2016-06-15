@@ -1,6 +1,6 @@
 'use strict';
-var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', 'StaticDataService', 'CodeService', 'DiagnosisService',
-    function ($scope, $timeout, $modalInstance, StaticDataService, CodeService, DiagnosisService) {
+var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$modalInstance', 'StaticDataService', 'CodeService', 'DiagnosisService',
+    function ($scope, $rootScope, $timeout, $modalInstance, StaticDataService, CodeService, DiagnosisService) {
 
         var init = function() {
             $scope.selectedConditions = [];
@@ -20,6 +20,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                                 CodeService.getPatientViewStandardCodes(code).then(function (codes) {
                                     $scope.selectedConditions.push(codes[0]);
                                     $select[0].selectize.clear();
+                                    $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
                                 });
                             } else {
                                 $select[0].selectize.clear();
@@ -64,6 +65,10 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$timeout', '$modalInstance', '
                 if ($scope.selectedConditions[i].id !== condition.id) {
                     reduced.push($scope.selectedConditions[i]);
                 }
+            }
+
+            if (reduced.length == 0) {
+                $rootScope.loggedInUser.userInformation.shouldEnterCondition = true;
             }
 
             $scope.selectedConditions = reduced;

@@ -1,6 +1,7 @@
 'use strict';
-angular.module('patientviewApp').controller('MyConditionsEnterConditionsCtrl',['$scope', 'CodeService', 'DiagnosisService', '$timeout', 'StaticDataService',
-function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
+angular.module('patientviewApp').controller('MyConditionsEnterConditionsCtrl',['$scope', '$rootScope', 'CodeService',
+    'DiagnosisService', '$timeout', 'StaticDataService',
+function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDataService) {
 
     // similar to enterdiagnoses.js
     $scope.init = function() {
@@ -69,6 +70,7 @@ function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
     var addCondition = function(code) {
         DiagnosisService.addPatientEntered($scope.loggedInUser.id, [code.code]).then(function() {
             $scope.selectedConditions.push(code);
+            $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
         }, function() {
             alert("There was a problem saving your conditions");
         });
@@ -82,6 +84,10 @@ function ($scope, CodeService, DiagnosisService, $timeout, StaticDataService) {
                 if ($scope.selectedConditions[i].code !== condition.code) {
                     reduced.push($scope.selectedConditions[i]);
                 }
+            }
+
+            if (reduced.length == 0) {
+                $rootScope.loggedInUser.userInformation.shouldEnterCondition = true;
             }
 
             $scope.selectedConditions = reduced;

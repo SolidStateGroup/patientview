@@ -12,7 +12,9 @@
         <h3>Enter Diagnosis</h3>
     </div>
     <div class="panel-body" data-in-view="init()">
-        <p>You can enter your own diagnosis here. All Diagnoses will be stored in your PatientView patient record.</p>
+        <p>You can enter your own diagnosis here. All diagnoses will be stored in your PatientView patient record.
+            Information and links about your condition(s) are retrieved from trusted sources, enabling you to stay
+            up-to-date with the latest findings and suggested treatments.</p>
 
         <h5 data-ng-if="!selectedConditions.length">You have not currently entered any diagnoses</h5>
 
@@ -37,7 +39,7 @@
 
         <br/>
 
-        <p>To add a diagnosis please enter your conditions(s) below:</p>
+        <p>To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
         <div class="selectize-diagnosis">
             <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
         </div>
