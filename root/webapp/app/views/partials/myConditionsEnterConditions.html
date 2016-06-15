@@ -36,9 +36,13 @@
 
         <br/>
 
-        <p>To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
-        <div class="selectize-diagnosis">
+        <p data-ng-if="!saving">To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
+        <div class="selectize-diagnosis" data-ng-show="!saving">
             <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        </div>
+        <div data-ng-show="saving" class="container">
+            <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Saving</h3>
+            <br/>
         </div>
         <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
     </div>

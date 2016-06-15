@@ -68,14 +68,17 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
     };
 
     var addCondition = function(code) {
+        $scope.saving = true;
         DiagnosisService.addPatientEntered($scope.loggedInUser.id, [code.code]).then(function() {
             DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
                 $scope.$parent.selectedConditions = conditions;
+                $scope.saving = false;
             });
             //$scope.$parent.selectedConditions.push(code);
             $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
         }, function() {
             alert("There was a problem saving your conditions");
+            $scope.saving = false;
         });
     };
 
