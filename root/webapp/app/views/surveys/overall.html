@@ -56,7 +56,7 @@
                     <tbody>
                     <tr data-ng-repeat="row in tableRows track by $index">
                         <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                            <span  data-ng-class="{'bold': $index == 0}">
+                            <span data-ng-class="{'bold': $index == 0}">
                                 {{cell.text}}
                             </span>
                         </td>

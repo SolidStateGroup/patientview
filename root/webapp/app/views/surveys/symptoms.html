@@ -1,6 +1,10 @@
 <style>
+    .bold {
+        font-weight: bold;
+    }
     .latest-td {
         background-color: #eee;
+        font-weight: bold;
     }
     .table-th {
         text-align: center;
@@ -48,7 +52,7 @@
                     <tbody>
                         <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                                {{cell.text}}
+                                <span data-ng-class="{'bold': $index == 0}">{{cell.text}}</span>
                             </td>
                             <td class="view-graph-td">
                                 <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="row.type !== questionType">View</a>
