@@ -8,9 +8,6 @@
 </style>
 
 <div class="panel panel-default">
-    <div class="panel-heading">
-        <h3>Enter Diagnosis</h3>
-    </div>
     <div class="panel-body" data-in-view="init()">
         <p>You can enter your own diagnosis here. All diagnoses will be stored in your PatientView patient record.
             Information and links about your condition(s) are retrieved from trusted sources, enabling you to stay
@@ -22,7 +19,7 @@
             <div class="col-md-12">
                 <h5>You have entered the following diagnoses:</h5>
                 <ul class="feature-list unstyled name-action-list">
-                    <li class="feature-list-item" data-ng-repeat="condition in selectedConditions">
+                    <li class="feature-list-item" data-ng-repeat="condition in selectedConditions track by $index">
                         <div class="feature-list-name pull-left">
                             <span class="hidden">{{condition.id}}</span>
                             <span class="feature-list-name">{{condition.description}}</span>

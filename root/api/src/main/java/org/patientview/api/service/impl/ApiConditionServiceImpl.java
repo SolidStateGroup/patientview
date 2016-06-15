@@ -12,6 +12,7 @@ import org.patientview.api.service.ApiConditionService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
+import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.service.PractitionerService;
 import org.patientview.api.service.UserService;
 import org.patientview.util.Util;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -51,6 +53,9 @@ import java.util.UUID;
 @Service
 public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionServiceImpl>
         implements ApiConditionService {
+
+    @Inject
+    private CodeRepository codeRepository;
 
     @Inject
     private CodeService codeService;
@@ -171,6 +176,9 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
             // store in FHIR
             fhirResource.createEntity(condition, ResourceType.Condition.name(), "condition");
+
+            // do get to set links etc todo: integrate
+            codeService.getByCode(code);
         }
     }
 
@@ -232,6 +240,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
     }
 
     @Override
+    @Transactional
     public List<FhirCondition> getUserEntered(Long userId, DiagnosisTypes diagnosisType, boolean isLogin)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
         User patientUser = userService.get(userId);
@@ -276,8 +285,18 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
                     + fhirLink.getResourceId() + "' ", Condition.class));
 
             List<FhirCondition> fhirConditions = new ArrayList<>();
+
             for (Condition condition : conditions) {
-                fhirConditions.add(createFhirCondition(condition));
+                FhirCondition fhirCondition = createFhirCondition(condition);
+
+                // get code and links if present
+                Code code = codeRepository.findOneByCode(fhirCondition.getCode());
+
+                if (code != null) {
+                    fhirCondition.setLinks(code.getLinks());
+                }
+
+                fhirConditions.add(fhirCondition);
             }
             return fhirConditions;
         }
@@ -373,7 +392,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
         // get logical ids of patient conditions
         List<UUID> patientConditionUuids
                 = fhirResource.getLogicalIdsBySubjectId(
-                        ResourceType.Condition.getPath(), fhirLinks.get(0).getResourceId());
+                ResourceType.Condition.getPath(), fhirLinks.get(0).getResourceId());
 
         for (UUID uuid : patientConditionUuids) {
             Condition condition

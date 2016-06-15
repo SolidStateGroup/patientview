@@ -82,6 +82,8 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
+    Code getByCode(String code);
+
     /**
      * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property
      * "patient.management.diagnoses.codes" with CD, UC IBDU

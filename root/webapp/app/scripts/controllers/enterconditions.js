@@ -6,10 +6,10 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
     // similar to enterdiagnoses.js
     $scope.init = function() {
         if (!$scope.loaded) {
-            $scope.selectedConditions = [];
+            $scope.$parent.selectedConditions = [];
 
             DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
-                $scope.selectedConditions = conditions;
+                $scope.$parent.selectedConditions = conditions;
 
                 $timeout(function () {
                     var $select = $('#select-diagnosis').selectize({
@@ -22,7 +22,7 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
                             $scope.noResults = false;
 
                             if (code != null && code != undefined && code != '') {
-                                if (!_.findWhere($scope.selectedConditions, {code : code})) {
+                                if (!_.findWhere($scope.$parent.selectedConditions, {code : code})) {
                                     CodeService.getPatientViewStandardCodes(code).then(function (codes) {
                                         addCondition(codes[0]);
                                         $select[0].selectize.clear();
@@ -69,7 +69,10 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
 
     var addCondition = function(code) {
         DiagnosisService.addPatientEntered($scope.loggedInUser.id, [code.code]).then(function() {
-            $scope.selectedConditions.push(code);
+            DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                $scope.$parent.selectedConditions = conditions;
+            });
+            //$scope.$parent.selectedConditions.push(code);
             $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
         }, function() {
             alert("There was a problem saving your conditions");
@@ -80,9 +83,9 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
         DiagnosisService.removePatientEntered($scope.loggedInUser.id, condition.code).then(function() {
             var reduced = [];
 
-            for (var i = 0; i < $scope.selectedConditions.length; i++) {
-                if ($scope.selectedConditions[i].code !== condition.code) {
-                    reduced.push($scope.selectedConditions[i]);
+            for (var i = 0; i < $scope.$parent.selectedConditions.length; i++) {
+                if ($scope.$parent.selectedConditions[i].code !== condition.code) {
+                    reduced.push($scope.$parent.selectedConditions[i]);
                 }
             }
 
@@ -90,7 +93,8 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
                 $rootScope.loggedInUser.userInformation.shouldEnterCondition = true;
             }
 
-            $scope.selectedConditions = reduced;
+            //$scope.$parent.selectedConditions = reduced;
+            $scope.$parent.selectedConditions = reduced;
         }, function() {
             alert("There was a problem removing your conditions");
         });
@@ -100,8 +104,8 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
         $scope.saving = true;
         var codes = [];
 
-        for (var i = 0; i < $scope.selectedConditions.length; i++) {
-            codes.push($scope.selectedConditions[i].code);
+        for (var i = 0; i < $scope.$parent.selectedConditions.length; i++) {
+            codes.push($scope.$parent.selectedConditions[i].code);
         }
 
         DiagnosisService.addMultiplePatientEntered($scope.loggedInUser.id, codes).then(function() {
