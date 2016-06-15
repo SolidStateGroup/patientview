@@ -1,6 +1,10 @@
 <style>
+    .bold {
+        font-weight: bold;
+    }
     .latest-td {
         background-color: #eee;
+        font-weight: bold;
     }
     .surveyFeedback-success-message {
         font-weight: bold;
@@ -49,7 +53,9 @@
                     <tbody>
                     <tr data-ng-repeat="row in tableRows track by $index">
                         <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                            {{cell.text}}
+                            <span  data-ng-class="{'bold': $index == 0}">
+                                {{cell.text}}
+                            </span>
                         </td>
                     </tr>
                     </tbody>
@@ -102,7 +108,7 @@
                     <span data-ng-if="surveyFeedbackErrorMessage" class="surveyFeedback-error-message">{{surveyFeedbackErrorMessage}}</span>
                 </p>
                 <p data-ng-if="feedbackRecipientCount && feedbackRecipientCount > 0">
-                    * At last one week prior to your next clinic appointment.
+                    * At least one week prior to your next clinic appointment.
                 </p>
 
                 <br/>

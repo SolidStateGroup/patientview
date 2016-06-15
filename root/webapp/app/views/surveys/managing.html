@@ -2,6 +2,7 @@
 <style>
     .latest-td {
         background-color: #eee;
+        font-weight: bold;
     }
     .table-th {
         text-align: center;
@@ -77,6 +78,9 @@
     .score-span {
         font-weight: bold;
     }
+    .bold {
+        font-weight: bold;
+    }
 </style>
 
 <div class="row">
@@ -110,8 +114,10 @@
 
         <div class="row" data-ng-if="!loading && surveyResponses">
             <div class="col-md-12">
-                <p>The following results show how you assessed your knowledge, skills and your confidence to look after your own health and be involved in your care – this is known as your activation level.
-                    In order to live your best life your clinical team would like to work closely with you to support you to grow your skills and knowledge and build your confidence.</p>
+                <p>The following results show how you judged your knowledge, skills and your confidence to look after
+                    your own health and be involved in your care – this is known as your activation level. Your doctors
+                    and nurses would like to work closely with you to  help you to grow your skills and knowledge and
+                    build your confidence.</p>
 
                 <!-- if scores stored in second QuestionGroup (deprecated) -->
                 <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
@@ -181,7 +187,7 @@
                             <tbody>
                             <tr data-ng-repeat="row in tableRows track by $index">
                                 <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                                    <span data-ng-class="{'score-span': cell.isScore}">{{cell.text}}</span>
+                                    <span data-ng-class="{'bold': $index == 0}">{{cell.text}}</span>
                                 </td>
                             </tr>
                             </tbody>

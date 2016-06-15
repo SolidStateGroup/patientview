@@ -141,8 +141,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 }
             },
             yAxis: [{
-                min: 1,
-                max: 5,
+                min: 0,
+                max: 4,
                 gridLineWidth: 0,
                 labels: {
                     formatter: function () {
