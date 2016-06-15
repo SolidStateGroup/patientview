@@ -14,12 +14,35 @@ function ($scope, $modal, ObservationService, $routeParams) {
 
     $scope.init = function() {
 
-        var i;
+        var i, j, k;
         $scope.initFinished = false;
         $scope.loading = true;
         ObservationService.getSummary($scope.loggedInUser.id).then(function(summary) {
 
             if (summary.length) {
+                // set property on results with most recent date
+                var latestDate = 0;
+
+                // find latest date
+                for (i = 0; i < summary.length; i++) {
+                    for (var panel in summary[i].panels) {
+                        if (summary[i].panels.hasOwnProperty(panel)) {
+                            for (j = 0; j < panel.length; j++) {
+                                for (k = 0; k < summary[i].panels[panel[j]].length; k++) {
+                                    var resultHeading = summary[i].panels[panel[j]][k];
+                                    if (resultHeading.latestObservation != null
+                                        && resultHeading.latestObservation != undefined
+                                        && resultHeading.latestObservation.applies > latestDate) {
+                                        latestDate = resultHeading.latestObservation.applies;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $scope.latestDate = latestDate;
+
                 $scope.groupIndex = 0;
                 $scope.summary = summary;
                 $scope.group = summary[$scope.groupIndex].group;

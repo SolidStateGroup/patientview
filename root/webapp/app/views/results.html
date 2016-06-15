@@ -1,3 +1,9 @@
+<style>
+    .latest-result {
+        border: 1px solid #00adc6;
+    }
+</style>
+
 <div data-ng-show="!loading">
     <h1 class="clearfix">
         <ul class="unstyled inline pull-right">
@@ -47,7 +53,7 @@
     <div class="results-container clearfix">
         <ul class="unstyled results-list row">
             <li bindonce class="col-md-3 col-sm-6 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:'panelOrder'">
-                <div class="content-panel result-item">
+                <div class="content-panel result-item" data-ng-class="result.latestObservation && result.latestObservation.applies == latestDate ? 'latest-result' : ''">
                     <div class="result-header">
                         <h4>
                             <a href="" data-ng-click="openObservationHeadingInformation(result)">
@@ -87,6 +93,9 @@
                             <strong>Source:</strong>
                         </li>
                         <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
+                        <li data-ng-if="result.latestObservation && result.latestObservation.applies == latestDate">
+                            <span class="label label-info">LATEST</span>
+                        </li>
                     </ul>
                     
                     <div class="result-footer">
