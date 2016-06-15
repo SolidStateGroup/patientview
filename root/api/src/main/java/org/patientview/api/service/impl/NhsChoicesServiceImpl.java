@@ -458,6 +458,18 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Override
     @Transactional
     public void synchroniseConditions() throws ResourceNotFoundException {
+        LOG.info("Synchronising NHS Choices conditions with Codes, from endpoint");
+        synchroniseConditionsWorker();
+    }
+
+    @Override
+    @Transactional
+    public void synchroniseConditionsFromJob() throws ResourceNotFoundException {
+        LOG.info("Synchronising NHS Choices conditions with Codes, from scheduled task");
+        synchroniseConditionsWorker();
+    }
+
+    private void synchroniseConditionsWorker() throws ResourceNotFoundException {
         // synchronise conditions previously retrieved from nhs choices, may be consolidated into once function call
         Lookup standardType = lookupRepository.findByTypeAndValue(
                 LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
@@ -585,6 +597,18 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Override
     @Transactional
     public void updateConditions() throws ImportResourceException {
+        LOG.info("Updating NHS Choices conditions, from endpoint");
+        updateConditionsWorker();
+    }
+
+    @Override
+    @Transactional
+    public void updateConditionsFromJob() throws ImportResourceException {
+        LOG.info("Updating NHS Choices conditions, from scheduled task");
+        updateConditionsWorker();
+    }
+
+    private void updateConditionsWorker() throws ImportResourceException {
         String apiKey = properties.getProperty("nhschoices.api.key");
         String urlString = "http://v1.syndication.nhschoices.nhs.uk/conditions/atoz.xml?apikey=" + apiKey;
 

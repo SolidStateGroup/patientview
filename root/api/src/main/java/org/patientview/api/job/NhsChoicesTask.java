@@ -31,10 +31,10 @@ public class NhsChoicesTask {
         Date start = new Date();
 
         // update NhschoicesConditions from NHS Choices API
-        nhsChoicesService.updateConditions();
+        nhsChoicesService.updateConditionsFromJob();
 
         // synchronise updated NhschoicesConditions with Codes
-        nhsChoicesService.synchroniseConditions();
+        nhsChoicesService.synchroniseConditionsFromJob();
 
         LOG.info("Update from NHS Choices and synchronise Codes took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");

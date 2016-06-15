@@ -370,7 +370,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(found.getContent())) {
             for (Code code : found.getContent()) {
-                reduced.add(new BaseCode(code));
+                if (!code.isHideFromPatients() && !code.isRemovedExternally()) {
+                    reduced.add(new BaseCode(code));
+                }
             }
         }
 

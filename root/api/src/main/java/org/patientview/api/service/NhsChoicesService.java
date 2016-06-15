@@ -45,7 +45,7 @@ public interface NhsChoicesService {
     void setIntroductionUrl(String code) throws ResourceNotFoundException, ImportResourceException;
 
     /**
-     * Step 2 of update PV Codes, synchronises NhschoicesConditions with Codes.
+     * Step 2 of update PV Codes, synchronises NhschoicesConditions with Codes. Secured for call from endpoint.
      * If an NhschoicesCondition has been deleted, marks Code as externallyRemoved = true.
      * @throws ResourceNotFoundException
      */
@@ -53,12 +53,27 @@ public interface NhsChoicesService {
     void synchroniseConditions() throws ResourceNotFoundException;
 
     /**
+     * Step 2 of update PV Codes, synchronises NhschoicesConditions with Codes.
+     * If an NhschoicesCondition has been deleted, marks Code as externallyRemoved = true.
+     * @throws ResourceNotFoundException
+     */
+    void synchroniseConditionsFromJob() throws ResourceNotFoundException;
+
+    /**
      * Step 1 of update PV Codes from NHS Choices, reads from API and stores each condition as NhschoicesCondition.
+     * Secured for call from endpoint.
      * Will create new NhschoicesConditions and delete from PV if no longer found in API.
      * @throws ImportResourceException
      */
     @RoleOnly
     void updateConditions() throws ImportResourceException;
+
+    /**
+     * Step 1 of update PV Codes from NHS Choices, reads from API and stores each condition as NhschoicesCondition.
+     * Will create new NhschoicesConditions and delete from PV if no longer found in API.
+     * @throws ImportResourceException
+     */
+    void updateConditionsFromJob() throws ImportResourceException;
 
     // testing only
     @RoleOnly
