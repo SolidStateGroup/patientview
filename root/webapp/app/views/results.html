@@ -2,6 +2,9 @@
     .latest-result {
         border: 1px solid #00adc6;
     }
+    .pagination.results {
+        width: 300px;
+    }
 </style>
 
 <div data-ng-show="!loading">
@@ -29,7 +32,10 @@
                     </select>
                 </div>
                 <fieldset>
-                    <label class="large">Showing Panel: <span>{{currentPage}}</span></label>
+                    <label class="large">Showing Panel:
+                        <span data-ng-if="currentPage != -1">{{currentPage}}</span>
+                        <span data-ng-if="currentPage == -1">Latest</span>
+                    </label>
                     <ul class="unstyled inline">
                         <li data-ng-repeat="result in panel | orderBy:'panelOrder'">
                             {{result.heading}} &nbsp;
@@ -43,8 +49,11 @@
     <div class="row">
         <div class="center-block">
             <ul class="pagination results">
+                <li data-ng-class="{active: currentPage == -1}" data-ng-click="changePanel(-1)" data-ng-if="summary[groupIndex].panels[-1].length">
+                    <a href="" data-toggle="tooltip" data-placement="top" title="latest" data-ng-if="key != -1">Latest</a>
+                </li>
                 <li data-ng-repeat="(key, panel) in panels" data-ng-class="{active: currentPage == key}" data-ng-click="changePanel(key)">
-                    <a href="" data-toggle="tooltip" data-placement="top" title="{{getPanelResultTitles(panel)}}">{{key}}</a>
+                    <a href="" data-toggle="tooltip" data-placement="top" title="{{getPanelResultTitles(panel)}}" data-ng-if="key != -1">{{key}}</a>
                 </li>
             </ul>
         </div>
