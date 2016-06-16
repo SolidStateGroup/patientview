@@ -12,9 +12,7 @@
         <p>You can enter your own diagnosis here. All diagnoses will be stored in your PatientView patient record.
             Information and links about your condition(s) are retrieved from trusted sources, enabling you to stay
             up-to-date with the latest findings and suggested treatments.</p>
-
         <h5 data-ng-if="!selectedConditions.length">You have not currently entered any diagnoses</h5>
-
         <div class="row" data-ng-if="selectedConditions.length">
             <div class="col-md-12">
                 <h5>You have entered the following diagnoses:</h5>
@@ -33,9 +31,7 @@
                 </ul>
             </div>
         </div>
-
         <br/>
-
         <p data-ng-if="!saving">To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
         <div class="selectize-diagnosis" data-ng-show="!saving">
             <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>

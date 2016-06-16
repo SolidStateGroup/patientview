@@ -157,7 +157,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
     };
 
     var createPatientManagementArray = function(lookupType, observationValue) {
-        //console.log($scope.patientManagement.lookupMap);
         var toReturn = [];
         // handle information from patient management
         if ($scope.patientManagement.lookupMap[lookupType]) {
@@ -443,11 +442,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }
             }
 
-            // handle linking to specific tabs in Renal
-            if ($scope.currentSpecialty.code === 'Renal') {
-                if ($routeParams.activeTab !== undefined) {
-                    $scope.activeTab = $routeParams.activeTab;
-                }
+            // handle linking to specific tabs
+            if ($routeParams.activeTab !== undefined) {
+                $scope.activeTab = $routeParams.activeTab;
             }
 
             getAllPublic();

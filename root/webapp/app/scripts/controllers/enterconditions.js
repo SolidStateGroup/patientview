@@ -94,4 +94,8 @@ function ($scope, $rootScope, CodeService, DiagnosisService, $timeout, StaticDat
             alert("There was a problem removing your conditions");
         });
     };
+
+    $scope.switchToEnterConditions = function() {
+        $scope.$parent.activeTab = 'ENTER_CONDITIONS';
+    }
 }]);

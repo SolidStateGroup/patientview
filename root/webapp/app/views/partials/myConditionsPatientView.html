@@ -1,67 +1,19 @@
-<div class="details-filter clearfix hidden" data-ng-if="patientDetails && (activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)">
-    <div class="pull-right">Information provided by: &nbsp;&nbsp;
-        <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
-            <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected" disabled="disabled">
-            <span class="checkbox-label">{{patient.group.shortName}}</span>
-        </span>
-    </div>
-</div>
 <div>
     <div>
         <ul class="nav nav-tabs">
-            <li data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_CONDITIONS'">My Conditions</a></li>
+            <li data-ng-class="{active:(activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">My Conditions</a></li>
             <li data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'ENTER_CONDITIONS'">Enter Diagnosis</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <h4>Entered by you</h4>
-                        <div data-ng-show="selectedConditions.length">
-                            <div data-ng-repeat="condition in selectedConditions track by $index | orderBy:'condition.description'">
-                                <h5>{{condition.description}}</h5>
-                                <div data-ng-if="condition.links">
-                                    <ul>
-                                        <li data-ng-repeat="link in condition.links track by $index">
-                                            <a href="{{link.link}}" target="_blank">{{link.name}}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div data-ng-show="!selectedConditions.length">
-                            <p>You have not entered any diagnoses.</p>
-                            <br/>
-                            <button class="btn blue" data-ng-click="activeTab = 'ENTER_CONDITIONS'">Enter Diagnosis</button>
-                        </div>
-
-                        <hr>
-
-                        <div data-ng-show="patientDetails.length">
-                            <h4>From your unit(s)</h4>
-                            <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-                                <h5>{{patient.group.name}}</h5>
-                                <div data-ng-if="patient.fhirConditions.length">
-                                    <div data-ng-repeat="condition in patient.fhirConditions | orderBy:'condition.description'">
-                                        <div>
-                                            {{condition.name}}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div data-ng-if="!patient.fhirConditions.length">
-                                    {{patient.group.name}} has not provided any condition data.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-include src="'views/partials/myConditionsGeneric.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions">
                 <div data-ng-include src="'views/partials/myConditionsEnterConditions.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
             </div>
         </div>
 
-        <div class="panel panel-default" data-ng-if="currentSpecialty.links.length && (activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)">
+        <div class="panel panel-default" data-ng-if="currentSpecialty.links.length && (activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)">
             <div class="panel-heading"><h3>Other Helpful Information</h3></div>
             <div class="panel-body">
                 <ul class="helpful-links">
