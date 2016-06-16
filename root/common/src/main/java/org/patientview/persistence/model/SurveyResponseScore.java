@@ -23,8 +23,8 @@ public class SurveyResponseScore extends BaseModel {
     @JoinColumn(name = "survey_response_id")
     private SurveyResponse surveyResponse;
 
-    @Column(name = "score")
-    private Integer score;
+    @Column(name = "score", columnDefinition="numeric", precision=19, scale=2)
+    private Double score;
 
     @Column(name = "severity")
     @Enumerated(EnumType.STRING)
@@ -39,7 +39,7 @@ public class SurveyResponseScore extends BaseModel {
     public SurveyResponseScore() {}
 
     public SurveyResponseScore(SurveyResponse surveyResponse, String type,
-                               Integer score, ScoreSeverity severity) {
+                               Double score, ScoreSeverity severity) {
         this.surveyResponse = surveyResponse;
         this.type = type;
         this.score = score;
@@ -63,11 +63,11 @@ public class SurveyResponseScore extends BaseModel {
         this.severity = severity;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 

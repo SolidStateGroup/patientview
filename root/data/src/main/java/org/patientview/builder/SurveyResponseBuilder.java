@@ -95,7 +95,7 @@ public class SurveyResponseBuilder {
                         this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
                     SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
                     if (surveyResponseScore.getScore() != null) {
-                        newSurveyResponseScore.setScore(surveyResponseScore.getScore().intValue());
+                        newSurveyResponseScore.setScore(surveyResponseScore.getScore().doubleValue());
                     }
                     if (StringUtils.isNotEmpty(surveyResponseScore.getSeverity().toString())) {
                         if (Util.isInEnum(surveyResponseScore.getSeverity().toString(), ScoreSeverity.class)) {
@@ -164,7 +164,7 @@ public class SurveyResponseBuilder {
                     SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
 
                     if (surveyResponseScore.getValue() != null) {
-                        newSurveyResponseScore.setScore(Integer.parseInt(surveyResponseScore.getValue()));
+                        newSurveyResponseScore.setScore(Double.parseDouble(surveyResponseScore.getValue()));
                     }
                     if (surveyResponseScore.getLevel() != null) {
                         newSurveyResponseScore.setLevel(surveyResponseScore.getLevel());

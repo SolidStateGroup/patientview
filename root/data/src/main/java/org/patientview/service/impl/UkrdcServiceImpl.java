@@ -243,9 +243,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 }
 
                 try {
-                    Integer.parseInt(score.getValue());
+                    Double.parseDouble(score.getValue());
                 } catch (NumberFormatException nfe) {
-                    throw new ImportResourceException("Score Value must be integer");
+                    throw new ImportResourceException("Score Value must be double");
                 }
             }
         }

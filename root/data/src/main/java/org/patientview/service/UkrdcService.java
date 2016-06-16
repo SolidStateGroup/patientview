@@ -41,7 +41,7 @@ public interface UkrdcService {
      * Score must have ScoreType
      * Score ScoreType must have Code
      * Score must have Value
-     * Score Value must be integer
+     * Score Value must be double
      *
      * @param patientRecord UKRDC xml based object
      * @throws ImportResourceException

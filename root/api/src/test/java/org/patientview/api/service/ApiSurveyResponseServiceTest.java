@@ -420,7 +420,7 @@ public class ApiSurveyResponseServiceTest {
         survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
 
         SurveyResponse surveyResponse = new SurveyResponse(
-                user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+                user, 1.0, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
         surveyResponse.setSurvey(survey);
@@ -461,7 +461,7 @@ public class ApiSurveyResponseServiceTest {
         types.add(survey.getType());
 
         SurveyResponse surveyResponse = new SurveyResponse(
-                user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
+                user, 1.0, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
         surveyResponse.setSurvey(survey);

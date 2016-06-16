@@ -210,13 +210,13 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                 || survey.getType().equals(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString())
                 || survey.getType().equals(SurveyTypes.HEART_SYMPTOM_SCORE.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.SYMPTOM_SCORE;
-            Integer score = calculateScore(newSurveyResponse, type);
+            Double score = calculateScore(newSurveyResponse, type);
 
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_CONTROL.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_CONTROL_EIGHT;
-            Integer score = calculateScore(newSurveyResponse, type);
+            Double score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
 
@@ -226,12 +226,12 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
-            Integer score = calculateScore(newSurveyResponse, type);
+            Double score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else {
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
-                    newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0, ScoreSeverity.UNKNOWN));
+                    newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0.0, ScoreSeverity.UNKNOWN));
         }
 
         surveyResponseRepository.save(newSurveyResponse);
@@ -441,7 +441,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
         }
     }
 
-    private Integer calculateScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type) {
+    private Double calculateScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type) {
         Map<String, Integer> questionTypeScoreMap = new HashMap<>();
         for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
             if (questionAnswer.getQuestionOption() != null
@@ -466,7 +466,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             }
         }
 
-        Integer score = 0;
+        Double score = 0.0;
 
         if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())) {
             if (questionTypeScoreMap.get(QuestionTypes.OPEN_BOWELS.toString()) != null) {
@@ -565,7 +565,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     }
 
     // note: these are hardcoded
-    private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse, Integer score) {
+    private ScoreSeverity calculateSeverity(SurveyResponse surveyResponse, Double score) {
         if (surveyResponse.getSurvey().getType().equals(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString())) {
             if (score != null) {
                 if (score >= 16) {
