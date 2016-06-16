@@ -60,7 +60,7 @@ public class SurveyResponseRepositoryTest {
         Date now = new Date();
 
         SurveyResponse surveyResponse
-                = new SurveyResponse(user, 1, ScoreSeverity.LOW, now,
+                = new SurveyResponse(user, 1.0, ScoreSeverity.LOW, now,
                     SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);
@@ -80,7 +80,7 @@ public class SurveyResponseRepositoryTest {
         surveyRepository.save(survey);
 
         SurveyResponse surveyResponse
-                = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(),
+                = new SurveyResponse(user, 1.0, ScoreSeverity.LOW, new Date(),
                     SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);
@@ -100,14 +100,14 @@ public class SurveyResponseRepositoryTest {
 
         {
             SurveyResponse surveyResponse
-                    = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(),
+                    = new SurveyResponse(user, 1.0, ScoreSeverity.LOW, new Date(),
                     SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
             surveyResponse.setSurvey(survey);
             surveyResponseRepository.save(surveyResponse);
         }
 
         SurveyResponse surveyResponse
-                = new SurveyResponse(user, 2, ScoreSeverity.MEDIUM, new Date(new Date().getTime() + 100),
+                = new SurveyResponse(user, 2.0, ScoreSeverity.MEDIUM, new Date(new Date().getTime() + 100),
                 SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         surveyResponseRepository.save(surveyResponse);

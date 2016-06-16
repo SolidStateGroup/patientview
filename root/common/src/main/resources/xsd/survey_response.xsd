@@ -15,7 +15,7 @@
                             <xs:element maxOccurs="unbounded" minOccurs="1" name="survey_response_score">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="score" type="xs:integer"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="score" type="xs:decimal"/>
                                         <xs:element maxOccurs="1" minOccurs="0" name="severity" type="severity"/>
                                         <xs:element maxOccurs="1" minOccurs="0" name="type" type="xs:string"/>
                                     </xs:sequence>

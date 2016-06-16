@@ -160,14 +160,14 @@ public class ImportControllerTest {
     @Ignore
     public void testBulkUkrdcImport() throws Exception {
         List<String> files = new ArrayList<>();
-        /*files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_1.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_1.xml");
         files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_2.xml");
         files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
-        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4.xml");*/
-        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_1.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4.xml");
+        /*files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_1.xml");
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_2.xml");
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_3.xml");
-        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4.xml");
+        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4.xml");*/
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);

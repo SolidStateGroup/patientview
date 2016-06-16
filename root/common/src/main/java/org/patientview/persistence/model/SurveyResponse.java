@@ -54,7 +54,7 @@ public class SurveyResponse extends BaseModel {
 
     public SurveyResponse() {}
 
-    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date, String scoreType) {
+    public SurveyResponse(User user, Double score, ScoreSeverity severity, Date date, String scoreType) {
         this.user = user;
         this.date = date;
 
