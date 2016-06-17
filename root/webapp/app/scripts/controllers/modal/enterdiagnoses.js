@@ -2,33 +2,40 @@
 var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$modalInstance', 'CodeService', 'DiagnosisService', 'fromDashboard',
     function ($scope, $rootScope, $timeout, $modalInstance, CodeService, DiagnosisService, fromDashboard) {
 
-        var addCondition = function(code) {
-            if ($scope.fromDashboard) {
-                if (!_.findWhere($scope.selectedConditions, {code : code.code})) {
+        $scope.addCondition = function(code) {
+            if (!_.findWhere($scope.selectedConditions, {code: code.code})) {
+                if ($scope.fromDashboard) {
                     CodeService.getPatientViewStandardCodes(code.code).then(function (codes) {
                         $scope.selectedConditions.push(codes[0]);
                         $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
                     });
-                }
-            } else {
-                $scope.saving = true;
-                DiagnosisService.addPatientEntered($scope.loggedInUser.id, [code.code]).then(function () {
-                    DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
-                        $scope.selectedConditions = conditions;
+                } else {
+                    $scope.saving = true;
+                    DiagnosisService.addPatientEntered($scope.loggedInUser.id, [code.code]).then(function () {
+                        DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                            $scope.selectedConditions = conditions;
+                            $scope.saving = false;
+                            selectize();
+                        });
+                        $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
+                    }, function () {
+                        alert("There was a problem saving your conditions");
                         $scope.saving = false;
                         selectize();
                     });
-                    $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
-                }, function () {
-                    alert("There was a problem saving your conditions");
-                    $scope.saving = false;
-                    selectize();
-                });
+
+                }
             }
         };
 
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
+        };
+
+        $scope.changeCategory = function(category) {
+            CodeService.getByCategory(category).then(function (conditions) {
+                $scope.categoryConditions = conditions;
+            });
         };
 
         var init = function() {
@@ -37,10 +44,18 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
             if ($scope.fromDashboard) {
                 $scope.selectedConditions = [];
                 selectize();
+
+                CodeService.getCategories().then(function (categories) {
+                    $scope.categories = categories;
+                });
             } else {
                 DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
                     $scope.selectedConditions = conditions;
                     selectize();
+                });
+
+                CodeService.getCategories().then(function (categories) {
+                    $scope.categories = categories;
                 });
             }
         };
@@ -105,7 +120,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                         if (code != null && code != undefined && code != '') {
                             if (!_.findWhere($scope.selectedConditions, {code: code})) {
                                 CodeService.getPatientViewStandardCodes(code).then(function (codes) {
-                                    addCondition(codes[0]);
+                                    $scope.addCondition(codes[0]);
                                     $select[0].selectize.clear();
                                 });
                             } else {

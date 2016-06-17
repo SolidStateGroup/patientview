@@ -4,6 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.BaseCode;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.GetParameters;
@@ -91,6 +92,8 @@ public interface CodeService {
     List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException;
 
     Code getByCode(String code);
+
+    List<Category> getCategories();
 
     /**
      * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property

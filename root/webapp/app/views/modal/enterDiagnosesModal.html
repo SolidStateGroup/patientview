@@ -25,12 +25,32 @@
     </div>
 
     <div data-ng-show="!loading">
-        <p>To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
-        <div class="selectize-diagnosis">
-            <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+        <br/>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Either</h2>
+                <p>To add a diagnosis, please enter your condition in the box below and select a suggested match:</p>
+                <div class="selectize-diagnosis">
+                    <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+                </div>
+                <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
+            </div>
+            <div class="col-md-6">
+                <h2>Or</h2>
+                <p>To add a diagnosis, please choose a category:</p>
+                <select data-ng-model="selectedCategory" data-ng-options="category.id as category.friendlyDescription for category in categories | orderBy:'friendlyDescription'"
+                        data-ng-change="changeCategory(selectedCategory)" class="form-control"></select>
+                <div data-ng-if="selectedCategory">
+                    <br/>
+                    <p>Now choose a condition</p>
+                    <select data-ng-model="selectedCategoryCondition" data-ng-options="condition as condition.description for condition in categoryConditions | orderBy:'description'"
+                            data-ng-change="addCondition(selectedCategoryCondition)" class="form-control"></select>
+                </div>
+            </div>
         </div>
-        <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
+
         <div data-ng-if="selectedConditions.length">
+            <br/>
             <h5>You have selected the following condition(s)</h5>
             <div class="row">
                 <div class="col-md-12">

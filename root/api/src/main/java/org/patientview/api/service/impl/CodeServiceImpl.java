@@ -371,6 +371,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    public List<Category> getCategories() {
+        return categoryRepository.findVisible();
+    }
+
+    @Override
     public List<Code> getPatientManagementDiagnoses() {
         List<Code> codes = new ArrayList<>();
 

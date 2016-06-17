@@ -31,6 +31,26 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        getByCategory: function(categoryId) {
+            var deferred = $q.defer();
+            // GET /codes/category/{categoryId}
+            Restangular.one('codes/category').getList(categoryId).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getCategories: function() {
+            var deferred = $q.defer();
+            // GET /categories
+            Restangular.one('categories').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // create new code
         create: function (code, codeTypes, standardTypes) {
             var deferred = $q.defer();

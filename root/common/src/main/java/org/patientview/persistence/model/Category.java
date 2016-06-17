@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +30,7 @@ public class Category extends BaseModel {
     @Column(name = "hidden", nullable = false)
     private boolean hidden = false;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = {CascadeType.ALL})
     private Set<CodeCategory> codeCategories = new HashSet<>();
 
