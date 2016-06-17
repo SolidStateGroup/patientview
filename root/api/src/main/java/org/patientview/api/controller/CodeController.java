@@ -81,6 +81,18 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
+     * Get a single Code given an ID.
+     * @param codeId ID of Code to retrieve
+     * @return Code object
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/code/{codeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Code> get(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.get(codeId), HttpStatus.OK);
+    }
+
+    /**
      * Get a Page of Code object, with pagination parameters (page, size of page etc) passed in as GetParameters object.
      * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * of page etc
@@ -92,6 +104,11 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.getAllCodes(getParameters), HttpStatus.OK);
     }
 
+    /**
+     * Get Codes with standard type PATIENTVIEW
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/codes/patientviewstandard", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -100,24 +117,32 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.getPatientViewStandardCodes(null), HttpStatus.OK);
     }
 
+    /**
+     * Get Codes given a Category id
+     * @param categoryId Long id of Category
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/codes/category/{categoryId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> getByCategory(@PathVariable("categoryId") Long categoryId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.getByCategory(categoryId), HttpStatus.OK);
+    }
+
+    /**
+     * Get Codes with standard type PATIENTVIEW and with a search term
+     * @param searchTerm String term to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/codes/patientviewstandard/{searchTerm}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<BaseCode>> getPatientViewStandardCodes(@PathVariable("searchTerm") String searchTerm)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(codeService.getPatientViewStandardCodes(searchTerm), HttpStatus.OK);
-    }
-
-    /**
-     * Get a single Code given an ID.
-     * @param codeId ID of Code to retrieve
-     * @return Code object
-     * @throws ResourceNotFoundException
-     */
-    @RequestMapping(value = "/code/{codeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Code> get(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
-        return new ResponseEntity<>(codeService.get(codeId), HttpStatus.OK);
     }
 
     /**

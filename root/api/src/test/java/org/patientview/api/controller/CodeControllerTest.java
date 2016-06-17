@@ -78,4 +78,12 @@ public class CodeControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(codeService, Mockito.times(1)).getAllCodes(any(GetParameters.class));
     }
+
+    @Test
+    public void testGetByCategory() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
+        mockMvc.perform(MockMvcRequestBuilders.get("/codes/category/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).getByCategory(eq(1L));
+    }
 }

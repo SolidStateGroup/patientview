@@ -9,7 +9,9 @@ import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.GetParameters;
@@ -19,6 +21,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.CategoryRepository;
 import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
@@ -49,6 +52,9 @@ import java.util.Set;
  */
 @Service
 public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implements CodeService {
+
+    @Inject
+    private CategoryRepository categoryRepository;
 
     @Inject
     private CodeRepository codeRepository;
@@ -314,6 +320,24 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         return codeRepository.findAllFiltered(filterText, pageable);
+    }
+
+    @Override
+    public List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException {
+        Category category = categoryRepository.findOne(categoryId);
+        if (category == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+
+        List<BaseCode> baseCodes = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(category.getCodeCategories())) {
+            for (CodeCategory codeCategory : category.getCodeCategories()) {
+                baseCodes.add(new BaseCode(codeCategory.getCode()));
+            }
+        }
+
+        return baseCodes;
     }
 
     @Override

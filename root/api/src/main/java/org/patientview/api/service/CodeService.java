@@ -82,6 +82,14 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
+    /**
+     * Get Codes given a Category id
+     * @param categoryId Long id of Category
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException;
+
     Code getByCode(String code);
 
     /**
