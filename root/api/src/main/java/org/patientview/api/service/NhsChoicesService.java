@@ -19,6 +19,20 @@ import java.util.Map;
  */
 public interface NhsChoicesService {
     /**
+     * Step 3 of update PV Codes, called manually, not part of task, reads xlsx file and generates Category and links
+     * between Code and CodeCategory.
+     */
+    @RoleOnly
+    void categoriseConditions();
+
+    /**
+     * Get GP details from NHS Choices API, used to update GpMaster url if url is not set.
+     * @param practiceCode String code of practice
+     * @return Map of details, just url -> "http://www.nhs.uk/somepractice.com"
+     */
+    Map<String, String> getDetailsByPracticeCode(String practiceCode);
+
+    /**
      * Set the NhschoicesCondition description and Code fullDescription using NHS Choices API.
      * Done on get Code with 3s delay to avoid NHS Choices API limits.
      * @param code String code, used for finding NhschoicesCondition and Code
@@ -27,13 +41,6 @@ public interface NhsChoicesService {
      * @throws ImportResourceException
      */
     Code setDescription(String code) throws ResourceNotFoundException, ImportResourceException;
-
-    /**
-     * Get GP details from NHS Choices API, used to update GpMaster url if url is not set.
-     * @param practiceCode String code of practice
-     * @return Map of details, just url -> "http://www.nhs.uk/somepractice.com"
-     */
-    Map<String, String> getDetailsByPracticeCode(String practiceCode);
 
     /**
      * Set the introduction URL (actual link to NHS Choices website) for NhschoicesCondition by calling NHS Choices API.

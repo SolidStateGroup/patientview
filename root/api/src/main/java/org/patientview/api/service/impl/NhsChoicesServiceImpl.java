@@ -13,12 +13,18 @@ import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.joda.time.DateTime;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhschoicesCondition;
 import org.patientview.persistence.model.User;
@@ -26,6 +32,8 @@ import org.patientview.persistence.model.enums.CodeSourceTypes;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.CategoryRepository;
+import org.patientview.persistence.repository.CodeCategoryRepository;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.NhschoicesConditionRepository;
@@ -38,6 +46,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
+import javax.persistence.NonUniqueResultException;
 import javax.transaction.Transactional;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -47,10 +56,13 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -58,6 +70,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -73,6 +86,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
     // https://abdera.apache.org/ - An Open Source Atom Implementation
     private Abdera abdera;
+
+    @Inject
+    private CategoryRepository categoryRepository;
+
+    @Inject
+    private CodeCategoryRepository codeCategoryRepository;
 
     @Inject
     private CodeRepository codeRepository;
@@ -96,6 +115,156 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     }
 
     private static final String NHS_CHOICES_LINK_DESCRIPTION = "NHS Choices Information";
+
+    @Override
+    @Transactional
+    public void categoriseConditions() {
+        try {
+            codeCategoryRepository.delete(codeCategoryRepository.findAll());
+            categoryRepository.delete(categoryRepository.findAll());
+
+            URL filePath = Thread.currentThread().getContextClassLoader().getResource(
+                    "nhschoices/pv_nhschoices_condition-NT.xlsx");
+
+            File file = new File(filePath.toURI());
+            FileInputStream inputStream = new FileInputStream(new File(file.getAbsolutePath()));
+
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Iterator<Row> categoryIterator = workbook.getSheetAt(1).iterator();
+            int count = 0;
+
+            List<Category> categories = new ArrayList<>();
+            Map<String, Category> categoryMap = new HashMap<>();
+
+            // categories
+            while (categoryIterator.hasNext()) {
+                Row nextRow = categoryIterator.next();
+
+                if (count > 0) {
+                    String number = getCellContent(nextRow.getCell(2));
+                    String icd10Description = getCellContent(nextRow.getCell(1));
+                    String friendlyDescription = getCellContent(nextRow.getCell(3));
+
+                    Integer numberInt = Math.abs(Integer.parseInt(number));
+
+                    Category category = new Category(numberInt, icd10Description, friendlyDescription);
+
+                    if (numberInt.equals(21)) {
+                        category.setHidden(true);
+                    }
+
+                    categories.add(category);
+                    categoryMap.put(numberInt.toString(), category);
+                }
+                count++;
+            }
+
+            Iterable<Category> savedCategories = categoryRepository.save(categories);
+            Map<Integer, Category> savedCategoryMap = new HashMap<>();
+            Iterator iterator = savedCategories.iterator();
+
+            while (iterator.hasNext()) {
+                Category next = (Category) iterator.next();
+                savedCategoryMap.put(next.getNumber(), next);
+            }
+
+            // link codes to categories
+            Iterator<Row> codeIterator = workbook.getSheetAt(0).iterator();
+            count = 0;
+
+            List<CodeCategory> codeCategories = new ArrayList<>();
+
+            while (codeIterator.hasNext()) {
+                Row nextRow = codeIterator.next();
+
+                if (count > 3) {
+                    String code = getCellContent(nextRow.getCell(2));
+                    String includeExclude = getCellContent(nextRow.getCell(3));
+
+                    List<Category> foundCategories = new ArrayList<>();
+
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 4, "1");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 5, "2");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 6, "3");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 7, "4");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 8, "5");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 9, "6");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 10, "7");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 11, "8");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 12, "9");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 13, "10");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 14, "11");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 15, "12");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 16, "13");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 17, "14");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 18, "141");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 19, "15");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 20, "16");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 21, "17");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 22, "18");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 23, "19");
+                    addToFoundCategories(foundCategories, nextRow, categoryMap, 24, "20");
+
+                    Code entityCode = codeRepository.findOneByCode(code);
+
+                    if (entityCode != null) {
+                        if (includeExclude.equals("0") && !entityCode.isHideFromPatients()) {
+                            entityCode.setHideFromPatients(true);
+                            codeRepository.save(entityCode);
+                        }
+
+                        if (!foundCategories.isEmpty()) {
+                            for (Category category : foundCategories) {
+                                Category entityCategory = savedCategoryMap.get(category.getNumber());
+
+                                if (entityCategory != null) {
+                                    codeCategories.add(new CodeCategory(entityCode, entityCategory));
+                                }
+                            }
+                        }
+                    }
+                }
+                count++;
+            }
+
+            codeCategoryRepository.save(codeCategories);
+
+            workbook.close();
+            inputStream.close();
+        } catch (URISyntaxException use) {
+            LOG.error("URISyntaxException: " + use.getMessage());
+        } catch (IOException ioe) {
+            LOG.error("IOException: " + ioe.getMessage());
+        } catch (NonUniqueResultException nure) {
+            LOG.error("NonUniqueResultException: " + nure.getMessage());
+        }
+    }
+
+    private void addToFoundCategories(List<Category> foundCategories, Row nextRow, Map<String, Category> categoryMap,
+                                      Integer column, String categoryNumber) {
+        Category category = StringUtils.isNotEmpty(getCellContent(nextRow.getCell(column)))
+                ? categoryMap.get(categoryNumber) : null;
+        if (category != null) {
+            foundCategories.add(category);
+        }
+    }
+
+    private String getCellContent(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+
+        switch (cell.getCellType()) {
+            case Cell.CELL_TYPE_STRING:
+                return cell.getStringCellValue();
+            case Cell.CELL_TYPE_BOOLEAN:
+                return Boolean.toString(cell.getBooleanCellValue());
+            case Cell.CELL_TYPE_NUMERIC:
+                return String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue());
+            default:
+                return null;
+        }
+    }
 
     @Override
     public Map<String, String> getDetailsByPracticeCode(String practiceCode) {

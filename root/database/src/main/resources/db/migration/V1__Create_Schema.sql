@@ -851,6 +851,24 @@ CREATE TABLE PV_Code_External_Standard
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Category
+(
+  Id                        BIGINT NOT NULL,
+  Number                    INT NOT NULL,
+  Icd10_Description         TEXT NOT NULL,
+  Friendly_Description      TEXT NOT NULL,
+  Hidden                    BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Code_Category
+(
+  Id                        BIGINT NOT NULL,
+  Code_Id                   BIGINT REFERENCES PV_Code (Id) NOT NULL,
+  Category_Id               BIGINT REFERENCES PV_Category (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

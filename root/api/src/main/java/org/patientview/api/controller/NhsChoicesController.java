@@ -41,6 +41,12 @@ public class NhsChoicesController extends BaseController<NhsChoicesController> {
         nhsChoicesService.synchroniseConditions();
     }
 
+    @RequestMapping(value = "/nhschoices/conditions/categorise", method = RequestMethod.POST)
+    @ResponseBody
+    public void categoriseConditions() throws ResourceNotFoundException {
+        nhsChoicesService.categoriseConditions();
+    }
+
     @RequestMapping(value = "/nhschoices/organisations/update", method = RequestMethod.POST)
     @ResponseBody
     public void updateOrganisations()
