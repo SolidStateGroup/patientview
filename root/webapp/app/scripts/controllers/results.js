@@ -65,11 +65,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
                 if ($routeParams.r !== undefined) {
                     $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
                 } else {
-                    if (summary[$scope.groupIndex].panels[-1].length) {
-                        $scope.currentPage = -1;
-                    } else {
+                    //if (summary[$scope.groupIndex].panels[-1].length) {
+                    //    $scope.currentPage = -1;
+                    //} else {
                         $scope.currentPage = 1;
-                    }
+                    //}
                 }
 
                 $scope.panel = $scope.panels[$scope.currentPage];
@@ -94,11 +94,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
         for (var i=0;i<$scope.summary.length;i++) {
             if (groupId === $scope.summary[i].group.id) {
                 $scope.groupIndex = i;
-                if ($scope.summary[$scope.groupIndex].panels[-1].length) {
-                    $scope.currentPage = -1;
-                } else {
+                //if ($scope.summary[$scope.groupIndex].panels[-1].length) {
+                //    $scope.currentPage = -1;
+                //} else {
                     $scope.currentPage = 1;
-                }
+                //}
                 $scope.group = $scope.summary[$scope.groupIndex].group;
                 $scope.panels = $scope.summary[$scope.groupIndex].panels;
                 $scope.panel = $scope.panels[$scope.currentPage];
