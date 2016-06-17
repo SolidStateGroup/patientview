@@ -17,7 +17,6 @@
             <li data-ng-class="{active:activeTab === 'IBD_SELF_MANAGEMENT'}"><a data-ng-click="activeTab = 'IBD_SELF_MANAGEMENT'">Self Management</a></li>
             <li data-ng-class="{active:activeTab === 'FOOD_DIARY'}"><a data-ng-click="activeTab = 'FOOD_DIARY'">Food Diary</a></li>
             <li data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">Entered Diagnoses</a></li>
-            <li data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'ENTER_CONDITIONS'">Enter Diagnosis</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}">
@@ -54,10 +53,7 @@
                 <div data-ng-include src="'views/partials/fooddiary.html'" data-ng-controller="FoodDiaryCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions">
-                <div data-ng-include src="'views/partials/myConditionsGeneric.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
-            </div>
-            <div class="tab-pane" data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions">
-                <div data-ng-include src="'views/partials/myConditionsEnterConditions.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
+                <div data-ng-include src="'views/partials/myConditionsGeneric.html'"></div>
             </div>
         </div>
 

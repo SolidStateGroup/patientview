@@ -523,8 +523,8 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     DiagnosisService: function () {
                         return DiagnosisService;
                     },
-                    StaticDataService: function () {
-                        return StaticDataService;
+                    fromDashboard: function () {
+                        return true;
                     }
                 }
             });

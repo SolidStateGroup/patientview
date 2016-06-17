@@ -17,7 +17,6 @@
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
             <li data-ng-class="{active:activeTab === 'CONDITION_INFO'}"><a data-ng-click="activeTab = 'CONDITION_INFO'">Condition Information</a></li>
             <li data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">Entered Diagnoses</a></li>
-            <li data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'ENTER_CONDITIONS'">Enter Diagnosis</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane" data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER' || activeTab === null || activeTab === undefined}">
@@ -27,10 +26,7 @@
                 <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions">
-                <div data-ng-include src="'views/partials/myConditionsGeneric.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
-            </div>
-            <div class="tab-pane" data-ng-class="{active:activeTab === 'ENTER_CONDITIONS'}" data-ng-show="showEnterConditions">
-                <div data-ng-include src="'views/partials/myConditionsEnterConditions.html'" data-ng-controller="MyConditionsEnterConditionsCtrl"></div>
+                <div data-ng-include src="'views/partials/myConditionsGeneric.html'"></div>
             </div>
         </div>
     </div>

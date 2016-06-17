@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout) {
+    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal) {
 
     $scope.changeSpecialty = function(specialty) {
         $scope.currentSpecialty = specialty;
@@ -360,6 +360,12 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 })
             }
 
+            if ($scope.showEnterConditions) {
+                DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                    $scope.selectedConditions = conditions;
+                });
+            }
+
             PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
                 $scope.patientDetails = patientDetails;
 
@@ -504,6 +510,34 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     alert('Error retrieving patient management information');
                 });
         }
+    };
+
+    $scope.showEnterDiagnosesModal = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modal/enterDiagnosesModal.html',
+            controller: EnterDiagnosesModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                CodeService: function () {
+                    return CodeService;
+                },
+                DiagnosisService: function () {
+                    return DiagnosisService;
+                },
+                fromDashboard: function () {
+                    return false;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+            DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                $scope.selectedConditions = conditions;
+            });
+        });
     };
 
     $scope.init();

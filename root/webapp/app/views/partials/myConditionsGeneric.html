@@ -15,9 +15,9 @@
         </div>
         <div data-ng-show="!selectedConditions.length">
             <p>You have not entered any diagnoses.</p>
-            <br/>
-            <button class="btn blue" data-ng-click="switchToEnterConditions()">Enter Diagnosis</button>
         </div>
+        <br/>
+        <button class="btn blue" data-ng-click="showEnterDiagnosesModal()">Add/Remove Diagnosis</button>
         <hr>
         <div data-ng-show="patientDetails.length">
             <h4>From your unit(s)</h4>

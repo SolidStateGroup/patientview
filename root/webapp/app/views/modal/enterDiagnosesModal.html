@@ -48,32 +48,35 @@
                     </ul>
                 </div>
             </div>
-            <p>To remove a condition from your selection, click x next to the name. To confirm your selection and condition(s)
-            click the "Go" button.</p>
-            <p><button class="btn blue" data-ng-click="saveConditions()" data-ng-disabled="saving">Go</button></p>
-            <br/>
-
-            <p>If you prefer to enter this info later, you can easily do this by clicking the "My Conditions" menu
-                option within PatientView.</p>
+            <div data-ng-if="fromDashboard">
+                <p>To remove a condition from your selection, click x next to the name. To confirm your selection and condition(s)
+                click the "Go" button.</p>
+                <p><button class="btn blue" data-ng-click="saveConditions()" data-ng-disabled="saving">Go</button></p>
+                <br/>
+                <p>If you prefer to enter this info later, you can easily do this by clicking the "My Conditions" menu
+                    option within PatientView.</p>
+            </div>
         </div>
     </div>
 </div>
 <div class="modal-body" data-ng-if="successMessage || saving">
-    <h5>You have selected the following condition(s):</h5>
-    <div class="row">
-        <div class="col-md-12">
-            <ul class="feature-list unstyled name-action-list">
-                <li class="feature-list-item" data-ng-repeat="condition in selectedConditions">
-                    <div class="feature-list-name pull-left">
-                        <span class="feature-list-name">{{condition.description}}</span>
-                    </div>
-                </li>
-            </ul>
+    <div data-ng-if="fromDashboard">
+        <h5>You have selected the following condition(s):</h5>
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="feature-list unstyled name-action-list">
+                    <li class="feature-list-item" data-ng-repeat="condition in selectedConditions">
+                        <div class="feature-list-name pull-left">
+                            <span class="feature-list-name">{{condition.description}}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <br/><br/>
-    <div class="alert alert-success" data-ng-if="!saving">
-        {{successMessage}}
+        <br/><br/>
+        <div class="alert alert-success" data-ng-if="!saving">
+            {{successMessage}}
+        </div>
     </div>
     <div data-ng-if="saving" class="container"><br/>
         <div class="loading">
@@ -84,7 +87,8 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-grey" data-ng-click="cancel()" data-ng-if="!saving">
-        <span data-ng-if="!successMessage" data-ng-disabled="saving">No thanks, I will enter my conditions later</span>
+        <span data-ng-if="!successMessage && fromDashboard" data-ng-disabled="saving">No thanks, I will enter my conditions later</span>
+        <span data-ng-if="!successMessage && !fromDashboard" data-ng-disabled="saving">Close</span>
         <span data-ng-if="successMessage">Close</span>
     </button>
 </div>
