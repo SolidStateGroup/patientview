@@ -4,13 +4,8 @@
         <div data-ng-show="selectedConditions.length">
             <div data-ng-repeat="condition in selectedConditions track by $index | orderBy:'condition.description'">
                 <h5>{{condition.description}}</h5>
-                <div data-ng-if="condition.links">
-                    <ul>
-                        <li data-ng-repeat="link in condition.links track by $index">
-                            <a href="{{link.link}}" target="_blank">{{link.name}}</a>
-                        </li>
-                    </ul>
-                </div>
+                <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
+                (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index > 0">, </span></span>)
             </div>
         </div>
         <div data-ng-show="!selectedConditions.length">

@@ -294,6 +294,7 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
                 if (code != null) {
                     fhirCondition.setLinks(code.getLinks());
+                    fhirCondition.setFullDescription(code.getFullDescription());
                 }
 
                 fhirConditions.add(fhirCondition);
