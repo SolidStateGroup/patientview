@@ -134,12 +134,6 @@ public interface CodeService {
     Code getByCode(String code);
 
     /**
-     * Get all Category objects
-     * @return List of Category
-     */
-    List<Category> getCategories();
-
-    /**
      * Get a list of Code corresponding to IBD Patient Management Diagnoses, currently stored in property
      * "patient.management.diagnoses.codes" with CD, UC IBDU
      * @return List of Code

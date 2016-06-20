@@ -1,0 +1,56 @@
+<style>
+    .question-text {
+        font-weight: bold;
+    }
+</style>
+<form name="categoryDetailsFormNew">
+    <div class="modal-header">
+        <h3 class="modal-title">Create a new Category</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="question-text">Number</div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="editCategory.number" class="form-control" only-num>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="question-text">Friendly Description</div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="editCategory.friendlyDescription" class="form-control">
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="question-text">ICD-10 Description</div>
+            </div>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="editCategory.icd10Description" class="form-control">
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="question-text">Hidden</div>
+            </div>
+            <div class="col-md-10">
+                <input type="checkbox" value="{{editCategory.hidden}}" data-ng-model="editCategory.hidden">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()"
+                data-ng-disabled="!editCategory.number || !editCategory.friendlyDescription">
+            Save
+        </button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+    </div>
+</form>

@@ -5,7 +5,6 @@ import org.patientview.api.model.BaseCode;
 import org.patientview.api.service.CodeService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.CodeExternalStandard;
@@ -167,16 +166,6 @@ public class CodeController extends BaseController<CodeController> {
     public ResponseEntity<List<BaseCode>> getByCategory(@PathVariable("categoryId") Long categoryId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(codeService.getByCategory(categoryId), HttpStatus.OK);
-    }
-
-    /**
-     * Get all Category objects
-     * @return List of Category
-     */
-    @RequestMapping(value = "/categories", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Category>> getCategories() {
-        return new ResponseEntity<>(codeService.getCategories(), HttpStatus.OK);
     }
 
     /**

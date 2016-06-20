@@ -1,5 +1,8 @@
 <div class="page-content" data-ng-show="!loading">
-    <h1>Codes <button class="btn blue" data-ng-click="openModalNewCode('lg')">Create New</button></h1>
+    <h1>Codes
+        <a class="btn blue" data-ng-click="openModalNewCode('lg')" href="">Create New</a>
+        <a class="btn blue pull-right" href="/#/categories">Edit Categories</a>
+    </h1>
 
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 

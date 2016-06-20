@@ -122,8 +122,8 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
         },
         getCategories: function() {
             var deferred = $q.defer();
-            // GET /categories
-            Restangular.one('categories').getList().then(function(successResult) {
+            // GET /categories/all
+            Restangular.one('categories/all').getList().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

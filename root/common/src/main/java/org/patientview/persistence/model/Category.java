@@ -42,6 +42,13 @@ public class Category extends BaseModel {
         this.friendlyDescription = friendlyDescription;
     }
 
+    public Category(Integer number, String icd10Description, String friendlyDescription, boolean hidden) {
+        this.number = number;
+        this.icd10Description = icd10Description;
+        this.friendlyDescription = friendlyDescription;
+        this.hidden = hidden;
+    }
+
     public Integer getNumber() {
         return number;
     }

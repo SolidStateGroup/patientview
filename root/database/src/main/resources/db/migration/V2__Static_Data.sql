@@ -358,6 +358,8 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (29, 5, 180,  '/surveys/symptoms', 'views/surveys/symptoms.html','SurveysSymptomsCtrl', 'Your Symptoms', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (30, 5, 190,  '/surveys/overall', 'views/surveys/overall.html','SurveysOverallCtrl', 'Your Overall Health', now(), 1);
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (31, 5, 200,  '/categories', 'views/categories.html','CategoriesCtrl', 'Categories', now(), 1);
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
@@ -480,6 +482,12 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (59, 29, null, 1, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (60, 30, null, 1, null, now(), 1 );
+
+/* edit Code Categorys */
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (61, 31, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (62, 31, null, 4, null, now(), 1 );
 
 /* External Standards, used by Codes */
 INSERT INTO PV_External_Standard (Id, Name, Description) VALUES
