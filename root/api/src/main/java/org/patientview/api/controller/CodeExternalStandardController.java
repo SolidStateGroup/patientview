@@ -24,7 +24,11 @@ public class CodeExternalStandardController extends BaseController<CodeExternalS
     @Inject
     private CodeService codeService;
 
-
+    /**
+     * Delete a CodeExternalStandard, removing from the associated Code
+     * @param codeExternalStandardId Long ID of CodeExternalStandard
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/codeexternalstandards/{codeExternalStandardId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void delete(@PathVariable("codeExternalStandardId") Long codeExternalStandardId)
@@ -32,10 +36,14 @@ public class CodeExternalStandardController extends BaseController<CodeExternalS
         codeService.deleteCodeExternalStandard(codeExternalStandardId);
     }
 
+    /**
+     * Update an existing CodeExternalStandard, setting the codeString and ExternalStandard
+     * @param codeExternalStandard CodeExternalStandard, containing updated codeString and ExternalStandard
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/codeexternalstandards", method = RequestMethod.PUT)
     @ResponseBody
-    public void save(@RequestBody CodeExternalStandard codeExternalStandard)
-            throws ResourceNotFoundException {
+    public void save(@RequestBody CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
         codeService.saveCodeExternalStandard(codeExternalStandard);
     }
 }

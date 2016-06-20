@@ -154,6 +154,43 @@
     </div>
 </div>
 
+<div data-ng-show="isDiagnosisCode()">
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <label>Categories</label>
+            <div data-ng-hide="editCode.codeCategories.length > 0" class="no-items">No Categories are associated with this Code</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="name-action-list inline">
+                <li data-ng-repeat="codeCategory in editCode.codeCategories">
+                    <div class="feature-list-name pull-left"><span>{{codeCategory.category.friendlyDescription}}</span></div>
+                    <div class="feature-list-delete pull-left">
+                        <span class="feature-list-delete">
+                            <a id="remove-codeCategory-modal-{{codeCategory.id}}" href="" data-ng-click="removeCodeCategory(codeForm, editCode, codeCategory)" >
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="feature-add-container item-add-container" data-ng-show="editCode.availableCategories.length > 0">
+                <div class="custom-select">
+                    <select class="form-control feature-select group-select" data-ng-model="categoryToAdd"
+                            data-ng-options="category.id as category.friendlyDescription for category in editCode.availableCategories | orderBy:'friendlyDescription'"></select>
+                </div>
+                <button type="button" class="btn blue feature-add-button pull-left" data-ng-click="addCategory(codeForm, editCode, categoryToAdd)">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <hr>
 
 <div class="row">

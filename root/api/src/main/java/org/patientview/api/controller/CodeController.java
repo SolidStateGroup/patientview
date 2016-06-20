@@ -7,6 +7,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.GetParameters;
 import org.springframework.data.domain.Page;
@@ -50,6 +51,14 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 
+    /**
+     * Add a new external standard String to a Code, creates new CodeExternalStandard associating Code with
+     * ExternalStandard and sets a String codeString
+     * @param codeId Long ID of Code
+     * @param codeExternalStandard ExternalStandard object containing codeString and ID of ExternalStandard
+     * @return Newly created CodeExternalStandard
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/code/{codeId}/externalstandards", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -57,6 +66,21 @@ public class CodeController extends BaseController<CodeController> {
             @RequestBody CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
         return new ResponseEntity<>(
                 codeService.addCodeExternalStandard(codeId, codeExternalStandard), HttpStatus.CREATED);
+    }
+
+    /**
+     * Associate a Code with a Category by creating a new CodeCategory object
+     * @param codeId Long ID of Code
+     * @param categoryId Long ID of Category
+     * @return Newly created CodeCategory object
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/code/{codeId}/categories/{categoryId}", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<CodeCategory> addCodeCategory(@PathVariable("codeId") Long codeId,
+            @PathVariable("categoryId") Long categoryId) throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.addCodeCategory(codeId, categoryId), HttpStatus.CREATED);
     }
 
     /**
@@ -79,6 +103,19 @@ public class CodeController extends BaseController<CodeController> {
     @ResponseBody
     public void delete(@PathVariable("codeId") Long codeId) {
         codeService.delete(codeId);
+    }
+
+    /**
+     * Remove a Category from a Code by deleting a CodeCategory
+     * @param codeId Long ID of Code
+     * @param categoryId Long ID of Category
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/code/{codeId}/categories/{categoryId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteCodeCategory(@PathVariable("codeId") Long codeId, @PathVariable("categoryId") Long categoryId)
+            throws ResourceNotFoundException {
+        codeService.deleteCodeCategory(codeId, categoryId);
     }
 
     /**
@@ -119,7 +156,7 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Get Codes given a Category id
+     * Get Codes given a Category id, DIAGNOSIS code type only
      * @param categoryId Long id of Category
      * @return List of BaseCode
      * @throws ResourceNotFoundException
@@ -132,8 +169,11 @@ public class CodeController extends BaseController<CodeController> {
         return new ResponseEntity<>(codeService.getByCategory(categoryId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/categories", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    /**
+     * Get all Category objects
+     * @return List of Category
+     */
+    @RequestMapping(value = "/categories", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Category>> getCategories() {
         return new ResponseEntity<>(codeService.getCategories(), HttpStatus.OK);

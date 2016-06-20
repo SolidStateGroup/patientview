@@ -22,6 +22,7 @@ import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CategoryRepository;
+import org.patientview.persistence.repository.CodeCategoryRepository;
 import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
@@ -36,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -58,6 +60,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Inject
     private CodeRepository codeRepository;
+
+    @Inject
+    private CodeCategoryRepository codeCategoryRepository;
 
     @Inject
     private CodeExternalStandardRepository codeExternalStandardRepository;
@@ -112,6 +117,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             codeExternalStandards = new HashSet<>(code.getExternalStandards());
         }
 
+        Set<CodeCategory> codeCategories = new HashSet<>();
+        if (!CollectionUtils.isEmpty(code.getCodeCategories())) {
+            codeCategories = new HashSet<>(code.getCodeCategories());
+        }
+
         // save basic details
         newCode.setCode(code.getCode());
         newCode.setCodeType(code.getCodeType());
@@ -142,7 +152,34 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             entityCode.getExternalStandards().add(codeExternalStandardRepository.save(codeExternalStandard));
         }
 
+        // save categories
+        for (CodeCategory codeCategory : codeCategories) {
+            codeCategory.setCode(entityCode);
+            if (codeCategory.getCategory() != null) {
+                Category category = categoryRepository.findOne(codeCategory.getCategory().getId());
+                if (category != null) {
+                    codeCategory.setCategory(category);
+                    entityCode.getCodeCategories().add(codeCategoryRepository.save(codeCategory));
+                }
+            }
+        }
+
         return entityCode;
+    }
+
+    @Override
+    public CodeCategory addCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
+        Code code = codeRepository.findOne(codeId);
+        if (code == null) {
+            throw new ResourceNotFoundException("Code not found");
+        }
+
+        Category category = categoryRepository.findOne(categoryId);
+        if (category == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+
+        return codeCategoryRepository.save(new CodeCategory(code, category));
     }
 
     @Override
@@ -215,6 +252,22 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Override
     public void delete(final Long codeId) {
         codeRepository.delete(codeId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
+        Code code = codeRepository.findOne(codeId);
+        if (code == null) {
+            throw new ResourceNotFoundException("Code not found");
+        }
+
+        Category category = categoryRepository.findOne(categoryId);
+        if (category == null) {
+            throw new ResourceNotFoundException("Category not found");
+        }
+
+        codeCategoryRepository.deleteByCodeAndCategory(code, category);
     }
 
     @Override
@@ -333,7 +386,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(category.getCodeCategories())) {
             for (CodeCategory codeCategory : category.getCodeCategories()) {
-                baseCodes.add(new BaseCode(codeCategory.getCode()));
+                if (codeCategory.getCode().getCodeType().getValue().equals(CodeTypes.DIAGNOSIS.toString())) {
+                    baseCodes.add(new BaseCode(codeCategory.getCode()));
+                }
             }
         }
 

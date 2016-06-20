@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -30,6 +32,7 @@ public class CodeCategory extends BaseModel {
         this.category = category;
     }
 
+    @JsonIgnore
     public Code getCode() {
         return code;
     }

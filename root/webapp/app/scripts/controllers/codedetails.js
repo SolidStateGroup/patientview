@@ -3,6 +3,71 @@
 angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeService', 'LinkService', 'CodeExternalStandardService',
     function ($scope, CodeService, LinkService, CodeExternalStandardService) {
 
+    $scope.addCategory = function (form, code, categoryId) {
+        for (var i = 0; i < code.codeCategories.length; i++) {
+            if (code.codeCategories[i].category.id == categoryId) {
+                return;
+            }
+        }
+
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            CodeService.addCodeCategory(code.id, categoryId).then(function (codeCategory) {
+                // added category
+                for (var j = 0; j < code.availableCategories.length; j++) {
+                    if (code.availableCategories[j].id === categoryId) {
+                        code.codeCategories.push(codeCategory);
+                        code.availableCategories.splice(j, 1);
+                    }
+                }
+            }, function () {
+                alert('Error saving Code Category');
+            });
+        } else {
+            for (var j = 0; j < code.availableCategories.length; j++) {
+                if (code.availableCategories[j].id === categoryId) {
+                    var codeCategory = {
+                        "category" : code.availableCategories[j]
+                    };
+                    code.codeCategories.push(codeCategory);
+                    code.availableCategories.splice(j, 1);
+                }
+            }
+            form.$setDirty(true);
+
+            // set select
+            if (code.availableCategories != null && code.availableCategories != undefined
+                && code.availableCategories[0]) {
+                $scope.categoryToAdd = code.availableCategories[0].id;
+            }
+        }
+    };
+
+    $scope.removeCodeCategory = function (form, code, codeCategory) {
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            CodeService.deleteCodeCategory(code.id, codeCategory.category.id).then(function () {
+                for (var j = 0; j < code.codeCategories.length; j++) {
+                    if (code.codeCategories[j].id === codeCategory.id) {
+                        code.availableCategories.push(code.codeCategories[j].category);
+                        code.codeCategories.splice(j, 1);
+                    }
+                }
+            }, function () {
+                alert('Error deleting Code Category');
+            });
+        } else {
+            for (var j = 0; j < code.codeCategories.length; j++) {
+                if (code.codeCategories[j].category.id === codeCategory.category.id) {
+                    code.availableCategories.push(code.codeCategories[j].category);
+                    code.codeCategories.splice(j, 1);
+                }
+            }
+
+            form.$setDirty(true);
+        }
+    };
+
     $scope.addCodeExternalStandard = function (form, code, codeExternalStandard) {
         if (code.externalStandards != null && code.externalStandards != undefined) {
             for (var i = 0; i < code.externalStandards.length; i++) {
@@ -17,7 +82,7 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
 
             delete codeExternalStandard.externalStandardId;
 
-            CodeService.addCodeExternalStandard(code, codeExternalStandard).then(function (successResult) {
+            CodeService.addCodeExternalStandard(code.id, codeExternalStandard).then(function (successResult) {
                 //codeExternalStandard.id = successResult.id;
                 code.externalStandards.push(successResult);
                 delete codeExternalStandard.externalStandard;
@@ -157,4 +222,8 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
             form.$setDirty(true);
         }
     };
+
+    $scope.isDiagnosisCode = function() {
+        return $scope.editCode && $scope.editCode.codeTypeId == _.findWhere($scope.codeTypes, {value: 'DIAGNOSIS'}).id;
+    }
 }]);

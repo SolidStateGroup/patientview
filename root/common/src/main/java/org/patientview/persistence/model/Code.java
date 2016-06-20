@@ -26,6 +26,9 @@ public class Code extends AuditModel {
     @Column(name = "code")
     private String code;
 
+    @OneToMany(mappedBy = "code", cascade = {CascadeType.ALL})
+    private Set<CodeCategory> codeCategories = new HashSet<>();
+
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup codeType;
@@ -72,6 +75,14 @@ public class Code extends AuditModel {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Set<CodeCategory> getCodeCategories() {
+        return codeCategories;
+    }
+
+    public void setCodeCategories(Set<CodeCategory> codeCategories) {
+        this.codeCategories = codeCategories;
     }
 
     public Lookup getCodeType() {

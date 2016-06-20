@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Category;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Lookup;
@@ -36,6 +37,25 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code add(Code code) throws EntityExistsException, ResourceInvalidException;
 
+    /**
+     * Associate a Code with a Category by creating a new CodeCategory object
+     * @param codeId Long ID of Code
+     * @param categoryId Long ID of Category
+     * @return Newly created CodeCategory object
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    CodeCategory addCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException;
+
+    /**
+     * Add a new external standard String to a Code, creates new CodeExternalStandard associating Code with
+     * ExternalStandard and sets a String codeString
+     * @param codeId Long ID of Code
+     * @param codeExternalStandard ExternalStandard object containing codeString and ID of ExternalStandard
+     * @return Newly created CodeExternalStandard
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     CodeExternalStandard addCodeExternalStandard(Long codeId, CodeExternalStandard codeExternalStandard)
             throws ResourceNotFoundException;
 
@@ -55,6 +75,21 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long codeId);
 
+    /**
+     * Remove a Category from a Code by deleting a CodeCategory
+     * @param codeId Long ID of Code
+     * @param categoryId Long ID of Category
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    void deleteCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException;
+
+    /**
+     * Delete a CodeExternalStandard, removing from the associated Code
+     * @param codeExternalStandardId Long ID of CodeExternalStandard
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteCodeExternalStandard(Long codeExternalStandardId) throws ResourceNotFoundException;
 
     /**
@@ -91,8 +126,17 @@ public interface CodeService {
      */
     List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException;
 
+    /**
+     * Get a single Code by String code
+     * @param code String code of Code to get
+     * @return Code object
+     */
     Code getByCode(String code);
 
+    /**
+     * Get all Category objects
+     * @return List of Category
+     */
     List<Category> getCategories();
 
     /**
@@ -102,6 +146,12 @@ public interface CodeService {
      */
     List<Code> getPatientManagementDiagnoses();
 
+    /**
+     * Get Codes with standard type PATIENTVIEW
+     * @param searchTerm Optional String search term
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
     @RoleOnly(roles = { RoleName.PATIENT })
     List<BaseCode> getPatientViewStandardCodes(String searchTerm) throws ResourceNotFoundException;
 
@@ -115,5 +165,11 @@ public interface CodeService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws ResourceNotFoundException, EntityExistsException;
 
+    /**
+     * Update an existing CodeExternalStandard, setting the codeString and ExternalStandard
+     * @param codeExternalStandard CodeExternalStandard, containing updated codeString and ExternalStandard
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException;
 }

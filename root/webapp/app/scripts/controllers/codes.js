@@ -169,13 +169,37 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 $scope.saved = '';
                 code.codeTypeId = code.codeType.id;
                 code.standardTypeId = code.standardType.id;
+                code.availableCategories = [];
 
                 $scope.externalStandards = _.clone($scope.loggedInUser.userInformation.externalStandards);
 
-                $scope.editCode = _.clone(code);
-                $scope.editMode = true;
+                // prepare categories, create list of available categories (all - what code already has)
+                CodeService.getCategories().then(function (categories) {
+                    if (categories != null && categories != undefined && categories.length) {
+                        categories = _.sortBy(categories, ['friendlyDescription']);
+                        code.availableCategories = categories;
 
-                openedCode.editLoading = false;
+                        for (i = 0; i < code.codeCategories.length; i++) {
+                            for (j = 0; j < code.availableCategories.length; j++) {
+                                if (code.codeCategories[i].category.id === code.availableCategories[j].id) {
+                                    code.availableCategories.splice(j, 1);
+                                }
+                            }
+                        }
+                    }
+
+                    if (code.availableCategories != null && code.availableCategories != undefined
+                            && code.availableCategories[0]) {
+                        $scope.categoryToAdd = code.availableCategories[0].id;
+                    }
+
+                    $scope.editCode = _.clone(code);
+                    $scope.editMode = true;
+                    openedCode.editLoading = false;
+                }, function (error) {
+                    alert("Error retrieving categories: " + error.data);
+                });
+
             });
         }
     };
