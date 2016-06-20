@@ -22,7 +22,8 @@ public interface CategoryRepository extends CrudRepository<Category, Long> {
 
     @Query("SELECT c FROM Category c " +
             "WHERE (UPPER(c.friendlyDescription) LIKE :filterText) " +
-            "OR (UPPER(c.icd10Description) LIKE :filterText) ")
+            "OR (UPPER(c.icd10Description) LIKE :filterText) " +
+            "OR (CAST(c.number AS string) LIKE :filterText)")
     Page<Category> findAllFiltered(@Param("filterText") String filterText, Pageable pageable);
 
     @Query("Select c from Category c WHERE c.number = :number")

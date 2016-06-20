@@ -59,9 +59,9 @@ public class CategoryRepositoryTest {
 
     @Test
     public void testFindAllFilterText() {
-        Category category1 = new Category(1, "icd10a", "friendlya");
+        Category category1 = new Category(10, "icd10a", "friendlya");
         category1.setHidden(true);
-        Category category2 = new Category(2, "icd10b", "friendlyb");
+        Category category2 = new Category(20, "icd10b", "friendlyb");
         category1 = categoryRepository.save(category1);
         category2 = categoryRepository.save(category2);
 
@@ -72,6 +72,10 @@ public class CategoryRepositoryTest {
         Assert.assertTrue("The category should be the one created", categories.getContent().get(0).equals(category1));
 
         categories = categoryRepository.findAllFiltered("%ICD10B%", pageable);
+        Assert.assertEquals("There should be 1 category returned", 1, categories.getContent().size());
+        Assert.assertTrue("The category should be the one created", categories.getContent().get(0).equals(category2));
+
+        categories = categoryRepository.findAllFiltered("%2%", pageable);
         Assert.assertEquals("There should be 1 category returned", 1, categories.getContent().size());
         Assert.assertTrue("The category should be the one created", categories.getContent().get(0).equals(category2));
     }
