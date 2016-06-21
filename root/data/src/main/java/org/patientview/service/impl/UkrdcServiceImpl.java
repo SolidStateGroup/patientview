@@ -1,8 +1,19 @@
 package org.patientview.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.instance.model.DocumentReference;
+import org.hl7.fhir.instance.model.Media;
+import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.builder.DocumentReferenceBuilder;
+import org.patientview.builder.MediaBuilder;
 import org.patientview.builder.SurveyResponseBuilder;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.persistence.model.FhirDatabaseEntity;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionGroup;
@@ -11,14 +22,20 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.repository.FileDataRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import uk.org.rixg.Document;
 import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
@@ -27,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -39,6 +57,18 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     AuditService auditService;
 
     @Inject
+    FhirLinkService fhirLinkService;
+
+    @Inject
+    FhirResource fhirResource;
+
+    @Inject
+    FileDataRepository fileDataRepository;
+
+    @Inject
+    GroupRepository groupRepository;
+
+    @Inject
     IdentifierRepository identifierRepository;
 
     @Inject
@@ -49,14 +79,16 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     @Override
     public void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception {
-        // user
+        // identifier
         List<Identifier> identifiers = identifierRepository.findByValue(
                 patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber());
-        User user = identifiers.get(0).getUser();
+        Identifier identifier = identifiers.get(0);
+
+        // user
+        User user = identifier.getUser();
 
         // if surveys, then process surveys
-        if (patientRecord.getSurveys() != null
-                && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
+        if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
             for (uk.org.rixg.Survey survey : patientRecord.getSurveys().getSurvey()) {
                 try {
                     processSurvey(survey, user);
@@ -72,6 +104,138 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                     throw(e);
                 }
             }
+        }
+
+        // if documents, process
+        if (patientRecord.getDocuments() != null
+                && !CollectionUtils.isEmpty(patientRecord.getDocuments().getDocument())) {
+            // need group for documents
+            Group group = groupRepository.findByCode(patientRecord.getSendingFacility());
+
+            for (Document document : patientRecord.getDocuments().getDocument()) {
+                try {
+                    processDocument(document, user, identifier, group);
+                    LOG.info(identifiers.get(0).getIdentifier() + ": document type '"
+                            + document.getDocumentType().getCode() + "' added");
+                } catch (Exception e) {
+                    throw(e);
+                }
+            }
+        }
+    }
+
+    private void processDocument(Document document, User user, Identifier identifier, Group group) throws Exception {
+        // get FhirLink if exists
+        FhirLink fhirLink = Util.getFhirLink(group, identifier.getIdentifier(), user.getFhirLinks());
+
+        if (fhirLink == null) {
+            // FhirLink doesn't exist, create including patient record in FHIR
+            try {
+                fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
+            } catch (FhirResourceException fre) {
+                LOG.error("FhirResourceException creating FhirLink");
+                fre.printStackTrace();
+                throw new ImportResourceException("FhirResourceException creating FhirLink: " + fre.getMessage());
+            }
+        }
+
+        // delete existing with same patient reference, date and type
+        Map<String, String> logicalLocationMap = fhirResource.getDocumentReferenceUuidAndMediaUuid(
+                fhirLink.getResourceId(), document.getDocumentType().getCode(),
+                document.getDocumentTime().toGregorianCalendar().getTime());
+
+        if (!logicalLocationMap.keySet().isEmpty()) {
+            for (String logicalId : logicalLocationMap.keySet()) {
+                String locationUuid = logicalLocationMap.get(logicalId);
+
+                if (locationUuid != null) {
+                    // delete associated media and binary data if present
+                    Media media = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+
+                    if (media != null) {
+                        // delete media
+                        fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
+
+                        // delete binary data
+                        try {
+                            if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                            }
+                        } catch (NumberFormatException nfe) {
+                            LOG.info("Error deleting existing binary data, " +
+                                    "Media reference to binary data is not Long, ignoring");
+                        }
+                    }
+                }
+
+                fhirResource.deleteEntity(UUID.fromString(logicalId), "documentreference");
+            }
+        }
+
+        // create reference to patient
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+
+        // build FHIR DocumentReference
+        DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(document, patientReference);
+        DocumentReference documentReference = documentReferenceBuilder.build();
+
+        // build FHIR Media
+        MediaBuilder mediaBuilder = new MediaBuilder(document);
+        mediaBuilder.build();
+
+        Media media = mediaBuilder.getMedia();
+
+        // create binary file
+        Date now = new Date();
+        FileData fileData = new FileData();
+        fileData.setCreated(now);
+
+        if (media.getContent().getTitle() != null) {
+            fileData.setName(media.getContent().getTitleSimple());
+        } else {
+            fileData.setName(String.valueOf(now.getTime()));
+        }
+        if (media.getContent().getContentType() != null) {
+            fileData.setType(media.getContent().getContentTypeSimple());
+        } else {
+            fileData.setType("application/unknown");
+        }
+
+        // set binary data
+        fileData.setContent(document.getStream());
+        fileData.setSize(Long.valueOf(document.getStream().length));
+
+        // store binary data
+        fileData = fileDataRepository.save(fileData);
+
+        if (fileData == null) {
+            throw new FhirResourceException("error adding file data");
+        }
+
+        // set Media file data ID and size
+        media = mediaBuilder.setFileDataId(media, fileData.getId());
+        media = mediaBuilder.setFileSize(media, document.getStream().length);
+
+        // create Media and set DocumentReference location to newly created Media logicalId
+        try {
+            // create Media
+            FhirDatabaseEntity createdMedia
+                    = fhirResource.createEntity(media, ResourceType.Media.name(), "media");
+
+            // add as location to document reference
+            documentReference.setLocationSimple(createdMedia.getLogicalId().toString());
+        } catch (FhirResourceException e) {
+            fileDataRepository.delete(fileData);
+            throw new FhirResourceException("Unable to create Media, cleared binary data");
+        }
+
+        // create new DocumentReference
+        try {
+            fhirResource.createEntity(
+                    documentReference, ResourceType.DocumentReference.name(), "documentreference");
+        } catch (FhirResourceException e) {
+            fileDataRepository.delete(fileData);
+            throw new FhirResourceException("Unable to create DocumentReference, cleared binary data");
         }
     }
 
@@ -121,10 +285,51 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             throw new ImportResourceException("Multiple identifiers found with value '" + patientNumber + "'");
         }
 
+        // validate surveys
         if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
             for (uk.org.rixg.Survey survey : patientRecord.getSurveys().getSurvey()) {
                 validateSurvey(survey);
             }
+        }
+
+        // validate documents
+        if (patientRecord.getDocuments() != null
+                && !CollectionUtils.isEmpty(patientRecord.getDocuments().getDocument())) {
+            // documents will be stored in fhir so must know group
+            if (StringUtils.isEmpty(patientRecord.getSendingFacility())) {
+                throw new ImportResourceException("SendingFacility must be defined (for Documents)");
+            }
+            if (groupRepository.findByCode(patientRecord.getSendingFacility()) == null) {
+                throw new ImportResourceException("SendingFacility PatientView Group not found (for Documents)");
+            }
+
+            for (Document document : patientRecord.getDocuments().getDocument()) {
+                validateDocument(document);
+            }
+        }
+    }
+
+    private void validateDocument(Document document) throws ImportResourceException {
+        if (document.getDocumentType() == null) {
+            throw new ImportResourceException("Document DocumentType must be defined");
+        }
+        if (StringUtils.isEmpty(document.getDocumentType().getCode())) {
+            throw new ImportResourceException("Document DocumentType Code must be defined");
+        }
+        if (document.getFileType() == null) {
+            throw new ImportResourceException("Document FileType must be defined");
+        }
+        if (StringUtils.isEmpty(document.getFileType().getCode())) {
+            throw new ImportResourceException("Document FileType Code must be defined");
+        }
+        if (document.getStream() == null) {
+            throw new ImportResourceException("Document Stream must be defined");
+        }
+        if (document.getStream().length < 1) {
+            throw new ImportResourceException("Document Stream length too short");
+        }
+        if (document.getDocumentTime() == null) {
+            throw new ImportResourceException("Document DocumentTime must be set");
         }
     }
 

@@ -9,8 +9,9 @@ var LevelsModalInstanceCtrl = ['$scope', '$modalInstance',
         };
     }];
 
-angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', '$modal', 'SurveyService', 'SurveyResponseService',
-    function ($scope, $filter, $modal, SurveyService, SurveyResponseService) {
+angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', '$modal', 'SurveyService',
+    'SurveyResponseService', 'DocumentService',
+    function ($scope, $filter, $modal, SurveyService, SurveyResponseService, DocumentService) {
 
     var buildTable = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -102,6 +103,25 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             }
 
             tableRows[questions.length + 1].data.push({'text': level, 'isLatest':response.isLatest, 'isScore':true});
+
+            // special download row
+            if (tableRows[questions.length + 2] == undefined || tableRows[questions.length + 2] == null) {
+                tableRows[questions.length + 2] = {};
+                tableRows[questions.length + 2].type = questionType;
+                tableRows[questions.length + 2].data = [];
+                tableRows[questions.length + 2].data.push({'text':'', 'isDownload':true});
+            }
+
+            var download = '';
+
+            if ($scope.documentDateMap[response.date]) {
+                download = '<a href="../api/user/' + $scope.loggedInUser.id +
+                    '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
+                    '?token=' + $scope.authToken + '">download</a>';
+            }
+
+            tableRows[questions.length + 2].data.push({'text': download, 'isLatest':false, 'isDownload':true});
+
         }
 
         $scope.tableHeader = tableHeader;
@@ -147,7 +167,21 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             if (survey != null) {
                 $scope.survey = survey;
                 $scope.questions = survey.questionGroups[0].questions;
-                getSurveyResponses();
+
+                DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
+                    .then(function(documents) {
+                        var documentDateMap = {};
+                        if (documents.length) {
+                            for (var i = 0; i < documents.length; i++) {
+                                documentDateMap[documents[i].date] = documents[i];
+                            }
+                            $scope.documentDateMap = documentDateMap;
+                        }
+
+                        getSurveyResponses();
+                }, function() {
+                    alert('Error retrieving documents');
+                });
             } else {
                 $scope.errorMessage = 'Error retrieving surveys';
                 $scope.loading = false;

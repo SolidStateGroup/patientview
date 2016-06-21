@@ -32,6 +32,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ConditionService;
 import org.patientview.service.EncounterService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.OrganizationService;
 import org.patientview.test.util.TestUtils;
 import org.patientview.util.Util;

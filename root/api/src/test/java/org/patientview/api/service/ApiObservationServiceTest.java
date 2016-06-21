@@ -53,6 +53,7 @@ import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;

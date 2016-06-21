@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.impl.FhirLinkServiceImpl;
+import org.patientview.service.impl.FhirLinkServiceImpl;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
@@ -22,6 +22,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
 

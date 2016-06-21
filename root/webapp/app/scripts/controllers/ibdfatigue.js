@@ -42,7 +42,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         for (var i = $scope.surveyResponses.length -1; i >= 0; i--) {
 
             var surveyResponse = $scope.surveyResponses[i];
-            var score1 = surveyResponse.surveyResponseScores[0].score;
+            var score1 = surveyResponse.surveyResponseScores[0] ? surveyResponse.surveyResponseScores[0].score : null;
 
             var row = [];
             row[0] = surveyResponse.date;

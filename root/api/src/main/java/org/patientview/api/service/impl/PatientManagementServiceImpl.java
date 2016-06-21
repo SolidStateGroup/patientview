@@ -12,7 +12,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.ApiPatientService;
-import org.patientview.api.service.FhirLinkService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;

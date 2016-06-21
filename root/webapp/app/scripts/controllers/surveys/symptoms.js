@@ -2,8 +2,8 @@
 
 // PROM
 angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'SurveyResponseService', '$filter',
-    'ObservationHeadingService', 'ObservationService',
-    function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService) {
+    'ObservationHeadingService', 'ObservationService', 'DocumentService',
+    function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService, DocumentService) {
 
     var buildChart = function() {
         if (!$scope.surveyResponses.length || $scope.questionType == undefined || $scope.questionType == null) {
@@ -229,6 +229,24 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 // set response text, e.g. Moderately
                 tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
+
+            // special download row
+            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
+                tableRows[questions.length] = {};
+                tableRows[questions.length].type = questionType;
+                tableRows[questions.length].data = [];
+                tableRows[questions.length].data.push({'text':'', 'isDownload':true});
+            }
+
+            var download = '';
+
+            if ($scope.documentDateMap[response.date]) {
+                download = '<a href="../api/user/' + $scope.loggedInUser.id +
+                    '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
+                    '?token=' + $scope.authToken + '">download</a>';
+            }
+
+            tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
 
         $scope.tableHeader = tableHeader;
@@ -299,7 +317,20 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
     var init = function() {
         $scope.surveyType = 'PROM';
-        getSurveyResponses();
+        DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
+            .then(function(documents) {
+                var documentDateMap = {};
+                if (documents.length) {
+                    for (var i = 0; i < documents.length; i++) {
+                        documentDateMap[documents[i].date] = documents[i];
+                    }
+                    $scope.documentDateMap = documentDateMap;
+                }
+
+                getSurveyResponses();
+            }, function() {
+                alert('Error retrieving documents');
+            });
         getObservationHeadings();
     };
 

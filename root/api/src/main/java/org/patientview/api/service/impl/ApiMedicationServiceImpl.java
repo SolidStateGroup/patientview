@@ -9,7 +9,7 @@ import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.ApiMedicationService;
-import org.patientview.api.service.FhirLinkService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.GpMedicationService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
