@@ -14,7 +14,7 @@ public interface UkrdcService {
     void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception;
 
     /**
-     * Validate UKRDC xml, including basic Patient and Surveys. Errors include:
+     * Validate UKRDC xml, including basic Patient, Surveys, Documents. Errors include:
      *
      * Patient must be defined
      * PatientNumbers must be defined
@@ -22,6 +22,9 @@ public interface UkrdcService {
      * PatientNumbers Number must not be empty
      * No patient found with identifier '1111111111'
      * Multiple identifiers found with value '1111111111'
+     *
+     * SendingFacility must be defined (for Documents)
+     * SendingFacility PatientView Group not found (for Documents)
      *
      * SurveyType must be defined
      * SurveyType Code must be defined
@@ -42,6 +45,13 @@ public interface UkrdcService {
      * Score ScoreType must have Code
      * Score must have Value
      * Score Value must be double
+     *
+     * Document DocumentType must be defined
+     * Document DocumentType Code must be defined
+     * Document FileType must be defined
+     * Document FileType Code must be defined
+     * Document Stream must be defined
+     * Document Stream length too short
      *
      * @param patientRecord UKRDC xml based object
      * @throws ImportResourceException

@@ -9,7 +9,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ApiConditionService;
-import org.patientview.api.service.FhirLinkService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
 import org.patientview.service.PractitionerService;

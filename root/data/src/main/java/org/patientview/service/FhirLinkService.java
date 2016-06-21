@@ -1,4 +1,4 @@
-package org.patientview.api.service;
+package org.patientview.service;
 
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
