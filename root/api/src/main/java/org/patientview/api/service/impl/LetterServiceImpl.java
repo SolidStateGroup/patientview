@@ -11,7 +11,6 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.builder.PatientBuilder;
-import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.util.ApiUtil;
@@ -21,7 +20,6 @@ import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirPatient;
-import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
@@ -37,7 +35,6 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.service.DocumentReferenceService;
-import org.patientview.service.FileDataService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +42,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,9 +75,6 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
     private FileDataRepository fileDataRepository;
 
     @Inject
-    private FileDataService fileDataService;
-
-    @Inject
     private GroupRepository groupRepository;
 
     @Inject
@@ -90,111 +82,6 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
     @Inject
     private UserRepository userRepository;
-
-    @Override
-    public List<FhirDocumentReference> getByUserId(final Long userId)
-            throws ResourceNotFoundException, FhirResourceException {
-        return getByUserId(userId, null, null);
-    }
-
-    @Override
-    public List<FhirDocumentReference> getByUserId(final Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        List<FhirDocumentReference> fhirDocumentReferences = new ArrayList<>();
-        List<FhirDocumentReference> fhirDocumentReferencesNoDate = new ArrayList<>();
-
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
-                StringBuilder query = new StringBuilder();
-                query.append("SELECT  content::varchar ");
-                query.append("FROM    documentreference ");
-                query.append("WHERE   content -> 'subject' ->> 'display' = '");
-                query.append(fhirLink.getResourceId().toString());
-                query.append("' ");
-                query.append("AND (content ->> 'class') IS NULL");
-
-                if (fromDate != null && toDate != null) {
-                    query.append(" AND CONTENT ->> 'created' >= '" + fromDate + "'");
-                    query.append(" AND CONTENT ->> 'created' <= '" + toDate + "'");
-                }
-                query.append(" ORDER BY CONTENT ->> 'created' ");
-
-                // get list of DocumentReference
-                List<DocumentReference> documentReferences
-                        = fhirResource.findResourceByQuery(query.toString(), DocumentReference.class);
-
-                // for each, create new transport object
-                for (DocumentReference documentReference : documentReferences) {
-                    org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
-                            = new org.patientview.persistence.model.FhirDocumentReference(
-                            documentReference, fhirLink.getGroup());
-
-                    // if location is present on document reference means there is Media and binary data associated
-                    if (documentReference.getLocation() != null) {
-                        Media media = (Media) fhirResource.get(UUID.fromString(
-                                documentReference.getLocationSimple()), ResourceType.Media);
-                        if (media != null && media.getContent() != null && media.getContent().getUrl() != null) {
-                            try {
-                                if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
-                                    fhirDocumentReference.setFilename(media.getContent().getTitleSimple());
-                                    fhirDocumentReference.setFiletype(media.getContent().getContentTypeSimple());
-                                    fhirDocumentReference.setFileDataId(
-                                            Long.valueOf(media.getContent().getUrlSimple()));
-                                    try {
-                                        fhirDocumentReference.setFilesize(
-                                                Long.valueOf(media.getContent().getSizeSimple()));
-                                    } catch (NumberFormatException nfe) {
-                                        LOG.info("Error checking for binary data, "
-                                                + "File size cannot be found, ignoring");
-                                    }
-                                }
-                            } catch (NumberFormatException nfe) {
-                                LOG.info("Error checking for binary data, "
-                                        + "Media reference to binary data is not Long, ignoring");
-                            }
-                        }
-                    }
-
-                    if (fhirDocumentReference.getDate() != null) {
-                        fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));
-                    } else {
-                        fhirDocumentReferencesNoDate.add(new FhirDocumentReference(fhirDocumentReference));
-                    }
-                }
-            }
-        }
-
-        // order by date descending
-        Collections.sort(fhirDocumentReferences, new Comparator<FhirDocumentReference>() {
-            public int compare(FhirDocumentReference fdr1, FhirDocumentReference fdr2) {
-                return fdr2.getDate().compareTo(fdr1.getDate());
-            }
-        });
-
-        fhirDocumentReferences.addAll(fhirDocumentReferencesNoDate);
-
-        return fhirDocumentReferences;
-    }
-
-    @Override
-    public FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
-        if (fileDataService.userHasFileData(user, fileDataId, ResourceType.DocumentReference)) {
-            return fileDataRepository.getOne(fileDataId);
-        } else {
-            throw new ResourceNotFoundException("File not found");
-        }
-    }
 
     // used by migration
     @Override
