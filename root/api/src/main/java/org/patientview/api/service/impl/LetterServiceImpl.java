@@ -116,7 +116,8 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                 query.append("FROM    documentreference ");
                 query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("' AND content -> 'class' IS NULL");
+                query.append("' ");
+                query.append("AND (content ->> 'class') IS NULL");
 
                 if (fromDate != null && toDate != null) {
                     query.append(" AND CONTENT ->> 'created' >= '" + fromDate + "'");
