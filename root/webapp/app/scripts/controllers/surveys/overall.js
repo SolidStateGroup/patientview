@@ -2,8 +2,8 @@
 
 // EQ5D
 angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'ConversationService', 'SurveyService',
-    'SurveyResponseService', '$filter',
-    function ($scope, ConversationService, SurveyService, SurveyResponseService, $filter) {
+    'SurveyResponseService', '$filter', 'DocumentService',
+    function ($scope, ConversationService, SurveyService, SurveyResponseService, $filter, DocumentService) {
 
     var buildChart = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -143,6 +143,24 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 // set response text, e.g. Moderately
                 tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
+
+            // special download row
+            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
+                tableRows[questions.length] = {};
+                tableRows[questions.length].type = questionType;
+                tableRows[questions.length].data = [];
+                tableRows[questions.length].data.push({'text':'', 'isDownload':true});
+            }
+
+            var download = '';
+
+            if ($scope.documentDateMap[response.date]) {
+                download = '<a href="../api/user/' + $scope.loggedInUser.id +
+                    '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
+                    '?token=' + $scope.authToken + '">download</a>';
+            }
+
+            tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
 
         $scope.tableHeader = tableHeader;
@@ -214,8 +232,22 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 $scope.survey = survey;
                 $scope.questions = survey.questionGroups[0].questions;
                 getSurveyFeedbackText();
-                getSurveyResponses();
                 getFeedbackRecipientCount();
+
+                DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
+                    .then(function(documents) {
+                        var documentDateMap = {};
+                        if (documents.length) {
+                            for (var i = 0; i < documents.length; i++) {
+                                documentDateMap[documents[i].date] = documents[i];
+                            }
+                            $scope.documentDateMap = documentDateMap;
+                        }
+
+                        getSurveyResponses();
+                    }, function() {
+                        alert('Error retrieving documents');
+                    });
             } else {
                 $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
                 $scope.savingSurveyFeedbackText = true;

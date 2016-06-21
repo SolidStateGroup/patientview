@@ -30,14 +30,14 @@ public class FileDataController extends BaseController<FileDataController> {
     private ApiFileDataService apiFileDataService;
 
     /**
-     * Download a letter, given User ID and FileData ID.
-     * @param userId ID of User to download letter for
-     * @param fileDataId ID of FileData containing binary letter data
+     * Download a file, given User ID and FileData ID.
+     * @param userId ID of User to download file for
+     * @param fileDataId ID of FileData containing binary data
      * @return HttpEntity to allow client to download in browser
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    @RequestMapping(value = "/user/{userId}/letters/{fileDataId}/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/file/{fileDataId}/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> download(@PathVariable("userId") Long userId,
                                        @PathVariable("fileDataId") Long fileDataId)
