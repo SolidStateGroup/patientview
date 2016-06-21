@@ -116,7 +116,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                 query.append("FROM    documentreference ");
                 query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("' ");
+                query.append("' AND content -> 'class' IS NULL");
 
                 if (fromDate != null && toDate != null) {
                     query.append(" AND CONTENT ->> 'created' >= '" + fromDate + "'");
@@ -195,6 +195,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         }
     }
 
+    // used by migration
     @Override
     public void addLetter(
             org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference, FhirLink fhirLink)
@@ -267,7 +268,8 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
             DateTimeFormatter parser2 = ISODateTimeFormat.dateTimeNoMillis();
             org.joda.time.DateTime dateTime = parser2.parseDateTime(dateString);
 
-            if (dateTime.getMillis() == date) {
+            // if dates match and doesn't have a class
+            if (dateTime.getMillis() == date && documentReference.getClass_() == null) {
                 documentReferenceUuidsToDelete.add(uuid);
                 documentReferenceMap.put(uuid, documentReference);
             }

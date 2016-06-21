@@ -52,6 +52,7 @@ public interface UkrdcService {
      * Document FileType Code must be defined
      * Document Stream must be defined
      * Document Stream length too short
+     * Document DocumentTime must be defined
      *
      * @param patientRecord UKRDC xml based object
      * @throws ImportResourceException
