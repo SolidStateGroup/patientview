@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -135,6 +136,39 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 LOG.error("FhirResourceException creating FhirLink");
                 fre.printStackTrace();
                 throw new ImportResourceException("FhirResourceException creating FhirLink: " + fre.getMessage());
+            }
+        }
+
+        // delete existing with same patient reference, date and type
+        Map<String, String> logicalLocationMap = fhirResource.getDocumentReferenceUuidAndMediaUuid(
+                fhirLink.getResourceId(), document.getDocumentType().getCode(),
+                document.getDocumentTime().toGregorianCalendar().getTime());
+
+        if (!logicalLocationMap.keySet().isEmpty()) {
+            for (String logicalId : logicalLocationMap.keySet()) {
+                String locationUuid = logicalLocationMap.get(logicalId);
+
+                if (locationUuid != null) {
+                    // delete associated media and binary data if present
+                    Media media = (Media) fhirResource.get(UUID.fromString(locationUuid), ResourceType.Media);
+
+                    if (media != null) {
+                        // delete media
+                        fhirResource.deleteEntity(UUID.fromString(locationUuid), "media");
+
+                        // delete binary data
+                        try {
+                            if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                            }
+                        } catch (NumberFormatException nfe) {
+                            LOG.info("Error deleting existing binary data, " +
+                                    "Media reference to binary data is not Long, ignoring");
+                        }
+                    }
+                }
+
+                fhirResource.deleteEntity(UUID.fromString(logicalId), "documentreference");
             }
         }
 
@@ -293,6 +327,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         }
         if (document.getStream().length < 1) {
             throw new ImportResourceException("Document Stream length too short");
+        }
+        if (document.getDocumentTime() == null) {
+            throw new ImportResourceException("Document DocumentTime must be set");
         }
     }
 

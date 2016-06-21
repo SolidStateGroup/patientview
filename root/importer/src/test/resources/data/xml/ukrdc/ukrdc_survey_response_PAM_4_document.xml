@@ -106,6 +106,7 @@
     </Surveys>
     <Documents>
         <Document>
+            <DocumentTime>2016-07-01T00:00:00</DocumentTime>
             <DocumentType>
                 <Code>YOUR_HEALTH_SURVEY</Code>
             </DocumentType>
