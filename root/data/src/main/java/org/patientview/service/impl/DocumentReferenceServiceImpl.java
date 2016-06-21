@@ -75,7 +75,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         if (data.getPatient().getLetterdetails() != null) {
 
             Map<String, String> existingMap
-                    = fhirResource.getExistingDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
+                = fhirResource.getExistingLetterDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
 
             List<org.patientview.persistence.model.Identifier> identifiers
                     = identifierRepository.findByValue(nhsno);
@@ -295,7 +295,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
         // delete existing, matched by type and content
         Map<String, String> existingMap
-                = fhirResource.getExistingDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
+                = fhirResource.getExistingLetterDocumentReferenceTypeAndContentBySubjectId(fhirLink.getResourceId());
         List<UUID> existingUuids = getExistingByTypeAndContent(documentReference, existingMap);
 
         if (!existingUuids.isEmpty()) {

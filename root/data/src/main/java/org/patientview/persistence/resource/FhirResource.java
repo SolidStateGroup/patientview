@@ -398,8 +398,8 @@ public class FhirResource {
         }
     }
 
-    // check for existing by letter content
-    public Map<String, String> getExistingDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
+    // check for existing by letter content, letter has no class
+    public Map<String, String> getExistingLetterDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
             throws FhirResourceException {
         Map<String, String> existingMap = new HashMap<>();
         Connection connection = null;
@@ -411,6 +411,7 @@ public class FhirResource {
         query.append("WHERE content -> 'subject' ->> 'display' = '");
         query.append(resourceId);
         query.append("' ");
+        query.append("AND (content ->> 'class') IS NULL");
 
         // execute and return map of logical ids and applies
         try {

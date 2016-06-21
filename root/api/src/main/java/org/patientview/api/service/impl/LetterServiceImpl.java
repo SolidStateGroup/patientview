@@ -258,8 +258,9 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
         }
 
         List<UUID> documentReferenceUuidsToDelete = new ArrayList<>();
+        List<UUID> mediaUuidsToDelete = new ArrayList<>();
 
-        // get to be deleted by date
+        // get documentreference to be deleted by date
         for (UUID uuid : documentReferenceUuids) {
             DocumentReference documentReference
                     = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
@@ -269,14 +270,20 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
             DateTimeFormatter parser2 = ISODateTimeFormat.dateTimeNoMillis();
             org.joda.time.DateTime dateTime = parser2.parseDateTime(dateString);
 
-            // if dates match and doesn't have a class
+            // if documentreference date matches and doesn't have a class (letters do not have class)
             if (dateTime.getMillis() == date && documentReference.getClass_() == null) {
                 documentReferenceUuidsToDelete.add(uuid);
                 documentReferenceMap.put(uuid, documentReference);
+
+                // add media uuid to delete
+                if (StringUtils.isNotEmpty(documentReference.getLocationSimple())) {
+                    mediaUuidsToDelete.add(UUID.fromString(documentReference.getLocationSimple()));
+                }
             }
         }
 
         for (UUID uuid : documentReferenceUuidsToDelete) {
+            // delete documentreference
             fhirResource.deleteEntity(uuid, "documentreference");
 
             FhirLink fhirLink = fhirLinkMap.get(uuid);
@@ -310,6 +317,26 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
             audit.setInformation(type + " (" + dateString + ")");
             auditService.save(audit);
+        }
+
+        // delete associated media and file data
+        for (UUID uuid : mediaUuidsToDelete) {
+            // get media
+            Media media = (Media) fhirResource.get(uuid, ResourceType.Media);
+            if (media != null) {
+                // check if filedata information available
+                if (media.getContent() != null && media.getContent().getUrl() != null) {
+                    try {
+                        // delete file data
+                        fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                    } catch (NumberFormatException nfe) {
+                        LOG.info("Error deleting binary data, Media reference to binary data is not Long, ignoring..");
+                    }
+                }
+
+                // delete media
+                fhirResource.deleteEntity(uuid, "media");
+            }
         }
     }
 

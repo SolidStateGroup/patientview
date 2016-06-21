@@ -531,11 +531,11 @@ public class ImportControllerTest {
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
         //String fileName = "data/xml/SALIBD_01436_1111111111.xml";
-        //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
         //String fileName = "data/xml/ibdtest1_1.xml";
 
         // IBD
-        String fileName = "data/xml/ibd/1111111111_ibd.xml";
+        //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
         //String fileName = "data/xml/partialmigration/test1.xml";
