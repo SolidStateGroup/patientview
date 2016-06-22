@@ -157,7 +157,8 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
-                    '?token=' + $scope.authToken + '">download</a>';
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
             tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
