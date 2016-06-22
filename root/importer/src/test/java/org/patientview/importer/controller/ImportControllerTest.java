@@ -170,8 +170,12 @@ public class ImportControllerTest {
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_3.xml");
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4.xml");*/
 
-        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
-        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_document.xml");
+        /*files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_document.xml");*/
+
+        //files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4_document.xml");
+
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_no_patient.xml");
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);

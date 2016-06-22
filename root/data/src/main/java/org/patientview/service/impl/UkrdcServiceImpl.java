@@ -279,7 +279,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
         if (CollectionUtils.isEmpty(identifiers)) {
-            throw new ImportResourceException("No patient found with identifier '" + patientNumber + "'");
+            throw new ImportResourceException("No patient found with identifier '" + patientNumber + "'", true);
         }
         if (identifiers.size() != 1) {
             throw new ImportResourceException("Multiple identifiers found with value '" + patientNumber + "'");
