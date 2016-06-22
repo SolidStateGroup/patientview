@@ -19,7 +19,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                         });
                         $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
                     }, function () {
-                        alert("There was a problem saving your conditions");
+                        alert('There was a problem saving your conditions');
                         $scope.saving = false;
                         selectize();
                     });
@@ -84,7 +84,7 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                         }
                     });
                 }, function() {
-                    alert("There was a problem removing your conditions");
+                    alert('There was a problem removing your conditions');
                 });
             }
         };
@@ -98,10 +98,10 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
             }
 
             DiagnosisService.addMultiplePatientEntered($scope.loggedInUser.id, codes).then(function() {
-                $scope.successMessage = "Your condition(s) have been successfully saved.";
+                $scope.successMessage = 'Your condition(s) have been successfully saved. You can view trusted info and links by clicking the "My Conditions" menu item.';
                 $scope.saving = false;
             }, function() {
-                alert("There was a problem saving your conditions");
+                alert('There was a problem saving your conditions');
                 $scope.saving = false;
             });
         };
