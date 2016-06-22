@@ -87,7 +87,8 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             // special score row
             if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
                 tableRows[questions.length] = {};
-                tableRows[questions.length].type = questionType;
+                tableRows[questions.length].borderAbove = true;
+                tableRows[questions.length].isScore = true;
                 tableRows[questions.length].data = [];
                 tableRows[questions.length].data.push({'text':'Score', 'isScore':true});
             }
@@ -97,7 +98,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             // special level row
             if (tableRows[questions.length + 1] == undefined || tableRows[questions.length + 1] == null) {
                 tableRows[questions.length + 1] = {};
-                tableRows[questions.length + 1].type = questionType;
+                tableRows[questions.length + 1].isScore = true;
                 tableRows[questions.length + 1].data = [];
                 tableRows[questions.length + 1].data.push({'text':'Level', 'isScore':true});
             }
@@ -107,7 +108,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             // special download row
             if (tableRows[questions.length + 2] == undefined || tableRows[questions.length + 2] == null) {
                 tableRows[questions.length + 2] = {};
-                tableRows[questions.length + 2].type = questionType;
+                tableRows[questions.length + 2].isDownload = true;
                 tableRows[questions.length + 2].data = [];
                 tableRows[questions.length + 2].data.push({'text':'', 'isDownload':true});
             }
