@@ -310,7 +310,7 @@
                     <div class="row-item accordion-heading-text">
                         <ul class="unstyled patient-groups">
                             <li data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
-                                <span data-ng-if="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE'">
+                                <span data-ng-if="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE' && groupRole.group.code !== 'Generic'">
                                     <span data-ng-show="groupRole.group.shortName.length">{{groupRole.group.shortName}}</span>
                                     <span data-ng-show="!groupRole.group.shortName.length">{{groupRole.group.name}}</span>
                                 </span>
