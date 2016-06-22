@@ -106,9 +106,9 @@
 
 </div>
 <div class="modal-footer">
-    <button class="btn btn-grey" data-ng-click="cancel()" data-ng-if="!saving">
+    <button class="btn" data-ng-class="!(successMessage && fromDashboard) ? 'btn-grey' : 'blue'" data-ng-click="cancel()" data-ng-if="!saving">
         <span data-ng-if="!successMessage && fromDashboard" data-ng-disabled="saving">No thanks, I will enter my conditions later</span>
         <span data-ng-if="!successMessage && !fromDashboard" data-ng-disabled="saving">Close</span>
-        <span data-ng-if="successMessage">Close</span>
+        <span data-ng-if="successMessage  && fromDashboard">Continue to PatientView homepage &nbsp;&nbsp;<img src="/images/icons/forward-to.png"/></span>
     </button>
 </div>
