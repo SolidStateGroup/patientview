@@ -135,7 +135,6 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
-                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
                     tableRows[j].data.push({'text':questionText});
                 }
@@ -147,7 +146,6 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             // special download row
             if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
                 tableRows[questions.length] = {};
-                tableRows[questions.length].type = questionType;
                 tableRows[questions.length].data = [];
                 tableRows[questions.length].data.push({'text':'', 'isDownload':true});
             }
@@ -157,7 +155,8 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
-                    '?token=' + $scope.authToken + '">download</a>';
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
             tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
@@ -292,9 +291,16 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
         buildTable(visibleSurveyResponses);
         buildChart(visibleSurveyResponses);
 
-        // get next survey date (3 months from last survey
-        var threeMonths = moment($scope.latestSurveyResponse.date).add(3, 'months');
-        $scope.nextSurveyDate = threeMonths.format('MMMM') + ' ' + threeMonths.format('YYYY');
+        // get next survey date (3 months from last survey, if in past then July 2016, if July in past then 3 from now)
+        var nextDate = moment($scope.latestSurveyResponse.date).add(3, 'months');
+        if (nextDate <= moment("2016-07-01")) {
+            nextDate = moment("2016-07-01");
+        }
+        if (nextDate <= new Date()) {
+            nextDate = moment(new Date()).add(3, 'months');
+        }
+
+        $scope.nextSurveyDate = nextDate.format('MMMM') + ' ' + nextDate.format('YYYY');
     };
 
     $scope.saveSurveyFeedbackText = function(text) {

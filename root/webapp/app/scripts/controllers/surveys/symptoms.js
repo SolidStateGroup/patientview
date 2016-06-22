@@ -221,7 +221,6 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
-                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
                     tableRows[j].data.push({'text':questionText});
                 }
@@ -233,7 +232,6 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             // special download row
             if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
                 tableRows[questions.length] = {};
-                tableRows[questions.length].type = questionType;
                 tableRows[questions.length].data = [];
                 tableRows[questions.length].data.push({'text':'', 'isDownload':true});
             }
@@ -243,7 +241,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
-                    '?token=' + $scope.authToken + '">download</a>';
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
             tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
