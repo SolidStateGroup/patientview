@@ -236,12 +236,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
 
                 DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
                     .then(function(documents) {
-                        var documentDateMap = {};
+                        $scope.documentDateMap = {};
                         if (documents.length) {
                             for (var i = 0; i < documents.length; i++) {
-                                documentDateMap[documents[i].date] = documents[i];
+                                $scope.documentDateMap[documents[i].date] = documents[i];
                             }
-                            $scope.documentDateMap = documentDateMap;
                         }
 
                         getSurveyResponses();
