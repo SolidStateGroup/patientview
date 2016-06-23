@@ -221,6 +221,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
+                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
                     tableRows[j].data.push({'text':questionText});
                 }
@@ -232,6 +233,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             // special download row
             if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
                 tableRows[questions.length] = {};
+                tableRows[questions.length].isDownload = true;
                 tableRows[questions.length].data = [];
                 tableRows[questions.length].data.push({'text':'', 'isDownload':true});
             }
