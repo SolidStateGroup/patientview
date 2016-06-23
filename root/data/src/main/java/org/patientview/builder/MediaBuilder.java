@@ -98,7 +98,7 @@ public class MediaBuilder {
 
             // file type
             if (this.document.getFileType() != null && StringUtils.isNotEmpty(this.document.getFileType().getCode())) {
-                attachment.setContentTypeSimple(this.document.getFileType().getCode());
+                attachment.setContentTypeSimple(this.document.getFileType().getCode().toLowerCase());
             } else {
                 attachment.setContentTypeSimple("application/unknown");
             }
