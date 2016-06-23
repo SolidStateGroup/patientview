@@ -28,7 +28,7 @@
         <h3>Adding a Diagnosis</h3>
         <div class="row">
             <div class="col-md-6">
-                <h3>Either</h3>
+                <h4>Either</h4>
                 <p>Enter your condition in the box below and select a suggested match:</p>
                 <div class="selectize-diagnosis">
                     <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
@@ -36,7 +36,7 @@
                 <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
             </div>
             <div class="col-md-6">
-                <h3>Or</h3>
+                <h4>Or</h4>
                 <p>First choose a category:</p>
                 <select data-ng-model="selectedCategory" data-ng-options="category.id as category.friendlyDescription for category in categories | orderBy:'friendlyDescription'"
                         data-ng-change="changeCategory(selectedCategory)" class="form-control"></select>
