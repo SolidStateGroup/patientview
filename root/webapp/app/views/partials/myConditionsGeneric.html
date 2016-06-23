@@ -20,6 +20,17 @@
             <h4>From your unit(s)</h4>
             <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
                 <h5>{{patient.group.name}}</h5>
+
+                <div data-ng-show="patient.diagnosisCodes.length">
+                    <div data-ng-repeat="condition in patient.diagnosisCodes track by $index | orderBy:'condition.description'">
+                        <h5>{{condition.description}}</h5>
+                        <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
+                        <div data-ng-if="condition.links.length">
+                            (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length - 1">, </span></span>)
+                        </div>
+                    </div>
+                </div>
+
                 <div data-ng-if="patient.fhirConditions.length">
                     <div data-ng-repeat="condition in patient.fhirConditions | orderBy:'condition.description'">
                         <h5 data-ng-if="condition.description">{{condition.description}}</h5>
@@ -30,7 +41,7 @@
                         </div>
                     </div>
                 </div>
-                <div data-ng-if="!patient.fhirConditions.length">
+                <div data-ng-if="!patient.fhirConditions.length && !patient.diagnosisCodes.length">
                     {{patient.group.name}} has not provided any condition data.
                 </div>
             </div>
