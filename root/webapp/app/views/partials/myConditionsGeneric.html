@@ -23,7 +23,9 @@
                         <h5 data-ng-if="condition.description">{{condition.description}}</h5>
                         <h5 data-ng-if="!condition.description && condition.notes">{{condition.notes}}</h5>
                         <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
-                        (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index > 0">, </span></span>)
+                        <div data-ng-if="condition.links.length">
+                            (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length">, </span></span>)
+                        </div>
                     </div>
                 </div>
                 <div data-ng-if="!patient.fhirConditions.length">
