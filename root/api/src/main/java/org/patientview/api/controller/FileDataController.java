@@ -46,7 +46,7 @@ public class FileDataController extends BaseController<FileDataController> {
 
         if (fileData != null) {
             HttpHeaders header = new HttpHeaders();
-            String[] contentTypeArr = fileData.getType().split("/");
+            String[] contentTypeArr = fileData.getType().toLowerCase().split("/");
             if (contentTypeArr.length == 2) {
                 header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
             }
