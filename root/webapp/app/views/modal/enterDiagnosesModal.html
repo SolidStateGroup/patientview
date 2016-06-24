@@ -68,14 +68,21 @@
                     </ul>
                 </div>
             </div>
+
+            <div data-ng-if="!fromDashboard">
+                <p>To remove a condition from your selection, click x next to the name.</p>
+            </div>
             <div data-ng-if="fromDashboard">
                 <p>To remove a condition from your selection, click x next to the name. To confirm your selection
                 click the "Go" button.</p>
                 <p><button class="btn blue" data-ng-click="saveConditions()" data-ng-disabled="saving">Go</button></p>
-                <br/>
-                <p>If you prefer to enter this info later, you can easily do this by clicking the "My Conditions" menu
-                    option within PatientView.</p>
             </div>
+        </div>
+
+        <div data-ng-if="fromDashboard">
+            <br/>
+            <p>If you prefer to enter this info later, you can easily do this by clicking the "My Conditions" menu
+                option within PatientView.</p>
         </div>
     </div>
 </div>

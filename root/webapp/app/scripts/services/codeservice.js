@@ -130,10 +130,10 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        getPatientViewStandardCodes: function (searchTerm) {
+        getPublic: function (codeId) {
             var deferred = $q.defer();
-            // GET /codes/patientviewstandard/{searchTerm}
-            Restangular.one('codes/patientviewstandard', searchTerm).getList().then(function(successResult) {
+            // GET /code/public/{codeId}
+            Restangular.one('code/public', codeId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -162,6 +162,17 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             code.standardType = standardType;
 
             Restangular.all('code').customPUT(code).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        searchDiagnosisCodesByStandard: function (searchTerm, standardType) {
+            var deferred = $q.defer();
+            // GET /codes/diagnosis/{searchTerm}/standard/{standardType}
+            Restangular.one('codes/diagnosis', searchTerm).one('standard', standardType).get()
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

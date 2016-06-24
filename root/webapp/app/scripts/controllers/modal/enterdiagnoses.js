@@ -5,8 +5,8 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
         $scope.addCondition = function(code) {
             if (!_.findWhere($scope.selectedConditions, {code: code.code})) {
                 if ($scope.fromDashboard) {
-                    CodeService.getPatientViewStandardCodes(code.code).then(function (codes) {
-                        $scope.selectedConditions.push(codes[0]);
+                    CodeService.getPublic(code.id).then(function (code) {
+                        $scope.selectedConditions.push(code);
                         $rootScope.loggedInUser.userInformation.shouldEnterCondition = false;
                     });
                 } else {
@@ -114,12 +114,13 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                     labelField: 'description',
                     searchField: 'description',
                     sortField: 'description',
-                    onChange: function (code) {
+                    onChange: function (searchTerm) {
                         $scope.noResults = false;
 
-                        if (code != null && code != undefined && code != '') {
-                            if (!_.findWhere($scope.selectedConditions, {code: code})) {
-                                CodeService.getPatientViewStandardCodes(code).then(function (codes) {
+                        if (searchTerm != null && searchTerm != undefined && searchTerm != '') {
+                            if (!_.findWhere($scope.selectedConditions, {code: searchTerm})) {
+                                CodeService.searchDiagnosisCodesByStandard(searchTerm, "PATIENTVIEW")
+                                    .then(function (codes) {
                                     $scope.addCondition(codes[0]);
                                     $select[0].selectize.clear();
                                 });
@@ -133,12 +134,12 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                             return '<div>' + escape(item.description) + '</div>';
                         }
                     },
-                    load: function (query, callback) {
-                        if (!query.length) return callback();
+                    load: function (searchTerm, callback) {
+                        if (!searchTerm.length) return callback();
 
                         $scope.noResults = false;
 
-                        CodeService.getPatientViewStandardCodes(query).then(function (codes) {
+                        CodeService.searchDiagnosisCodesByStandard(searchTerm, "PATIENTVIEW").then(function (codes) {
                             if (!codes.length) {
                                 $scope.noResults = true;
                                 callback(codes);

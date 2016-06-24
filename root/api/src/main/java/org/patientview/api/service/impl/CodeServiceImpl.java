@@ -29,6 +29,7 @@ import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -488,6 +489,12 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return reduced;
     }
 
+    @Override
+    public BaseCode getPublic(Long codeId) {
+        Code code = codeRepository.findOne(codeId);
+        return code != null ? new BaseCode(code) : null;
+    }
+
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
         Code entityCode = codeRepository.findOne(code.getId());
         if (entityCode == null) {
@@ -534,5 +541,56 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         entityCodeExternalStandard.setCodeString(codeExternalStandard.getCodeString());
         entityCodeExternalStandard.setExternalStandard(externalStandard);
         codeExternalStandardRepository.save(entityCodeExternalStandard);
+    }
+
+    @Override
+    public List<BaseCode> searchDiagnosisCodes(String searchTerm, String standardType)
+            throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("DIAGNOSIS Code type not found");
+        }
+
+        Page<Code> found;
+
+        List<Long> codeTypesList = new ArrayList<>();
+        codeTypesList.add(codeType.getId());
+
+        if (searchTerm == null) {
+            searchTerm = "%%";
+        } else {
+            searchTerm = "%" + searchTerm.toUpperCase() + "%";
+        }
+
+        if (StringUtils.isNotEmpty(standardType)) {
+            if (!Util.isInEnum(standardType, CodeStandardTypes.class)) {
+                throw new ResourceNotFoundException("Code standard not found");
+            }
+            Lookup standardLookup = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, standardType);
+            if (standardType == null) {
+                throw new ResourceNotFoundException(" Code standard not found");
+            }
+
+            List<Long> standardTypesList = new ArrayList<>();
+            standardTypesList.add(standardLookup.getId());
+
+            found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
+                    standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+        } else {
+            found = codeRepository.findAllByCodeTypesFiltered(
+                    searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+        }
+
+        List<BaseCode> reduced = new ArrayList<>();
+
+        if (found != null && !CollectionUtils.isEmpty(found.getContent())) {
+            for (Code code : found.getContent()) {
+                if (!code.isHideFromPatients() && !code.isRemovedExternally()) {
+                    reduced.add(new BaseCode(code));
+                }
+            }
+        }
+
+        return reduced;
     }
 }

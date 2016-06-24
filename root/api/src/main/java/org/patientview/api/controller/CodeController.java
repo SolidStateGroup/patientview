@@ -169,17 +169,15 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Get Codes with standard type PATIENTVIEW and with a search term
-     * @param searchTerm String term to search for
-     * @return List of BaseCode
-     * @throws ResourceNotFoundException
+     * Get a single Code given an ID. Public use (e.g. choose condition)
+     * @param codeId ID of Code to retrieve
+     * @return BaseCode object
      */
-    @RequestMapping(value = "/codes/patientviewstandard/{searchTerm}", method = RequestMethod.GET,
+    @RequestMapping(value = "/code/public/{codeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<BaseCode>> getPatientViewStandardCodes(@PathVariable("searchTerm") String searchTerm)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(codeService.getPatientViewStandardCodes(searchTerm), HttpStatus.OK);
+    public ResponseEntity<BaseCode> getPublic(@PathVariable("codeId") Long codeId) {
+        return new ResponseEntity<>(codeService.getPublic(codeId), HttpStatus.OK);
     }
 
     /**
@@ -193,5 +191,21 @@ public class CodeController extends BaseController<CodeController> {
     @ResponseBody
     public ResponseEntity<Code> save(@RequestBody Code code) throws ResourceNotFoundException, EntityExistsException {
         return new ResponseEntity<>(codeService.save(code), HttpStatus.OK);
+    }
+
+    /**
+     * Get diagnosis Codes by standard type and with a search term, used by patients when searching for conditions
+     * @param searchTerm String term to search for
+     * @param standardType String of standard type to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/codes/diagnosis/{searchTerm}/standard/{standardType}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> searchDiagnosisCodesByStandard(@PathVariable("searchTerm") String searchTerm,
+                                                      @PathVariable("standardType") String standardType)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.searchDiagnosisCodes(searchTerm, standardType), HttpStatus.OK);
     }
 }

@@ -150,6 +150,15 @@ public interface CodeService {
     List<BaseCode> getPatientViewStandardCodes(String searchTerm) throws ResourceNotFoundException;
 
     /**
+     * Get a single Code given an ID. Used by patients when adding conditions
+     * @param codeId ID of Code to retrieve
+     * @return Code object
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.PATIENT })
+    BaseCode getPublic(Long codeId);
+
+    /**
      * Update an existing Code.
      * @param code Code object with updated properties
      * @return Code object, updated (note: consider only returning ID or HTTP OK)
@@ -166,4 +175,14 @@ public interface CodeService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException;
+
+    /**
+     * Get diagnosis Codes by standard type and with a search term, used by patients when searching for conditions
+     * @param searchTerm String term to search for
+     * @param standardType String of standard type to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.PATIENT })
+    List<BaseCode> searchDiagnosisCodes(String searchTerm, String standardType) throws ResourceNotFoundException;
 }
