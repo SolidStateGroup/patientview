@@ -520,6 +520,7 @@ $('html').click(function (e) {
     if (target.hasClass('edit-button')) {
         tableElement.find('.faux-row').removeClass('highlight');
         tableElement.find('.item-header').removeClass('open');
+
         if (!target.hasClass('editing')) {
             $('.edit-button').removeClass('editing');
             target.addClass('editing');
@@ -533,12 +534,15 @@ $('html').click(function (e) {
             tableElement.find('.item-header').removeClass('open');
             tableElement.find('.faux-row').removeClass('dull');
         }
-    } else if (target.hasClass('close-edit')) {
-        tableElement.find('.faux-row').removeClass('highlight');
-        tableElement.find('.highlight').removeClass('highlight');
-        tableElement.find('.item-header').removeClass('open');
-        tableElement.find('.faux-row').removeClass('dull');
-        tableElement.find('.edit-button').removeClass('editing');
+
+    }
+
+    if (target.hasClass('close-edit')) {
+        $('.faux-row').removeClass('highlight');
+        $('.highlight').removeClass('highlight');
+        $('.item-header').removeClass('open');
+        $('.faux-row').removeClass('dull');
+        $('.edit-button').removeClass('editing');
     }
 
     var scope = angular.element($('#timeout')).scope();
