@@ -103,9 +103,9 @@
                 <testname>urea</testname>
                 <testcode>urea</testcode>
                 <units>mg</units>
-                <daterange start="2000-01-01" stop="2013-11-13"/>
+                <daterange start="2000-01-01" stop="2014-09-22"/>
                 <result>
-                    <datestamp>2013-11-07T09:00:00</datestamp>
+                    <datestamp>2014-09-22T00:10:00</datestamp>
                     <value>113</value>
                 </result>
                 <result>
