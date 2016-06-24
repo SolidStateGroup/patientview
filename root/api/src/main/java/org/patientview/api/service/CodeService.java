@@ -153,7 +153,6 @@ public interface CodeService {
      * Get a single Code given an ID. Used by patients when adding conditions
      * @param codeId ID of Code to retrieve
      * @return Code object
-     * @throws ResourceNotFoundException
      */
     @RoleOnly(roles = { RoleName.PATIENT })
     BaseCode getPublic(Long codeId);
