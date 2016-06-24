@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,14 +85,6 @@ public class CodeControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/codes/category/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(codeService, Mockito.times(1)).getByCategory(eq(1L));
-    }
-
-    @Test
-    public void testSearchDiagnosisCodes() throws Exception {
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
-        mockMvc.perform(MockMvcRequestBuilders.get("/codes/diagnosis/searchTerm"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(codeService, Mockito.times(1)).searchDiagnosisCodes(eq("searchTerm"), isNull(String.class));
     }
 
     @Test
