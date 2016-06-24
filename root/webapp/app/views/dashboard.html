@@ -87,7 +87,7 @@
 
                                         <!-- renal, diabetes, heart failure, ibd -->
                                         <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
-                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
+                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD' || groupRole.group.code === 'patientview'">
                                             <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
                                                 <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
                                                 <span class="group-description">
@@ -114,7 +114,8 @@
 
                                         <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
                                             && groupRole.group.code !== 'Diabetes' &&
-                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'">
+                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'
+                                            && groupRole.group.code !== 'patientview'">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
