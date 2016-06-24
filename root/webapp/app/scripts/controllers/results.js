@@ -22,7 +22,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
             if (summary.length) {
                 // set property on results with most recent date
                 var latestDate = 0;
-                var summaryLatest = [];
+                var summaryLatest;
 
                 // find latest date
                 for (i = 0; i < summary.length; i++) {
@@ -46,7 +46,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
 
                 // set latest
                 for (i = 0; i < summary.length; i++) {
-                    summaryLatest[i] = [];
+                    summaryLatest = [];
                     for (panel in summary[i].panels) {
                         if (summary[i].panels.hasOwnProperty(panel)) {
                             for (j = 0; j < panel.length; j++) {
@@ -55,7 +55,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
                                     if (resultHeading.latestObservation != null
                                         && resultHeading.latestObservation != undefined
                                         && moment(resultHeading.latestObservation.applies).format("DDMMYYYY") == latestDateStr) {
-                                        summaryLatest[i].push(resultHeading);
+                                        summaryLatest.push(resultHeading);
                                         resultHeading.isLatest = true;
                                     }
                                 }
@@ -63,7 +63,8 @@ function ($scope, $modal, ObservationService, $routeParams) {
                         }
                     }
 
-                    summary[i].panels[-1] = summaryLatest[i];
+                    // order by panel, panelOrder
+                    summary[i].panels[-1] = _.sortBy(summaryLatest, ['panel', 'panelOrder']);
                 }
 
                 $scope.groupIndex = 0;
