@@ -54,12 +54,8 @@ function ($scope, $modal, ObservationService, $routeParams) {
                         }
                     }
 
-                    console.log('sort');
-                    console.log(summaryLatest);
                     // order by panel, panelOrder
-                    summary[i].panels[-1] = _.sortBy(summaryLatest, ['panel', 'panelOrder']);
-
-                    console.log(summary[i].panels[-1]);
+                    summary[i].panels[-1] = summaryLatest;
                 }
 
                 $scope.groupIndex = 0;
