@@ -5,7 +5,7 @@
             <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
                class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}" data-ng-if="specialty.code !== 'GENERAL_PRACTICE'">
                 <img class="group-image" data-ng-src="../images/icons/pv-{{specialty.code.toLowerCase()}}.png"
-                     data-ng-if="['Renal', 'Diabetes', 'IBD', 'Cardiol'].indexOf(specialty.code) > -1"/>
+                     data-ng-if="['Renal', 'Diabetes', 'IBD', 'Cardiol', 'patientview'].indexOf(specialty.code) > -1"/>
                 {{specialty.name}}
             </a>
         </div>
