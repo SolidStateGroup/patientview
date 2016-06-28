@@ -49,6 +49,10 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 $scope.standardTypes = standardTypes;
             }
         });
+
+        $timeout(function() {
+            angular.element('#code-search').focus();
+        }, 1000);
     };
 
     $scope.sortBy = function(sortField) {

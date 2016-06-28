@@ -169,6 +169,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         StaticDataService.getLookupsByType('CONTACT_POINT_TYPE').then(function(contactPointTypes) {
             $scope.contactPointTypes = contactPointTypes;
         });
+
+        $timeout(function() {
+            angular.element('#group-search').focus();
+        }, 1000);
     };
 
     $scope.sortBy = function(sortField) {

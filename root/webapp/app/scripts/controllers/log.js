@@ -233,6 +233,10 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
                 $scope.selectedAuditAction.push($routeParams.auditActions);
             }
         }
+
+        $timeout(function() {
+            angular.element('#log-search').focus();
+        }, 1000);
     };
 
     $scope.viewXml = function(audit) {
