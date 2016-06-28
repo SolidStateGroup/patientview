@@ -20,15 +20,14 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         var logons = [];
                         var xAxisCategories = [];
 
-                        // remove last date (most recent month)
-                        statisticsArray.pop();
+                        // don't show current month
+                        var currentMonth = moment(new Date()).month();
 
                         for (var i = 0; i < statisticsArray.length; i++) {
                             var statistics = statisticsArray[i];
+                            var dateObject = new Date(statistics.startDate);
 
-                            if (i !== statisticsArray.length - 1) {
-                                var dateObject = new Date(statistics.startDate);
-
+                            if (moment(dateObject).month() !== currentMonth) {
                                 xAxisCategories.push(
                                     UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
 
