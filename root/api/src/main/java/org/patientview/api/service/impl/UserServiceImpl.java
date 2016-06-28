@@ -268,7 +268,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     if (patientManagementGroup == null) {
                         if (!CollectionUtils.isEmpty(groupRole.getGroup().getGroupFeatures())) {
                             for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
-                                if (groupFeature.getFeature().getName().equals(FeatureType.IBD_PATIENT_MANAGEMENT.toString())) {
+                                if (groupFeature.getFeature().getName().equals(
+                                        FeatureType.IBD_PATIENT_MANAGEMENT.toString())) {
                                     patientManagementGroup = groupRole.getGroup();
                                 }
                             }

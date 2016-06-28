@@ -2,7 +2,7 @@ package org.patientview.api.model;
 
 /**
  * SecretWordInput, used when updating a Users secret word (used in authentication)
- * Created by james@solidstategroup.com
+ * Created by jamesr@solidstategroup.com
  * Created on 15/02/2016
  */
 public class SecretWordInput {

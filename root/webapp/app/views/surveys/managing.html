@@ -1,0 +1,225 @@
+<!-- PAM -->
+<style>
+    .latest-td {
+        background-color: #eee;
+        font-weight: bold;
+    }
+    .table-th {
+        text-align: center;
+    }
+    .arrow-div {
+        background-image: url("../../images/arrow.png");
+        background-size: 150px 500px;
+        background-repeat: no-repeat;
+        width: 150px;
+        height: 500px;
+        margin: 0 auto;
+    }
+    .arrow-score {
+        position: relative;
+        background-color: #ffffff;
+        border: 1px solid #4D7FB9;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        z-index: 99;
+        margin-left: 40px;
+        margin-right: 42px;
+    }
+    .arrow-score-text {
+        position: relative;
+        left: 20px;
+        width: 100px;
+        font-weight: bold;
+        /* padding: 5px 0px 5px 0px; */
+    }
+    .arrow-level-one {
+        position: absolute;
+        top: 480px;
+    }
+    .arrow-level-two {
+        position: absolute;
+        top: 285px;
+    }
+    .arrow-level-three {
+        position: absolute;
+        top: 235px;
+    }
+    .arrow-level-four {
+        position: absolute;
+        top: 180px;
+    }
+    .arrow-level-text {
+        position: relative;
+        left: -15px;
+        font-weight: bold;
+    }
+    .text-level-one {
+        color: #ADA6C6;
+    }
+    .text-level-two {
+        color: #AD554A;
+    }
+    .text-level-three {
+        color: #A5BA39;
+    }
+    .text-level-four {
+        color: #F7aB00;
+    }
+    .your-score {
+        font-size: 16px;
+    }
+    .table-description-text {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 17px;
+    }
+    .score-span {
+        font-weight: bold;
+    }
+    .bold {
+        font-weight: bold;
+    }
+    .survey-table-header {
+        background-color: #E7ECF2;
+    }
+    .border-above {
+        border-top: 2px solid #368DE8;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Managing Your Health</h1>
+    </div>
+    <div class="col-md-6">
+        <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+            <i class="icon-back-to pull-left"> </i>
+            Back
+        </a></h1>
+    </div>
+</div>
+
+<br/>
+<div class="content-panel">
+    <div class="content-inner">
+
+        <div class="alert alert-danger" data-ng-show="!loading && errorMessage">
+            <h5>{{errorMessage}}</h5>
+        </div>
+
+        <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
+            <h5>No Data is currently available for managing your health</h5>
+        </div>
+
+        <div data-ng-show="loading" class="container">
+            <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Health</h3>
+            <br/>
+        </div>
+
+        <div class="row" data-ng-if="!loading && surveyResponses">
+            <div class="col-md-12">
+                <p>The following results show how you judged your knowledge, skills and your confidence to look after
+                    your own health and be involved in your care – this is known as your activation level. Your doctors
+                    and nurses would like to work closely with you to  help you to grow your skills and knowledge and
+                    build your confidence.</p>
+
+                <!-- if scores stored in second QuestionGroup (deprecated) -->
+                <div data-ng-if="otherQuestions['PAM_SCORE'] && otherQuestions['PAM_LEVEL']">
+                    <p class="your-score">
+                        Your most recent overall score is <strong>{{otherQuestions['PAM_SCORE']}}</strong>, which is
+                        <strong>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 1" class="text-level-one">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 2" class="text-level-two">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 3" class="text-level-three">level {{otherQuestions['PAM_LEVEL']}}</span>
+                            <span data-ng-if="otherQuestions['PAM_LEVEL'] == 4" class="text-level-four">level {{otherQuestions['PAM_LEVEL']}}</span>
+                        </strong>.
+                        <a href="" data-ng-click="showLevels()">Tell me more about activation levels</a>.
+                    </p>
+                    <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
+                </div>
+
+                <!-- if scores stored in Scores -->
+                <div data-ng-if="latestScore">
+                    <p class="your-score">
+                        Your most recent overall score is <strong>{{latestScore}}</strong><span data-ng-if="latestLevel">, which is
+                        <strong>
+                            <span data-ng-if="latestLevel == 1" class="text-level-one">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 2" class="text-level-two">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 3" class="text-level-three">level {{latestLevel}}</span>
+                            <span data-ng-if="latestLevel == 4" class="text-level-four">level {{latestLevel}}</span>
+                        </strong>.
+                        <a href="" data-ng-click="showLevels()">Tell me more about activation levels</a>.</span>
+                    </p>
+                    <p class="hidden">Activation Levels are: <strong>1</strong> (0 to 45.2), <strong>2</strong> (45.3 to 55.1), <strong>3</strong> (55.2 to 67), <strong>4</strong> (67.1 to 100).</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <br/>
+                        <div class="arrow-div" data-ng-if="latestScore || otherQuestions['PAM_SCORE']">
+                            <div class="arrow-score" style="top: {{475 - (4.75 * latestScore)}}px" data-ng-if="latestScore">
+                                <div class="arrow-score-text">{{latestScore}}</div>
+                            </div>
+                            <div class="arrow-score" style="top: {{475 - (4.75 * otherQuestions['PAM_SCORE'])}}px" data-ng-if="otherQuestions['PAM_SCORE']">
+                                <div class="arrow-score-text">{{otherQuestions['PAM_SCORE']}}</div>
+                            </div>
+                            <div class="arrow-level-one">
+                                <div class="arrow-level-text text-level-one">Level 1</div>
+                            </div>
+                            <div class="arrow-level-two">
+                                <div class="arrow-level-text text-level-two">Level 2</div>
+                            </div>
+                            <div class="arrow-level-three">
+                                <div class="arrow-level-text text-level-three">Level 3</div>
+                            </div>
+                            <div class="arrow-level-four">
+                                <div class="arrow-level-text text-level-four">Level 4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <p class="table-description-text">The following table shows your results which calculate your overall activation score.<br/><br/></p>
+                        <table class="table">
+                            <thead>
+                            <tr class="survey-table-header">
+                                <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
+                                    <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
+                                    {{header.text}}
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="{'survey-table-header' : row.isScore, 'border-above': row.borderAbove}">
+                                <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest && !row.isScore, 'bold': cell.isLatest}">
+                                    <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
+                                    <span data-ng-class="{'bold': $index == 0}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div data-ng-show="surveyResponseSelectOptions">
+                            <br/>
+                            <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
+                                    data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                                    data-ng-change="compareSurvey(selectedSurveyResponseId)" >
+                                <option value="">Compare with a past survey:</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+                <p>
+                    <strong>It is important to discuss your score or level with your clinical team at your next visit to the hospital. They can work in partnership with you to set goals and actions that are important to you and support you in achieving these.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

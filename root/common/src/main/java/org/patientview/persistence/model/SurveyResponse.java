@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
-import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -55,12 +54,12 @@ public class SurveyResponse extends BaseModel {
 
     public SurveyResponse() {}
 
-    public SurveyResponse(User user, Integer score, ScoreSeverity severity, Date date, SurveyResponseScoreTypes type) {
+    public SurveyResponse(User user, Double score, ScoreSeverity severity, Date date, String scoreType) {
         this.user = user;
         this.date = date;
 
         if (score != null || severity != null) {
-            surveyResponseScores.add(new SurveyResponseScore(this, type, score, severity));
+            surveyResponseScores.add(new SurveyResponseScore(this, scoreType, score, severity));
         }
     }
 

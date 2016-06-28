@@ -1,0 +1,27 @@
+<survey_response>
+    <survey_type>EQ5D</survey_type>
+    <identifier>ibdtest1</identifier>
+    <date>2016-01-01T00:00:00</date>
+    <question_answers>
+        <question_answer>
+            <question_type>YOHQ1</question_type>
+            <question_option>2</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ2</question_type>
+            <question_option>3</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ3</question_type>
+            <question_option>2</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ4</question_type>
+            <question_option>3</question_option>
+        </question_answer>
+        <question_answer>
+            <question_type>YOHQ5</question_type>
+            <question_option>4</question_option>
+        </question_answer>
+    </question_answers>
+</survey_response>

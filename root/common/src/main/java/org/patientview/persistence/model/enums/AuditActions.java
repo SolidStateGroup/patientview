@@ -97,6 +97,13 @@ public enum AuditActions {
     PATIENT_DATA_SUCCESS("Patient data imported"), // PATIENT_DATA_FOLLOWUP in pv1
     PATIENT_DATA_VALIDATE_FAIL("Patient data failed validation"), // PATIENT_DATA_CORRUPT in pv1? (not used in pv1)
     PATIENT_DATA_FAIL("Patient data failed import"),
+    SURVEY_SUCCESS("Survey setup data imported"),
+    SURVEY_FAIL("Survey setup data failed import"),
+    SURVEY_VALIDATE_FAIL("Survey setup data failed validation"),
+    SURVEY_RESPONSE_SUCCESS("Survey answers imported"),
+    SURVEY_RESPONSE_FAIL("Survey answers failed import"),
+    SURVEY_RESPONSE_VALIDATE_FAIL("Survey answers failed validation"),
+    UKRDC_VALIDATE_FAIL("UKRDC PatientRecord failed validation"),
 
     // ECS (GP Medication)
     GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)"),

@@ -3,8 +3,8 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionHtmlTypes;
-import org.patientview.persistence.model.enums.QuestionTypes;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -39,8 +39,7 @@ public class Question extends BaseModel {
     private QuestionHtmlTypes htmlType;
 
     @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private QuestionTypes type;
+    private String type;
 
     @Column(name = "text", nullable = false)
     private String text;
@@ -69,7 +68,7 @@ public class Question extends BaseModel {
     @Column(name = "help_link")
     private String helpLink;
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
     @Column(name= "required")
@@ -77,7 +76,7 @@ public class Question extends BaseModel {
 
     public Question() {}
 
-    public Question(QuestionTypes type) {
+    public Question(String type) {
         this.type = type;
     }
 
@@ -105,11 +104,11 @@ public class Question extends BaseModel {
         this.htmlType = htmlType;
     }
 
-    public QuestionTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(QuestionTypes type) {
+    public void setType(String type) {
         this.type = type;
     }
 

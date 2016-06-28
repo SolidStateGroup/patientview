@@ -670,8 +670,9 @@ CREATE TABLE PV_Survey_Response_Score
   Id              BIGINT NOT NULL,
   Type            TEXT NOT NULL,
   Survey_Response_Id       BIGINT NOT NULL REFERENCES PV_Survey_Response (Id),
-  Score           INT NOT NULL,
+  Score           NUMERIC(19, 2) NOT NULL,
   Severity        TEXT,
+  Level           TEXT,
   PRIMARY KEY (Id)
 );
 
@@ -794,6 +795,19 @@ CREATE TABLE PV_Api_Key
   Expiry_Date   TIMESTAMP,
   Type          TEXT NOT NULL,
   User_Id       BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Survey_Feedback
+(
+  Id                  BIGINT NOT NULL,
+  Feedback            TEXT NOT NULL,
+  User_Id             BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Survey_Id           BIGINT REFERENCES PV_Survey (Id) NOT NULL,
+  Created_By          BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date       TIMESTAMP NOT NULL,
+  Last_Update_Date    TIMESTAMP,
+  Last_Updated_By     BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

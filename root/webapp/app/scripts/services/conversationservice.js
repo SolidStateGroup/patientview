@@ -3,6 +3,17 @@
 angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', 'UserService', '$rootScope',
 function ($http, $q, Restangular, UserService, $rootScope) {
     return {
+        addConversationToRecipientsByFeature: function (userId, featureName, conversation) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/conversations/feature/{featureName}
+            Restangular.one('user', userId).one('conversations/feature', featureName).customPOST(conversation)
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
         addConversationUser: function (conversationId, userId) {
             var deferred = $q.defer();
             // POST /conversation/{conversationId}/conversationuser/{userId}
@@ -98,6 +109,17 @@ function ($http, $q, Restangular, UserService, $rootScope) {
             // GET /user/{userId}/conversations/recipientsfast?groupId=123
             Restangular.one('user', userId).one('conversations/recipientsfast')
                 .get({'groupId' : groupId}).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
+        getStaffRecipientCountByFeature: function (userId, featureName) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/conversations/staffrecipientcountbyfeature/{featureName}
+            Restangular.one('user', userId).one('conversations/staffrecipientcountbyfeature', featureName).get()
+                .then(function(successResult) {
                     deferred.resolve(successResult);
                 }, function(failureResult) {
                     deferred.reject(failureResult);

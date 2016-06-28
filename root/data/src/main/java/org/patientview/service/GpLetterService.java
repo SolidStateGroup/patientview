@@ -31,6 +31,8 @@ public interface GpLetterService {
     String generateLetter(GpLetter gpLetter, GpMaster gpMaster, String siteUrl, String outputDir)
         throws DocumentException;
 
+    void generateLetterPdfs();
+
     String generateSignupKey();
 
     boolean hasValidPracticeDetails(GpLetter gpLetter);

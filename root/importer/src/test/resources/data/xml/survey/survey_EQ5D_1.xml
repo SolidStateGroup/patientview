@@ -1,0 +1,209 @@
+<survey>
+    <description>Overall Health</description>
+    <type>EQ5D</type>
+    <question_groups>
+        <question_group>
+            <text>Overall Health Questions</text>
+            <display_order>0</display_order>
+            <questions>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>RADIO</html_type>
+                    <type>YOHQ1</type>
+                    <text>Mobility</text>
+                    <display_order>0</display_order>
+                    <question_options>
+                        <question_option>
+                            <type>WALKING_NO_PROBLEMS</type>
+                            <text>I have no problems in walking about</text>
+                            <display_order>0</display_order>
+                            <score>1</score>
+                        </question_option>
+                        <question_option>
+                            <type>WALKING_SLIGHT_PROBLEMS</type>
+                            <text>I have slight problems in walking about</text>
+                            <display_order>1</display_order>
+                            <score>2</score>
+                        </question_option>
+                        <question_option>
+                            <type>WALKING_MODERATE_PROBLEMS</type>
+                            <text>I have moderate problems in walking about</text>
+                            <display_order>2</display_order>
+                            <score>3</score>
+                        </question_option>
+                        <question_option>
+                            <type>WALKING_SEVERE_PROBLEMS</type>
+                            <text>I have severe problems in walking about</text>
+                            <display_order>3</display_order>
+                            <score>4</score>
+                        </question_option>
+                        <question_option>
+                            <type>WALKING_UNABLE</type>
+                            <text>I am unable to walk about</text>
+                            <display_order>4</display_order>
+                            <score>5</score>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>RADIO</html_type>
+                    <type>YOHQ2</type>
+                    <text>Anxiety / Depression</text>
+                    <display_order>1</display_order>
+                    <question_options>
+                        <question_option>
+                            <type>ANXIOUS_DEPRESSED_NOT</type>
+                            <text>I am not anxious or depressed</text>
+                            <display_order>0</display_order>
+                            <score>1</score>
+                        </question_option>
+                        <question_option>
+                            <type>ANXIOUS_DEPRESSED_SLIGHT</type>
+                            <text>I am slightly anxious or depressed</text>
+                            <display_order>1</display_order>
+                            <score>2</score>
+                        </question_option>
+                        <question_option>
+                            <type>ANXIOUS_DEPRESSED_MODERATE</type>
+                            <text>I am moderately anxious or depressed</text>
+                            <display_order>2</display_order>
+                            <score>3</score>
+                        </question_option>
+                        <question_option>
+                            <type>ANXIOUS_DEPRESSED_SEVERE</type>
+                            <text>I am severely anxious or depressed</text>
+                            <display_order>3</display_order>
+                            <score>4</score>
+                        </question_option>
+                        <question_option>
+                            <type>ANXIOUS_DEPRESSED_EXTREME</type>
+                            <text>I am extremely anxious or depressed</text>
+                            <display_order>4</display_order>
+                            <score>5</score>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>RADIO</html_type>
+                    <type>YOHQ3</type>
+                    <text>Usual Activities</text>
+                    <display_order>2</display_order>
+                    <question_options>
+                        <question_option>
+                            <type>ACTIVITIES_NO_PROBLEMS</type>
+                            <text>I have no problems doing my usual activities</text>
+                            <display_order>0</display_order>
+                            <score>1</score>
+                        </question_option>
+                        <question_option>
+                            <type>ACTIVITIES_SLIGHT_PROBLEMS</type>
+                            <text>I have slight problems doing my usual activities</text>
+                            <display_order>1</display_order>
+                            <score>2</score>
+                        </question_option>
+                        <question_option>
+                            <type>ACTIVITIES_MODERATE_PROBLEMS</type>
+                            <text>I have moderate problems doing my usual activities</text>
+                            <display_order>2</display_order>
+                            <score>3</score>
+                        </question_option>
+                        <question_option>
+                            <type>ACTIVITIES_SEVERE_PROBLEMS</type>
+                            <text>I have severe problems doing my usual activities</text>
+                            <display_order>3</display_order>
+                            <score>4</score>
+                        </question_option>
+                        <question_option>
+                            <type>ACTIVITIES_UNABLE</type>
+                            <!--<text>I am unable to washing doing my usual activities</text>-->
+                            <text>I am unable to do my usual activities</text>
+                            <display_order>4</display_order>
+                            <score>5</score>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>RADIO</html_type>
+                    <type>YOHQ4</type>
+                    <text>Pain / Discomfort</text>
+                    <display_order>3</display_order>
+                    <question_options>
+                        <question_option>
+                            <type>PAIN_NO</type>
+                            <text>I have no pain or discomfort</text>
+                            <display_order>0</display_order>
+                            <score>1</score>
+                        </question_option>
+                        <question_option>
+                            <type>PAIN_SLIGHT</type>
+                            <text>I have slight pain or discomfort</text>
+                            <display_order>1</display_order>
+                            <score>2</score>
+                        </question_option>
+                        <question_option>
+                            <type>PAIN_MODERATE</type>
+                            <text>I have moderate pain or discomfort</text>
+                            <display_order>2</display_order>
+                            <score>3</score>
+                        </question_option>
+                        <question_option>
+                            <type>PAIN_SEVERE</type>
+                            <text>I have severe pain or discomfort</text>
+                            <display_order>3</display_order>
+                            <score>4</score>
+                        </question_option>
+                        <question_option>
+                            <type>PAIN_EXTREME</type>
+                            <text>I have extreme pain or discomfort</text>
+                            <display_order>4</display_order>
+                            <score>5</score>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>RADIO</html_type>
+                    <type>YOHQ5</type>
+                    <text>Self-Care</text>
+                    <display_order>4</display_order>
+                    <question_options>
+                        <question_option>
+                            <type>WASHING_DRESSING_NO_PROBLEMS</type>
+                            <text>I have no problems washing or dressing myself</text>
+                            <display_order>0</display_order>
+                            <score>1</score>
+                        </question_option>
+                        <question_option>
+                            <type>WASHING_DRESSING_SLIGHT_PROBLEMS</type>
+                            <text>I have slight problems washing or dressing myself</text>
+                            <display_order>1</display_order>
+                            <score>2</score>
+                        </question_option>
+                        <question_option>
+                            <type>WASHING_DRESSING_MODERATE_PROBLEMS</type>
+                            <text>I have moderate problems washing or dressing myself</text>
+                            <display_order>2</display_order>
+                            <score>3</score>
+                        </question_option>
+                        <question_option>
+                            <type>WASHING_DRESSING_SEVERE_PROBLEMS</type>
+                            <text>I have severe problems washing or dressing myself</text>
+                            <display_order>3</display_order>
+                            <score>4</score>
+                        </question_option>
+                        <question_option>
+                            <type>WASHING_DRESSING_UNABLE</type>
+                            <!--<text>I am unable to washing dressing myself</text>-->
+                            <text>I am unable to wash or dress myself</text>
+                            <display_order>4</display_order>
+                            <score>5</score>
+                        </question_option>
+                    </question_options>
+                </question>                
+            </questions>
+        </question_group>
+    </question_groups>
+</survey>

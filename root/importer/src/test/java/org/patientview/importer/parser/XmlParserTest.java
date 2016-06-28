@@ -1,6 +1,8 @@
 package org.patientview.importer.parser;
 
 import generated.Patientview;
+import generated.Survey;
+import generated.SurveyResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,6 +45,35 @@ public class XmlParserTest {
             Assert.fail("Should throw JAXBException");
         } catch(JAXBException je) {
             Assert.assertNotNull(je);
+        }
+    }
+
+    @Test
+    public void testSurveyXml() throws IOException, URISyntaxException {
+        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource("data/xml/survey/survey_1.xml");
+        File file = new File(xmlPath.toURI());
+        Assert.assertTrue("Test file not loaded", file.exists());
+
+        try {
+            Survey survey = XmlParser.parseAny(file, Survey.class);
+            Assert.assertNotNull("A Survey record should have been returned for the parser", survey);
+        } catch(JAXBException je) {
+            Assert.fail("JAXBException: " + je.getMessage());
+        }
+    }
+
+    @Test
+    public void testSurveyResponseXml() throws IOException, URISyntaxException {
+        URL xmlPath = Thread.currentThread().getContextClassLoader()
+                .getResource("data/xml/survey_response/survey_response_1.xml");
+        File file = new File(xmlPath.toURI());
+        Assert.assertTrue("Test file not loaded", file.exists());
+
+        try {
+            SurveyResponse surveyResponse = XmlParser.parseAny(file, SurveyResponse.class);
+            Assert.assertNotNull("A SurveyResponse record should have been returned for the parser", surveyResponse);
+        } catch(JAXBException je) {
+            Assert.fail("JAXBException: " + je.getMessage());
         }
     }
 }

@@ -14,12 +14,59 @@ function ($scope, $modal, ObservationService, $routeParams) {
 
     $scope.init = function() {
 
-        var i;
+        var i, j, k, panel, resultHeading;
         $scope.initFinished = false;
         $scope.loading = true;
         ObservationService.getSummary($scope.loggedInUser.id).then(function(summary) {
 
             if (summary.length) {
+                // set property on results with most recent date
+                var latestDate = 0;
+                var summaryLatest;
+
+                // find latest date
+                for (i = 0; i < summary.length; i++) {
+                    for (panel in summary[i].panels) {
+                        if (summary[i].panels.hasOwnProperty(panel)) {
+                            for (j = 0; j < panel.length; j++) {
+                                for (k = 0; k < summary[i].panels[panel[j]].length; k++) {
+                                    resultHeading = summary[i].panels[panel[j]][k];
+                                    if (resultHeading.latestObservation != null
+                                        && resultHeading.latestObservation != undefined
+                                        && resultHeading.latestObservation.applies > latestDate) {
+                                        latestDate = resultHeading.latestObservation.applies;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var latestDateStr = moment(latestDate).format("DDMMYYYY");
+
+                // set latest
+                for (i = 0; i < summary.length; i++) {
+                    summaryLatest = [];
+                    for (panel in summary[i].panels) {
+                        if (summary[i].panels.hasOwnProperty(panel)) {
+                            for (j = 0; j < panel.length; j++) {
+                                for (k = 0; k < summary[i].panels[panel[j]].length; k++) {
+                                    resultHeading = summary[i].panels[panel[j]][k];
+                                    if (resultHeading.latestObservation != null
+                                        && resultHeading.latestObservation != undefined
+                                        && moment(resultHeading.latestObservation.applies).format("DDMMYYYY") == latestDateStr) {
+                                        summaryLatest.push(resultHeading);
+                                        resultHeading.isLatest = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // order by panel, panelOrder
+                    summary[i].panels[-1] = _.sortBy(summaryLatest, ['panel', 'panelOrder']);
+                }
+
                 $scope.groupIndex = 0;
                 $scope.summary = summary;
                 $scope.group = summary[$scope.groupIndex].group;
@@ -29,7 +76,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
                 if ($routeParams.r !== undefined) {
                     $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
                 } else {
-                    $scope.currentPage = 1;
+                    if (summary[$scope.groupIndex].panels[-1].length) {
+                        $scope.currentPage = -1;
+                    } else {
+                        $scope.currentPage = 1;
+                    }
                 }
 
                 $scope.panel = $scope.panels[$scope.currentPage];
@@ -54,7 +105,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
         for (var i=0;i<$scope.summary.length;i++) {
             if (groupId === $scope.summary[i].group.id) {
                 $scope.groupIndex = i;
-                $scope.currentPage = 1;
+                if ($scope.summary[$scope.groupIndex].panels[-1].length) {
+                    $scope.currentPage = -1;
+                } else {
+                    $scope.currentPage = 1;
+                }
                 $scope.group = $scope.summary[$scope.groupIndex].group;
                 $scope.panels = $scope.summary[$scope.groupIndex].panels;
                 $scope.panel = $scope.panels[$scope.currentPage];

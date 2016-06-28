@@ -5,6 +5,7 @@ import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.User;
@@ -35,6 +36,19 @@ public interface ConversationService extends CrudService<Conversation> {
     @UserOnly
     void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Creates a conversation between a User with userId and all staff members with a specific Feature with
+     * featureName. Used in EQ5D survey page (Your Overall Health) when patients send feedback to staff users.
+     * @param userId Long ID of User with survey
+     * @param featureName Name of feature that staff Users must have to be added to conversation
+     * @param conversation Conversation, containing user entered message to staff users
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void addConversationToRecipientsByFeature(Long userId, String featureName, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException;
 
     /**
      * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
@@ -138,6 +152,17 @@ public interface ConversationService extends CrudService<Conversation> {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Given a user Id and Feature name, get the number of staff Users that have the Feature in the User's Groups,
+     * used by EQ5D survey page (overall health)
+     * @param userId ID of User to get count of recipients for
+     * @param featureName String name of Feature
+     * @return Long count of recipients
+     * @throws ResourceNotFoundException
+     */
+    @UserOnly
+    Long getStaffRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException;
+
+    /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
      * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
@@ -193,5 +218,4 @@ public interface ConversationService extends CrudService<Conversation> {
      */
     void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException;
-
 }

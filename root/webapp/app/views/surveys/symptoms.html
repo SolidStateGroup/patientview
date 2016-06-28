@@ -1,0 +1,104 @@
+<style>
+    .bold {
+        font-weight: bold;
+    }
+    .latest-td {
+        background-color: #eee;
+        font-weight: bold;
+    }
+    .table-th {
+        text-align: center;
+    }
+    .current-question {
+        background-color: #d5ebfc;
+    }
+    .survey-table-header {
+        background-color: #E7ECF2;
+    }
+</style>
+<div class="row">
+    <div class="col-md-6">
+        <h1>Your Symptoms</h1>
+    </div>
+    <div class="col-md-6">
+        <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+            <i class="icon-back-to pull-left"> </i>
+            Back
+        </a></h1>
+    </div>
+</div>
+<br/>
+<div class="content-panel">
+    <div class="content-inner">
+
+        <div class="row" data-ng-show="!loading && surveyResponses">
+            <div class="col-md-12">
+                <p>The following table shows a list of symptoms and your assessment of how each one has been affecting you.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6" data-ng-show="!loading && surveyResponses">
+                <table class="table">
+                    <thead>
+                    <tr class="survey-table-header">
+                        <th data-ng-repeat="header in tableHeader track by $index" class="table-th">
+                            <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
+                            {{header.text}}
+                        </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
+                            <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
+                                <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
+                                <span data-ng-class="{'bold': $index == 0}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
+                            </td>
+                            <td class="view-graph-td">
+                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(row.type !== questionType) && (row.isDownload !== true)">View</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div data-ng-if="surveyResponseSelectOptions.length">
+                    <br/>
+                    <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
+                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                            data-ng-change="compareSurvey(selectedSurveyResponseId)" >
+                        <option value="">Compare with a past survey:</option>
+                    </select>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+            <div class="col-md-6">
+                <!-- chart populated in controller -->
+                <div id="chart_div"></div>
+                <div data-ng-if="observationHeadings && surveyResponses">
+                    <br/><br/>
+                    <select class="form-control" id="result-compare-select" data-ng-model="compareCode"
+                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
+                                | orderBy:'heading' | addCodeFilter:codes"
+                            data-ng-change="compareResults(compareCode)">
+                        <option value="">Select a result type to compare with "{{comparingText}}"</option>
+                    </select>
+                    <br/>
+                    <p data-ng-if="observations"><a href="" data-ng-click="clearComparison()">Clear comparison with result</a> </p>
+                    <p>Note: The results are those taken within 3 months of your surveys being filled in.</p>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-show="loading" class="container">
+            <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Symptoms</h3>
+            <br/>
+        </div>
+
+        <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
+            <h5>No Data is currently available for your symptoms</h5>
+        </div>
+
+    </div>
+</div>

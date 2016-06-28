@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +38,7 @@ public class QuestionGroup extends BaseModel {
     @Column(name = "display_order")
     private Integer displayOrder;
 
-    @OneToMany(mappedBy = "questionGroup")
+    @OneToMany(mappedBy = "questionGroup", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
 
     public QuestionGroup() {}

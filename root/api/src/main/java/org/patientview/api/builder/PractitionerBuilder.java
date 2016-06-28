@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Build Practitioner object, suitable for insertion/update into FHIR. Handles update and create, with assumption that
- * empty strings means clear existing data, null strings means leave alone and do not update. 
+ * empty strings means clear existing data, null strings means leave alone and do not update.
  *
  * Created by jamesr@solidstategroup.com
  * Created on 04/03/2016

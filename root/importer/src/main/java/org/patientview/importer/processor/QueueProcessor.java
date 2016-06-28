@@ -31,12 +31,13 @@ import java.util.concurrent.ExecutorService;
 @Component
 public class QueueProcessor extends DefaultConsumer {
 
-    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessor.class);
-
-    private Long importerUserId;
-
     @Inject
     private AuditService auditService;
+
+    private Channel channel;
+
+    @Inject
+    private EmailService emailService;
 
     @Inject
     private ExecutorService executor;
@@ -44,10 +45,11 @@ public class QueueProcessor extends DefaultConsumer {
     @Inject
     private ImportManager importManager;
 
-    @Inject
-    private EmailService emailService;
+    private Long importerUserId;
 
-    private Channel channel;
+    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessor.class);
+
+    private final static String QUEUE_NAME = "patient_import";
 
     @PostConstruct
     public void init() throws ResourceNotFoundException {
@@ -65,14 +67,14 @@ public class QueueProcessor extends DefaultConsumer {
         try {
             channel.basicConsume("patient_import", true, this);
         } catch (IOException io) {
-            LOG.error("Cannot consume messages", io);
-            throw new IllegalStateException("Cannot start queue processor");
+            LOG.error("Cannot consume messages for '" + QUEUE_NAME + "' queue", io);
+            throw new IllegalStateException("Cannot start queue processor for '" + QUEUE_NAME + "' queue");
         } catch (NullPointerException npe) {
-            LOG.error("Queue is not available");
-            throw new IllegalStateException("The queue is not available");
+            LOG.error("Queue '" + QUEUE_NAME + "' is not available");
+            throw new IllegalStateException("The '" + QUEUE_NAME + "' queue is not available");
         }
         this.channel = channel;
-        LOG.info("Create Request Processor");
+        LOG.info("Created queue processor for Surveys with queue name '" + QUEUE_NAME + "'");
     }
 
     @PreDestroy
@@ -132,9 +134,7 @@ public class QueueProcessor extends DefaultConsumer {
                     importManager.validate(patient);
                 } catch (ImportResourceException ire) {
                     String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 
-                            + " ("
-                            + patient.getCentredetails().getCentrecode()
-                            + "): Failed validation, "
+                            + " (" + patient.getCentredetails().getCentrecode() + "): Failed validation, "
                             + ire.getMessage();
                     LOG.error(errorMessage);
 
@@ -156,9 +156,7 @@ public class QueueProcessor extends DefaultConsumer {
                     importManager.process(patient, message, importerUserId);
                 } catch (ImportResourceException ire) {
                     String errorMessage = patient.getPatient().getPersonaldetails().getNhsno()
-                            + " ("
-                            + patient.getCentredetails().getCentrecode()
-                            + "): could not add. " 
+                            + " (" + patient.getCentredetails().getCentrecode() + "): could not add. "
                             + ire.getMessage();
                     LOG.error(errorMessage, ire);
                     auditService.createAudit(AuditActions.PATIENT_DATA_FAIL,

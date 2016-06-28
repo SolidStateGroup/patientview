@@ -16,11 +16,11 @@ import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.enums.FileTypes;
-import org.patientview.api.service.ExportService;
-import org.patientview.api.service.LetterService;
 import org.patientview.api.service.ApiMedicationService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.DocumentService;
+import org.patientview.api.service.ExportService;
+import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -38,11 +38,13 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
+import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -78,7 +80,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private GpMasterRepository gpMasterRepository;
 
     @Inject
-    private LetterService letterService;
+    private DocumentService documentService;
 
     @Inject
     private ApiMedicationService apiMedicationService;
@@ -156,7 +158,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Content (expand row to view)");
 
         //Order letters based on date
-        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
+        List<FhirDocumentReference> fhirDocuments = documentService.getByUserIdAndClass(userId, null, fromDate, toDate);
         TreeMap<String, FhirDocumentReference> orderedfhirDocuments = new TreeMap<>(Collections.reverseOrder());
         for (FhirDocumentReference fhirDocumentReference : orderedfhirDocuments.values()) {
             //Add current size to stop any issues with multiple letters on same date
@@ -415,7 +417,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         List<SurveyResponse> surveyResponses
-                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), SurveyTypes.valueOf(type));
+                = surveyResponseRepository.findByUserAndSurveyType(getCurrentUser(), type);
 
         if (CollectionUtils.isEmpty(surveyResponses)) {
             throw new ResourceNotFoundException("No survey responses found");
@@ -427,57 +429,58 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         Survey survey = surveyResponses.get(0).getSurvey();
         CSVDocumentBuilder document = new CSVDocumentBuilder();
 
-        List<QuestionTypes> questionTypes = new ArrayList<>();
+        List<String> questionTypes = new ArrayList<>();
         boolean includeScore = false;
         boolean includeSeverity = false;
 
         // question types
         switch (survey.getType()) {
-            case IBD_CONTROL:
+            case "IBD_CONTROL":
                 includeScore = true;
                 break;
-            case CROHNS_SYMPTOM_SCORE:
-                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN);
-                questionTypes.add(QuestionTypes.OPEN_BOWELS);
-                questionTypes.add(QuestionTypes.FEELING);
-                questionTypes.add(QuestionTypes.COMPLICATION);
-                questionTypes.add(QuestionTypes.MASS_IN_TUMMY);
-                includeScore = true;
-                includeSeverity = true;
-                break;
-            case COLITIS_SYMPTOM_SCORE:
-                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
-                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
-                questionTypes.add(QuestionTypes.TOILET_TIMING);
-                questionTypes.add(QuestionTypes.PRESENT_BLOOD);
-                questionTypes.add(QuestionTypes.FEELING);
-                questionTypes.add(QuestionTypes.COMPLICATION);
+            case "CROHNS_SYMPTOM_SCORE":
+                questionTypes.add(QuestionTypes.ABDOMINAL_PAIN.toString());
+                questionTypes.add(QuestionTypes.OPEN_BOWELS.toString());
+                questionTypes.add(QuestionTypes.FEELING.toString());
+                questionTypes.add(QuestionTypes.COMPLICATION.toString());
+                questionTypes.add(QuestionTypes.MASS_IN_TUMMY.toString());
                 includeScore = true;
                 includeSeverity = true;
                 break;
-            case IBD_FATIGUE:
+            case "COLITIS_SYMPTOM_SCORE":
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString());
+                questionTypes.add(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString());
+                questionTypes.add(QuestionTypes.TOILET_TIMING.toString());
+                questionTypes.add(QuestionTypes.PRESENT_BLOOD.toString());
+                questionTypes.add(QuestionTypes.FEELING.toString());
+                questionTypes.add(QuestionTypes.COMPLICATION.toString());
+                includeScore = true;
+                includeSeverity = true;
+                break;
+            case "IBD_FATIGUE":
                 // section 1
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_FATIGUE_I")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 // section 2
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_DAS")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 // section 3
                 for (QuestionTypes questionType : QuestionTypes.values()) {
                     if (questionType.toString().contains("IBD_FATIGUE_EXTRA")) {
-                        questionTypes.add(questionType);
+                        questionTypes.add(questionType.toString());
                     }
                 }
                 includeScore = true;
                 includeSeverity = true;
                 break;
             default:
+                // if not a known survey type, only export score and severity
                 includeScore = true;
                 includeSeverity = true;
                 break;
@@ -486,13 +489,13 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Date Taken");
 
         // set CSV headers
-        for (QuestionTypes questionType : questionTypes) {
+        for (String questionType : questionTypes) {
             try {
                 Question question = questionRepository.findByType(questionType).iterator().next();
                 if (StringUtils.isNotEmpty(question.getText())) {
                     document.addHeader(question.getText());
                 } else {
-                    document.addHeader(question.getType().toString());
+                    document.addHeader(question.getType());
                 }
             } catch (NoSuchElementException | NullPointerException nse) {
                 throw new ResourceNotFoundException("Error retrieving questions");
@@ -502,7 +505,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // set score header if required
         if (includeScore) {
             for (SurveyResponseScore score : surveyResponses.get(0).getSurveyResponseScores()) {
-                String header = score.getType().getName() + " Score";
+                String header = "Score";
+                if (Util.isInEnum(score.getType(), SurveyResponseScoreTypes.class)) {
+                    header = SurveyResponseScoreTypes.valueOf(score.getType()).getName() + " " + header;
+                }
                 if (includeSeverity) {
                     header += " (severity)";
                 }
@@ -521,23 +527,21 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (SurveyResponse surveyResponse : surveyResponses) {
             // create map of specific answers
             List<QuestionAnswer> answers = surveyResponse.getQuestionAnswers();
-            Map<QuestionTypes, String> answerMap = new HashMap<>();
+            Map<String, String> answerMap = new HashMap<>();
 
             for (QuestionAnswer questionAnswer : answers) {
                 // only care about certain questions
-                if (questionTypes.contains(questionAnswer.getQuestion().getType())) {
+                if (Util.isInEnum(questionAnswer.getQuestion().getType(), QuestionTypes.class)
+                        && questionTypes.contains(questionAnswer.getQuestion().getType())) {
                     // if is a select, then get the text of the question option
                     if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT)) {
                         answerMap.put(questionAnswer.getQuestion().getType(),
                                 questionAnswer.getQuestionOption().getText());
                     }
                     // if is a ranged value then get value
-                    if (questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.SINGLE_SELECT_RANGE)
-                        || questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.TEXT)
-                        || questionAnswer.getQuestion().getElementType().equals(
-                            QuestionElementTypes.TEXT_NUMERIC)) {
+                    if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT_RANGE)
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }
@@ -559,7 +563,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(surveyResponse.getDate()));
 
             // set answer columns
-            for (QuestionTypes questionType : questionTypes) {
+            for (String questionType : questionTypes) {
                 if (answerMap.containsKey(questionType)) {
                     document.addValueToNextCell(answerMap.get(questionType));
                 } else {
@@ -578,7 +582,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             }
         }
 
-        return getDownloadContent(survey.getType().toString(),
+        return getDownloadContent(survey.getType(),
                 makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId,
                         new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
                         new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);

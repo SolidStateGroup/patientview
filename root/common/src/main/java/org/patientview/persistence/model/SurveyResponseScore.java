@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.ScoreSeverity;
-import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,21 +23,23 @@ public class SurveyResponseScore extends BaseModel {
     @JoinColumn(name = "survey_response_id")
     private SurveyResponse surveyResponse;
 
-    @Column(name = "score")
-    private Integer score;
+    @Column(name = "score", columnDefinition="numeric", precision=19, scale=2)
+    private Double score;
 
     @Column(name = "severity")
     @Enumerated(EnumType.STRING)
     private ScoreSeverity severity;
 
     @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private SurveyResponseScoreTypes type;
+    private String type;
+
+    @Column(name = "level")
+    private String level;
 
     public SurveyResponseScore() {}
 
-    public SurveyResponseScore(SurveyResponse surveyResponse, SurveyResponseScoreTypes type,
-                               Integer score, ScoreSeverity severity) {
+    public SurveyResponseScore(SurveyResponse surveyResponse, String type,
+                               Double score, ScoreSeverity severity) {
         this.surveyResponse = surveyResponse;
         this.type = type;
         this.score = score;
@@ -62,19 +63,27 @@ public class SurveyResponseScore extends BaseModel {
         this.severity = severity;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 
-    public SurveyResponseScoreTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(SurveyResponseScoreTypes type) {
+    public void setType(String type) {
         this.type = type;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

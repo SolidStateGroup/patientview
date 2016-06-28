@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="survey">
+        <xs:annotation>
+            <xs:documentation>PatientView Survey Description XML Schema</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="1" minOccurs="1" name="description" type="xs:string"/>
+                <xs:element maxOccurs="1" minOccurs="1" name="type" type="xs:string"/>
+                <xs:element maxOccurs="1" minOccurs="1" name="question_groups">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="1" name="question_group">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="text" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="description" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="number" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="display_order" type="xs:integer"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="questions">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="unbounded" minOccurs="1" name="question">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="element_type" type="element_type"/>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="html_type" type="html_type"/>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="type" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="1" name="text" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="description" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="number" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="display_order" type="xs:integer"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="help_link" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="range_start" type="xs:integer"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="range_end" type="xs:integer"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="question_options">
+                                                                    <xs:complexType>
+                                                                        <xs:sequence>
+                                                                            <xs:element maxOccurs="unbounded" minOccurs="1" name="question_option">
+                                                                                <xs:complexType>
+                                                                                    <xs:sequence>
+                                                                                        <xs:element maxOccurs="1" minOccurs="1" name="type" type="xs:string"/>
+                                                                                        <xs:element maxOccurs="1" minOccurs="1" name="text" type="xs:string"/>
+                                                                                        <xs:element maxOccurs="1" minOccurs="0" name="description" type="xs:string"/>
+                                                                                        <xs:element maxOccurs="1" minOccurs="0" name="display_order" type="xs:integer"/>
+                                                                                        <xs:element maxOccurs="1" minOccurs="0" name="score" type="xs:integer"/>
+                                                                                    </xs:sequence>
+                                                                                </xs:complexType>
+                                                                            </xs:element>
+                                                                        </xs:sequence>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Enum values matching QuestionElementTypes.java -->
+    <xs:simpleType name="element_type">
+        <xs:annotation>
+            <xs:documentation>Question element types, used when creating UI</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SINGLE_SELECT"/>
+            <xs:enumeration value="SINGLE_SELECT_RANGE"/>
+            <xs:enumeration value="TEXT"/>
+            <xs:enumeration value="TEXT_NUMERIC"/>
+            <xs:enumeration value="MULTI_SELECT"/>
+            <xs:enumeration value="DATE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Enum values matching QuestionHtmlTypes.java -->
+    <xs:simpleType name="html_type">
+        <xs:annotation>
+            <xs:documentation>Question HTML types, used when creating UI</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SELECT"/>
+            <xs:enumeration value="RADIO"/>
+            <xs:enumeration value="SLIDER"/>
+            <xs:enumeration value="TEXT"/>
+            <xs:enumeration value="TEXT_NUMERIC"/>
+            <xs:enumeration value="DATE"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

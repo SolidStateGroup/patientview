@@ -14,7 +14,8 @@ public enum FeatureType {
     DEFAULT_MESSAGING_CONTACT("Default Messaging Contact"),
     CENTRAL_SUPPORT_CONTACT("Central Support Contact"),
     IBD_SCORING_ALERTS("IBD Scoring Alerts"),
-    IBD_PATIENT_MANAGEMENT("IBD Patient Management");
+    IBD_PATIENT_MANAGEMENT("IBD Patient Management"),
+    RENAL_SURVEY_FEEDBACK_RECIPIENT("Renal Survey Feedback Recipient");
 
     private String name;
     FeatureType(String name) { this.name = name; }

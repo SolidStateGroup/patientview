@@ -130,7 +130,8 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     Long createUserWithPasswordEncryption(User user)
-            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, VerificationException, FhirResourceException;
+            throws ResourceNotFoundException, ResourceForbiddenException,
+            EntityExistsException, VerificationException, FhirResourceException;
 
     /**
      * Check if current User has the permissions to get another User.

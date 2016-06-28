@@ -60,6 +60,141 @@ public class ImportControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(importController, uriComponentsBuilder).build();
     }
 
+    // local clear survey & response
+    /*
+    DELETE FROM pv_question_answer WHERE id > 4944340;
+    DELETE FROM pv_question_option WHERE id > 4944340;
+    DELETE FROM pv_question WHERE id > 4957410;
+    DELETE FROM pv_question_group WHERE id > 4957309;
+    DELETE FROM pv_survey_response_score WHERE id > 4996932;
+    DELETE FROM pv_survey_response WHERE id > 4957512;
+    DELETE FROM pv_survey_feedback WHERE id > 4964549;
+    DELETE FROM pv_survey WHERE id > 4957408;
+    */
+
+    // staging clear survey & response
+    /*
+    DELETE FROM pv_question_answer WHERE id > 14883223;
+    DELETE FROM pv_question_option WHERE id > 14883121;
+    DELETE FROM pv_question WHERE id > 14883119;
+    DELETE FROM pv_question_group WHERE id > 14883119;
+    DELETE FROM pv_survey_response WHERE id > 14883222;
+    DELETE FROM pv_survey_feedback WHERE id > 14890074;
+    DELETE FROM pv_survey WHERE id > 14883118;
+    */
+
+    @Test
+    @Ignore
+    public void testBulkSurveyDescriptionImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/survey/survey_PROM_2.xml");
+        files.add("data/xml/survey/survey_PAM_1.xml");
+        files.add("data/xml/survey/survey_EQ5D_2.xml");
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            String postUrl="http://localhost:8081/importer/import/survey";
+            //String postUrl = "https://test.patientview.org/importer/import/survey";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testBulkSurveyResponseImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        files.add("data/xml/survey_response/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_2.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_3.xml");
+        files.add("data/xml/survey_response/survey_response_PROM_4.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_1.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_2.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_3.xml");
+        files.add("data/xml/survey_response/survey_response_PAM_4.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_1.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_2.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_3.xml");
+        files.add("data/xml/survey_response/survey_response_EQ5D_4.xml");
+        /*files.add("data/xml/survey_response/4354569111/survey_response_PROM_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PROM_4.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_PAM_4.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_1.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_2.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_3.xml");
+        files.add("data/xml/survey_response/4354569111/survey_response_EQ5D_4.xml");*/
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            String postUrl="http://localhost:8081/importer/import/surveyresponse";
+            //String postUrl = "https://test.patientview.org/importer/import/surveyresponse";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testBulkUkrdcImport() throws Exception {
+        List<String> files = new ArrayList<>();
+        /*files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_1.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_2.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4.xml");*/
+
+        /*files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_1.xml");
+        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_2.xml");
+        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_3.xml");
+        files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4.xml");*/
+
+        /*files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_document.xml");*/
+
+        //files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4_document.xml");
+
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_no_patient.xml");
+
+        for (String fileName : files) {
+            URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            File file = new File(xmlPath.toURI());
+            String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+
+            org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+            String postUrl="http://localhost:8081/importer/import/ukrdc";
+            //String postUrl = "https://test.patientview.org/importer/import/ukrdc";
+
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = new StringEntity(content);
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/xml");
+            HttpResponse httpResponse = httpClient.execute(post);
+            LOG.info(httpResponse.toString());
+        }
+    }
+
     /**
      * Test: Passing an xml in full to the import resource and see if the resource can pass it to the service
      * Fail: The resource is unable to call the resource
@@ -400,14 +535,18 @@ public class ImportControllerTest {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
-        String fileName = "data/xml/SALIBD_01436_1111111111.xml";
-        //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        //String fileName = "data/xml/SALIBD_01436_1111111111.xml";
+        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        //String fileName = "data/xml/ibdtest1_1.xml";
 
         // IBD
         //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
         //String fileName = "data/xml/partialmigration/test1.xml";
+
+        // survey testing
+        //String fileName = "data/xml/surveytestuser.xml";
 
         URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());

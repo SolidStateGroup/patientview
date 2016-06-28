@@ -8,6 +8,7 @@ import org.patientview.api.model.Message;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.data.domain.Page;
@@ -55,6 +56,24 @@ public class ConversationController extends BaseController<ConversationControlle
                                 @RequestBody org.patientview.persistence.model.Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addConversation(userId, conversation);
+    }
+
+    /**
+     * Creates a conversation between a User with userId and all staff members with a specific Feature with
+     * featureName. Used in EQ5D survey page (Your Overall Health) when patients send feedback to staff users.
+     * @param userId Long ID of User with survey
+     * @param featureName Name of feature that staff Users must have to be added to conversation
+     * @param conversation Conversation, containing user entered message to staff users
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/feature/{featureName}", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addConversationToRecipientsByFeature(@PathVariable("userId") Long userId,
+            @PathVariable("featureName") String featureName,
+            @RequestBody org.patientview.persistence.model.Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException {
+        conversationService.addConversationToRecipientsByFeature(userId, featureName, conversation);
     }
 
     /**
@@ -202,6 +221,23 @@ public class ConversationController extends BaseController<ConversationControlle
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(
                 conversationService.getGroupRecipientsByFeature(groupId, featureName), HttpStatus.OK);
+    }
+
+    /**
+     * Given a user Id and Feature name, get the number of staff Users that have the Feature in the User's Groups,
+     * used by EQ5D survey page (overall health)
+     * @param userId ID of User to get count of recipients for
+     * @param featureName String name of Feature
+     * @return Long count of recipients
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/staffrecipientcountbyfeature/{featureName}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Long> getStaffRecipientCountByFeature(@PathVariable("userId") Long userId,
+            @PathVariable(value = "featureName") String featureName) throws ResourceNotFoundException {
+        return new ResponseEntity<>(
+                conversationService.getStaffRecipientCountByFeature(userId, featureName), HttpStatus.OK);
     }
 
     /**

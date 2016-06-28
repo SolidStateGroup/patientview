@@ -11,6 +11,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
+import uk.org.rixg.Document;
 
 /**
  * This maps between parameters from old PatientView and the new PatientView fhir record
@@ -20,14 +21,29 @@ import org.patientview.persistence.model.FhirDocumentReference;
  */
 public class MediaBuilder {
 
+    // PV XML, from importer
     private Diagnostic diagnostic;
+
+    // UKRDC XML, from importer
+    private Document document;
+
+    // API importer
     private FhirDocumentReference fhirDocumentReference;
+
+    // API Importer
     private FhirDiagnosticReport fhirDiagnosticReport;
+
+    // PV XML, from importer
     private Letter letter;
+
     private Media media;
 
     public MediaBuilder(Diagnostic diagnostic) {
         this.diagnostic = diagnostic;
+    }
+
+    public MediaBuilder(Document document) {
+        this.document = document;
     }
 
     public MediaBuilder(FhirDocumentReference fhirDocumentReference) {
@@ -43,96 +59,132 @@ public class MediaBuilder {
     }
 
     public void build() throws FhirResourceException {
-        media = new Media();
+        this.media = new Media();
         Attachment attachment = new Attachment();
 
         // build based on object type
-        if (letter != null) {
+        if (this.letter != null) {
             // date
-            if (letter.getLetterdate() != null) {
+            if (this.letter.getLetterdate() != null) {
                 try {
-                    DateAndTime dateAndTime = new DateAndTime(CommonUtils.getDateFromString(letter.getLetterdate()));
+                    DateAndTime dateAndTime
+                            = new DateAndTime(CommonUtils.getDateFromString(this.letter.getLetterdate()));
                     DateTime date = new DateTime();
                     date.setValue(dateAndTime);
-                    media.setDateTime(date);
+                    this.media.setDateTime(date);
                 } catch (NullPointerException npe) {
                     throw new FhirResourceException("Letter timestamp is incorrectly formatted");
                 }
             }
 
             // filename
-            if (StringUtils.isNotEmpty(letter.getLetterfilename())) {
-                attachment.setTitleSimple(letter.getLetterfilename());
+            if (StringUtils.isNotEmpty(this.letter.getLetterfilename())) {
+                attachment.setTitleSimple(this.letter.getLetterfilename());
             }
 
             // file type
-            if (StringUtils.isNotEmpty(letter.getLetterfiletype())) {
-                attachment.setContentTypeSimple(letter.getLetterfiletype());
+            if (StringUtils.isNotEmpty(this.letter.getLetterfiletype())) {
+                attachment.setContentTypeSimple(this.letter.getLetterfiletype());
             }
-        } else if (diagnostic != null) {
+        } else if (this.document != null) {
             // date
-            if (diagnostic.getDiagnosticdate() != null) {
+            if (this.document.getDocumentTime() != null) {
+                DateAndTime dateAndTime
+                        = new DateAndTime(this.document.getDocumentTime().toGregorianCalendar().getTime());
+                DateTime date = new DateTime();
+                date.setValue(dateAndTime);
+                this.media.setDateTime(date);
+            }
+
+            // file type
+            if (this.document.getFileType() != null && StringUtils.isNotEmpty(this.document.getFileType().getCode())) {
+                attachment.setContentTypeSimple(this.document.getFileType().getCode().toLowerCase());
+            } else {
+                attachment.setContentTypeSimple("application/unknown");
+            }
+
+            // filename
+            if (StringUtils.isNotEmpty(this.document.getDocumentName())) {
+                attachment.setTitleSimple(this.document.getDocumentName());
+            } else if (this.document.getDocumentType() != null
+                    && StringUtils.isNotEmpty(this.document.getDocumentType().getCode())) {
+                attachment.setTitleSimple(this.document.getDocumentType().getCode());
+            } else if (this.media.getDateTimeSimple() != null){
+                attachment.setTitleSimple(this.media.getDateTimeSimple().toString());
+            }
+
+            // handle pdf file type by appending to file name
+            if (attachment.getContentTypeSimple().equals("application/pdf")) {
+                attachment.setTitleSimple(attachment.getTitleSimple() + ".pdf");
+            } else if (attachment.getContentTypeSimple().equals("application/msword")) {
+                attachment.setTitleSimple(attachment.getTitleSimple() + ".doc");
+            } else if (attachment.getContentTypeSimple().equals("application/jpeg")) {
+                attachment.setTitleSimple(attachment.getTitleSimple() + ".jpg");
+            }
+        } else if (this.diagnostic != null) {
+            // date
+            if (this.diagnostic.getDiagnosticdate() != null) {
                 try {
                     DateAndTime dateAndTime
-                            = new DateAndTime(diagnostic.getDiagnosticdate().toGregorianCalendar().getTime());
+                            = new DateAndTime(this.diagnostic.getDiagnosticdate().toGregorianCalendar().getTime());
                     DateTime date = new DateTime();
                     date.setValue(dateAndTime);
-                    media.setDateTime(date);
+                    this.media.setDateTime(date);
                 } catch (NullPointerException npe) {
                     throw new FhirResourceException("Diagnostic timestamp is incorrectly formatted");
                 }
             }
 
             // filename
-            if (StringUtils.isNotEmpty(diagnostic.getDiagnosticfilename())) {
-                attachment.setTitleSimple(diagnostic.getDiagnosticfilename());
+            if (StringUtils.isNotEmpty(this.diagnostic.getDiagnosticfilename())) {
+                attachment.setTitleSimple(this.diagnostic.getDiagnosticfilename());
             }
 
             // file type
-            if (StringUtils.isNotEmpty(diagnostic.getDiagnosticfiletype())) {
-                attachment.setContentTypeSimple(diagnostic.getDiagnosticfiletype());
+            if (StringUtils.isNotEmpty(this.diagnostic.getDiagnosticfiletype())) {
+                attachment.setContentTypeSimple(this.diagnostic.getDiagnosticfiletype());
             }
-        } else if (fhirDocumentReference != null) {
+        } else if (this.fhirDocumentReference != null) {
             // date
-            if (fhirDocumentReference.getDate() != null) {
-                media.setDateTimeSimple(new DateAndTime(fhirDocumentReference.getDate()));
+            if (this.fhirDocumentReference.getDate() != null) {
+                this.media.setDateTimeSimple(new DateAndTime(this.fhirDocumentReference.getDate()));
             }
 
             // filename
-            if (StringUtils.isNotEmpty(fhirDocumentReference.getFilename())) {
-                attachment.setTitleSimple(fhirDocumentReference.getFilename());
+            if (StringUtils.isNotEmpty(this.fhirDocumentReference.getFilename())) {
+                attachment.setTitleSimple(this.fhirDocumentReference.getFilename());
             }
 
             // file type
-            if (StringUtils.isNotEmpty(fhirDocumentReference.getFiletype())) {
-                attachment.setContentTypeSimple(fhirDocumentReference.getFiletype());
+            if (StringUtils.isNotEmpty(this.fhirDocumentReference.getFiletype())) {
+                attachment.setContentTypeSimple(this.fhirDocumentReference.getFiletype());
             }
-        } else if (fhirDiagnosticReport != null) {
+        } else if (this.fhirDiagnosticReport != null) {
             // date
-            if (fhirDiagnosticReport.getDate() != null) {
-                media.setDateTimeSimple(new DateAndTime(fhirDiagnosticReport.getDate()));
+            if (this.fhirDiagnosticReport.getDate() != null) {
+                this.media.setDateTimeSimple(new DateAndTime(this.fhirDiagnosticReport.getDate()));
             }
 
             // filename
-            if (StringUtils.isNotEmpty(fhirDiagnosticReport.getFilename())) {
-                attachment.setTitleSimple(fhirDiagnosticReport.getFilename());
+            if (StringUtils.isNotEmpty(this.fhirDiagnosticReport.getFilename())) {
+                attachment.setTitleSimple(this.fhirDiagnosticReport.getFilename());
             }
 
             // file type
-            if (StringUtils.isNotEmpty(fhirDiagnosticReport.getFiletype())) {
-                attachment.setContentTypeSimple(fhirDiagnosticReport.getFiletype());
+            if (StringUtils.isNotEmpty(this.fhirDiagnosticReport.getFiletype())) {
+                attachment.setContentTypeSimple(this.fhirDiagnosticReport.getFiletype());
             }
         }
 
-        media.setContent(attachment);
+        this.media.setContent(attachment);
     }
 
     public Media getMedia() throws FhirResourceException {
-        if (media == null) {
+        if (this.media == null) {
             throw new FhirResourceException("Must have built Media");
         }
 
-        return media;
+        return this.media;
     }
 
     public Media setFileDataId(Media media, Long fileDataId) throws FhirResourceException {

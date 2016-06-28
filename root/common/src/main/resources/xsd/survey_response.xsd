@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="survey_response">
+        <xs:annotation>
+            <xs:documentation>PatientView Survey Response XML Schema</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="1" minOccurs="1" name="survey_type" type="xs:string"/>
+                <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string"/>
+                <xs:element maxOccurs="1" minOccurs="1" name="date" type="xs:dateTime"/>
+                <xs:element maxOccurs="1" minOccurs="0" name="survey_response_scores">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="1" name="survey_response_score">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="score" type="xs:decimal"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="severity" type="severity"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="type" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" name="question_answers">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" minOccurs="1" name="question_answer">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="question_type" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="question_option" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="question_value" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Enum values matching ScoreSeverity.java -->
+    <xs:simpleType name="severity">
+        <xs:annotation>
+            <xs:documentation>Score severity types, used when creating UI</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="MEDIUM"/>
+            <xs:enumeration value="LOW"/>
+            <xs:enumeration value="UNKNOWN"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -8,6 +8,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.currentSpecialty = specialty;
         $scope.loading = true;
 
+        delete $scope.activeTab;
+        delete $routeParams.activeTab;
+
         if (specialty.code === 'IBD') {
             getPatientManagement($scope.loggedInUser, function() {
                 $timeout(function() {
@@ -24,7 +27,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         GroupService.getAllPublic().then(function(groups) {
             $scope.unitGroups = [];
 
-            // only need UNIT and DISEASE_GROUP groups
+            // only need UNIT and DISEASE_GROUP groups, also check if any has the RENAL_HEALTH_SURVEY feature
             groups.forEach(function(group) {
                 if (group.groupType.value === 'UNIT' || group.groupType.value === 'DISEASE_GROUP') {
                     $scope.unitGroups.push(group);
@@ -322,11 +325,18 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         if (childGroupIds.length > 0) {
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
+            $scope.showRenalHealthSurveys = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
                 if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
                     canGetStaffEnteredDiagnosis = true;
                 }
+
+                $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
+                    if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
+                        $scope.showRenalHealthSurveys = true;
+                    }
+                })
             }
 
             if (canGetStaffEnteredDiagnosis) {
@@ -420,6 +430,22 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             }
 
             $scope.currentSpecialty = specialty;
+
+            // handle routing to specific specialty
+            if ($routeParams.specialty !== undefined) {
+                specialty = _.findWhere($scope.specialties, {code: $routeParams.specialty});
+                if (specialty != null && specialty != undefined) {
+                    $scope.currentSpecialty = specialty;
+                }
+            }
+
+            // handle linking to specific tabs in Renal
+            if ($scope.currentSpecialty.code === 'Renal') {
+                if ($routeParams.activeTab !== undefined) {
+                    $scope.activeTab = $routeParams.activeTab;
+                }
+            }
+
             getAllPublic();
         } else {
             alert('Error getting specialties');

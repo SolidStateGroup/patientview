@@ -54,7 +54,7 @@ public class QuestionGroupRepositoryTest {
     @Test
     public void testFindAll() {
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.CROHNS_SYMPTOM_SCORE.toString());
         surveyRepository.save(survey);
 
         QuestionGroup questionGroup = new QuestionGroup();

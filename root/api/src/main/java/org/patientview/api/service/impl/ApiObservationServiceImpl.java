@@ -16,7 +16,7 @@ import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
-import org.patientview.api.service.FhirLinkService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.builder.TestObservationsBuilder;

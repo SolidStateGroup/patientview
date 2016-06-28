@@ -1,11 +1,9 @@
 package org.patientview.persistence.model;
 
-import org.patientview.persistence.model.enums.SurveyTypes;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -23,10 +21,9 @@ public class Survey extends BaseModel {
     private String description;
 
     @Column(name = "type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private SurveyTypes type;
+    private String type;
 
-    @OneToMany(mappedBy = "survey")
+    @OneToMany(mappedBy = "survey", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<QuestionGroup> questionGroups = new ArrayList<>();
 
     public Survey() {}
@@ -39,11 +36,11 @@ public class Survey extends BaseModel {
         this.description = description;
     }
 
-    public SurveyTypes getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(SurveyTypes type) {
+    public void setType(String type) {
         this.type = type;
     }
 

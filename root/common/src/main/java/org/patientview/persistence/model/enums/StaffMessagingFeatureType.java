@@ -8,7 +8,8 @@ package org.patientview.persistence.model.enums;
 public enum StaffMessagingFeatureType {
 
     MESSAGING("Messaging"),
-    DEFAULT_MESSAGING_CONTACT("Default Messaging Contact");
+    DEFAULT_MESSAGING_CONTACT("Default Messaging Contact"),
+    RENAL_SURVEY_FEEDBACK_RECIPIENT("Renal Survey Feedback Recipient");
 
     private String name;
     StaffMessagingFeatureType(String name) { this.name = name; }

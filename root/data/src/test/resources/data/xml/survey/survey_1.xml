@@ -1,0 +1,194 @@
+<survey>
+    <description>Example Survey</description>
+    <type>CROHNS_SYMPTOM_SCORE</type>
+    <question_groups>
+        <question_group>
+            <text>Crohn's Questions</text>
+            <description></description>
+            <number></number>
+            <display_order>0</display_order>
+            <questions>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>SELECT</html_type>
+                    <type>ABDOMINAL_PAIN</type>
+                    <text>Do you have any abdominal pain at present?</text>
+                    <description></description>
+                    <number></number>
+                    <display_order>0</display_order>
+                    <help_link></help_link>
+                    <question_options>
+                        <question_option>
+                            <type>NO</type>
+                            <text>No</text>
+                            <description></description>
+                            <display_order>0</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>MILD</type>
+                            <text>Mild</text>
+                            <description></description>
+                            <display_order>1</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>MODERATE</type>
+                            <text>Moderate</text>
+                            <description></description>
+                            <display_order>2</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>SEVERE</type>
+                            <text>Severe</text>
+                            <description></description>
+                            <display_order>3</display_order>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT_RANGE</element_type>
+                    <html_type>SELECT</html_type>
+                    <type>OPEN_BOWELS</type>
+                    <text>How many times are your bowels open a day?</text>
+                    <description></description>
+                    <number></number>
+                    <display_order>1</display_order>
+                    <help_link></help_link>
+                    <range_start>0</range_start>
+                    <range_end>20</range_end>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>SELECT</html_type>
+                    <type>FEELING</type>
+                    <text>How are you feeling?</text>
+                    <description></description>
+                    <number></number>
+                    <display_order>0</display_order>
+                    <help_link></help_link>
+                    <question_options>
+                        <question_option>
+                            <type>WELL</type>
+                            <text>I feel well</text>
+                            <description></description>
+                            <display_order>0</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>BELOW_PAR</type>
+                            <text>Slightly below par</text>
+                            <description></description>
+                            <display_order>1</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>POOR</type>
+                            <text>Poor</text>
+                            <description></description>
+                            <display_order>2</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>VERY_POOR</type>
+                            <text>Very poor</text>
+                            <description></description>
+                            <display_order>3</display_order>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>SELECT</html_type>
+                    <type>COMPLICATION</type>
+                    <text>Do you have any complications from your IBD?</text>
+                    <description></description>
+                    <number></number>
+                    <display_order>0</display_order>
+                    <help_link>http://www.myibdportal.org/crohns-disease#what-are-the-possible-complications-of-crohns</help_link>
+                    <question_options>
+                        <question_option>
+                            <type>NONE</type>
+                            <text>None</text>
+                            <description></description>
+                            <display_order>0</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>IBD_RELATED_JOINT_COMPLICATIONS</type>
+                            <text>IBD related joint complications (inflammatory arthritis, sacroilelitis)</text>
+                            <description></description>
+                            <display_order>1</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>IBD_RELATED_SKIN_COMPLICATIONS</type>
+                            <text>IBD related skin complications (erythema nodosum, pyoderma gangrenosum)</text>
+                            <description></description>
+                            <display_order>2</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>IBD_RELATED_EYE_COMPLICATIONS</type>
+                            <text>IBD related eye complications (uveitis, episclreitis)</text>
+                            <description></description>
+                            <display_order>3</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>MOUTH_ULCERS</type>
+                            <text>Mouth ulcers</text>
+                            <description></description>
+                            <display_order>4</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>ANAL_FISSURE</type>
+                            <text>Anal Fissure</text>
+                            <description></description>
+                            <display_order>5</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>FISTULA</type>
+                            <text>Fistula</text>
+                            <description></description>
+                            <display_order>6</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>ABSCESS</type>
+                            <text>Abscess</text>
+                            <description></description>
+                            <display_order>7</display_order>
+                        </question_option>
+                    </question_options>
+                </question>
+                <question>
+                    <element_type>SINGLE_SELECT</element_type>
+                    <html_type>SELECT</html_type>
+                    <type>MASS_IN_TUMMY</type>
+                    <text>Has the Doctor informed you about any mass (lump) in your abdomen?</text>
+                    <description></description>
+                    <number></number>
+                    <display_order>0</display_order>
+                    <help_link></help_link>
+                    <question_options>
+                        <question_option>
+                            <type>NO</type>
+                            <text>No</text>
+                            <description></description>
+                            <display_order>0</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>POSSIBLE</type>
+                            <text>Possible</text>
+                            <description></description>
+                            <display_order>1</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>DEFINITE</type>
+                            <text>Definite</text>
+                            <description></description>
+                            <display_order>2</display_order>
+                        </question_option>
+                        <question_option>
+                            <type>DEFINITE_AND_TENDER</type>
+                            <text>Definite and tender</text>
+                            <description></description>
+                            <display_order>3</display_order>
+                        </question_option>
+                    </question_options>
+                </question>
+            </questions>
+        </question_group>
+    </question_groups>
+</survey>

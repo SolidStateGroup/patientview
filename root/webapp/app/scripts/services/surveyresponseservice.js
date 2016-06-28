@@ -3,10 +3,10 @@
 angular.module('patientviewApp').factory('SurveyResponseService', ['$q', 'Restangular',
 function ($q, Restangular) {
     return {
-        getSurveyResponse: function (userId, surveyResponseId) {
+        add: function (userId, surveyResponse) {
             var deferred = $q.defer();
-            // GET /user/{userId}/surveyresponses/{surveyResponseId}
-            Restangular.one('user', userId).one('surveyresponses', surveyResponseId).get().then(function(successResult) {
+            // POST /user/{userId}/surveyresponses
+            Restangular.one('user', userId).all('surveyresponses').post(surveyResponse).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -23,10 +23,20 @@ function ($q, Restangular) {
             });
             return deferred.promise;
         },
-        add: function (userId, surveyResponse) {
+        getLatestByUserAndSurveyType: function (userId, types) {
             var deferred = $q.defer();
-            // POST /user/{userId}/surveyresponses
-            Restangular.one('user', userId).all('surveyresponses').post(surveyResponse).then(function(successResult) {
+            // GET /user/{userId}/surveyresponses/latest?types=SOMETHING&types=ELSE
+            Restangular.one('user', userId).one('surveyresponses/latest').get({'types':types}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getSurveyResponse: function (userId, surveyResponseId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/surveyresponses/{surveyResponseId}
+            Restangular.one('user', userId).one('surveyresponses', surveyResponseId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

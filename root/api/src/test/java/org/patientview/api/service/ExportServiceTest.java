@@ -98,10 +98,10 @@ public class ExportServiceTest {
         user.getIdentifiers().add(identifier);
 
         Survey survey = new Survey();
-        survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE);
+        survey.setType(SurveyTypes.COLITIS_SYMPTOM_SCORE.toString());
 
-        SurveyResponse surveyResponse
-            = new SurveyResponse(user, 1, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE);
+        SurveyResponse surveyResponse = new SurveyResponse(
+                user, 1.0, ScoreSeverity.LOW, new Date(), SurveyResponseScoreTypes.SYMPTOM_SCORE.toString());
         surveyResponse.setSurvey(survey);
         List<SurveyResponse> surveyResponses = new ArrayList<>();
         surveyResponses.add(surveyResponse);
@@ -109,12 +109,12 @@ public class ExportServiceTest {
         // questions
         {
             Question question = new Question();
-            question.setType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME);
+            question.setType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("stools daytime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("0-3");
 
@@ -126,16 +126,17 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_DAYTIME.toString()))
+                    .thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME);
+            question.setType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("stools nighttime");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE);
+            questionOption.setType(QuestionOptionTypes.ZERO_TO_THREE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("0-3");
 
@@ -147,16 +148,17 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.NUMBER_OF_STOOLS_NIGHTTIME.toString()))
+                    .thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.TOILET_TIMING);
+            question.setType(QuestionTypes.TOILET_TIMING.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("toilet timing");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.DONT_NEED_TO_RUSH);
+            questionOption.setType(QuestionOptionTypes.DONT_NEED_TO_RUSH.toString());
             questionOption.setQuestion(question);
             questionOption.setText("no rush");
 
@@ -168,16 +170,16 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.TOILET_TIMING)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.TOILET_TIMING.toString())).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.PRESENT_BLOOD);
+            question.setType(QuestionTypes.PRESENT_BLOOD.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("toilet timing");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setType(QuestionOptionTypes.NONE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("none");
 
@@ -189,16 +191,16 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.PRESENT_BLOOD)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.PRESENT_BLOOD.toString())).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.COMPLICATION);
+            question.setType(QuestionTypes.COMPLICATION.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("complication");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.NONE);
+            questionOption.setType(QuestionOptionTypes.NONE.toString());
             questionOption.setQuestion(question);
             questionOption.setText("none");
 
@@ -210,16 +212,16 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.COMPLICATION)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.COMPLICATION.toString())).thenReturn(questions);
         }
         {
             Question question = new Question();
-            question.setType(QuestionTypes.FEELING);
+            question.setType(QuestionTypes.FEELING.toString());
             question.setElementType(QuestionElementTypes.SINGLE_SELECT);
             question.setText("feeling");
 
             QuestionOption questionOption = new QuestionOption();
-            questionOption.setType(QuestionOptionTypes.WELL);
+            questionOption.setType(QuestionOptionTypes.WELL.toString());
             questionOption.setQuestion(question);
             questionOption.setText("well");
 
@@ -231,7 +233,7 @@ public class ExportServiceTest {
             List<Question> questions = new ArrayList<>();
             questions.add(question);
 
-            when(questionRepository.findByType(QuestionTypes.FEELING)).thenReturn(questions);
+            when(questionRepository.findByType(QuestionTypes.FEELING.toString())).thenReturn(questions);
         }
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
@@ -242,6 +244,6 @@ public class ExportServiceTest {
                 = exportService.downloadSurveyResponses(user.getId(), SurveyTypes.COLITIS_SYMPTOM_SCORE.toString());
 
         Assert.assertNotNull("Should output byte array", out);
-        verify(questionRepository, Mockito.times(6)).findByType(any(QuestionTypes.class));
+        verify(questionRepository, Mockito.times(6)).findByType(any(String.class));
     }
 }

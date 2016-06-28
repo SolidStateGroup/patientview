@@ -9,6 +9,7 @@ import org.patientview.api.model.Patient;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.LookingLocalProperties;
 import org.patientview.api.service.LookingLocalService;
@@ -62,6 +63,9 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
     @Inject
     private AuthenticationService authenticationService;
+
+    @Inject
+    private DocumentService documentService;
 
     @Inject
     private LetterService letterService;
@@ -724,7 +728,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
 
         try {
             observations
-                    = apiObservationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
+                = apiObservationService.get(userToken.getUser().getId(), selection, "appliesDateTime", "DESC", null);
         } catch (FhirResourceException | ResourceNotFoundException | ResourceForbiddenException e) {
             return getErrorXml("Error getting results");
         }
@@ -929,7 +933,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         List<FhirDocumentReference> fhirDocumentReferences;
 
         try {
-            fhirDocumentReferences = letterService.getByUserId(userToken.getUser().getId());
+            fhirDocumentReferences = documentService.getByUserIdAndClass(userToken.getUser().getId(), null, null, null);
         } catch (FhirResourceException | ResourceNotFoundException e) {
             return getErrorXml("Error getting letters");
         }
@@ -1139,7 +1143,7 @@ public class LookingLocalServiceImpl extends AbstractServiceImpl<LookingLocalSer
         List<FhirDocumentReference> fhirDocumentReferences;
 
         try {
-            fhirDocumentReferences = letterService.getByUserId(userToken.getUser().getId());
+            fhirDocumentReferences = documentService.getByUserIdAndClass(userToken.getUser().getId(), null, null, null);
         } catch (FhirResourceException | ResourceNotFoundException e) {
             return getErrorXml("Error getting letters");
         }
