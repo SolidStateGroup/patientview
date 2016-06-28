@@ -40,6 +40,14 @@ public class NhsChoicesControllerTest {
     }
 
     @Test
+    public void testConditionsUpdate() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/nhschoices/conditions/update"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
     public void testOrganisationsUpdate() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 

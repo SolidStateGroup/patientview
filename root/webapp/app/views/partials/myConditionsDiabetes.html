@@ -13,14 +13,27 @@
     </div>
 </div>
 
-<div data-ng-show="patientDetails.length">
-    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-        <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
+<ul class="nav nav-tabs">
+    <li data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_CONDITIONS'">My Conditions</a></li>
+    <li data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">Entered Diagnoses</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_CONDITIONS' || activeTab === null || activeTab === undefined)}">
+        <div data-ng-show="patientDetails.length">
+            <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+                <div data-ng-include src="'views/partials/myConditionsPatientDetails.html'"></div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}">
+        <div data-ng-include src="'views/partials/myConditionsGeneric.html'"></div>
     </div>
 </div>
 
+
+
 <div class="panel panel-default" data-ng-show="currentSpecialty.links">
-    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
+    <div class="panel-heading"><h3>Other Diabetes Information</h3></div>
     <div class="panel-body">
         <ul>
             <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">

@@ -37,7 +37,7 @@
                         <span data-ng-if="currentPage == -1">Latest</span>
                     </label>
                     <ul class="unstyled inline">
-                        <li data-ng-repeat="result in panel | orderBy:'panelOrder'">
+                        <li data-ng-repeat="result in panel | orderBy:['panel', 'panelOrder']">
                             {{result.heading}} &nbsp;
                         </li>
                     </ul>
@@ -61,7 +61,7 @@
 
     <div class="results-container clearfix">
         <ul class="unstyled results-list row">
-            <li bindonce class="col-md-3 col-sm-6 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:'panelOrder'">
+            <li bindonce class="col-md-3 col-sm-6 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:['panel', 'panelOrder']">
                 <div class="content-panel result-item" data-ng-class="result.latestObservation && result.isLatest ? 'latest-result' : ''">
                     <div class="result-header">
                         <h4>

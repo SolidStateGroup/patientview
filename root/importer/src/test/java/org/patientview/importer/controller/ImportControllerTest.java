@@ -183,8 +183,8 @@ public class ImportControllerTest {
             String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
             org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-            String postUrl="http://localhost:8081/importer/import/ukrdc";
-            //String postUrl = "https://test.patientview.org/importer/import/ukrdc";
+            //String postUrl="http://localhost:8081/importer/import/ukrdc";
+            String postUrl = "https://test.patientview.org/importer/import/ukrdc";
 
             HttpPost post = new HttpPost(postUrl);
             StringEntity postingString = new StringEntity(content);

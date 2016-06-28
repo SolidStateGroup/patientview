@@ -13,14 +13,11 @@ import java.io.Serializable;
 @MappedSuperclass
 public abstract class BaseModel implements Serializable, Comparable {
 
-    protected BaseModel() {
-
-    }
+    protected BaseModel() { }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
 
     public Long getId() {
         return id;
@@ -41,7 +38,6 @@ public abstract class BaseModel implements Serializable, Comparable {
         }
 
         BaseModel baseModel = (BaseModel) o;
-
         return id != null && id.equals(baseModel.id);
     }
 
@@ -55,10 +51,7 @@ public abstract class BaseModel implements Serializable, Comparable {
     }
 
     public int compareTo(Object o) {
-
         BaseModel baseModel = (BaseModel) o;
-
         return this.id.compareTo(baseModel.getId());
     }
-
 }

@@ -1,45 +1,4 @@
 'use strict';
-
-// delete code modal instance controller
-var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code', 'CodeService',
-function ($scope, $modalInstance, code, CodeService) {
-    $scope.code = code;
-    $scope.ok = function () {
-        CodeService.remove(code).then(function() {
-            $modalInstance.close();
-        });
-    };
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
-// new code modal instance controller
-var NewCodeModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'codeTypes', 'standardTypes', 'editCode', 'CodeService',
-function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode, CodeService) {
-    $scope.editCode = editCode;
-    $scope.codeTypes = codeTypes;
-    $scope.standardTypes = standardTypes;
-    $scope.editMode = false;
-
-    $scope.ok = function () {
-        CodeService.create($scope.editCode, codeTypes, standardTypes).then(function(result) {
-            $scope.editCode = result;
-            $modalInstance.close($scope.editCode);
-        }, function(result) {
-            if (result.data) {
-                $scope.errorMessage = ' - ' + result.data;
-            } else {
-                $scope.errorMessage = ' ';
-            }
-        });
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
 angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
 function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
@@ -189,7 +148,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     // Opened for edit
     $scope.opened = function (openedCode) {
-        var i;
+        var i, j;
 
         if (openedCode.showEdit) {
             $scope.editCode = '';
@@ -210,9 +169,37 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 $scope.saved = '';
                 code.codeTypeId = code.codeType.id;
                 code.standardTypeId = code.standardType.id;
-                $scope.editCode = _.clone(code);
-                $scope.editMode = true;
-                openedCode.editLoading = false;
+                code.availableCategories = [];
+
+                $scope.externalStandards = _.clone($scope.loggedInUser.userInformation.externalStandards);
+
+                // prepare categories, create list of available categories (all - what code already has)
+                CodeService.getCategories().then(function (categories) {
+                    if (categories != null && categories != undefined && categories.length) {
+                        categories = _.sortBy(categories, ['friendlyDescription']);
+                        code.availableCategories = categories;
+
+                        for (i = 0; i < code.codeCategories.length; i++) {
+                            for (j = 0; j < code.availableCategories.length; j++) {
+                                if (code.codeCategories[i].category.id === code.availableCategories[j].id) {
+                                    code.availableCategories.splice(j, 1);
+                                }
+                            }
+                        }
+                    }
+
+                    if (code.availableCategories != null && code.availableCategories != undefined
+                            && code.availableCategories[0]) {
+                        $scope.categoryToAdd = code.availableCategories[0].id;
+                    }
+
+                    $scope.editCode = _.clone(code);
+                    $scope.editMode = true;
+                    openedCode.editLoading = false;
+                }, function (error) {
+                    alert("Error retrieving categories: " + error.data);
+                });
+
             });
         }
     };

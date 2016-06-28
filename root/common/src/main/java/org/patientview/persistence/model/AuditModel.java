@@ -1,6 +1,8 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -30,9 +32,16 @@ public abstract class AuditModel extends SimpleAuditModel {
 
     }
 
-    @JsonIgnore
     public Date getLastUpdate() {
-        return lastUpdate;
+        if (lastUpdate == null) {
+            return null;
+        }
+
+        // account for timezone when showing in ui
+        DateTimeZone dateTimeZone = DateTimeZone.UTC;
+        DateTime dateTime = new DateTime(dateTimeZone.convertLocalToUTC(lastUpdate.getTime(), true));
+
+        return dateTime.toDate();
     }
 
     public void setLastUpdate(final Date lastUpdate) {

@@ -36,6 +36,13 @@
             <version>3.13</version>
         </dependency>
 
+        <!-- read XLSX files -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.13</version>
+        </dependency>
+
         <!-- extracting ZIP files -->
         <dependency>
             <groupId>net.lingala.zip4j</groupId>

@@ -1,5 +1,8 @@
 <div class="page-content" data-ng-show="!loading">
-    <h1>Codes <button class="btn blue" data-ng-click="openModalNewCode('lg')">Create New</button></h1>
+    <h1>Codes
+        <a class="btn blue" data-ng-click="openModalNewCode('lg')" href="">Create New</a>
+        <a class="btn blue pull-right" href="/#/categories">Edit Categories</a>
+    </h1>
 
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 
@@ -104,14 +107,15 @@
         </div>
 
         <!-- data grid -->
-        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
+        <div class="faux-table six-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('standardType');" class="sort-title"><i class="icon-sort pull-right"></i>Standard</a></div>
-                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Description</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('lastUpdate');" class="sort-title"><i class="icon-sort pull-right"></i>Updated</a></div>
                 <div class="head-item accordion-title-text "><a class="sort-title"></a></div>
             </div>
 
@@ -120,21 +124,30 @@
                 <div class="faux-row">
                     <div class="row-item hidden">{{code.id}}</div>
                     <div class="row-item accordion-heading-text">{{code.code}}</div>
+                    <div class="row-item accordion-heading-text">{{code.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.codeType.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.standardType.description}}</div>
-                    <div class="row-item accordion-heading-text">{{code.description}}</div>
+                    <div class="row-item accordion-heading-text">
+                        <span>{{code.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
+                        <span data-ng-if="code.removedExternally && code.sourceType == 'NHS_CHOICES'" class="error">removed externally</span>
+                    </div>
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="btn-group pull-right">
                             <button type="button" class="btn blue edit-button" data-ng-click="opened(code)">Edit</button>
                             <button type="button" class="btn aquamarine" data-ng-click="clone(code.id, $event)">Copy</button>
-                            <button type="button" class="btn negative" data-ng-click="remove(code.id, $event)">Delete</button>
+                            <button type="button" class="btn negative" data-ng-click="remove(code.id, $event)">Del</button>
                         </div>
                     </div>
                 </div>
                 <!-- edit pane -->
                 <div class="panel-body" data-ng-show="code.showEdit">
-                    <div data-ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="code.editLoading" class="loading">
+                        <img src="images/loading.gif" alt="Loading"/>
+                        <p class="text-center" data-ng-if="code.standardType.value == 'PATIENTVIEW'">
+                            <br/>Please be patient while we retrieve data from external sources...
+                        </p>
+                    </div>
                     <div data-ng-show="!code.editLoading">
                         <form name="codeForm" class="edit-code">
                             <div data-ng-include src="'views/partials/codeDetails.html'" data-ng-controller="CodeDetailsCtrl"></div>

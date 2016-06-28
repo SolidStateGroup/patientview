@@ -1,14 +1,5 @@
 'use strict';
 
-// observation heading information modal instance controller
-var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
-    function ($scope, $modalInstance, result) {
-        $scope.result = result;
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
-
 angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', '$routeParams',
 function ($scope, $modal, ObservationService, $routeParams) {
 
@@ -64,7 +55,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
                     }
 
                     // order by panel, panelOrder
-                    summary[i].panels[-1] = _.sortBy(summaryLatest, ['panel', 'panelOrder']);
+                    summary[i].panels[-1] = summaryLatest;
                 }
 
                 $scope.groupIndex = 0;
@@ -145,7 +136,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openObservationHeadingInformation = function (result) {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            templateUrl: 'views/modal/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
             size: 'sm',
             windowClass: 'results-modal',
@@ -165,7 +156,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',
