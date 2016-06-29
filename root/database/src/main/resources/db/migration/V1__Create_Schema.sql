@@ -222,6 +222,7 @@ CREATE TABLE PV_User_Token
   Secret_Word_Token VARCHAR(50),
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
+  Rate_Limit      NUMERIC(19, 2),
   PRIMARY KEY (Id)
 );
 

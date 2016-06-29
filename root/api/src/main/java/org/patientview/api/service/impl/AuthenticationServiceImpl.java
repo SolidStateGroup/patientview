@@ -162,8 +162,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                     throw new AuthenticationServiceException("Error retrieving child groups");
                 }
             }
-            return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
-                    grantedAuthorities);
+            return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken, grantedAuthorities);
 
         } else {
             throw new AuthenticationServiceException("Token could not be found");
@@ -239,6 +238,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             if (!validApiKey) {
                 throw new AuthenticationServiceException("Invalid API key");
             }
+
+            setRateLimit(userToken, ApiKeyTypes.CKD);
+        } else {
+            setRateLimit(userToken, null);
         }
 
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
@@ -381,6 +384,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
 
         org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+
+        setRateLimit(userToken, ApiKeyTypes.IMPORTER);
 
         // no secret word, log in as usual
         userToken.setToken(CommonUtils.getAuthToken());
@@ -661,6 +666,19 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             patientRoles.add(new Role(role));
         }
         userToken.setPatientRoles(patientRoles);
+    }
+
+    private void setRateLimit(UserToken userToken, ApiKeyTypes apiKeyType) {
+        String rateLimitType = apiKeyType == null ? "DEFAULT" : apiKeyType.toString();
+        String rateLimit = properties.getProperty("rate.limit." + rateLimitType);
+
+        if (StringUtils.isNotEmpty(rateLimit)) {
+            try {
+                userToken.setRateLimit(Double.parseDouble(rateLimit));
+            } catch (NumberFormatException nfe) {
+                LOG.info("Error converting rate.limit." + rateLimitType + " to Double, continuing..");
+            }
+        }
     }
 
     private void setShouldEnterCondition(org.patientview.api.model.UserToken userToken, User user) {
