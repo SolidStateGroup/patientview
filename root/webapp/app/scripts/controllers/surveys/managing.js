@@ -9,8 +9,9 @@ var LevelsModalInstanceCtrl = ['$scope', '$modalInstance',
         };
     }];
 
-angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', '$modal', 'SurveyService', 'SurveyResponseService',
-    function ($scope, $filter, $modal, SurveyService, SurveyResponseService) {
+angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$filter', '$modal', 'SurveyService',
+    'SurveyResponseService', 'DocumentService',
+    function ($scope, $filter, $modal, SurveyService, SurveyResponseService, DocumentService) {
 
     var buildTable = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -86,7 +87,8 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             // special score row
             if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
                 tableRows[questions.length] = {};
-                tableRows[questions.length].type = questionType;
+                tableRows[questions.length].borderAbove = true;
+                tableRows[questions.length].isScore = true;
                 tableRows[questions.length].data = [];
                 tableRows[questions.length].data.push({'text':'Score', 'isScore':true});
             }
@@ -96,12 +98,32 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             // special level row
             if (tableRows[questions.length + 1] == undefined || tableRows[questions.length + 1] == null) {
                 tableRows[questions.length + 1] = {};
-                tableRows[questions.length + 1].type = questionType;
+                tableRows[questions.length + 1].isScore = true;
                 tableRows[questions.length + 1].data = [];
                 tableRows[questions.length + 1].data.push({'text':'Level', 'isScore':true});
             }
 
             tableRows[questions.length + 1].data.push({'text': level, 'isLatest':response.isLatest, 'isScore':true});
+
+            // special download row
+            if (tableRows[questions.length + 2] == undefined || tableRows[questions.length + 2] == null) {
+                tableRows[questions.length + 2] = {};
+                tableRows[questions.length + 2].isDownload = true;
+                tableRows[questions.length + 2].data = [];
+                tableRows[questions.length + 2].data.push({'text':'', 'isDownload':true});
+            }
+
+            var download = '';
+
+            if ($scope.documentDateMap[response.date]) {
+                download = '<a href="../api/user/' + $scope.loggedInUser.id +
+                    '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
+            }
+
+            tableRows[questions.length + 2].data.push({'text': download, 'isLatest':false, 'isDownload':true});
+
         }
 
         $scope.tableHeader = tableHeader;
@@ -147,7 +169,20 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             if (survey != null) {
                 $scope.survey = survey;
                 $scope.questions = survey.questionGroups[0].questions;
-                getSurveyResponses();
+
+                DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
+                    .then(function(documents) {
+                        $scope.documentDateMap = {};
+                        if (documents.length) {
+                            for (var i = 0; i < documents.length; i++) {
+                                $scope.documentDateMap[documents[i].date] = documents[i];
+                            }
+                        }
+
+                        getSurveyResponses();
+                }, function() {
+                    alert('Error retrieving documents');
+                });
             } else {
                 $scope.errorMessage = 'Error retrieving surveys';
                 $scope.loading = false;
@@ -233,7 +268,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
 
     $scope.showLevels = function() {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/levelsModal.html',
+            templateUrl: 'views/modal/levelsModal.html',
             controller: LevelsModalInstanceCtrl,
             size: 'lg'
         });

@@ -56,9 +56,8 @@
                     <tbody>
                     <tr data-ng-repeat="row in tableRows track by $index">
                         <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                            <span data-ng-class="{'bold': $index == 0}">
-                                {{cell.text}}
-                            </span>
+                            <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
+                            <span data-ng-class="{'bold': $index == 0}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
                         </td>
                     </tr>
                     </tbody>

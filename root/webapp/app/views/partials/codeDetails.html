@@ -1,27 +1,48 @@
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="code-code" class="control-label">Code <span class="error" data-ng-show="codeForm.code.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100"></div>
-
+            <div><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100" data-ng-disabled="editCode.standardType.value == 'PATIENTVIEW'"></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
+            <label for="code-description" class="control-label">Name <span class="error" data-ng-show="codeForm.description.$error.required"> *required</span></label>
+            <div><input type="text" class="form-control" id="code-description" placeholder="Name" name="description" data-ng-model="editCode.description" required maxlength="255" data-ng-disabled="editCode.standardType.value == 'PATIENTVIEW'"></div>
+        </div>
+        <div class="col-md-2">
             <label for="code-codeType" class="control-label">Code Type<span class="error" data-ng-show="!editCode.codeTypeId"> *required</span></label>
             <div><select id="code-codeType" class="form-control codeType-select" data-ng-model="editCode.codeTypeId" data-ng-options="codeType.id as codeType.value for codeType in codeTypes | orderBy:'value'"></select></div>
-
         </div>
-        <div class="col-md-3">
-            <label for="code-standardType" class="control-label">Standard Type <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
+        <div class="col-md-2">
+            <label for="code-standardType" class="control-label">Code Standard <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
             <div><select id="code-standardType" class="form-control codeType-select" data-ng-model="editCode.standardTypeId" data-ng-options="standardType.id as standardType.value for standardType in standardTypes | orderBy:'value'"></select></div>
-
-        </div>
-        <div class="col-md-3">
-            <label for="code-description" class="control-label">Description <span class="error" data-ng-show="codeForm.description.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" data-ng-model="editCode.description" required maxlength="255"></div>
-
         </div>
     </div>
 </div>
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="code-patient-friendly-name" class="control-label">Patient Friendly Name</label>
+            <div><input type="text" class="form-control" id="code-patient-friendly-name" placeholder="Patient Friendly Name" name="patient-friendly-name" data-ng-model="editCode.patientFriendlyName"></div>
+        </div>
+    </div>
+</div>
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="code-full-description" class="control-label">Description</label>
+            <div><input type="text" class="form-control" id="code-full-description" placeholder="Description" name="full-description" data-ng-model="editCode.fullDescription"></div>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <input type="checkbox" data-ng-model="editCode.hideFromPatients" class="alert-checkbox">Hide from patients</input>
+        </div>
+    </div>
+</div>
+
 <button type="button" class="btn blue pull-right" data-ng-click="save(codeForm, editCode)" data-ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
 <span class="saved-notification pull-right" data-ng-show="codeForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
@@ -79,6 +100,105 @@
             <div>
                 <button type="button" class="btn blue link-add-button" data-ng-click="addLink(codeForm, editCode, newLink)" data-ng-disabled="!(newLink.link && newLink.name)">Add</button>
             </div>
+        </div>
+    </div>
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <label>External Standards</label>
+        <div data-ng-hide="editCode.externalStandards.length > 0" class="no-items">No external standards associated with this code<br/><br/></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <label for="code-newExternalStandard-type">External Standard</label>
+    </div>
+    <div class="col-md-5">
+        <label for="code-newExternalStandard-type">External Standard Code</label>
+    </div>
+</div>
+<div class="link-list-item clearfix row" data-ng-repeat="codeExternalStandard in editCode.externalStandards | orderBy:'id'">
+    <div class="col-md-1 hidden">{{codeExternalStandard.id}}</div>
+    <div class="col-md-3">
+        <select id="code-externalStandard-type-{{externalStandard.id}}" class="form-control"
+                data-ng-model="codeExternalStandard.externalStandard.id"
+                data-ng-options="externalStandard.id as externalStandard.name for externalStandard in externalStandards | orderBy:'name'"></select>
+    </div>
+    <div class="col-md-5">
+        <input type="text" class="form-control" id="code-externalStandard-content-{{codeExternalStandard.id}}"
+               placeholder="Content" name="content" data-ng-model="codeExternalStandard.codeString" required>
+    </div>
+    <div class="btn-code">
+        <button type="button" class="btn blue externalStandard-update-button" data-ng-click="updateCodeExternalStandard($event, codeForm, editCode, codeExternalStandard)">Update</button>
+        <button type="button" class="btn negative externalStandard-delete-button" data-ng-click="removeCodeExternalStandard(codeForm, editCode, codeExternalStandard)">Delete</button>
+        <span class="saved-notification" data-ng-show="codeExternalStandard.saved">&nbsp; Saved</span>
+    </div>
+</div>
+<div class="add-form row" data-ng-model="newExternalStandard">
+    <div class="col-md-3">
+        <select id="code-newExternalStandard-type" class="form-control"
+                data-ng-model="newExternalStandard.externalStandardId"
+                data-ng-options="newExternalStandardType.id as newExternalStandardType.name for newExternalStandardType in externalStandards | orderBy:'name'">
+        </select>
+    </div>
+    <div class="col-md-5">
+        <input type="text" class="form-control" id="code-newExternalStandard-code" placeholder="Code"
+               name="newExternalStandard" data-ng-model="newExternalStandard.codeString">
+    </div>
+    <div class="modal-hack">
+        <button type="button" class="btn blue"
+                data-ng-click="addCodeExternalStandard(codeForm, editCode, newExternalStandard)"
+                data-ng-disabled="!(newExternalStandard.codeString && newExternalStandard.externalStandardId)">Add</button>
+    </div>
+</div>
+
+<div data-ng-show="isDiagnosisCode()">
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <label>Categories</label>
+            <div data-ng-hide="editCode.codeCategories.length > 0" class="no-items">No Categories are associated with this Code</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="name-action-list inline">
+                <li data-ng-repeat="codeCategory in editCode.codeCategories">
+                    <div class="feature-list-name pull-left"><span>{{codeCategory.category.friendlyDescription}}</span></div>
+                    <div class="feature-list-delete pull-left">
+                        <span class="feature-list-delete">
+                            <a id="remove-codeCategory-modal-{{codeCategory.id}}" href="" data-ng-click="removeCodeCategory(codeForm, editCode, codeCategory)" >
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="feature-add-container item-add-container" data-ng-show="editCode.availableCategories.length > 0">
+                <div class="custom-select">
+                    <select class="form-control feature-select group-select" data-ng-model="categoryToAdd"
+                            data-ng-options="category.id as category.friendlyDescription for category in editCode.availableCategories | orderBy:'friendlyDescription'"></select>
+                </div>
+                <button type="button" class="btn blue feature-add-button pull-left" data-ng-click="addCategory(codeForm, editCode, categoryToAdd)">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <span class="created-span" data-ng-if="editCode.created">Created {{editCode.created | date:'dd-MMM-yyyy HH:mm'}}</span><span class="created-span" data-ng-if="editCode.lastUpdate">, updated {{editCode.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
+        <br/><br/>
+        <div class="alert alert-warning" data-ng-if="editCode.removedExternally && code.sourceType == 'NHS_CHOICES'">
+            <span>This Code has been removed externally</span>
         </div>
     </div>
 </div>

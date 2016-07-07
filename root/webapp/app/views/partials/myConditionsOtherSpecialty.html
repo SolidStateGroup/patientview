@@ -1,0 +1,24 @@
+<div>
+    <div>
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:(activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">My Conditions</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" data-ng-class="{active:(activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)}">
+                <div data-ng-include src="'views/partials/myConditionsGeneric.html'"></div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" data-ng-if="currentSpecialty.links.length && (activeTab === 'MY_CONDITIONS_GENERIC' || activeTab === null || activeTab === undefined)">
+            <div class="panel-heading"><h3>Other {{currentSpecialty.name}} Information</h3></div>
+            <div class="panel-body">
+                <ul class="helpful-links">
+                    <li data-ng-repeat="link in currentSpecialty.links | orderBy:'displayOrder'">
+                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+

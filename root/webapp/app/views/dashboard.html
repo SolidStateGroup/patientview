@@ -6,7 +6,7 @@
     }
 </style>
 
-<div data-ng-show="!loading" data-ng-cloak>
+<div data-ng-show="!loading && initFinished" data-in-view="init()">
     <br/>
     <div class="row" data-ng-if="!loggedInUser.hideSecretWordNotification">
         <div class="alert alert-warning">
@@ -80,12 +80,14 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="groupRole.role.name !== 'MEMBER' && groupRole.group.code !== 'GENERAL_PRACTICE'"
+                                        data-ng-if="!((groupRole.role.name == 'MEMBER' && groupRole.group.code == 'GENERAL_PRACTICE')
+                                                        || (groupRole.role.name == 'PATIENT' && groupRole.group.code == 'Generic')
+                                                        || (groupRole.role.name == 'MEMBER' && groupRole.group.code == 'Generic'))"
                                         class="group-li">
 
                                         <!-- renal, diabetes, heart failure, ibd -->
                                         <span data-ng-if="groupRole.group.code === 'Renal' || groupRole.group.code === 'Diabetes' ||
-                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD'">
+                                            groupRole.group.code === 'Cardiol' || groupRole.group.code === 'IBD' || groupRole.group.code === 'patientview'">
                                             <a href="#/myconditions?s={{groupRole.group.code.toLowerCase()}}" class="group-link" data-ng-if="permissions.isPatient">
                                                 <img class="group-image" data-ng-src="../images/icons/pv-{{groupRole.group.code.toLowerCase()}}.png"/>
                                                 <span class="group-description">
@@ -112,7 +114,8 @@
 
                                         <span class="group-description" data-ng-if="groupRole.group.code !== 'Renal'
                                             && groupRole.group.code !== 'Diabetes' &&
-                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'">
+                                            groupRole.group.code !== 'Cardiol' && groupRole.group.code !== 'IBD'
+                                            && groupRole.group.code !== 'patientview'">
                                             {{groupRole.group.name}} ({{groupRole.group.groupType.description}})
                                             <span class="light-text">({{groupRole.role.description}})</span>
                                         </span>
@@ -596,8 +599,8 @@
         </aside>
     </div>
 </div>
-<div data-ng-show="loading" class="container"><br/><br/>
 
+<div data-ng-show="loading || (!loading && !initStarted)" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Home</h3>
     </div>

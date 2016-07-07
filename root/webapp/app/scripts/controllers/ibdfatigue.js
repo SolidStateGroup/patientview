@@ -42,7 +42,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         for (var i = $scope.surveyResponses.length -1; i >= 0; i--) {
 
             var surveyResponse = $scope.surveyResponses[i];
-            var score1 = surveyResponse.surveyResponseScores[0].score;
+            var score1 = surveyResponse.surveyResponseScores[0] ? surveyResponse.surveyResponseScores[0].score : null;
 
             var row = [];
             row[0] = surveyResponse.date;
@@ -213,7 +213,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/surveyResponseDetailNew.html',
-            controller: SurveyResponseDetailsNewModalInstanceCtrl,
+            controller: SurveyResponseDetailNewModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
             resolve: {
@@ -243,7 +243,7 @@ function ($scope, $routeParams, $location, SurveyResponseService, SurveyService,
     $scope.openModalSurveyResponseDetail = function (surveyResponseId) {
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/surveyResponseDetailModal.html',
+            templateUrl: 'views/modal/surveyResponseDetailModal.html',
             controller: SurveyResponseDetailModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',

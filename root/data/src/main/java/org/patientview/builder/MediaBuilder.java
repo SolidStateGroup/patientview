@@ -98,7 +98,7 @@ public class MediaBuilder {
 
             // file type
             if (this.document.getFileType() != null && StringUtils.isNotEmpty(this.document.getFileType().getCode())) {
-                attachment.setContentTypeSimple(this.document.getFileType().getCode());
+                attachment.setContentTypeSimple(this.document.getFileType().getCode().toLowerCase());
             } else {
                 attachment.setContentTypeSimple("application/unknown");
             }
@@ -116,6 +116,10 @@ public class MediaBuilder {
             // handle pdf file type by appending to file name
             if (attachment.getContentTypeSimple().equals("application/pdf")) {
                 attachment.setTitleSimple(attachment.getTitleSimple() + ".pdf");
+            } else if (attachment.getContentTypeSimple().equals("application/msword")) {
+                attachment.setTitleSimple(attachment.getTitleSimple() + ".doc");
+            } else if (attachment.getContentTypeSimple().equals("application/jpeg")) {
+                attachment.setTitleSimple(attachment.getTitleSimple() + ".jpg");
             }
         } else if (this.diagnostic != null) {
             // date

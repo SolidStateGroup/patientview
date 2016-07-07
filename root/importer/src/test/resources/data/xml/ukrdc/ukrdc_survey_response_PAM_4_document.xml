@@ -1,9 +1,9 @@
 <ns:PatientRecord xmlns:ns='http://www.rixg.org.uk/'>
-    <SendingFacility>RENALA</SendingFacility>
+    <SendingFacility>RENALB</SendingFacility>
     <Patient>
         <PatientNumbers>
             <PatientNumber>
-                <Number>ibdtest1</Number>
+                <Number>1111111111</Number>
             </PatientNumber>
         </PatientNumbers>
     </Patient>

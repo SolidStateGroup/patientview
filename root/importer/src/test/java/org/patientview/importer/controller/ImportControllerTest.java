@@ -171,7 +171,12 @@ public class ImportControllerTest {
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_3.xml");
         files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4.xml");*/
 
-        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_document.xml");
+        /*files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_3.xml");
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_document.xml");*/
+
+        //files.add("data/xml/ukrdc/4354569111/ukrdc_survey_response_PAM_4_document.xml");
+
+        files.add("data/xml/ukrdc/ukrdc_survey_response_PAM_4_no_patient.xml");
 
         for (String fileName : files) {
             URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
@@ -179,8 +184,8 @@ public class ImportControllerTest {
             String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
             org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-            String postUrl="http://localhost:8081/importer/import/ukrdc";
-            //String postUrl = "https://test.patientview.org/importer/import/ukrdc";
+            //String postUrl="http://localhost:8081/importer/import/ukrdc";
+            String postUrl = "https://test.patientview.org/importer/import/ukrdc";
 
             HttpPost post = new HttpPost(postUrl);
             StringEntity postingString = new StringEntity(content);
@@ -532,11 +537,11 @@ public class ImportControllerTest {
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
         //String fileName = "data/xml/EDINHF1_01436_1111111111.xml";
         //String fileName = "data/xml/SALIBD_01436_1111111111.xml";
-        //String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
+        String fileName = "data/xml/2.0.6tests/SAC02_01436_1111111111_PDF.xml";
         //String fileName = "data/xml/ibdtest1_1.xml";
 
         // IBD
-        String fileName = "data/xml/ibd/1111111111_ibd.xml";
+        //String fileName = "data/xml/ibd/1111111111_ibd.xml";
 
         // partial migration
         //String fileName = "data/xml/partialmigration/test1.xml";

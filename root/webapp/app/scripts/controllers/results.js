@@ -1,14 +1,5 @@
 'use strict';
 
-// observation heading information modal instance controller
-var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
-    function ($scope, $modalInstance, result) {
-        $scope.result = result;
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
-
 angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService', '$routeParams',
 function ($scope, $modal, ObservationService, $routeParams) {
 
@@ -22,7 +13,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
             if (summary.length) {
                 // set property on results with most recent date
                 var latestDate = 0;
-                var summaryLatest = [];
+                var summaryLatest;
 
                 // find latest date
                 for (i = 0; i < summary.length; i++) {
@@ -42,9 +33,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
                     }
                 }
 
+                var latestDateStr = moment(latestDate).format("DDMMYYYY");
+
                 // set latest
                 for (i = 0; i < summary.length; i++) {
-                    summaryLatest[i] = [];
+                    summaryLatest = [];
                     for (panel in summary[i].panels) {
                         if (summary[i].panels.hasOwnProperty(panel)) {
                             for (j = 0; j < panel.length; j++) {
@@ -52,18 +45,18 @@ function ($scope, $modal, ObservationService, $routeParams) {
                                     resultHeading = summary[i].panels[panel[j]][k];
                                     if (resultHeading.latestObservation != null
                                         && resultHeading.latestObservation != undefined
-                                        && resultHeading.latestObservation.applies == latestDate) {
-                                        summaryLatest[i].push(resultHeading);
+                                        && moment(resultHeading.latestObservation.applies).format("DDMMYYYY") == latestDateStr) {
+                                        summaryLatest.push(resultHeading);
+                                        resultHeading.isLatest = true;
                                     }
                                 }
                             }
                         }
                     }
 
-                    summary[i].panels[-1] = summaryLatest[i];
+                    // order by panel, panelOrder
+                    summary[i].panels[-1] = summaryLatest;
                 }
-
-                $scope.latestDate = latestDate;
 
                 $scope.groupIndex = 0;
                 $scope.summary = summary;
@@ -74,11 +67,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
                 if ($routeParams.r !== undefined) {
                     $scope.currentPage = $scope.panels[$routeParams.r] !== undefined ? $routeParams.r : 1;
                 } else {
-                    //if (summary[$scope.groupIndex].panels[-1].length) {
-                    //    $scope.currentPage = -1;
-                    //} else {
+                    if (summary[$scope.groupIndex].panels[-1].length) {
+                        $scope.currentPage = -1;
+                    } else {
                         $scope.currentPage = 1;
-                    //}
+                    }
                 }
 
                 $scope.panel = $scope.panels[$scope.currentPage];
@@ -103,11 +96,11 @@ function ($scope, $modal, ObservationService, $routeParams) {
         for (var i=0;i<$scope.summary.length;i++) {
             if (groupId === $scope.summary[i].group.id) {
                 $scope.groupIndex = i;
-                //if ($scope.summary[$scope.groupIndex].panels[-1].length) {
-                //    $scope.currentPage = -1;
-                //} else {
+                if ($scope.summary[$scope.groupIndex].panels[-1].length) {
+                    $scope.currentPage = -1;
+                } else {
                     $scope.currentPage = 1;
-                //}
+                }
                 $scope.group = $scope.summary[$scope.groupIndex].group;
                 $scope.panels = $scope.summary[$scope.groupIndex].panels;
                 $scope.panel = $scope.panels[$scope.currentPage];
@@ -143,7 +136,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openObservationHeadingInformation = function (result) {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            templateUrl: 'views/modal/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
             size: 'sm',
             windowClass: 'results-modal',
@@ -163,7 +156,7 @@ function ($scope, $modal, ObservationService, $routeParams) {
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',

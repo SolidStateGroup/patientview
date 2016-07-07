@@ -45,7 +45,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
     'vr.directives.slider', // https://github.com/venturocket/angular-slider
-    'debounce'              // https://github.com/shahata/angular-debounce
+    'debounce',             // https://github.com/shahata/angular-debounce
+    'angular-inview'        // https://github.com/thenikso/angular-inview
 ]);
 
 patientviewApp.filter('startFrom', function () {
@@ -520,6 +521,7 @@ $('html').click(function (e) {
     if (target.hasClass('edit-button')) {
         tableElement.find('.faux-row').removeClass('highlight');
         tableElement.find('.item-header').removeClass('open');
+
         if (!target.hasClass('editing')) {
             $('.edit-button').removeClass('editing');
             target.addClass('editing');
@@ -533,12 +535,15 @@ $('html').click(function (e) {
             tableElement.find('.item-header').removeClass('open');
             tableElement.find('.faux-row').removeClass('dull');
         }
-    } else if (target.hasClass('close-edit')) {
-        tableElement.find('.faux-row').removeClass('highlight');
-        tableElement.find('.highlight').removeClass('highlight');
-        tableElement.find('.item-header').removeClass('open');
-        tableElement.find('.faux-row').removeClass('dull');
-        tableElement.find('.edit-button').removeClass('editing');
+
+    }
+
+    if (target.hasClass('close-edit')) {
+        $('.faux-row').removeClass('highlight');
+        $('.highlight').removeClass('highlight');
+        $('.item-header').removeClass('open');
+        $('.faux-row').removeClass('dull');
+        $('.edit-button').removeClass('editing');
     }
 
     var scope = angular.element($('#timeout')).scope();

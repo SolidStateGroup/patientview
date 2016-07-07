@@ -222,6 +222,7 @@ CREATE TABLE PV_User_Token
   Secret_Word_Token VARCHAR(50),
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
+  Rate_Limit      NUMERIC(19, 2),
   PRIMARY KEY (Id)
 );
 
@@ -319,16 +320,21 @@ CREATE TABLE PV_User_Information (
 );
 
 CREATE TABLE PV_Code (
-  Id               BIGINT    NOT NULL,
-  Code             VARCHAR(100),
-  Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
-  Display_Order    INTEGER   ,
-  Description      VARCHAR(255),
-  Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
-  Creation_Date    TIMESTAMP NOT NULL,
-  Created_By       BIGINT REFERENCES PV_User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  Id                        BIGINT NOT NULL,
+  Code                      VARCHAR(100),
+  Type_Id                   BIGINT NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Display_Order             INTEGER,
+  Description               VARCHAR(255),
+  Full_Description          TEXT,
+  Hide_From_Patients        BOOL NOT NULL DEFAULT FALSE,
+  Patient_Friendly_Name     TEXT,
+  Source_Type               TEXT NOT NULL DEFAULT 'PATIENTVIEW',
+  Standard_Type_Id          BIGINT NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Removed_Externally        BOOL NOT NULL DEFAULT FALSE,
+  Creation_Date             TIMESTAMP NOT NULL,
+  Created_By                BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date          TIMESTAMP,
+  Last_Updated_By           BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
@@ -808,6 +814,59 @@ CREATE TABLE PV_Survey_Feedback
   Creation_Date       TIMESTAMP NOT NULL,
   Last_Update_Date    TIMESTAMP,
   Last_Updated_By     BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Nhschoices_Condition
+(
+  Id                              BIGINT NOT NULL,
+  Name                            TEXT NOT NULL,
+  Uri                             TEXT NOT NULL,
+  Code                            TEXT NOT NULL,
+  Description                     TEXT,
+  Description_Last_Update_Date    TIMESTAMP,
+  Introduction_Url                TEXT,
+  Introduction_Url_Status         INT,
+  Introduction_Url_Last_Update_Date    TIMESTAMP,
+  Created_By                      BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date                   TIMESTAMP NOT NULL,
+  Last_Update_Date                TIMESTAMP,
+  Last_Updated_By                 BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_External_Standard
+(
+  Id            BIGINT NOT NULL,
+  Name          TEXT NOT NULL,
+  Description   TEXT,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Code_External_Standard
+(
+  Id                        BIGINT NOT NULL,
+  Code                      TEXT NOT NULL,
+  Code_Id                   BIGINT REFERENCES PV_Code (Id) NOT NULL,
+  External_Standard_Id      BIGINT REFERENCES PV_External_Standard (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Category
+(
+  Id                        BIGINT NOT NULL,
+  Number                    INT NOT NULL,
+  Icd10_Description         TEXT NOT NULL,
+  Friendly_Description      TEXT NOT NULL,
+  Hidden                    BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Code_Category
+(
+  Id                        BIGINT NOT NULL,
+  Code_Id                   BIGINT REFERENCES PV_Code (Id) NOT NULL,
+  Category_Id               BIGINT REFERENCES PV_Category (Id) NOT NULL,
   PRIMARY KEY (Id)
 );
 

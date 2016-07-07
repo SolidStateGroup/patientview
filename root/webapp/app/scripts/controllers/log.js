@@ -1,14 +1,4 @@
 'use strict';
-
-// view XML modal instance controller
-var ViewXmlModalInstanceCtrl = ['$scope', '$modalInstance', 'audit',
-function ($scope, $modalInstance, audit) {
-    $scope.audit = audit;
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}];
-
 angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', '$modal', 'AuditService', '$routeParams',
 function ($scope, $timeout, $modal, AuditService, $routeParams) {
 
@@ -243,11 +233,15 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
                 $scope.selectedAuditAction.push($routeParams.auditActions);
             }
         }
+
+        $timeout(function() {
+            angular.element('#log-search').focus();
+        }, 1000);
     };
 
     $scope.viewXml = function(audit) {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewXmlModal.html',
+            templateUrl: 'views/modal/viewXmlModal.html',
             controller: ViewXmlModalInstanceCtrl,
             size: 'lg',
             resolve: {

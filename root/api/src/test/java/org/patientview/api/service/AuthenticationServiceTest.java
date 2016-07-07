@@ -16,7 +16,9 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.ApiKey;
+import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -24,11 +26,13 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -68,6 +72,9 @@ import static org.mockito.Mockito.when;
 public class AuthenticationServiceTest {
 
     @Mock
+    ApiConditionService apiConditionService;
+
+    @Mock
     private ApiKeyRepository apiKeyRepository;
 
     @Mock
@@ -75,6 +82,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private ExternalStandardRepository externalStandardRepository;
 
     @Mock
     private FeatureRepository featureRepository;
@@ -551,8 +561,9 @@ public class AuthenticationServiceTest {
         foundUserToken.setToken(token);
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
 
@@ -560,7 +571,53 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token must not be null", userToken.getToken());
         Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
 
+        verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+    }
+
+    @Test
+    public void testGetUserInformation_Patient() throws Exception {
+        String token = "abc123456";
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        User user = TestUtils.createUser("testUser");
+
+        // ENTER_OWN_DIAGNOSES group feature
+        group.setGroupFeatures(new HashSet<GroupFeature>());
+        group.getGroupFeatures().add(TestUtils.createGroupFeature(
+                TestUtils.createFeature(FeatureType.ENTER_OWN_DIAGNOSES.toString()), group));
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+        when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+
+        Assert.assertNotNull("UserToken must not be null", userToken);
+        Assert.assertNotNull("token must not be null", userToken.getToken());
+        Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
+        Assert.assertTrue("user should have shouldEnterCondition as true", userToken.isShouldEnterCondition());
+
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(apiConditionService, times(1)).getUserEntered(
+                eq(foundUserToken.getUser().getId()), eq(DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED), eq(true));
     }
 
     @Test
@@ -604,6 +661,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setCheckSecretWord(true);
         foundUserToken.setSecretWordToken(secretWordToken);
 
+        when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
@@ -613,6 +671,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
 
+        verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
         verify(userTokenRepository, times(1)).save(eq(foundUserToken));
         verify(userRepository, times(1)).save(any(User.class));
@@ -721,7 +780,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test(expected = ResourceForbiddenException.class)
-    public void testSwitchUser_CurrentlyPatient() throws AuthenticationServiceException {
+    public void testSwitchUser_CurrentlyPatient() throws Exception {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -750,7 +809,7 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(true);
+        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(false);
 
         authenticationService.switchToUser(switchUser.getId());
     }

@@ -129,7 +129,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
         when(fhirResource.createEntity(any(Media.class), eq(ResourceType.Media.name()), eq("media")))
                 .thenReturn(mediaFhirDataBaseEntity);
         when(fhirResource.get(any(UUID.class), eq(ResourceType.Media))).thenReturn(media);
-        when(fhirResource.getExistingDocumentReferenceTypeAndContentBySubjectId(eq(fhirLink.getResourceId())))
+        when(fhirResource.getExistingLetterDocumentReferenceTypeAndContentBySubjectId(eq(fhirLink.getResourceId())))
                 .thenReturn(existingDocumentReferenceMap);
         when(fhirResource.getLocationUuidFromLogicalUuid(
                 eq(UUID.fromString(existingDocumentReferenceMap.keySet().iterator().next())),
@@ -149,7 +149,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
         verify(fhirResource, times(1)).deleteEntity(any(UUID.class), eq("documentreference"));
         verify(fhirResource, times(1)).deleteEntity(any(UUID.class), eq("media"));
         verify(fhirResource, times(1)).get(any(UUID.class), eq(ResourceType.Media));
-        verify(fhirResource, times(1)).getExistingDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
+        verify(fhirResource, times(1)).getExistingLetterDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
         verify(fhirResource, times(1)).getLocationUuidFromLogicalUuid(any(UUID.class), eq("documentreference"));
         verify(fileDataRepository, times(1)).exists(any(Long.class));
         verify(fileDataRepository, times(1)).delete(any(Long.class));
@@ -217,7 +217,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
         verify(fhirResource, times(0)).deleteEntity(any(UUID.class), eq("documentreference"));
         verify(fhirResource, times(0)).deleteEntity(any(UUID.class), eq("media"));
         verify(fhirResource, times(0)).get(any(UUID.class), eq(ResourceType.Media));
-        verify(fhirResource, times(1)).getExistingDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
+        verify(fhirResource, times(1)).getExistingLetterDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
         verify(fhirResource, times(0)).getLocationUuidFromLogicalUuid(any(UUID.class), eq("documentreference"));
         verify(fileDataRepository, times(0)).exists(any(Long.class));
         verify(fileDataRepository, times(0)).delete(any(Long.class));

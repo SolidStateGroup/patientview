@@ -1,7 +1,10 @@
 package org.patientview.api.filter;
 
+import com.google.common.util.concurrent.RateLimiter;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.LookingLocalService;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -25,7 +28,9 @@ import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to get the filter from the request. Lookup the token and add the user into the security context.
@@ -41,6 +46,8 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     private AuthenticationService authenticationService;
 
     private List<String> publicUrls = new ArrayList<>();
+
+    private static Map<Long, RateLimiter> rateLimiterMap;
 
     /**
      * Set up publicly available URLs.
@@ -95,6 +102,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }
+
+        // to store RateLimiter
+        rateLimiterMap = new HashMap<>();
     }
 
     /**
@@ -163,6 +173,20 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
             Authentication authentication = authenticationService.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // rate limiting by UserToken.rateLimit, set in AuthenticationService.authenticate()
+            UserToken userToken = (UserToken) authentication.getCredentials();
+
+            if (userToken.getRateLimit() != null) {
+                User user = (User) authentication.getPrincipal();
+                RateLimiter rateLimiter = rateLimiterMap.get(user.getId());
+                if (rateLimiter == null) {
+                    rateLimiter = RateLimiter.create(userToken.getRateLimit());
+                    rateLimiterMap.put(user.getId(), rateLimiter);
+                }
+                rateLimiter.acquire();
+            }
+
             return true;
         } catch (AuthenticationServiceException e) {
             //LOG.info("Authentication failed for " + authenticationToken.getName() + ", " + e.getMessage());

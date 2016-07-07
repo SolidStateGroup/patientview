@@ -249,7 +249,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         // get fhir condition (MAIN DIAGNOSIS), should only be one
         List<UUID> existingMainConditionUuids = fhirResource.getConditionLogicalIds(
-                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString());
+                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString(),
+                null);
 
         if (!CollectionUtils.isEmpty(existingMainConditionUuids)) {
             Condition condition = (Condition) fhirResource.get(
@@ -450,7 +451,8 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         try {
             existingMainConditionUuids = fhirResource.getConditionLogicalIds(
-                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString());
+                fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS.toString(), DiagnosisSeverityTypes.MAIN.toString(),
+                    null);
         } catch (FhirResourceException fre) {
             throw new FhirResourceException("error getting existing diagnoses");
         }
@@ -476,7 +478,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
 
         try {
             existingMainConditionEdtaUuids = fhirResource.getConditionLogicalIds(
-                    fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_EDTA.toString(), null);
+                    fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_EDTA.toString(), null, null);
         } catch (FhirResourceException fre) {
             throw new FhirResourceException("error getting existing EDTA diagnoses");
         }

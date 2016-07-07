@@ -2,9 +2,9 @@
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
     'NewsService', 'UtilService', 'StaticDataService', 'MedicationService', 'ObservationService',
-    'ObservationHeadingService', 'AlertService', '$rootScope',
+    'ObservationHeadingService', 'AlertService', '$rootScope', 'DiagnosisService', 'CodeService',
     function (UserService, $modal, $scope, GroupService, NewsService, UtilService, StaticDataService, MedicationService,
-              ObservationService, ObservationHeadingService, AlertService, $rootScope) {
+              ObservationService, ObservationHeadingService, AlertService, $rootScope, DiagnosisService, CodeService) {
 
         // get graph every time group is changed
         $scope.$watch('graphGroupId', function (newValue) {
@@ -20,15 +20,14 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         var logons = [];
                         var xAxisCategories = [];
 
-                        // remove last date (most recent month)
-                        statisticsArray.pop();
+                        // don't show current month
+                        var currentMonth = moment(new Date()).month();
 
                         for (var i = 0; i < statisticsArray.length; i++) {
                             var statistics = statisticsArray[i];
+                            var dateObject = new Date(statistics.startDate);
 
-                            if (i !== statisticsArray.length - 1) {
-                                var dateObject = new Date(statistics.startDate);
-
+                            if (moment(dateObject).month() !== currentMonth) {
                                 xAxisCategories.push(
                                     UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
 
@@ -140,73 +139,94 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             }
         });
 
-        var init = function () {
-            $scope.loading = true;
+        $scope.init = function () {
+            if (!$scope.initStarted) {
+                $scope.initStarted = true;
+                $scope.loading = true;
 
-            $scope.allGroups = [];
-            $scope.permissions = {};
-            var i;
+                $scope.allGroups = [];
+                $scope.permissions = {};
+                var i;
 
-            $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
-            $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
+                $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+                $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
-            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
-                $scope.permissions.showRequestButton = true;
-                $scope.permissions.showStaffAlerts = true;
-            }
+                if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+                    $scope.permissions.showRequestButton = true;
+                    $scope.permissions.showStaffAlerts = true;
+                }
 
-            if ($scope.permissions.isPatient) {
-                // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
-                MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function (gpMedicationStatus) {
-                    $scope.gpMedicationStatus = gpMedicationStatus;
-                }, function () {
-                    alert('Cannot get GP medication status');
+                if ($scope.permissions.isPatient) {
+                    // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
+                    MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function (gpMedicationStatus) {
+                        $scope.gpMedicationStatus = gpMedicationStatus;
+                    }, function () {
+                        alert('Cannot get GP medication status');
+                    });
+
+                    getAvailableObservationHeadings();
+                }
+
+                // set the list of groups to show in the data grid
+                $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
+
+                // hide Generic group
+                _.remove($scope.graphGroups, {code: 'Generic'});
+
+                for (i = 0; i < $scope.graphGroups.length; i++) {
+                    $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+                }
+
+                // set group (avoid blank option)
+                if ($scope.graphGroups && $scope.graphGroups.length > 0) {
+                    $scope.graphGroupId = $scope.graphGroups[0].id;
+                }
+
+                StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
+                    var newsTypes = [];
+                    page.forEach(function (newsType) {
+                        if (newsType.value != "ALL") {
+                            newsTypes[newsType.value] = newsType.id;
+                        }
+                    });
+
+                    NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
+                        $scope.newsItems = page.content;
+                        $scope.newsItemsTotalElements = page.totalElements;
+                        $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
+                    }, function () {
+                        $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
+                    });
+
+                    NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
+                        $scope.featuredNewsItems = page.content;
+                        $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
+                    }, function () {
+                        $scope.loading = false;
+                        if (!$scope.permissions.isPatient) {
+                            $scope.initFinished = true;
+                        }
+                    });
                 });
 
-                getAvailableObservationHeadings();
-            }
-
-            // set the list of groups to show in the data grid
-            $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
-
-            // hide Generic group
-            _.remove($scope.graphGroups, {code: 'Generic'});
-
-            for (i = 0; i < $scope.graphGroups.length; i++) {
-                $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
-            }
-
-            // set group (avoid blank option)
-            if ($scope.graphGroups && $scope.graphGroups.length > 0) {
-                $scope.graphGroupId = $scope.graphGroups[0].id;
-            }
-
-            StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
-                var newsTypes = [];
-                page.forEach(function (newsType) {
-                    if (newsType.value != "ALL") {
-                        newsTypes[newsType.value] = newsType.id;
+                if (!$scope.showedEnterDiagnosisModal) {
+                    if ($scope.loggedInUser.userInformation.shouldEnterCondition) {
+                        $scope.showEnterDiagnosesModal();
+                        $scope.showedEnterDiagnosisModal = true;
                     }
-                });
-
-
-                NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
-                    $scope.newsItems = page.content;
-                    $scope.newsItemsTotalElements = page.totalElements;
-                    $scope.loading = false;
-                }, function () {
-                    $scope.loading = false;
-                });
-
-                NewsService.getByUser($scope.loggedInUser.id, newsTypes['DASHBOARD'], true, 0, 5).then(function (page) {
-                    $scope.featuredNewsItems = page.content;
-                    $scope.loading = false;
-                }, function () {
-                    $scope.loading = false;
-                });
-            });
+                }
+            }
         };
 
         $scope.getAlerts = function () {
@@ -286,7 +306,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
         $scope.viewNewsItem = function (news) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/viewNewsModal.html',
+                templateUrl: 'views/modal/viewNewsModal.html',
                 controller: ViewNewsModalInstanceCtrl,
                 size: 'lg',
                 resolve: {
@@ -466,7 +486,6 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
         };
 
         var getAlerts = function () {
-
             delete $scope.alertObservationHeadings;
             delete $scope.letterAlert;
 
@@ -491,5 +510,29 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 });
         };
 
-        init();
+        $scope.showEnterDiagnosesModal = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/modal/enterDiagnosesModal.html',
+                controller: EnterDiagnosesModalInstanceCtrl,
+                size: 'lg',
+                resolve: {
+                    CodeService: function () {
+                        return CodeService;
+                    },
+                    DiagnosisService: function () {
+                        return DiagnosisService;
+                    },
+                    fromDashboard: function () {
+                        return true;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok (not used)
+            }, function () {
+                // closed
+            });
+        };
+
     }]);

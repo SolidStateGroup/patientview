@@ -7,6 +7,7 @@ package org.patientview.persistence.model.enums;
 public enum DiagnosisTypes {
     DIAGNOSIS("diagnosis"),
     DIAGNOSIS_EDTA("diagnosisedta"),
+    DIAGNOSIS_PATIENT_ENTERED("diagnosispatiententered"),
     DIAGNOSIS_STAFF_ENTERED("diagnosisstaffentered");
 
     private String name;

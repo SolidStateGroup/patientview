@@ -2,8 +2,8 @@
 
 // EQ5D
 angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'ConversationService', 'SurveyService',
-    'SurveyResponseService', '$filter',
-    function ($scope, ConversationService, SurveyService, SurveyResponseService, $filter) {
+    'SurveyResponseService', '$filter', 'DocumentService',
+    function ($scope, ConversationService, SurveyService, SurveyResponseService, $filter, DocumentService) {
 
     var buildChart = function(visibleResponses) {
         if (!visibleResponses.length) {
@@ -135,7 +135,6 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 // set question text, e.g. Pain
                 if (tableRows[j] == undefined || tableRows[j] == null) {
                     tableRows[j] = {};
-                    tableRows[j].type = questionType;
                     tableRows[j].data = [];
                     tableRows[j].data.push({'text':questionText});
                 }
@@ -143,6 +142,24 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 // set response text, e.g. Moderately
                 tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
+
+            // special download row
+            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
+                tableRows[questions.length] = {};
+                tableRows[questions.length].data = [];
+                tableRows[questions.length].data.push({'text':'', 'isDownload':true});
+            }
+
+            var download = '';
+
+            if ($scope.documentDateMap[response.date]) {
+                download = '<a href="../api/user/' + $scope.loggedInUser.id +
+                    '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
+            }
+
+            tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
 
         $scope.tableHeader = tableHeader;
@@ -214,8 +231,21 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 $scope.survey = survey;
                 $scope.questions = survey.questionGroups[0].questions;
                 getSurveyFeedbackText();
-                getSurveyResponses();
                 getFeedbackRecipientCount();
+
+                DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
+                    .then(function(documents) {
+                        $scope.documentDateMap = {};
+                        if (documents.length) {
+                            for (var i = 0; i < documents.length; i++) {
+                                $scope.documentDateMap[documents[i].date] = documents[i];
+                            }
+                        }
+
+                        getSurveyResponses();
+                    }, function() {
+                        alert('Error retrieving documents');
+                    });
             } else {
                 $scope.surveyFeedbackErrorMessage = 'Error retrieving survey';
                 $scope.savingSurveyFeedbackText = true;
@@ -261,9 +291,16 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
         buildTable(visibleSurveyResponses);
         buildChart(visibleSurveyResponses);
 
-        // get next survey date (3 months from last survey
-        var threeMonths = moment($scope.latestSurveyResponse.date).add(3, 'months');
-        $scope.nextSurveyDate = threeMonths.format('MMMM') + ' ' + threeMonths.format('YYYY');
+        // get next survey date (3 months from last survey, if in past then July 2016, if July in past then 3 from now)
+        var nextDate = moment($scope.latestSurveyResponse.date).add(3, 'months');
+        if (nextDate <= moment("2016-07-01")) {
+            nextDate = moment("2016-07-01");
+        }
+        if (nextDate <= new Date()) {
+            nextDate = moment(new Date()).add(3, 'months');
+        }
+
+        $scope.nextSurveyDate = nextDate.format('MMMM') + ' ' + nextDate.format('YYYY');
     };
 
     $scope.saveSurveyFeedbackText = function(text) {

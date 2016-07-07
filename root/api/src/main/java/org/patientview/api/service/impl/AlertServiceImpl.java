@@ -3,15 +3,15 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.model.ContactAlert;
-import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirDocumentReference;
+import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.Group;
 import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.AlertService;
+import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.LetterService;
-import org.patientview.api.service.ApiObservationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -75,7 +75,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     private GroupService groupService;
 
     @Inject
-    private LetterService letterService;
+    private DocumentService documentService;
 
     @Inject
     private ApiObservationService apiObservationService;
@@ -139,7 +139,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             }
         } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
 
-            List<FhirDocumentReference> fhirDocumentReferences = letterService.getByUserId(user.getId());
+            List<FhirDocumentReference> fhirDocumentReferences
+                    = documentService.getByUserIdAndClass(user.getId(), null, null, null);
 
             if (!CollectionUtils.isEmpty(fhirDocumentReferences)) {
                 newAlert.setLatestValue(fhirDocumentReferences.get(0).getType());

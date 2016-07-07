@@ -106,7 +106,7 @@ function ($scope, $modal, $timeout, MedicationService) {
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',

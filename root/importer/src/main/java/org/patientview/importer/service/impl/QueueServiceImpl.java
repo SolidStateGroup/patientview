@@ -99,20 +99,22 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         } catch (ImportResourceException ire) {
             LOG.info("UKRDC PatientRecord received, failed XML validation (" + ire.getMessage() + ")");
 
-            String identifier = null;
+            if (!ire.isAnonymous()) {
+                String identifier = null;
 
-            // attempt to get identifier if exists, used by audit
-            if (patientRecord.getPatient() != null
-                    && patientRecord.getPatient().getPatientNumbers() != null
-                    && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
-                    && StringUtils.isNotEmpty(
+                // attempt to get identifier if exists, used by audit
+                if (patientRecord.getPatient() != null
+                        && patientRecord.getPatient().getPatientNumbers() != null
+                        && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
+                        && StringUtils.isNotEmpty(
                         patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
-                identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
-            }
+                    identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
+                }
 
-            // audit
-            auditService.createAudit(AuditActions.UKRDC_VALIDATE_FAIL, identifier,
-                    null, ire.getMessage(), stringWriter.toString(), importerUserId);
+                // audit
+                auditService.createAudit(AuditActions.UKRDC_VALIDATE_FAIL, identifier,
+                        null, ire.getMessage(), stringWriter.toString(), importerUserId);
+            }
             throw(ire);
         }
 

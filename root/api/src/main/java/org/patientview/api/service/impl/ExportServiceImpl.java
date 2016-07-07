@@ -16,11 +16,11 @@ import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.enums.FileTypes;
-import org.patientview.api.service.ExportService;
-import org.patientview.api.service.LetterService;
 import org.patientview.api.service.ApiMedicationService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.DocumentService;
+import org.patientview.api.service.ExportService;
+import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -80,7 +80,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     private GpMasterRepository gpMasterRepository;
 
     @Inject
-    private LetterService letterService;
+    private DocumentService documentService;
 
     @Inject
     private ApiMedicationService apiMedicationService;
@@ -158,7 +158,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Content (expand row to view)");
 
         //Order letters based on date
-        List<FhirDocumentReference> fhirDocuments = letterService.getByUserId(userId, fromDate, toDate);
+        List<FhirDocumentReference> fhirDocuments = documentService.getByUserIdAndClass(userId, null, fromDate, toDate);
         TreeMap<String, FhirDocumentReference> orderedfhirDocuments = new TreeMap<>(Collections.reverseOrder());
         for (FhirDocumentReference fhirDocumentReference : orderedfhirDocuments.values()) {
             //Add current size to stop any issues with multiple letters on same date

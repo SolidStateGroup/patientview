@@ -2,6 +2,8 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.NhsChoicesService;
+import org.patientview.config.exception.ImportResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,6 +28,24 @@ public class NhsChoicesController extends BaseController<NhsChoicesController> {
 
     @Inject
     private NhsChoicesService nhsChoicesService;
+
+    @RequestMapping(value = "/nhschoices/conditions/update", method = RequestMethod.POST)
+    @ResponseBody
+    public void updateConditions() throws ImportResourceException {
+        nhsChoicesService.updateConditions();
+    }
+
+    @RequestMapping(value = "/nhschoices/conditions/synchronise", method = RequestMethod.POST)
+    @ResponseBody
+    public void synchroniseConditions() throws ResourceNotFoundException {
+        nhsChoicesService.synchroniseConditions();
+    }
+
+    @RequestMapping(value = "/nhschoices/conditions/categorise", method = RequestMethod.POST)
+    @ResponseBody
+    public void categoriseConditions() throws ResourceNotFoundException {
+        nhsChoicesService.categoriseConditions();
+    }
 
     @RequestMapping(value = "/nhschoices/organisations/update", method = RequestMethod.POST)
     @ResponseBody

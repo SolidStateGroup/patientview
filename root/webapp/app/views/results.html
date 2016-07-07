@@ -37,7 +37,7 @@
                         <span data-ng-if="currentPage == -1">Latest</span>
                     </label>
                     <ul class="unstyled inline">
-                        <li data-ng-repeat="result in panel | orderBy:'panelOrder'">
+                        <li data-ng-repeat="result in panel | orderBy:['panel', 'panelOrder']">
                             {{result.heading}} &nbsp;
                         </li>
                     </ul>
@@ -61,8 +61,8 @@
 
     <div class="results-container clearfix">
         <ul class="unstyled results-list row">
-            <li bindonce class="col-md-3 col-sm-6 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:'panelOrder'">
-                <div class="content-panel result-item" data-ng-class="result.latestObservation && result.latestObservation.applies == latestDate ? 'latest-result' : ''">
+            <li bindonce class="col-md-3 col-sm-6 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:['panel', 'panelOrder']">
+                <div class="content-panel result-item" data-ng-class="result.latestObservation && result.isLatest ? 'latest-result' : ''">
                     <div class="result-header">
                         <h4>
                             <a href="" data-ng-click="openObservationHeadingInformation(result)">
@@ -102,7 +102,7 @@
                             <strong>Source:</strong>
                         </li>
                         <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
-                        <li data-ng-if="result.latestObservation && result.latestObservation.applies == latestDate">
+                        <li data-ng-if="result.latestObservation && result.isLatest">
                             <span class="label label-info">LATEST</span>
                         </li>
                     </ul>

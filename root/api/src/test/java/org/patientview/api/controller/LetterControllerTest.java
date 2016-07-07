@@ -51,22 +51,6 @@ public class LetterControllerTest {
     }
 
     @Test
-    public void testGetLettersByUserId() throws Exception {
-
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/letters"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    @Test
     public void testDeleteLetter() throws ResourceNotFoundException, FhirResourceException {
 
         Long letterDate = 12345L;
