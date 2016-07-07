@@ -53,8 +53,9 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
                 page.forEach(function (newsType) {
                     if (newsType.value != "ALL") {
                         newsTypes.push(newsType);
-                        newsTypesArray[newsType.value] = newsType.id;
+
                     }
+                    newsTypesArray[newsType.id] = newsType;
                 });
                 $scope.newsTypesArray = newsTypesArray;
                 $scope.newNews.newsTypes = newsTypes;
