@@ -21,6 +21,7 @@ public class NewsItem {
     private BaseUser lastUpdater;
     private boolean edit;
     private boolean delete;
+    private Integer newsType;
 
     public NewsItem() {
     }
@@ -47,6 +48,7 @@ public class NewsItem {
         }
         setEdit(newsItem.isEdit());
         setDelete(newsItem.isDelete());
+        setNewsType(newsItem.getNewsType());
     }
 
     public Long getId() {
@@ -127,5 +129,13 @@ public class NewsItem {
 
     public void setDelete(boolean delete) {
         this.delete = delete;
+    }
+
+    public Integer getNewsType() {
+        return newsType;
+    }
+
+    public void setNewsType(Integer newsType) {
+        this.newsType = newsType;
     }
 }

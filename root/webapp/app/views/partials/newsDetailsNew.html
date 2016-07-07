@@ -1,3 +1,9 @@
+<style>
+    .margin-right {
+        margin-right: 5px;
+    }
+</style>
+
 <div class="loading" data-ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
 
 <p data-ng-show="permissions.canAddNews"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
@@ -25,8 +31,10 @@
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
-                <img src="http://icons.iconarchive.com/icons/icojam/blue-bits/16/star-rating-icon.png" class="featured-news" data-ng-show="newNews.newsType==2" />
-                <h2 class="message-title">{{newNews.heading}}</h2>
+                <h2 class="message-title">
+                    <img data-ng-if="newsTypesArray[newNews.newsType].value == 'DASHBOARD'" src="./images/icons/featured-news.png" class="pull-left margin-right"/>
+                    {{newNews.heading}}
+                </h2>
                 <div class="last-message">
                     <p class="message-content" data-ng-bind-html="parseHTMLText(newNews.story)"></p>
                 </div>

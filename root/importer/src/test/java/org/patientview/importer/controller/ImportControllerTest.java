@@ -99,6 +99,7 @@ public class ImportControllerTest {
             org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
             String postUrl="http://localhost:8081/importer/import/survey";
             //String postUrl = "https://test.patientview.org/importer/import/survey";
+            //String postUrl = "https://production.patientview.org/importer/import/survey";
 
             HttpPost post = new HttpPost(postUrl);
             StringEntity postingString = new StringEntity(content);

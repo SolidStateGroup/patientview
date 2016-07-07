@@ -64,8 +64,8 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
                 page.forEach(function (newsType) {
                     if (newsType.value != "ALL") {
                         newsTypes.push(newsType);
-                        newsTypesArray[newsType.value] = newsType.id;
                     }
+                    newsTypesArray[newsType.id] = newsType;
                 });
                 $scope.newsTypesArray = newsTypesArray;
                 $scope.newNews.newsTypes = newsTypes;
@@ -147,6 +147,12 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
                 $scope.newsTypes = page;
                 $scope.newsType = page[2].id;
+
+                var newsTypesArray = [];
+                page.forEach(function (newsType) {
+                    newsTypesArray[newsType.id] = newsType;
+                });
+                $scope.newsTypesArray = newsTypesArray;
             });
         };
 

@@ -1,3 +1,9 @@
+<style>
+    .message-summary .message-title {
+        max-width: 100%;
+    }
+</style>
+
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
@@ -22,7 +28,10 @@
             <div class="message-summary">
                 <div>
                     <div class="pull-left">
-                        <h2 class="message-title">{{editNews.heading}}</h2>
+                        <h2 class="message-title">
+                            <img data-ng-if="newsTypesArray[editNews.newsType].value == 'DASHBOARD'" src="./images/icons/featured-news.png" class="pull-left margin-right"/>
+                            {{editNews.heading}}
+                        </h2>
                     </div>
                 </div>
                 <br/>
