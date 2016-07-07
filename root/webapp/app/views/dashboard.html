@@ -62,7 +62,13 @@
                     <div class="item-detail row">
                         <dl class="col-md-6">
                             <dt>{{loggedInUser.forename}} {{loggedInUser.surname}}</dt>
-                            <dd>Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}</dd>
+                            <dd>
+                                <span data-ng-repeat="identifier in loggedInUser.identifiers">
+                                    <span>{{identifier.identifierType.description}}: {{identifier.identifier}}</span>
+                                    <br/>
+                                </span>
+                                Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}
+                            </dd>
                         </dl>
                         <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
