@@ -62,8 +62,16 @@
                     </h2>
                     <div class="last-message">
                         <p class="date-stamp">
-                            <strong data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</strong>
-                            <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                            <!--<strong data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                            <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>-->
+                            Created {{news.created | date:'dd-MMM-yyyy HH:mm'}}
+                            <span data-ng-if="news.creator"> by {{news.creator.forename}}
+                                {{news.creator.surname}}</span><span data-ng-if="news.lastUpdate && news.lastUpdate !== news.created">,
+                                updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+                                <span data-ng-if="news.lastUpdater">
+                                    by {{news.lastUpdater.forename}} {{news.lastUpdater.surname}}
+                                </span>
+                            </span>
                         </p>
                         <p class="message-content">
                             <span class="text">

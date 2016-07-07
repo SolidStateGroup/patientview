@@ -554,7 +554,7 @@
                     <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
                 </div>
                 <ul class="unstyled">
-                    <li class="news-item content-panel" data-ng-repeat="news in newsItems">
+                    <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: lastUpdate">
                         <div class="content-inner">
                             <ul class="unstyled pull-right hidden">
                                 <li data-ng-repeat="newsLink in news.newsLinks" class="news-link-labels">
