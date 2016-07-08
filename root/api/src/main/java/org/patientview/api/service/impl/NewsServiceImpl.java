@@ -210,11 +210,15 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                     newsItemRepository.findGroupRoleNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
             newsItemSet.addAll(extractNewsItems(
                     newsItemRepository.findSpecialtyNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findCreatorUpdaterNewsByUserAndType(entityUser, newsTypeId, pageableAll)));
         } else {
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findRoleNewsByUser(entityUser, pageableAll)));
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupNewsByUser(entityUser, pageableAll)));
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
             newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
+            newsItemSet.addAll(extractNewsItems(
+                    newsItemRepository.findCreatorUpdaterNewsByUser(entityUser, pageableAll)));
         }
 
         // get specialty news (accessed by parent/child relationships from groups in newsLink)

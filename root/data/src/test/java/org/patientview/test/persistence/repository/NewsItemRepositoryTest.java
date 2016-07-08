@@ -421,4 +421,40 @@ public class NewsItemRepositoryTest {
         Assert.assertEquals("There should be 1 news item available", 1, newsItems2.getContent().size());
     }
 
+    @Test
+    public void testGetCreatorUpdaterNewsByUser() {
+        User newsUser = dataTestUtils.createUser("NewsUser");
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(newsUser);
+        newsItem.setCreated(new Date());
+        newsItemRepository.save(newsItem);
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+
+        Page<NewsItem> newsItems = newsItemRepository.findCreatorUpdaterNewsByUser(newsUser, pageable);
+
+        Assert.assertTrue("There should be 1 news item available", newsItems.getContent().size() == 1);
+        Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+    }
+
+    @Test
+    public void testGetCreatorUpdaterNewsByUserAndType() {
+        User newsUser = dataTestUtils.createUser("NewsUser");
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(newsUser);
+        newsItem.setCreated(new Date());
+        newsItem.setNewsType(1);
+        newsItemRepository.save(newsItem);
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+
+        Page<NewsItem> newsItems = newsItemRepository.findCreatorUpdaterNewsByUserAndType(newsUser, 1, pageable);
+
+        Assert.assertTrue("There should be 1 news item available", newsItems.getContent().size() == 1);
+        Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+    }
 }
