@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -221,17 +222,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                     newsItemRepository.findCreatorUpdaterNewsByUser(entityUser, pageableAll)));
         }
 
-        // get specialty news (accessed by parent/child relationships from groups in newsLink)
-        /*newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
-
-        // remove generic specialty news and sort combined list
-        List<NewsItem> newsItems = new ArrayList<>();
-        for (NewsItem newsItem : newsItemSet) {
-            if (newsItem.getNewsLinks())
-        }*/
-
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
-        //Collections.sort(newsItems);
 
         // sort by last updated DESC
         Collections.sort(newsItems, new Comparator<NewsItem>() {
@@ -249,7 +240,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 return n1.getLastUpdate().compareTo(n2.getLastUpdate()) * -1;
             }
         });
-
 
         //Limit featured articles to 1 per group if we are on the dashboard
         if (newsTypeId == staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "DASHBOARD").getId()
@@ -282,7 +272,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             //Replace the set with the reduced one.
             newsItems = tmpNewsItems;
         }
-
 
         // manually do pagination
         int startIndex = pageable.getOffset();
@@ -397,9 +386,26 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
-        // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
+        // only global admin can add public roles
+        if (entityRole.getName().equals(RoleName.PUBLIC) && !ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
+        }
+
+        // #458 restrict roles
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            // can do everything
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
+            // no public or global admin news
+            if (Arrays.asList(new String[]{"PUBLIC", "GLOBAL_ADMIN"}).contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        } else {
+            // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
+            // unit admin, staff admin, gp admin, disease group admin
+            if (Arrays.asList(new String[]{"PUBLIC", "SPECIALTY_ADMIN", "GLOBAL_ADMIN"})
+                    .contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
         }
 
         boolean found = false;
@@ -471,9 +477,26 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        // unit admins cannot add public roles
-        if (entityRole.getName().equals(RoleName.PUBLIC) && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
-            throw new ResourceForbiddenException("Forbidden");
+        // #458 PUBLIC role is not allowed when adding with a group
+        if (entityRole.getName().equals(RoleName.PUBLIC)) {
+            throw new ResourceForbiddenException("Can only add non logged in users to All Groups");
+        }
+
+        // #458 restrict roles
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            // can do everything
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
+            // no public or global admin news
+            if (Arrays.asList(new String[]{"PUBLIC", "GLOBAL_ADMIN"}).contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        } else {
+            // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
+            // unit admin, staff admin, gp admin, disease group admin
+            if (Arrays.asList(new String[]{"PUBLIC", "SPECIALTY_ADMIN", "GLOBAL_ADMIN"})
+                    .contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
         }
 
         boolean found = false;
