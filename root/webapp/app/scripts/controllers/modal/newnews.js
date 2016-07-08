@@ -1,6 +1,6 @@
 'use strict';
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'StaticDataService', 'permissions',
-    function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, StaticDataService, permissions) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'StaticDataService', 'permissions', 'newsTypesArray',
+    function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, StaticDataService, permissions, newsTypesArray) {
         var i, group, newsLink = {};
 
         $scope.modalLoading = true;
@@ -9,6 +9,7 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
         $scope.newNews = {};
         $scope.newNews.allGroups = [];
         $scope.newNews.newsLinks = [];
+        $scope.newsTypesArray = newsTypesArray;
 
         // populate list of allowed groups for current user
         var groups = $scope.loggedInUser.userInformation.userGroups;
@@ -31,26 +32,20 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
         newsLink.role = $scope.permissions.globalAdminRole;
         $scope.newNews.newsLinks.push(newsLink);
 
-        StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
-            var newsTypes = [];
-            var newsTypesArray = [];
-            page.forEach(function (newsType) {
-                if (newsType.value != "ALL") {
-                    newsTypes.push(newsType);
-
+        var newsTypes = [];
+        for (var newsType in newsTypesArray) {
+            if (newsTypesArray.hasOwnProperty(newsType)) {
+                var type = newsTypesArray[newsType];
+                if (type.value != "ALL") {
+                    newsTypes.push(type);
                 }
-                newsTypesArray[newsType.id] = newsType;
-            });
-            $scope.newsTypesArray = newsTypesArray;
-            $scope.newNews.newsTypes = newsTypes;
-            $scope.newNews.newsType = newsTypes[0].id;
-            $scope.modalLoading = false;
-        }, function () {
-            $scope.modalLoading = false;
-            // error
-        });
+            }
+        }
 
+        $scope.newNews.newsTypes = newsTypes;
+        $scope.newNews.newsType = newsTypes[0].id;
         $scope.newNews.allRoles = _.clone($scope.permissions.allRoles);
+        $scope.modalLoading = false;
 
         $scope.ok = function () {
             $scope.newNews.creator = {};

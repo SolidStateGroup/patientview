@@ -1,5 +1,8 @@
 <div class="modal-header">
-    <h3 class="modal-title">{{news.heading}}</h3>
+    <h3 class="modal-title">
+        <img data-ng-if="newsTypesArray[news.newsType].value == 'DASHBOARD'" src="./images/icons/featured-news.png" class="pull-left margin-right"/>
+        {{news.heading}}
+    </h3>
 </div>
 <div class="modal-body">
     <h5>

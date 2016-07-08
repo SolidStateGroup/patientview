@@ -178,6 +178,9 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                     },
                     permissions: function () {
                         return $scope.permissions;
+                    },
+                    newsTypesArray: function () {
+                        return $scope.newsTypesArray;
                     }
                 }
             });
@@ -319,6 +322,9 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                 resolve: {
                     news: function () {
                         return news;
+                    },
+                    newsTypesArray: function () {
+                        return $scope.newsTypesArray;
                     }
                 }
             });
