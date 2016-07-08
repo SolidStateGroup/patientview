@@ -4,14 +4,11 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
         var i, group, newsLink = {};
 
         $scope.modalLoading = true;
-
         $scope.permissions = permissions;
         $scope.groupToAdd = -1;
         $scope.newNews = {};
-        $scope.newNews.allRoles = [];
         $scope.newNews.allGroups = [];
         $scope.newNews.newsLinks = [];
-
 
         // populate list of allowed groups for current user
         var groups = $scope.loggedInUser.userInformation.userGroups;
@@ -30,65 +27,46 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
             }
         }
 
-        // todo: currently gets all roles, adds public & member roles
-        RoleService.getAll().then(function (roles) {
-            for (i = 0; i < roles.length; i++) {
-                var role = roles[i];
-                if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
-                    $scope.newNews.allRoles.push(role);
+        // add GLOBAL_ADMIN role (no group) to all news by default
+        newsLink.role = $scope.permissions.globalAdminRole;
+        $scope.newNews.newsLinks.push(newsLink);
+
+        StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
+            var newsTypes = [];
+            var newsTypesArray = [];
+            page.forEach(function (newsType) {
+                if (newsType.value != "ALL") {
+                    newsTypes.push(newsType);
+
                 }
-            }
-
-            // add GLOBAL_ADMIN role (no group) to all news by default
-            for (i = 0; i < $scope.newNews.allRoles.length; i++) {
-                if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
-                    newsLink.role = $scope.newNews.allRoles[i];
-                    $scope.newNews.newsLinks.push(newsLink);
-                }
-            }
-
-            StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
-                var newsTypes = [];
-                var newsTypesArray = [];
-                page.forEach(function (newsType) {
-                    if (newsType.value != "ALL") {
-                        newsTypes.push(newsType);
-
-                    }
-                    newsTypesArray[newsType.id] = newsType;
-                });
-                $scope.newsTypesArray = newsTypesArray;
-                $scope.newNews.newsTypes = newsTypes;
-                $scope.newNews.newsType = newsTypes[0].id;
-                $scope.modalLoading = false;
-            }, function () {
-                $scope.modalLoading = false;
-                // error
+                newsTypesArray[newsType.id] = newsType;
             });
-
-            //$scope.modalLoading = false;
-
+            $scope.newsTypesArray = newsTypesArray;
+            $scope.newNews.newsTypes = newsTypes;
+            $scope.newNews.newsType = newsTypes[0].id;
+            $scope.modalLoading = false;
         }, function () {
-            alert('Error loading possible roles');
+            $scope.modalLoading = false;
+            // error
         });
 
+        $scope.newNews.allRoles = _.clone($scope.permissions.allRoles);
 
         $scope.ok = function () {
             $scope.newNews.creator = {};
             $scope.newNews.creator.id = $scope.loggedInUser.id;
 
+            // Check if the user has picked a dashboard item as a general public message
+            var roleError = null;
 
-            //Check if the user has picked a dashboard item as a general public message
-            var publicMessageError = false;
             $scope.newNews.newsLinks.forEach(function (newsLink) {
                 if (newsLink.role.name == "PUBLIC" && $scope.newNews.newsType == $scope.newsTypesArray['DASHBOARD']) {
-                    publicMessageError = true;
-                    return;
+                    roleError  = 'Dashboard messages cannot be set to General Public. Please correct to continue.';
                 }
             });
 
-            if (publicMessageError) {
-                $scope.errorMessage = 'Dashboard messages cannot be set to General Public. Please correct to continue.';
+            if (roleError !== null) {
+                $scope.errorMessage = roleError;
             } else {
                 NewsService.create($scope.newNews).then(function () {
                     $modalInstance.close();

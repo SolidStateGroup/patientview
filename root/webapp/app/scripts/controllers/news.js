@@ -26,7 +26,6 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
             $scope.permissions = permissions;
 
-
             StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
                 $scope.newsTypes = page;
                 $scope.newsType = page[2].id;
@@ -36,6 +35,46 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                     newsTypesArray[newsType.id] = newsType;
                 });
                 $scope.newsTypesArray = newsTypesArray;
+            });
+
+            // set roles that can be added
+            var allRoles = [];
+
+            // todo: currently gets all roles, adds public and member role
+            RoleService.getAll().then(function (roles) {
+                for (var i = 0; i < roles.length; i++) {
+                    var role = roles[i];
+                    if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                        if (role.name === 'PUBLIC' && !$scope.permissions.canAddPublicRole) {
+
+                        } else {
+                            allRoles.push(role);
+                        }
+                    }
+
+                    // GLOBAL_ADMIN role used when creating new news items, added to all by default
+                    if (role.name == 'GLOBAL_ADMIN') {
+                        $scope.permissions.globalAdminRole = role;
+                    }
+                }
+
+                if (permissions.isSuperAdmin) {
+                    // can do everything
+                } else if (permissions.isSpecialtyAdmin) {
+                    // no public news
+                    _.pull(allRoles, _.findWhere(allRoles, {'name': 'PUBLIC'}));
+                    _.pull(allRoles, _.findWhere(allRoles, {'name': 'GLOBAL_ADMIN'}));
+                } else {
+                    // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
+                    // unit admin, staff admin, gp admin, disease group admin
+                    _.pull(allRoles, _.findWhere(allRoles, {'name': 'PUBLIC'}));
+                    _.pull(allRoles, _.findWhere(allRoles, {'name': 'SPECIALTY_ADMIN'}));
+                    _.pull(allRoles, _.findWhere(allRoles, {'name': 'GLOBAL_ADMIN'}));
+                }
+
+                $scope.permissions.allRoles = allRoles;
+            }, function () {
+                alert('Error loading roles');
             });
         };
 
@@ -180,7 +219,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
                 NewsService.get(news.id).then(function (newsItem) {
                     $scope.editNews = _.clone(newsItem);
-                    $scope.editNews.allRoles = [];
+                    $scope.editNews.allRoles = _.clone($scope.permissions.allRoles);
                     $scope.editNews.allGroups = [];
 
                     var groups = $scope.loggedInUser.userInformation.userGroups;
@@ -201,22 +240,6 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                     }
 
                     $scope.groupToAdd = -1;
-
-                    // todo: currently gets all roles, adds public and member role
-                    RoleService.getAll().then(function (roles) {
-                        for (i = 0; i < roles.length; i++) {
-                            var role = roles[i];
-                            if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
-                                if (role.name === 'PUBLIC' && !$scope.permissions.canAddPublicRole) {
-
-                                } else {
-                                    $scope.editNews.allRoles.push(role);
-                                }
-                            }
-                        }
-                    }, function () {
-                        alert('Error loading roles');
-                    });
                 }, function () {
                     alert('Error loading groups');
                 });
@@ -262,7 +285,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                     $scope.total = page.totalElements;
                     $scope.totalPages = page.totalPages;
                     $scope.loading = false;
-                    $scope.successMessage = 'News item successfully created';
+                    $scope.successMessage = 'News item successfully deleted';
                 }, function () {
                     $scope.loading = false;
                 });
@@ -311,8 +334,6 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             var hasGroup = false;
             $scope.loggedInUser.groupRoles.forEach(
                 function (element) {
-                    console.log(element)
-                    console.log(groupId)
                     if (element.group.id == groupId || element.role.name == 'GLOBAL_ADMIN') {
                         hasGroup = true;
                     }
