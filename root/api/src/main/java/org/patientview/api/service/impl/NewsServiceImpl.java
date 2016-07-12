@@ -11,6 +11,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -18,6 +19,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -306,7 +308,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsTypeId, boolean limitResults,
-            Pageable pageable) throws ResourceNotFoundException {
+                                                                 Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
@@ -529,7 +531,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         // todo: single group check, required?
         // specialty and global admins can always edit/delete
         // (assume no users are specialty admin in one specialty and unit admin/patient in another)
-        boolean editDelete = userIsGlobalSpecialtyAdmin(user) || userCanEditDeleteNewsItem(newsItem, user);
+        boolean editDelete = userIsGlobalAdmin(user) || userCanEditDeleteNewsItem(newsItem, user);
         newsItem.setEdit(editDelete);
         newsItem.setDelete(editDelete);
         return newsItem;
@@ -545,7 +547,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             if (!(newsLinkRole != null
                     && newsLinkRole.getName().equals(RoleName.GLOBAL_ADMIN))
                     && newsLinkGroup != null) {
-                if (userIsUnitAdminForNewsLink(newsLink, user)) {
+                if (userIsUnitAdminForNewsLink(newsLink, user) || userIsSpecialtyAdminForNewsLink(newsLink, user)) {
                     canEditDeleteNewsItem = true;
                 }
             }
@@ -558,10 +560,10 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return canEditDeleteNewsItem;
     }
 
-    private boolean userIsGlobalSpecialtyAdmin(User user) {
+    private boolean userIsGlobalAdmin(User user) {
         for (GroupRole groupRole : user.getGroupRoles()) {
             RoleName groupRoleName = groupRole.getRole().getName();
-            if (groupRoleName.equals(RoleName.GLOBAL_ADMIN) || groupRoleName.equals(RoleName.SPECIALTY_ADMIN)) {
+            if (groupRoleName.equals(RoleName.GLOBAL_ADMIN)) {
                 return true;
             }
         }
@@ -581,6 +583,31 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 return true;
             }
         }
+        return false;
+    }
+
+    private boolean userIsSpecialtyAdminForNewsLink(final NewsLink newsLink, final User user) {
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            RoleType roleType = groupRole.getRole().getRoleType().getValue();
+            RoleName roleName = groupRole.getRole().getName();
+            Group group = groupRole.getGroup();
+
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                if (roleType.equals(RoleType.STAFF)
+                        && (Util.convertIterable(groupRepository.findChildren(group)).contains(newsLink.getGroup())
+                            || group.equals(newsLink.getGroup()))
+                        && roleName.equals(RoleName.SPECIALTY_ADMIN)) {
+                    return true;
+                }
+            } else {
+                if (roleType.equals(RoleType.STAFF)
+                        && group.equals(newsLink.getGroup())
+                        && roleName.equals(RoleName.SPECIALTY_ADMIN)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 }

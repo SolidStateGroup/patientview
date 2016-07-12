@@ -368,6 +368,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groupRepository.findByCode(code);
     }
 
+    @Override
     public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
         Group group = groupRepository.findOne(groupId);
 
