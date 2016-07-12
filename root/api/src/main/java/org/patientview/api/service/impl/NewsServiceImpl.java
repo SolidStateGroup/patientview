@@ -159,11 +159,17 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             Role newsLinkRole = newsLink.getRole();
 
             // ignore newsLink where global admin role and no group (added by default during creation)
-            if (!(newsLinkRole != null && newsLinkRole.equals(RoleName.GLOBAL_ADMIN)) && newsLinkGroup != null) {
+            if (!(newsLinkRole != null
+                    && newsLinkRole.getName().equals(RoleName.GLOBAL_ADMIN))
+                    && newsLinkGroup != null) {
                 if (userIsUnitAdminForNewsLink(newsLink, user)) {
                     canEditDeleteNewsItem = true;
                 }
             }
+        }
+
+        if (newsItem.getCreator().equals(user) || newsItem.getLastUpdater().equals(user)) {
+            canEditDeleteNewsItem = true;
         }
 
         return canEditDeleteNewsItem;
