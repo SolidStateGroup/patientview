@@ -184,12 +184,15 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                     $scope.graphGroupId = $scope.graphGroups[0].id;
                 }
 
+                $scope.newsTypesArray = [];
+
                 StaticDataService.getLookupsByType("NEWS_TYPE").then(function (page) {
                     var newsTypes = [];
                     page.forEach(function (newsType) {
                         if (newsType.value != "ALL") {
                             newsTypes[newsType.value] = newsType.id;
                         }
+                        $scope.newsTypesArray[newsType.id] = newsType;
                     });
 
                     NewsService.getByUser($scope.loggedInUser.id, newsTypes['REGULAR'], false, 0, 5).then(function (page) {
@@ -312,6 +315,9 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 resolve: {
                     news: function () {
                         return news;
+                    },
+                    newsTypesArray: function () {
+                        return $scope.newsTypesArray;
                     }
                 }
             });
