@@ -9,7 +9,7 @@
 <div>
     <div>
         <ul class="nav nav-tabs">
-            <li data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}"><a data-ng-click="activeTab = 'MY_IBD_PATIENT_MANAGEMENT'">My IBD</a></li>
+            <li data-ng-class="{active:(activeTab === 'MY_IBD_PATIENT_MANAGEMENT' || activeTab === null || activeTab === undefined)}" data-ng-show="!useOldMyIbd"><a data-ng-click="activeTab = 'MY_IBD_PATIENT_MANAGEMENT'">My IBD</a></li>
             <li data-ng-class="{active:activeTab === 'MY_IBD'}" data-ng-show="useOldMyIbd"><a data-ng-click="activeTab = 'MY_IBD'">My IBD</a></li>
             <li data-ng-class="{active:activeTab === 'IBD_CONTROL'}"><a data-ng-click="activeTab = 'IBD_CONTROL'">My Disease Control Rating</a></li>
             <li data-ng-class="{active:activeTab === 'SYMPTOM_CHECKER'}"><a data-ng-click="activeTab = 'SYMPTOM_CHECKER'">Symptom Checker</a></li>
