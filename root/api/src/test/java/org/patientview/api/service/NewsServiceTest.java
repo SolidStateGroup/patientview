@@ -19,6 +19,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -172,7 +173,11 @@ public class NewsServiceTest {
         // create UNIT_ADMIN of testGroup
         User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group testGroup2 = TestUtils.createGroup("testGroup2");
+        testGroup2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role unitAdminRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
         org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setValue(RoleType.STAFF);

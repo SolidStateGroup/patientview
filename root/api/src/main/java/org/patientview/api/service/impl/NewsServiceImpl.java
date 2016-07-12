@@ -553,7 +553,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             }
         }
 
-        if (newsItem.getCreator().equals(user) || newsItem.getLastUpdater().equals(user)) {
+        if ((newsItem.getCreator() != null && newsItem.getCreator().equals(user))
+                || (newsItem.getLastUpdater() != null && newsItem.getLastUpdater().equals(user))) {
             canEditDeleteNewsItem = true;
         }
 
