@@ -385,6 +385,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
                         // used to show/hide correct MyIBD tab
                         $scope.useOldMyIbd = true;
+                        $scope.activeTab = 'MY_IBD';
                     } else if ($scope.currentSpecialty.code === "Cardiol") {
                         // create myIBD object if present
                         $scope.patientDetails[i].myIbd = {};
