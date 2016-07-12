@@ -30,8 +30,11 @@ function ($scope, $http, $modal, NewsService) {
             controller: ViewNewsModalInstanceCtrl,
             size: 'lg',
             resolve: {
-                news: function(){
+                news: function() {
                     return news;
+                },
+                newsTypesArray: function() {
+                    return [];
                 }
             }
         });
