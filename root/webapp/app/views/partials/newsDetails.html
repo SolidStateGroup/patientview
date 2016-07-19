@@ -78,7 +78,7 @@
                     </select>
                     <span class="bracket post">)</span>
                 </div>
-                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" data-ng-disabled="!roleToAdd">Add</button>
+                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" data-ng-disabled="!roleToAdd || (!permissions.canAddAllGroups && groupToAdd == -1)">Add</button>
             </div>
         </div>
     </div>

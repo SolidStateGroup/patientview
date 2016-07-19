@@ -17,7 +17,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
             permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
 
-            permissions.canAddAllGroups = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
+            permissions.canAddAllGroups = permissions.isSuperAdmin;
             permissions.canAddPublicRole = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
 
             if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
@@ -45,11 +45,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                 for (var i = 0; i < roles.length; i++) {
                     var role = roles[i];
                     if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
-                        if (role.name === 'PUBLIC' && !$scope.permissions.canAddPublicRole) {
-
-                        } else {
-                            allRoles.push(role);
-                        }
+                        allRoles.push(role);
                     }
 
                     // GLOBAL_ADMIN role used when creating new news items, added to all by default
