@@ -15,9 +15,9 @@
     <h3 class="modal-title"><span class="welcome-title">Welcome to</span> <img src="images/pv-logo.png"/></h3>
 </div>
 <div class="modal-body" data-ng-if="!successMessage && !saving">
-    <h5>PatientView provides information and links about your condition(s) from trusted sources, enabling you to stay up-to-date
-        with the latest findings and suggested treatments.</h5>
-
+    <h5>You can now add additional diagnoses to PatientView, in addition to any that are sent automatically.
+        Adding a diagnosis adds trusted information links. See the instructions below, or do it later.
+        <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Adding_or_editing_a_diagnosis_yourself" target="_blank">Further info here</a>.</h5>
     <div data-ng-show="loading" class="container"><br/>
         <div class="loading">
             <h3><img src="images/loading.gif" alt="Loading"/>&nbsp;Loading</h3>
@@ -31,7 +31,7 @@
                 <h4>Either</h4>
                 <p>Enter your condition in the box below and select a suggested match:</p>
                 <div class="selectize-diagnosis">
-                    <select id="select-diagnosis" class="selectized" placeholder="Please type your condition"></select>
+                    <select id="select-diagnosis" class="selectized" placeholder="Type your condition"></select>
                 </div>
                 <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
             </div>
