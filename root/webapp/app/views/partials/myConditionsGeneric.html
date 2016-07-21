@@ -1,9 +1,14 @@
+<style>
+    .condition-div {
+        margin-bottom: 20px;
+    }
+</style>
 <div class="panel panel-default">
     <div class="panel-body">
-        <h4>Entered by you</h4>
+        <h3>Entered by you</h3>
         <div data-ng-show="selectedConditions.length">
-            <div data-ng-repeat="condition in selectedConditions track by $index | orderBy:'condition.description'">
-                <h5>{{condition.description}}</h5>
+            <div data-ng-repeat="condition in selectedConditions track by $index | orderBy:'condition.description'" class="condition-div">
+                <h4>{{condition.description}}</h4>
                 <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
                 <div data-ng-if="condition.links.length">
                     (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length - 1">, </span></span>)
@@ -17,19 +22,9 @@
         <button class="btn blue" data-ng-click="showEnterDiagnosesModal()">Add/Remove Diagnosis</button>
         <hr>
         <div data-ng-show="patientDetails.length">
-            <h4>From your unit(s)</h4>
+            <h3>From your unit(s)</h3>
             <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
-                <h5>{{patient.group.name}}</h5>
-
-                <!--<div data-ng-show="patient.diagnosisCodes.length">
-                    <div data-ng-repeat="condition in patient.diagnosisCodes track by $index | orderBy:'condition.description'">
-                        <h5>{{condition.description}}</h5>
-                        <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
-                        <div data-ng-if="condition.links.length">
-                            (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length - 1">, </span></span>)
-                        </div>
-                    </div>
-                </div>-->
+                <h4>{{patient.group.name}}</h4>
 
                 <div data-ng-if="patient.fhirConditions.length">
                     <div data-ng-repeat="condition in patient.fhirConditions | orderBy:'condition.description'">
