@@ -140,6 +140,9 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             });
 
             $scope.timeout = $routeParams.timeout;
+
+            // focus mouse on username
+            angular.element('#username').focus();
         };
 
         init();

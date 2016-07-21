@@ -1,0 +1,121 @@
+<style>
+    .welcome-title {
+        position: relative;
+        top: 5px;
+    }
+    .selectize-diagnosis .loading {
+        text-align: left;
+    }
+    .selectize-dropdown-content {
+        max-height: 400px;
+    }
+</style>
+
+<div class="modal-header">
+    <h3 class="modal-title"><span class="welcome-title">Welcome to</span> <img src="images/pv-logo.png"/></h3>
+</div>
+<div class="modal-body" data-ng-if="!successMessage && !saving">
+    <h5>You can now add additional diagnoses to PatientView, in addition to any that are sent automatically.
+        Adding a diagnosis adds trusted information links. See the instructions below, or do it later.
+        <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Adding_or_editing_a_diagnosis_yourself" target="_blank">Further info here</a>.</h5>
+    <div data-ng-show="loading" class="container"><br/>
+        <div class="loading">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp;Loading</h3>
+        </div>
+    </div>
+
+    <div data-ng-show="!loading">
+        <h3>Adding a Diagnosis</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Either</h4>
+                <p>Enter your condition in the box below and select a suggested match:</p>
+                <div class="selectize-diagnosis">
+                    <select id="select-diagnosis" class="selectized" placeholder="Type your condition"></select>
+                </div>
+                <p data-ng-if="noResults">No results found, please make sure you have typed your condition correctly.</p>
+            </div>
+            <div class="col-md-6">
+                <h4>Or</h4>
+                <p>First choose a category:</p>
+                <select data-ng-model="selectedCategory" data-ng-options="category.id as category.friendlyDescription for category in categories | orderBy:'friendlyDescription'"
+                        data-ng-change="changeCategory(selectedCategory)" class="form-control"></select>
+                <div data-ng-if="selectedCategory">
+                    <br/>
+                    <p>Now choose a condition</p>
+                    <select data-ng-model="selectedCategoryCondition" data-ng-options="condition as condition.description for condition in categoryConditions | orderBy:'description'"
+                            data-ng-change="addCondition(selectedCategoryCondition)" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-if="selectedConditions.length">
+            <br/>
+            <h5>You have selected the following condition(s)</h5>
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="feature-list unstyled name-action-list">
+                        <li class="feature-list-item" data-ng-repeat="condition in selectedConditions">
+                            <div class="feature-list-name pull-left">
+                                <span class="feature-list-name">{{condition.description}}</span>
+                            </div>
+                            <div class="feature-list-delete pull-left">
+                                <a href="" data-ng-click="removeCondition(condition)" >
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div data-ng-if="!fromDashboard">
+                <p>To remove a condition from your selection, click x next to the name.</p>
+            </div>
+            <div data-ng-if="fromDashboard">
+                <p>To remove a condition from your selection, click x next to the name. To confirm your selection
+                click the "Go" button.</p>
+                <p><button class="btn blue" data-ng-click="saveConditions()" data-ng-disabled="saving">Go</button></p>
+            </div>
+        </div>
+
+        <div data-ng-if="fromDashboard">
+            <br/>
+            <p>If you prefer to enter this info later, you can easily do this by clicking the "My Conditions" menu
+                option within PatientView.</p>
+        </div>
+    </div>
+</div>
+<div class="modal-body" data-ng-if="successMessage || saving">
+    <div data-ng-if="fromDashboard">
+        <h5>You have selected the following condition(s):</h5>
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="feature-list unstyled name-action-list">
+                    <li class="feature-list-item" data-ng-repeat="condition in selectedConditions">
+                        <div class="feature-list-name pull-left">
+                            <span class="feature-list-name">{{condition.description}}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <br/><br/>
+        <div class="alert alert-success" data-ng-if="!saving">
+            {{successMessage}}
+        </div>
+    </div>
+    <div data-ng-if="saving"><br/>
+        <div class="loading">
+            <h3><img src="images/loading.gif" alt="saving"/><br/><br/>Saving your conditions</h3>
+        </div>
+    </div>
+
+</div>
+<div class="modal-footer">
+    <button class="btn" data-ng-class="!(successMessage && fromDashboard) ? 'btn-grey' : 'blue'" data-ng-click="cancel()" data-ng-if="!saving">
+        <span data-ng-if="!successMessage && fromDashboard" data-ng-disabled="saving">No thanks, I will enter my conditions later</span>
+        <span data-ng-if="!successMessage && !fromDashboard" data-ng-disabled="saving">Close</span>
+        <span data-ng-if="successMessage  && fromDashboard">Continue to PatientView homepage &nbsp;&nbsp;<img src="/images/icons/forward-to.png"/></span>
+    </button>
+</div>

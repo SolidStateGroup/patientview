@@ -1,14 +1,5 @@
 'use strict';
 
-// observation heading information modal instance controller
-var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
-    function ($scope, $modalInstance, result) {
-        $scope.result = result;
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
-
 angular.module('patientviewApp').controller('ResultsTableCtrl', ['$scope', '$modal', '$filter', 'ObservationService', 'ObservationHeadingService',
 function ($scope, $modal, $filter, ObservationService, ObservationHeadingService) {
 
@@ -155,7 +146,7 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
     $scope.openObservationHeadingInformation = function (code) {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            templateUrl: 'views/modal/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
             size: 'sm',
             windowClass: 'results-modal',
@@ -176,7 +167,7 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
     $scope.openExportToCSVModal = function () {
 
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/exportToCSVModal.html',
+            templateUrl: 'views/modal/exportToCSVModal.html',
             controller: "ExportInfoModalInstanceCtrl",
             size: 'sm',
             windowClass: 'results-modal',

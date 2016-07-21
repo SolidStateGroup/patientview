@@ -30,12 +30,14 @@ public class FhirCondition extends BaseModel {
 
     // pulled from Code if present (set separately to constructor)
     private String description;
+    private String fullDescription;
 
     // used for displaying staff member who entered condition if present
     private String asserter;
 
     // used to set deletion status (confirmed = ok, refuted = deleted) for staff entered diagnosis
     private String status;
+
 
     public FhirCondition() {
     }
@@ -126,6 +128,14 @@ public class FhirCondition extends BaseModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getFullDescription() {
+        return fullDescription;
+    }
+
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
     }
 
     public String getAsserter() {

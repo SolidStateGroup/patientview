@@ -345,7 +345,8 @@ public class FhirResource {
     }
 
     public List<UUID> getConditionLogicalIds(
-            final UUID subjectId, final String category, final String severity) throws FhirResourceException {
+            final UUID subjectId, final String category, final String severity, final String code)
+            throws FhirResourceException {
 
         // build query
         StringBuilder query = new StringBuilder();
@@ -363,6 +364,12 @@ public class FhirResource {
         if (StringUtils.isNotEmpty(severity)) {
             query.append("AND content -> 'severity' ->> 'text' = '");
             query.append(severity);
+            query.append("' ");
+        }
+
+        if (StringUtils.isNotEmpty(code)) {
+            query.append("AND content -> 'code' ->> 'text' = '");
+            query.append(code);
             query.append("' ");
         }
 

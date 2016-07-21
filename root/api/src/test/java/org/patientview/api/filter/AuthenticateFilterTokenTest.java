@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.AuthenticationService;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.http.HttpMethod;
@@ -16,7 +17,10 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
+import java.util.ArrayList;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -33,7 +37,6 @@ public class AuthenticateFilterTokenTest {
     @Mock
     private AuthenticationService authenticationService;
 
-
     @InjectMocks
     private AuthenticateTokenFilter authenticateTokenFilter = new AuthenticateTokenFilter();
 
@@ -48,18 +51,22 @@ public class AuthenticateFilterTokenTest {
      *
      */
     @Test
-    public void testFilterForwardsLoginRequest() {
+    public void testFilterForwardsLoginRequest() throws Exception {
         MockFilterChain mockChain = new MockFilterChain();
         MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/auth/login");
         MockHttpServletResponse rsp = new MockHttpServletResponse();
 
-        try {
-            authenticateTokenFilter.doFilter(req, rsp, mockChain);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        //Create a token
+        String token = "token";
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        User user = new User();
+        userToken.setUser(user);
 
+        when(authenticationService.authenticate(any(Authentication.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(user, userToken, new ArrayList<GroupRole>()));
+
+        authenticateTokenFilter.doFilter(req, rsp, mockChain);
     }
 
     /**
@@ -68,7 +75,7 @@ public class AuthenticateFilterTokenTest {
      *
      */
     @Test
-    public void testAuthenticationFromToken_normalRequest() {
+    public void testAuthenticationFromToken_normalRequest() throws Exception {
 
         //Create a token
         String token = "token";
@@ -81,14 +88,13 @@ public class AuthenticateFilterTokenTest {
         MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/user/get/1");
         MockHttpServletResponse rsp = new MockHttpServletResponse();
         req.addHeader("X-Auth-Token", token);
-        try {
-            authenticateTokenFilter.doFilter(req, rsp, mockChain);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
+
+        when(authenticationService.authenticate(any(Authentication.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(user, userToken, new ArrayList<GroupRole>()));
+
+        authenticateTokenFilter.doFilter(req, rsp, mockChain);
 
         verify(authenticationService, Mockito.times(1)).authenticate(any(Authentication.class));
-
     }
 
     /**

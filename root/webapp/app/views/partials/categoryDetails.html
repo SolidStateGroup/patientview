@@ -1,0 +1,57 @@
+<style>
+    .question-text {
+        font-weight: bold;
+    }
+</style>
+<form name="categoryForm">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="question-text">Number</div>
+        </div>
+        <div class="col-md-10">
+            <input type="text" data-ng-model="editCategory.number" class="form-control" only-num>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="question-text">Friendly Description</div>
+        </div>
+        <div class="col-md-10">
+            <input type="text" data-ng-model="editCategory.friendlyDescription" class="form-control">
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="question-text">Official Description</div>
+        </div>
+        <div class="col-md-10">
+            <input type="text" data-ng-model="editCategory.icd10Description" class="form-control">
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="question-text">Hidden</div>
+        </div>
+        <div class="col-md-10">
+            <input type="checkbox" value="{{editCategory.hidden}}" data-ng-model="editCategory.hidden">
+        </div>
+    </div>
+
+    <br/>
+
+    <div class="alert alert-danger" data-ng-show="editErrorMessage">{{editErrorMessage}}</div>
+    <div class="alert alert-success" data-ng-show="editSuccessMessage">{{editSuccessMessage}}</div>
+
+    <button type="button" class="btn blue pull-right" data-ng-click="save(categoryForm, editCategory)" data-ng-disabled="categoryForm.$pristine || (!editCategory.number || !editCategory.friendlyDescription)">Save</button>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-md-12">
+            <span class="created-span" data-ng-if="editCategory.created">Created {{editCategory.created | date:'dd-MMM-yyyy HH:mm'}}</span><span class="created-span" data-ng-if="editCategory.lastUpdate">, updated {{editCode.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</span>
+        </div>
+    </div>
+</form>

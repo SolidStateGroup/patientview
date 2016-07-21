@@ -161,6 +161,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     }
 
     protected User getCurrentUser() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return null;
+        }
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

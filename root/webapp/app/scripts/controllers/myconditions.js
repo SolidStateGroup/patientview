@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout) {
+    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal) {
 
     $scope.changeSpecialty = function(specialty) {
         $scope.currentSpecialty = specialty;
@@ -157,7 +157,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
     };
 
     var createPatientManagementArray = function(lookupType, observationValue) {
-        //console.log($scope.patientManagement.lookupMap);
         var toReturn = [];
         // handle information from patient management
         if ($scope.patientManagement.lookupMap[lookupType]) {
@@ -326,6 +325,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
             $scope.showRenalHealthSurveys = false;
+            $scope.showEnterConditions = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
                 if ($scope.loggedInUser.groupRoles[i].group.code === 'Cardiol') {
@@ -335,6 +335,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
                     if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
                         $scope.showRenalHealthSurveys = true;
+                    }
+                    if (feature.feature.name == 'ENTER_OWN_DIAGNOSES') {
+                        $scope.showEnterConditions = true;
                     }
                 })
             }
@@ -355,6 +358,12 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }, function() {
                     alert('Failed to retrieve staff entered diagnosis');
                 })
+            }
+
+            if ($scope.showEnterConditions) {
+                DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                    $scope.selectedConditions = conditions;
+                });
             }
 
             PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
@@ -440,11 +449,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }
             }
 
-            // handle linking to specific tabs in Renal
-            if ($scope.currentSpecialty.code === 'Renal') {
-                if ($routeParams.activeTab !== undefined) {
-                    $scope.activeTab = $routeParams.activeTab;
-                }
+            // handle linking to specific tabs
+            if ($routeParams.activeTab !== undefined) {
+                $scope.activeTab = $routeParams.activeTab;
             }
 
             getAllPublic();
@@ -504,6 +511,34 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                     alert('Error retrieving patient management information');
                 });
         }
+    };
+
+    $scope.showEnterDiagnosesModal = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modal/enterDiagnosesModal.html',
+            controller: EnterDiagnosesModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                CodeService: function () {
+                    return CodeService;
+                },
+                DiagnosisService: function () {
+                    return DiagnosisService;
+                },
+                fromDashboard: function () {
+                    return false;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+            DiagnosisService.getPatientEntered($scope.loggedInUser.id).then(function (conditions) {
+                $scope.selectedConditions = conditions;
+            });
+        });
     };
 
     $scope.init();

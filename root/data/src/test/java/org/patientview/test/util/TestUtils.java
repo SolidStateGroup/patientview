@@ -279,6 +279,16 @@ public final class TestUtils {
         return code;
     }
 
+    public static Code createCode(String codeString, String description) {
+        Code code = new Code();
+        code.setCode(codeString);
+        code.setId(getId());
+        code.setDisplayOrder(1);
+        code.setDescription(description);
+        code.setCreator(creator);
+        return code;
+    }
+
     public static Link createLink(Group group, Code code, String name) {
         Link link = new Link();
         link.setId(getId());

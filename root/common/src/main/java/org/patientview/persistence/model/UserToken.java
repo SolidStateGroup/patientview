@@ -45,6 +45,9 @@ public class UserToken extends BaseModel {
     @Column(name = "secret_word_token")
     private String secretWordToken;
 
+    @Column(name = "rate_limit", columnDefinition="numeric", precision=19, scale=2)
+    private Double rateLimit;
+
     public User getUser() {
         return user;
     }
@@ -99,5 +102,13 @@ public class UserToken extends BaseModel {
 
     public void setSecretWordToken(String secretWordToken) {
         this.secretWordToken = secretWordToken;
+    }
+
+    public Double getRateLimit() {
+        return rateLimit;
+    }
+
+    public void setRateLimit(Double rateLimit) {
+        this.rateLimit = rateLimit;
     }
 }

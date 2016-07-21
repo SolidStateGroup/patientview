@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -53,45 +52,46 @@ public class CodeControllerTest {
     }
 
     @Test
-    public void testCreateCode() {
+    public void testCreateCode() throws Exception {
         Code testCode = TestUtils.createCode("TestCode");
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-
-        try {
-            when(codeService.add(eq(testCode))).thenReturn(testCode);
-            mockMvc.perform(MockMvcRequestBuilders.post("/code")
-                    .content(mapper.writeValueAsString(testCode)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(codeService, Mockito.times(1)).add(eq(testCode));
-        } catch (Exception e) {
-            fail("This call should not fail");
-        }
+        when(codeService.add(eq(testCode))).thenReturn(testCode);
+        mockMvc.perform(MockMvcRequestBuilders.post("/code")
+                .content(mapper.writeValueAsString(testCode)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
+        verify(codeService, Mockito.times(1)).add(eq(testCode));
     }
 
     @Test
-    public void testGetCodes() {
+    public void testDeleteCode() throws Exception {
+        Code testCode = TestUtils.createCode("TestCode");
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/code"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(codeService, Mockito.times(1)).getAllCodes(any(GetParameters.class));
-        } catch (Exception e) {
-            fail("This call should not fail");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.delete("/code/" + testCode.getId()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).delete(eq(testCode.getId()));
     }
 
     @Test
-    public void testDeleteCode() {
-        Code testCode = TestUtils.createCode("TestCode");
+    public void testGetCodes() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders.get("/code"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).getAllCodes(any(GetParameters.class));
+    }
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.delete("/code/" + testCode.getId()))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(codeService, Mockito.times(1)).delete(eq(testCode.getId()));
-        } catch (Exception e) {
-            fail("This call should not fail");
-        }
+    @Test
+    public void testGetByCategory() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
+        mockMvc.perform(MockMvcRequestBuilders.get("/codes/category/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).getByCategory(eq(1L));
+    }
+
+    @Test
+    public void testSearchDiagnosisCodesByStandard() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
+        mockMvc.perform(MockMvcRequestBuilders.get("/codes/diagnosis/searchTerm/standard/standardType"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).searchDiagnosisCodes(eq("searchTerm"), eq("standardType"));
     }
 }

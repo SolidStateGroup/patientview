@@ -19,6 +19,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -172,7 +173,11 @@ public class NewsServiceTest {
         // create UNIT_ADMIN of testGroup
         User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group testGroup2 = TestUtils.createGroup("testGroup2");
+        testGroup2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role unitAdminRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
         org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setValue(RoleType.STAFF);
@@ -237,7 +242,7 @@ public class NewsServiceTest {
     public void testAddGroupAndRole() throws ResourceForbiddenException, ResourceNotFoundException{
         User user = TestUtils.createUser("testUser");
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role newsRole = TestUtils.createRole(RoleName.PATIENT);
 
         GroupRole groupRole = TestUtils.createGroupRole(TestUtils.createRole(RoleName.GLOBAL_ADMIN), group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -258,9 +263,137 @@ public class NewsServiceTest {
 
         when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
         when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(role);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
 
         newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testAddGroupAndRole_wrongRole() throws ResourceForbiddenException, ResourceNotFoundException {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role newsRole = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+
+        GroupRole groupRole = TestUtils.createGroupRole(
+                TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF), group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        newsService.add(newsItem);
+        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+
+        newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testAddRole_wrongRole() throws ResourceForbiddenException, ResourceNotFoundException {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role newsRole = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+
+        GroupRole groupRole = TestUtils.createGroupRole(
+                TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF), group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        newsService.add(newsItem);
+        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+
+        newsService.addRole(newsItem.getId(), 5L);
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+    }
+
+    @Test
+    public void testAddRole_PublicRole() throws ResourceForbiddenException, ResourceNotFoundException {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role newsRole = TestUtils.createRole(RoleName.PUBLIC);
+
+        GroupRole groupRole = TestUtils.createGroupRole(
+                TestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF), group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        newsService.add(newsItem);
+        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+
+        newsService.addRole(newsItem.getId(), 5L);
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testAddRole_PublicRoleWrongRole() throws ResourceForbiddenException, ResourceNotFoundException {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role newsRole = TestUtils.createRole(RoleName.PUBLIC);
+
+        GroupRole groupRole = TestUtils.createGroupRole(
+                TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF), group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        newsService.add(newsItem);
+        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+
+        newsService.addRole(newsItem.getId(), 5L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
     }
 

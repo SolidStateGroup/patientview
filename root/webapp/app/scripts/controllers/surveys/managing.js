@@ -268,7 +268,7 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
 
     $scope.showLevels = function() {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/levelsModal.html',
+            templateUrl: 'views/modal/levelsModal.html',
             controller: LevelsModalInstanceCtrl,
             size: 'lg'
         });

@@ -25,8 +25,10 @@
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
-                <img src="http://icons.iconarchive.com/icons/icojam/blue-bits/16/star-rating-icon.png" class="featured-news" data-ng-show="newNews.newsType==2" />
-                <h2 class="message-title">{{newNews.heading}}</h2>
+                <h2 class="message-title">
+                    <img data-ng-if="newsTypesArray[newNews.newsType].value == 'DASHBOARD'" src="./images/icons/featured-news.png" class="pull-left margin-right"/>
+                    {{newNews.heading}}
+                </h2>
                 <div class="last-message">
                     <p class="message-content" data-ng-bind-html="parseHTMLText(newNews.story)"></p>
                 </div>
@@ -82,7 +84,7 @@
                     </select>
                     <span class="bracket post">)</span>
                 </div>
-                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd, newsType)" data-ng-disabled="!roleToAdd">Add</button>
+                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd, newsType)" data-ng-disabled="!roleToAdd || (!permissions.canAddAllGroups && groupToAdd == -1)">Add</button>
             </div>
          </div>
     </div>

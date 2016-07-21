@@ -145,7 +145,7 @@
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
             <ul class="unstyled" data-ng-show="newsItems">
-                <li class="news-item content-panel" data-ng-repeat="news in newsItems">
+                <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: lastUpdate">
                     <div class="content-inner">
                         <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
 

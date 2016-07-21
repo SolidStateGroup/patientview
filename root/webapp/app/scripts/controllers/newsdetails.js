@@ -6,12 +6,21 @@ function ($scope, NewsService) {
     $scope.addNewsLink = function (form, newsItem, groupId, roleId) {
         var i, newsLink;
 
+        var role = _.findWhere(newsItem.allRoles, {id: roleId});
+        var group = _.findWhere(newsItem.allGroups, {id: groupId});
+
+        // only All Groups can have PUBLIC role
+        if ((groupId !== null && roleId !== null) && (role.name == 'PUBLIC' && group.id !== -1)) {
+            alert('Can only add non logged in users to All Groups');
+            return;
+        }
+
         if ($scope.editMode) {
             if (groupId === -1) {
                 // All Groups selected
                 NewsService.addRole(newsItem.id, roleId).then(function () {
                     NewsService.get(newsItem.id).then(function (entityNewsItem) {
-                        for (var i = 0; i < $scope.pagedItems.length; i++) {
+                        for (i = 0; i < $scope.pagedItems.length; i++) {
                             if ($scope.pagedItems[i].id === entityNewsItem.id) {
                                 $scope.pagedItems[i].newsLinks = entityNewsItem.newsLinks;
                             }
@@ -26,7 +35,7 @@ function ($scope, NewsService) {
             } else {
                 NewsService.addGroupAndRole(newsItem.id, groupId, roleId).then(function () {
                     NewsService.get(newsItem.id).then(function (entityNewsItem) {
-                        for (var i = 0; i < $scope.pagedItems.length; i++) {
+                        for (i = 0; i < $scope.pagedItems.length; i++) {
                             if ($scope.pagedItems[i].id === entityNewsItem.id) {
                                 $scope.pagedItems[i].newsLinks = entityNewsItem.newsLinks;
                             }
@@ -45,18 +54,10 @@ function ($scope, NewsService) {
             newsLink.role = {};
 
             if (groupId !== null) {
-                for (i=0;i<newsItem.allGroups.length;i++) {
-                    if (groupId === newsItem.allGroups[i].id) {
-                        newsLink.group = newsItem.allGroups[i];
-                    }
-                }
+                newsLink.group = group;
             }
             if (roleId !== null) {
-                for (i=0;i<newsItem.allRoles.length;i++) {
-                    if (roleId === newsItem.allRoles[i].id) {
-                        newsLink.role = newsItem.allRoles[i];
-                    }
-                }
+                newsLink.role = role;
             }
 
             newsItem.newsLinks.push(newsLink);

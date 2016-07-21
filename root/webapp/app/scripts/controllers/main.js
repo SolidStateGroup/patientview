@@ -1,12 +1,4 @@
 'use strict';
-
-var FurtherInformationInstanceCtrl = ['$scope', '$modalInstance',
-    function ($scope, $modalInstance) {
-        $scope.close = function () {
-            $modalInstance.dismiss('close');
-        };
-    }];
-
 angular.module('patientviewApp').controller('MainCtrl', ['$scope', '$http', '$modal', 'NewsService',
 function ($scope, $http, $modal, NewsService) {
 
@@ -24,7 +16,7 @@ function ($scope, $http, $modal, NewsService) {
 
         var modalInstance = $modal.open({
             templateUrl: 'furtherInformationModal.html',
-            controller: FurtherInformationInstanceCtrl
+            controller: FurtherInformationModalCtrl
         });
 
         modalInstance.result.then(function () {
@@ -34,12 +26,15 @@ function ($scope, $http, $modal, NewsService) {
 
     $scope.viewNewsItem = function(news) {
         var modalInstance = $modal.open({
-            templateUrl: 'views/partials/viewNewsModal.html',
+            templateUrl: 'views/modal/viewNewsModal.html',
             controller: ViewNewsModalInstanceCtrl,
             size: 'lg',
             resolve: {
-                news: function(){
+                news: function() {
                     return news;
+                },
+                newsTypesArray: function() {
+                    return [];
                 }
             }
         });

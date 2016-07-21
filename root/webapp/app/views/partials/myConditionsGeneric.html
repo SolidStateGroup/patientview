@@ -1,0 +1,45 @@
+<style>
+    .condition-div {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h3>Entered by you</h3>
+        <div data-ng-show="selectedConditions.length">
+            <div data-ng-repeat="condition in selectedConditions track by $index | orderBy:'condition.description'" class="condition-div">
+                <h4>{{condition.description}}</h4>
+                <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
+                <div data-ng-if="condition.links.length">
+                    (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length - 1">, </span></span>)
+                </div>
+            </div>
+        </div>
+        <div data-ng-show="!selectedConditions.length">
+            <p>You have not entered any diagnoses.</p>
+        </div>
+        <br/>
+        <button class="btn blue" data-ng-click="showEnterDiagnosesModal()">Add/Remove Diagnosis</button>
+        <hr>
+        <div data-ng-show="patientDetails.length">
+            <h3>From your unit(s)</h3>
+            <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
+                <h4>{{patient.group.name}}</h4>
+
+                <div data-ng-if="patient.fhirConditions.length">
+                    <div data-ng-repeat="condition in patient.fhirConditions | orderBy:'condition.description'">
+                        <h5 data-ng-if="condition.description">{{condition.description}}</h5>
+                        <h5 data-ng-if="!condition.description && condition.notes">{{condition.notes}}</h5>
+                        <span data-ng-if="condition.fullDescription">{{condition.fullDescription}}</span>
+                        <div data-ng-if="condition.links.length">
+                            (<span data-ng-repeat="link in condition.links track by $index"><a href="{{link.link}}" target="_blank">{{link.name}}</a><span data-ng-if="$index < condition.links.length - 1">, </span></span>)
+                        </div>
+                    </div>
+                </div>
+                <div data-ng-if="!patient.fhirConditions.length && !patient.diagnosisCodes.length">
+                    {{patient.group.name}} has not provided any condition data.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
