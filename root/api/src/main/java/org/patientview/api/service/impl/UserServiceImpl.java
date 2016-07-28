@@ -1761,6 +1761,26 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return emailService.sendEmail(getVerifyEmailEmail(user));
     }
 
+    @Override
+    public void undelete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = findUser(userId);
+
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (isUserAPatient(user)) {
+            throw new ResourceForbiddenException("Forbidden, user is a patient");
+        }
+
+        if (user.getDeleted()) {
+            throw new ResourceForbiddenException("User is not marked as deleted");
+        }
+
+        user.setDeleted(true);
+        userRepository.save(user);
+    }
+
     protected BufferedImage transformImage(BufferedImage image, int angle) {
         Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
         int width = image.getWidth();

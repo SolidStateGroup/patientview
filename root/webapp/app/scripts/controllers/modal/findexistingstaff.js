@@ -26,6 +26,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     };
 
     var showUserOnScreen = function (result, searchType) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
         $scope.editUser = result;
         $scope.existingUser = true;
         $scope.editMode = true;
@@ -75,5 +77,17 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
+    };
+
+    // click Undelete button
+    $scope.undelete = function (user) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
+        UserService.undelete(user).then(function(result) {
+            $scope.successMessage = "Staff user has been undeleted";
+        }, function (error) {
+            $scope.errorMessage = error.data;
+        });
     };
 }];

@@ -493,6 +493,13 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.sendVerificationEmail(userId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/user/{userId}/undelete", method = RequestMethod.POST)
+    @ResponseBody
+    public void undeleteUser(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.undelete(userId);
+    }
+
     /**
      * Used when a User changes their own settings on the account page.
      * @param user User object containing updated User properties
