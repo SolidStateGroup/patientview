@@ -598,6 +598,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 if (linkType == null) {
                     throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
                 }
+                nhschoicesLink.setLinkType(linkType);
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
                 nhschoicesLink.setName(linkType.getDescription());
                 nhschoicesLink.setCode(entityCode);
