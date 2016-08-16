@@ -3,10 +3,16 @@ package org.patientview.api.service.impl;
 import org.patientview.api.client.MedlineplusApiClient;
 import org.patientview.api.client.MedlineplusResponseJson;
 import org.patientview.api.service.MedlinePlusService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.LinkTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.LookupTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -24,7 +30,9 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
     @Inject
     private CodeRepository codeRepository;
-    private static final String MEDLINE_PLUS_LINK_DESCRIPTION = "Medline Plus (USA)";
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     @Override
     @Transactional
@@ -66,7 +74,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
             // check Link exists already with Medline Plus description
             for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-                if (link.getName().equals(MEDLINE_PLUS_LINK_DESCRIPTION)) {
+                if (link.getLinkType() != null &&
+                        LinkTypes.MEDLINE_PLUS.name().equals(link.getLinkType().getLookupType().getType().name())) {
                     existingLink = link;
                 }
             }
@@ -100,11 +109,19 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                 linkUrl = json.getFeed().getEntry()[0].getLink()[0].getHref();
 
                 if (existingLink == null) {
+
+                    Lookup linkType = lookupRepository.findByTypeAndValue(LookupTypes.LINK_TYPE,
+                            LinkTypes.MEDLINE_PLUS.name());
+                    // should have them already configured
+                    if (linkType == null) {
+                        throw new ResourceNotFoundException("Could not find MEDLINE_PLUS link type Lookup");
+                    }
                     // no medline plus link exist create one Link
                     Link medlinePlusLink = new Link();
 
+                    medlinePlusLink.setLinkType(linkType);
                     medlinePlusLink.setLink(linkUrl);
-                    medlinePlusLink.setName(MEDLINE_PLUS_LINK_DESCRIPTION);
+                    medlinePlusLink.setName(linkType.getDescription());
                     medlinePlusLink.setCode(entityCode);
                     medlinePlusLink.setCreator(getCurrentUser());
                     medlinePlusLink.setCreated(now);
