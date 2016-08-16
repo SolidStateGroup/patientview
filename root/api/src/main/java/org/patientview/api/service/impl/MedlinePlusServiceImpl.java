@@ -1,25 +1,39 @@
 package org.patientview.api.service.impl;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.patientview.api.client.MedlineplusApiClient;
 import org.patientview.api.client.MedlineplusResponseJson;
 import org.patientview.api.service.MedlinePlusService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeExternalStandard;
+import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.ExternalStandardType;
 import org.patientview.persistence.model.enums.LinkTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.LookupRepository;
-import org.patientview.persistence.repository.LookupTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.persistence.NonUniqueResultException;
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -33,6 +47,12 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
     @Inject
     private LookupRepository lookupRepository;
+
+    @Inject
+    private CodeExternalStandardRepository codeExternalStandardRepository;
+
+    @Inject
+    private ExternalStandardRepository externalStandardRepository;
 
     @Override
     @Transactional
@@ -153,5 +173,101 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             LOG.error("Failed to add MediaPlus link to Code", e);
         }
 
+    }
+
+
+    @Override
+    @Transactional
+    public void syncICD10Codes() throws ResourceNotFoundException {
+
+        try {
+            URL filePath = Thread.currentThread().getContextClassLoader().getResource(
+                    "nhschoices/pv_nhschoices_condition-NT.xlsx");
+
+            File file = new File(filePath.toURI());
+            FileInputStream inputStream = new FileInputStream(new File(file.getAbsolutePath()));
+
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Iterator<Row> categoryIterator = workbook.getSheetAt(0).iterator();
+            int count = 0;
+
+            while (categoryIterator.hasNext()) {
+                Row nextRow = categoryIterator.next();
+
+                // first row for data starts at 4
+                if (count > 4) {
+                    String nhsChoiceCode = getCellContent(nextRow.getCell(2));
+                    String icd10Code = getCellContent(nextRow.getCell(24));
+
+                    if ((nhsChoiceCode != null && !nhsChoiceCode.isEmpty()) &&
+                            (icd10Code != null && !icd10Code.isEmpty())) {
+
+                        // find NHSChoices Code
+                        Code entityCode = codeRepository.findOneByCode(nhsChoiceCode);
+                        if (entityCode == null) {
+                            LOG.error("Could not find Code with code {}", nhsChoiceCode);
+                            continue;
+                        }
+
+                        ExternalStandard externalStandard
+                                = externalStandardRepository.findOne(ExternalStandardType.ICD_10.id());
+                        if (externalStandard == null) {
+                            throw new ResourceNotFoundException("External standard not found");
+                        }
+
+                        // check for ICD-10 CodeExternalStandard if in the Code already
+                        Set<CodeExternalStandard> codeExternalStandards = new HashSet<>();
+                        if (!CollectionUtils.isEmpty(entityCode.getExternalStandards())) {
+                            codeExternalStandards = new HashSet<>(entityCode.getExternalStandards());
+                        }
+
+                        // check if we already have ICD-10 code for this Code
+                        CodeExternalStandard standardToAdd = null;
+                        for (CodeExternalStandard codeExternalStandard : codeExternalStandards) {
+                            if (ExternalStandardType.ICD_10.id() == codeExternalStandard.getExternalStandard().getId()) {
+                                standardToAdd = codeExternalStandard;
+                            }
+                        }
+
+                        // not in the list create new one, otherwise just update the code string
+                        if (standardToAdd == null) {
+                            standardToAdd = new CodeExternalStandard(entityCode, externalStandard, icd10Code);
+                        } else {
+                            standardToAdd.setCodeString(icd10Code);
+                        }
+                        CodeExternalStandard savedExternal = codeExternalStandardRepository.save(standardToAdd);
+                        entityCode.setLastUpdate(new Date());
+                        entityCode.setLastUpdater(getCurrentUser());
+                        codeRepository.save(entityCode);
+
+                        setCodeExternalStandardLink(entityCode, savedExternal);
+                    }
+                }
+                count++;
+            }
+
+        } catch (URISyntaxException use) {
+            LOG.error("URISyntaxException: " + use.getMessage());
+        } catch (IOException ioe) {
+            LOG.error("IOException: " + ioe.getMessage());
+        } catch (NonUniqueResultException nure) {
+            LOG.error("NonUniqueResultException: " + nure.getMessage());
+        }
+    }
+
+    private String getCellContent(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        switch (cell.getCellType()) {
+            case Cell.CELL_TYPE_STRING:
+                return cell.getStringCellValue();
+            case Cell.CELL_TYPE_BOOLEAN:
+                return Boolean.toString(cell.getBooleanCellValue());
+            case Cell.CELL_TYPE_NUMERIC:
+                return String.valueOf(Double.valueOf(cell.getNumericCellValue()).intValue());
+            default:
+                return null;
+        }
     }
 }
