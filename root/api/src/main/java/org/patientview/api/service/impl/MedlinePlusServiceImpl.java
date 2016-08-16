@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.patientview.api.client.MedlineplusApiClient;
 import org.patientview.api.client.MedlineplusResponseJson;
 import org.patientview.api.service.MedlinePlusService;
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeExternalStandard;
@@ -178,7 +179,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
     @Override
     @Transactional
-    public void syncICD10Codes() throws ResourceNotFoundException {
+    public void syncICD10Codes() throws ResourceNotFoundException, ImportResourceException {
 
         try {
             URL filePath = Thread.currentThread().getContextClassLoader().getResource(
@@ -240,6 +241,15 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                         entityCode.setLastUpdater(getCurrentUser());
                         codeRepository.save(entityCode);
 
+                        // sleep for 2 seconds MedlinePlus Connect allows no more than 100
+                        // requests per minute per IP address
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException ie) {
+                            throw new ImportResourceException("Thread interrupted");
+                        }
+
+                        // add Medline Plus link
                         setCodeExternalStandardLink(entityCode, savedExternal);
                     }
                 }

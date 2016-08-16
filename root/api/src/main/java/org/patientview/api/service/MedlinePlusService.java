@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeExternalStandard;
@@ -24,6 +25,9 @@ public interface MedlinePlusService {
      * code to Code which maps to NHS codes.
      * <p>
      * Also will add or update any MedlinePlus links
+     *
+     * @throws ResourceNotFoundException
+     * @throws ImportResourceException
      */
-    void syncICD10Codes() throws ResourceNotFoundException;
+    void syncICD10Codes() throws ResourceNotFoundException, ImportResourceException;
 }
