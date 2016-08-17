@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.enums.LinkTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
@@ -68,6 +69,9 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
 
         if (link.getLinkType() != null && link.getLinkType().getId() != null) {
             link.setLinkType(lookupRepository.findOne(link.getLinkType().getId()));
+        } else {
+            // defaults to custom Type when Link is added through UI
+            link.setLinkType(lookupRepository.findOne(LinkTypes.CUSTOM.id()));
         }
 
         return linkRepository.save(link);
