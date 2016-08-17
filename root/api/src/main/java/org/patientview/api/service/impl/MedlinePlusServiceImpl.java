@@ -16,7 +16,6 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.ExternalStandardType;
 import org.patientview.persistence.model.enums.LinkTypes;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeExternalStandardRepository;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
@@ -131,8 +130,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
                 if (existingLink == null) {
 
-                    Lookup linkType = lookupRepository.findByTypeAndValue(LookupTypes.LINK_TYPE,
-                            LinkTypes.MEDLINE_PLUS.name());
+                    Lookup linkType = lookupRepository.findOne(LinkTypes.MEDLINE_PLUS.id());
                     // should have them already configured
                     if (linkType == null) {
                         throw new ResourceNotFoundException("Could not find MEDLINE_PLUS link type Lookup");

@@ -592,8 +592,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 org.patientview.persistence.model.Link nhschoicesLink
                         = new org.patientview.persistence.model.Link();
 
-                Lookup linkType = lookupRepository.findByTypeAndValue(LookupTypes.LINK_TYPE,
-                        LinkTypes.NHS_CHOICES.name());
+                Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
                 // should have them already configured
                 if (linkType == null) {
                     throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
@@ -743,8 +742,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     org.patientview.persistence.model.Link nhschoicesLink
                             = new org.patientview.persistence.model.Link();
 
-                    Lookup linkType = lookupRepository.findByTypeAndValue(LookupTypes.LINK_TYPE,
-                            LinkTypes.NHS_CHOICES.name());
+                    Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
                     // should have them already configured
                     if (linkType == null) {
                         throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
