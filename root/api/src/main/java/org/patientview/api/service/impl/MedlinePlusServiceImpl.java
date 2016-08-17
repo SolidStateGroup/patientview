@@ -161,6 +161,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                     existingLink.setLastUpdater(getCurrentUser());
                     existingLink.setLastUpdate(now);
                 }
+                LOG.info("Done medline plus link for code {}", codeExternalEntity.getCodeString());
             } else {
                 LOG.error("Could not find medline plus url for {}", codeExternalEntity.getCodeString());
             }
@@ -179,9 +180,10 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
     @Transactional
     public void syncICD10Codes() throws ResourceNotFoundException, ImportResourceException {
 
+        LOG.info("Synchronising Nhschoices codes with ICD-10 codes");
         try {
             URL filePath = Thread.currentThread().getContextClassLoader().getResource(
-                    "nhschoices/pv_nhschoices_condition-NT.xlsx");
+                    "nhschoices/pv_nhschoices_ICD10_coding.xlsx");
 
             File file = new File(filePath.toURI());
             FileInputStream inputStream = new FileInputStream(new File(file.getAbsolutePath()));
@@ -189,13 +191,14 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             Workbook workbook = new XSSFWorkbook(inputStream);
             Iterator<Row> categoryIterator = workbook.getSheetAt(0).iterator();
             int count = 0;
+            int syncCount = 0;
 
             while (categoryIterator.hasNext()) {
                 Row nextRow = categoryIterator.next();
 
                 // first row for data starts at 4
-                if (count > 4) {
-                    String nhsChoiceCode = getCellContent(nextRow.getCell(2));
+                if (count > 1) {
+                    String nhsChoiceCode = getCellContent(nextRow.getCell(0));
                     String icd10Code = getCellContent(nextRow.getCell(24));
 
                     if ((nhsChoiceCode != null && !nhsChoiceCode.isEmpty()) &&
@@ -239,21 +242,26 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                         entityCode.setLastUpdater(getCurrentUser());
                         codeRepository.save(entityCode);
 
-                        // sleep for 2 seconds MedlinePlus Connect allows no more than 100
+                        LOG.info("Synced Nhschoices codes {} with code {}", nhsChoiceCode, icd10Code);
+
+                        // sleep for 1 seconds MedlinePlus Connect allows no more than 100
                         // requests per minute per IP address
                         try {
-                            Thread.sleep(2000);
+                            Thread.sleep(1000);
                         } catch (InterruptedException ie) {
                             throw new ImportResourceException("Thread interrupted");
                         }
 
                         // add Medline Plus link
                         setCodeExternalStandardLink(entityCode, savedExternal);
+
+                        syncCount++;
                     }
                 }
                 count++;
             }
 
+            LOG.info("Done Synchronising Nhschoices codes with ICD-10 codes, total {}", syncCount);
         } catch (URISyntaxException use) {
             LOG.error("URISyntaxException: " + use.getMessage());
         } catch (IOException ioe) {
