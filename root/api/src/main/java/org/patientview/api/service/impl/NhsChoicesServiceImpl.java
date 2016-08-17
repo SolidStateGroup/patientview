@@ -579,10 +579,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             org.patientview.persistence.model.Link foundLink = null;
 
-            // check Link exists already with NHS Choices description
+            // check Link exists already with NHS Choices type
             for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
                 if (link.getLinkType() != null &&
-                        LinkTypes.MEDLINE_PLUS.name().equals(link.getLinkType().getLookupType().getType().name())) {
+                        LinkTypes.NHS_CHOICES.id()== link.getLinkType().getId()) {
                     foundLink = link;
                 }
             }

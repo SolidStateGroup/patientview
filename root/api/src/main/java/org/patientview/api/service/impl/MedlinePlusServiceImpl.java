@@ -92,10 +92,9 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             Date now = new Date();
             org.patientview.persistence.model.Link existingLink = null;
 
-            // check Link exists already with Medline Plus description
+            // check Link exists already with Medline Plus type
             for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-                if (link.getLinkType() != null &&
-                        LinkTypes.MEDLINE_PLUS.name().equals(link.getLinkType().getLookupType().getType().name())) {
+                if (link.getLinkType() != null && LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
                     existingLink = link;
                 }
             }
@@ -226,7 +225,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                         // check if we already have ICD-10 code for this Code
                         CodeExternalStandard standardToAdd = null;
                         for (CodeExternalStandard codeExternalStandard : codeExternalStandards) {
-                            if (ExternalStandardType.ICD_10.id() == codeExternalStandard.getExternalStandard().getId()) {
+                            if (ExternalStandardType.ICD_10.id() ==
+                                    codeExternalStandard.getExternalStandard().getId()) {
                                 standardToAdd = codeExternalStandard;
                             }
                         }
