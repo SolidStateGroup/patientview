@@ -180,6 +180,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
     public void syncICD10Codes() throws ResourceNotFoundException, ImportResourceException {
 
         LOG.info("Synchronising Nhschoices codes with ICD-10 codes");
+        long start = System.currentTimeMillis();
+        int syncCount = 0;
         try {
             URL filePath = Thread.currentThread().getContextClassLoader().getResource(
                     "nhschoices/pv_nhschoices_ICD10_coding.xlsx");
@@ -190,7 +192,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             Workbook workbook = new XSSFWorkbook(inputStream);
             Iterator<Row> categoryIterator = workbook.getSheetAt(0).iterator();
             int count = 0;
-            int syncCount = 0;
+
 
             while (categoryIterator.hasNext()) {
                 Row nextRow = categoryIterator.next();
@@ -261,7 +263,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                 count++;
             }
 
-            LOG.info("Done Synchronising Nhschoices codes with ICD-10 codes, total {}", syncCount);
+
         } catch (URISyntaxException use) {
             LOG.error("URISyntaxException: " + use.getMessage());
         } catch (IOException ioe) {
@@ -269,6 +271,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
         } catch (NonUniqueResultException nure) {
             LOG.error("NonUniqueResultException: " + nure.getMessage());
         }
+        long end = System.currentTimeMillis();
+        LOG.info("Done Synchronising Nhschoices codes with ICD-10 codes, total {}, timing {}", syncCount, (end - start));
     }
 
     private String getCellContent(Cell cell) {
