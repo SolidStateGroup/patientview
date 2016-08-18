@@ -74,5 +74,6 @@ public interface LinkService {
      *
      * @param code Code object to reorder links for
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     void reorderLinks(String code);
 }
