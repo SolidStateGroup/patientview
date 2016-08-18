@@ -606,11 +606,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 nhschoicesLink.setLastUpdater(getCurrentUser());
                 nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
-                if (entityCode.getLinks().isEmpty()) {
-                    nhschoicesLink.setDisplayOrder(1);
-                } else {
-                    nhschoicesLink.setDisplayOrder(entityCode.getLinks().size() + 1);
-                }
+                // forth it to be always first
+                nhschoicesLink.setDisplayOrder(1);
 
                 entityCode.getLinks().add(nhschoicesLink);
                 entityCode.setLastUpdater(getCurrentUser());
@@ -618,6 +615,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 codeRepository.save(entityCode);
             } else if (foundLink != null && foundIntroductionPage) {
                 // existing link, introduction page exists, update link
+                foundLink.setDisplayOrder(1);
                 foundLink.setLink(condition.getIntroductionUrl());
                 foundLink.setLastUpdater(getCurrentUser());
                 foundLink.setLastUpdate(now);

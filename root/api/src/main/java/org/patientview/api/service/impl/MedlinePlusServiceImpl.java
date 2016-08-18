@@ -149,7 +149,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                     if (entityCode.getLinks().isEmpty()) {
                         medlinePlusLink.setDisplayOrder(1);
                     } else {
-                        medlinePlusLink.setDisplayOrder(entityCode.getLinks().size() + 1);
+                        medlinePlusLink.setDisplayOrder(2);
                     }
 
                     entityCode.getLinks().add(medlinePlusLink);
