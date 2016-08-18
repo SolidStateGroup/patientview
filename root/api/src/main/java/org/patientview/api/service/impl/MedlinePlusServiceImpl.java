@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.patientview.api.client.MedlineplusApiClient;
 import org.patientview.api.client.MedlineplusResponseJson;
+import org.patientview.api.service.LinkService;
 import org.patientview.api.service.MedlinePlusService;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -53,6 +54,9 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
     @Inject
     private ExternalStandardRepository externalStandardRepository;
+
+    @Inject
+    private LinkService linkService;
 
     @Override
     @Transactional
@@ -167,6 +171,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
 
             entityCode.setLastUpdate(now);
             codeRepository.save(entityCode);
+
+            linkService.reorderLinks(entityCode.getCode());
 
         } catch (Exception e) {
             LOG.error("Failed to add MediaPlus link to Code", e);

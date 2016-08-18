@@ -14,6 +14,8 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by james@solidstategroup.com
@@ -74,7 +76,10 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
             link.setLinkType(lookupRepository.findOne(LinkTypes.CUSTOM.id()));
         }
 
-        return linkRepository.save(link);
+        Link savedLink = linkRepository.save(link);
+        reorderLinks(code.getCode());
+        return savedLink;
+
     }
 
     public Link get(final Long linkId) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -123,5 +128,48 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
         entityLink.setName(link.getName());
         entityLink.setDisplayOrder(link.getDisplayOrder());
         return linkRepository.save(entityLink);
+    }
+
+    public void reorderLinks(String code) {
+
+        // update Code with link if does not exist
+        Code entityCode = codeRepository.findOneByCode(code);
+        if (entityCode == null) {
+            LOG.error("Could not reorder links, Code for code {} no found", code);
+            return;
+        }
+
+        Map<String, Link> linkMap = new HashMap<>();
+        int linkDisplayOrder = 1;
+
+        for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
+            if (link.getLinkType() != null &&
+                    LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
+                linkMap.put(LinkTypes.NHS_CHOICES.name(), link);
+                linkDisplayOrder++;
+            } else if (link.getLinkType() != null &&
+                    LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
+                linkMap.put(LinkTypes.MEDLINE_PLUS.name(), link);
+                linkDisplayOrder++;
+            }
+        }
+
+        for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
+            if (link.getLinkType() != null &&
+                    LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
+                link.setDisplayOrder(1);
+            } else if (link.getLinkType() != null &&
+                    LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
+                if (linkMap.containsKey(LinkTypes.NHS_CHOICES.name())) {
+                    link.setDisplayOrder(2);
+                } else {
+                    link.setDisplayOrder(1);
+                }
+            } else {
+                link.setDisplayOrder(linkDisplayOrder++);
+            }
+
+            linkRepository.save(link);
+        }
     }
 }
