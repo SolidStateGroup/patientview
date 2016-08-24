@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
@@ -33,5 +34,6 @@ public interface MedlinePlusService {
      * @throws ResourceNotFoundException
      * @throws ImportResourceException
      */
+    @RoleOnly
     void syncICD10Codes() throws ResourceNotFoundException, ImportResourceException;
 }
