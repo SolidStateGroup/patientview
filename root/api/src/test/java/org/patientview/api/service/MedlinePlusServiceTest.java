@@ -35,7 +35,7 @@ public class MedlinePlusServiceTest {
     public void testSynchroniseConditions() throws Exception {
 
 
-        medlinePlusService.syncICD10Codes();
+        // medlinePlusService.syncICD10Codes();
 
         // existing NhschoicesCondition - code1 has been removed so should be marked as removed externally
 //        List<NhschoicesCondition> conditions = new ArrayList<>();
