@@ -65,4 +65,15 @@ public interface LinkService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Link save(Link link) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Need to reorder Links and set correct display order should be:
+     * 1. NHS Choices Links
+     * 2. MedlinePlus Links
+     * 3. Any Custom Links
+     *
+     * @param code Code object to reorder links for
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    void reorderLinks(String code);
 }

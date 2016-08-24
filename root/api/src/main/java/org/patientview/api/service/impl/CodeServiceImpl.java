@@ -5,6 +5,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseCode;
 import org.patientview.api.service.CodeService;
+import org.patientview.api.service.MedlinePlusService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -49,7 +50,7 @@ import java.util.Set;
 
 /**
  * Class to control the crud operations of Codes.
- *
+ * <p>
  * Created by jamesr@solidstategroup.com
  * Created on 25/06/2014
  */
@@ -85,6 +86,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private MedlinePlusService medlinePlusService;
 
     @Override
     public Code add(final Code code) throws EntityExistsException, ResourceInvalidException {
@@ -216,7 +220,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         code.setLastUpdater(getCurrentUser());
         codeRepository.save(code);
 
-        return codeExternalStandardRepository.save(newCodeExternalStandard);
+        CodeExternalStandard savedExternal = codeExternalStandardRepository.save(newCodeExternalStandard);
+
+        medlinePlusService.setCodeExternalStandardLink(code, savedExternal);
+
+        return savedExternal;
     }
 
     @Override
@@ -459,7 +467,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         codeTypesList.add(codeType.getId());
 
         Lookup standardType
-            = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
+                = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
         if (standardType == null) {
             throw new ResourceNotFoundException("PATIENTVIEW Code standard not found");
         }
