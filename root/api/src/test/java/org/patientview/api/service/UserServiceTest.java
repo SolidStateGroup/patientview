@@ -1059,8 +1059,9 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        // user to save
+        // user to undelete
         User staffUser = TestUtils.createUser("staff");
+        staffUser.setDeleted(true);
         Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
