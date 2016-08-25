@@ -16,7 +16,7 @@
 
                 <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage && !editUser.deleted">{{warningMessage}}</div>
 
                 <form name="userFormFindByIdentifier" data-ng-if="!existingUser">
                     <div data-ng-include src="'views/partials/staffDetailsFindExisting.html'" data-ng-controller="UserDetailsCtrl"></div>

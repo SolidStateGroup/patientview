@@ -705,6 +705,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 userObservationHeadingRepository.deleteByUserId(user.getId());
                 alertRepository.deleteByUserId(user.getId());
                 deleteFhirLinks(user.getId());
+                deleteIdentifiers(user.getId());
                 userRepository.delete(user);
             } else {
                 // staff member, mark as deleted
@@ -751,10 +752,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             for (FhirLink fhirLink : user.getFhirLinks()) {
                 fhirLinkIdentifierIds.add(fhirLink.getIdentifier().getId());
                 fhirLinkRepository.delete(fhirLink.getId());
-            }
-
-            for (Long id : fhirLinkIdentifierIds) {
-                identifierRepository.delete(id);
             }
         }
 
@@ -862,6 +859,53 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, entityUser.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
         }
+    }
+
+    private void deleteIdentifiers(Long userId) {
+        // must be done manually to avoid cascade remove clash where multiple fhir links point to same identifier
+        User user = userRepository.findOne(userId);
+
+        if (user.getIdentifiers() != null) {
+            for (Identifier identifier : user.getIdentifiers()) {
+                boolean deleteIdentifier = true;
+                Long otherUserId = null;
+                List<Long> foundFhirLinkIds = new ArrayList<>();
+
+                // check no other user has identifier referenced in fhir link
+                if (identifier.getFhirLink() != null) {
+                    for (FhirLink fhirLink : identifier.getFhirLink()) {
+                        if (!fhirLink.getUser().getId().equals(userId)) {
+                            deleteIdentifier = false;
+                            otherUserId = fhirLink.getUser().getId();
+                            foundFhirLinkIds.add(fhirLink.getId());
+                        }
+                    }
+                }
+
+                if (deleteIdentifier) {
+                    // no other fhir link with this identifier
+                    identifierRepository.delete(identifier);
+                } else {
+                    // another user has fhirlink pointing to the identifier to be deleted,
+                    // update fhirlink to point to correct identifier then delete identifier
+                    User otherUser = userRepository.findOne(otherUserId);
+
+                    if (!CollectionUtils.isEmpty(otherUser.getIdentifiers())) {
+                        Identifier otherUserIdentifier = otherUser.getIdentifiers().iterator().next();
+                        for (Long foundFhirLinkId : foundFhirLinkIds) {
+                            FhirLink toUpdate = fhirLinkRepository.findOne(foundFhirLinkId);
+                            toUpdate.setIdentifier(otherUserIdentifier);
+                            // update fhirlink with correct identifier
+                            fhirLinkRepository.save(toUpdate);
+                        }
+                        identifierRepository.delete(identifier);
+                    }
+                }
+            }
+        }
+
+        user.setIdentifiers(new HashSet<Identifier>());
+        userRepository.save(user);
     }
 
     @Override
