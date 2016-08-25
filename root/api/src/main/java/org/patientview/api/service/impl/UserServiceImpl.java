@@ -1773,11 +1773,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden, user is a patient");
         }
 
-        if (user.getDeleted()) {
+        if (!user.getDeleted()) {
             throw new ResourceForbiddenException("User is not marked as deleted");
         }
 
-        user.setDeleted(true);
+        user.setDeleted(false);
         userRepository.save(user);
     }
 
