@@ -84,8 +84,9 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         delete $scope.successMessage;
         delete $scope.errorMessage;
 
-        UserService.undelete(user).then(function(result) {
+        UserService.undelete(user).then(function() {
             $scope.successMessage = "Staff user has been undeleted";
+            $scope.editUser.deleted = false;
         }, function (error) {
             $scope.errorMessage = error.data;
         });

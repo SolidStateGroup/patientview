@@ -1,5 +1,14 @@
-<div class="alert alert-danger" data-ng-show="editUser.deleted">
+<style>
+    .large-alert {
+        height: 70px;
+    }
+</style>
+
+<div class="alert alert-danger large-alert" data-ng-show="editUser.deleted">
     This user has been marked as deleted and is only shown here for information purposes
+
+    <button class="btn negative pull-right" id="undelete"
+            data-ng-click="undelete(editUser)" data-ng-if="permissions.isSuperAdmin">Undelete User</button>
 </div>
         
 <div data-ng-show="editUser.picture.length" class="form-horizontal text-center" data-ng-if="editUser.id">
