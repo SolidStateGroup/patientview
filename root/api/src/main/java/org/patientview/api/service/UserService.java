@@ -389,6 +389,9 @@ public interface UserService {
     Boolean sendVerificationEmail(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException;
 
+    @RoleOnly
+    void undelete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
     /**
      * Used when a User changes their own settings on the account page.
      * @param user User object containing updated User properties

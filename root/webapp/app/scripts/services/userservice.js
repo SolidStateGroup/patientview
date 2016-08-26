@@ -372,6 +372,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // Undelete a staff user
+        undelete: function (user) {
+            var deferred = $q.defer();
+            // POST
+            Restangular.one('user', user.id).post('undelete').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // validate Identifier, including if already in use etc
         validateIdentifier: function (userId, identifier, dummy) {
             identifier = UtilService.cleanObject(identifier, 'identifier');

@@ -423,6 +423,32 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
+    @Test
+    public void testUndelete() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to undelete
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        staffUser.setDeleted(true);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + staffUser.getId() + "/undelete"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
     /**
      * Test: The url to change a password
      * Fail: The service method does not get called

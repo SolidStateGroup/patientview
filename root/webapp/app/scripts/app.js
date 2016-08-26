@@ -59,6 +59,30 @@ patientviewApp.filter('startFrom', function () {
     };
 });
 
+patientviewApp.filter('orderObjectBy', function () {
+    return function (items, field, reverse) {
+        // Build array
+        var filtered = [];
+        for (var key in items) {
+            if (field === 'key')
+                filtered.push(key);
+            else
+                filtered.push(items[key]);
+        }
+        // Sort array
+        filtered.sort(function (a, b) {
+            if (field === 'key')
+                return (a > b ? 1 : -1);
+            else
+                return (a[field] > b[field] ? 1 : -1);
+        });
+        // Reverse array
+        if (reverse)
+            filtered.reverse();
+        return filtered;
+    };
+});
+
 patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider', 'ENV',
     function ($routeProvider, $httpProvider, RestangularProvider, ENV) {
         $httpProvider.interceptors.push('HttpRequestInterceptor');
@@ -256,7 +280,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.stripHTML = function (text) {
             if (text) {
                 //Parse it as html, then remove it
-                return $("<p>"+text+"</p>").text();
+                return $("<p>" + text + "</p>").text();
             }
         };
 
@@ -302,7 +326,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.$on('$routeChangeSuccess', function (event, currentRoute) {
             $rootScope.title = currentRoute.title;
             $rootScope.resetTimeoutTimers();
-            $timeout(function() {
+            $timeout(function () {
                 if ($location.hash()) $anchorScroll();
             });
         });
@@ -346,7 +370,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                     localStorageService.set('authToken', authToken);
 
                     // get user information, store in session
-                    AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
+                    AuthService.getUserInformation({'token': $cookies.authToken}).then(function (userInformation) {
 
                         var user = userInformation.user;
                         delete userInformation.user;
@@ -428,7 +452,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             if ($cookies.authToken && !$rootScope.authToken) {
                 $rootScope.authToken = $cookies.authToken;
 
-                AuthService.getUserInformation({'token' : $cookies.authToken}).then(function (userInformation) {
+                AuthService.getUserInformation({'token': $cookies.authToken}).then(function (userInformation) {
                     var user = userInformation.user;
                     delete userInformation.user;
                     user.userInformation = userInformation;

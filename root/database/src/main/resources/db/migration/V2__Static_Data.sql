@@ -37,6 +37,7 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (19, now(), 'Surgery Main Procedure','IBD_SURGERYMAINPROCEDURE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (20, now(), 'Smoking Status','IBD_SMOKINGSTATUS', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (21, now(), 'Family History','IBD_FAMILYHISTORY', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (22, now(), 'Code Link Types','LINK_TYPE', '1');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (1, now(), 'UNIT','Unit','1', '1');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (2, now(), 'SPECIALTY','Specialty','1','1');
@@ -151,6 +152,10 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* for vanilla PV */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (134, now(), 'PATIENTVIEW','PatientView','1','4');
+
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (135, now(), 'NHS_CHOICES', 'NHS Choices Information', 1, 22, 1);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (136, now(), 'MEDLINE_PLUS', 'Medline Plus (USA)', 1, 22, 2);
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id, display_order) VALUES (137, now(), 'CUSTOM', 'User link', 1, 22, 3);
 
 /* Group Statistics (see AuditActions.java) */
 /* pv1 "admin add" */

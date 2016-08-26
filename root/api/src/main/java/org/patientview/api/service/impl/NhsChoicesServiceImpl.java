@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.joda.time.DateTime;
+import org.patientview.api.service.MedlinePlusService;
 import org.patientview.api.service.NhsChoicesService;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -31,6 +32,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeSourceTypes;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
 import org.patientview.persistence.model.enums.CodeTypes;
+import org.patientview.persistence.model.enums.LinkTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CategoryRepository;
 import org.patientview.persistence.repository.CodeCategoryRepository;
@@ -108,13 +110,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     private UserRepository userRepository;
 
     @Inject
+    private MedlinePlusService medlinePlusService;
+
+    @Inject
     private Properties properties;
 
     private String getConditionCodeFromUri(String uri) {
         return uri.split("/")[uri.split("/").length - 1];
     }
-
-    private static final String NHS_CHOICES_LINK_DESCRIPTION = "NHS Choices Information";
 
     @Override
     @Transactional
@@ -313,10 +316,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             // generate overview URL from found organisationId
             URL overviewUrl = new URL(
-                "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/"
-                        + organisationId
-                        + "/overview.xml?apikey="
-                        + apiKey);
+                    "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/"
+                            + organisationId
+                            + "/overview.xml?apikey="
+                            + apiKey);
 
             if (abdera == null) {
                 abdera = new Abdera();
@@ -469,7 +472,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                         if (e.getMessage().contains("500")) {
                             // API can return 500 instead of 404 if not found
                             LOG.info("500 error updating '" + code + "' with description from " + urlString + ": "
-                                + e.getMessage());
+                                    + e.getMessage());
                         } else {
                             // not 404 or 500 error, could be 403
                             LOG.info("Error updating '" + code + "' with description from " + urlString + ": "
@@ -522,7 +525,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         if (condition != null &&
                 (condition.getIntroductionUrlStatus() == null || !condition.getIntroductionUrlStatus().equals(200))
                 && (condition.getIntroductionUrlLastUpdateDate() == null
-                    || condition.getIntroductionUrlLastUpdateDate().before(oneMonthAgo))) {
+                || condition.getIntroductionUrlLastUpdateDate().before(oneMonthAgo))) {
             // check against both urls
             String introductionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Introduction.aspx";
             String definitionUrl = "http://www.nhs.uk/conditions/" + condition.getCode() + "/Pages/Definition.aspx";
@@ -576,9 +579,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             org.patientview.persistence.model.Link foundLink = null;
 
-            // check Link exists already with NHS Choices description
+            // check Link exists already with NHS Choices type
             for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-                if (link.getName().equals(NHS_CHOICES_LINK_DESCRIPTION)) {
+                if (link.getLinkType() != null &&
+                        LinkTypes.NHS_CHOICES.id()== link.getLinkType().getId()) {
                     foundLink = link;
                 }
             }
@@ -587,19 +591,23 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 // no existing link, introduction page exists, create new Link
                 org.patientview.persistence.model.Link nhschoicesLink
                         = new org.patientview.persistence.model.Link();
+
+                Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
+                // should have them already configured
+                if (linkType == null) {
+                    throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
+                }
+                nhschoicesLink.setLinkType(linkType);
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
-                nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
+                nhschoicesLink.setName(linkType.getDescription());
                 nhschoicesLink.setCode(entityCode);
                 nhschoicesLink.setCreator(getCurrentUser());
                 nhschoicesLink.setCreated(now);
                 nhschoicesLink.setLastUpdater(getCurrentUser());
                 nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
-                if (entityCode.getLinks().isEmpty()) {
-                    nhschoicesLink.setDisplayOrder(1);
-                } else {
-                    nhschoicesLink.setDisplayOrder(entityCode.getLinks().size() + 1);
-                }
+                // forth it to be always first
+                nhschoicesLink.setDisplayOrder(1);
 
                 entityCode.getLinks().add(nhschoicesLink);
                 entityCode.setLastUpdater(getCurrentUser());
@@ -607,17 +615,23 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 codeRepository.save(entityCode);
             } else if (foundLink != null && foundIntroductionPage) {
                 // existing link, introduction page exists, update link
+                foundLink.setDisplayOrder(1);
                 foundLink.setLink(condition.getIntroductionUrl());
                 foundLink.setLastUpdater(getCurrentUser());
                 foundLink.setLastUpdate(now);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
-            } else if (foundLink != null && !foundIntroductionPage){
+            } else if (foundLink != null && !foundIntroductionPage) {
                 // existing link, introduction page does not exist, remove link
                 entityCode.getLinks().remove(foundLink);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             }
+
+            /**
+             * Add or Update Medline Plus link as well if needed
+             */
+            medlinePlusService.setLink(entityCode);
         }
     }
 
@@ -725,8 +739,16 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 if (StringUtils.isNotEmpty(condition.getIntroductionUrl())) {
                     org.patientview.persistence.model.Link nhschoicesLink
                             = new org.patientview.persistence.model.Link();
+
+                    Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
+                    // should have them already configured
+                    if (linkType == null) {
+                        throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
+                    }
+
+                    nhschoicesLink.setLinkType(linkType);
                     nhschoicesLink.setLink(condition.getIntroductionUrl());
-                    nhschoicesLink.setName(NHS_CHOICES_LINK_DESCRIPTION);
+                    nhschoicesLink.setName(linkType.getDescription());
                     nhschoicesLink.setCode(code);
                     nhschoicesLink.setCreator(currentUser);
                     nhschoicesLink.setCreated(code.getCreated());
@@ -734,6 +756,11 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     nhschoicesLink.setLastUpdate(code.getCreated());
                     nhschoicesLink.setDisplayOrder(1);
                     code.getLinks().add(nhschoicesLink);
+
+                    /**
+                     * Add or Update Medline Plus link as well if needed
+                     */
+                    medlinePlusService.setLink(code);
                 }
 
                 codesToSave.add(code);
@@ -914,8 +941,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         String apiKey = properties.getProperty("nhschoices.api.key");
         String urlString
-        //    = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
-            = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/postcode/W67HY.xml?range=1&apikey="
+                //    = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
+                = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/postcode/W67HY.xml?range=1&apikey="
                 + apiKey;
 
         System.out.println("url: " + urlString);
@@ -971,7 +998,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     }
 
     private static final class XmlUtil {
-        private XmlUtil() {}
+        private XmlUtil() {
+        }
 
         public static List<Node> asList(NodeList n) {
             return n.getLength() == 0 ? Collections.<Node>emptyList() : new NodeListWrapper(n);
