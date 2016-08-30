@@ -61,6 +61,7 @@ public class IdentifierRepositoryTest {
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
 
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         identifier = identifierRepository.findByTypeAndValue(testNhsNumber, lookup);
@@ -84,6 +85,7 @@ public class IdentifierRepositoryTest {
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
 
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         List<Identifier> identifiers = identifierRepository.findByValue(testNhsNumber);
@@ -108,6 +110,8 @@ public class IdentifierRepositoryTest {
         identifier.setIdentifierType(lookup);
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         List<String> identifiers = identifierRepository.findByGroupCode(group.getCode());
