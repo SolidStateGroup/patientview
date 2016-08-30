@@ -18,6 +18,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -45,6 +46,9 @@ public class AuditRepositoryTest {
 
     @Inject
     AuditRepository auditRepository;
+
+    @Inject
+    IdentifierRepository identifierRepository;
 
     @Inject
     UserRepository userRepository;
@@ -224,6 +228,7 @@ public class AuditRepositoryTest {
         identifier.setIdentifierType(lookup);
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         // source user (yes)

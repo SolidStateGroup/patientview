@@ -110,6 +110,7 @@ public class UserRepositoryTest {
         identifier.setIdentifier("test");
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         Group group = dataTestUtils.createGroup("testGroup");
@@ -176,6 +177,7 @@ public class UserRepositoryTest {
         identifier.setIdentifier("test");
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         Group group = dataTestUtils.createGroup("testGroup");
@@ -202,6 +204,7 @@ public class UserRepositoryTest {
         identifier.setIdentifier("test");
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         User user2 = dataTestUtils.createUser("testUser");
@@ -210,6 +213,7 @@ public class UserRepositoryTest {
         identifier2.setIdentifier("test");
         identifier2.setUser(user2);
         user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
         userRepository.save(user2);
 
         User user3 = dataTestUtils.createUser("testUser");
@@ -218,6 +222,7 @@ public class UserRepositoryTest {
         identifier3.setIdentifier("test");
         identifier3.setUser(user3);
         user3.getIdentifiers().add(identifier3);
+        identifierRepository.save(identifier3);
         userRepository.save(user3);
 
         Group group = dataTestUtils.createGroup("testGroup");
@@ -258,6 +263,7 @@ public class UserRepositoryTest {
         identifier.setIdentifier("test");
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         Group group = dataTestUtils.createGroup("testGroup");
@@ -286,6 +292,7 @@ public class UserRepositoryTest {
         identifier.setIdentifier("test");
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         Group group = dataTestUtils.createGroup("testGroup");
@@ -328,6 +335,7 @@ public class UserRepositoryTest {
         identifier.setIdentifierType(lookup);
         identifier.setUser(user);
         user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
         userRepository.save(user);
 
         Long[] groupIdsArr = {group.getId()};
