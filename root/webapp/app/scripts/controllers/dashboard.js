@@ -156,6 +156,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
                     $scope.permissions.showRequestButton = true;
                     $scope.permissions.showStaffAlerts = true;
+                    $scope.permissions.showNhsIndicatorsLink = true;
                 }
 
                 if ($scope.permissions.isPatient) {

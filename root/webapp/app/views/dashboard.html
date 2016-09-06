@@ -345,11 +345,11 @@
                                 </dd>
                             </dl>
                         </div>
-                        <div class="row">
+                        <div class="row" data-ng-if="permissions.showNhsIndicatorsLink">
                             <dl class="col-md-4">
                                 <dt>NHS Indicator Data</dt>
                                 <dd>
-                                    <a href="#/nhs-indicators">View NHS Indicator Statistics</a>
+                                    <a href="/#/nhsindicators?groupId={{graphGroupId}}">View NHS Indicator Statistics</a>
                                 </dd>
                             </dl>
                         </div>
