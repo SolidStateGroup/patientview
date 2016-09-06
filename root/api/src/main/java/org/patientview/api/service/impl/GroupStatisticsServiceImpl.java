@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
@@ -69,6 +70,20 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         return convertToTransportObject(groupStatistics);
     }
 
+    @Override
+    public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException {
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("The group could not be found");
+        }
+
+        // todo: get NHS indicators
+        NhsIndicators nhsIndicators = new NhsIndicators();
+        nhsIndicators.setGroupId(group.getId());
+
+        return nhsIndicators;
+    }
+
     private List<GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {
 
         Map<Long, GroupStatisticTO> statisticTOMap = new HashMap<>();
@@ -102,9 +117,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     /**
      * Creates statistics for all the groups. Loop through the statistics and then the groups.
      *
-     * @param startDate
-     * @param endDate
-     * @param statisticPeriod
+     * @param startDate Date start date of statistics
+     * @param endDate Date end date of statistics
+     * @param statisticPeriod StatisticsPeriod, DAY, MONTH or CUMULATIVE_MONTH
      */
     public void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
 
@@ -119,7 +134,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             groupStatistic.setGroup(group);
 
             for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTIC_TYPE).getLookups()) {
-
                 groupStatistic.setStatisticType(lookup);
 
                 Query query = entityManager.createNativeQuery(lookup.getDescription());

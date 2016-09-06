@@ -4,6 +4,7 @@ angular.module('patientviewApp').controller('NhsIndicatorsCtrl',['$scope', '$rou
 function ($scope, $routeParams, GroupService) {
 
     var init = function() {
+        $scope.loading = true;
         $scope.allGroups = [];
 
         // set the list of groups to show in the data grid
@@ -32,22 +33,25 @@ function ($scope, $routeParams, GroupService) {
                 $scope.selectedGroupId = $scope.selectGroups[0].id;
             }
         }
-
-        // get nhs indicators based on selected group's id
-        $scope.getNhsIndicators($scope.selectedGroupId);
     };
 
-    $scope.getNhsIndicators = function(groupId) {
+    var getNhsIndicators = function(groupId) {
         delete $scope.errorMessage;
         delete $scope.successMessage;
+        $scope.loading = true;
 
         GroupService.getNhsIndicators(groupId).then(function (successResult) {
             $scope.nhsIndicators = successResult;
+            delete $scope.loading;
         }, function (error) {
             $scope.errorMessage = error.data;
+            delete $scope.loading;
         });
     };
 
-    init();
+    $scope.$watch('selectedGroupId', function (selectedGroupId) {
+        getNhsIndicators(selectedGroupId);
+    });
 
+    init();
 }]);

@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.api.model.NhsIndicators;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GroupStatistic;
@@ -34,13 +35,22 @@ public interface GroupStatisticService {
      * Get statistics for a Group given an ID.
      * @param groupId ID of the Group to retrieve statistics for
      * @return List of GroupStatisticTO objects with monthly statistics for a Group
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException thrown when Group does not exist
+     * @throws ResourceForbiddenException thrown when User does not have required permissions
      */
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
             RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })
     List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Given a Group ID, get NHS indicators statistics.
+     * @param groupId Long ID of the Group to retrieve NHS indicators for
+     * @return NhsIndicators object containing statistics
+     * @throws ResourceNotFoundException thrown when Group does not exist
+     */
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
+    NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException;
 
     // migration only
     @GroupMemberOnly

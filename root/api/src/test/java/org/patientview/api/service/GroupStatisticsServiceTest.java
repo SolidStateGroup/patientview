@@ -1,16 +1,16 @@
 package org.patientview.api.service;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -87,7 +88,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The repository is not accessed to retrieve the results
      */
     @Test
-    public void testGetMonthlyGroupStatistics() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -100,13 +101,31 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(group.getId());
-            verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
-                    eq(StatisticPeriod.MONTH));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
+        List<GroupStatisticTO> groupStatisticTOs = groupStatisticService.getMonthlyGroupStatistics(group.getId());
+
+        verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
+                eq(StatisticPeriod.MONTH));
+    }
+
+    @Test
+    public void testGetNhsIndicators() throws Exception {
+        Group group = TestUtils.createGroup("testGroup");
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
+
+        assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
     }
 
     /**
@@ -160,7 +179,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The exception is not thrown
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetMonthlyGroupStatistics_UnknownGroup() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics_UnknownGroup() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -173,11 +192,6 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(null);
-            verify(groupStatisticRepository.findByGroupAndStatisticPeriod(eq(group), eq(StatisticPeriod.MONTH)));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
+        groupStatisticService.getMonthlyGroupStatistics(null);
     }
 }
