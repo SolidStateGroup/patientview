@@ -1,11 +1,16 @@
-<style>
-    .info-link {
-        font-size: 16px;
-    }
-</style>
 <div class="header-select row">
     <div class=" col-md-7">
-        <h1><a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading"><i class="icon-back-to pull-left"> </i> Back to Results</a> <span class="blue-text">{{observationHeading.heading}}</span></h1>
+        <h1>
+            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading" data-ng-if="!r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-show="!loading" data-ng-if="r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <span class="blue-text">{{observationHeading.heading}}</span>
+        </h1>
     </div>
     <div class="col-md-3">
         <h3 class="select-title">Select Result:</h3>
@@ -20,14 +25,14 @@
 
 <div class="row result-detail-panel">
     <div class="col-md-7 result-container clearfix">
-        <div class="result-item-container" data-ng-show="selectedObservation && !loading && observations">
+        <div class="result-item-container" data-ng-show="selectedObservation && !loading && observations[selectedCode]">
             <div class="content-panel result-item">
                 <div class="result-header">
                     <a href="" data-ng-click="openObservationHeadingInformation(observationHeading)" class="pull-right">
-                        <span class="info-link pull-right">About</span>
+                        <span class="info-link pull-right">About test</span>
                     </a>
                     <ul class="unstyled info-list">
-                        <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
+                        <li><strong>Showing <span class="result-text">Result:</span></strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
                 <div class="result-value clearfix" data-ng-show="selectedCode !== 'resultcomment'">
@@ -52,7 +57,7 @@
             </div>
         </div>
 
-        <div class="info-header" data-ng-show="!loading && observations && selectedCode !== 'resultcomment'">
+        <div class="info-header" data-ng-show="!loading && observations[selectedCode] && selectedCode !== 'resultcomment'">
             <div class="btn-group btn-group-switcher pull-right hidden">
                 <a href="" data-ng-click="setRangeInDays(30)" class="btn blue" data-ng-class="{active: range==30}">30 Days</a>
                 <a href="" data-ng-click="setRangeInDays(90)" class="btn blue" data-ng-class="{active: range==90}">3 Months</a>
@@ -67,8 +72,34 @@
                 <div id="chart_div"></div>
             </div>
         </div>
+
+        <br/>
+
+        <div class="result-item-container" data-ng-hide="loading || chartLoading || observationHeadings.length < 2">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Showing_a_graph" target="_blank" class="pull-right">
+                        <span class="info-link pull-right">Show me how</span>
+                    </a>
+                    <ul class="unstyled info-list">
+                        <li><strong>Compare Results</strong></li>
+                    </ul>
+                </div>
+                <div class="pull-left" >
+                    <br/>
+                    <select class="form-control" data-ng-model="compareCode"
+                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
+                                | orderBy:'heading' | addCodeFilter:codes"
+                            data-ng-change="compareResults(compareCode)">
+                        <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
+                    </select>
+                    <br/>
+                    <a data-ng-if="observationHeadings.length && hasBloodPressure()" href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <aside class="col-md-5 historical-data" data-ng-show="!loading && observations">
+    <aside class="col-md-5 historical-data" data-ng-show="!loading && observations[selectedCode]">
         <div class="info-header blue">
             <p>Click <i class="icon-graph-tiny"></i> to select result</p>
         </div>
