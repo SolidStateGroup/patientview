@@ -26,9 +26,27 @@
         </div>
 
         <div data-ng-if="nhsIndicators && !loading">
-            <pre>
-                {{nhsIndicators}}
-            </pre>
+            <table class="table">
+                <tr>
+                    <th>Diagnosis</th>
+                    <th>Count</th>
+                </tr>
+                <tr data-ng-repeat="(code, count) in nhsIndicators.codeCount">
+                    <td>
+                        {{nhsIndicators.codeMap[code].description}}
+                    </td>
+                    <td>
+                        {{count}}
+                    </td>
+                </tr>
+            </table>
+
+            <div class="hidden">
+                <br/><br/>
+                <pre>
+                    {{nhsIndicators}}
+                </pre>
+            </div>
         </div>
 
     </div>
