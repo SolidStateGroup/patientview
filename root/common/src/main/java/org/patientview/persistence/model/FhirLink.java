@@ -58,9 +58,10 @@ public class FhirLink extends BaseModel {
 
     public FhirLink() { }
 
-    // used when retrieving just id and user using repository queries
-    public FhirLink(Long id, User user) {
+    // used when retrieving only essential data using repository queries
+    public FhirLink(Long id, UUID resourceId, User user) {
         setId(id);
+        setResourceId(resourceId);
         setUser(user);
     }
 

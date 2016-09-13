@@ -1,18 +1,27 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.TransformerUtils;
+import org.joda.time.DateTime;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.GroupStatisticService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.model.enums.StatisticType;
+import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +30,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -36,16 +47,25 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         implements GroupStatisticService {
 
     @Inject
-    private GroupStatisticRepository groupStatisticRepository;
+    private CodeRepository codeRepository;
+
+    @Inject
+    private EntityManager entityManager;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private GroupRepository groupRepository;
 
     @Inject
-    private LookupTypeRepository lookupTypeRepository;
+    private GroupStatisticRepository groupStatisticRepository;
 
     @Inject
-    private EntityManager entityManager;
+    private LookupTypeRepository lookupTypeRepository;
 
     /**
      * Summary view of the statistics month by month
@@ -71,18 +91,33 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     @Override
-    public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException {
+    public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException {
         Group group = groupRepository.findOne(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("The group could not be found");
         }
 
         // get fhirlink resource id of patients where last_login or current_login in last 3 months
+        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroupAndRecentLogin(group, threeMonthsAgo);
 
+        // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
+        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
+                TransformerUtils.invokerTransformer("getResourceId"));
 
-        // todo: get NHS indicators
+        // create object to return results
         NhsIndicators nhsIndicators = new NhsIndicators();
         nhsIndicators.setGroupId(group.getId());
+
+        String[] codes = { "00" };
+        for (String code : codes) {
+            Code entityCode = codeRepository.findOneByCode(code);
+            if (entityCode != null) {
+                nhsIndicators.getCodeCount().put(code, fhirResource.getCountConditionBySubjectIdsAndCode(uuids, code));
+                nhsIndicators.getCodeMap().put(code, entityCode);
+            }
+        }
+
 
         return nhsIndicators;
     }

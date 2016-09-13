@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.NhsIndicators;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GroupStatistic;
@@ -48,9 +49,10 @@ public interface GroupStatisticService {
      * @param groupId Long ID of the Group to retrieve NHS indicators for
      * @return NhsIndicators object containing statistics
      * @throws ResourceNotFoundException thrown when Group does not exist
+     * @throws FhirResourceException thrown when error retrieving from FHIR
      */
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
-    NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException;
+    NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException;
 
     // migration only
     @GroupMemberOnly

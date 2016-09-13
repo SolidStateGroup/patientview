@@ -6,6 +6,7 @@ import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -203,12 +204,13 @@ public class GroupController extends BaseController<GroupController> {
      * @return Group object
      * @throws ResourceNotFoundException group not found
      * @throws ResourceForbiddenException forbidden
+     * @throws FhirResourceException thrown when error retrieving from FHIR
      */
     @RequestMapping(value = "/group/{groupId}/nhsindicators", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<NhsIndicators> getNhsIndicators(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(groupStatisticService.getNhsIndicators(groupId), HttpStatus.OK);
     }
 
