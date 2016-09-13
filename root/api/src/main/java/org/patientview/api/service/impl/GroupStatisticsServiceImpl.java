@@ -77,6 +77,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             throw new ResourceNotFoundException("The group could not be found");
         }
 
+        // get fhirlink resource id of patients where last_login or current_login in last 3 months
+
+
         // todo: get NHS indicators
         NhsIndicators nhsIndicators = new NhsIndicators();
         nhsIndicators.setGroupId(group.getId());

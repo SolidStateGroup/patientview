@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ import java.util.UUID;
  * Created on 29/08/2014
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.REQUIRED)
 public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
 
     @Query("SELECT  f " +
@@ -56,6 +57,13 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
             "AND    f.active = false " +
             "ORDER BY f.created DESC")
     List<FhirLink> findInActiveByUserAndGroup(@Param("user") User user, @Param("group") Group group);
+
+    @Query("SELECT new FhirLink(f.id as id, f.user as user) " +
+            "FROM FhirLink f " +
+            "WHERE f.group = :group " +
+            "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date )" +
+            "")
+    List<FhirLink> testFindByGroupAndRecentLogin(@Param("group") Group group, @Param("date") Date date);
 
     @Query("SELECT  f " +
             "FROM   FhirLink f " +

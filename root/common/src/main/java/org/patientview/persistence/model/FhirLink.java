@@ -56,6 +56,14 @@ public class FhirLink extends BaseModel {
     @Transient
     private boolean isNew;
 
+    public FhirLink() { }
+
+    // used when retrieving just id and user using repository queries
+    public FhirLink(Long id, User user) {
+        setId(id);
+        setUser(user);
+    }
+
     public User getUser() {
         return user;
     }
