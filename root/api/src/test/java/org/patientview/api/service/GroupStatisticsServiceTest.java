@@ -11,6 +11,8 @@ import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
@@ -21,10 +23,13 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
@@ -36,6 +41,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -52,7 +58,16 @@ public class GroupStatisticsServiceTest {
     User creator;
 
     @Mock
-    GroupStatisticRepository groupStatisticRepository;
+    CodeRepository codeRepository;
+
+    @Mock
+    EntityManager entityManager;
+
+    @Mock
+    FhirLinkRepository fhirLinkRepository;
+
+    @Mock
+    FhirResource fhirResource;
 
     @Mock
     GroupRepository groupRepository;
@@ -64,13 +79,13 @@ public class GroupStatisticsServiceTest {
     LookupTypeRepository lookupTypeRepository;
 
     @Mock
-    EntityManager entityManager;
-
-    @Mock
-    Query query;
+    GroupStatisticRepository groupStatisticRepository;
 
     @InjectMocks
     GroupStatisticService groupStatisticService = new GroupStatisticsServiceImpl();
+
+    @Mock
+    Query query;
 
     @Before
     public void setUp() throws Exception {
@@ -119,13 +134,34 @@ public class GroupStatisticsServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(new FhirLink(1L, UUID.randomUUID(), new User()));
+
+        List<UUID> uuids = new ArrayList<>();
+        uuids.add(fhirLinks.get(0).getResourceId());
+
+        Code code = new Code();
+        code.setCode("00");
+
+        Long zeroZeroCount = 20L;
+
+        when(codeRepository.findOneByCode(any(String.class))).thenReturn(code);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirLinkRepository.findByGroupAndRecentLogin(eq(group), any(Date.class))).thenReturn(fhirLinks);
+        when(fhirResource.getCountConditionBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
 
         NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
 
         assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
+        assertEquals("Should have correct Code in codeMap",
+                code.getCode(), nhsIndicators.getCodeMap().get(code.getCode()).getCode());
+        assertEquals("Should have correct count for Code in codeCount",
+                zeroZeroCount, nhsIndicators.getCodeCount().get(code.getCode()));
 
+        verify(codeRepository, Mockito.atLeastOnce()).findOneByCode(any(String.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(fhirLinkRepository, Mockito.times(1)).findByGroupAndRecentLogin(eq(group), any(Date.class));
+        verify(fhirResource, Mockito.times(1)).getCountConditionBySubjectIdsAndCode(eq(uuids), any(String.class));
     }
 
     /**

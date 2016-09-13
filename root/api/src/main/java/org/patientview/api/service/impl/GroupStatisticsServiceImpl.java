@@ -30,7 +30,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -117,7 +116,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
                 nhsIndicators.getCodeMap().put(code, entityCode);
             }
         }
-
 
         return nhsIndicators;
     }
@@ -230,6 +228,4 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         newGroupStatistic.setGroup(group);
         return newGroupStatistic;
     }
-
-
 }
