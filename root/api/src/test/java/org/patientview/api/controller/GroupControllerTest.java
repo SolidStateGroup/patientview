@@ -153,8 +153,6 @@ public class GroupControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/nhsindicators"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(groupStatisticService, Mockito.times(1)).getNhsIndicators(eq(group.getId()));
     }
 
     /**

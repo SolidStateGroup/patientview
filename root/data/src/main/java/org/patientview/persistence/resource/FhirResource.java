@@ -15,7 +15,6 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.postgresql.util.PGobject;
