@@ -13,6 +13,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.model.enums.StatisticType;
@@ -96,9 +97,20 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             throw new ResourceNotFoundException("The group could not be found");
         }
 
+        List<Group> groups = new ArrayList<>();
+
+        // if specialty get child groups
+        if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            // specialty, get children
+            groups.addAll(convertIterable(groupRepository.findChildren(group)));
+        } else {
+            // single group, just add group
+            groups.add(group);
+        }
+
         // get fhirlink resource id of patients where last_login or current_login in last 3 months
         Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
-        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroupAndRecentLogin(group, threeMonthsAgo);
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroupsAndRecentLogin(groups, threeMonthsAgo);
 
         // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
         List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
@@ -108,12 +120,26 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         NhsIndicators nhsIndicators = new NhsIndicators();
         nhsIndicators.setGroupId(group.getId());
 
-        String[] codes = { "00" };
-        for (String code : codes) {
-            Code entityCode = codeRepository.findOneByCode(code);
-            if (entityCode != null) {
-                nhsIndicators.getCodeCount().put(code, fhirResource.getCountConditionBySubjectIdsAndCode(uuids, code));
-                nhsIndicators.getCodeMap().put(code, entityCode);
+        // group codes by type of treatment
+        Map<String, String[]> typeCodeMap = new HashMap<>();
+        String[] transplantCodes = { "TP", "T" };
+        typeCodeMap.put("Transplant", transplantCodes);
+        String[] otherCodes =  {"HD", "PD", "GEN" };
+        typeCodeMap.put("Other", otherCodes);
+
+        // iterate through types
+        for (String key : typeCodeMap.keySet()) {
+            nhsIndicators.getCodeCount().put(key, 0L);
+            List<Code> codes = new ArrayList<>();
+            // for each code in type (e.g. Transplant, other) get Code and count of patients with that treatment
+            for (String code : typeCodeMap.get(key)) {
+                Code entityCode = codeRepository.findOneByCode(code);
+                if (entityCode != null) {
+                    nhsIndicators.getCodeCount().put(key, nhsIndicators.getCodeCount().get(key)
+                            + fhirResource.getCountEncounterBySubjectIdsAndCode(uuids, code));
+                    codes.add(entityCode);
+                }
+                nhsIndicators.getCodeMap().put(key, codes);
             }
         }
 

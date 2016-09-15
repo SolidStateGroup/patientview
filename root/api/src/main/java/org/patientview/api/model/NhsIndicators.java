@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.Code;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,7 +17,7 @@ public class NhsIndicators {
 
     private Map<String, Long> codeCount = new HashMap<>();
 
-    private Map<String, Code> codeMap = new HashMap<>();
+    private Map<String, List<Code>> codeMap = new HashMap<>();
 
     public NhsIndicators() {
     }
@@ -37,11 +38,11 @@ public class NhsIndicators {
         this.codeCount = codeCount;
     }
 
-    public Map<String, Code> getCodeMap() {
+    public Map<String, List<Code>> getCodeMap() {
         return codeMap;
     }
 
-    public void setCodeMap(Map<String, Code> codeMap) {
+    public void setCodeMap(Map<String, List<Code>> codeMap) {
         this.codeMap = codeMap;
     }
 }

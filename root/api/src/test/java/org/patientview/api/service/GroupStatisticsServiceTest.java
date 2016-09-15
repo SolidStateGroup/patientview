@@ -141,27 +141,30 @@ public class GroupStatisticsServiceTest {
         uuids.add(fhirLinks.get(0).getResourceId());
 
         Code code = new Code();
-        code.setCode("00");
+        code.setCode("TP");
 
         Long zeroZeroCount = 20L;
 
-        when(codeRepository.findOneByCode(any(String.class))).thenReturn(code);
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+
+        when(codeRepository.findOneByCode(eq(code.getCode()))).thenReturn(code);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(fhirLinkRepository.findByGroupAndRecentLogin(eq(group), any(Date.class))).thenReturn(fhirLinks);
-        when(fhirResource.getCountConditionBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
+        when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
+        when(fhirResource.getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
 
         NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
 
         assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
         assertEquals("Should have correct Code in codeMap",
-                code.getCode(), nhsIndicators.getCodeMap().get(code.getCode()).getCode());
+                code.getCode(), nhsIndicators.getCodeMap().get("Transplant").get(0).getCode());
         assertEquals("Should have correct count for Code in codeCount",
-                zeroZeroCount, nhsIndicators.getCodeCount().get(code.getCode()));
+                zeroZeroCount, nhsIndicators.getCodeCount().get("Transplant"));
 
         verify(codeRepository, Mockito.atLeastOnce()).findOneByCode(any(String.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(fhirLinkRepository, Mockito.times(1)).findByGroupAndRecentLogin(eq(group), any(Date.class));
-        verify(fhirResource, Mockito.times(1)).getCountConditionBySubjectIdsAndCode(eq(uuids), any(String.class));
+        verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
+        verify(fhirResource, Mockito.times(1)).getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class));
     }
 
     /**

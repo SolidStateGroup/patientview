@@ -500,7 +500,7 @@ public class FhirResource {
         return existingMap;
     }
 
-    public Long getCountConditionBySubjectIdsAndCode(List<UUID> subjectIds, String code)
+    public Long getCountEncounterBySubjectIdsAndCode(List<UUID> subjectIds, String code)
             throws FhirResourceException {
         Connection connection = null;
         Long result;
@@ -510,10 +510,10 @@ public class FhirResource {
 
         // build query
         StringBuilder query = new StringBuilder();
-        query.append("SELECT COUNT(1) ");
-        query.append("FROM condition ");
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
         query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
-        query.append("AND content -> 'code' ->> 'text' = '").append(code).append("' ");
+        query.append("AND content #> '{type,0}'->>'text' = '").append(code).append("' ");
 
         // execute and return map of logical ids and applies
         try {
@@ -527,7 +527,7 @@ public class FhirResource {
 
             connection.close();
         } catch (SQLException e) {
-            LOG.error("Unable to get location uuids by logical id {}", e);
+            LOG.error("Unable to get encounter counts: {}", e);
 
             // try and close the open connection
             try {

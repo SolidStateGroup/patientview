@@ -106,6 +106,21 @@ public class GroupRepositoryTest {
     }
 
     @Test
+    public void testFindAllByIds() {
+        Group group1 = dataTestUtils.createGroup("testGroup1");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+
+        List<Long> ids = new ArrayList<>();
+        ids.add(group1.getId());
+        ids.add(group2.getId());
+
+        List<Group> groups = groupRepository.findAllByIds(ids);
+
+        Assert.assertNotNull("There should be groups", groups);
+        Assert.assertEquals("There should be 2 groups", 2, groups.size());
+    }
+
+    @Test
     public void findGroupAndChildGroupsByUser() {
         User user = dataTestUtils.createUser("testUser");
         Group parentGroup = dataTestUtils.createGroup("parentGroup");
