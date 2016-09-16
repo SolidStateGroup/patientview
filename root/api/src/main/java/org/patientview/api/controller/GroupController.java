@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.GroupStatisticTO;
@@ -218,8 +219,9 @@ public class GroupController extends BaseController<GroupController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<NhsIndicators>> getAllNhsIndicators()
-            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        return new ResponseEntity<>(groupStatisticService.getAllNhsIndicators(), HttpStatus.OK);
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException,
+                JsonProcessingException {
+        return new ResponseEntity<>(groupStatisticService.getAllNhsIndicators(true), HttpStatus.OK);
     }
 
     /**

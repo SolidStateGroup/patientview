@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.TransformerUtils;
 import org.joda.time.DateTime;
@@ -22,6 +24,7 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.repository.NhsIndicatorsRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
@@ -68,6 +71,11 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     @Inject
     private LookupTypeRepository lookupTypeRepository;
 
+    @Inject
+    private NhsIndicatorsRepository nhsIndicatorsRepository;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     /**
      * Summary view of the statistics month by month
      *
@@ -92,11 +100,12 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     @Override
-    public List<NhsIndicators> getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException {
+    public List<NhsIndicators> getAllNhsIndicators(boolean store)
+            throws ResourceNotFoundException, FhirResourceException, JsonProcessingException {
         LOG.info("Starting get all NHS indicators");
         List<Group> groups = groupRepository.findAll();
 
-        List<NhsIndicators> nhsIndicators = new ArrayList<>();
+        List<NhsIndicators> nhsIndicatorList = new ArrayList<>();
 
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
@@ -117,16 +126,34 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
 
         for (Group group : groups) {
-            nhsIndicators.add(getNhsIndicators(group, typeCodeMap, codeMap));
+            if (group.getVisible().equals(true)) {
+                nhsIndicatorList.add(getNhsIndicators(group, typeCodeMap, codeMap));
+            }
         }
 
         LOG.info("Done get all NHS indicators");
 
-        return nhsIndicators;
+        if (store) {
+            storeNhsIndicators(nhsIndicatorList);
+        }
+
+        return nhsIndicatorList;
+    }
+
+    private void storeNhsIndicators(List<NhsIndicators> nhsIndicatorList) throws JsonProcessingException {
+        Date now = new Date();
+        List<org.patientview.persistence.model.NhsIndicators> toSave = new ArrayList<>();
+        for (NhsIndicators nhsIndicators : nhsIndicatorList) {
+            toSave.add(new org.patientview.persistence.model.NhsIndicators(nhsIndicators.getGroupId(),
+                            OBJECT_MAPPER.writeValueAsString(nhsIndicators.getData()), now));
+
+        }
+
+        nhsIndicatorsRepository.save(toSave);
     }
 
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
-                       Map<String, Code> codeMap) throws ResourceNotFoundException, FhirResourceException {
+                       Map<String, Code> entityCodeMap) throws ResourceNotFoundException, FhirResourceException {
         List<Group> groups = new ArrayList<>();
 
         // if specialty get child groups
@@ -152,19 +179,21 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         // create object to return results
         NhsIndicators nhsIndicators = new NhsIndicators(group.getId());
+        nhsIndicators.setCodeMap(entityCodeMap);
 
         // iterate through types
-        for (String key : typeCodeMap.keySet()) {
-            nhsIndicators.getCodeCount().put(key, 0L);
-            List<Code> codesToReturn = new ArrayList<>();
+        for (String indicator : typeCodeMap.keySet()) {
+            nhsIndicators.getData().getIndicatorCount().put(indicator, 0L);
+            List<String> codesToReturn = new ArrayList<>();
             // for each code in type (e.g. Transplant, other) get Code and count of patients with that treatment
-            for (String codeString : typeCodeMap.get(key)) {
-                if (codeMap.get(codeString) != null) {
-                    nhsIndicators.getCodeCount().put(key, nhsIndicators.getCodeCount().get(key)
-                            + fhirResource.getCountEncounterBySubjectIdsAndCode(uuids, codeString));
-                    codesToReturn.add(codeMap.get(codeString));
+            for (String codeString : typeCodeMap.get(indicator)) {
+                if (entityCodeMap.get(codeString) != null) {
+                    nhsIndicators.getData().getIndicatorCount().put(indicator,
+                            nhsIndicators.getData().getIndicatorCount().get(indicator)
+                                + fhirResource.getCountEncounterBySubjectIdsAndCode(uuids, codeString));
+                    codesToReturn.add(entityCodeMap.get(codeString).getCode());
                 }
-                nhsIndicators.getCodeMap().put(key, codesToReturn);
+                nhsIndicators.getData().getIndicatorCodeMap().put(indicator, codesToReturn);
             }
         }
 

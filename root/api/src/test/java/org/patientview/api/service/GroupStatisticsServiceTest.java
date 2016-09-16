@@ -160,11 +160,11 @@ public class GroupStatisticsServiceTest {
 
         assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
         assertTrue("Should have at least one Code in codeMap",
-                nhsIndicators.getCodeMap().get("Transplant").size() > 0);
+                nhsIndicators.getData().getIndicatorCodeMap().get("Transplant").size() > 0);
         assertEquals("Should have correct Code in codeMap",
-                code.getCode(), nhsIndicators.getCodeMap().get("Transplant").get(0).getCode());
+                code.getCode(), nhsIndicators.getData().getIndicatorCodeMap().get("Transplant").get(0));
         assertEquals("Should have correct count for Code in codeCount",
-                zeroZeroCount, nhsIndicators.getCodeCount().get("Transplant"));
+                zeroZeroCount, nhsIndicators.getData().getIndicatorCount().get("Transplant"));
 
         verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));

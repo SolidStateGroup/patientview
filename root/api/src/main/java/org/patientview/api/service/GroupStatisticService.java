@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.GroupStatisticTO;
@@ -45,8 +46,17 @@ public interface GroupStatisticService {
     List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    /**
+     * Get all NhsIndicators, with option to store results in database.
+     * @param store boolean sotre data in database
+     * @return List of NhsIndicators
+     * @throws ResourceNotFoundException thrown when group not found
+     * @throws FhirResourceException thrown when error retrieving from FHIR
+     * @throws JsonProcessingException thrown when converting data to save as JSON
+     */
     @RoleOnly
-    List<NhsIndicators> getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException;
+    List<NhsIndicators> getAllNhsIndicators(boolean store)
+            throws ResourceNotFoundException, FhirResourceException, JsonProcessingException;
 
     /**
      * Given a Group ID, get NHS indicators statistics.
@@ -55,7 +65,7 @@ public interface GroupStatisticService {
      * @throws ResourceNotFoundException thrown when Group does not exist
      * @throws FhirResourceException thrown when error retrieving from FHIR
      */
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException;
 
     // migration only

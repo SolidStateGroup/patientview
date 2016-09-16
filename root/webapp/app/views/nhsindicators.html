@@ -31,11 +31,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr data-ng-repeat="(type, count) in nhsIndicators.codeCount">
+                    <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
                         <td>
-                            {{type}} -
-                            <span data-ng-repeat="code in nhsIndicators.codeMap[type]">
-                                <span class="label label-info">{{code.description}} ({{code.code}})</span> &nbsp;
+                            {{indicator}} -
+                            <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
+                                <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{nhsIndicators.codeMap[code].code}})</span> &nbsp;
                             </span>
                         </td>
                         <td>

@@ -1,9 +1,9 @@
 package org.patientview.api.model;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.NhsIndicatorsData;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,9 +15,9 @@ public class NhsIndicators {
 
     private Long groupId;
 
-    private Map<String, Long> codeCount = new HashMap<>();
+    private NhsIndicatorsData data = new NhsIndicatorsData();
 
-    private Map<String, List<Code>> codeMap = new HashMap<>();
+    private Map<String, Code> codeMap = new HashMap<>();
 
     public NhsIndicators() {
     }
@@ -34,19 +34,19 @@ public class NhsIndicators {
         this.groupId = groupId;
     }
 
-    public Map<String, Long> getCodeCount() {
-        return codeCount;
+    public NhsIndicatorsData getData() {
+        return data;
     }
 
-    public void setCodeCount(Map<String, Long> codeCount) {
-        this.codeCount = codeCount;
+    public void setData(NhsIndicatorsData data) {
+        this.data = data;
     }
 
-    public Map<String, List<Code>> getCodeMap() {
+    public Map<String, Code> getCodeMap() {
         return codeMap;
     }
 
-    public void setCodeMap(Map<String, List<Code>> codeMap) {
+    public void setCodeMap(Map<String, Code> codeMap) {
         this.codeMap = codeMap;
     }
 }

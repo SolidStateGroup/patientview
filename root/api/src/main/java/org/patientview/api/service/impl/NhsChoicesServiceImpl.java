@@ -941,9 +941,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         String apiKey = properties.getProperty("nhschoices.api.key");
         String urlString
-                //    = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
-                = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/postcode/W67HY.xml?range=1&apikey="
-                + apiKey;
+            //= "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/14500/overview.xml?apikey=" + apiKey;
+            = "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/postcode/W67HY.xml?range=1&apikey="
+            + apiKey;
 
         System.out.println("url: " + urlString);
 
