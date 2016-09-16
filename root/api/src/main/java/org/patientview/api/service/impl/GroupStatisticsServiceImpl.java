@@ -92,7 +92,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     @Override
-    public NhsIndicators getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException {
+    public List<NhsIndicators> getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException {
         LOG.info("Starting get all NHS indicators");
         List<Group> groups = groupRepository.findAll();
 
@@ -122,7 +122,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         LOG.info("Done get all NHS indicators");
 
-        return nhsIndicators.get(1);
+        return nhsIndicators;
     }
 
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
@@ -178,29 +178,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             throw new ResourceNotFoundException("The group could not be found");
         }
 
-        List<Group> groups = new ArrayList<>();
-
-        // if specialty get child groups
-        if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-            // specialty, get children
-            groups.addAll(convertIterable(groupRepository.findChildren(group)));
-        } else {
-            // single group, just add group
-            groups.add(group);
-        }
-
-        // get fhirlink resource id of patients where last_login or current_login in last 3 months
-        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
-        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroupsAndRecentLogin(groups, threeMonthsAgo);
-
-        // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
-        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
-                TransformerUtils.invokerTransformer("getResourceId"));
-
-        // create object to return results
-        NhsIndicators nhsIndicators = new NhsIndicators();
-        nhsIndicators.setGroupId(group.getId());
-
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
         typeCodeMap.put("Transplant", Arrays.asList("TP", "T"));
@@ -217,22 +194,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             codeMap.put(code.getCode(), code);
         }
 
-        // iterate through types
-        for (String key : typeCodeMap.keySet()) {
-            nhsIndicators.getCodeCount().put(key, 0L);
-            List<Code> codesToReturn = new ArrayList<>();
-            // for each code in type (e.g. Transplant, other) get Code and count of patients with that treatment
-            for (String codeString : typeCodeMap.get(key)) {
-                if (codeMap.get(codeString) != null) {
-                    nhsIndicators.getCodeCount().put(key, nhsIndicators.getCodeCount().get(key)
-                            + fhirResource.getCountEncounterBySubjectIdsAndCode(uuids, codeString));
-                    codesToReturn.add(codeMap.get(codeString));
-                }
-                nhsIndicators.getCodeMap().put(key, codesToReturn);
-            }
-        }
-
-        return nhsIndicators;
+        return getNhsIndicators(group, typeCodeMap, codeMap);
     }
 
     private List<GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {

@@ -515,6 +515,8 @@ public class FhirResource {
         query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
         query.append("AND content #> '{type,0}'->>'text' = '").append(code).append("' ");
 
+        LOG.info(query.toString());
+
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
