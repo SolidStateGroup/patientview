@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.NhsIndicators;
 import org.patientview.config.exception.FhirResourceException;
@@ -44,7 +45,8 @@ public interface GroupStatisticService {
     List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    NhsIndicators getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException;
+    @RoleOnly
+    List<NhsIndicators> getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Given a Group ID, get NHS indicators statistics.

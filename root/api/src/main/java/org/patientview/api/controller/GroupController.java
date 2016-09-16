@@ -211,7 +211,14 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public ResponseEntity<NhsIndicators> getNhsIndicators(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        //return new ResponseEntity<>(groupStatisticService.getNhsIndicators(groupId), HttpStatus.OK);
+        return new ResponseEntity<>(groupStatisticService.getNhsIndicators(groupId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/nhsindicators/all", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<NhsIndicators>> getAllNhsIndicators()
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(groupStatisticService.getAllNhsIndicators(), HttpStatus.OK);
     }
 
