@@ -1,16 +1,18 @@
 package org.patientview.api.service;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.api.model.NhsIndicators;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
@@ -21,22 +23,29 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -51,7 +60,16 @@ public class GroupStatisticsServiceTest {
     User creator;
 
     @Mock
-    GroupStatisticRepository groupStatisticRepository;
+    CodeRepository codeRepository;
+
+    @Mock
+    EntityManager entityManager;
+
+    @Mock
+    FhirLinkRepository fhirLinkRepository;
+
+    @Mock
+    FhirResource fhirResource;
 
     @Mock
     GroupRepository groupRepository;
@@ -63,13 +81,13 @@ public class GroupStatisticsServiceTest {
     LookupTypeRepository lookupTypeRepository;
 
     @Mock
-    EntityManager entityManager;
-
-    @Mock
-    Query query;
+    GroupStatisticRepository groupStatisticRepository;
 
     @InjectMocks
     GroupStatisticService groupStatisticService = new GroupStatisticsServiceImpl();
+
+    @Mock
+    Query query;
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +105,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The repository is not accessed to retrieve the results
      */
     @Test
-    public void testGetMonthlyGroupStatistics() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -100,13 +118,58 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(group.getId());
-            verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
-                    eq(StatisticPeriod.MONTH));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
+        List<GroupStatisticTO> groupStatisticTOs = groupStatisticService.getMonthlyGroupStatistics(group.getId());
+
+        verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
+                eq(StatisticPeriod.MONTH));
+    }
+
+    @Test
+    public void testGetNhsIndicators() throws Exception {
+        Group group = TestUtils.createGroup("testGroup");
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(new FhirLink(1L, UUID.randomUUID(), new User()));
+
+        List<UUID> uuids = new ArrayList<>();
+        uuids.add(fhirLinks.get(0).getResourceId());
+
+        Code code = new Code();
+        code.setCode("TP");
+        List<Code> foundCodes = new ArrayList<>(Arrays.asList(code));
+
+        Long zeroZeroCount = 20L;
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+
+        when(codeRepository.findAllByCodes(any(List.class))).thenReturn(foundCodes);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
+        when(fhirResource.getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
+
+        NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
+
+        assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
+        assertTrue("Should have at least one Code in codeMap",
+                nhsIndicators.getCodeMap().get("Transplant").size() > 0);
+        assertEquals("Should have correct Code in codeMap",
+                code.getCode(), nhsIndicators.getCodeMap().get("Transplant").get(0).getCode());
+        assertEquals("Should have correct count for Code in codeCount",
+                zeroZeroCount, nhsIndicators.getCodeCount().get("Transplant"));
+
+        verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
+        verify(fhirResource, Mockito.times(1)).getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class));
     }
 
     /**
@@ -160,7 +223,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The exception is not thrown
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetMonthlyGroupStatistics_UnknownGroup() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics_UnknownGroup() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -173,11 +236,6 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(null);
-            verify(groupStatisticRepository.findByGroupAndStatisticPeriod(eq(group), eq(StatisticPeriod.MONTH)));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
+        groupStatisticService.getMonthlyGroupStatistics(null);
     }
 }

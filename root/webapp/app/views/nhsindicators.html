@@ -1,0 +1,49 @@
+<h1>
+    NHS Indicators
+
+    <a href="/#/dashboard" class="btn blue pull-right" data-ng-show="!loading">
+        <i class="icon-back-to pull-left"> </i>
+        Back to Dashboard
+    </a>
+</h1>
+
+<div class="content-panel">
+    <div class="content-inner">
+        <select class="form-control" id="group-select" data-ng-model="selectedGroupId"
+                data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in selectGroups | orderBy:[orderGroups,'name']"
+                data-ng-show="selectGroups.length > 1" data-ng-cloak>
+        </select>
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}></div>
+        <div data-ng-show="loading" class="container">
+            <div data-ng-show="loading" class="loading">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading NHS Indicators</h3>
+            </div>
+        </div>
+        <div data-ng-if="nhsIndicators && !loading">
+            <br/>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Treatment(s)</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="(type, count) in nhsIndicators.codeCount">
+                        <td>
+                            {{type}} -
+                            <span data-ng-repeat="code in nhsIndicators.codeMap[type]">
+                                <span class="label label-info">{{code.description}} ({{code.code}})</span> &nbsp;
+                            </span>
+                        </td>
+                        <td>
+                            {{count}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

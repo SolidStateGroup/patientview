@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.RequestService;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -28,7 +26,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -37,8 +34,6 @@ import static org.mockito.Mockito.verify;
  * Created on 09/07/2014
  */
 public class GroupControllerTest {
-
-    private ObjectMapper mapper = new ObjectMapper();
 
     User creator;
 
@@ -75,38 +70,27 @@ public class GroupControllerTest {
     }
 
     @Test
-    public void testGetGroupsPublic() {
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/public/group"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+    public void testGetGroupsPublic() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/public/group"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(groupService, Mockito.times(1)).findAllPublic();
     }
 
     @Test
-    public void testAddChildGroup() {
+    public void testAddChildGroup() throws Exception {
         Long groupId = 1L;
         Long childGroupId = 2L;
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
-        String url = "/group/" + groupId + "/child/" + childGroupId;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put(url))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.put("/group/" + groupId + "/child/" + childGroupId))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(groupService, Mockito.times(1)).addChildGroup(eq(groupId), eq(childGroupId));
     }
 
     @Test
-    public void testAddParentGroup() {
-
+    public void testAddParentGroup() throws Exception {
         // groups
         Group group = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("testParentGroup");
@@ -119,21 +103,29 @@ public class GroupControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        String url = "/group/" + group.getId() + "/parent/" + parentGroup.getId();
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put(url))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.put("/group/" + group.getId() + "/parent/" + parentGroup.getId()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(groupService, Mockito.times(1)).addParentGroup(eq(group.getId()), eq(parentGroup.getId()));
     }
 
     @Test
-    public void testAddFeature() {
+    public void testAddFeature() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
+        mockMvc.perform(MockMvcRequestBuilders.put("/group/" + group.getId() + "/features/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testDeleteFeature() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
@@ -145,40 +137,11 @@ public class GroupControllerTest {
 
         String url = "/group/" + group.getId() + "/features/1";
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testDeleteFeature() {
-
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        String url = "/group/" + group.getId() + "/features/1";
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-    }
-
-    /**
-     * Test: The retrieval of the group statistics for a specific group
-     * Fail: The statistics service is not contacted about the request
-     */
-    @Test
-    public void testGroupStatistics() throws ResourceNotFoundException {
+    public void testGetNhsIndicators() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
@@ -188,12 +151,27 @@ public class GroupControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/nhsindicators"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    /**
+     * Test: The retrieval of the group statistics for a specific group
+     * Fail: The statistics service is not contacted about the request
+     */
+    @Test
+    public void testGroupStatistics() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
 

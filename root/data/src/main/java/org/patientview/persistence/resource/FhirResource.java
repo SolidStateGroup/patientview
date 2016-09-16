@@ -15,7 +15,6 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.postgresql.util.PGobject;
@@ -499,6 +498,51 @@ public class FhirResource {
         }
 
         return existingMap;
+    }
+
+    public Long getCountEncounterBySubjectIdsAndCode(List<UUID> subjectIds, String code)
+            throws FhirResourceException {
+        Connection connection = null;
+        Long result;
+
+        // convert list of UUID to suitable string
+        String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
+        query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
+        query.append("AND content #> '{type,0}'->>'text' = '").append(code).append("' ");
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            // get a single result
+            results.next();
+            result = results.getLong(1);
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get encounter counts: {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return result;
     }
 
     /**
