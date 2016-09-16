@@ -22,6 +22,10 @@ public class NhsIndicators {
     public NhsIndicators() {
     }
 
+    public NhsIndicators(Long groupId) {
+        setGroupId(groupId);
+    }
+
     public Long getGroupId() {
         return groupId;
     }

@@ -44,6 +44,8 @@ public interface GroupStatisticService {
     List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    NhsIndicators getAllNhsIndicators() throws ResourceNotFoundException, FhirResourceException;
+
     /**
      * Given a Group ID, get NHS indicators statistics.
      * @param groupId Long ID of the Group to retrieve NHS indicators for

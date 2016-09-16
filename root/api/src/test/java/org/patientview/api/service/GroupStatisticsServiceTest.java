@@ -36,6 +36,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -142,13 +144,14 @@ public class GroupStatisticsServiceTest {
 
         Code code = new Code();
         code.setCode("TP");
+        List<Code> foundCodes = new ArrayList<>(Arrays.asList(code));
 
         Long zeroZeroCount = 20L;
 
         List<Group> groups = new ArrayList<>();
         groups.add(group);
 
-        when(codeRepository.findOneByCode(eq(code.getCode()))).thenReturn(code);
+        when(codeRepository.findAllByCodes(any(List.class))).thenReturn(foundCodes);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
         when(fhirResource.getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
@@ -156,12 +159,14 @@ public class GroupStatisticsServiceTest {
         NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
 
         assertEquals("Should have correct Group ID", group.getId(), nhsIndicators.getGroupId());
+        assertTrue("Should have at least one Code in codeMap",
+                nhsIndicators.getCodeMap().get("Transplant").size() > 0);
         assertEquals("Should have correct Code in codeMap",
                 code.getCode(), nhsIndicators.getCodeMap().get("Transplant").get(0).getCode());
         assertEquals("Should have correct count for Code in codeCount",
                 zeroZeroCount, nhsIndicators.getCodeCount().get("Transplant"));
 
-        verify(codeRepository, Mockito.atLeastOnce()).findOneByCode(any(String.class));
+        verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
         verify(fhirResource, Mockito.times(1)).getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class));

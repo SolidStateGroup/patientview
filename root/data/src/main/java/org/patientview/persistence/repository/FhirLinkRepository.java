@@ -61,8 +61,7 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
     @Query("SELECT f " +
             "FROM FhirLink f " +
             "WHERE f.group IN :groups " +
-            "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date )" +
-            "")
+            "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date)")
     List<FhirLink> findByGroupsAndRecentLogin(@Param("groups") List<Group> groups, @Param("date") Date date);
 
     @Query("SELECT  f " +
