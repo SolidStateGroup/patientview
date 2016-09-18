@@ -183,11 +183,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         // iterate through types
         for (String indicator : typeCodeMap.keySet()) {
-            nhsIndicators.getData().getIndicatorCount().put(indicator, 0L);
-
             nhsIndicators.getData().getIndicatorCount().put(indicator,
-                    nhsIndicators.getData().getIndicatorCount().get(indicator)
-                            + fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));
+                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));
             nhsIndicators.getData().getIndicatorCodeMap().put(indicator, typeCodeMap.get(indicator));
         }
 
