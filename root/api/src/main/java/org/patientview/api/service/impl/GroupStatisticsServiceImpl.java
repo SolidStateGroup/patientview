@@ -41,8 +41,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -130,7 +132,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP", "T"));
+        typeCodeMap.put("Transplant", Arrays.asList("TP"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
         typeCodeMap.put("GEN", Arrays.asList("GEN"));
@@ -207,14 +209,26 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
+        // used when doing NOT IN for encounters that are not in code list
+        Set<String> codesSearched = new HashSet<>();
+
         // iterate through indicators
         for (String indicator : typeCodeMap.keySet()) {
+            List<String> codesToSearch = typeCodeMap.get(indicator);
             nhsIndicators.getData().getIndicatorCount().put(indicator,
-                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));
+                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, codesToSearch));
             nhsIndicators.getData().getIndicatorCountLoginAfter().put(indicator,
-                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuidsLoginAfter, typeCodeMap.get(indicator)));
-            nhsIndicators.getData().getIndicatorCodeMap().put(indicator, typeCodeMap.get(indicator));
+                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuidsLoginAfter, codesToSearch));
+            nhsIndicators.getData().getIndicatorCodeMap().put(indicator, codesToSearch);
+            codesSearched.addAll(codesToSearch);
         }
+
+        // get "other"
+        nhsIndicators.getData().getIndicatorCount().put("Other Treatment",
+                fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuids, new ArrayList<>(codesSearched)));
+        nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
+                fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
+
 
         return nhsIndicators;
     }
@@ -229,7 +243,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP", "T"));
+        typeCodeMap.put("Transplant", Arrays.asList("TP"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
         typeCodeMap.put("GEN", Arrays.asList("GEN"));

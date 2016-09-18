@@ -175,6 +175,7 @@ public class GroupStatisticsServiceTest {
         verify(fhirLinkRepository, Mockito.times(1)).findByGroups(eq(groups));
         verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
         verify(fhirResource, Mockito.times(8)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
+        verify(fhirResource, Mockito.times(2)).getCountEncounterBySubjectIdsAndNotCodes(eq(uuids), any(List.class));
     }
 
     /**

@@ -419,6 +419,56 @@ public class FhirResource {
         query.append("FROM encounter ");
         query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
         query.append("AND content #> '{type,0}'->>'text' IN (").append(codes).append(") ");
+        query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
+
+        LOG.info(query.toString());
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            // get a single result
+            results.next();
+            result = results.getLong(1);
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get encounter counts: {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public Long getCountEncounterBySubjectIdsAndNotCodes(List<UUID> subjectIds, List<String> codeList)
+            throws FhirResourceException {
+        Connection connection = null;
+        Long result;
+
+        // convert list of UUID and code to suitable string
+        String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+        String codes = "'" + StringUtils.join(codeList, "','") + "'";
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
+        query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
+        query.append("AND content #> '{type,0}'->>'text' NOT IN (").append(codes).append(") ");
+        query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
 
         LOG.info(query.toString());
 

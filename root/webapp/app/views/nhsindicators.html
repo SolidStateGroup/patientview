@@ -34,7 +34,7 @@
                 <tbody>
                     <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
                         <td>
-                            {{indicator}} -
+                            {{indicator}} &nbsp;
                             <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
                                 <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
                             </span>
