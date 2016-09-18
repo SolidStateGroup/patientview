@@ -18,6 +18,9 @@ function ($scope, $routeParams, GroupService) {
             }
         }
 
+        // order by name
+        $scope.selectGroups = _.sortBy($scope.selectGroups, 'name');
+
         // set group map
         for (i = 0; i < $scope.selectGroups.length; i++) {
             $scope.allGroups[$scope.selectGroups[i].id] = $scope.selectGroups[i];
