@@ -1,7 +1,7 @@
 package org.patientview.api.job;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.patientview.api.service.GroupStatisticService;
+import org.patientview.api.service.NhsIndicatorsService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -22,13 +22,13 @@ public class NhsIndicatorsTask {
     private static final Logger LOG = LoggerFactory.getLogger(NhsIndicatorsTask.class);
 
     @Inject
-    private GroupStatisticService groupStatisticService;
+    private NhsIndicatorsService nhsIndicatorsService;
 
     //@Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     @Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
     public void generateNhsIndicators() {
         try {
-            groupStatisticService.getAllNhsIndicators(true);
+            nhsIndicatorsService.getAllNhsIndicatorsAndStore(true);
         } catch (ResourceNotFoundException | FhirResourceException | JsonProcessingException e) {
             LOG.error("Nhs Indicators scheduled task error: " + e.getMessage());
             e.printStackTrace();

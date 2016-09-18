@@ -140,21 +140,6 @@ public class GroupControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test
-    public void testGetNhsIndicators() throws Exception {
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/nhsindicators"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
     /**
      * Test: The retrieval of the group statistics for a specific group
      * Fail: The statistics service is not contacted about the request
