@@ -125,9 +125,12 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             codeMap.put(code.getCode(), code);
         }
 
+        // get fhirlink resource id of patients where last_login or current_login in last 3 months
+        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+
         for (Group group : groups) {
             if (group.getVisible().equals(true)) {
-                nhsIndicatorList.add(getNhsIndicators(group, typeCodeMap, codeMap));
+                nhsIndicatorList.add(getNhsIndicators(group, typeCodeMap, codeMap, threeMonthsAgo));
             }
         }
 
@@ -153,7 +156,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
-                       Map<String, Code> entityCodeMap) throws ResourceNotFoundException, FhirResourceException {
+                   Map<String, Code> entityCodeMap, Date loginAfter)
+            throws ResourceNotFoundException, FhirResourceException {
         List<Group> groups = new ArrayList<>();
 
         // if specialty get child groups
@@ -169,22 +173,25 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             return new NhsIndicators(group.getId());
         }
 
-        // get fhirlink resource id of patients where last_login or current_login in last 3 months
-        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
-        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroupsAndRecentLogin(groups, threeMonthsAgo);
+        // create object to return results
+        NhsIndicators nhsIndicators = new NhsIndicators(group.getId());
+        nhsIndicators.setCodeMap(entityCodeMap);
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroups(groups);
+        List<FhirLink> fhirLinksLoginAfter = fhirLinkRepository.findByGroupsAndRecentLogin(groups, loginAfter);
 
         // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
         List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
                 TransformerUtils.invokerTransformer("getResourceId"));
-
-        // create object to return results
-        NhsIndicators nhsIndicators = new NhsIndicators(group.getId());
-        nhsIndicators.setCodeMap(entityCodeMap);
+        List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
+                TransformerUtils.invokerTransformer("getResourceId"));
 
         // iterate through types
         for (String indicator : typeCodeMap.keySet()) {
             nhsIndicators.getData().getIndicatorCount().put(indicator,
                     fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));
+            nhsIndicators.getData().getIndicatorCountLoginAfter().put(indicator,
+                    fhirResource.getCountEncounterBySubjectIdsAndCodes(uuidsLoginAfter, typeCodeMap.get(indicator)));
             nhsIndicators.getData().getIndicatorCodeMap().put(indicator, typeCodeMap.get(indicator));
         }
 
@@ -192,7 +199,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     @Override
-    public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException {
+    public NhsIndicators getNhsIndicators(Long groupId)
+            throws ResourceNotFoundException, FhirResourceException {
         Group group = groupRepository.findOne(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("The group could not be found");
@@ -201,7 +209,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
         typeCodeMap.put("Transplant", Arrays.asList("TP", "T"));
-        typeCodeMap.put("Other", Arrays.asList("HD", "PD", "GEN"));
+        typeCodeMap.put("HD", Arrays.asList("HD"));
+        typeCodeMap.put("PD", Arrays.asList("PD"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN"));
 
         // get map of code to entities, for performance
         List<String> allCodeStrings = new ArrayList<>();
@@ -214,7 +224,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             codeMap.put(code.getCode(), code);
         }
 
-        return getNhsIndicators(group, typeCodeMap, codeMap);
+        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+
+        return getNhsIndicators(group, typeCodeMap, codeMap, threeMonthsAgo);
     }
 
     private List<GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {

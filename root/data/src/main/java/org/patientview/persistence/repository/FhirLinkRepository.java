@@ -58,7 +58,12 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
             "ORDER BY f.created DESC")
     List<FhirLink> findInActiveByUserAndGroup(@Param("user") User user, @Param("group") Group group);
 
-    @Query("SELECT f " +
+    @Query("SELECT DISTINCT f " +
+            "FROM FhirLink f " +
+            "WHERE f.group IN :groups ")
+    List<FhirLink> findByGroups(@Param("groups") List<Group> groups);
+
+    @Query("SELECT DISTINCT f " +
             "FROM FhirLink f " +
             "WHERE f.group IN :groups " +
             "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date)")

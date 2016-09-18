@@ -27,7 +27,8 @@
                 <thead>
                     <tr>
                         <th>Treatment(s)</th>
-                        <th>Count</th>
+                        <th>Registered on PatientView</th>
+                        <th>Logged on in last 3 months</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,6 +41,9 @@
                         </td>
                         <td>
                             {{count}}
+                        </td>
+                        <td>
+                            {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
                         </td>
                     </tr>
                 </tbody>

@@ -32,7 +32,7 @@ public class NhsIndicatorsRepositoryTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Inject
-    NhsIndicatorsRepository nhsIndicatorsRepository;
+    private NhsIndicatorsRepository nhsIndicatorsRepository;
 
     @Test
     public void testFindAll() throws Exception {
@@ -42,17 +42,21 @@ public class NhsIndicatorsRepositoryTest {
         {
             Map<String, Long> indicatorCount = new HashMap<>();
             indicatorCount.put(indicatorString, 22L);
+            Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+            indicatorCountLoginAfter.put(indicatorString, 22L);
             Map<String, List<String>> indicatorCodeMap = new HashMap<>();
             indicatorCodeMap.put(indicatorString, new ArrayList<>(Arrays.asList("TP", "T")));
-            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCodeMap);
+            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
             nhsIndicatorsRepository.save(new NhsIndicators(1L, OBJECT_MAPPER.writeValueAsString(data)));
         }
         {
             Map<String, Long> indicatorCount = new HashMap<>();
             indicatorCount.put(indicatorString, 44L);
+            Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+            indicatorCountLoginAfter.put(indicatorString, 22L);
             Map<String, List<String>> indicatorCodeMap = new HashMap<>();
             indicatorCodeMap.put(indicatorString, new ArrayList<>(Arrays.asList("HD", "GEN")));
-            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCodeMap);
+            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
             nhsIndicatorsRepository.save(new NhsIndicators(2L, OBJECT_MAPPER.writeValueAsString(data)));
         }
 
@@ -70,17 +74,21 @@ public class NhsIndicatorsRepositoryTest {
         {
             Map<String, Long> indicatorCount = new HashMap<>();
             indicatorCount.put(indicatorString, 22L);
+            Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+            indicatorCountLoginAfter.put(indicatorString, 22L);
             Map<String, List<String>> indicatorCodeMap = new HashMap<>();
             indicatorCodeMap.put(indicatorString, new ArrayList<>(Arrays.asList("TP", "T")));
-            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCodeMap);
+            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
             nhsIndicators1 = nhsIndicatorsRepository.save(new NhsIndicators(1L, OBJECT_MAPPER.writeValueAsString(data)));
         }
         {
             Map<String, Long> indicatorCount = new HashMap<>();
             indicatorCount.put(indicatorString, 44L);
+            Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+            indicatorCountLoginAfter.put(indicatorString, 44L);
             Map<String, List<String>> indicatorCodeMap = new HashMap<>();
             indicatorCodeMap.put(indicatorString, new ArrayList<>(Arrays.asList("HD", "GEN")));
-            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCodeMap);
+            NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
             nhsIndicatorsRepository.save(new NhsIndicators(2L, OBJECT_MAPPER.writeValueAsString(data)));
         }
 
@@ -101,9 +109,11 @@ public class NhsIndicatorsRepositoryTest {
 
         Map<String, Long> indicatorCount = new HashMap<>();
         indicatorCount.put(indicatorString, count);
+        Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+        indicatorCountLoginAfter.put(indicatorString, count);
         Map<String, List<String>> indicatorCodeMap = new HashMap<>();
         indicatorCodeMap.put(indicatorString, new ArrayList<>(Arrays.asList("TP", "T")));
-        NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCodeMap);
+        NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
         nhsIndicators1 = nhsIndicatorsRepository.save(new NhsIndicators(1L, OBJECT_MAPPER.writeValueAsString(data)));
 
         NhsIndicators returned = nhsIndicatorsRepository.findOne(nhsIndicators1.getId());

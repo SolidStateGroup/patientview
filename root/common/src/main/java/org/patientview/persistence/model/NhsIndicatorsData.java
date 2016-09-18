@@ -17,6 +17,7 @@ public class NhsIndicatorsData {
 
     Map<String, List<String>> indicatorCodeMap = new HashMap<>();
     Map<String, Long> indicatorCount = new HashMap<>();
+    Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
 
     public NhsIndicatorsData() { }
 
@@ -25,8 +26,10 @@ public class NhsIndicatorsData {
         return new ObjectMapper().readValue(jsonString, NhsIndicatorsData.class);
     }
 
-    public NhsIndicatorsData(Map<String, Long> indicatorCount, Map<String, List<String>> indicatorCodeMap) {
+    public NhsIndicatorsData(Map<String, Long> indicatorCount, Map<String, Long> indicatorCountSinceDate,
+                             Map<String, List<String>> indicatorCodeMap) {
         this.indicatorCount = indicatorCount;
+        this.indicatorCountLoginAfter = indicatorCountSinceDate;
         this.indicatorCodeMap = indicatorCodeMap;
     }
 
@@ -44,5 +47,13 @@ public class NhsIndicatorsData {
 
     public void setIndicatorCodeMap(Map<String, List<String>> indicatorCodeMap) {
         this.indicatorCodeMap = indicatorCodeMap;
+    }
+
+    public Map<String, Long> getIndicatorCountLoginAfter() {
+        return indicatorCountLoginAfter;
+    }
+
+    public void setIndicatorCountLoginAfter(Map<String, Long> indicatorCountLoginAfter) {
+        this.indicatorCountLoginAfter = indicatorCountLoginAfter;
     }
 }

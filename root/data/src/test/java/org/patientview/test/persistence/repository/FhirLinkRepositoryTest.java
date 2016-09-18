@@ -62,6 +62,74 @@ public class FhirLinkRepositoryTest {
     }
 
     @Test
+    public void testFindByGroups() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+
+        // group 1
+        User user1 = dataTestUtils.createUser("testUser1");
+        dataTestUtils.createGroupRole(user1, group, role);
+        user1.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier1 = new Identifier();
+        identifier1.setIdentifier("1");
+        identifier1.setIdentifierType(lookup);
+        identifier1.setUser(user1);
+        user1.getIdentifiers().add(identifier1);
+        identifierRepository.save(identifier1);
+
+        FhirLink fhirLink1 = new FhirLink();
+        fhirLink1.setUser(user1);
+        fhirLink1.setGroup(group);
+        fhirLink1.setIdentifier(identifier1);
+        fhirLink1.setResourceId(UUID.fromString("e5294f9d-7122-4ba9-98eb-229f0426e0ad"));
+        fhirLinkRepository.save(fhirLink1);
+
+        user1.setFhirLinks(new HashSet<FhirLink>());
+        user1.getFhirLinks().add(fhirLink1);
+        userRepository.save(user1);
+
+        // group 2
+        User user2 = dataTestUtils.createUser("testuser2");
+        dataTestUtils.createGroupRole(user2, group2, role);
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("1");
+        identifier2.setIdentifierType(lookup);
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+
+        FhirLink fhirLink2 = new FhirLink();
+        fhirLink2.setUser(user2);
+        fhirLink2.setGroup(group2);
+        fhirLink2.setIdentifier(identifier2);
+        fhirLink2.setResourceId(UUID.fromString("6b26fd1d-77df-4094-937a-866f66ae2a8e"));
+        fhirLinkRepository.save(fhirLink2);
+
+        user2.setFhirLinks(new HashSet<FhirLink>());
+        user2.getFhirLinks().add(fhirLink2);
+        userRepository.save(user2);
+
+        List<FhirLink> fhirLinks = IteratorUtils.toList(fhirLinkRepository.findAll().iterator());
+        Assert.assertEquals("There should be 2 FhirLink in total", 2, fhirLinks.size());
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+
+        fhirLinks = fhirLinkRepository.findByGroups(groups);
+        Assert.assertEquals("There should be 1 FhirLink found by group", 1, fhirLinks.size());
+        Assert.assertEquals("Should be correct FhirLink found by group",
+                fhirLink1.getResourceId(), fhirLinks.get(0).getResourceId());
+
+        // get uuids from list of FhirLink
+        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
+                TransformerUtils.invokerTransformer("getResourceId"));
+        Assert.assertEquals("Should be correct resourceId found by group", fhirLink1.getResourceId(), uuids.get(0));
+    }
+
+    @Test
     public void testFindByGroupsAndRecentLogin() {
         Group group = dataTestUtils.createGroup("testGroup");
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
