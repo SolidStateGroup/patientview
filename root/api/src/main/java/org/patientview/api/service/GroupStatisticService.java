@@ -54,7 +54,6 @@ public interface GroupStatisticService {
      * @throws FhirResourceException thrown when error retrieving from FHIR
      * @throws JsonProcessingException thrown when converting data to save as JSON
      */
-    @RoleOnly
     List<NhsIndicators> getAllNhsIndicators(boolean store)
             throws ResourceNotFoundException, FhirResourceException, JsonProcessingException;
 
