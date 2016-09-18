@@ -23,10 +23,13 @@ import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.persistence.repository.NhsIndicatorsRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -69,6 +72,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     private GroupStatisticRepository groupStatisticRepository;
 
     @Inject
+    private LookupRepository lookupRepository;
+
+    @Inject
     private LookupTypeRepository lookupTypeRepository;
 
     @Inject
@@ -103,7 +109,22 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     public List<NhsIndicators> getAllNhsIndicators(boolean store)
             throws ResourceNotFoundException, FhirResourceException, JsonProcessingException {
         LOG.info("Starting get all NHS indicators");
-        List<Group> groups = groupRepository.findAll();
+
+        // only get groups of type UNIT
+        List<Long> groupTypes = new ArrayList<>();
+        Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.UNIT.toString());
+
+        if (lookup == null) {
+            throw new ResourceNotFoundException("Cannot get lookup");
+        }
+
+        groupTypes.add(lookup.getId());
+        Page<Group> unitGroups
+                = groupRepository.findAllByGroupType("%%", groupTypes, new PageRequest(0, Integer.MAX_VALUE));
+        if (CollectionUtils.isEmpty(unitGroups.getContent())) {
+            throw new ResourceNotFoundException("Cannot get groups");
+        }
+        List<Group> groups = unitGroups.getContent();
 
         List<NhsIndicators> nhsIndicatorList = new ArrayList<>();
 
@@ -186,7 +207,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
-        // iterate through types
+        // iterate through indicators
         for (String indicator : typeCodeMap.keySet()) {
             nhsIndicators.getData().getIndicatorCount().put(indicator,
                     fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));

@@ -4,17 +4,22 @@ angular.module('patientviewApp').controller('NhsIndicatorsCtrl',['$scope', '$rou
 function ($scope, $routeParams, GroupService) {
 
     var init = function() {
+        var i;
         $scope.loading = true;
         $scope.allGroups = [];
 
-        // set the list of groups to show in the data grid
-        $scope.selectGroups = $scope.loggedInUser.userInformation.userGroups;
+        // set the list of groups to show in the data grid, only use UNIT type groups
+        $scope.selectGroups = [];
 
-        // hide Generic group
-        _.remove($scope.selectGroups, {code: 'Generic'});
+        for (i=0; i<$scope.loggedInUser.userInformation.userGroups.length; i++) {
+            var group = $scope.loggedInUser.userInformation.userGroups[i];
+            if (group.groupType.value == "UNIT") {
+                $scope.selectGroups.push(group);
+            }
+        }
 
         // set group map
-        for (var i = 0; i < $scope.selectGroups.length; i++) {
+        for (i = 0; i < $scope.selectGroups.length; i++) {
             $scope.allGroups[$scope.selectGroups[i].id] = $scope.selectGroups[i];
         }
 
