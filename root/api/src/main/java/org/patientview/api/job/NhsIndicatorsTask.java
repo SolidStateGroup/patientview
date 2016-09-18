@@ -25,7 +25,7 @@ public class NhsIndicatorsTask {
     private NhsIndicatorsService nhsIndicatorsService;
 
     //@Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
-    @Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
+    @Scheduled(cron = "0 0 3 * * ?") // every day at 01:00
     public void generateNhsIndicators() {
         try {
             nhsIndicatorsService.getAllNhsIndicatorsAndStore(true);
