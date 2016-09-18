@@ -404,22 +404,23 @@ public class FhirResource {
         }
     }
 
-    public Long getCountEncounterBySubjectIdsAndCode(List<UUID> subjectIds, String code)
+    public Long getCountEncounterBySubjectIdsAndCodes(List<UUID> subjectIds, List<String> codeList)
             throws FhirResourceException {
         Connection connection = null;
         Long result;
 
-        // convert list of UUID to suitable string
+        // convert list of UUID and code to suitable string
         String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+        String codes = "'" + StringUtils.join(codeList, "','") + "'";
 
         // build query
         StringBuilder query = new StringBuilder();
         query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
         query.append("FROM encounter ");
         query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
-        query.append("AND content #> '{type,0}'->>'text' = '").append(code).append("' ");
+        query.append("AND content #> '{type,0}'->>'text' IN (").append(codes).append(") ");
 
-        //LOG.info(query.toString());
+        LOG.info(query.toString());
 
         // execute and return map of logical ids and applies
         try {

@@ -146,6 +146,9 @@ public class GroupStatisticsServiceTest {
         code.setCode("TP");
         List<Code> foundCodes = new ArrayList<>(Arrays.asList(code));
 
+        List<String> codeStrings = new ArrayList<>();
+        codeStrings.add(code.getCode());
+
         Long zeroZeroCount = 20L;
 
         List<Group> groups = new ArrayList<>();
@@ -154,7 +157,7 @@ public class GroupStatisticsServiceTest {
         when(codeRepository.findAllByCodes(any(List.class))).thenReturn(foundCodes);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
-        when(fhirResource.getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class))).thenReturn(zeroZeroCount);
+        when(fhirResource.getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class))).thenReturn(zeroZeroCount);
 
         NhsIndicators nhsIndicators = groupStatisticService.getNhsIndicators(group.getId());
 
@@ -169,7 +172,7 @@ public class GroupStatisticsServiceTest {
         verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
-        verify(fhirResource, Mockito.times(1)).getCountEncounterBySubjectIdsAndCode(eq(uuids), any(String.class));
+        verify(fhirResource, Mockito.times(2)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
     }
 
     /**

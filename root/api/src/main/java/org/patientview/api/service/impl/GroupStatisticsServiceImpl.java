@@ -184,17 +184,11 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         // iterate through types
         for (String indicator : typeCodeMap.keySet()) {
             nhsIndicators.getData().getIndicatorCount().put(indicator, 0L);
-            List<String> codesToReturn = new ArrayList<>();
-            // for each code in type (e.g. Transplant, other) get Code and count of patients with that treatment
-            for (String codeString : typeCodeMap.get(indicator)) {
-                if (entityCodeMap.get(codeString) != null) {
-                    nhsIndicators.getData().getIndicatorCount().put(indicator,
-                            nhsIndicators.getData().getIndicatorCount().get(indicator)
-                                + fhirResource.getCountEncounterBySubjectIdsAndCode(uuids, codeString));
-                    codesToReturn.add(entityCodeMap.get(codeString).getCode());
-                }
-                nhsIndicators.getData().getIndicatorCodeMap().put(indicator, codesToReturn);
-            }
+
+            nhsIndicators.getData().getIndicatorCount().put(indicator,
+                    nhsIndicators.getData().getIndicatorCount().get(indicator)
+                            + fhirResource.getCountEncounterBySubjectIdsAndCodes(uuids, typeCodeMap.get(indicator)));
+            nhsIndicators.getData().getIndicatorCodeMap().put(indicator, typeCodeMap.get(indicator));
         }
 
         return nhsIndicators;
