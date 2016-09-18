@@ -43,12 +43,16 @@ function ($scope, $routeParams, GroupService) {
         }
     };
 
-    var getNhsIndicators = function(groupId) {
+    var getNhsIndicators = function(selectedDate) {
+        if (selectedDate === undefined || selectedDate === null) {
+            return;
+        }
         delete $scope.errorMessage;
         delete $scope.successMessage;
         $scope.loading = true;
 
-        GroupService.getNhsIndicators(groupId).then(function (successResult) {
+        GroupService.getNhsIndicatorsByGroupAndDate($scope.selectedGroupId, selectedDate)
+            .then(function (successResult) {
             $scope.nhsIndicators = successResult;
             delete $scope.loading;
         }, function (error) {
@@ -57,8 +61,37 @@ function ($scope, $routeParams, GroupService) {
         });
     };
 
+    var getNhsIndicatorsDates = function(groupId) {
+        if (groupId === undefined || groupId === null) {
+            return;
+        }
+        delete $scope.nhsIndicatorsDates;
+        delete $scope.selectedDate;
+        delete $scope.errorMessage;
+        delete $scope.successMessage;
+        $scope.loading = true;
+
+        GroupService.getNhsIndicatorsDates(groupId).then(function (successResult) {
+            successResult.sort().reverse();
+            $scope.nhsIndicatorsDates = successResult;
+
+            if ($scope.nhsIndicatorsDates.length > 0) {
+                $scope.selectedDate = $scope.nhsIndicatorsDates[0];
+            }
+
+            delete $scope.loading;
+        }, function (error) {
+            $scope.errorMessage = error.data;
+            delete $scope.loading;
+        });
+    };
+
     $scope.$watch('selectedGroupId', function (selectedGroupId) {
-        getNhsIndicators(selectedGroupId);
+        getNhsIndicatorsDates(selectedGroupId);
+    });
+
+    $scope.$watch('selectedDate', function (selectedDate) {
+        getNhsIndicators(selectedDate);
     });
 
     init();

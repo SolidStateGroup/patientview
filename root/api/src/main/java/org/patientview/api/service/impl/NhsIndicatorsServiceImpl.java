@@ -13,6 +13,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.NhsIndicatorsData;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -123,16 +125,35 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         return nhsIndicatorList;
     }
 
-    private void storeNhsIndicators(List<NhsIndicators> nhsIndicatorList) throws JsonProcessingException {
-        Date now = new Date();
-        List<org.patientview.persistence.model.NhsIndicators> toSave = new ArrayList<>();
-        for (NhsIndicators nhsIndicators : nhsIndicatorList) {
-            toSave.add(new org.patientview.persistence.model.NhsIndicators(nhsIndicators.getGroupId(),
-                            OBJECT_MAPPER.writeValueAsString(nhsIndicators.getData()), now));
-
+    @Override
+    public NhsIndicators getNhsIndicators(Long groupId)
+            throws ResourceNotFoundException, FhirResourceException {
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("The group could not be found");
         }
 
-        nhsIndicatorsRepository.save(toSave);
+        // group codes by type of treatment
+        Map<String, List<String>> typeCodeMap = new HashMap<>();
+        typeCodeMap.put("Transplant", Arrays.asList("TP"));
+        typeCodeMap.put("HD", Arrays.asList("HD"));
+        typeCodeMap.put("PD", Arrays.asList("PD"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN"));
+
+        // get map of code to entities, for performance
+        List<String> allCodeStrings = new ArrayList<>();
+        for (String key : typeCodeMap.keySet()) {
+            allCodeStrings.addAll(typeCodeMap.get(key));
+        }
+        List<Code> codes = codeRepository.findAllByCodes(allCodeStrings);
+        Map<String, Code> codeMap = new HashMap<>();
+        for (Code code : codes) {
+            codeMap.put(code.getCode(), code);
+        }
+
+        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+
+        return getNhsIndicators(group, typeCodeMap, codeMap, threeMonthsAgo);
     }
 
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
@@ -186,38 +207,64 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
-
         return nhsIndicators;
     }
 
     @Override
-    public NhsIndicators getNhsIndicators(Long groupId)
-            throws ResourceNotFoundException, FhirResourceException {
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("The group could not be found");
+    public NhsIndicators getNhsIndicatorsByGroupAndDate(Long groupId, Long date)
+            throws ResourceNotFoundException, IOException {
+        if (!groupRepository.exists(groupId)) {
+            throw new ResourceNotFoundException("Group not found");
         }
 
-        // group codes by type of treatment
-        Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP"));
-        typeCodeMap.put("HD", Arrays.asList("HD"));
-        typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN"));
+        org.patientview.persistence.model.NhsIndicators nhsIndicators
+                = nhsIndicatorsRepository.findByGroupIdAndDate(groupId, new Date(date));
 
-        // get map of code to entities, for performance
-        List<String> allCodeStrings = new ArrayList<>();
-        for (String key : typeCodeMap.keySet()) {
-            allCodeStrings.addAll(typeCodeMap.get(key));
-        }
-        List<Code> codes = codeRepository.findAllByCodes(allCodeStrings);
-        Map<String, Code> codeMap = new HashMap<>();
-        for (Code code : codes) {
-            codeMap.put(code.getCode(), code);
+        if (nhsIndicators == null) {
+            throw new ResourceNotFoundException("Could not find NHS Indicators data");
         }
 
-        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+        return convertNhsIndicators(nhsIndicators);
+    }
 
-        return getNhsIndicators(group, typeCodeMap, codeMap, threeMonthsAgo);
+    private NhsIndicators convertNhsIndicators(org.patientview.persistence.model.NhsIndicators nhsIndicators)
+            throws IOException {
+        NhsIndicators toReturn = new NhsIndicators(nhsIndicators.getGroupId());
+        toReturn.setData(OBJECT_MAPPER.readValue(nhsIndicators.getData(), NhsIndicatorsData.class));
+
+        // set codes
+        if (toReturn.getData() == null) {
+            throw new IOException("No data");
+        }
+        if (toReturn.getData().getIndicatorCodeMap() == null) {
+            throw new IOException("No indicator to code mapping");
+        }
+
+        for (String indicator : toReturn.getData().getIndicatorCodeMap().keySet()) {
+            for (String code : toReturn.getData().getIndicatorCodeMap().get(indicator)) {
+                toReturn.getCodeMap().put(code, codeRepository.findOneByCode(code));
+            }
+        }
+
+        toReturn.setCreated(nhsIndicators.getCreated());
+
+        return toReturn;
+    }
+
+    @Override
+    public List<Date> getNhsIndicatorsDates() {
+        return nhsIndicatorsRepository.getDates();
+    }
+
+    private void storeNhsIndicators(List<NhsIndicators> nhsIndicatorList) throws JsonProcessingException {
+        Date now = new Date();
+        List<org.patientview.persistence.model.NhsIndicators> toSave = new ArrayList<>();
+        for (NhsIndicators nhsIndicators : nhsIndicatorList) {
+            toSave.add(new org.patientview.persistence.model.NhsIndicators(nhsIndicators.getGroupId(),
+                    OBJECT_MAPPER.writeValueAsString(nhsIndicators.getData()), now));
+
+        }
+
+        nhsIndicatorsRepository.save(toSave);
     }
 }

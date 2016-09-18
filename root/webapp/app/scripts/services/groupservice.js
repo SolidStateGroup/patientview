@@ -250,10 +250,20 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getNhsIndicators: function (groupId) {
+        getNhsIndicatorsByGroupAndDate: function (groupId, date) {
             var deferred = $q.defer();
-            // GET /group/{groupId}/nhsindicators
-            Restangular.one('group', groupId).customGET('nhsindicators').then(function(successResult) {
+            // GET /group/{groupId}/nhsindicators/{date}
+            Restangular.one('group', groupId).one('nhsindicators', date).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getNhsIndicatorsDates: function () {
+            var deferred = $q.defer();
+            // GET /nhsindicators/dates
+            Restangular.one('nhsindicators/dates').get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);

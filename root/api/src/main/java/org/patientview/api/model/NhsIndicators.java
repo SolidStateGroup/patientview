@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.NhsIndicatorsData;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public class NhsIndicators {
     private NhsIndicatorsData data = new NhsIndicatorsData();
 
     private Map<String, Code> codeMap = new HashMap<>();
+
+    private Date created;
 
     public NhsIndicators() {
     }
@@ -48,5 +51,13 @@ public class NhsIndicators {
 
     public void setCodeMap(Map<String, Code> codeMap) {
         this.codeMap = codeMap;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

@@ -9,10 +9,6 @@
 
 <div class="content-panel">
     <div class="content-inner">
-        <select class="form-control" id="group-select" data-ng-model="selectedGroupId"
-                data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in selectGroups | orderBy:[orderGroups,'name']"
-                data-ng-show="selectGroups.length > 1" data-ng-cloak>
-        </select>
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
         <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}></div>
@@ -21,33 +17,47 @@
                 <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading NHS Indicators</h3>
             </div>
         </div>
-        <div data-ng-if="nhsIndicators && !loading">
-            <br/>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Treatment(s)</th>
-                        <th>Registered on PatientView</th>
-                        <th>Logged on in last 3 months</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
-                        <td>
-                            {{indicator}} &nbsp;
-                            <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
-                                <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
-                            </span>
-                        </td>
-                        <td>
-                            {{count}}
-                        </td>
-                        <td>
-                            {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <h2>Select a Group:</h2>
+        <select class="form-control" id="group-select" data-ng-model="selectedGroupId"
+                data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in selectGroups | orderBy:[orderGroups,'name']"
+                data-ng-show="selectGroups.length > 0" data-ng-cloak>
+        </select>
+
+        <h2>Select a Date:</h2>
+        <select class="form-control" id="group-date-select" data-ng-model="selectedDate"
+                data-ng-options="date as date | date:'dd-MMM-yyyy' for date in nhsIndicatorsDates"
+                data-ng-show="nhsIndicatorsDates.length > 0">
+        </select>
+
+        <div>
+            <div data-ng-if="nhsIndicators && !loading">
+                <br/>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Treatment(s)</th>
+                            <th>Registered on PatientView</th>
+                            <th>Logged on in last 3 months</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
+                            <td>
+                                {{indicator}} &nbsp;
+                                <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
+                                    <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
+                                </span>
+                            </td>
+                            <td>
+                                {{count}}
+                            </td>
+                            <td>
+                                {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

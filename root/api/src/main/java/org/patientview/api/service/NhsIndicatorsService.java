@@ -9,6 +9,8 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,4 +41,22 @@ public interface NhsIndicatorsService {
      */
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Get single NhsIndicators given group ID and date (as Long).
+     * @param groupId Long ID of Group
+     * @param date Long representation of Date
+     * @return NhsIndicators
+     * @throws ResourceNotFoundException Group or NhsIndicators not found
+     * @throws IOException thrown when converting to transport object
+     */
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    NhsIndicators getNhsIndicatorsByGroupAndDate(Long groupId, Long date) throws ResourceNotFoundException, IOException;
+
+    /**
+     * Get all NHS Indicator dates (when task was run).
+     * @return List of Date
+     */
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    List<Date> getNhsIndicatorsDates();
 }
