@@ -94,7 +94,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         typeCodeMap.put("Transplant", Arrays.asList("TP"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
 
         // get map of code to entities, for performance
         List<String> allCodeStrings = new ArrayList<>();
@@ -138,7 +138,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         typeCodeMap.put("Transplant", Arrays.asList("TP"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
 
         // get map of code to entities, for performance
         List<String> allCodeStrings = new ArrayList<>();
