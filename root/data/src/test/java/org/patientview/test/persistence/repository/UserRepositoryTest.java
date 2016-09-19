@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
@@ -14,6 +15,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -28,6 +30,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -38,16 +41,19 @@ import java.util.List;
 @Transactional
 public class UserRepositoryTest {
 
+    User creator;
+
+    @Inject
+    DataTestUtils dataTestUtils;
+
+    @Inject
+    FhirLinkRepository fhirLinkRepository;
+
     @Inject
     IdentifierRepository identifierRepository;
 
     @Inject
     UserRepository userRepository;
-
-    @Inject
-    DataTestUtils dataTestUtils;
-
-    User creator;
 
     @Before
     public void setup() {
@@ -123,6 +129,49 @@ public class UserRepositoryTest {
         List<User> users = userRepository.findAllPatients();
 
         Assert.assertEquals("Should be one user returned", 1, users.size());
+    }
+
+    @Test
+    public void findPatientCountWithoutFhirLink() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        // no fhirlink
+        User user = dataTestUtils.createUser("testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
+        userRepository.save(user);
+
+        // has fhirlink
+        User user2 = dataTestUtils.createUser("testuser2");
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("1");
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+        FhirLink fhirLink2 = new FhirLink();
+        fhirLink2.setUser(user2);
+        fhirLink2.setGroup(group2);
+        fhirLink2.setIdentifier(identifier2);
+        fhirLink2.setResourceId(UUID.fromString("6b26fd1d-77df-4094-937a-866f66ae2a8e"));
+        fhirLinkRepository.save(fhirLink2);
+        user2.setFhirLinks(new HashSet<FhirLink>());
+        user2.getFhirLinks().add(fhirLink2);
+        userRepository.save(user2);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        Long count = userRepository.findPatientCountWithoutFhirLink(group.getId());
+
+        Assert.assertEquals("Should be correct count", (Long) 1L, count);
     }
 
     @Test
