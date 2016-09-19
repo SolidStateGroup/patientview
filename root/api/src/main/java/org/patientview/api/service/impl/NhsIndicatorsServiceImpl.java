@@ -187,6 +187,10 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
+        System.out.println("group: " + group.getId() + " " + group.getName());
+        System.out.println("uuids: " + uuids.size());
+        System.out.println("uuidsLoginAfter: " + uuidsLoginAfter.size());
+
         // used when doing NOT IN for encounters that are not in code list
         Set<String> codesSearched = new HashSet<>();
 
@@ -207,11 +211,17 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
+        System.out.println("other: " + nhsIndicators.getData().getIndicatorCount().get("Other Treatment"));
+        System.out.println("other after: " + nhsIndicators.getData().getIndicatorCountLoginAfter().get("Other Treatment"));
+
         // get "none", no fhir link for this group
         nhsIndicators.getData().getIndicatorCount().put("No Clinical Data",
                 fhirLinkRepository.findPatientCountWithoutFhirLink(group.getId()));
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Clinical Data",
                 fhirLinkRepository.findPatientCountWithoutFhirLinkAndRecentLogin(group.getId(), loginAfter));
+
+        System.out.println("none: " + nhsIndicators.getData().getIndicatorCount().get("No Clinical Data"));
+        System.out.println("none after: " + nhsIndicators.getData().getIndicatorCountLoginAfter().get("No Clinical Data"));
 
         return nhsIndicators;
     }

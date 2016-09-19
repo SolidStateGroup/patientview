@@ -421,7 +421,7 @@ public class FhirResource {
         query.append("AND content #> '{type,0}'->>'text' IN (").append(codes).append(") ");
         query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
 
-        //LOG.info(query.toString());
+        LOG.info(query.toString());
 
         // execute and return map of logical ids and applies
         try {
@@ -470,7 +470,7 @@ public class FhirResource {
         query.append("AND content #> '{type,0}'->>'text' NOT IN (").append(codes).append(") ");
         query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
 
-        //LOG.info(query.toString());
+        LOG.info(query.toString());
 
         // execute and return map of logical ids and applies
         try {
