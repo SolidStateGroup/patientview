@@ -176,8 +176,14 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 // hide Generic group
                 _.remove($scope.graphGroups, {code: 'Generic'});
 
+                // to handle showing only for renal user
+                $scope.permissions.isRenalUser = false;
+
                 for (i = 0; i < $scope.graphGroups.length; i++) {
                     $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+                    if (!$scope.permissions.isRenalUser && $scope.graphGroups[i].code == "Renal") {
+                        $scope.permissions.isRenalUser = true;
+                    }
                 }
 
                 // set group (avoid blank option)
