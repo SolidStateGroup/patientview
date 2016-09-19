@@ -23,41 +23,46 @@
                 data-ng-show="selectGroups.length > 0" data-ng-cloak>
         </select>
 
-        <h2>Select a Date:</h2>
-        <select class="form-control" id="group-date-select" data-ng-model="selectedDate"
-                data-ng-options="date as date | date:'dd-MMM-yyyy' for date in nhsIndicatorsDates"
-                data-ng-show="nhsIndicatorsDates.length > 0">
-        </select>
+        <div data-ng-show="nhsIndicatorsDates.length > 0 && !loading">
+            <h2>Select a Date:</h2>
+            <select class="form-control" id="group-date-select" data-ng-model="selectedDate"
+                    data-ng-options="date as date | date:'dd-MMM-yyyy' for date in nhsIndicatorsDates">
+            </select>
 
-        <div>
-            <div data-ng-if="nhsIndicators && !loading">
-                <br/>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Treatment(s)</th>
-                            <th>Registered on PatientView</th>
-                            <th>Logged on in last 3 months</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
-                            <td>
-                                {{indicator}} &nbsp;
-                                <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
-                                    <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
-                                </span>
-                            </td>
-                            <td>
-                                {{count}}
-                            </td>
-                            <td>
-                                {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div>
+                <div data-ng-if="nhsIndicators && !loading">
+                    <br/>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Treatment(s)</th>
+                                <th>Registered on PatientView</th>
+                                <th>Logged on in last 3 months</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
+                                <td>
+                                    {{indicator}} &nbsp;
+                                    <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
+                                        <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
+                                    </span>
+                                </td>
+                                <td>
+                                    {{count}}
+                                </td>
+                                <td>
+                                    {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+
+        <div data-ng-show="!nhsIndicatorsDates.length && !loading">
+            <h3>There are currently no NHS Indicator statistics available</h3>
         </div>
     </div>
 </div>
