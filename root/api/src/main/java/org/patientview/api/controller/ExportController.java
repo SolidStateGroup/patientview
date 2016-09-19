@@ -39,7 +39,7 @@ public class ExportController extends BaseController<ExportController> {
 
 
 
-    @RequestMapping(value = "/user/{userId}/export/patients/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/export/patients/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException {
         return exportService.downloadPatientList(getParameters);

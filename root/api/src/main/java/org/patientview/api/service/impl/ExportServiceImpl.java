@@ -158,7 +158,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
     @Override
     public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException {
-        getParameters.setSize("10000");
+        List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+        getParameters.setSize("1000000");
+        //TODO Need to pass in the current user somehow here
+
+
         Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
 
         CSVDocumentBuilder document = new CSVDocumentBuilder();
@@ -171,20 +175,30 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Last Login Date");
 
         for (org.patientview.api.model.User user : users) {
-            for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
-                //TODO Add group role
-                document.createNewRow();
-                document.resetCurrentPosition();
-                document.addValueToNextCell(user.getSurname());
-                document.addValueToNextCell(user.getForename());
-                document.addValueToNextCell(identifier.getIdentifier());
-                document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
-                document.addValueToNextCell(user.getUsername());
-                document.addValueToNextCell("TO DO ADD GROUPS");
-                document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getLastLogin()));
+            for (org.patientview.api.model.GroupRole groupRole : user.getGroupRoles()) {
+                for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
 
+                    //TODO Add group role
+                    document.createNewRow();
+                    document.resetCurrentPosition();
+                    document.addValueToNextCell(user.getSurname());
+                    document.addValueToNextCell(user.getForename());
+                    document.addValueToNextCell(identifier.getIdentifier());
+                    if (user.getDateOfBirth() != null) {
+                        document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
+                    } else {
+                        document.addValueToNextCell("");
+                    }
+                    document.addValueToNextCell(user.getUsername());
+                    document.addValueToNextCell(groupRole.getGroup().getName());
+                    if (user.getLastLogin() != null) {
+                        document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getLastLogin()));
+                    } else {
+                        document.addValueToNextCell("No Last Login Date");
+                    }
+
+                }
             }
-
         }
 
         return getDownloadContent("GP Master List",

@@ -365,8 +365,11 @@
         </div>
 
         <!-- pagination -->
-        <a href="../api/user/{{loggedInUser.id}}/export/patients/download" class="btn white"><i class="glyphicon glyphicon-download-alt"></i> &nbsp; Export</a>
-        <div pv-pagination></div>
+        <div pv-pagination>
+        </div>
+        <a href="../api/export/patients/download?token={{authToken}}&sortField={{sortField}}&sortDirection={{sortDirection}}&roleIds={{roleIds.join(', ')}}&searchUsername={{searchUsername}}&searchForename={{searchForename}}&searchSurname={{searchSurname}}&searchIdentifier={{searchIdentifier}}&searchEmail={{searchEmail}}&statusFilter={{statusFilter}}&groupIds={{selectedGroup.join(', ') || 0}}" class="pull-right btn white" ><i class="glyphicon glyphicon-download-alt"></i> &nbsp; Export List</a>
+
+
     </div>
 </div>
 
