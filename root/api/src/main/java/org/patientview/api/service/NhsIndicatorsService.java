@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.NhsIndicators;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -57,6 +58,6 @@ public interface NhsIndicatorsService {
      * Get all NHS Indicator dates (when task was run).
      * @return List of Date
      */
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     List<Date> getNhsIndicatorsDates();
 }
