@@ -225,7 +225,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         Long countTreatment = (uuids.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids))
                 + nhsIndicators.getData().getIndicatorCount().get("No Clinical Data");
         Long countTreatmentLoginAfter
-                = (uuids.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter))
+                = (uuidsLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter))
                 + nhsIndicators.getData().getIndicatorCountLoginAfter().get("No Clinical Data");
 
         nhsIndicators.getData().getIndicatorCount().put("No Treatment Data", countTreatment);
