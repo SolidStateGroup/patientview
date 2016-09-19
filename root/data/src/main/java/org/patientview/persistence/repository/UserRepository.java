@@ -139,17 +139,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                         @Param("roleIds") List<Long> roleIds,
                                         Pageable pageable);
 
-    @Query("SELECT count(u) " +
-            "FROM User u " +
-            "JOIN u.groupRoles gr " +
-            "JOIN u.identifiers i " +
-            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
-            "AND gr.group.id = :groupId " +
-            "AND u.deleted = false " +
-            "AND u.fhirLinks IS EMPTY " +
-            "GROUP BY u.id")
-    Long findPatientCountWithoutFhirLink(@Param("groupId") Long groupId);
-
     @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +

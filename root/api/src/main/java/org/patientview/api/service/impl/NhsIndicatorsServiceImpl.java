@@ -207,8 +207,12 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
+        LOG.info(group.getId() + group.getName());
         // get "none", no fhir link for this group
-
+        nhsIndicators.getData().getIndicatorCount().put("No Clinical Data",
+                fhirLinkRepository.findPatientCountWithoutFhirLink(group.getId()));
+        nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Clinical Data",
+                fhirLinkRepository.findPatientCountWithoutFhirLinkAndRecentLogin(group.getId(), loginAfter));
 
         return nhsIndicators;
     }
