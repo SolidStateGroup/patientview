@@ -181,7 +181,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
                 for (i = 0; i < $scope.graphGroups.length; i++) {
                     $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
-                    if (!$scope.permissions.isRenalUser && $scope.graphGroups[i].code == "Renal") {
+                    if (!$scope.permissions.isRenalUser && $scope.graphGroups[i].parentCodes.indexOf("Renal") > -1) {
                         $scope.permissions.isRenalUser = true;
                     }
                 }
