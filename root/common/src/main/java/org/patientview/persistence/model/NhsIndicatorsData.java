@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,9 +15,9 @@ import java.util.Map;
  */
 public class NhsIndicatorsData {
 
-    Map<String, List<String>> indicatorCodeMap = new HashMap<>();
-    Map<String, Long> indicatorCount = new HashMap<>();
-    Map<String, Long> indicatorCountLoginAfter = new HashMap<>();
+    Map<String, List<String>> indicatorCodeMap = new LinkedHashMap<>();
+    Map<String, Long> indicatorCount = new LinkedHashMap<>();
+    Map<String, Long> indicatorCountLoginAfter = new LinkedHashMap<>();
 
     public NhsIndicatorsData() { }
 

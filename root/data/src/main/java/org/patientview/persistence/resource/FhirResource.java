@@ -517,7 +517,7 @@ public class FhirResource {
         query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
         query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
 
-        LOG.info(query.toString());
+        //LOG.info(query.toString());
 
         // execute and return map of logical ids and applies
         try {

@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,7 +99,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             allCodeStrings.addAll(typeCodeMap.get(key));
         }
         List<Code> codes = codeRepository.findAllByCodes(allCodeStrings);
-        Map<String, Code> codeMap = new HashMap<>();
+        Map<String, Code> codeMap = new LinkedHashMap<>();
         for (Code code : codes) {
             codeMap.put(code.getCode(), code);
         }
@@ -121,7 +122,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
     private Map<String, List<String>> getTypeCodeMap() {
         // group codes by type of treatment
-        Map<String, List<String>> typeCodeMap = new HashMap<>();
+        Map<String, List<String>> typeCodeMap = new LinkedHashMap<>();
         typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
