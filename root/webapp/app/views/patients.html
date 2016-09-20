@@ -368,8 +368,9 @@
         <div pv-pagination>
         </div>
 
-        <button type="button" data-ng-if="permissions.showExportButton" data-ng-click="downloadList();" class="pull-right btn white" ><i class="glyphicon glyphicon-download-alt"></i> &nbsp; Export List</button>
-
+        <div class="col-md-4 pull-right export-container">
+            <button type="button" data-ng-if="permissions.showExportButton" data-ng-click="downloadList();" class="pull-right btn white " ><i class="glyphicon glyphicon-download-alt"></i> &nbsp; Export List</button>
+        </div>
     </div>
 </div>
 
