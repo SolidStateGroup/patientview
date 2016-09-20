@@ -1,12 +1,14 @@
 package org.patientview.api.service;
 
 import com.itextpdf.text.DocumentException;
+import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.http.HttpEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +35,7 @@ public interface ExportService {
      * Download the list of patients currently shown
      * @return CSV file
      */
-    @RoleOnly
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
