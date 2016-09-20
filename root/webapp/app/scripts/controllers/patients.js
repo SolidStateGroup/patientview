@@ -122,6 +122,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.downloadList = function(){
+        if ($scope.total >= 5000) {
+            return alert("You are currently viewing more than 5000 patients. \n\nPlease filter further to reduce the output.");
+        }
+
         if (window.confirm("You are about to start downloading this list. \n\nWarning: By continuing you acknowledge that the computer you are using complies with your organisation's security policy")) {
 
             var groupId = 0;
