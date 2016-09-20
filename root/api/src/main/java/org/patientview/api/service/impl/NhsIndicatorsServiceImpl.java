@@ -86,13 +86,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         List<Group> groups = unitGroups.getContent();
 
         List<NhsIndicators> nhsIndicatorList = new ArrayList<>();
-
-        // group codes by type of treatment
-        Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP"));
-        typeCodeMap.put("HD", Arrays.asList("HD"));
-        typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
+        Map<String, List<String>> typeCodeMap = getTypeCodeMap();
 
         // get map of code to entities, for performance
         List<String> allCodeStrings = new ArrayList<>();
@@ -121,6 +115,17 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         return nhsIndicatorList;
     }
 
+    private Map<String, List<String>> getTypeCodeMap() {
+        // group codes by type of treatment
+        Map<String, List<String>> typeCodeMap = new HashMap<>();
+        typeCodeMap.put("Transplant", Arrays.asList("TP"));
+        typeCodeMap.put("HD", Arrays.asList("HD"));
+        typeCodeMap.put("PD", Arrays.asList("PD"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
+        typeCodeMap.put("Total on RRT", Arrays.asList("HD", "PD", "TP"));
+        return typeCodeMap;
+    }
+
     @Override
     public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException {
         Group group = groupRepository.findOne(groupId);
@@ -128,12 +133,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             throw new ResourceNotFoundException("The group could not be found");
         }
 
-        // group codes by type of treatment
-        Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP"));
-        typeCodeMap.put("HD", Arrays.asList("HD"));
-        typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
+        Map<String, List<String>> typeCodeMap = getTypeCodeMap();
 
         // get map of code to entities, for performance
         List<String> allCodeStrings = new ArrayList<>();
