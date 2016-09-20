@@ -173,7 +173,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 null,
                 null);
 
-        getParameters.setSize("1000000");
+        getParameters.setSize("5000");
         Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
 
         CSVDocumentBuilder document = new CSVDocumentBuilder();
@@ -182,35 +182,45 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Identifier");
         document.addHeader("DOB");
         document.addHeader("PV Username");
+        document.addHeader("Email Verified");
+        document.addHeader("Account Locked");
         document.addHeader("Group");
         document.addHeader("Last Login Date");
 
         for (org.patientview.api.model.User user : users) {
             for (org.patientview.api.model.GroupRole groupRole : user.getGroupRoles()) {
-                for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
-                    document.createNewRow();
-                    document.resetCurrentPosition();
-                    document.addValueToNextCell(user.getSurname());
-                    document.addValueToNextCell(user.getForename());
-                    document.addValueToNextCell(identifier.getIdentifier());
-                    if (user.getDateOfBirth() != null) {
-                        document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
-                    } else {
-                        document.addValueToNextCell("");
-                    }
-                    document.addValueToNextCell(user.getUsername());
-                    document.addValueToNextCell(groupRole.getGroup().getName());
-                    if (user.getLastLogin() != null) {
-                        document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getLastLogin()));
-                    } else {
-                        document.addValueToNextCell("No Last Login Date");
-                    }
 
+                //Dont include any generic or parent groups of specicality
+                if (!groupRole.getGroup().getGroupType().getValue().equals("SPECIALITY".toString())
+                        && !groupRole.getGroup().getCode().equals("Generic".toString())) {
+                    //Loop over each identifier
+                    for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
+                        document.createNewRow();
+                        document.resetCurrentPosition();
+                        document.addValueToNextCell(user.getSurname());
+                        document.addValueToNextCell(user.getForename());
+                        document.addValueToNextCell(identifier.getIdentifier());
+                        if (user.getDateOfBirth() != null) {
+                            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
+                        } else {
+                            document.addValueToNextCell("");
+                        }
+                        document.addValueToNextCell(user.getUsername());
+                        document.addValueToNextCell(user.getEmailVerified().toString());
+                        document.addValueToNextCell(user.getLocked().toString());
+
+                        document.addValueToNextCell(groupRole.getGroup().getName());
+                        if (user.getCurrentLogin() != null) {
+                            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getCurrentLogin()));
+                        } else {
+                            document.addValueToNextCell("No Last Login Date");
+                        }
+                    }
                 }
             }
         }
 
-        return getDownloadContent("GP Master List",
+        return getDownloadContent("PatientViewExport_" + new Date().getTime(),
                 makeCSVString(
                         document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
     }
