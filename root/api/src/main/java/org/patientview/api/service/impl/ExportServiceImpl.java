@@ -182,9 +182,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Identifier");
         document.addHeader("DOB");
         document.addHeader("PV Username");
+        document.addHeader("Group");
         document.addHeader("Email Verified");
         document.addHeader("Account Locked");
-        document.addHeader("Group");
         document.addHeader("Last Login Date");
 
         for (org.patientview.api.model.User user : users) {
@@ -192,7 +192,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
                 //Dont include any generic or parent groups of specicality
                 if (!groupRole.getGroup().getGroupType().getValue().equals("SPECIALITY".toString())
-                        && !groupRole.getGroup().getCode().equals("Generic".toString())) {
+                        && !groupRole.getGroup().getCode().equals("Generic".toString())
+                        && !groupRole.getGroup().getCode().equals("Renal".toString())) {
                     //Loop over each identifier
                     for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
                         document.createNewRow();
@@ -206,10 +207,10 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                             document.addValueToNextCell("");
                         }
                         document.addValueToNextCell(user.getUsername());
+                        document.addValueToNextCell(groupRole.getGroup().getName());
                         document.addValueToNextCell(user.getEmailVerified().toString());
                         document.addValueToNextCell(user.getLocked().toString());
 
-                        document.addValueToNextCell(groupRole.getGroup().getName());
                         if (user.getCurrentLogin() != null) {
                             document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getCurrentLogin()));
                         } else {
@@ -220,7 +221,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             }
         }
 
-        return getDownloadContent("PatientViewExport_" + new Date().getTime(),
+        return getDownloadContent("PatientViewExport_" + new SimpleDateFormat("dd-MMM-yyyy_HHmmss").format(new Date()),
                 makeCSVString(
                         document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
     }
