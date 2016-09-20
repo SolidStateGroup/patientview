@@ -109,7 +109,10 @@ public enum AuditActions {
     GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)"),
     
     // membership request conversation created
-    MEMBERSHIP_REQUEST_SENT("Membership request sent");
+    MEMBERSHIP_REQUEST_SENT("Membership request sent"),
+
+    // export
+    EXPORT_PATIENT_LIST("Export Patient List");
 
     private String name;
     AuditActions(String name) { this.name = name; }

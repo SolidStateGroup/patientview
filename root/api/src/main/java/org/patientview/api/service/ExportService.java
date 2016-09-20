@@ -4,7 +4,9 @@ import com.itextpdf.text.DocumentException;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.springframework.http.HttpEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,14 @@ public interface ExportService {
      */
     @RoleOnly
     HttpEntity<byte[]> downloadGpMaster();
+
+    /**
+     * Download the list of patients currently shown
+     * @return CSV file
+     */
+    @RoleOnly
+    HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
+
 
     /**
      * Gets all letters within a specified period

@@ -1,11 +1,12 @@
-<h1 data-ng-hide="authToken || loading" data-ng-cloak>Login</h1>
+<h1 data-ng-hide="authToken || loading" data-ng-cloak>Login <span data-ng-if="checkSecretWord">- Step 2</span> </h1>
 <div class="content-panel user-settings">
-    <div class="content-inner" data-ng-show="!loading">
+
+    <div class="content-inner" data-ng-show="!loading && !checkSecretWord">
         <form class="form-horizontal"  data-ng-hide="authToken" data-ng-cloak id="login-form" autocomplete="off" >
             <div class="form-group">
                 <label for="username" class="col-sm-2 control-label">User Name:</label>
                 <div class="col-sm-4">
-                    <input id="username" name=username" data-ng-model="username" type="text" class="form-control"
+                    <input id="username" name="username" data-ng-model="username" type="text" class="form-control"
                            required="" placeholder="Enter your username"/>
                 </div>
             </div>
@@ -36,7 +37,7 @@
                         improvements to the GP experience in PatientView 2, you are kindly requested to login to the
                         old PatientView website at the following address:
                         <a href="https://pv1.patientview.org" target="_blank">https://pv1.patientview.org</a>.
-                        Data continues  to be updated at this site exactly as before. Thank you for your patience.</p>
+                        Data continues to be updated at this site exactly as before. Thank you for your patience.</p>
                 </div>
             </div>
         </form>
@@ -50,6 +51,36 @@
             <p align="center">Your PatientView login session has expired. Please log in again.</p>
         </div>
     </div>
+
+    <div class="content-inner" data-ng-show="!loading && checkSecretWord">
+        <p>You have extra security enabled on your account. Please enter the requested letters of your memorable word</p>
+        <form class="form-horizontal" data-ng-cloak id="secret-word-form" autocomplete="off" >
+            <div data-ng-repeat="index in secretWordIndexes track by $index">
+                <div class="form-group">
+                    <label for="letter{{index}}" class="col-sm-2 control-label">Letter {{(index*1) + 1}}</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" data-ng-model="secretWordChoices[index]"  id="letter{{index}}"
+                                data-ng-options="letter as letter for letter in alphabet">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="errorMessage">
+                <div class="col-sm-10 col-sm-offset-1 alert alert-danger">
+                    <p><strong>Error logging in</strong> {{errorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <a class="pull-right" href="#/forgottenpassword">Forgotten your secret word?</a>
+                    <ul class="unstyled inline">
+                        <li><button data-ng-click="loginWithSecretWord()" class="btn blue">Log In</button></li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="content-inner" data-ng-show="loading">
         <div class="container"><br/><br/>
             <div class="loading">
@@ -59,4 +90,10 @@
             <br/>
         </div>
     </div>
+</div>
+
+<div data-ng-show="!loading">
+    <a href="#/privacy" target="_blank">Privacy Policy</a> |
+    <a href="#/terms" target="_blank">Terms &amp; Conditions</a> |
+    <a href="http://rixg.org/patientview2/admin-and-technical/set-up-patientview-in-a-new-unit/how-renal-patientview-meets-caldicott-and-data-requirements/" target="_blank">How we protect your data</a>
 </div>
