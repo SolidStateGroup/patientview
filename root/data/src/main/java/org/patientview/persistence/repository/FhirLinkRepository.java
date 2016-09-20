@@ -57,25 +57,4 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
             "FROM   FhirLink f " +
             "WHERE  f.resourceId IN :resourceIds ")
     List<User> findFhirLinkUsersByResourceIds(@Param("resourceIds") List<UUID> resourceIds);
-
-    @Query("SELECT count (distinct u) " +
-            "FROM User u " +
-            "JOIN u.groupRoles gr " +
-            "JOIN u.identifiers i " +
-            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
-            "AND gr.group.id = :groupId " +
-            "AND u.deleted = false " +
-            "AND u.fhirLinks IS EMPTY")
-    Long findPatientCountWithoutFhirLink(@Param("groupId") Long groupId);
-
-    @Query("SELECT count (distinct u) " +
-            "FROM User u " +
-            "JOIN u.groupRoles gr " +
-            "JOIN u.identifiers i " +
-            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
-            "AND gr.group.id = :groupId " +
-            "AND u.deleted = false " +
-            "AND u.fhirLinks IS EMPTY " +
-            "AND (u.lastLogin > :date OR u.currentLogin > :date)")
-    Long findPatientCountWithoutFhirLinkAndRecentLogin(@Param("groupId") Long groupId, @Param("date") Date date);
 }

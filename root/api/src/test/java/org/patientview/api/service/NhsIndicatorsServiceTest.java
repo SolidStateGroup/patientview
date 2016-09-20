@@ -20,6 +20,7 @@ import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
 
@@ -68,6 +69,9 @@ public class NhsIndicatorsServiceTest {
     @Mock
     Query query;
 
+    @Mock
+    UserRepository userRepository;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -101,9 +105,6 @@ public class NhsIndicatorsServiceTest {
         code.setCode("TP");
         List<Code> foundCodes = new ArrayList<>(Arrays.asList(code));
 
-        List<String> codeStrings = new ArrayList<>();
-        codeStrings.add(code.getCode());
-
         Long zeroZeroCount = 20L;
 
         List<Group> groups = new ArrayList<>();
@@ -114,6 +115,9 @@ public class NhsIndicatorsServiceTest {
         when(fhirLinkRepository.findByGroups(eq(groups))).thenReturn(fhirLinks);
         when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
         when(fhirResource.getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class))).thenReturn(zeroZeroCount);
+        when(userRepository.findPatientCount(eq(group.getId()))).thenReturn(zeroZeroCount);
+        when(userRepository.findPatientCountByRecentLogin(eq(group.getId()), any(Date.class)))
+                .thenReturn(zeroZeroCount);
 
         NhsIndicators nhsIndicators = nhsIndicatorsService.getNhsIndicators(group.getId());
 
@@ -131,5 +135,7 @@ public class NhsIndicatorsServiceTest {
         verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
         verify(fhirResource, Mockito.times(10)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
         verify(fhirResource, Mockito.times(2)).getCountEncounterBySubjectIdsAndNotCodes(eq(uuids), any(List.class));
+        verify(userRepository, Mockito.times(1)).findPatientCount(eq(group.getId()));
+        verify(userRepository, Mockito.times(1)).findPatientCountByRecentLogin(eq(group.getId()), any(Date.class));
     }
 }

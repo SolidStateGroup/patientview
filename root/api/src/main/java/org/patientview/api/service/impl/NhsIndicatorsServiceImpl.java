@@ -21,6 +21,7 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.NhsIndicatorsRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +66,9 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     private NhsIndicatorsRepository nhsIndicatorsRepository;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     public List<NhsIndicators> getAllNhsIndicatorsAndStore(boolean store)
@@ -118,10 +122,10 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     private Map<String, List<String>> getTypeCodeMap() {
         // group codes by type of treatment
         Map<String, List<String>> typeCodeMap = new HashMap<>();
-        typeCodeMap.put("Transplant", Arrays.asList("TP"));
+        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
         typeCodeMap.put("HD", Arrays.asList("HD"));
         typeCodeMap.put("PD", Arrays.asList("PD"));
-        typeCodeMap.put("GEN", Arrays.asList("GEN", "PRE"));
+        typeCodeMap.put("Transplant", Arrays.asList("TP"));
         typeCodeMap.put("Total on RRT", Arrays.asList("HD", "PD", "TP"));
         return typeCodeMap;
     }
@@ -202,20 +206,10 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
-        // get "no clinical data", no fhir link for this group
-        nhsIndicators.getData().getIndicatorCount().put("No Clinical Data",
-                fhirLinkRepository.findPatientCountWithoutFhirLink(group.getId()));
-        nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Clinical Data",
-                fhirLinkRepository.findPatientCountWithoutFhirLinkAndRecentLogin(group.getId(), loginAfter));
-
-        // get "no treatment data" (includes patients without fhirlink and patients with fhirlink but no TREATMENT
-        // encounters)
-        Long countTreatment = (uuids.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids))
-                + nhsIndicators.getData().getIndicatorCount().get("No Clinical Data");
-        Long countTreatmentLoginAfter
-                = (uuidsLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter))
-                + nhsIndicators.getData().getIndicatorCountLoginAfter().get("No Clinical Data");
-
+        Long countTreatment = userRepository.findPatientCount(group.getId())
+                - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids);
+        Long countTreatmentLoginAfter = userRepository.findPatientCountByRecentLogin(group.getId(), loginAfter)
+                - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter);
         nhsIndicators.getData().getIndicatorCount().put("No Treatment Data", countTreatment);
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Treatment Data", countTreatmentLoginAfter);
 
