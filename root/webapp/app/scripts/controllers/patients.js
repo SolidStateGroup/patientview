@@ -121,6 +121,28 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
+    $scope.downloadList = function(){
+        if (window.confirm("You are about to start downloading this list. Warning: By continuing you acknowledge that the computer you are using complies with your organisation's security policy")) {
+
+
+            var downloadUrl = "../api/export/patients/download?token=";
+            downloadUrl += $scope.authToken;
+            downloadUrl += "&sortField="+ $scope.sortField || "";
+            downloadUrl += "&sortDirection=" + $scope.sortDirection || "";
+            downloadUrl += "&roleIds=" + $scope.roleIds.join(', ') || "";
+            downloadUrl += "&searchUsername=" +  $scope.searchUsername  || "";
+            downloadUrl += "&searchForename="+ $scope.searchForename  || "";
+            downloadUrl += "&searchSurname=" + $scope.searchSurname  || "";
+            downloadUrl += "&searchIdentifier=" + $scope.searchIdentifier || "";
+            downloadUrl += "&searchEmail=" + $scope.searchEmail || "";
+            downloadUrl += "&statusFilter=" + $scope.statusFilter || "";
+            downloadUrl += "&groupIds=" + $scope.selectedGroup.join(', ') || 0;
+
+            window.open(downloadUrl, "Thanks for Visiting!");
+        }
+
+    }
+
     $scope.getUser = function(openedUser) {
         UserService.get(openedUser.id).then(function (user) {
 

@@ -38,6 +38,8 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
@@ -47,6 +49,7 @@ import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -82,19 +85,22 @@ import java.util.TreeMap;
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
     @Inject
-    private GpMasterRepository gpMasterRepository;
+    AuditService auditService;
 
     @Inject
-    private DocumentService documentService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private ApiMedicationService apiMedicationService;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private DocumentService documentService;
 
     @Inject
-    private ApiObservationService apiObservationService;
+    private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
 
     @Inject
     private QuestionRepository questionRepository;
@@ -157,12 +163,19 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     }
 
     @Override
-    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException {
-        List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        //Log the download action
+        auditService.createAudit(AuditActions.ADMIN_EXPORT_PATIENTS,
+                getCurrentUser().getUsername(),
+                getCurrentUser(),
+                getCurrentUser().getId(),
+                AuditObjectTypes.User,
+                null);
+
+
         getParameters.setSize("1000000");
-        //TODO Need to pass in the current user somehow here
-
-
         Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
 
         CSVDocumentBuilder document = new CSVDocumentBuilder();
@@ -177,8 +190,6 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (org.patientview.api.model.User user : users) {
             for (org.patientview.api.model.GroupRole groupRole : user.getGroupRoles()) {
                 for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
-
-                    //TODO Add group role
                     document.createNewRow();
                     document.resetCurrentPosition();
                     document.addValueToNextCell(user.getSurname());

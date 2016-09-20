@@ -74,6 +74,7 @@ public enum AuditActions {
     ADMIN_DELETE("Admin delete"), // new in pv2
     ADMIN_GROUP_ROLE_ADD("Admin Group Role add"), // new in pv2
     ADMIN_GROUP_ROLE_DELETE("Admin Group Role delete"), // new in pv2
+    ADMIN_EXPORT_PATIENTS("Admin Export Patient List add"),
 
     // user
     PASSWORD_RESET_FORGOTTEN("Password reset forgotten"),
