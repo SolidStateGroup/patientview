@@ -279,7 +279,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     @Async
     public void sendAlertEmails() {
         List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
-        LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
+        //LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
         Set<String> emailAddresses = new HashSet<>();
 
         for (Alert alert : alerts) {
@@ -324,7 +324,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     @Async
     public void sendIndividualAlertEmails() {
         List<Alert> alerts = alertRepository.findByEmailAlertSetAndNotSent();
-        LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
+        //LOG.info("Alerts: " + alerts.size() + " alerts found with email alert set and not sent");
         Set<String> emailAddresses = new HashSet<>();
 
         for (Alert alert : alerts) {

@@ -35,16 +35,16 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         implements GroupStatisticService {
 
     @Inject
-    private GroupStatisticRepository groupStatisticRepository;
+    private EntityManager entityManager;
 
     @Inject
     private GroupRepository groupRepository;
 
     @Inject
-    private LookupTypeRepository lookupTypeRepository;
+    private GroupStatisticRepository groupStatisticRepository;
 
     @Inject
-    private EntityManager entityManager;
+    private LookupTypeRepository lookupTypeRepository;
 
     /**
      * Summary view of the statistics month by month
@@ -102,9 +102,9 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     /**
      * Creates statistics for all the groups. Loop through the statistics and then the groups.
      *
-     * @param startDate
-     * @param endDate
-     * @param statisticPeriod
+     * @param startDate Date start date of statistics
+     * @param endDate Date end date of statistics
+     * @param statisticPeriod StatisticsPeriod, DAY, MONTH or CUMULATIVE_MONTH
      */
     public void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
 
@@ -119,7 +119,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             groupStatistic.setGroup(group);
 
             for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTIC_TYPE).getLookups()) {
-
                 groupStatistic.setStatisticType(lookup);
 
                 Query query = entityManager.createNativeQuery(lookup.getDescription());
@@ -178,6 +177,4 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         newGroupStatistic.setGroup(group);
         return newGroupStatistic;
     }
-
-
 }

@@ -35,12 +35,10 @@ public class PersistenceConfig extends CommonConfig {
         properties.setProperty("hibernate.hbm2ddl.auto", "validate");
         properties.setProperty("hibernate.show_sql", "false");
         properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
-
     }
 
     @Bean
     public EntityManagerFactory entityManagerFactory() {
-
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(true);
 

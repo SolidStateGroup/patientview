@@ -14,6 +14,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -38,16 +39,19 @@ import java.util.List;
 @Transactional
 public class UserRepositoryTest {
 
+    User creator;
+
+    @Inject
+    DataTestUtils dataTestUtils;
+
+    @Inject
+    FhirLinkRepository fhirLinkRepository;
+
     @Inject
     IdentifierRepository identifierRepository;
 
     @Inject
     UserRepository userRepository;
-
-    @Inject
-    DataTestUtils dataTestUtils;
-
-    User creator;
 
     @Before
     public void setup() {

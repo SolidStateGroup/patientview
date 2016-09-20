@@ -1,16 +1,15 @@
 package org.patientview.api.service;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
@@ -21,9 +20,9 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.test.util.TestUtils;
 
@@ -51,25 +50,25 @@ public class GroupStatisticsServiceTest {
     User creator;
 
     @Mock
-    GroupStatisticRepository groupStatisticRepository;
-
-    @Mock
-    GroupRepository groupRepository;
-
-    @Mock
-    LookupRepository lookupRepository;
-
-    @Mock
-    LookupTypeRepository lookupTypeRepository;
+    CodeRepository codeRepository;
 
     @Mock
     EntityManager entityManager;
 
     @Mock
-    Query query;
+    GroupRepository groupRepository;
+
+    @Mock
+    LookupTypeRepository lookupTypeRepository;
+
+    @Mock
+    GroupStatisticRepository groupStatisticRepository;
 
     @InjectMocks
     GroupStatisticService groupStatisticService = new GroupStatisticsServiceImpl();
+
+    @Mock
+    Query query;
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +86,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The repository is not accessed to retrieve the results
      */
     @Test
-    public void testGetMonthlyGroupStatistics() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -100,15 +99,11 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(group.getId());
-            verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
-                    eq(StatisticPeriod.MONTH));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
-    }
+        List<GroupStatisticTO> groupStatisticTOs = groupStatisticService.getMonthlyGroupStatistics(group.getId());
 
+        verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
+                eq(StatisticPeriod.MONTH));
+    }
     /**
      * Test: The generation of monthly statistics for all groups
      * Fail: The statistics will not be generated for any groups
@@ -160,7 +155,7 @@ public class GroupStatisticsServiceTest {
      * Fail: The exception is not thrown
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetMonthlyGroupStatistics_UnknownGroup() throws ResourceNotFoundException {
+    public void testGetMonthlyGroupStatistics_UnknownGroup() throws Exception {
         Group group = TestUtils.createGroup("testGroup");
 
         // user and security
@@ -173,11 +168,6 @@ public class GroupStatisticsServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-        try {
-            groupStatisticService.getMonthlyGroupStatistics(null);
-            verify(groupStatisticRepository.findByGroupAndStatisticPeriod(eq(group), eq(StatisticPeriod.MONTH)));
-        } catch (ResourceForbiddenException rfe) {
-            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
-        }
+        groupStatisticService.getMonthlyGroupStatistics(null);
     }
 }

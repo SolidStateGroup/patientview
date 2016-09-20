@@ -124,7 +124,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (user == null) {
             throw new ResourceNotFoundException("user not found");
         }
-
         Group group = groupRepository.findOne(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("group not found");
@@ -133,7 +132,6 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (identifier == null) {
             throw new ResourceNotFoundException("identifier not found");
         }
-
         if (!userService.currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("forbidden");
         }

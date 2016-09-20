@@ -870,6 +870,15 @@ CREATE TABLE PV_Code_Category
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Nhs_Indicators
+(
+  Id               BIGINT    NOT NULL,
+  Group_Id         BIGINT    NOT NULL,
+  Data             TEXT      NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

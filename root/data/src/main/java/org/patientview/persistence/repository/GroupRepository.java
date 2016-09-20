@@ -26,13 +26,13 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
     @Query("SELECT g FROM Group g " +
             "WHERE (UPPER(g.code) LIKE :filterText) " +
             "OR (UPPER(g.name) LIKE :filterText) ")
-    public Page<Group> findAll(@Param("filterText") String filterText, Pageable pageable);
+    Page<Group> findAll(@Param("filterText") String filterText, Pageable pageable);
 
     @Query("SELECT g FROM Group g " +
             "WHERE ((UPPER(g.code) LIKE :filterText) " +
             "OR (UPPER(g.name) LIKE :filterText)) " +
             "AND (g.groupType.id IN (:groupTypes))")
-    public Page<Group> findAllByGroupType(@Param("filterText") String filterText,
+    Page<Group> findAllByGroupType(@Param("filterText") String filterText,
                                            @Param("groupTypes") List<Long> groupTypes,
                                            Pageable pageable);
 
@@ -40,7 +40,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "FROM   User u JOIN u.groupRoles gr " +
            "WHERE  gr.group.id = :groupId " +
            "AND    gr.role.roleType.value = :roleType")
-    public Iterable<User> findGroupStaffByRole(@Param("groupId") Long groupId,
+    Iterable<User> findGroupStaffByRole(@Param("groupId") Long groupId,
                                                @Param("roleType") String roleType);
 
     @Query("SELECT gr.group " +
@@ -48,7 +48,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "JOIN   u.groupRoles gr " +
            "WHERE  gr.role = :role " +
            "AND    u = :user")
-    public Iterable<Group> findGroupByUserAndRole(@Param("user") User user,
+    Iterable<Group> findGroupByUserAndRole(@Param("user") User user,
                                                   @Param("role") Role role);
 
     @Query("SELECT gr.group " +
@@ -56,7 +56,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "JOIN   u.groupRoles gr " +
            "WHERE  u = :user " +
            "AND    gr.group.visible = true ")
-    public Iterable<Group> findGroupByUser(@Param("user") User user);
+    Iterable<Group> findGroupByUser(@Param("user") User user);
 
     @Query("SELECT g " +
             "FROM   Group g " +
@@ -66,7 +66,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
             "AND    gr.group.groupType.value <> 'SPECIALTY' " +
             "AND ((UPPER(gr.group.code) LIKE :filterText) " +
             "OR (UPPER(gr.group.name) LIKE :filterText)) ")
-    public Page<Group> findGroupsByUserNoSpecialties(@Param("filterText") String filterText,
+    Page<Group> findGroupsByUserNoSpecialties(@Param("filterText") String filterText,
                                                      @Param("user") User user, Pageable pageable);
 
     @Query("SELECT g " +
@@ -78,7 +78,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "AND ((UPPER(gr.group.code) LIKE :filterText) " +
            "OR (UPPER(gr.group.name) LIKE :filterText)) " +
            "AND (gr.group.groupType.id IN (:groupTypes))")
-    public Page<Group> findGroupsByUserAndGroupTypeNoSpecialties(@Param("filterText") String filterText,
+    Page<Group> findGroupsByUserAndGroupTypeNoSpecialties(@Param("filterText") String filterText,
                                                      @Param("groupTypes") List<Long> groupTypes,
                                                      @Param("user") User user, Pageable pageable);
 
@@ -94,7 +94,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
             "AND    g1.visible = true " +
             "AND ((UPPER(g1.code) LIKE :filterText) " +
             "OR (UPPER(g1.name) LIKE :filterText)) ")
-    public Page<Group> findGroupAndChildGroupsByUser(@Param("filterText") String filterText,
+    Page<Group> findGroupAndChildGroupsByUser(@Param("filterText") String filterText,
                                                      @Param("user") User user, Pageable pageable);
 
     // get group and children
@@ -108,7 +108,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
             "AND ((UPPER(g1.code) LIKE :filterText) " +
             "OR (UPPER(g1.name) LIKE :filterText)) " +
             "AND (g1.groupType.id IN (:groupTypes))")
-    public Page<Group> findGroupAndChildGroupsByUserAndGroupType(@Param("filterText") String filterText,
+    Page<Group> findGroupAndChildGroupsByUserAndGroupType(@Param("filterText") String filterText,
                                                      @Param("groupTypes") List<Long> groupTypes,
                                                      @Param("user") User user, Pageable pageable);
 
@@ -116,18 +116,23 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "FROM   GroupRelationship gr " +
            "WHERE  gr.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD " +
            "AND    gr.sourceGroup = :group ")
-    public Iterable<Group> findChildren(@Param("group") Group group);
-
-    public Group findByCode(String code);
-
-    public Iterable<Group> findByName(String name);
+    Iterable<Group> findChildren(@Param("group") Group group);
 
     @Query("SELECT g " +
-            "FROM   Group g " +
-            "WHERE  g.visibleToJoin = true")
-    public List<Group> findAllVisibleToJoin();
+            "FROM Group g " +
+            "WHERE g.id IN :ids")
+    List<Group> findAllByIds(@Param("ids") List<Long> ids);
 
-    public List<Group> findAll();
+    Group findByCode(String code);
+
+    Iterable<Group> findByName(String name);
+
+    @Query("SELECT g " +
+            "FROM Group g " +
+            "WHERE g.visibleToJoin = true")
+    List<Group> findAllVisibleToJoin();
+
+    List<Group> findAll();
 
     @Query("SELECT g FROM Group g " +
             "JOIN g.groupFeatures gf " +

@@ -112,9 +112,11 @@ public final class SecurityAspect {
 
         // Refactor later into two different PointCuts - one for groupIds being passed, another for whole groups
         Long groupId = getId(joinPoint);
+        //LOG.info("groupId: " + groupId);
 
         if (groupId == null) {
             Group group = getGroup(joinPoint);
+            //LOG.info("group null?: " + (group == null));
             if (group != null) {
                 groupId = group.getId();
             }

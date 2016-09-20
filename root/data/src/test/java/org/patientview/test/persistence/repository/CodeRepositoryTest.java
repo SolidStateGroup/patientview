@@ -62,6 +62,22 @@ public class CodeRepositoryTest {
     }
 
     @Test
+    public void testFindAllByCode() {
+
+        Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
+
+        List<String> codeStrings = new ArrayList<>();
+        codeStrings.add(code1.getCode());
+        codeStrings.add(code2.getCode());
+
+        List<Code> codes = codeRepository.findAllByCodes(codeStrings);
+
+        // Should get 1 code back and it should be the one that was created
+        Assert.assertEquals("There should be 2 codes returned", 2, codes.size());
+    }
+
+    @Test
     public void testFindByCodeAndType() {
 
         Lookup codeType1 = dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE);

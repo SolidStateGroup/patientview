@@ -156,6 +156,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
                     $scope.permissions.showRequestButton = true;
                     $scope.permissions.showStaffAlerts = true;
+                    $scope.permissions.showNhsIndicatorsLink = true;
                 }
 
                 if ($scope.permissions.isPatient) {
@@ -175,8 +176,14 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 // hide Generic group
                 _.remove($scope.graphGroups, {code: 'Generic'});
 
+                // to handle showing only for renal user
+                $scope.permissions.isRenalUser = false;
+
                 for (i = 0; i < $scope.graphGroups.length; i++) {
                     $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+                    if (!$scope.permissions.isRenalUser && $scope.graphGroups[i].parentCodes.indexOf("Renal") > -1) {
+                        $scope.permissions.isRenalUser = true;
+                    }
                 }
 
                 // set group (avoid blank option)

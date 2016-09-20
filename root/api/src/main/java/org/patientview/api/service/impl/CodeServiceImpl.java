@@ -412,7 +412,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             // handle check against NHS Choices, avoid hitting NHS api too much during sync
             if (code.getStandardType().getValue().equals(CodeStandardTypes.PATIENTVIEW.toString())) {
                 try {
-                    // sets introduction url on NhschoicesCondition and adds/updates link on Code if not set in last month
+                    // sets introduction url on NhschoicesCondition and adds/updates
+                    // link on Code if not set in last month
                     nhsChoicesService.setIntroductionUrl(code.getCode());
                 } catch (ResourceNotFoundException | ImportResourceException e) {
                     LOG.info("Error updating Introduction URL Link, continuing: " + e.getMessage());
@@ -466,8 +467,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         List<Long> codeTypesList = new ArrayList<>();
         codeTypesList.add(codeType.getId());
 
-        Lookup standardType
-                = lookupRepository.findByTypeAndValue(LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
+        Lookup standardType = lookupRepository.findByTypeAndValue(
+                LookupTypes.CODE_STANDARD, CodeStandardTypes.PATIENTVIEW.toString());
         if (standardType == null) {
             throw new ResourceNotFoundException("PATIENTVIEW Code standard not found");
         }

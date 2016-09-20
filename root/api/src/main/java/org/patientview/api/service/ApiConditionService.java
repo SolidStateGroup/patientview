@@ -75,7 +75,6 @@ public interface ApiConditionService {
      * @param patientUserId User ID of current User
      * @param code String code of diagnosis
      * @throws FhirResourceException
-     * @throws ResourceForbiddenException
      * @throws ResourceNotFoundException
      */
     @UserOnly

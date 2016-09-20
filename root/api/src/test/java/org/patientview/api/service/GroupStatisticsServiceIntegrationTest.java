@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import javax.sql.DataSource;
 import org.patientview.api.config.TestPersistenceConfig;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -20,11 +21,13 @@ import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.DataTestUtils;
 import org.patientview.test.util.TestUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -47,6 +50,15 @@ public class GroupStatisticsServiceIntegrationTest {
     User creator;
 
     @Inject
+    DataSource dataSource;
+
+    @Inject
+    DataTestUtils dataTestUtils;
+
+    @Inject
+    FhirResource fhirResource;
+
+    @Inject
     GroupStatisticService groupStatisticService;
 
     @Inject
@@ -55,15 +67,25 @@ public class GroupStatisticsServiceIntegrationTest {
     @Inject
     LookupTypeRepository lookupTypeRepository;
 
-    @Inject
-    DataTestUtils dataTestUtils;
-
     @Configuration
     @Import(TestPersistenceConfig.class)
     static class config {
         @Bean(name = "groupStatisticService")
         public GroupStatisticService groupStatisticServiceBean() {
             return new GroupStatisticsServiceImpl();
+        }
+        @Bean(name = "fhirResource")
+        public FhirResource fhirResourceBean() {
+            return new FhirResource();
+        }
+        @Bean(name = "fhir")
+        public DataSource dataSource() {
+            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+            dataSource.setDriverClassName("org.h2.Driver");
+            dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+            dataSource.setUsername("sa");
+            dataSource.setPassword("");
+            return dataSource;
         }
     }
 
@@ -125,7 +147,5 @@ public class GroupStatisticsServiceIntegrationTest {
         lookup.setId(2L);
         lookup.setCreator(creator);
         lookupRepository.save(lookup);
-
     }
-
 }
