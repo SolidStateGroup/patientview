@@ -86,6 +86,12 @@ function ($scope, $routeParams, GroupService) {
         });
     };
 
+    // required to stop angular auto sorting alphabetically
+    // https://github.com/angular/angular.js/issues/6210
+    $scope.objectKeys = function(obj){
+        return Object.keys(obj);
+    };
+
     $scope.$watch('selectedGroupId', function (selectedGroupId) {
         getNhsIndicatorsDates(selectedGroupId);
     });

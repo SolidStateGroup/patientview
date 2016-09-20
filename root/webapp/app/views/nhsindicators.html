@@ -42,7 +42,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr data-ng-repeat="(indicator, count) in nhsIndicators.data.indicatorCount">
+                            <tr data-ng-repeat="indicator in objectKeys(nhsIndicators.data.indicatorCount)"
+                                data-ng-init="count = nhsIndicators.data.indicatorCount[indicator]">
                                 <td>
                                     {{indicator}} &nbsp;
                                     <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
