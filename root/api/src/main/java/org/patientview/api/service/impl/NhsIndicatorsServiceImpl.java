@@ -69,8 +69,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     @Override
     public List<NhsIndicators> getAllNhsIndicatorsAndStore(boolean store)
             throws ResourceNotFoundException, FhirResourceException, JsonProcessingException {
-        LOG.info("Starting get all NHS indicators");
-
         // only get groups of type UNIT
         List<Long> groupTypes = new ArrayList<>();
         Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.GROUP, GroupTypes.UNIT.toString());
@@ -116,8 +114,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             }
         }
 
-        LOG.info("Done get all NHS indicators");
-
         if (store) {
             storeNhsIndicators(nhsIndicatorList);
         }
@@ -126,8 +122,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     }
 
     @Override
-    public NhsIndicators getNhsIndicators(Long groupId)
-            throws ResourceNotFoundException, FhirResourceException {
+    public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException {
         Group group = groupRepository.findOne(groupId);
         if (group == null) {
             throw new ResourceNotFoundException("The group could not be found");
@@ -187,10 +182,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
-        //System.out.println("group: " + group.getId() + " " + group.getName());
-        //System.out.println("uuids: " + uuids.size());
-        //System.out.println("uuidsLoginAfter: " + uuidsLoginAfter.size());
-
         // used when doing NOT IN for encounters that are not in code list
         Set<String> codesSearched = new HashSet<>();
 
@@ -210,9 +201,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuids, new ArrayList<>(codesSearched)));
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
-
-        //System.out.println("other: " + nhsIndicators.getData().getIndicatorCount().get("Other Treatment"));
-        //System.out.println("other after: " + nhsIndicators.getData().getIndicatorCountLoginAfter().get("Other Treatment"));
 
         // get "no clinical data", no fhir link for this group
         nhsIndicators.getData().getIndicatorCount().put("No Clinical Data",

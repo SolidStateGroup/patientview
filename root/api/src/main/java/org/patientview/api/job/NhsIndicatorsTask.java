@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Scheduled tasks for generating NHS Indicators statistics.
@@ -24,14 +26,21 @@ public class NhsIndicatorsTask {
     @Inject
     private NhsIndicatorsService nhsIndicatorsService;
 
-    //@Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
-    @Scheduled(cron = "0 0 3 * * ?") // every day at 01:00
+    @Scheduled(cron = "0 0 3 * * ?") // every day at 03:00
     public void generateNhsIndicators() {
         try {
+            LOG.info("Running generate NHS indicators task");
+            Date start = new Date();
             nhsIndicatorsService.getAllNhsIndicatorsAndStore(true);
+            LOG.info("NHS indicators task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (ResourceNotFoundException | FhirResourceException | JsonProcessingException e) {
             LOG.error("Nhs Indicators scheduled task error: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }
