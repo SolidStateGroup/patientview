@@ -129,7 +129,7 @@ public class NhsIndicatorsServiceTest {
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByGroups(eq(groups));
         verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
-        verify(fhirResource, Mockito.times(8)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
+        verify(fhirResource, Mockito.times(10)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
         verify(fhirResource, Mockito.times(2)).getCountEncounterBySubjectIdsAndNotCodes(eq(uuids), any(List.class));
     }
 }
