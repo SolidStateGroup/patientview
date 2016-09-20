@@ -74,7 +74,6 @@ public enum AuditActions {
     ADMIN_DELETE("Admin delete"), // new in pv2
     ADMIN_GROUP_ROLE_ADD("Admin Group Role add"), // new in pv2
     ADMIN_GROUP_ROLE_DELETE("Admin Group Role delete"), // new in pv2
-    ADMIN_EXPORT_PATIENTS("Admin Export Patient List add"),
 
     // user
     PASSWORD_RESET_FORGOTTEN("Password reset forgotten"),
@@ -110,7 +109,10 @@ public enum AuditActions {
     GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)"),
     
     // membership request conversation created
-    MEMBERSHIP_REQUEST_SENT("Membership request sent");
+    MEMBERSHIP_REQUEST_SENT("Membership request sent"),
+
+    // export
+    EXPORT_PATIENT_LIST("Export Patient List");
 
     private String name;
     AuditActions(String name) { this.name = name; }

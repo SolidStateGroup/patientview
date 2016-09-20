@@ -39,7 +39,6 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
@@ -167,13 +166,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         //Log the download action
-        auditService.createAudit(AuditActions.ADMIN_EXPORT_PATIENTS,
-                getCurrentUser().getUsername(),
+        auditService.createAudit(AuditActions.EXPORT_PATIENT_LIST,
+                null,
                 getCurrentUser(),
-                getCurrentUser().getId(),
-                AuditObjectTypes.User,
+                null,
+                null,
                 null);
-
 
         getParameters.setSize("1000000");
         Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
