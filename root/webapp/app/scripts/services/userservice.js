@@ -302,6 +302,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // create or generate new api key
+        generateApiKey: function (userId) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/generateApiKey
+            Restangular.one('user', userId).post('generateApiKey').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Save existing user
         save: function (inputUser) {
             var deferred = $q.defer();
