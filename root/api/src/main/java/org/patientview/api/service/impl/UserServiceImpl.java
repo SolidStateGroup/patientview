@@ -8,13 +8,11 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.api.service.PatientManagementService;
-import org.patientview.persistence.model.GroupFeature;
-import org.patientview.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -23,11 +21,13 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -35,6 +35,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -46,6 +47,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StatusFilter;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -58,6 +60,7 @@ import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.AuditService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.util.Util;
@@ -174,6 +177,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private ApiKeyRepository apiKeyRepository;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -443,8 +449,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
 
                     if (!groupRoleRepository.userGroupRoleExists(groupRole.getUser().getId(),
-                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
-                    {
+                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId())) {
                         GroupRole parentGroupRole = new GroupRole();
                         parentGroupRole.setGroup(groupRelationship.getObjectGroup());
                         parentGroupRole.setRole(groupRole.getRole());
@@ -1240,6 +1245,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             transportUser.setLatestDataReceivedDate(fhirLinks.get(0).getCreated());
         }
 
+        // find api key for user if any
+        ApiKey key = apiKeyRepository.findOneByUserAndType(user, ApiKeyTypes.PATIENT);
+        if (key != null) {
+            transportUser.setApiKey(new org.patientview.api.model.ApiKey(key));
+        }
+
         return transportUser;
     }
 
@@ -1498,7 +1509,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void moveUsersGroup(final Long groupFromId, final Long groupToId, final Long roleId,
-        final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
+                               final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
 
         // check all exist
         final Group groupFrom = groupRepository.findOne(groupFromId);
@@ -1934,5 +1945,32 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } else {
             throw new VerificationException("Verification code does not match");
         }
+    }
+
+    @Override
+    public void generateApiKey(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = findUser(userId);
+
+        // find api key for user if any
+        ApiKey key = apiKeyRepository.findOneByUserAndType(user, ApiKeyTypes.PATIENT);
+
+        // no api key for user, create one
+        if (key == null) {
+            key = new ApiKey();
+            key.setUser(user);
+            key.setExpiryDate(new DateTime(new Date()).plusYears(5).toDate());
+            key.setType(ApiKeyTypes.PATIENT);
+            key.setKey(CommonUtils.getAuthToken());
+        } else {
+            // found key check if it has expired and regenerate key
+            org.patientview.api.model.ApiKey foundKey = new org.patientview.api.model.ApiKey(key);
+            if (!foundKey.isExpired()) {
+                throw new ResourceForbiddenException("API Key has not expired yet");
+            }
+            key.setKey(CommonUtils.getAuthToken());
+            key.setExpiryDate(new DateTime(new Date()).plusYears(5).toDate());
+        }
+
+        apiKeyRepository.save(key);
     }
 }

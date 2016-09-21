@@ -432,4 +432,14 @@ public interface UserService {
      */
     @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
+
+    /**
+     * Create or re generate new api key for User
+     *
+     * @param userId Id of User to update secret word for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void generateApiKey(final Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 }
