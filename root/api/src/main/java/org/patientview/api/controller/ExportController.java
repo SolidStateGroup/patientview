@@ -37,11 +37,17 @@ public class ExportController extends BaseController<ExportController> {
         return exportService.downloadGpMaster();
     }
 
-
-
+    /**
+     * Download list of patients given get parameters (from currently shown in UI).
+     * @param getParameters GetParameters with filters for patient selection
+     * @return HttpEnttiy of byte[] containing CSV file of patients
+     * @throws ResourceNotFoundException thrown when getting users
+     * @throws ResourceForbiddenException thrown when getting users
+     */
     @RequestMapping(value = "/export/patients/download", method = RequestMethod.GET)
     @ResponseBody
-    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException {
+    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return exportService.downloadPatientList(getParameters);
     }
     /**

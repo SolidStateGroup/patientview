@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import com.itextpdf.text.DocumentException;
-import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
@@ -32,12 +31,15 @@ public interface ExportService {
     HttpEntity<byte[]> downloadGpMaster();
 
     /**
-     * Download the list of patients currently shown
-     * @return CSV file
+     * Download list of patients given get parameters (from currently shown in UI).
+     * @param getParameters GetParameters with filters for patient selection
+     * @return HttpEnttiy of byte[] containing CSV file of patients
+     * @throws ResourceNotFoundException thrown when getting users
+     * @throws ResourceForbiddenException thrown when getting users
      */
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
-    HttpEntity<byte[]> downloadPatientList(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
-
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Gets all letters within a specified period

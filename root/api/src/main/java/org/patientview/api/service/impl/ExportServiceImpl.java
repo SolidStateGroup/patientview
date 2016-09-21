@@ -202,7 +202,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         document.addValueToNextCell(user.getForename());
                         document.addValueToNextCell(identifier.getIdentifier());
                         if (user.getDateOfBirth() != null) {
-                            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
+                            document.addValueToNextCell(
+                                    new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
                         } else {
                             document.addValueToNextCell("");
                         }
