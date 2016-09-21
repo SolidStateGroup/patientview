@@ -53,6 +53,20 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
                                                    @Param("group") Group group,
                                                    @Param("identifier") Identifier identifier);
 
+    @Query("SELECT DISTINCT f " +
+            "FROM FhirLink f " +
+            "WHERE f.group IN :groups " +
+            "AND f.user.id IN :userIds")
+    List<FhirLink> findByUserIdsAndGroups(@Param("userIds") List<Long> userIds, @Param("groups") List<Group> groups);
+
+    @Query("SELECT DISTINCT f " +
+            "FROM FhirLink f " +
+            "WHERE f.group IN :groups " +
+            "AND f.user.id IN :userIds " +
+            "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date)")
+    List<FhirLink> findByUserIdsAndGroupsAndRecentLogin(
+            @Param("userIds") List<Long> userIds, @Param("groups") List<Group> groups, @Param("date") Date date);
+
     @Query("SELECT  f.user " +
             "FROM   FhirLink f " +
             "WHERE  f.resourceId IN :resourceIds ")
