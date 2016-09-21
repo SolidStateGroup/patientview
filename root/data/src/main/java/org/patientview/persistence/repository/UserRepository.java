@@ -239,4 +239,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND u.deleted = false " +
             "AND (u.lastLogin > :date OR u.currentLogin > :date)")
     Long findPatientCountByRecentLogin(@Param("groupId") Long groupId, @Param("date") Date date);
+
+    @Query("SELECT u.id " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "AND gr.group.id = :groupId " +
+            "AND u.deleted = false " +
+            "GROUP BY u.id")
+    List<Long> findPatientUserIds(@Param("groupId") Long groupId);
+
+    @Query("SELECT u.id " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "AND gr.group.id = :groupId " +
+            "AND u.deleted = false " +
+            "AND (u.lastLogin > :date OR u.currentLogin > :date) " +
+            "GROUP BY u.id")
+    List<Long> findPatientUserIdsByRecentLogin(@Param("groupId") Long groupId, @Param("date") Date date);
 }

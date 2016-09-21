@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -443,6 +445,105 @@ public class UserRepositoryTest {
                 new DateTime(new Date()).minusMonths(3).toDate());
 
         assertEquals("Should be correct count", (Long) 1L, count);
+    }
+
+    @Test
+    public void testFindPatientUserIds() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        User user = dataTestUtils.createUser("testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
+        userRepository.save(user);
+
+        User user2 = dataTestUtils.createUser("testUser2");
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("test2");
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+        userRepository.save(user2);
+
+        User user3 = dataTestUtils.createUser("testUser");
+        user3.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier3 = new Identifier();
+        identifier3.setIdentifier("test3");
+        identifier3.setUser(user3);
+        user3.getIdentifiers().add(identifier3);
+        identifierRepository.save(identifier3);
+        userRepository.save(user3);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user3, group, role);
+
+        List<Long> patientUserIds = userRepository.findPatientUserIds(group.getId());
+
+        assertEquals("Should be correct number of patients", 3, patientUserIds.size());
+        assertTrue("Should have correct patient user", patientUserIds.contains(user.getId()));
+        assertTrue("Should have correct patient user2", patientUserIds.contains(user2.getId()));
+        assertTrue("Should have correct patient user3", patientUserIds.contains(user3.getId()));
+
+        patientUserIds = userRepository.findPatientUserIds(group2.getId());
+
+        assertEquals("Should be correct number of patients", 1, patientUserIds.size());
+        assertTrue("Should have correct patient user", patientUserIds.contains(user.getId()));
+        assertFalse("Should not have patient user2", patientUserIds.contains(user2.getId()));
+        assertFalse("Should not patient user3", patientUserIds.contains(user3.getId()));
+    }
+
+    @Test
+    public void testFindPatientUserIdsByRecentLogin() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        User user = dataTestUtils.createUser("testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
+        userRepository.save(user);
+
+        User user2 = dataTestUtils.createUser("testUser2");
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("test2");
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+        userRepository.save(user2);
+
+        User user3 = dataTestUtils.createUser("testUser");
+        user3.setCurrentLogin(new Date());
+        user3.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier3 = new Identifier();
+        identifier3.setIdentifier("test3");
+        identifier3.setUser(user3);
+        user3.getIdentifiers().add(identifier3);
+        identifierRepository.save(identifier3);
+        userRepository.save(user3);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user3, group, role);
+
+        List<Long> patientUserIds = userRepository.findPatientUserIdsByRecentLogin(group.getId(),
+                new DateTime(new Date()).minusMonths(3).toDate());
+
+        assertEquals("Should be correct number of patients", 1, patientUserIds.size());
+        assertTrue("Should have correct patient user", patientUserIds.contains(user3.getId()));
     }
 
     @Test

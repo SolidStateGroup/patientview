@@ -97,7 +97,6 @@ public class NhsIndicatorsServiceTest {
 
         List<FhirLink> fhirLinks = new ArrayList<>();
         fhirLinks.add(new FhirLink(1L, UUID.randomUUID(), new User()));
-
         List<UUID> uuids = new ArrayList<>();
         uuids.add(fhirLinks.get(0).getResourceId());
 
@@ -105,19 +104,21 @@ public class NhsIndicatorsServiceTest {
         code.setCode("TP");
         List<Code> foundCodes = new ArrayList<>(Arrays.asList(code));
 
-        Long zeroZeroCount = 20L;
+        Long tpCount = 20L;
 
-        List<Group> groups = new ArrayList<>();
-        groups.add(group);
+        List<Group> groups = new ArrayList<>(Arrays.asList(group));
+        List<Long> userIds = Arrays.asList(100L, 200L);
+        List<Long> userIdsRecentLogin = Arrays.asList(100L);
 
         when(codeRepository.findAllByCodes(any(List.class))).thenReturn(foundCodes);
+        when(fhirLinkRepository.findByUserIdsAndGroups(eq(userIds), eq(groups))).thenReturn(fhirLinks);
+        when(fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(
+                eq(userIdsRecentLogin), eq(groups), any(Date.class))).thenReturn(fhirLinks);
+        when(fhirResource.getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class))).thenReturn(tpCount);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(fhirLinkRepository.findByGroups(eq(groups))).thenReturn(fhirLinks);
-        when(fhirLinkRepository.findByGroupsAndRecentLogin(eq(groups), any(Date.class))).thenReturn(fhirLinks);
-        when(fhirResource.getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class))).thenReturn(zeroZeroCount);
-        when(userRepository.findPatientCount(eq(group.getId()))).thenReturn(zeroZeroCount);
-        when(userRepository.findPatientCountByRecentLogin(eq(group.getId()), any(Date.class)))
-                .thenReturn(zeroZeroCount);
+        when(userRepository.findPatientUserIds(eq(group.getId()))).thenReturn(userIds);
+        when(userRepository.findPatientUserIdsByRecentLogin(eq(group.getId()), any(Date.class)))
+                .thenReturn(userIdsRecentLogin);
 
         NhsIndicators nhsIndicators = nhsIndicatorsService.getNhsIndicators(group.getId());
 
@@ -127,15 +128,16 @@ public class NhsIndicatorsServiceTest {
         assertEquals("Should have correct Code in codeMap",
                 code.getCode(), nhsIndicators.getData().getIndicatorCodeMap().get("Transplant").get(0));
         assertEquals("Should have correct count for Code in codeCount",
-                zeroZeroCount, nhsIndicators.getData().getIndicatorCount().get("Transplant"));
+                tpCount, nhsIndicators.getData().getIndicatorCount().get("Transplant"));
 
         verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(fhirLinkRepository, Mockito.times(1)).findByGroups(eq(groups));
-        verify(fhirLinkRepository, Mockito.times(1)).findByGroupsAndRecentLogin(eq(groups), any(Date.class));
+        verify(fhirLinkRepository, Mockito.times(1)).findByUserIdsAndGroups(eq(userIds), eq(groups));
+        verify(fhirLinkRepository, Mockito.times(1)).findByUserIdsAndGroupsAndRecentLogin(
+                eq(userIdsRecentLogin), eq(groups), any(Date.class));
         verify(fhirResource, Mockito.times(10)).getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class));
         verify(fhirResource, Mockito.times(2)).getCountEncounterBySubjectIdsAndNotCodes(eq(uuids), any(List.class));
-        verify(userRepository, Mockito.times(1)).findPatientCount(eq(group.getId()));
-        verify(userRepository, Mockito.times(1)).findPatientCountByRecentLogin(eq(group.getId()), any(Date.class));
+        verify(userRepository, Mockito.times(1)).findPatientUserIds(eq(group.getId()));
+        verify(userRepository, Mockito.times(1)).findPatientUserIdsByRecentLogin(eq(group.getId()), any(Date.class));
     }
 }
