@@ -166,12 +166,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         //Log the download action
-        auditService.createAudit(AuditActions.EXPORT_PATIENT_LIST,
-                null,
-                getCurrentUser(),
-                null,
-                null,
-                null);
+        auditService.createAudit(AuditActions.EXPORT_PATIENT_LIST, null, getCurrentUser(), null, null, null);
 
         getParameters.setSize("5000");
         Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
@@ -190,11 +185,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         for (org.patientview.api.model.User user : users) {
             for (org.patientview.api.model.GroupRole groupRole : user.getGroupRoles()) {
 
-                //Dont include any generic or parent groups of specicality
-                if (!groupRole.getGroup().getGroupType().getValue().equals("SPECIALITY".toString())
-                        && !groupRole.getGroup().getCode().equals("Generic".toString())
-                        && !groupRole.getGroup().getCode().equals("Renal".toString())) {
-                    //Loop over each identifier
+                // Don't include specialty groups
+                if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    // Loop over each identifier
                     for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
                         document.createNewRow();
                         document.resetCurrentPosition();
@@ -213,7 +206,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         document.addValueToNextCell(user.getLocked().toString());
 
                         if (user.getCurrentLogin() != null) {
-                            document.addValueToNextCell(new SimpleDateFormat("dd-MMM-yyyy").format(user.getCurrentLogin()));
+                            document.addValueToNextCell(
+                                    new SimpleDateFormat("dd-MMM-yyyy").format(user.getCurrentLogin()));
                         } else {
                             document.addValueToNextCell("No Last Login Date");
                         }
