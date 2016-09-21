@@ -356,8 +356,9 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
                 fhirLink.getResourceId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED.toString(), null, code);
 
         if (!CollectionUtils.isEmpty(uuids)) {
-            for (UUID uuid : uuids)
-            fhirResource.deleteEntity(uuid, "condition");
+            for (UUID uuid : uuids) {
+                fhirResource.deleteEntity(uuid, "condition");
+            }
         }
     }
 

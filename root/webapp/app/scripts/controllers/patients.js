@@ -121,6 +121,42 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
+    $scope.downloadList = function(){
+        if ($scope.total >= 5000) {
+            return alert("You are currently viewing more than 5000 patients. \n\nPlease filter further to reduce the output.");
+        }
+
+        if (window.confirm("You are about to start downloading this list. \n\nWarning: By continuing you acknowledge that the computer you are using complies with your organisation's security policy")) {
+
+            var groupId = 0;
+            if ($scope.selectedGroup.length > 0) {
+                groupId = $scope.selectedGroup;
+            }
+
+            var status = "";
+            if (typeof $scope.statusFilter != 'undefined') {
+                status = $scope.statusFilter;
+            }
+
+
+            var downloadUrl = "../api/export/patients/download?token=";
+            downloadUrl += $scope.authToken;
+            downloadUrl += "&sortField="+ $scope.sortField || "";
+            downloadUrl += "&sortDirection=" + $scope.sortDirection || "";
+            downloadUrl += "&roleIds=" + $scope.roleIds.join(', ') || "";
+            downloadUrl += "&searchUsername=" +  $('#search-username').val()  || "";
+            downloadUrl += "&searchForename="+ $('#search-forename').val()  || "";
+            downloadUrl += "&searchSurname=" + $('#search-surname').val()  || "";
+            downloadUrl += "&searchIdentifier=" + $('#search-identifier').val() || "";
+            downloadUrl += "&searchEmail=" +  $('#search-email').val() || "";
+            downloadUrl += "&statusFilter=" + status;
+            downloadUrl += "&groupIds=" + groupId;
+
+            window.open(downloadUrl, "Your download is now starting.");
+        }
+
+    }
+
     $scope.getUser = function(openedUser) {
         UserService.get(openedUser.id).then(function (user) {
 
@@ -290,6 +326,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.permissions.canDeleteGroupRolesDuringEdit = true;
             // to see the option to permanently delete patients
             $scope.permissions.canDeleteUsers = true;
+        }
+
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+            $scope.permissions.showExportButton = true;
         }
 
         // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN ...

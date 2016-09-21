@@ -15,7 +15,6 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GpPatient;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.PatientManagementObservationTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.postgresql.util.PGobject;
@@ -405,6 +404,194 @@ public class FhirResource {
         }
     }
 
+    public Long getCountEncounterBySubjectIdsAndCodes(List<UUID> subjectIds, List<String> codeList)
+            throws FhirResourceException {
+        Connection connection = null;
+        Long result;
+
+        // convert list of UUID and code to suitable string
+        String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+        String codes = "'" + StringUtils.join(codeList, "','") + "'";
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
+        query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
+        query.append("AND content #> '{type,0}'->>'text' IN (").append(codes).append(") ");
+        query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
+
+        //LOG.info(query.toString());
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            // get a single result
+            results.next();
+            result = results.getLong(1);
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get encounter counts: {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public Long getCountEncounterBySubjectIdsAndNotCodes(List<UUID> subjectIds, List<String> codeList)
+            throws FhirResourceException {
+        Connection connection = null;
+        Long result;
+
+        // convert list of UUID and code to suitable string
+        String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+        String codes = "'" + StringUtils.join(codeList, "','") + "'";
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
+        query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
+        query.append("AND content #> '{type,0}'->>'text' NOT IN (").append(codes).append(") ");
+        query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
+
+        //LOG.info(query.toString());
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            // get a single result
+            results.next();
+            result = results.getLong(1);
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get encounter counts: {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public Long getCountEncounterTreatmentBySubjectIds(List<UUID> subjectIds)
+            throws FhirResourceException {
+        Connection connection = null;
+        Long result;
+
+        // convert list of UUID and code to suitable string
+        String uuids = "'" + StringUtils.join(subjectIds, "','") + "'";
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT content -> 'subject' ->> 'display') ");
+        query.append("FROM encounter ");
+        query.append("WHERE content -> 'subject' ->> 'display' IN (").append(uuids).append(") ");
+        query.append("AND content #> '{identifier,0}'->>'value' = 'TREATMENT'");
+
+        //LOG.info(query.toString());
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            // get a single result
+            results.next();
+            result = results.getLong(1);
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get encounter counts: {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public Map<String, String> getDocumentReferenceUuidAndMediaUuid(UUID subjectId, String fhirClass, Date created)
+            throws FhirResourceException {
+        Map<String, String> existingMap = new HashMap<>();
+        Connection connection = null;
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content ->> 'location' ");
+        query.append("FROM documentreference ");
+        query.append("WHERE content -> 'subject' ->> 'display' = '").append(subjectId).append("' ");
+        query.append("AND content -> 'class' ->> 'text' = '").append(fhirClass).append("' ");
+        query.append("AND CAST(content ->> 'created' AS TIMESTAMP) = '").append(created).append("' ");
+
+        // execute and return map of logical ids and applies
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            while ((results.next())) {
+                existingMap.put(results.getString(1), results.getString(2));
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to get location uuids by logical id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return existingMap;
+    }
+
     // check for existing by letter content, letter has no class
     public Map<String, String> getExistingLetterDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
             throws FhirResourceException {
@@ -436,49 +623,6 @@ public class FhirResource {
                             .replace("CARRIAGE_RETURN", "\n");
                     existingMap.put(results.getString(1), results.getString(2) + content);
                 }
-            }
-
-            connection.close();
-        } catch (SQLException e) {
-            LOG.error("Unable to get location uuids by logical id {}", e);
-
-            // try and close the open connection
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e2) {
-                LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
-            }
-
-            throw new FhirResourceException(e.getMessage());
-        }
-
-        return existingMap;
-    }
-
-    public Map<String, String> getDocumentReferenceUuidAndMediaUuid(UUID subjectId, String fhirClass, Date created)
-            throws FhirResourceException {
-        Map<String, String> existingMap = new HashMap<>();
-        Connection connection = null;
-
-        // build query
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT logical_id, content ->> 'location' ");
-        query.append("FROM documentreference ");
-        query.append("WHERE content -> 'subject' ->> 'display' = '").append(subjectId).append("' ");
-        query.append("AND content -> 'class' ->> 'text' = '").append(fhirClass).append("' ");
-        query.append("AND CAST(content ->> 'created' AS TIMESTAMP) = '").append(created).append("' ");
-
-        // execute and return map of logical ids and applies
-        try {
-            connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
-
-            while ((results.next())) {
-                existingMap.put(results.getString(1), results.getString(2));
             }
 
             connection.close();

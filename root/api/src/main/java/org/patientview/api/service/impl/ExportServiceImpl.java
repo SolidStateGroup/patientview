@@ -21,10 +21,13 @@ import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.ExportService;
 import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FileData;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GpMaster;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -35,6 +38,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
@@ -44,7 +48,9 @@ import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.util.Util;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -65,6 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -77,25 +84,31 @@ import java.util.TreeMap;
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
     @Inject
-    private GpMasterRepository gpMasterRepository;
+    AuditService auditService;
 
     @Inject
-    private DocumentService documentService;
+    private ApiObservationService apiObservationService;
 
     @Inject
     private ApiMedicationService apiMedicationService;
 
     @Inject
-    private ObservationHeadingService observationHeadingService;
+    private DocumentService documentService;
 
     @Inject
-    private ApiObservationService apiObservationService;
+    private GpMasterRepository gpMasterRepository;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
 
     @Inject
     private QuestionRepository questionRepository;
 
     @Inject
     private SurveyResponseRepository surveyResponseRepository;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private UserRepository userRepository;
@@ -144,8 +157,68 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         }
 
         return getDownloadContent("GP Master List",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        //Log the download action
+        auditService.createAudit(AuditActions.EXPORT_PATIENT_LIST, null, getCurrentUser(), null, null, null);
+
+        getParameters.setSize("5000");
+        Page<org.patientview.api.model.User> users = userService.getApiUsersByGroupsAndRoles(getParameters);
+
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Surname");
+        document.addHeader("Forename");
+        document.addHeader("Identifier");
+        document.addHeader("DOB");
+        document.addHeader("PV Username");
+        document.addHeader("Group");
+        document.addHeader("Email Verified");
+        document.addHeader("Account Locked");
+        document.addHeader("Last Login Date");
+
+        for (org.patientview.api.model.User user : users) {
+            for (org.patientview.api.model.GroupRole groupRole : user.getGroupRoles()) {
+
+                // Don't include specialty groups
+                if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    // Loop over each identifier
+                    for (Identifier identifier : (Set<Identifier>) user.getIdentifiers()) {
+                        document.createNewRow();
+                        document.resetCurrentPosition();
+                        document.addValueToNextCell(user.getSurname());
+                        document.addValueToNextCell(user.getForename());
+                        document.addValueToNextCell(identifier.getIdentifier());
+                        if (user.getDateOfBirth() != null) {
+                            document.addValueToNextCell(
+                                    new SimpleDateFormat("dd-MMM-yyyy").format(user.getDateOfBirth()));
+                        } else {
+                            document.addValueToNextCell("");
+                        }
+                        document.addValueToNextCell(user.getUsername());
+                        document.addValueToNextCell(groupRole.getGroup().getName());
+                        document.addValueToNextCell(user.getEmailVerified().toString());
+                        document.addValueToNextCell(user.getLocked().toString());
+
+                        if (user.getCurrentLogin() != null) {
+                            document.addValueToNextCell(
+                                    new SimpleDateFormat("dd-MMM-yyyy").format(user.getCurrentLogin()));
+                        } else {
+                            document.addValueToNextCell("No Last Login Date");
+                        }
+                    }
+                }
+            }
+        }
+
+        return getDownloadContent("PatientViewExport_" + new SimpleDateFormat("dd-MMM-yyyy_HHmmss").format(new Date()),
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
     }
 
     @Override
@@ -178,8 +251,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(content);
         }
         return getDownloadContent("Letters",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
 
     }
 
@@ -209,8 +282,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(medicationStatement.getGroup().getName());
         }
         return getDownloadContent("Medicines",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -304,8 +377,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToCellCascade(1, StringUtils.join(unitNames, ","));
         }
         return getDownloadContent("Results",
-            makeCSVString(
-                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+                makeCSVString(
+                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -331,9 +404,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // patientview image
         try {
             Image image = Image.getInstance(this.getClass().getClassLoader().getResource("images/pv-logo-large.png"));
-            float w  = image.getPlainWidth();
+            float w = image.getPlainWidth();
             w *= 0.1;
-            float h  = image.getPlainHeight();
+            float h = image.getPlainHeight();
             h *= 0.1;
             image.scaleAbsolute(w, h);
             document.add(image);
@@ -540,8 +613,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     }
                     // if is a ranged value then get value
                     if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT_RANGE)
-                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
-                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
+                            || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
+                            || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }
@@ -584,8 +657,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
         return getDownloadContent(survey.getType(),
                 makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId,
-                        new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
-                        new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);
+                new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
+                new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);
     }
 
     /**

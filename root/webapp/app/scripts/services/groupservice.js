@@ -3,101 +3,69 @@
 angular.module('patientviewApp').factory('GroupService', ['$q', 'Restangular', 'UtilService',
 function ($q, Restangular, UtilService) {
     return {
-        get: function (groupId) {
+        // Add new child group to group relationships
+        addChildGroup: function (group, childGroupId) {
             var deferred = $q.defer();
-            Restangular.one('group', groupId).get().then(function(successResult) {
+            // PUT /group/{groupId}/child/{childGroupId}
+            Restangular.one('group', group.id).one('child',childGroupId).put().then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function (failureResult) {
+            }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        getStatistics: function (groupId) {
+        // Add new contactPoint to group
+        addContactPoint: function (group, contactPoint) {
             var deferred = $q.defer();
-            Restangular.one('group', groupId).one('statistics').get().then(function(successResult) {
+            contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+            delete contactPoint.id;
+            // POST /group/{groupId}/contactpoints
+            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint,
+                'contactPoint')).then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function (failureResult) {
+            }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        getAllPublic: function () {
+        // Add new feature to group
+        addFeature: function (group, featureId) {
             var deferred = $q.defer();
-            // GET /public/group
-            Restangular.all('public/group').getList().then(function(successResult) {
+            // PUT /group/{groupId}/features/{featureId}
+            Restangular.one('group', group.id).one('features',featureId).put().then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function (failureResult) {
+            }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        getByFeature: function (featureName) {
+        // Add new link to group
+        addLink: function (group, link) {
             var deferred = $q.defer();
-            // GET /group/feature/{featureName}
-            Restangular.one('group/feature', featureName).getList().then(function(successResult) {
+            // POST /group/{groupId}/links
+            Restangular.one('group', group.id).all('links').post(link).then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function (failureResult) {
+            }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        getGroupsForUser: function (userId, getParameters) {
+        // Add new location to group
+        addLocation: function (group, location) {
             var deferred = $q.defer();
-            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
-            Restangular.one('user',userId).customGET('groups', getParameters).then(function(successResult) {
+            // POST /group/{groupId}/locations
+            Restangular.one('group', group.id).all('locations').post(location).then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function (failureResult) {
+            }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        getMessagingGroupsForUser: function (userId) {
+        // Add new parent group to group relationships
+        addParentGroup: function (group, parentGroupId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/messaginggroups
-            Restangular.one('user',userId).customGET('messaginggroups').then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        getGroupsForUserAllDetails: function (userId, getParameters) {
-            var deferred = $q.defer();
-            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
-            Restangular.one('user',userId).customGET('groups/alldetails', getParameters).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        getAllowedRelationshipGroups: function (userId) {
-            var deferred = $q.defer();
-            // GET /user/allowedrelationshipgroups
-            Restangular.one('user',userId).customGET('allowedrelationshipgroups').then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // save group
-        save: function (inputGroup, groupTypes) {
-            var deferred = $q.defer();
-
-            var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
-            var group = UtilService.cleanObject(inputGroup, 'group');
-
-            group.groupType = groupType;
-
-            // only saving core group fields
-            delete group.contactPoints;
-            delete group.groupFeatures;
-            delete group.locations;
-            delete group.links;
-
-            // PUT /group
-            Restangular.all('group').customPUT(group).then(function(successResult) {
+            // PUT /group/{groupId}/parent/{parentGroupId}
+            Restangular.one('group', group.id).one('parent',parentGroupId).put().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -180,33 +148,11 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Add new link to group
-        addLink: function (group, link) {
+        // Delete child from group relationships
+        deleteChildGroup: function (group, childGroup) {
             var deferred = $q.defer();
-            // POST /group/{groupId}/links
-            Restangular.one('group', group.id).all('links').post(link).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // Add new location to group
-        addLocation: function (group, location) {
-            var deferred = $q.defer();
-            // POST /group/{groupId}/locations
-            Restangular.one('group', group.id).all('locations').post(location).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // Add new feature to group
-        addFeature: function (group, featureId) {
-            var deferred = $q.defer();
-            // PUT /group/{groupId}/features/{featureId}
-            Restangular.one('group', group.id).one('features',featureId).put().then(function(successResult) {
+            // DELETE /group/{groupId}/child/{childGroupId}
+            Restangular.one('group', group.id).one('child',childGroup.id).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -224,17 +170,6 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Add new parent group to group relationships
-        addParentGroup: function (group, parentGroupId) {
-            var deferred = $q.defer();
-            // PUT /group/{groupId}/parent/{parentGroupId}
-            Restangular.one('group', group.id).one('parent',parentGroupId).put().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         // Delete parent from group relationships
         deleteParentGroup: function (group, parentGroup) {
             var deferred = $q.defer();
@@ -246,36 +181,121 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Add new child group to group relationships
-        addChildGroup: function (group, childGroupId) {
+        get: function (groupId) {
             var deferred = $q.defer();
-            // PUT /group/{groupId}/child/{childGroupId}
-            Restangular.one('group', group.id).one('child',childGroupId).put().then(function(successResult) {
+            Restangular.one('group', groupId).get().then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function(failureResult) {
+            }, function (failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // Delete child from group relationships
-        deleteChildGroup: function (group, childGroup) {
+        getAllowedRelationshipGroups: function (userId) {
             var deferred = $q.defer();
-            // DELETE /group/{groupId}/child/{childGroupId}
-            Restangular.one('group', group.id).one('child',childGroup.id).remove().then(function(successResult) {
+            // GET /user/allowedrelationshipgroups
+            Restangular.one('user', userId).customGET('allowedrelationshipgroups').then(function(successResult) {
                 deferred.resolve(successResult);
-            }, function(failureResult) {
+            }, function (failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // Add new contactPoint to group
-        addContactPoint: function (group, contactPoint) {
+        getAllPublic: function () {
             var deferred = $q.defer();
-            contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
-            delete contactPoint.id;
-            // POST /group/{groupId}/contactpoints
-            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint,
-                'contactPoint')).then(function(successResult) {
+            // GET /public/group
+            Restangular.all('public/group').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getByFeature: function (featureName) {
+            var deferred = $q.defer();
+            // GET /group/feature/{featureName}
+            Restangular.one('group/feature', featureName).getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getGroupsForUser: function (userId, getParameters) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.one('user', userId).customGET('groups', getParameters).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getGroupsForUserAllDetails: function (userId, getParameters) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.one('user', userId).customGET('groups/alldetails', getParameters).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getMessagingGroupsForUser: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/messaginggroups
+            Restangular.one('user', userId).customGET('messaginggroups').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getNhsIndicatorsByGroupAndDate: function (groupId, date) {
+            var deferred = $q.defer();
+            // GET /group/{groupId}/nhsindicators/{date}
+            Restangular.one('group', groupId).one('nhsindicators', date).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getNhsIndicatorsDates: function () {
+            var deferred = $q.defer();
+            // GET /nhsindicators/dates
+            Restangular.one('nhsindicators/dates').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getStatistics: function (groupId) {
+            var deferred = $q.defer();
+            Restangular.one('group', groupId).one('statistics').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // save group
+        save: function (inputGroup, groupTypes) {
+            var deferred = $q.defer();
+
+            var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
+            var group = UtilService.cleanObject(inputGroup, 'group');
+
+            group.groupType = groupType;
+
+            // only saving core group fields
+            delete group.contactPoints;
+            delete group.groupFeatures;
+            delete group.locations;
+            delete group.links;
+
+            // PUT /group
+            Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

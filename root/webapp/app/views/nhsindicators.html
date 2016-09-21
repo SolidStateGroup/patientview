@@ -1,0 +1,72 @@
+<h1>
+    NHS Indicators
+
+    <a href="/#/dashboard" class="btn blue pull-right" data-ng-show="!loading">
+        <i class="icon-back-to pull-left"> </i>
+        Back to Dashboard
+    </a>
+</h1>
+<br/>
+<br/>
+<div class="content-panel">
+    <div class="content-inner">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}></div>
+        <div data-ng-show="loading" class="container">
+            <div data-ng-show="loading" class="loading">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading NHS Indicators</h3>
+            </div>
+        </div>
+        <h2>Select a Group:</h2>
+        <select class="form-control" id="group-select" data-ng-model="selectedGroupId"
+                data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in selectGroups | orderBy:[orderGroups,'name']"
+                data-ng-show="selectGroups.length > 0" data-ng-cloak>
+        </select>
+
+        <div data-ng-show="nhsIndicatorsDates.length > 0 && !loading">
+            <h2>Select a Date:</h2>
+            <select class="form-control" id="group-date-select" data-ng-model="selectedDate"
+                    data-ng-options="date as date | date:'dd-MMM-yyyy' for date in nhsIndicatorsDates">
+            </select>
+
+            <div>
+                <div data-ng-if="nhsIndicators && !loading">
+                    <br/>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Treatment(s)</th>
+                                <th>Patients registered on PatientView</th>
+                                <th>Patients who logged on in last 3 months</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="indicator in objectKeys(nhsIndicators.data.indicatorCount)"
+                                data-ng-init="count = nhsIndicators.data.indicatorCount[indicator]">
+                                <td>
+                                    {{indicator}} &nbsp;
+                                    <span data-ng-repeat="code in nhsIndicators.data.indicatorCodeMap[indicator]">
+                                        <span class="label label-info">{{nhsIndicators.codeMap[code].description}} ({{code}})</span> &nbsp;
+                                    </span>
+                                </td>
+                                <td>
+                                    {{count}}
+                                </td>
+                                <td>
+                                    {{nhsIndicators.data.indicatorCountLoginAfter[indicator]}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h5>Note: These statistics cover treatment data sent from this unit only, and do not consider data sent from other units.</h5>
+        </div>
+
+        <div data-ng-show="!nhsIndicatorsDates.length && !loading">
+            <h3>There are currently no NHS Indicator statistics available</h3>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -221,4 +222,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND u.deleted = false " +
             "GROUP BY u.id")
     List<User> findAllPatients();
+
+    @Query("SELECT count (distinct u) " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "AND gr.group.id = :groupId " +
+            "AND u.deleted = false ")
+    Long findPatientCount(@Param("groupId") Long groupId);
+
+    @Query("SELECT count (distinct u) " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "AND gr.group.id = :groupId " +
+            "AND u.deleted = false " +
+            "AND (u.lastLogin > :date OR u.currentLogin > :date)")
+    Long findPatientCountByRecentLogin(@Param("groupId") Long groupId, @Param("date") Date date);
 }

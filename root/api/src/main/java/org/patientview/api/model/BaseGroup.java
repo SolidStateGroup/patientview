@@ -1,8 +1,11 @@
 package org.patientview.api.model;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.patientview.persistence.model.Lookup;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * BaseGroup, representing the minimum information required for Groups.
@@ -19,6 +22,7 @@ public class BaseGroup {
     private Boolean visibleToJoin;
     private Lookup groupType;
     private Date lastImportDate;
+    private List<String> parentCodes = new ArrayList<>();
 
     public BaseGroup() {
     }
@@ -32,6 +36,15 @@ public class BaseGroup {
         setGroupType(group.getGroupType());
         setVisibleToJoin(group.getVisibleToJoin());
         setLastImportDate(group.getLastImportDate());
+
+        // add parent group codes, used in UI to show or hide elements for specific specialties
+        if (CollectionUtils.isNotEmpty(group.getParentGroups())) {
+            for (org.patientview.persistence.model.Group parentGroup : group.getParentGroups()) {
+                if (parentGroup.getCode() != null) {
+                    parentCodes.add(parentGroup.getCode());
+                }
+            }
+        }
     }
 
     public BaseGroup(org.patientview.api.model.Group group) {
@@ -107,5 +120,13 @@ public class BaseGroup {
 
     public void setLastImportDate(Date lastImportDate) {
         this.lastImportDate = lastImportDate;
+    }
+
+    public List<String> getParentCodes() {
+        return parentCodes;
+    }
+
+    public void setParentCodes(List<String> parentCodes) {
+        this.parentCodes = parentCodes;
     }
 }

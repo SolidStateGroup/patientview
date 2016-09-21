@@ -4,7 +4,10 @@ import com.itextpdf.text.DocumentException;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.http.HttpEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,17 @@ public interface ExportService {
      */
     @RoleOnly
     HttpEntity<byte[]> downloadGpMaster();
+
+    /**
+     * Download list of patients given get parameters (from currently shown in UI).
+     * @param getParameters GetParameters with filters for patient selection
+     * @return HttpEnttiy of byte[] containing CSV file of patients
+     * @throws ResourceNotFoundException thrown when getting users
+     * @throws ResourceForbiddenException thrown when getting users
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Gets all letters within a specified period

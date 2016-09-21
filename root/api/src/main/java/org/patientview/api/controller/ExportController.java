@@ -4,7 +4,9 @@ import com.itextpdf.text.DocumentException;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ExportService;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,19 @@ public class ExportController extends BaseController<ExportController> {
         return exportService.downloadGpMaster();
     }
 
+    /**
+     * Download list of patients given get parameters (from currently shown in UI).
+     * @param getParameters GetParameters with filters for patient selection
+     * @return HttpEnttiy of byte[] containing CSV file of patients
+     * @throws ResourceNotFoundException thrown when getting users
+     * @throws ResourceForbiddenException thrown when getting users
+     */
+    @RequestMapping(value = "/export/patients/download", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadPatientList(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return exportService.downloadPatientList(getParameters);
+    }
     /**
      * Download a letter, given User ID and FileData ID.
      *

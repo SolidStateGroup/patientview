@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,8 +20,28 @@ import java.util.UUID;
  * Created on 29/08/2014
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.REQUIRED)
 public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
+
+    @Query("SELECT  f " +
+            "FROM   FhirLink f " +
+            "WHERE  f.user = :user " +
+            "AND    f.active = true " +
+            "ORDER BY f.created DESC")
+    List<FhirLink> findActiveByUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT f " +
+            "FROM FhirLink f " +
+            "WHERE f.group IN :groups ")
+    List<FhirLink> findByGroups(@Param("groups") List<Group> groups);
+
+    @Query("SELECT DISTINCT f " +
+            "FROM FhirLink f " +
+            "WHERE f.group IN :groups " +
+            "AND (f.user.lastLogin > :date OR f.user.currentLogin > :date)")
+    List<FhirLink> findByGroupsAndRecentLogin(@Param("groups") List<Group> groups, @Param("date") Date date);
+
+    List<FhirLink> findByUserAndGroup(User entityUser, Group entityGroup);
 
     @Query("SELECT  f " +
             "FROM   FhirLink f " +
@@ -31,38 +52,6 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
     List<FhirLink> findByUserAndGroupAndIdentifier(@Param("user") User user,
                                                    @Param("group") Group group,
                                                    @Param("identifier") Identifier identifier);
-
-    @Query("SELECT  f " +
-            "FROM   FhirLink f " +
-            "WHERE  f.user = :user " +
-            "AND    f.identifier.identifier = :identifierText " +
-            "AND    f.group = :group " +
-            "ORDER BY f.created DESC")
-    List<FhirLink> findByUserAndGroupAndIdentifierText(@Param("user") User user,
-                                                       @Param("group") Group group,
-                                                       @Param("identifierText") String identifierText);
-
-    @Query("SELECT  f " +
-            "FROM   FhirLink f " +
-            "WHERE  f.user = :user " +
-            "AND    f.active = true " +
-            "ORDER BY f.created DESC")
-    List<FhirLink> findActiveByUser(@Param("user") User user);
-
-    @Query("SELECT  f " +
-            "FROM   FhirLink f " +
-            "WHERE  f.user = :user " +
-            "AND f.group = :group " +
-            "AND    f.active = false " +
-            "ORDER BY f.created DESC")
-    List<FhirLink> findInActiveByUserAndGroup(@Param("user") User user, @Param("group") Group group);
-
-    @Query("SELECT  f " +
-            "FROM   FhirLink f " +
-            "WHERE  f.versionId = :versionId ")
-    FhirLink findByVersionUuid(@Param("versionId") UUID versionId);
-
-    List<FhirLink> findByUserAndGroup(User entityUser, Group entityGroup);
 
     @Query("SELECT  f.user " +
             "FROM   FhirLink f " +

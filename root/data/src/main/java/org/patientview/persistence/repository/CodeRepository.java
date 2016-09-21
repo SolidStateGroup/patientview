@@ -24,6 +24,10 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
     Page<Code> findAll(Pageable pageable);
 
     @Query("SELECT c FROM Code c " +
+            "WHERE c.code IN :codes")
+    List<Code> findAllByCodes(@Param("codes") List<String> codes);
+
+    @Query("SELECT c FROM Code c " +
             "WHERE c.code = :code " +
             "AND c.codeType = :codeType")
     List<Code> findAllByCodeAndType(@Param("code") String code, @Param("codeType") Lookup codeType);

@@ -34,8 +34,8 @@ public interface GroupStatisticService {
      * Get statistics for a Group given an ID.
      * @param groupId ID of the Group to retrieve statistics for
      * @return List of GroupStatisticTO objects with monthly statistics for a Group
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException thrown when Group does not exist
+     * @throws ResourceForbiddenException thrown when User does not have required permissions
      */
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
             RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN })

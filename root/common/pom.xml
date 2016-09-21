@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.patientview2</groupId>
         <artifactId>root</artifactId>
-        <version>2.3.1-RELEASE</version>
+        <version>2.3.2-RELEASE</version>
     </parent>
 
     <artifactId>common</artifactId>
-    <version>2.3.1-RELEASE</version>
+    <version>2.3.2-RELEASE</version>
     <name>common</name>
     <packaging>jar</packaging>
     <url>http://maven.apache.org</url>
@@ -68,13 +68,6 @@
             <version>1.9</version>
         </dependency>
 
-        <!-- 28/11/14 move model to common required dependencies -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
@@ -117,6 +110,23 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.6</version>
+        </dependency>
+
+        <!-- Object to String conversion using Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.2</version>
         </dependency>
     </dependencies>
 
