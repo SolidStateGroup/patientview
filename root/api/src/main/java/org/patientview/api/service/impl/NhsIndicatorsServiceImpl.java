@@ -220,9 +220,9 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
         // get no treatment
         nhsIndicators.getData().getIndicatorCount().put("No Treatment Data",
-                fhirLinks.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids));
+                userIds.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids));
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Treatment Data",
-                fhirLinksLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter));
+                userIdsLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter));
 
         return nhsIndicators;
     }
