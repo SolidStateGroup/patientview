@@ -178,8 +178,19 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         NhsIndicators nhsIndicators = new NhsIndicators(group.getId());
         nhsIndicators.setCodeMap(entityCodeMap);
 
-        List<FhirLink> fhirLinks = fhirLinkRepository.findByGroups(groups);
-        List<FhirLink> fhirLinksLoginAfter = fhirLinkRepository.findByGroupsAndRecentLogin(groups, loginAfter);
+        // get fhir links by current users in groups (do not include those who moved or were deleted)
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        List<Long> userIds = userRepository.findPatientUserIds(group.getId());
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(userIds, groups);
+        }
+
+        List<FhirLink> fhirLinksLoginAfter = new ArrayList<>();
+        List<Long> userIdsLoginAfter = userRepository.findPatientUserIdsByRecentLogin(group.getId(), loginAfter);
+        if (CollectionUtils.isNotEmpty(userIdsLoginAfter)) {
+            fhirLinksLoginAfter
+                    = fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(userIdsLoginAfter, groups, loginAfter);
+        }
 
         // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
         List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
@@ -207,12 +218,11 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
-        Long countTreatment = userRepository.findPatientCount(group.getId())
-                - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids);
-        Long countTreatmentLoginAfter = userRepository.findPatientCountByRecentLogin(group.getId(), loginAfter)
-                - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter);
-        nhsIndicators.getData().getIndicatorCount().put("No Treatment Data", countTreatment);
-        nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Treatment Data", countTreatmentLoginAfter);
+        // get no treatment
+        nhsIndicators.getData().getIndicatorCount().put("No Treatment Data",
+                userIds.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids));
+        nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Treatment Data",
+                userIdsLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter));
 
         return nhsIndicators;
     }

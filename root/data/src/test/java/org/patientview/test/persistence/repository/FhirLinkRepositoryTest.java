@@ -29,12 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
@@ -192,6 +191,143 @@ public class FhirLinkRepositoryTest {
         groups.add(group);
 
         fhirLinks = fhirLinkRepository.findByGroupsAndRecentLogin(groups, threeMonthsAgo);
+        Assert.assertEquals("There should be 1 FhirLink found by recent", 1, fhirLinks.size());
+        Assert.assertEquals("Should be correct FhirLink found by recent",
+                fhirLink2.getResourceId(), fhirLinks.get(0).getResourceId());
+
+        // get uuids from list of FhirLink
+        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
+                TransformerUtils.invokerTransformer("getResourceId"));
+        Assert.assertEquals("Should be correct resourceId found by recent", fhirLink2.getResourceId(), uuids.get(0));
+    }
+
+    @Test
+    public void testFindByUserIdsAndGroups() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+
+        // group 1
+        User user1 = dataTestUtils.createUser("testUser1");
+        dataTestUtils.createGroupRole(user1, group, role);
+        user1.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier1 = new Identifier();
+        identifier1.setIdentifier("1");
+        identifier1.setIdentifierType(lookup);
+        identifier1.setUser(user1);
+        user1.getIdentifiers().add(identifier1);
+        identifierRepository.save(identifier1);
+
+        FhirLink fhirLink1 = new FhirLink();
+        fhirLink1.setUser(user1);
+        fhirLink1.setGroup(group);
+        fhirLink1.setIdentifier(identifier1);
+        fhirLink1.setResourceId(UUID.fromString("e5294f9d-7122-4ba9-98eb-229f0426e0ad"));
+        fhirLinkRepository.save(fhirLink1);
+
+        user1.setFhirLinks(new HashSet<FhirLink>());
+        user1.getFhirLinks().add(fhirLink1);
+        userRepository.save(user1);
+
+        // group 2
+        User user2 = dataTestUtils.createUser("testuser2");
+        dataTestUtils.createGroupRole(user2, group2, role);
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("1");
+        identifier2.setIdentifierType(lookup);
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+
+        FhirLink fhirLink2 = new FhirLink();
+        fhirLink2.setUser(user2);
+        fhirLink2.setGroup(group2);
+        fhirLink2.setIdentifier(identifier2);
+        fhirLink2.setResourceId(UUID.fromString("6b26fd1d-77df-4094-937a-866f66ae2a8e"));
+        fhirLinkRepository.save(fhirLink2);
+
+        user2.setFhirLinks(new HashSet<FhirLink>());
+        user2.getFhirLinks().add(fhirLink2);
+        userRepository.save(user2);
+
+        List<FhirLink> fhirLinks = IteratorUtils.toList(fhirLinkRepository.findAll().iterator());
+        Assert.assertEquals("There should be 2 FhirLink in total", 2, fhirLinks.size());
+
+        fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(Arrays.asList(user1.getId()), Arrays.asList(group));
+        Assert.assertEquals("There should be 1 FhirLink found by group", 1, fhirLinks.size());
+        Assert.assertEquals("Should be correct FhirLink found by group",
+                fhirLink1.getResourceId(), fhirLinks.get(0).getResourceId());
+
+        // get uuids from list of FhirLink
+        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
+                TransformerUtils.invokerTransformer("getResourceId"));
+        Assert.assertEquals("Should be correct resourceId found by group", fhirLink1.getResourceId(), uuids.get(0));
+    }
+
+    @Test
+    public void testFindByUserIdsAndGroupsAndRecentLogin() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+
+        // user 1 (last login 6 months ago)
+        User user1 = dataTestUtils.createUser("testUser1");
+        user1.setLastLogin(new DateTime(new Date()).minusMonths(6).toDate());
+        dataTestUtils.createGroupRole(user1, group, role);
+        user1.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier1 = new Identifier();
+        identifier1.setIdentifier("1");
+        identifier1.setIdentifierType(lookup);
+        identifier1.setUser(user1);
+        user1.getIdentifiers().add(identifier1);
+        identifierRepository.save(identifier1);
+
+        FhirLink fhirLink1 = new FhirLink();
+        fhirLink1.setUser(user1);
+        fhirLink1.setGroup(group);
+        fhirLink1.setIdentifier(identifier1);
+        fhirLink1.setResourceId(UUID.fromString("e5294f9d-7122-4ba9-98eb-229f0426e0ad"));
+        fhirLinkRepository.save(fhirLink1);
+
+        user1.setFhirLinks(new HashSet<FhirLink>());
+        user1.getFhirLinks().add(fhirLink1);
+        userRepository.save(user1);
+
+        // user 2 (last login 2 months ago)
+        User user2 = dataTestUtils.createUser("testuser2");
+        user2.setCurrentLogin(new DateTime(new Date()).minusMonths(2).toDate());
+        dataTestUtils.createGroupRole(user2, group, role);
+        user2.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier2 = new Identifier();
+        identifier2.setIdentifier("1");
+        identifier2.setIdentifierType(lookup);
+        identifier2.setUser(user2);
+        user2.getIdentifiers().add(identifier2);
+        identifierRepository.save(identifier2);
+
+        FhirLink fhirLink2 = new FhirLink();
+        fhirLink2.setUser(user2);
+        fhirLink2.setGroup(group);
+        fhirLink2.setIdentifier(identifier2);
+        fhirLink2.setResourceId(UUID.fromString("6b26fd1d-77df-4094-937a-866f66ae2a8e"));
+        fhirLinkRepository.save(fhirLink2);
+
+        user2.setFhirLinks(new HashSet<FhirLink>());
+        user2.getFhirLinks().add(fhirLink2);
+        userRepository.save(user2);
+
+        List<FhirLink> fhirLinks = IteratorUtils.toList(fhirLinkRepository.findAll().iterator());
+        Assert.assertEquals("There should be 2 FhirLink in total", 2, fhirLinks.size());
+
+        Date threeMonthsAgo = new DateTime(new Date()).minusMonths(3).toDate();
+
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+
+        fhirLinks = fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(
+                Arrays.asList(user1.getId(), user2.getId()), groups, threeMonthsAgo);
         Assert.assertEquals("There should be 1 FhirLink found by recent", 1, fhirLinks.size());
         Assert.assertEquals("Should be correct FhirLink found by recent",
                 fhirLink2.getResourceId(), fhirLinks.get(0).getResourceId());
