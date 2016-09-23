@@ -100,6 +100,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -1960,7 +1961,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             key.setUser(user);
             key.setExpiryDate(new DateTime(new Date()).plusYears(5).toDate());
             key.setType(ApiKeyTypes.PATIENT);
-            key.setKey(CommonUtils.getAuthToken());
+            key.setKey(UUID.randomUUID().toString());
         } else {
             // found key check if it has expired and regenerate key
             org.patientview.api.model.ApiKey foundKey = new org.patientview.api.model.ApiKey(key);
