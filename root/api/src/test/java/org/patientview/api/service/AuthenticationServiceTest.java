@@ -289,14 +289,9 @@ public class AuthenticationServiceTest {
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
 
         org.patientview.api.model.UserToken returned
-                = authenticationService.authenticate(new Credentials(user.getUsername(), password, null));
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password, apiKey.getKey()));
 
         Assert.assertNotNull("token should be set", returned.getToken());
-        Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
-
-        verify(apiKeyRepository, times(1)).findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()));
-        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
-                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
 
     @Test
