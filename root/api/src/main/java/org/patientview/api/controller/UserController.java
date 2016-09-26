@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.model.User;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -14,7 +15,6 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.api.model.User;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.MigrationStatus;
@@ -559,5 +559,20 @@ public class UserController extends BaseController<UserController> {
                                           @PathVariable("verificationCode") String verificationCode)
             throws ResourceNotFoundException, VerificationException {
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
+    }
+
+
+    /**
+     * Creates or regenerates new api key for patient
+     *
+     * @param userId
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/generateApiKey", method = RequestMethod.POST)
+    @ResponseBody
+    public void generateApiKey(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        userService.generateApiKey(userId);
     }
 }

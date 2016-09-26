@@ -38,6 +38,8 @@ public class User extends BaseUser {
     private boolean hideSecretWordNotification = false;
     private boolean secretWordIsSet = false;
 
+    private ApiKey apiKey;
+
     public User() {
     }
 
@@ -223,5 +225,13 @@ public class User extends BaseUser {
 
     public void setSecretWordIsSet(boolean secretWordIsSet) {
         this.secretWordIsSet = secretWordIsSet;
+    }
+
+    public ApiKey getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(ApiKey apiKey) {
+        this.apiKey = apiKey;
     }
 }
