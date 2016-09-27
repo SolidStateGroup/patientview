@@ -4,6 +4,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
+import org.patientview.api.model.ObservationHeading;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.FhirResourceException;
@@ -137,4 +138,19 @@ public interface ApiObservationService {
      */
     @RoleOnly(roles = { RoleName.IMPORTER })
     ServerResponse importObservations(FhirObservationRange fhirObservationRange);
+
+    /**
+     * Get a list of patient entered observations by given a patient user id with a start and end date
+     *
+     * @param userId an id of the patient user to retrieve observations for
+     * @param fromDate start date to search from in yyyy-mm-dd
+     * @param toDate end date to search to in yyyy-mm-dd
+     * @return a list of ObservationHeading objects containing user entered observations
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     */
+    @RoleOnly(roles = {RoleName.IMPORTER})
+    List<ObservationHeading> getPatientEnteredObservations(Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 }

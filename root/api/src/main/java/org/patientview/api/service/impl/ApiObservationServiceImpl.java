@@ -16,8 +16,8 @@ import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
-import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.builder.TestObservationsBuilder;
 import org.patientview.config.exception.FhirResourceException;
@@ -50,6 +50,7 @@ import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.util.Util;
@@ -73,6 +74,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -119,6 +121,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
@@ -202,6 +207,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     public void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
 
+        // Patient adds his own results
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
@@ -913,8 +919,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group,
-                                        List<ObservationHeading> observationHeadings,
-                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+                                                        List<ObservationHeading> observationHeadings,
+                                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
         group = groupRepository.findOne(group.getId());
 
@@ -1207,4 +1213,170 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
         return new ServerResponse(null, "done" + info.toString(), true);
     }
+
+
+    @Override
+    public List<org.patientview.api.model.ObservationHeading> getPatientEnteredObservations(
+            Long userId, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("Could not find patient user");
+        }
+
+        // we need to make sure logged in user is allowed to we patient data
+        if (!userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
+
+        Map<String, List<org.patientview.api.model.FhirObservation>> observationList =
+                getPatientObservations(patientUser.getFhirLinks(), fromDate, toDate);
+        List<org.patientview.api.model.ObservationHeading> observationHeadingData =
+                buildObservationHeadingList(observationHeadings, observationList);
+
+
+        return observationHeadingData;
+    }
+
+    /**
+     * Gets a list of patient entered observations in single query per fhirlink
+     *
+     * @param fhirLinks
+     * @return
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    private Map<String, List<org.patientview.api.model.FhirObservation>> getPatientObservations(
+            Set<FhirLink> fhirLinks, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
+            observationHeadingMap.put(observationHeading.getCode(), observationHeading);
+        }
+
+        Map<String, List<org.patientview.api.model.FhirObservation>> patientObservations = new HashMap<>();
+
+        for (FhirLink fhirLink : fhirLinks) {
+
+            // get only patient entered data
+            if (fhirLink.getActive() &&
+                    fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT  ");
+                query.append("CONTENT ->> 'appliesDateTime', ");
+                query.append("CONTENT -> 'name' ->> 'text', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
+                query.append("FROM   observation ");
+                query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
+                query.append(fhirLink.getResourceId().toString());
+                query.append("' ");
+                if (fromDate != null && toDate != null) {
+                    query.append("AND CONTENT ->> 'appliesDateTime' >= '" + fromDate + "' ");
+                    query.append("AND CONTENT ->> 'appliesDateTime' <= '" + toDate + "' ");
+                }
+                query.append("ORDER  BY 2, 1 DESC");
+
+                List<String[]> observationValues = fhirResource.findLatestObservationsByQuery(query.toString());
+
+                // convert to transport observations
+                for (String[] json : observationValues) {
+                    System.out.println(("JSON: " + json));
+                    if (!StringUtils.isEmpty(json[0])) {
+                        try {
+                            org.patientview.api.model.FhirObservation fhirObservation
+                                    = new org.patientview.api.model.FhirObservation();
+
+                            // remove timezone and parse date
+                            String dateString = json[0];
+                            XMLGregorianCalendar xmlDate
+                                    = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                            Date date = xmlDate.toGregorianCalendar().getTime();
+
+                            fhirObservation.setApplies(date);
+                            fhirObservation.setName(json[1]);
+
+                            // handle decimal points if set for this observation type
+                            if (StringUtils.isNotEmpty(json[2])) {
+                                try {
+                                    ObservationHeading observationHeading = observationHeadingMap.get(json[1]);
+                                    if (observationHeading != null) {
+                                        if (observationHeading.getDecimalPlaces() != null) {
+                                            fhirObservation.setValue(new BigDecimal(json[2]).setScale(
+                                                    observationHeading.getDecimalPlaces().intValue(),
+                                                    BigDecimal.ROUND_HALF_UP).toString());
+                                        } else {
+                                            fhirObservation.setValue(
+                                                    new DecimalFormat("0.#####").format(Double.valueOf(json[2])));
+                                        }
+                                    } else {
+                                        fhirObservation.setValue(
+                                                new DecimalFormat("0.#####").format(Double.valueOf(json[2])));
+                                    }
+                                } catch (NumberFormatException nfe) {
+                                    fhirObservation.setValue(json[2]);
+                                }
+                            } else {
+                                // textual value, trim if larger than size
+                                if (json.length >= FIVE && StringUtils.isNotEmpty(json[FOUR])) {
+                                    if (json[FOUR].length() > EIGHT) {
+                                        fhirObservation.setValue(json[FOUR].subSequence(0, EIGHT).toString() + "..");
+                                    } else {
+                                        fhirObservation.setValue(json[FOUR]);
+                                    }
+                                }
+                            }
+
+                            String code = json[1].toUpperCase();
+
+                            if (patientObservations.get(code) != null) {
+                                // will need to add all entered results not just latest
+                                patientObservations.get(code).add(fhirObservation);
+                            } else {
+                                List<org.patientview.api.model.FhirObservation> newList = new ArrayList<>();
+                                newList.add(fhirObservation);
+                                patientObservations.put(code, newList);
+                            }
+
+                        } catch (DatatypeConfigurationException e) {
+                            LOG.error(e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return patientObservations;
+    }
+
+
+    private List<org.patientview.api.model.ObservationHeading> buildObservationHeadingList(
+            List<ObservationHeading> observationHeadings,
+            Map<String, List<org.patientview.api.model.FhirObservation>> observationList)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        List<org.patientview.api.model.ObservationHeading> headingList = new ArrayList<>();
+
+        for (ObservationHeading observationHeading : observationHeadings) {
+            // create transport observation heading
+            org.patientview.api.model.ObservationHeading transportObservationHeading =
+                    new org.patientview.api.model.ObservationHeading(observationHeading);
+
+            List<org.patientview.api.model.FhirObservation> observations =
+                    observationList.get(observationHeading.getCode().toUpperCase());
+
+            if (observations != null && !observations.isEmpty()) {
+                transportObservationHeading.setObservations(observations);
+                headingList.add(transportObservationHeading);
+            }
+        }
+
+        return headingList;
+    }
+
 }
