@@ -1237,7 +1237,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         List<org.patientview.api.model.ObservationHeading> observationHeadingData =
                 buildObservationHeadingList(observationHeadings, observationList);
 
-
         return observationHeadingData;
     }
 
