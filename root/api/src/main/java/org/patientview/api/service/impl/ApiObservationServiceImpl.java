@@ -1285,7 +1285,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
-                    System.out.println(("JSON: " + json));
                     if (!StringUtils.isEmpty(json[0])) {
                         try {
                             org.patientview.api.model.FhirObservation fhirObservation
@@ -1352,7 +1351,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
         return patientObservations;
     }
-
 
     private List<org.patientview.api.model.ObservationHeading> buildObservationHeadingList(
             List<ObservationHeading> observationHeadings,

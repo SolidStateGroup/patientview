@@ -778,7 +778,7 @@ public class ApiObservationServiceTest {
     public void testGetPatientEnteredObservations_ownObservations()
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
-        Group group = TestUtils.createGroup("testGroup");
+        Group group = TestUtils.createGroup("PATIENT_ENTERED");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
 
@@ -804,37 +804,48 @@ public class ApiObservationServiceTest {
 
         ObservationHeading observationHeading1 = new ObservationHeading();
         observationHeading1.setId(3L);
-        observationHeading1.setCode("OBS1");
+        observationHeading1.setCode("BPDIA");
 
         List<ObservationHeading> observationHeadings = new ArrayList<>();
         observationHeadings.add(observationHeading1);
 
 
-        List<Observation> fhirObservations = new ArrayList<>();
+        List<String[]> fhirObservationValues = new ArrayList<>();
 
-        Observation observation = new Observation();
-        CodeableConcept valueConcept = new CodeableConcept();
-        valueConcept.setTextSimple(value);
-        valueConcept.addCoding().setDisplaySimple(value);
-        observation.setValue(valueConcept);
+        String[] value1 = new String[] {"2016-09-27T10:10:00.460+01:00", "bpdia", "33.07", null, null};
+        String[] value2 = new String[] {"2016-09-26T17:17:00.313+01:00", "bpdia", "130.45", null, null};
+        String[] value3 = new String[] {"2016-09-27T10:10:00.460+01:00", "bpdia", "25.05", null, null};
+        String[] value4 = new String[] {"2016-09-26T17:17:00.313+01:00", "bpdia", "3100.05", null, null};
+        fhirObservationValues.add(value1);
+        fhirObservationValues.add(value2);
+        fhirObservationValues.add(value3);
+        fhirObservationValues.add(value4);
 
-        DateTime dateTime = new DateTime();
-        DateAndTime dateAndTime = new DateAndTime(new Date());
-        dateTime.setValue(dateAndTime);
-        observation.setApplies(dateTime);
-        fhirObservations.add(observation);
+//        Observation observation = new Observation();
+//        CodeableConcept valueConcept = new CodeableConcept();
+//        valueConcept.setTextSimple(value);
+//        valueConcept.addCoding().setDisplaySimple(value);
+//        observation.setValue(valueConcept);
+//
+//        DateTime dateTime = new DateTime();
+//        DateAndTime dateAndTime = new DateAndTime(new Date());
+//        dateTime.setValue(dateAndTime);
+//        observation.setApplies(dateTime);
+//        fhirObservations.add(observation);
 
-        CodeableConcept nameConcept = new CodeableConcept();
-        nameConcept.setTextSimple(code);
-        nameConcept.addCoding().setDisplaySimple(code);
-        observation.setName(nameConcept);
+//        CodeableConcept nameConcept = new CodeableConcept();
+//        nameConcept.setTextSimple(code);
+//        nameConcept.addCoding().setDisplaySimple(code);
+//        observation.setName(nameConcept);
 
 
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userService.currentUserCanGetUser(patient)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
-        when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
-                .thenReturn(fhirObservations);
+        when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
+        when(fhirResource.findLatestObservationsByQuery(any(String.class)))
+                .thenReturn(fhirObservationValues);
+        when(Util.convertIterable(observationHeadings)).thenReturn(observationHeadings);
 
         List<org.patientview.api.model.ObservationHeading> apiObservations
                 = apiObservationService.getPatientEnteredObservations(patient.getId(), null, null);
