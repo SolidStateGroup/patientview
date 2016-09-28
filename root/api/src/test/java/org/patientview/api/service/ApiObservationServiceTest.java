@@ -821,24 +821,6 @@ public class ApiObservationServiceTest {
         fhirObservationValues.add(value3);
         fhirObservationValues.add(value4);
 
-//        Observation observation = new Observation();
-//        CodeableConcept valueConcept = new CodeableConcept();
-//        valueConcept.setTextSimple(value);
-//        valueConcept.addCoding().setDisplaySimple(value);
-//        observation.setValue(valueConcept);
-//
-//        DateTime dateTime = new DateTime();
-//        DateAndTime dateAndTime = new DateAndTime(new Date());
-//        dateTime.setValue(dateAndTime);
-//        observation.setApplies(dateTime);
-//        fhirObservations.add(observation);
-
-//        CodeableConcept nameConcept = new CodeableConcept();
-//        nameConcept.setTextSimple(code);
-//        nameConcept.addCoding().setDisplaySimple(code);
-//        observation.setName(nameConcept);
-
-
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userService.currentUserCanGetUser(patient)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
@@ -852,6 +834,7 @@ public class ApiObservationServiceTest {
 
         Assert.assertEquals("Should return observations", true, apiObservations.size() > 0);
         Assert.assertEquals("Should return 1 observation", 1, apiObservations.size());
-//        Assert.assertEquals("Should return correct observation", value, apiObservations.get(0).getObservations().getValue());
+        Assert.assertTrue("Should have observation returned", apiObservations.get(0).getObservations().size() > 0);
+        Assert.assertEquals("Should return 1 observation", 4, apiObservations.get(0).getObservations().size());
     }
 }
