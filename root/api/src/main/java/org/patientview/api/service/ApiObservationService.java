@@ -9,6 +9,7 @@ import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservationRange;
@@ -142,7 +143,7 @@ public interface ApiObservationService {
     /**
      * Get a list of patient entered observations by given a patient user id with a start and end date
      *
-     * @param userId an id of the patient user to retrieve observations for
+     * @param identifier an NHS number of the patient user to retrieve observations for
      * @param fromDate start date to search from in yyyy-mm-dd
      * @param toDate end date to search to in yyyy-mm-dd
      * @return a list of ObservationHeading objects containing user entered observations
@@ -151,6 +152,7 @@ public interface ApiObservationService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.IMPORTER})
-    List<ObservationHeading> getPatientEnteredObservations(Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
+    List<ObservationHeading> getPatientEnteredObservations(String identifier, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException,
+            ResourceForbiddenException, ResourceInvalidException;
 }

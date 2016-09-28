@@ -22,6 +22,7 @@ import org.patientview.api.util.ApiUtil;
 import org.patientview.builder.TestObservationsBuilder;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseEntity;
@@ -31,6 +32,7 @@ import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ServerResponse;
@@ -41,11 +43,14 @@ import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IbdDiseaseExtent;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -124,6 +129,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
@@ -1217,10 +1225,30 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     @Override
     public List<org.patientview.api.model.ObservationHeading> getPatientEnteredObservations(
-            Long userId, String fromDate, String toDate)
-            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+            String identifier, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException,
+            ResourceForbiddenException, ResourceInvalidException {
 
-        User patientUser = userRepository.findOne(userId);
+//        Lookup identifierType = lookupRepository.findByTypeAndValue(LookupTypes.IDENTIFIER,
+//                IdentifierTypes.NHS_NUMBER.name());
+//        // find Identifier in the system
+//        Identifier nhsNumber = identifierRepository.findByTypeAndValue(identifier, identifierType);
+//        User patientUser = userRepository.findOne(nhsNumber.getUser().getId());
+
+
+        List<User> patients = userRepository.findByIdentifier(identifier);
+
+        if (patients == null || patients.isEmpty()) {
+            throw new ResourceNotFoundException("Could not find patient user");
+        }
+
+        // we should only have one patient for NHS number, throw exception if data inconsistent
+        if (patients.size() > 1) {
+            throw new ResourceInvalidException("Found multiple users for identifier " + identifier);
+        }
+
+        User patientUser = patients.get(0);
+
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find patient user");
         }
