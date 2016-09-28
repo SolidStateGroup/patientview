@@ -772,8 +772,6 @@ public class ApiObservationServiceTest {
         verify(userRepository, times(0)).save(eq(patient));
     }
 
-
-    // TODO: fix unit test
     @Test
     public void testGetPatientEnteredObservations_ownObservations()
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
@@ -798,9 +796,6 @@ public class ApiObservationServiceTest {
         fhirLink.setResourceId(UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287"));
         fhirLink.setActive(true);
         patient.getFhirLinks().add(fhirLink);
-
-        String code = "wbc";
-        String value = "999";
 
         ObservationHeading observationHeading1 = new ObservationHeading();
         observationHeading1.setId(3L);
