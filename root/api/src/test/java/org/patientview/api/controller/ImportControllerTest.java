@@ -269,6 +269,7 @@ public class ImportControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(apiObservationService,
-                Mockito.times(1)).getPatientEnteredObservations(any(Long.class), any(String.class), any(String.class));
+                Mockito.times(1)).getPatientEnteredObservations(
+                any(String.class), any(String.class), any(String.class));
     }
 }
