@@ -127,6 +127,7 @@ public class ImportController extends BaseController<ImportController> {
      * @return List of ObservationSummary representing panels of result summary information by Group (specialty)
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
      */
     @RequestMapping(value = "/export/patients/{identifier}/enteredobservations", method = RequestMethod.GET)
     @ResponseBody
