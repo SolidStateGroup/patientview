@@ -26,7 +26,6 @@ import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.PatientManagement;
 import org.patientview.persistence.model.ServerResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -122,18 +121,21 @@ public class ImportController extends BaseController<ImportController> {
     /**
      * Get a list of patient entered observations by given a patient user id with a start and end date.
      *
-     * @param userId ID of User to retrieve observation summary for
+     * @param identifier an NHS number of patient to retrieve observation summary for
+     * @param fromDate   start date to search from in yyyy-mm-dd format
+     * @param toDate     end date to search to in yyyy-mm-dd format
      * @return List of ObservationSummary representing panels of result summary information by Group (specialty)
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
      */
-    @RequestMapping(value = "/export/patients/{userId}/enteredobservations", method = RequestMethod.GET)
+    @RequestMapping(value = "/export/patients/{identifier}/enteredobservations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<ObservationHeading>> exportPatientEnteredObservations(
-            @PathVariable("userId") Long userId,
+            @PathVariable("identifier") String identifier,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate)
             throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(apiObservationService.getPatientEnteredObservations(userId, fromDate, toDate), HttpStatus.OK);
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredObservations(
+                identifier, fromDate, toDate), HttpStatus.OK);
     }
 }
