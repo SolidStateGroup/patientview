@@ -46,8 +46,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.identifiers i " +
-            "WHERE  u.deleted = false" +
-            "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :identifier)) ")
+            "WHERE  u.deleted = false " +
+            "AND (i IN (SELECT id FROM Identifier id WHERE id.identifier = :identifier)) ")
     List<User> findByIdentifier(@Param("identifier") String identifier);
 
     @Query("SELECT u " +
