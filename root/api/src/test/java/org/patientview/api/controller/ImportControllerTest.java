@@ -185,7 +185,7 @@ public class ImportControllerTest {
     public void testImportObservations() throws Exception {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
