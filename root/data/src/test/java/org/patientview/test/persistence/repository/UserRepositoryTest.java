@@ -687,4 +687,35 @@ public class UserRepositoryTest {
         userRepository.save(user);
         Assert.assertTrue("Username should exist", userRepository.usernameExistsCaseInsensitive(user.getUsername()));
     }
+
+    @Test
+    public void test_findByIdentifier() {
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        dataTestUtils.createGroupRole(user, group, role);
+
+        Feature feature = dataTestUtils.createFeature("MESSAGING");
+        UserFeature userFeature = new UserFeature();
+        userFeature.setId(1L);
+        userFeature.setUser(user);
+        userFeature.setFeature(feature);
+        userFeature.setCreator(creator);
+        user.setUserFeatures(new HashSet<UserFeature>());
+        user.getUserFeatures().add(userFeature);
+
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("1111111111");
+        identifier.setIdentifierType(lookup);
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        identifierRepository.save(identifier);
+        userRepository.save(user);
+
+        List<User> users = userRepository.findByIdentifier(identifier.getIdentifier());
+
+        Assert.assertEquals("Should be one user returned", 1, users.size());
+    }
 }
