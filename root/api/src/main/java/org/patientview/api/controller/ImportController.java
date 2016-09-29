@@ -15,6 +15,7 @@ import org.patientview.api.service.LetterService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
@@ -135,7 +136,8 @@ public class ImportController extends BaseController<ImportController> {
             @PathVariable("identifier") String identifier,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate)
-            throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
+            throws FhirResourceException, ResourceNotFoundException,
+            ResourceForbiddenException, ResourceInvalidException {
         return new ResponseEntity<>(apiObservationService.getPatientEnteredObservations(
                 identifier, fromDate, toDate), HttpStatus.OK);
     }
