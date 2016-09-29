@@ -782,7 +782,7 @@ public class ApiObservationServiceTest {
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
         User staff = TestUtils.createUser("testStaff");
         GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
@@ -853,7 +853,7 @@ public class ApiObservationServiceTest {
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
         User staff = TestUtils.createUser("testStaff");
         GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
