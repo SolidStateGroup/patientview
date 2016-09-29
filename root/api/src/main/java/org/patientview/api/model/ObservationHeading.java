@@ -1,10 +1,15 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.List;
+
 /**
  * ObservationHeading, representing an Observation (result) type, including meta information.
  * Created by jamesr@solidstategroup.com
  * Created on 12/09/2014
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObservationHeading extends BaseObservationHeading {
     private Long panel;
     private Long panelOrder;
@@ -13,6 +18,9 @@ public class ObservationHeading extends BaseObservationHeading {
     // used when retrieving results
     private FhirObservation latestObservation;
     private Double valueChange;
+
+    // used when retrieving patient entered results
+    private List<FhirObservation> observations;
 
     public ObservationHeading() {
     }
@@ -72,5 +80,13 @@ public class ObservationHeading extends BaseObservationHeading {
 
     public void setDecimalPlaces(Long decimalPlaces) {
         this.decimalPlaces = decimalPlaces;
+    }
+
+    public List<FhirObservation> getObservations() {
+        return observations;
+    }
+
+    public void setObservations(List<FhirObservation> observations) {
+        this.observations = observations;
     }
 }

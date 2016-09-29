@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Date;
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FhirObservation {
 
     private Long id;

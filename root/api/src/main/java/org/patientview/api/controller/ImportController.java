@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.model.ObservationHeading;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.ApiDiagnosticService;
 import org.patientview.api.service.ApiMedicationService;
@@ -12,6 +13,10 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ClinicalDataService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.PatientManagementService;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirClinicalData;
 import org.patientview.persistence.model.FhirDiagnosticReportRange;
 import org.patientview.persistence.model.FhirDocumentReference;
@@ -24,12 +29,16 @@ import org.patientview.persistence.model.ServerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @RestController
 @ExcludeFromApiDoc
@@ -108,5 +117,28 @@ public class ImportController extends BaseController<ImportController> {
     @RequestMapping(value = "/import/practitioner", method = RequestMethod.POST)
     public ResponseEntity<ServerResponse> importPractitioner(@RequestBody FhirPractitioner fhirPractitioner) {
         return new ResponseEntity<>(apiPractitionerService.importPractitioner(fhirPractitioner), HttpStatus.OK);
+    }
+
+    /**
+     * Get a list of patient entered observations by given a patient user id with a start and end date.
+     *
+     * @param identifier an NHS number of patient to retrieve observation summary for
+     * @param fromDate   start date to search from in yyyy-mm-dd format
+     * @param toDate     end date to search to in yyyy-mm-dd format
+     * @return List of ObservationSummary representing panels of result summary information by Group (specialty)
+     * @throws FhirResourceException
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/export/patients/{identifier}/enteredobservations", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> exportPatientEnteredObservations(
+            @PathVariable("identifier") String identifier,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate)
+            throws FhirResourceException, ResourceNotFoundException,
+            ResourceForbiddenException, ResourceInvalidException {
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredObservations(
+                identifier, fromDate, toDate), HttpStatus.OK);
     }
 }
