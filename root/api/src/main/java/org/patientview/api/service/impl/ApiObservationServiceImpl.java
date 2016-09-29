@@ -32,7 +32,6 @@ import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ServerResponse;
@@ -43,8 +42,6 @@ import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IbdDiseaseExtent;
-import org.patientview.persistence.model.enums.IdentifierTypes;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AlertRepository;
@@ -1229,12 +1226,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, FhirResourceException,
             ResourceForbiddenException, ResourceInvalidException {
 
-//        Lookup identifierType = lookupRepository.findByTypeAndValue(LookupTypes.IDENTIFIER,
-//                IdentifierTypes.NHS_NUMBER.name());
-//        // find Identifier in the system
-//        Identifier nhsNumber = identifierRepository.findByTypeAndValue(identifier, identifierType);
-//        User patientUser = userRepository.findOne(nhsNumber.getUser().getId());
-
 
         List<User> patients = userRepository.findByIdentifier(identifier);
 
@@ -1242,7 +1233,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("Could not find patient user");
         }
 
-        // we should only have one patient for NHS number, throw exception if data inconsistent
+        // we should only have one patient for NHS number, throw exception if there is data inconsistency
         if (patients.size() > 1) {
             throw new ResourceInvalidException("Found multiple users for identifier " + identifier);
         }
