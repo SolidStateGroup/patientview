@@ -34,6 +34,18 @@ public interface ApiConditionService {
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
 
     /**
+     * Checks if patient has any Conditions, staff entered, patient entered or any edta diagnosis
+     * @param userId id of patient to check condition for
+     * @param isLogin
+     * @return true if any condition found false otherwise
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException
+     */
+    boolean hasAnyConditions(Long userId, boolean isLogin)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException;
+
+    /**
      * Add a condition to your own FHIR record of type DIAGNOSIS_PATIENT_ENTERED
      * @param userId User ID of current User
      * @param code String code of diagnosis
