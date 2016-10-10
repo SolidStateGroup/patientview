@@ -508,6 +508,10 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (66, 32, null, 5, null, now(), 1 );
 
+/* Edit patient entered results */
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (67, 33, null, 1, null, now(), 1 );
+
 /* External Standards, used by Codes */
 INSERT INTO PV_External_Standard (Id, Name, Description) VALUES
   (1, 'ICD-10', 'ICD-10');
