@@ -1,0 +1,72 @@
+<div class="header-select row">
+    <div class=" col-md-7">
+        <h1>
+            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading" data-ng-if="!r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-show="!loading"
+               data-ng-if="r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <span data-ng-show="!loading && !selectedObservation ">Nothing selected to edit</span>
+            <span data-ng-show="selectedObservation && !loading ">Editing <span
+                    class="blue-text">{{observationHeading.heading}}</span></span>
+        </h1>
+    </div>
+    <div class="col-md-3">
+        <h3 class="select-title">Select Result:</h3>
+    </div>
+    <div class="col-md-2">
+        <select class="form-control pull-right" data-ng-model="selectedCode"
+                data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                data-ng-change="changeObservationHeading(selectedCode)">
+        </select>
+    </div>
+</div>
+
+<div class="page-content">
+
+    <div class="faux-table four-col">
+        <div class="table-head accordion-title-row">
+            <div class="hidden">ID</div>
+            <div class="head-item accordion-title-text "><span>Date Taken</span></div>
+            <div class="head-item accordion-title-text "><span>Value</span></div>
+            <div class="head-item accordion-title-text "><span>Source</span></div>
+            <div class="head-item accordion-title-text "></div>
+        </div>
+        <!--Table Body-->
+        <div class="item-header">
+            <div class="faux-row" data-ng-show="!tableObservations.length">
+                <div class="row-item">
+                    <p><br/><br/>No results available for this selection<br/><br/><br/>
+                    <p>
+                </div>
+            </div>
+            <div class="faux-row" data-ng-repeat="observation in tableObservations"
+                 data-ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
+                <div class="row-item hidden">{{observation.id}}</div>
+                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
+                <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
+                <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
+                <div class="row-item actions">
+                    <!-- Edit, Actions dropdown buttons -->
+                    <div class="btn-group">
+                        <button type="button" class="btn blue edit-button" data-ng-click="opened(code)">Edit</button>
+                        <button type="button" class="btn negative"
+                                data-ng-click="remove(observationHeading, observation)">Del
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="alert-block" data-ng-show="!loading && !observations">
+    <h3>No {{observationHeading.heading}} Results Found</h3>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+</div>
