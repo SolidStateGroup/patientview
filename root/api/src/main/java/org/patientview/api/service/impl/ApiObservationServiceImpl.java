@@ -362,6 +362,17 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                                                final String orderDirection,
                                                                final Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        return getPatientEntered(userId, code, orderBy, orderDirection, limit, false);
+    }
+
+    @Override
+    public List<org.patientview.api.model.FhirObservation> getPatientEntered(final Long userId,
+                                                                             final String code,
+                                                                             final String orderBy,
+                                                                             final String orderDirection,
+                                                                             final Long limit,
+                                                                             final boolean patientOnly)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
         User user = userRepository.findOne(userId);
@@ -378,7 +389,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
+
+            if (fhirLink.getActive() &&
+                    (patientOnly && fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString()))
+                    ) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    observation ");

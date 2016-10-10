@@ -72,6 +72,26 @@ public interface ApiObservationService {
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
+     * Get a list of patient entered observations for a User of a specific Code (e.g. Creatinine, HbA1c),
+     * used in results table view when editing results.
+     *
+     * @param userId ID of User to retrieve observations for
+     * @param code Code of the observation type to retrieve
+     * @param orderBy
+     * @param orderDirection
+     * @param limit
+     * @param patientOnly boolean to include patient entered results only
+     * @return List of FhirObservation representing patient entered test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
+    List<FhirObservation> getPatientEntered(Long userId, String code, String orderBy, String orderDirection,
+                                                                           Long limit, boolean patientOnly)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
+    /**
      * Used when retrieving non test FHIR Observations from FHIR.
      *
      * @param fhirLink FhirLink link between User and Patient in FHIR
@@ -141,7 +161,8 @@ public interface ApiObservationService {
     ServerResponse importObservations(FhirObservationRange fhirObservationRange);
 
     /**
-     * Get a list of patient entered observations by given a patient user id with a start and end date
+     * Get a list of patient entered observations by given a patient user identifier (NHS number)
+     * with a start and end date
      *
      * @param identifier an NHS number of the patient user to retrieve observations for
      * @param fromDate start date to search from in yyyy-mm-dd
