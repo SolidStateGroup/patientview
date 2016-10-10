@@ -112,6 +112,28 @@ public class ObservationController extends BaseController<ObservationController>
     }
 
     /**
+     * Get a list of patient entered observations for a User of a specific Code (e.g. Creatinine, HbA1c).
+     *
+     * @param userId ID of User to retrieve observations for
+     * @param code Code of the observation type to retrieve
+     * @return List of FhirObservation representing test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @ApiOperation(value = "Get Observations of a Certain Type For a User", notes = "Given a User ID and observation "
+            + "code, retrieve all observations.")
+    @RequestMapping(value = "/user/{userId}/observations/{code}/patiententered", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<FhirObservation>> getPatientEnteredObservationsByCode(
+            @PathVariable("userId") Long userId, @PathVariable("code") String code)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        return new ResponseEntity<>(
+                apiObservationService.getPatientEntered(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null, true),
+                HttpStatus.OK);
+    }
+
+    /**
      * Get FhirObservationPage representing multiple different observations by Code for a User.
      * @param userId ID of User to retrieve observations for
      * @param code List of Codes defining the types of observations to retrieve
