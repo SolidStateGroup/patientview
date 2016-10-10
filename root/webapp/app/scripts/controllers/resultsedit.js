@@ -45,7 +45,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             var selectedObs;
             alert('getObservations '+$scope.codes[0]);
             $scope.codes.forEach(function (code, index) {
-                promises.push(ObservationService.getByCode($scope.loggedInUser.id, code).then(function (observations) {
+                promises.push(ObservationService.getByCodePatientEntered($scope.loggedInUser.id, code).then(function (observations) {
                     if (observations.length) {
                         obs[code] = _.sortBy(observations, 'applies').reverse();
 
