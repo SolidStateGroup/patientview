@@ -62,19 +62,41 @@
             <div class="faux-row" data-ng-repeat="observation in tableObservations"
                  data-ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
                 <div class="row-item hidden">{{observation.id}}</div>
-                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
+                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}-{{observation.applies}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
                 <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
                 <div class="row-item actions">
                     <!-- Edit, Actions dropdown buttons -->
                     <div class="btn-group">
-                        <button type="button" class="btn blue edit-button" data-ng-click="opened(code)">Edit</button>
+                        <button type="button" class="btn blue edit-button" data-ng-click="opened(observation)">Edit</button>
                         <button type="button" class="btn negative"
                                 data-ng-click="remove(observationHeading, observation)">Del
                         </button>
                     </div>
                 </div>
             </div>
+            <!-- edit pane -->
+            <p>Show observation edit: {{observation.showEdit}}</p>
+            <p>Show editResult edit: {{editResult.showEdit}}</p>
+            <div class="panel-body" data-ng-show="editResult.showEdit">
+                <div data-ng-show="editResult.editLoading" class="loading">
+                    <img src="images/loading.gif" alt="Loading"/>
+                    <p class="text-center" >
+                        <br/>Please be patient while we retrieve data ...
+                    </p>
+                </div>
+                <div data-ng-show="!editResult.editLoading">
+                    <form name="resultForm">
+                        <div data-ng-include src="'views/partials/resultdetails.html'" data-ng-controller="ResultsEditCtrl"></div>
+                    </form>
+                    <div class="panel-body-footer">
+                        <button class="btn btn-grey close-edit pull-right" data-ng-click="observation.showEdit = false">Close</button>
+                        <button class="btn btn-primary" data-ng-click="ok()">Update</button>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
