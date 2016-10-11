@@ -1,12 +1,19 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$routeParams', '$location',
-    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter', '$q',
-    function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService,
+    'ObservationHeadingService', 'ObservationService', "UtilService", '$modal', '$timeout', '$filter', '$q',
+    function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, UtilService,
               $modal, $timeout, $filter, $q) {
 
         $scope.init = function () {
             $scope.loading = true;
+
+            //
+            $scope.days = UtilService.generateDays();
+            $scope.months = UtilService.generateMonths();
+            $scope.years = UtilService.generateYears2000();
+            $scope.hours = UtilService.generateHours();
+            $scope.minutes = UtilService.generateMinutes();
 
             // return parameter (currentPage on results page)
             $scope.r = $routeParams.r;
@@ -43,7 +50,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             var promises = [];
             var obs = [];
             var selectedObs;
-            alert('getObservations '+$scope.codes[0]);
+
             $scope.codes.forEach(function (code, index) {
                 promises.push(ObservationService.getByCodePatientEntered($scope.loggedInUser.id, code).then(function (observations) {
                     if (observations.length) {
@@ -133,6 +140,58 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             }, function () {
                 // closed
             });
+        };
+
+
+        // Opened for edit
+        $scope.opened = function (openedResult) {
+
+           if (openedResult.showEdit) {
+                $scope.editResult = '';
+                openedResult.showEdit = false;
+            } else {
+                // close others
+                // for (i = 0; i < $scope.pagedItems.length; i++) {
+                //     $scope.pagedItems[i].showEdit = false;
+                // }
+
+                //var userResultCluster = {};
+                openedResult.showEdit = true;
+                //$scope.editMode = true;
+                openedResult.editLoading = false;
+
+                var currentDate = new Date(openedResult.applies);
+                alert("Current date: "+currentDate);
+
+                for (i=0;i<$scope.days.length;i++) {
+                    if (parseInt($scope.days[i]) === currentDate.getDate()) {
+                        openedResult.day = $scope.days[i];
+                    }
+                }
+                for (i=0;i<$scope.months.length;i++) {
+                    if (parseInt($scope.months[i]) === currentDate.getMonth() + 1) {
+                        openedResult.month = $scope.months[i];
+                    }
+                }
+                for (i=0;i<$scope.years.length;i++) {
+                    if (parseInt($scope.years[i]) === currentDate.getFullYear()) {
+                        openedResult.year = $scope.years[i];
+                    }
+                }
+
+                for (i=0;i<$scope.hours.length;i++) {
+                    if (parseInt($scope.hours[i]) === currentDate.getHours()) {
+                        openedResult.hour = $scope.hours[i];
+                    }
+                }
+                for (i=0;i<$scope.minutes.length;i++) {
+                    if (parseInt($scope.minutes[i]) === currentDate.getMinutes()) {
+                        openedResult.minute = $scope.minutes[i];
+                    }
+                }
+
+                $scope.editResult = _.clone(openedResult);
+            }
         };
 
 
