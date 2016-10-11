@@ -31,6 +31,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
@@ -1245,7 +1246,14 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         // we need to make sure logged in user is allowed to we patient data
-        if (!userService.currentUserCanGetUser(patientUser)) {
+        boolean canAccess = false;
+        for (GroupRole groupRole : patientUser.getGroupRoles()) {
+            if (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), RoleName.IMPORTER)) {
+                canAccess = true;
+                break;
+            }
+        }
+        if (!canAccess) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
