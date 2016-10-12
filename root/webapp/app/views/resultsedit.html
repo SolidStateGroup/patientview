@@ -43,14 +43,17 @@
 
 <div class="page-content">
 
+    <!-- data grid -->
     <div class="faux-table four-col">
-        <div class="table-head accordion-title-row">
+        <!-- header -->
+        <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
             <div class="head-item accordion-title-text "><span>Date Taken</span></div>
             <div class="head-item accordion-title-text "><span>Value</span></div>
             <div class="head-item accordion-title-text "><span>Source</span></div>
             <div class="head-item accordion-title-text "></div>
         </div>
+
         <!--Table Body-->
         <div class="item-header">
             <div class="faux-row" data-ng-show="!tableObservations.length">
@@ -62,7 +65,7 @@
             <div class="faux-row" data-ng-repeat="observation in tableObservations"
                  data-ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
                 <div class="row-item hidden">{{observation.id}}</div>
-                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}-{{observation.applies}}</div>
+                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
                 <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
                 <div class="row-item actions">
@@ -76,17 +79,15 @@
                 </div>
             </div>
             <!-- edit pane -->
-            <p>Show observation edit: {{observation.showEdit}}</p>
-            <p>Show editResult edit: {{editResult.showEdit}}</p>
             <div class="panel-body" data-ng-show="editResult.showEdit">
-                <div data-ng-show="editResult.editLoading" class="loading">
+                <div data-ng-show="observation.editLoading" class="loading">
                     <img src="images/loading.gif" alt="Loading"/>
                     <p class="text-center" >
                         <br/>Please be patient while we retrieve data ...
                     </p>
                 </div>
-                <div data-ng-show="!editResult.editLoading">
-                    <form name="resultForm">
+                <div data-ng-show="!observation.editLoading">
+                    <form name="resultForm" class="edit-code">
                         <div data-ng-include src="'views/partials/resultdetails.html'" data-ng-controller="ResultsEditCtrl"></div>
                     </form>
                     <div class="panel-body-footer">
@@ -95,8 +96,6 @@
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
 
