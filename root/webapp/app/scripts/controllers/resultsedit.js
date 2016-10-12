@@ -197,5 +197,39 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             }
         };
 
+        // save changes from edit
+        $scope.save = function() {
+            ObservationService.saveResultCluster($scope.loggedInUser.id, $scope.editResult).then(function() {
+                $scope.successMessage = 'Results successfully update in PatientView.';
+                $scope.editResult = '';
+            }, function () {
+                alert('Cannot save your result');
+            });
+        };
+
+        // Save result details from edit
+        $scope.saveForm = function (resultForm, result) {
+
+            ObservationService.saveResultCluster($scope.loggedInUser.id, result).then(function() {
+                $scope.successMessage = 'Results successfully update in PatientView.';
+                $scope.editResult = '';
+                $scope.saved = true;
+                // update result details in table (time, value)
+                for(var i=0;i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id === code.id) {
+                        var headerDetails = $scope.pagedItems[i];
+                        headerDetails.code = successResult.code;
+                        headerDetails.codeType = successResult.codeType;
+                        headerDetails.standardType = successResult.standardType;
+                        headerDetails.description = successResult.description;
+                    }
+                }
+
+            }, function () {
+                alert('Cannot save your result');
+            });
+
+        };
+
         $scope.init();
     }]);

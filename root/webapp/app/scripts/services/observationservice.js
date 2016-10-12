@@ -93,6 +93,21 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        saveResultCluster: function (userId, resultCluster) {
+
+            var userResultCluster = _.clone(resultCluster);
+
+            // POST /user/{userId}/observations/patiententered
+            Restangular.one('user', userId).one('observations').one('patiententered').customPOST(userResultCluster)
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+
         }
+
     };
 }]);
