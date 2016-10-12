@@ -1,8 +1,7 @@
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
         <div class="col-md-6">
-            <label class="inner-title">Date of result(s):<span class="error"
-                                                               data-ng-show="codeForm.code.$error.required"> *required</span></label>
+            <label class="inner-title">Date of result:</label>
             <div class="row">
                 <div class="col-md-4">
                     <select class="form-control date-input" data-ng-model="editResult.day"
@@ -22,7 +21,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <label class="inner-title">Time <span class="error"  data-ng-show="codeForm.description.$error.required"> *required</span></label>
+            <label class="inner-title">Time</label>
             <div>
                 <div class="row">
                     <div class="col-md-6">
@@ -38,16 +37,14 @@
             </div>
         </div>
         <div class="col-md-2">
-            <label for="code-description" class="control-label">Value <span class="error"
-                                                                            data-ng-show="codeForm.description.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="code-description" placeholder="Name" name="description"
-                        data-ng-model="editResult.value" required maxlength="255"
-                        data-ng-disabled="editCode.standardType.value == 'PATIENTVIEW'"></div>
+            <label for="result-value" class="control-label">Value</label>
+            <div>
+                <input type="text" id="result-value" data-ng-model="editResult.value" class="form-control input-value" only-num-decimal/>
+            </div>
         </div>
 
     </div>
 </div>
-
 
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">

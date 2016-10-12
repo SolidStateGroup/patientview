@@ -105,6 +105,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
         $scope.changeObservationHeading = function (code) {
             delete $scope.compareCode;
+            delete $scope.editResult;
             $scope.codes = [];
             $scope.codes.push(code);
 
@@ -146,54 +147,55 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
         // Opened for edit
         $scope.opened = function (openedResult) {
 
-           if (openedResult.showEdit) {
+            if (openedResult.showEdit) {
                 $scope.editResult = '';
                 openedResult.showEdit = false;
             } else {
                 // close others
-                // for (i = 0; i < $scope.pagedItems.length; i++) {
-                //     $scope.pagedItems[i].showEdit = false;
-                // }
+                for (var i = 0; i < $scope.tableObservations.length; i++) {
+                    $scope.tableObservations[i].showEdit = false;
+                }
 
-                //var userResultCluster = {};
+                $scope.editResult = '';
                 openedResult.showEdit = true;
-                //$scope.editMode = true;
-                openedResult.editLoading = false;
+                openedResult.editLoading = true;
 
                 var currentDate = new Date(openedResult.applies);
-                alert("Current date: "+currentDate);
+                //alert("Current date: " + currentDate);
+                var i;
 
-                for (i=0;i<$scope.days.length;i++) {
+                for (i = 0; i < $scope.days.length; i++) {
                     if (parseInt($scope.days[i]) === currentDate.getDate()) {
                         openedResult.day = $scope.days[i];
                     }
                 }
-                for (i=0;i<$scope.months.length;i++) {
+                for (i = 0; i < $scope.months.length; i++) {
                     if (parseInt($scope.months[i]) === currentDate.getMonth() + 1) {
                         openedResult.month = $scope.months[i];
                     }
                 }
-                for (i=0;i<$scope.years.length;i++) {
+                for (i = 0; i < $scope.years.length; i++) {
                     if (parseInt($scope.years[i]) === currentDate.getFullYear()) {
                         openedResult.year = $scope.years[i];
                     }
                 }
 
-                for (i=0;i<$scope.hours.length;i++) {
+                for (i = 0; i < $scope.hours.length; i++) {
                     if (parseInt($scope.hours[i]) === currentDate.getHours()) {
                         openedResult.hour = $scope.hours[i];
                     }
                 }
-                for (i=0;i<$scope.minutes.length;i++) {
+                for (i = 0; i < $scope.minutes.length; i++) {
                     if (parseInt($scope.minutes[i]) === currentDate.getMinutes()) {
                         openedResult.minute = $scope.minutes[i];
                     }
                 }
 
                 $scope.editResult = _.clone(openedResult);
+                $scope.editMode = true;
+                openedResult.editLoading = false;
             }
         };
-
 
         $scope.init();
     }]);
