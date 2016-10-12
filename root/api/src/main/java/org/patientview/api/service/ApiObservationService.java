@@ -56,6 +56,34 @@ public interface ApiObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
+
+    /**
+     * Used when Users update their own results on the Edit Own Results page, takes a  UserResultCluster and
+     * updates record in FHIR under the PATIENT_ENTERED Group.
+     *
+     * @param userId            ID of User to store patient entered results
+     * @param userResultCluster List of UserResultCluster objects used to represent a user entered results
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    void updateUserResultCluster(Long userId, UserResultCluster userResultCluster)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Used when Users wants to delere their own results on the Edit Own Results page, takes a uuid and
+     * deletes record from FHIR database.
+     *
+     * @param userId ID of User to delete patient entered results
+     * @param uuid   a logical id of user entered results to be deleted
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    void deleteUserResultCluster(Long userId, String uuid) throws ResourceNotFoundException, FhirResourceException;
+
     // API
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
