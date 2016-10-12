@@ -23,6 +23,7 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.impl.ApiObservationServiceImpl;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -34,6 +35,8 @@ import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.ServerResponse;
@@ -41,6 +44,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -75,13 +79,14 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Util.class)
+@PrepareForTest({Util.class, ApiUtil.class})
 public class ApiObservationServiceTest {
 
     User creator;
@@ -138,7 +143,7 @@ public class ApiObservationServiceTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
-        PowerMockito.mockStatic(Util.class);
+        mockStatic(Util.class);
         this.now = new Date();
         this.weekAgo = new org.joda.time.DateTime(now).minusWeeks(1).toDate();
     }
@@ -781,6 +786,11 @@ public class ApiObservationServiceTest {
         String testNhsNumber = "324234234";
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+
+
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
@@ -825,6 +835,7 @@ public class ApiObservationServiceTest {
         fhirObservationValues.add(value3);
         fhirObservationValues.add(value4);
 
+
         //when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userRepository.findByIdentifier(any(String.class))).thenReturn(patients);
         when(userService.currentUserCanGetUser(patient)).thenReturn(true);
@@ -833,6 +844,9 @@ public class ApiObservationServiceTest {
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
                 .thenReturn(fhirObservationValues);
         when(Util.convertIterable(observationHeadings)).thenReturn(observationHeadings);
+
+        mockStatic(ApiUtil.class);
+        when(ApiUtil.doesContainGroupAndRole(any(Long.class), any(RoleName.class))).thenReturn(true);
 
         List<org.patientview.api.model.ObservationHeading> apiObservations
                 = apiObservationService.getPatientEnteredObservations(testNhsNumber, null, null);
@@ -852,6 +866,10 @@ public class ApiObservationServiceTest {
         String testNhsNumber = "324234234";
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
@@ -916,6 +934,8 @@ public class ApiObservationServiceTest {
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
                 .thenReturn(fhirObservationValues);
         when(Util.convertIterable(observationHeadings)).thenReturn(observationHeadings);
+        mockStatic(ApiUtil.class);
+        when(ApiUtil.doesContainGroupAndRole(any(Long.class), any(RoleName.class))).thenReturn(true);
 
         List<org.patientview.api.model.ObservationHeading> apiObservations
                 = apiObservationService.getPatientEnteredObservations(testNhsNumber, null, null);
