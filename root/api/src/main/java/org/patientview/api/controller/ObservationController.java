@@ -166,7 +166,7 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public void deleteResultCluster(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.deleteUserResult(userId, uuid);
+        apiObservationService.deleteUserResultCluster(userId, uuid);
     }
 
     /**
