@@ -1248,7 +1248,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         // we need to make sure logged in user is allowed to we patient data
         boolean canAccess = false;
         for (GroupRole groupRole : patientUser.getGroupRoles()) {
-            if (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), RoleName.IMPORTER)) {
+            // we only should check  UNIT type group, ignore parent group (SPECIALITY)
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString()) &&
+                    (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), RoleName.IMPORTER))) {
                 canAccess = true;
                 break;
             }
