@@ -141,6 +141,13 @@ public interface UserService {
     boolean currentUserCanGetUser(User user);
 
     /**
+     * Check if current User is in the same UNIT group as another user.
+     * @param user User to get
+     * @return True if current User has the same UNIT group as the other User
+     */
+    boolean currentUserSameUnitGroup(User user, RoleName roleName);
+
+    /**
      * Check if current User has the permissions to switch to another User.
      * @param user User to switch to
      * @return True if current User can switch to the other User

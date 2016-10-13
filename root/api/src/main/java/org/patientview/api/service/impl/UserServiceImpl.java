@@ -667,6 +667,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public boolean currentUserSameUnitGroup(User user, RoleName roleName) {
+        // if i am trying to access myself
+        if (getCurrentUser().equals(user)) {
+            return true;
+        }
+
+        // we only should check  UNIT type group, ignore parent group (SPECIALITY)
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString()) &&
+                    (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), roleName))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean currentUserCanSwitchToUser(User user) {
         return userCanSwitchToUser(getCurrentUser(), user);
     }

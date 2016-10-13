@@ -23,7 +23,6 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.impl.ApiObservationServiceImpl;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -63,7 +62,6 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
 import org.patientview.util.Util;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -86,7 +84,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
  * Created on 11/09/2014
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Util.class, ApiUtil.class})
+@PrepareForTest(Util.class)
 public class ApiObservationServiceTest {
 
     User creator;
@@ -813,7 +811,7 @@ public class ApiObservationServiceTest {
         fhirLink.setActive(true);
         patient.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient);
 
         ObservationHeading observationHeading1 = new ObservationHeading();
@@ -838,15 +836,12 @@ public class ApiObservationServiceTest {
 
         //when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userRepository.findByIdentifier(any(String.class))).thenReturn(patients);
-        when(userService.currentUserCanGetUser(patient)).thenReturn(true);
+        when(userService.currentUserSameUnitGroup(patient, RoleName.IMPORTER)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
                 .thenReturn(fhirObservationValues);
         when(Util.convertIterable(observationHeadings)).thenReturn(observationHeadings);
-
-        mockStatic(ApiUtil.class);
-        when(ApiUtil.doesContainGroupAndRole(any(Long.class), any(RoleName.class))).thenReturn(true);
 
         List<org.patientview.api.model.ObservationHeading> apiObservations
                 = apiObservationService.getPatientEnteredObservations(testNhsNumber, null, null);
@@ -904,7 +899,7 @@ public class ApiObservationServiceTest {
         fhirLink2.setActive(true);
         patient2.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient1);
         patients.add(patient2);
 
@@ -927,15 +922,14 @@ public class ApiObservationServiceTest {
         fhirObservationValues.add(value3);
         fhirObservationValues.add(value4);
 
-        //when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        //when(userRcurrentUserSameUnitGroupepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userRepository.findByIdentifier(any(String.class))).thenReturn(patients);
+        when(userService.currentUserSameUnitGroup(patient1, RoleName.IMPORTER)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
                 .thenReturn(fhirObservationValues);
         when(Util.convertIterable(observationHeadings)).thenReturn(observationHeadings);
-        mockStatic(ApiUtil.class);
-        when(ApiUtil.doesContainGroupAndRole(any(Long.class), any(RoleName.class))).thenReturn(true);
 
         List<org.patientview.api.model.ObservationHeading> apiObservations
                 = apiObservationService.getPatientEnteredObservations(testNhsNumber, null, null);
