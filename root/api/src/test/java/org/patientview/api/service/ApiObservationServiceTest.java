@@ -63,7 +63,6 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
 import org.patientview.util.Util;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -813,7 +812,7 @@ public class ApiObservationServiceTest {
         fhirLink.setActive(true);
         patient.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient);
 
         ObservationHeading observationHeading1 = new ObservationHeading();
@@ -904,7 +903,7 @@ public class ApiObservationServiceTest {
         fhirLink2.setActive(true);
         patient2.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient1);
         patients.add(patient2);
 
