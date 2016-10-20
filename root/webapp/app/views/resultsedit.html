@@ -1,11 +1,11 @@
 <!-- delete result modal template -->
 <script type="text/ng-template" id="deleteResultModal.html">
     <div class="modal-header">
-        <h3 class="modal-title">Delete value for {{result.heading}}</h3>
+        <h3 class="modal-title">Delete value for {{observationHeading.heading}}</h3>
     </div>
     <div class="modal-body">
         <p>Are you sure? This will delete entered value <strong>{{observation.value}} for result
-            {{result.heading}}</strong>.</p>
+            {{observationHeading.heading}}</strong>.</p>
     </div>
     <div class="modal-footer">
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
@@ -40,9 +40,8 @@
         </select>
     </div>
 </div>
-
+<div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 <div class="page-content">
-
     <!-- data grid -->
     <div class="faux-table four-col">
         <!-- header -->
@@ -72,9 +71,7 @@
                     <!-- Edit, Actions dropdown buttons -->
                     <div class="btn-group">
                         <button type="button" class="btn blue edit-button" data-ng-click="opened(observation)">Edit</button>
-                        <button type="button" class="btn negative"
-                                data-ng-click="remove(observationHeading, observation)">Del
-                        </button>
+                        <button type="button" class="btn negative" data-ng-click="remove(observationHeading, observation)">Del</button>
                     </div>
                 </div>
             </div>
