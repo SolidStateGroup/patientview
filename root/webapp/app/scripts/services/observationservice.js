@@ -115,6 +115,17 @@ function ($q, Restangular, UtilService) {
                 });
             return deferred.promise;
 
+        },
+        // Remove a single result based on userId and uuid
+        remove: function (userId, observation) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/observations/{uuid}
+            Restangular.one('user', userId).one('observations', observation.temporaryUuid).remove().then(function (successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
 
     };
