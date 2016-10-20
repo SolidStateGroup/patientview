@@ -1,9 +1,14 @@
 'use strict';
-var DeleteResultModalInstanceCtrl = ['$scope','$modalInstance','result', 'observation',
-    function ($scope, $modalInstance, result, observation) {
-        $scope.result = result;
+var DeleteResultModalInstanceCtrl = ['$scope', '$modalInstance', 'observationHeading', "observation", 'ObservationService',
+    function ($scope, $modalInstance, observationHeading, observation, ObservationService) {
+        $scope.observationHeading = observationHeading;
         $scope.observation = observation;
 
+        $scope.ok = function () {
+            ObservationService.remove($scope.loggedInUser.id, observation).then(function () {
+                $modalInstance.close();
+            });
+        };
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
