@@ -115,7 +115,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
         };
 
         // delete result, opens modal
-        $scope.remove = function (result, observation) {
+        $scope.remove = function (observationHeading, observation) {
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                 var modalsize = 'md';
             } else {
@@ -127,22 +127,25 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
                 size: modalsize,
                 windowClass: 'results-modal',
                 resolve: {
-                    result: function () {
-                        return result;
+                    observationHeading: function () {
+                        return observationHeading;
                     },
                     observation: function () {
                         return observation;
+                    },
+                    ObservationService: function(){
+                        return ObservationService;
                     }
                 }
             });
 
             modalInstance.result.then(function () {
                 // ok (not used)
+                $scope.successMessage = 'Result successfully deleted';
             }, function () {
                 // closed
             });
         };
-
 
         // Opened for edit
         $scope.opened = function (openedResult) {
