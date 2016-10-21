@@ -529,7 +529,90 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                                                final String orderDirection,
                                                                final Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        return getPatientEntered(userId, code, orderBy, orderDirection, limit, false);
+        // check user exists
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // check either current user or API user with rights to a User's groups
+        if (!(getCurrentUser().getId().equals(userId) || ApiUtil.isCurrentUserApiUserForUser(user))) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(code);
+        List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
+
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+            if (fhirLink.getActive()) {
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT  content::varchar ");
+                query.append("FROM    observation ");
+                query.append("WHERE   content -> 'subject' ->> 'display' = '");
+                query.append(fhirLink.getResourceId().toString());
+                query.append("' ");
+
+                if (StringUtils.isNotEmpty(code)) {
+                    query.append("AND UPPER(content-> 'name' ->> 'text') = '");
+                    query.append(code.toUpperCase());
+                    query.append("' ");
+                }
+
+                if (StringUtils.isNotEmpty(orderBy)) {
+                    query.append("ORDER BY content-> '");
+                    query.append(orderBy);
+                    query.append("' ");
+                }
+
+                if (StringUtils.isNotEmpty(orderDirection)) {
+                    query.append(orderDirection);
+                    query.append(" ");
+                }
+
+                if (StringUtils.isNotEmpty(orderBy)) {
+                    query.append("LIMIT ");
+                    query.append(limit);
+                }
+
+                List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+                Long decimalPlaces = null;
+                if (!CollectionUtils.isEmpty(observationHeadings)) {
+                    decimalPlaces = observationHeadings.get(0).getDecimalPlaces();
+                }
+
+                // convert to transport observations
+                for (Observation observation : observations) {
+                    FhirObservation fhirObservation = new FhirObservation(observation);
+
+                    if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+                        // set correct number of decimal places
+                        try {
+                            if (decimalPlaces != null) {
+                                fhirObservation.setValue(
+                                        new BigDecimal(fhirObservation.getValue()).setScale(decimalPlaces.intValue(),
+                                                BigDecimal.ROUND_HALF_UP).toString());
+                            } else {
+                                fhirObservation.setValue(
+                                        new DecimalFormat("0.#####")
+                                                .format(Double.valueOf(fhirObservation.getValue())));
+                            }
+                        } catch (NumberFormatException ignore) {
+                            // do not update if cant convert to double or big decimal (string based value)
+                            LOG.trace("NumberFormatException", ignore);
+                        }
+                    }
+
+                    Group fhirGroup = fhirLink.getGroup();
+                    if (fhirGroup != null) {
+                        fhirObservation.setGroup(fhirGroup);
+                    }
+                    fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
+                }
+            }
+        }
+
+        return fhirObservations;
     }
 
     @Override
