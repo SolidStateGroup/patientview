@@ -596,6 +596,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     query.append("' ");
                 }
 
+                // TODO: fix comments not returned
                 List<String[]> observationValues = fhirResource.findLatestObservationsByQuery(query.toString());
 
                 // convert to transport observations
@@ -636,7 +637,17 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                 } catch (NumberFormatException nfe) {
                                     fhirObservation.setValue(json[2]);
                                 }
+                            } else {
+                                // textual value, trim if larger than size
+                                if (json.length >= FIVE && StringUtils.isNotEmpty(json[FOUR])) {
+                                    if (json[FOUR].length() > EIGHT) {
+                                        fhirObservation.setValue(json[FOUR].subSequence(0, EIGHT).toString() + "..");
+                                    } else {
+                                        fhirObservation.setValue(json[FOUR]);
+                                    }
+                                }
                             }
+
                             Group fhirGroup = fhirLink.getGroup();
                             if (fhirGroup != null) {
                                 fhirObservation.setGroup(new BaseGroup(fhirGroup));
