@@ -1508,8 +1508,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("Could not find patient user");
         }
 
-        // we need to make sure logged in user is allowed to we patient data
-        if (!userService.currentUserCanGetUser(patientUser)) {
+        if (!userService.currentUserSameUnitGroup(patientUser, RoleName.IMPORTER)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 

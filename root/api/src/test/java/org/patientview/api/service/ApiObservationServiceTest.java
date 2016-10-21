@@ -34,6 +34,8 @@ import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.ServerResponse;
@@ -41,6 +43,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -59,7 +62,6 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.test.util.TestUtils;
 import org.patientview.util.Util;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -75,6 +77,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -138,7 +141,7 @@ public class ApiObservationServiceTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
-        PowerMockito.mockStatic(Util.class);
+        mockStatic(Util.class);
         this.now = new Date();
         this.weekAgo = new org.joda.time.DateTime(now).minusWeeks(1).toDate();
     }
@@ -781,6 +784,11 @@ public class ApiObservationServiceTest {
         String testNhsNumber = "324234234";
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+
+
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
@@ -803,7 +811,7 @@ public class ApiObservationServiceTest {
         fhirLink.setActive(true);
         patient.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient);
 
         ObservationHeading observationHeading1 = new ObservationHeading();
@@ -825,9 +833,10 @@ public class ApiObservationServiceTest {
         fhirObservationValues.add(value3);
         fhirObservationValues.add(value4);
 
+
         //when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userRepository.findByIdentifier(any(String.class))).thenReturn(patients);
-        when(userService.currentUserCanGetUser(patient)).thenReturn(true);
+        when(userService.currentUserSameUnitGroup(patient, RoleName.IMPORTER)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
@@ -852,6 +861,10 @@ public class ApiObservationServiceTest {
         String testNhsNumber = "324234234";
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.GROUP);
+        Lookup type = TestUtils.createLookup(lookupType, GroupTypes.UNIT.toString());
+        group.setGroupType(type);
+
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
 
@@ -886,7 +899,7 @@ public class ApiObservationServiceTest {
         fhirLink2.setActive(true);
         patient2.getFhirLinks().add(fhirLink);
 
-        List<User> patients =  new ArrayList<>();
+        List<User> patients = new ArrayList<>();
         patients.add(patient1);
         patients.add(patient2);
 
@@ -909,8 +922,9 @@ public class ApiObservationServiceTest {
         fhirObservationValues.add(value3);
         fhirObservationValues.add(value4);
 
-        //when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        //when(userRcurrentUserSameUnitGroupepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
         when(userRepository.findByIdentifier(any(String.class))).thenReturn(patients);
+        when(userService.currentUserSameUnitGroup(patient1, RoleName.IMPORTER)).thenReturn(true);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
         when(fhirResource.findLatestObservationsByQuery(any(String.class)))
