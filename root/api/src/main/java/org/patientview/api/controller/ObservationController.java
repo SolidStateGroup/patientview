@@ -149,7 +149,7 @@ public class ObservationController extends BaseController<ObservationController>
     public void updateResultCluster(@PathVariable("userId") Long userId,
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.updateUserResultCluster(userId, enteredResult);
+        apiObservationService.updatePatientEnteredResult(userId, enteredResult);
     }
 
     /**
