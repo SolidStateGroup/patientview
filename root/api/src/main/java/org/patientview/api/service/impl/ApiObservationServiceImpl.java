@@ -323,7 +323,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
     @Override
-    public void updateUserResultCluster(Long userId, org.patientview.api.model.FhirObservation enteredResult)
+    public void updatePatientEnteredResult(Long userId, org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
@@ -364,8 +364,20 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
         LOG.info("ALL GOOD");
-//        fhirResource.updateEntity(observation, ResourceType.Observation.getPath(),
-//                ResourceType.Observation.getPath(), enteredResult.getLogicalId());
+        fhirResource.updateEntity(updatedObservation, ResourceType.Observation.getPath(),
+                ResourceType.Observation.getPath(), enteredResult.getLogicalId());
+
+        // Record audit action
+        Audit audit = new Audit();
+        audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_DELETED);
+        audit.setUsername(patientUser.getUsername());
+        audit.setActorId(getCurrentUser().getId());
+        // audit.setGroup(group);
+        audit.setSourceObjectId(patientUser.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setInformation("Old values: " + observation.getApplies() + ",  " + observation.getValue() + " New values: " +
+                enteredResult.getApplies() + ",  " + enteredResult.getValue());
+        auditService.save(audit);
     }
 
     @Override

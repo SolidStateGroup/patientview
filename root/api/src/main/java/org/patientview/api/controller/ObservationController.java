@@ -137,8 +137,8 @@ public class ObservationController extends BaseController<ObservationController>
      * Used when Users updated their own results on the Edit Own Results page, takes a UserResultCluster and
      * updates record in FHIR under the PATIENT_ENTERED Group.
      *
-     * @param userId            ID of User to update patient entered results
-     * @param userResultCluster a UserResultCluster objects used to represent a user entered results
+     * @param userId        ID of User to update patient entered results
+     * @param enteredResult a patient entered result to updated
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
@@ -147,9 +147,9 @@ public class ObservationController extends BaseController<ObservationController>
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updateResultCluster(@PathVariable("userId") Long userId,
-                                    @RequestBody UserResultCluster userResultCluster)
+                                    @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.updateUserResultCluster(userId, userResultCluster);
+        apiObservationService.updateUserResultCluster(userId, enteredResult);
     }
 
     /**

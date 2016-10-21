@@ -68,7 +68,7 @@ public interface ApiObservationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void updateUserResultCluster(Long userId, FhirObservation enteredResult)
+    void updatePatientEnteredResult(Long userId, FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
