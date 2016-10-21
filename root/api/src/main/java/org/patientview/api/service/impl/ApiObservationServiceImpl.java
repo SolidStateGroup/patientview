@@ -25,6 +25,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
@@ -462,13 +463,26 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         if (!uuids.contains(UUID.fromString(uuid))) {
             throw new ResourceNotFoundException("Could not find observation in the list.");
         }
-        Observation obs = (Observation) fhirResource.get(UUID.fromString(uuid), ResourceType.Observation);
-        if (obs == null) {
+        Observation observation = (Observation) fhirResource.get(UUID.fromString(uuid), ResourceType.Observation);
+        if (observation == null) {
             throw new ResourceNotFoundException("Could not find observation.");
         }
+        // need to convert to fhir observation to record old values in audit log
+        FhirObservation fhirObservation = new FhirObservation(observation);
 
         // delete Observation
         fhirResource.deleteEntity(UUID.fromString(uuid), "observation");
+
+        // Record audit action
+        Audit audit = new Audit();
+        audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_DELETED);
+        audit.setUsername(patientUser.getUsername());
+        audit.setActorId(getCurrentUser().getId());
+        // audit.setGroup(group);
+        audit.setSourceObjectId(patientUser.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setInformation("Date: " + fhirObservation.getApplies() + " value: " + fhirObservation.getValue());
+        auditService.save(audit);
     }
 
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
