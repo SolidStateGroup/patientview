@@ -350,6 +350,34 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return observation;
     }
 
+    @Override
+    public Observation copyObservation(Observation observation, Date applies, String value)
+            throws FhirResourceException {
+
+        if (applies != null) {
+            DateTime dateTime = new DateTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(applies);
+            DateAndTime dateAndTime = new DateAndTime(calendar);
+            dateTime.setValue(dateAndTime);
+            observation.setApplies(dateTime);
+        }
+
+        if (StringUtils.isNotEmpty(value)) {
+            try {
+                Quantity quantity = (Quantity) observation.getValue();
+                quantity.setValue(createDecimal(value));
+                observation.setValue(quantity);
+            } catch (ParseException pe) {
+                // parse exception, likely to be a string, e.g. comments store as text
+                CodeableConcept comment = (CodeableConcept) observation.getValue();
+                comment.setTextSimple(value);
+                observation.setValue(comment);
+            }
+        }
+        return observation;
+    }
+
     private Date convertDateTime(DateTime dateTime) {
         DateAndTime dateAndTime = dateTime.getValue();
         Calendar calendar = Calendar.getInstance();
