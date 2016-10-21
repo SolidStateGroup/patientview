@@ -323,7 +323,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
     @Override
-    public void updateUserResultCluster(Long userId, UserResultCluster userResultCluster)
+    public void updateUserResultCluster(Long userId, org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
@@ -337,99 +337,35 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("Group for patient entered results does not exist");
         }
 
-//        List<ObservationHeading> commentObservationHeadings
-//                = observationHeadingRepository.findByCode(COMMENT_RESULT_HEADING);
-//        if (CollectionUtils.isEmpty(commentObservationHeadings)) {
-//            throw new ResourceNotFoundException("Comment type observation heading does not exist");
-//        }
-
         if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
             throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
         }
 
-        // use first identifier for patient
-        Identifier patientIdentifier = patientUser.getIdentifiers().iterator().next();
+        List<UUID> uuids = new ArrayList<>();
+        for (FhirLink fhirLink : patientUser.getFhirLinks()) {
+            UUID subjectId = fhirLink.getResourceId();
 
-        // saves results, only if observation values are present or comment found
-//        for (UserResultCluster userResultCluster : userResultClusters) {
-
-        DateTime applies = createDateTime(userResultCluster);
-
-        List<Observation> fhirObservations = new ArrayList<>();
-
-        // build observations
-        for (IdValue idValue : userResultCluster.getValues()) {
-            ObservationHeading observationHeading = observationHeadingRepository.findOne(idValue.getId());
-            if (observationHeading == null) {
-                throw new ResourceNotFoundException("Observation Heading not found");
-            }
-
-            if (!idValue.getValue().isEmpty()) {
-                fhirObservations.add(observationService.buildObservation(applies, idValue.getValue(), null,
-                        userResultCluster.getComments(), observationHeading));
+            if (fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                List<UUID> foundIds = fhirResource.getLogicalIdsBySubjectId("observation", subjectId);
+                uuids.addAll(foundIds);
             }
         }
 
-        if (!fhirObservations.isEmpty()) {
-
-            // create FHIR Patient & fhirlink if not exists with PATIENT_ENTERED group, userId and identifier
-            FhirLink fhirLink = Util.getFhirLink(
-                    patientEnteredResultsGroup, patientIdentifier.getIdentifier(), patientUser.getFhirLinks());
-
-            if (fhirLink == null) {
-                Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
-                FhirDatabaseEntity fhirPatient
-                        = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
-
-                // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
-                fhirLink = new FhirLink();
-                fhirLink.setUser(patientUser);
-                fhirLink.setIdentifier(patientIdentifier);
-                fhirLink.setGroup(patientEnteredResultsGroup);
-                fhirLink.setResourceId(fhirPatient.getLogicalId());
-                fhirLink.setVersionId(fhirPatient.getVersionId());
-                fhirLink.setResourceType(ResourceType.Patient.name());
-                fhirLink.setActive(true);
-
-                if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
-                    patientUser.setFhirLinks(new HashSet<FhirLink>());
-                }
-
-                patientUser.getFhirLinks().add(fhirLink);
-                userRepository.save(patientUser);
-            }
-
-            ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
-
-            // store observations ready for native creation rather than fhir_create
-            List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
-
-            // save observations
-            for (Observation observation : fhirObservations) {
-                observation.setSubject(patientReference);
-
-                if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
-                    observation.setCommentsSimple(userResultCluster.getComments());
-                }
-
-                fhirDatabaseObservations.add(new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
-            }
-
-            // create comment observation based on patient entered comments
-//                if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
-//
-//                    Observation observation =
-//                            observationService.buildObservation(applies, userResultCluster.getComments(), null,
-//                                    userResultCluster.getComments(), commentObservationHeadings.get(0));
-//
-//                    observation.setSubject(patientReference);
-//                    fhirDatabaseObservations.add(
-//                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
-//                }
-
-            //observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
+        // make sure we have record in db
+        if (!uuids.contains(enteredResult.getLogicalId())) {
+            throw new ResourceNotFoundException("Could not find observation in the list.");
         }
-//        }
+        Observation observation = (Observation) fhirResource.get(enteredResult.getLogicalId(), ResourceType.Observation);
+        if (observation == null) {
+            throw new ResourceNotFoundException("Could not find observation.");
+        }
+        Observation updatedObservation = observationService.copyObservation(observation, enteredResult.getApplies(),
+                enteredResult.getValue());
+
+
+        LOG.info("ALL GOOD");
+//        fhirResource.updateEntity(observation, ResourceType.Observation.getPath(),
+//                ResourceType.Observation.getPath(), enteredResult.getLogicalId());
     }
 
     @Override

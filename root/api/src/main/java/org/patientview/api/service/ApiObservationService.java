@@ -61,14 +61,14 @@ public interface ApiObservationService {
      * Used when Users update their own results on the Edit Own Results page, takes a  UserResultCluster and
      * updates record in FHIR under the PATIENT_ENTERED Group.
      *
-     * @param userId            ID of User to store patient entered results
-     * @param userResultCluster List of UserResultCluster objects used to represent a user entered results
+     * @param userId        ID of User to store patient entered results
+     * @param enteredResult a patient entered result to updated
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void updateUserResultCluster(Long userId, UserResultCluster userResultCluster)
+    void updateUserResultCluster(Long userId, FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
