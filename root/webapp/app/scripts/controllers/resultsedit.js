@@ -8,7 +8,6 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
         $scope.init = function () {
             $scope.loading = true;
 
-            //
             $scope.days = UtilService.generateDays();
             $scope.months = UtilService.generateMonths();
             $scope.years = UtilService.generateYears2000();
@@ -106,6 +105,8 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
         $scope.changeObservationHeading = function (code) {
             delete $scope.compareCode;
             delete $scope.editResult;
+            delete $scope.successMessage;
+
             $scope.codes = [];
             $scope.codes.push(code);
 
@@ -140,8 +141,8 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             });
 
             modalInstance.result.then(function () {
-                // ok (not used)
                 $scope.successMessage = 'Result successfully deleted';
+                $scope.getObservations();
             }, function () {
                 // closed
             });
@@ -149,6 +150,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
         // Opened for edit
         $scope.opened = function (openedResult) {
+            delete $scope.successMessage;
 
             if (openedResult.showEdit) {
                 $scope.editResult = '';
