@@ -120,7 +120,7 @@ function ($q, Restangular, UtilService) {
         remove: function (userId, observation) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/observations/{uuid}
-            Restangular.one('user', userId).one('observations', observation.temporaryUuid).remove().then(function (successResult) {
+            Restangular.one('user', userId).one('observations', observation.logicalId).remove().then(function (successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);

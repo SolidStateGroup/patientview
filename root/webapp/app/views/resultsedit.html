@@ -63,7 +63,7 @@
             </div>
             <div class="faux-row" data-ng-repeat="observation in tableObservations"
                  data-ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
-                <div class="row-item hidden">{{observation.id}}</div>
+                <div class="row-item hidden">{{observation.logicalId}}</div>
                 <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
                 <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
