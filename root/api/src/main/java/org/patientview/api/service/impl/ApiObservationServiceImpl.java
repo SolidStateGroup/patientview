@@ -432,11 +432,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     @Override
-    public void deleteUserResultCluster(Long userId, String uuid)
+    public void deletePatientEnteredResult(Long userId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
 
-        // Patient updat
-        // es his own results
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
@@ -450,41 +448,27 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
         }
 
-        // TODO: to implement
-        // Check that we have record in FHIR database  and make sure it belongs to patient
-        // delete result from FHIR database
-        // Record Audit for this action
-
         List<UUID> uuids = new ArrayList<>();
         for (FhirLink fhirLink : patientUser.getFhirLinks()) {
             UUID subjectId = fhirLink.getResourceId();
 
             if (fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
-                List<UUID> foundids = fhirResource.getLogicalIdsBySubjectId("observation", subjectId);
-                uuids.addAll(foundids);
+                List<UUID> foundIds = fhirResource.getLogicalIdsBySubjectId("observation", subjectId);
+                uuids.addAll(foundIds);
             }
-            //deleteObservations(fhirResource.getLogicalIdsBySubjectId("observation", subjectId));
         }
 
-        LOG.info("Found total " + uuids.size() + " UUID(s).");
-        if (uuids.contains(UUID.fromString(uuid))) {
-            LOG.info("All Good resource {} in the list of UUID(s).", uuid);
+        // make sure we have record in db
+        if (!uuids.contains(UUID.fromString(uuid))) {
+            throw new ResourceNotFoundException("Could not find observation in the list.");
         }
-
-
         Observation obs = (Observation) fhirResource.get(UUID.fromString(uuid), ResourceType.Observation);
         if (obs == null) {
-            LOG.info("We are doomed", uuid);
+            throw new ResourceNotFoundException("Could not find observation.");
         }
 
-        for (UUID id : uuids) {
-            Observation found = (Observation) fhirResource.get(id, ResourceType.Observation);
-            if (found != null) {
-                LOG.info("Found " + found.get);
-            }
-        }
-        //fhirResource.deleteEntity(UUID.fromString(uuid), "observation");
-
+        // delete Observation
+        fhirResource.deleteEntity(UUID.fromString(uuid), "observation");
     }
 
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
@@ -616,12 +600,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> getPatientEntered(final Long userId,
-                                                                             final String code,
-                                                                             final String orderBy,
-                                                                             final String orderDirection,
-                                                                             final Long limit,
-                                                                             final boolean patientOnly)
+    public List<org.patientview.api.model.FhirObservation> getPatientEnteredByCode(final Long userId,
+                                                                                   final String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
@@ -638,15 +618,25 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(code);
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadings) {
+            observationHeadingMap.put(observationHeading.getCode(), observationHeading);
+        }
+
         for (FhirLink fhirLink : user.getFhirLinks()) {
 
             if (fhirLink.getActive() &&
-                    (patientOnly && fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString()))
-                    ) {
+                    fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
                 StringBuilder query = new StringBuilder();
-                query.append("SELECT  content::varchar ");
-                query.append("FROM    observation ");
-                query.append("WHERE   content -> 'subject' ->> 'display' = '");
+                query.append("SELECT  ");
+                query.append("logical_id, ");
+                query.append("CONTENT ->> 'appliesDateTime', ");
+                query.append("CONTENT -> 'name' ->> 'text', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
+                query.append("FROM   observation ");
+                query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
                 query.append("' ");
 
@@ -656,60 +646,60 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     query.append("' ");
                 }
 
-                if (StringUtils.isNotEmpty(orderBy)) {
-                    query.append("ORDER BY content-> '");
-                    query.append(orderBy);
-                    query.append("' ");
-                }
-
-                if (StringUtils.isNotEmpty(orderDirection)) {
-                    query.append(orderDirection);
-                    query.append(" ");
-                }
-
-                if (StringUtils.isNotEmpty(orderBy)) {
-                    query.append("LIMIT ");
-                    query.append(limit);
-                }
-
-                List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
-
-                Long decimalPlaces = null;
-                if (!CollectionUtils.isEmpty(observationHeadings)) {
-                    decimalPlaces = observationHeadings.get(0).getDecimalPlaces();
-                }
+                List<String[]> observationValues = fhirResource.findLatestObservationsByQuery(query.toString());
 
                 // convert to transport observations
-                for (Observation observation : observations) {
-                    FhirObservation fhirObservation = new FhirObservation(observation);
-
-                    if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
-                        // set correct number of decimal places
+                for (String[] json : observationValues) {
+                    if (!StringUtils.isEmpty(json[0])) {
                         try {
-                            if (decimalPlaces != null) {
-                                fhirObservation.setValue(
-                                        new BigDecimal(fhirObservation.getValue()).setScale(decimalPlaces.intValue(),
-                                                BigDecimal.ROUND_HALF_UP).toString());
-                            } else {
-                                fhirObservation.setValue(
-                                        new DecimalFormat("0.#####")
-                                                .format(Double.valueOf(fhirObservation.getValue())));
+                            org.patientview.api.model.FhirObservation fhirObservation =
+                                    new org.patientview.api.model.FhirObservation();
+
+                            // remove timezone and parse date
+                            String dateString = json[1];
+                            XMLGregorianCalendar xmlDate
+                                    = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                            Date date = xmlDate.toGregorianCalendar().getTime();
+
+                            // convert logical id 
+                            fhirObservation.setLogicalId(UUID.fromString(json[0]));
+                            fhirObservation.setApplies(date);
+                            fhirObservation.setName(json[2]);
+
+                            // handle decimal points if set for this observation type
+                            if (StringUtils.isNotEmpty(json[3])) {
+                                try {
+                                    ObservationHeading observationHeading = observationHeadingMap.get(json[2]);
+                                    if (observationHeading != null) {
+                                        if (observationHeading.getDecimalPlaces() != null) {
+                                            fhirObservation.setValue(new BigDecimal(json[3]).setScale(
+                                                    observationHeading.getDecimalPlaces().intValue(),
+                                                    BigDecimal.ROUND_HALF_UP).toString());
+                                        } else {
+                                            fhirObservation.setValue(
+                                                    new DecimalFormat("0.#####").format(Double.valueOf(json[3])));
+                                        }
+                                    } else {
+                                        fhirObservation.setValue(
+                                                new DecimalFormat("0.#####").format(Double.valueOf(json[3])));
+                                    }
+                                } catch (NumberFormatException nfe) {
+                                    fhirObservation.setValue(json[2]);
+                                }
                             }
-                        } catch (NumberFormatException ignore) {
-                            // do not update if cant convert to double or big decimal (string based value)
-                            LOG.trace("NumberFormatException", ignore);
+                            Group fhirGroup = fhirLink.getGroup();
+                            if (fhirGroup != null) {
+                                fhirObservation.setGroup(new BaseGroup(fhirGroup));
+                            }
+
+                            fhirObservations.add(fhirObservation);
+                        } catch (DatatypeConfigurationException e) {
+                            LOG.error(e.getMessage());
                         }
                     }
-
-                    Group fhirGroup = fhirLink.getGroup();
-                    if (fhirGroup != null) {
-                        fhirObservation.setGroup(fhirGroup);
-                    }
-                    fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
                 }
             }
         }
-
         return fhirObservations;
     }
 

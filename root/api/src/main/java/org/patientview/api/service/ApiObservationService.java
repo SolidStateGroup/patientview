@@ -72,7 +72,7 @@ public interface ApiObservationService {
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
-     * Used when Users wants to delere their own results on the Edit Own Results page, takes a uuid and
+     * Used when Users wants to delete their own results on the Edit Own Results page, takes a uuid and
      * deletes record from FHIR database.
      *
      * @param userId ID of User to delete patient entered results
@@ -82,7 +82,7 @@ public interface ApiObservationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void deleteUserResultCluster(Long userId, String uuid) throws ResourceNotFoundException, FhirResourceException;
+    void deletePatientEnteredResult(Long userId, String uuid) throws ResourceNotFoundException, FhirResourceException;
 
     // API
     /**
@@ -105,18 +105,13 @@ public interface ApiObservationService {
      *
      * @param userId ID of User to retrieve observations for
      * @param code Code of the observation type to retrieve
-     * @param orderBy
-     * @param orderDirection
-     * @param limit
-     * @param patientOnly boolean to include patient entered results only
      * @return List of FhirObservation representing patient entered test results in FHIR
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      * @throws FhirResourceException
      */
     @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
-    List<FhirObservation> getPatientEntered(Long userId, String code, String orderBy, String orderDirection,
-                                                                           Long limit, boolean patientOnly)
+    List<FhirObservation> getPatientEnteredByCode(Long userId, String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**

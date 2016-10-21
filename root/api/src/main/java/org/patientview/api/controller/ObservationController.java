@@ -129,7 +129,7 @@ public class ObservationController extends BaseController<ObservationController>
             @PathVariable("userId") Long userId, @PathVariable("code") String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(
-                apiObservationService.getPatientEntered(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null, true),
+                apiObservationService.getPatientEnteredByCode(userId, code),
                 HttpStatus.OK);
     }
 
@@ -166,7 +166,7 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public void deleteResultCluster(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.deleteUserResultCluster(userId, uuid);
+        apiObservationService.deletePatientEnteredResult(userId, uuid);
     }
 
     /**
