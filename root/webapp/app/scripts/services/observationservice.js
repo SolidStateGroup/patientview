@@ -96,21 +96,21 @@ function ($q, Restangular, UtilService) {
         },
         saveResultCluster: function (userId, resultCluster) {
 
-            // var userResultCluster = _.clone(resultCluster);
-            var userResultCluster = {};
-            userResultCluster.day = resultCluster.day;
-            userResultCluster.month = resultCluster.month;
-            userResultCluster.year = resultCluster.year;
-            userResultCluster.hour = resultCluster.hour;
-            userResultCluster.minute = resultCluster.minute;
+            var date = new Date(resultCluster.year, resultCluster.month, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);
 
+            var observation = {};
+            observation.applies = date;
+            observation.logicalId = resultCluster.logicalId;
+            observation.name = resultCluster.name;
+            observation.value = resultCluster.value;
+            observation.group = resultCluster.group;
 
             var deferred = $q.defer();
             // POST /user/{userId}/observations/patiententered
-            Restangular.one('user', userId).one('observations').one('patiententered').customPOST(userResultCluster)
-                .then(function(successResult) {
+            Restangular.one('user', userId).one('observations').one('patiententered').customPOST(observation)
+                .then(function (successResult) {
                     deferred.resolve(successResult);
-                }, function(failureResult) {
+                }, function (failureResult) {
                     deferred.reject(failureResult);
                 });
             return deferred.promise;
