@@ -61,8 +61,7 @@
                     <p>
                 </div>
             </div>
-            <div class="faux-row" data-ng-repeat="observation in tableObservations"
-                 data-ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
+            <div class="faux-row" data-ng-repeat="observation in tableObservations">
                 <div class="row-item hidden">{{observation.logicalId}}</div>
                 <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
@@ -88,8 +87,8 @@
                         <div data-ng-include src="'views/partials/resultdetails.html'" data-ng-controller="ResultsEditCtrl"></div>
                     </form>
                     <div class="panel-body-footer">
-                        <button class="btn btn-grey close-edit pull-right" data-ng-click="observation.showEdit = false">Close</button>
-                        <button class="btn btn-primary" data-ng-click="save()">Update</button>
+                        <button class="btn btn-grey close-edit" data-ng-click="observation.showEdit = false">Close</button>
+                        <button class="btn btn-primary pull-right" data-ng-click="save()">Update</button>
                     </div>
                 </div>
             </div>
