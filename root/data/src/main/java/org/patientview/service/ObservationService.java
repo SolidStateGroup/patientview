@@ -40,7 +40,7 @@ public interface ObservationService {
      * @param observation
      * @param applies
      * @param value
-     * @return
+     * @return a new copied over observation with changes applied
      * @throws FhirResourceException
      */
     Observation copyObservation(Observation observation, Date applies, String value) throws FhirResourceException;
