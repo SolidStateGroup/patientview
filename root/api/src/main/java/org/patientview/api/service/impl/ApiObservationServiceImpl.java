@@ -608,8 +608,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     query.append("' ");
                 }
 
-                // TODO: fix comments not returned
-                List<String[]> observationValues = fhirResource.findLatestObservationsByQuery(query.toString());
+                // Get a list of values for observation
+                List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 6);
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
@@ -651,12 +651,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                 }
                             } else {
                                 // textual value, trim if larger than size
-                                if (json.length >= FIVE && StringUtils.isNotEmpty(json[FOUR])) {
-                                    if (json[FOUR].length() > EIGHT) {
-                                        fhirObservation.setValue(json[FOUR].subSequence(0, EIGHT).toString() + "..");
-                                    } else {
-                                        fhirObservation.setValue(json[FOUR]);
-                                    }
+                                if (json.length >= 6 && StringUtils.isNotEmpty(json[5])) {
+                                    fhirObservation.setValue(json[5]);
                                 }
                             }
 
