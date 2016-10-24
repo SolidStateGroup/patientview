@@ -128,9 +128,7 @@ public class ObservationController extends BaseController<ObservationController>
     public ResponseEntity<List<FhirObservation>> getPatientEnteredObservationsByCode(
             @PathVariable("userId") Long userId, @PathVariable("code") String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        return new ResponseEntity<>(
-                apiObservationService.getPatientEnteredByCode(userId, code),
-                HttpStatus.OK);
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredByCode(userId, code), HttpStatus.OK);
     }
 
     /**
@@ -146,7 +144,7 @@ public class ObservationController extends BaseController<ObservationController>
     @RequestMapping(value = "/user/{userId}/observations/patiententered", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void updateResultCluster(@PathVariable("userId") Long userId,
+    public void updatePatientEnteredResult(@PathVariable("userId") Long userId,
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
         apiObservationService.updatePatientEnteredResult(userId, enteredResult);
@@ -164,7 +162,7 @@ public class ObservationController extends BaseController<ObservationController>
     @ExcludeFromApiDoc
     @RequestMapping(value = "/user/{userId}/observations/{uuid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteResultCluster(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
+    public void deletePatientEnteredResult(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
             throws ResourceNotFoundException, FhirResourceException {
         apiObservationService.deletePatientEnteredResult(userId, uuid);
     }
