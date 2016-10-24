@@ -369,12 +369,13 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             try {
 
                 if (observation.getValue().getClass().equals(Quantity.class)) {
-                    // value
-                    Quantity quantity = (Quantity) observation.getValue();
+                    // quantity value
+                    Quantity quantity = (Quantity) newObservation.getValue();
                     quantity.setValue(createDecimal(value));
                     newObservation.setValue(quantity);
                 } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
-                    CodeableConcept comment = (CodeableConcept) observation.getValue();
+                    // comment text
+                    CodeableConcept comment = (CodeableConcept) newObservation.getValue();
                     comment.setTextSimple(value);
                     newObservation.setValue(comment);
                 } else {

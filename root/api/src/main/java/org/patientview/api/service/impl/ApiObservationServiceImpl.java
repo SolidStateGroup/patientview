@@ -377,7 +377,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         information.append(enteredResult.getValue());
         information.append("']");
         LOG.info("Result updated: " + information.toString());
-        
+
         // Record audit action
         Audit audit = new Audit();
         audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_EDITED);
