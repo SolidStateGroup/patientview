@@ -362,21 +362,30 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         Observation updatedObservation = observationService.copyObservation(observation, enteredResult.getApplies(),
                 enteredResult.getValue());
 
-
-        LOG.info("ALL GOOD");
         fhirResource.updateEntity(updatedObservation, ResourceType.Observation.getPath(),
                 ResourceType.Observation.getPath(), enteredResult.getLogicalId());
 
+        // Build information for audit action
+        StringBuilder information = new StringBuilder();
+        information.append("Old values: ['");
+        information.append(getObservationDate(observation));
+        information.append("',  '");
+        information.append(getObservationValue(observation));
+        information.append("']   New values: ['");
+        information.append(enteredResult.getApplies());
+        information.append("', '");
+        information.append(enteredResult.getValue());
+        information.append("']");
+
         // Record audit action
         Audit audit = new Audit();
-        audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_DELETED);
+        audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_EDITED);
         audit.setUsername(patientUser.getUsername());
         audit.setActorId(getCurrentUser().getId());
         // audit.setGroup(group);
         audit.setSourceObjectId(patientUser.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setInformation("Old values: " + observation.getApplies() + ",  " + observation.getValue() + " New values: " +
-                enteredResult.getApplies() + ",  " + enteredResult.getValue());
+        audit.setInformation(information.toString());
         auditService.save(audit);
     }
 
