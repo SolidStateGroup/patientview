@@ -354,28 +354,37 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     public Observation copyObservation(Observation observation, Date applies, String value)
             throws FhirResourceException {
 
+        Observation newObservation = observation.copy();
+
         if (applies != null) {
             DateTime dateTime = new DateTime();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(applies);
             DateAndTime dateAndTime = new DateAndTime(calendar);
             dateTime.setValue(dateAndTime);
-            observation.setApplies(dateTime);
+            newObservation.setApplies(dateTime);
         }
 
         if (StringUtils.isNotEmpty(value)) {
             try {
-                Quantity quantity = (Quantity) observation.getValue();
-                quantity.setValue(createDecimal(value));
-                observation.setValue(quantity);
+
+                if (observation.getValue().getClass().equals(Quantity.class)) {
+                    // value
+                    Quantity quantity = (Quantity) observation.getValue();
+                    quantity.setValue(createDecimal(value));
+                    newObservation.setValue(quantity);
+                } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                    CodeableConcept comment = (CodeableConcept) observation.getValue();
+                    comment.setTextSimple(value);
+                    newObservation.setValue(comment);
+                } else {
+                    throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
+                }
             } catch (ParseException pe) {
-                // parse exception, likely to be a string, e.g. comments store as text
-                CodeableConcept comment = (CodeableConcept) observation.getValue();
-                comment.setTextSimple(value);
-                observation.setValue(comment);
+                throw new FhirResourceException("Cannot convert FHIR observation, invalid quantity");
             }
         }
-        return observation;
+        return newObservation;
     }
 
     private Date convertDateTime(DateTime dateTime) {
