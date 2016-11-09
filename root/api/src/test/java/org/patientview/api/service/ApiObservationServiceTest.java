@@ -339,11 +339,13 @@ public class ApiObservationServiceTest {
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         staff.getGroupRoles().add(groupRole);
-        TestUtils.authenticateTest(staff, groupRoles);
+        //TestUtils.authenticateTest(staff, groupRoles);
 
         User patient = TestUtils.createUser("testUser");
         patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
         patient.setFhirLinks(new HashSet<FhirLink>());
+        TestUtils.authenticateTest(patient, groupRoles);
+
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(patient);
         fhirLink.setGroup(group);
@@ -413,11 +415,13 @@ public class ApiObservationServiceTest {
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         staff.getGroupRoles().add(groupRole);
-        TestUtils.authenticateTest(staff, groupRoles);
+        //TestUtils.authenticateTest(staff, groupRoles);
 
         User patient = TestUtils.createUser("testUser");
         patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
         patient.setFhirLinks(new HashSet<FhirLink>());
+        TestUtils.authenticateTest(patient, groupRoles);
+
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(patient);
         fhirLink.setGroup(group);
