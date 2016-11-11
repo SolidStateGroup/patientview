@@ -850,7 +850,7 @@ public class AuthenticationServiceTest {
         authenticationService.switchToUser(switchUser.getId());
     }
 
-    @Test(expected = ResourceForbiddenException.class)
+    @Test(expected = AuthenticationServiceException.class)
     public void testSwitchUser_CurrentlyPatient() throws Exception {
 
         // current user and security
