@@ -723,10 +723,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             return;
         }
 
-        // check patient has a DIAGNOSIS_PATIENT_ENTERED Condition
+        // check patient has a any entered Condition
         try {
-            if (CollectionUtils.isEmpty(
-                    apiConditionService.getUserEntered(user.getId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, true))) {
+            if (!apiConditionService.hasAnyConditions(user.getId(), true)) {
                 userToken.setShouldEnterCondition(true);
             }
         } catch (FhirResourceException | ResourceForbiddenException | ResourceNotFoundException e) {

@@ -676,6 +676,8 @@ public class AuthenticationServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
         when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(apiConditionService.hasAnyConditions(eq(foundUserToken.getUser().getId()), eq(Boolean.TRUE))).
+                thenReturn(Boolean.FALSE);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
 
@@ -685,8 +687,8 @@ public class AuthenticationServiceTest {
         Assert.assertTrue("user should have shouldEnterCondition as true", userToken.isShouldEnterCondition());
 
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
-        verify(apiConditionService, times(1)).getUserEntered(
-                eq(foundUserToken.getUser().getId()), eq(DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED), eq(true));
+        verify(apiConditionService, times(1)).hasAnyConditions(
+                eq(foundUserToken.getUser().getId()), eq(true));
     }
 
     @Test
