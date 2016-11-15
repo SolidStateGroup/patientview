@@ -32,27 +32,6 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             }
 
             $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
-
-            // var i, j;
-            // ObservationHeadingService.getResultClusters().then(function (resultClusters) {
-            //     $scope.resultClusters = resultClusters;
-            //     $scope.selectedResultCluster = resultClusters[0];
-            //     $scope.loading = false;
-            //
-            //     for (i = 0; i < $scope.resultClusters.length; i++) {
-            //         var headings = $scope.resultClusters[i].resultClusterObservationHeadings;
-            //         alert("Heading length "+headings.length);
-            //         for (j = 0; j < headings.length; j++) {
-            //             $scope.userResultHeadings.push(headings[j]);
-            //
-            //         }
-            //     }
-            //
-            //
-            //
-            // }, function () {
-            //     alert('Cannot get result clusters');
-            // });
         };
 
         $scope.getAvailableObservationHeadings = function (code, userId) {
@@ -231,16 +210,22 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
                 alert('Result Date cannot be in the future');
                 return false;
             }
+
             ObservationService.saveResultCluster($scope.loggedInUser.id, $scope.editResult).then(function() {
                 $scope.successMessage = 'Results successfully update in PatientView.';
                 $scope.editResult = '';
                 $scope.editMode = false;
+                //$scope.editResult.openedResult.showEdit = false;
+                // close others
+                for (var i = 0; i < $scope.tableObservations.length; i++) {
+                    $scope.tableObservations[i].showEdit = false;
+                }
+
                 $scope.getObservations();
             }, function () {
                 alert('Cannot save your result');
             });
         };
-
 
         $scope.init();
     }]);
