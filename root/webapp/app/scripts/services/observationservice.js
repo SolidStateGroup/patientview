@@ -96,7 +96,7 @@ function ($q, Restangular, UtilService) {
         },
         saveResultCluster: function (userId, resultCluster) {
 
-            var date = new Date(resultCluster.year, resultCluster.month, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);
+            var date = new Date(resultCluster.year, resultCluster.month - 1, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);
 
             var observation = {};
             observation.applies = date;
