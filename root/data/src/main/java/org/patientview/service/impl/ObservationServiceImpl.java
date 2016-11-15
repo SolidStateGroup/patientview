@@ -378,6 +378,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     CodeableConcept comment = (CodeableConcept) newObservation.getValue();
                     comment.setTextSimple(value);
                     newObservation.setValue(comment);
+                    newObservation.setCommentsSimple(value);
                 } else {
                     throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
                 }
