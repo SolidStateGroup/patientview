@@ -408,19 +408,10 @@ public class ApiObservationServiceTest {
 
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
-
-        User staff = TestUtils.createUser("testStaff");
-        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        staff.getGroupRoles().add(groupRole);
-        //TestUtils.authenticateTest(staff, groupRoles);
-
         User patient = TestUtils.createUser("testUser");
         patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
         patient.setFhirLinks(new HashSet<FhirLink>());
-        TestUtils.authenticateTest(patient, groupRoles);
+        TestUtils.authenticateTest(patient, patient.getGroupRoles());
 
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(patient);
@@ -469,7 +460,6 @@ public class ApiObservationServiceTest {
         verify(fhirResource, times(1)).deleteEntity(eq(uuid), eq("observation"));
         verify(auditService, times(1)).save(any(Audit.class));
     }
-
 
     @Test
     public void testGetObservations()
