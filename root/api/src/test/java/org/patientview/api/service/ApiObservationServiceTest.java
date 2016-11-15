@@ -327,24 +327,14 @@ public class ApiObservationServiceTest {
     @Test
     public void testUpdatePatientEnteredResult()
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-
-        //UUID uuid = UUID.fromString("d52847eb-c2c7-4015-ba6c-952962536287");
         UUID uuid = UUID.randomUUID();
         Group group = TestUtils.createGroup("PATIENT_ENTERED");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN_API);
-
-        User staff = TestUtils.createUser("testStaff");
-        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        staff.getGroupRoles().add(groupRole);
-        //TestUtils.authenticateTest(staff, groupRoles);
 
         User patient = TestUtils.createUser("testUser");
         patient.getGroupRoles().add(TestUtils.createGroupRole(patientRole, group, patient));
         patient.setFhirLinks(new HashSet<FhirLink>());
-        TestUtils.authenticateTest(patient, groupRoles);
+        TestUtils.authenticateTest(patient, patient.getGroupRoles());
 
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(patient);

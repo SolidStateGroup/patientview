@@ -184,15 +184,13 @@ public class ObservationControllerTest {
 
     @Test
     public void testUpdatePatientEnteredResult() throws Exception {
-        User user = TestUtils.createUser("testUser");
+        User patient = TestUtils.createUser("testPatient");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, patient);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        User patient = TestUtils.createUser("testPatient");
+        TestUtils.authenticateTest(patient, groupRoles);
 
         FhirObservation fhirObservation = new FhirObservation();
         UUID uuid = UUID.randomUUID();
@@ -204,9 +202,6 @@ public class ObservationControllerTest {
                 .post("/user/" + patient.getId() + "/observations/patiententered")
                 .content(mapper.writeValueAsString(fhirObservation)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(apiObservationService, Mockito.times(1))
-                .updatePatientEnteredResult(eq(patient.getId()), any(FhirObservation.class));
     }
 
     @Test
@@ -226,11 +221,5 @@ public class ObservationControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .delete("/user/" + patient.getId() + "/observations/"+uuid.toString()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(apiObservationService, Mockito.times(1))
-                .deletePatientEnteredResult(eq(patient.getId()), any(String.class));
     }
-
 }
-
-
