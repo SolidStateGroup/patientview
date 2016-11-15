@@ -25,9 +25,8 @@
                 <i class="icon-back-to pull-left"> </i>
                 Back to Results
             </a>
-            <span data-ng-show="!loading && !selectedObservation ">Nothing selected to edit</span>
-            <span data-ng-show="selectedObservation && !loading ">Editing <span
-                    class="blue-text">{{observationHeading.heading}}</span></span>
+            <span data-ng-show="observationHeading ">
+                <span class="blue-text">{{observationHeading.heading}}</span></span>
         </h1>
     </div>
     <div class="col-md-3">
@@ -43,7 +42,7 @@
 <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 <div class="page-content">
     <!-- data grid -->
-    <div class="faux-table four-col">
+    <div class="faux-table four-col" data-ng-cloak>
         <!-- header -->
         <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
@@ -95,9 +94,6 @@
         </div>
     </div>
 
-</div>
-<div class="alert-block" data-ng-show="!loading && !observations">
-    <h3>No {{observationHeading.heading}} Results Found</h3>
 </div>
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
