@@ -1,0 +1,100 @@
+<!-- delete result modal template -->
+<script type="text/ng-template" id="deleteResultModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Delete value for {{observationHeading.heading}}</h3>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure? This will delete entered value <strong>{{observation.value}}</strong> for result
+            {{observationHeading.heading}}.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn btn-primary" data-ng-click="ok()">Delete</button>
+    </div>
+</script>
+
+<div class="header-select row">
+    <div class=" col-md-7">
+        <h1>
+            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading" data-ng-if="!r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-show="!loading"
+               data-ng-if="r">
+                <i class="icon-back-to pull-left"> </i>
+                Back to Results
+            </a>
+            <span data-ng-show="observationHeading ">
+                <span class="blue-text">{{observationHeading.heading}}</span></span>
+        </h1>
+    </div>
+    <div class="col-md-3">
+        <h3 class="select-title">Select Result:</h3>
+    </div>
+    <div class="col-md-2">
+        <select class="form-control pull-right" data-ng-model="selectedCode"
+                data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                data-ng-change="changeObservationHeading(selectedCode)">
+        </select>
+    </div>
+</div>
+<div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+<div class="page-content">
+    <!-- data grid -->
+    <div class="faux-table four-col" data-ng-cloak>
+        <!-- header -->
+        <div class="accordion-title-row table-head">
+            <div class="hidden">ID</div>
+            <div class="head-item accordion-title-text "><span>Date Taken</span></div>
+            <div class="head-item accordion-title-text "><span>Value</span></div>
+            <div class="head-item accordion-title-text "><span>Source</span></div>
+            <div class="head-item accordion-title-text "></div>
+        </div>
+
+        <!--Table Body-->
+        <div class="item-header">
+            <div class="faux-row" data-ng-show="!tableObservations.length">
+                <div class="row-item">
+                    <p><br/><br/>No results available for this selection<br/><br/><br/>
+                    <p>
+                </div>
+            </div>
+            <div class="faux-row" data-ng-repeat="observation in tableObservations">
+                <div class="row-item hidden">{{observation.logicalId}}</div>
+                <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
+                <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
+                <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
+                <div class="row-item actions">
+                    <!-- Edit, Actions dropdown buttons -->
+                    <div class="btn-group">
+                        <button type="button" class="btn blue edit-button" data-ng-click="opened(observation)">Edit</button>
+                        <button type="button" class="btn negative" data-ng-click="remove(observationHeading, observation)">Del</button>
+                    </div>
+                </div>
+            </div>
+            <!-- edit pane -->
+            <div class="panel-body" data-ng-show="editResult.showEdit">
+                <div data-ng-show="observation.editLoading" class="loading">
+                    <img src="images/loading.gif" alt="Loading"/>
+                    <p class="text-center" >
+                        <br/>Please be patient while we retrieve data ...
+                    </p>
+                </div>
+                <div data-ng-show="!observation.editLoading">
+                    <form name="resultForm" class="edit-code">
+                        <div data-ng-include src="'views/partials/resultdetails.html'" data-ng-controller="ResultsEditCtrl"></div>
+                    </form>
+                    <div class="panel-body-footer">
+                        <button class="btn btn-grey close-edit" data-ng-click="observation.showEdit = false">Close</button>
+                        <button class="btn btn-primary pull-right" data-ng-click="save()">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+</div>

@@ -350,6 +350,45 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return observation;
     }
 
+    @Override
+    public Observation copyObservation(Observation observation, Date applies, String value)
+            throws FhirResourceException {
+
+        Observation newObservation = observation.copy();
+
+        if (applies != null) {
+            DateTime dateTime = new DateTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(applies);
+            DateAndTime dateAndTime = new DateAndTime(calendar);
+            dateTime.setValue(dateAndTime);
+            newObservation.setApplies(dateTime);
+        }
+
+        if (StringUtils.isNotEmpty(value)) {
+            try {
+
+                if (observation.getValue().getClass().equals(Quantity.class)) {
+                    // quantity value
+                    Quantity quantity = (Quantity) newObservation.getValue();
+                    quantity.setValue(createDecimal(value));
+                    newObservation.setValue(quantity);
+                } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                    // comment text
+                    CodeableConcept comment = (CodeableConcept) newObservation.getValue();
+                    comment.setTextSimple(value);
+                    newObservation.setValue(comment);
+                    newObservation.setCommentsSimple(value);
+                } else {
+                    throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
+                }
+            } catch (ParseException pe) {
+                throw new FhirResourceException("Cannot convert FHIR observation, invalid quantity");
+            }
+        }
+        return newObservation;
+    }
+
     private Date convertDateTime(DateTime dateTime) {
         DateAndTime dateAndTime = dateTime.getValue();
         Calendar calendar = Calendar.getInstance();

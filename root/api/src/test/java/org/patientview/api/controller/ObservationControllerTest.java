@@ -9,10 +9,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.FhirObservation;
-import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -159,6 +160,66 @@ public class ObservationControllerTest {
         verify(apiObservationService, Mockito.times(1))
                 .addTestObservations(eq(patient.getId()), eq(group.getId()), any(FhirObservationRange.class));
     }
+
+    @Test
+    public void testPatientEnteredObservationsByCode() {
+        User user = TestUtils.createUser("testuser");
+        String code = "EXAMPLE_CODE";
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                    .get("/user/" + user.getId() + "/observations/" + code + "/patiententered"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdatePatientEnteredResult() throws Exception {
+        User patient = TestUtils.createUser("testPatient");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, patient);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(patient, groupRoles);
+
+        FhirObservation fhirObservation = new FhirObservation();
+        UUID uuid = UUID.randomUUID();
+        fhirObservation.setLogicalId(uuid);
+        fhirObservation.setApplies(new Date());
+        fhirObservation.setValue("60");
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/user/" + patient.getId() + "/observations/patiententered")
+                .content(mapper.writeValueAsString(fhirObservation)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testDeletePatientEnteredResult() throws Exception {
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User patient = TestUtils.createUser("testPatient");
+
+        UUID uuid = UUID.randomUUID();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete("/user/" + patient.getId() + "/observations/"+uuid.toString()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }
-
-

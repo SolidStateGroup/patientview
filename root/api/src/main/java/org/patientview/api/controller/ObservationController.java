@@ -4,15 +4,15 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
-import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.MigrationService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.MigrationUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +109,62 @@ public class ObservationController extends BaseController<ObservationController>
         return new ResponseEntity<>(
             apiObservationService.get(userId, code, DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
             HttpStatus.OK);
+    }
+
+    /**
+     * Get a list of patient entered observations for a User of a specific Code (e.g. Creatinine, HbA1c).
+     *
+     * @param userId ID of User to retrieve observations for
+     * @param code   Code of the observation type to retrieve
+     * @return List of FhirObservation representing test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @ApiOperation(value = "Get patient entered Observations of a Certain Type For a User",
+            notes = "Given a User ID and observation code, retrieve patient entered observations.")
+    @RequestMapping(value = "/user/{userId}/observations/{code}/patiententered", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<FhirObservation>> getPatientEnteredObservationsByCode(
+            @PathVariable("userId") Long userId, @PathVariable("code") String code)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredByCode(userId, code), HttpStatus.OK);
+    }
+
+    /**
+     * Used when Users updated their own results on the Edit Own Results page, takes a UserResultCluster and
+     * updates record in FHIR under the PATIENT_ENTERED Group.
+     *
+     * @param userId        ID of User to update patient entered results
+     * @param enteredResult a patient entered result to updated
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/user/{userId}/observations/patiententered", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void updatePatientEnteredResult(@PathVariable("userId") Long userId,
+                                    @RequestBody FhirObservation enteredResult)
+            throws ResourceNotFoundException, FhirResourceException {
+        apiObservationService.updatePatientEnteredResult(userId, enteredResult);
+    }
+
+    /**
+     * Used when Users wants to delete their own results on the Edit Own Results page, takes a uuid and
+     * deletes record from FHIR database.
+     *
+     * @param userId ID of User to delete patient entered results
+     * @param uuid   a logical id of user entered results to be deleted
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/user/{userId}/observations/{uuid}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deletePatientEnteredResult(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
+            throws ResourceNotFoundException, FhirResourceException {
+        apiObservationService.deletePatientEnteredResult(userId, uuid);
     }
 
     /**
