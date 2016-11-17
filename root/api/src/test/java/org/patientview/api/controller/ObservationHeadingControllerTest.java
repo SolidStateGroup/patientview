@@ -266,6 +266,6 @@ public class ObservationHeadingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(observationHeadingService, Mockito.times(1)).getPatientEnteredObservationHeadings(eq(user.getId()));
+        verify(observationHeadingService, Mockito.times(1)).getPatientEnteredObservationHeadings(user.getId());
     }
 }
