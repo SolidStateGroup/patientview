@@ -16,13 +16,16 @@ import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserObservationHeading;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +66,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingGroupRepository observationHeadingGroupRepository;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private GroupRepository groupRepository;
@@ -140,21 +149,33 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     @Override
-    public void removeObservationHeadingGroup(Long observationHeadingGroupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        ObservationHeadingGroup observationHeadingGroup
-                = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
-        if (observationHeadingGroup == null) {
-            throw new ResourceNotFoundException("Observation Heading Group does not exist");
+    public Page<ObservationHeading> findAll(final GetParameters getParameters) {
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        // only global admin or specialty admin with correct group role can remove
-        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-            && !ApiUtil.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
+        return observationHeadingRepository.findAllMinimal(pageable);
+    }
 
-        observationHeadingGroupRepository.delete(observationHeadingGroup);
+    @Override
+    public List<ObservationHeading> findByCode(final String code) {
+        return observationHeadingRepository.findByCode(code);
     }
 
     @Override
@@ -218,6 +239,47 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     @Override
+    public List<ObservationHeading> getPatientEnteredObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Group group = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+        if (group == null) {
+            throw new ResourceNotFoundException("Group for patient entered data does not exist");
+        }
+
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroup(user, group);
+        if (!fhirLinks.isEmpty()) {
+            StringBuilder resourceIds = new StringBuilder();
+            for (FhirLink fhirLink : fhirLinks) {
+                resourceIds.append("'").append(fhirLink.getResourceId().toString()).append("',");
+            }
+            resourceIds.deleteCharAt(resourceIds.length() - 1);
+
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT DISTINCT ON (1) ");
+            query.append("CONTENT -> 'name' -> 'text' ");
+            query.append("FROM   observation ");
+            query.append("WHERE  CONTENT -> 'subject' ->> 'display' IN (");
+            query.append(resourceIds.toString());
+            query.append(") ");
+
+            List<String[]> codeArr = fhirResource.findValuesByQueryAndArray(query.toString(), 1);
+            List<String> codes = new ArrayList<>();
+            for (String[] strings : codeArr) {
+                codes.add(strings[0].replace("\"", "").toLowerCase());
+            }
+
+            return observationHeadingRepository.findAllByCode(codes);
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
     public List<ObservationHeading> getSavedObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -271,6 +333,113 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         return observationHeadings;
+    }
+
+
+    @Override
+    public List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId)
+            throws ResourceNotFoundException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
+        List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
+        List<ObservationHeading> availableObservationHeadings = new ArrayList<>();
+
+        // add based on default panel (if not 0)
+        for (ObservationHeading observationHeading : observationHeadings) {
+            if (observationHeading.getDefaultPanel() != null
+                    && !observationHeading.getDefaultPanel().equals(0L)) {
+                availableObservationHeadings.add(observationHeading);
+            }
+        }
+
+        // add if specialty specific exists, remove if panel 0
+        for (ObservationHeading observationHeading : observationHeadings) {
+            for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+                for (Group userGroup : userGroups) {
+                    if (userGroup.getId().equals(observationHeadingGroup.getGroup().getId())) {
+                        if (observationHeadingGroup.getPanel() != null
+                                && !observationHeadingGroup.getPanel().equals(0L)) {
+                            // add if panel != 0
+                            availableObservationHeadings.add(observationHeading);
+                        } else if (observationHeadingGroup.getPanel() != null
+                                && observationHeadingGroup.getPanel().equals(0L)) {
+                            // remove if panel == 0
+                            availableObservationHeadings.remove(observationHeading);
+                        }
+                    }
+                }
+            }
+        }
+
+        // convert list to set
+        Set<ObservationHeading> out = new HashSet<>();
+        for (ObservationHeading observationHeading : availableObservationHeadings) {
+            observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+            out.add(observationHeading);
+        }
+
+        return new ArrayList<>(out);
+    }
+
+    @Override
+    public void delete(final Long observationHeadingId) {
+        observationHeadingRepository.delete(observationHeadingId);
+    }
+
+    @Override
+    public ObservationHeading get(final Long observationHeadingId) {
+        return observationHeadingRepository.findOne(observationHeadingId);
+    }
+
+    private boolean observationHeadingExists(ObservationHeading observationHeading) {
+        return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
+    }
+
+    @Override
+    public void removeObservationHeadingGroup(Long observationHeadingGroupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        ObservationHeadingGroup observationHeadingGroup
+                = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
+        if (observationHeadingGroup == null) {
+            throw new ResourceNotFoundException("Observation Heading Group does not exist");
+        }
+
+        // only global admin or specialty admin with correct group role can remove
+        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                && !ApiUtil.doesContainGroupAndRole(
+                observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        observationHeadingGroupRepository.delete(observationHeadingGroup);
+    }
+
+    @Override
+    public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
+
+        ObservationHeading entity = observationHeadingRepository.findOne(input.getId());
+        if (entity == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        entity.setCode(input.getCode());
+        entity.setHeading(input.getHeading());
+        entity.setName(input.getName());
+        entity.setNormalRange(input.getNormalRange());
+        entity.setUnits(input.getUnits());
+        entity.setMinGraph(input.getMinGraph());
+        entity.setMaxGraph(input.getMaxGraph());
+        entity.setInfoLink(input.getInfoLink());
+        entity.setDefaultPanel(input.getDefaultPanel());
+        entity.setDefaultPanelOrder(input.getDefaultPanelOrder());
+        entity.setDecimalPlaces(input.getDecimalPlaces());
+
+        return observationHeadingRepository.save(entity);
     }
 
     @Override
@@ -336,123 +505,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         // save updated user
         userRepository.save(user);
-    }
-
-    @Override
-    public List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId)
-            throws ResourceNotFoundException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
-        List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
-        List<ObservationHeading> availableObservationHeadings = new ArrayList<>();
-
-        // add based on default panel (if not 0)
-        for (ObservationHeading observationHeading : observationHeadings) {
-            if (observationHeading.getDefaultPanel() != null
-                    && !observationHeading.getDefaultPanel().equals(0L)) {
-                availableObservationHeadings.add(observationHeading);
-            }
-        }
-
-        // add if specialty specific exists, remove if panel 0
-        for (ObservationHeading observationHeading : observationHeadings) {
-            for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-                for (Group userGroup : userGroups) {
-                    if (userGroup.getId().equals(observationHeadingGroup.getGroup().getId())) {
-                        if (observationHeadingGroup.getPanel() != null
-                                && !observationHeadingGroup.getPanel().equals(0L)) {
-                            // add if panel != 0
-                            availableObservationHeadings.add(observationHeading);
-                        } else if (observationHeadingGroup.getPanel() != null
-                                && observationHeadingGroup.getPanel().equals(0L)) {
-                            // remove if panel == 0
-                            availableObservationHeadings.remove(observationHeading);
-                        }
-                    }
-                }
-            }
-        }
-
-        // convert list to set
-        Set<ObservationHeading> out = new HashSet<>();
-        for (ObservationHeading observationHeading : availableObservationHeadings) {
-            observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
-            out.add(observationHeading);
-        }
-
-        return new ArrayList<>(out);
-    }
-
-    @Override
-    public void delete(final Long observationHeadingId) {
-        observationHeadingRepository.delete(observationHeadingId);
-    }
-
-    @Override
-    public Page<ObservationHeading> findAll(final GetParameters getParameters) {
-        String size = getParameters.getSize();
-        String page = getParameters.getPage();
-        String sortField = getParameters.getSortField();
-        String sortDirection = getParameters.getSortDirection();
-
-        PageRequest pageable;
-        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
-        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
-
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
-
-        return observationHeadingRepository.findAllMinimal(pageable);
-    }
-
-    @Override
-    public List<ObservationHeading> findByCode(final String code) {
-        return observationHeadingRepository.findByCode(code);
-    }
-
-    @Override
-    public ObservationHeading get(final Long observationHeadingId) {
-        return observationHeadingRepository.findOne(observationHeadingId);
-    }
-
-    @Override
-    public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
-
-        ObservationHeading entity = observationHeadingRepository.findOne(input.getId());
-        if (entity == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
-        }
-
-        entity.setCode(input.getCode());
-        entity.setHeading(input.getHeading());
-        entity.setName(input.getName());
-        entity.setNormalRange(input.getNormalRange());
-        entity.setUnits(input.getUnits());
-        entity.setMinGraph(input.getMinGraph());
-        entity.setMaxGraph(input.getMaxGraph());
-        entity.setInfoLink(input.getInfoLink());
-        entity.setDefaultPanel(input.getDefaultPanel());
-        entity.setDefaultPanelOrder(input.getDefaultPanelOrder());
-        entity.setDecimalPlaces(input.getDecimalPlaces());
-
-        return observationHeadingRepository.save(entity);
-    }
-
-    private boolean observationHeadingExists(ObservationHeading observationHeading) {
-        return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
     }
 
     @Override

@@ -31,11 +31,11 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
                 $scope.codes.push(code);
             }
 
-            $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
+            $scope.getPatientEnteredObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
         };
 
-        $scope.getAvailableObservationHeadings = function (code, userId) {
-            ObservationHeadingService.getAvailableObservationHeadings(userId).then(function (observationHeadings) {
+        $scope.getPatientEnteredObservationHeadings = function (code, userId) {
+            ObservationHeadingService.getPatientEnteredObservationHeadings(userId).then(function (observationHeadings) {
                 $scope.observationHeadings = observationHeadings;
                 $scope.observationHeading = $scope.findObservationHeadingByCode(code);
                 $scope.selectedCode = code;

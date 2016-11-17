@@ -90,112 +90,81 @@ public class ObservationHeadingControllerTest {
     }
 
     @Test
-    public void testGet() {
+    public void testGet() throws Exception {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
 
-        try {
-            TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-            mockMvc.perform(MockMvcRequestBuilders.get("/observationheading/" + observationHeading.getId())
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders.get("/observationheading/" + observationHeading.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-        try {
-            verify(observationHeadingService, Mockito.times(1)).get(eq(observationHeading.getId()));
-        } catch (ResourceNotFoundException e) {
-            fail("Exception: " + e.getMessage());
-        }
+        verify(observationHeadingService, Mockito.times(1)).get(eq(observationHeading.getId()));
     }
 
     @Test
-    public void testAdd() {
+    public void testAdd() throws Exception {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
-        try {
-            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/observationheading")
-                    .content(mapper.writeValueAsString(observationHeading))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.post("/observationheading")
+                .content(mapper.writeValueAsString(observationHeading))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).add(eq(observationHeading));
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        verify(observationHeadingService, Mockito.times(1)).add(eq(observationHeading));
     }
 
     @Test
-    public void testSave() {
+    public void testSave() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put("/observationheading")
-                    .content(mapper.writeValueAsString(observationHeading))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.put("/observationheading")
+                .content(mapper.writeValueAsString(observationHeading))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testAddGroup() {
+    public void testAddGroup() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
         group.setId(2L);
 
-        try {
-            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
-            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
-                    + group.getId() + "/panel/3/panelorder/4"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
+                + group.getId() + "/panel/3/panelorder/4"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).addObservationHeadingGroup(eq(observationHeading.getId()),
-                    eq(group.getId()), eq(3L), eq(4L));
-        } catch (Exception e) {
-            fail("Exception thrown" + e.getMessage());
-        }
+        verify(observationHeadingService, Mockito.times(1)).addObservationHeadingGroup(eq(observationHeading.getId()),
+                eq(group.getId()), eq(3L), eq(4L));
     }
 
     @Test
-    public void testUpdateGroup() {
+    public void testUpdateGroup() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-        observationHeading.setId(1L);
-        Group group = TestUtils.createGroup("GROUP1");
-        group.setId(2L);
 
-        try {
-            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
-            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        mockMvc.perform(MockMvcRequestBuilders.put("/observationheadinggroup/")
+                .content(mapper.writeValueAsString(new org.patientview.api.model.ObservationHeadingGroup()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
-                    + group.getId() + "/panel/3/panelorder/4"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-
-            verify(observationHeadingService, Mockito.times(1)).addObservationHeadingGroup(eq(observationHeading.getId()),
-                    eq(group.getId()), eq(3L), eq(4L));
-        } catch (Exception e) {
-            fail("Exception thrown" + e.getMessage());
-        }
+        verify(observationHeadingService, Mockito.times(1))
+                .updateObservationHeadingGroup(any(org.patientview.api.model.ObservationHeadingGroup.class));
     }
 
     @Test
-    public void testRemoveGroup() {
+    public void testRemoveGroup() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
@@ -207,36 +176,31 @@ public class ObservationHeadingControllerTest {
         observationHeadingGroup.setId(3L);
         observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
-        try {
-            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
-            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/observationheadinggroup/"
-                    + observationHeadingGroup.getId()))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/observationheadinggroup/"
+                + observationHeadingGroup.getId()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).removeObservationHeadingGroup(eq(observationHeadingGroup.getId()));
-        } catch (Exception e) {
-            fail("Exception thrown" + e.getMessage());
-        }
+        verify(observationHeadingService, Mockito.times(1))
+                .removeObservationHeadingGroup(eq(observationHeadingGroup.getId()));
     }
 
     @Test
-    public void testGetResultClusters() {
+    public void testGetResultClusters() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/resultclusters")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/resultclusters")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
         verify(observationHeadingService, Mockito.times(1)).getResultClusters();
     }
 
     @Test
-    public void testGetAvailableResultTypes() throws ResourceNotFoundException, FhirResourceException {
+    public void testGetAvailableResultTypes() throws Exception {
 
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
@@ -246,18 +210,15 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableobservationheadings" )
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableobservationheadings" )
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
         verify(observationHeadingService, Mockito.times(1)).getAvailableObservationHeadings(user.getId());
     }
 
     @Test
-    public void testGetSavedResultTypes() throws ResourceNotFoundException, FhirResourceException {
+    public void testGetSavedResultTypes() throws Exception {
 
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
@@ -267,19 +228,15 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/savedobservationheadings" )
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/savedobservationheadings" )
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
         verify(observationHeadingService, Mockito.times(1)).getSavedObservationHeadings(user.getId());
     }
 
     @Test
-    public void testGetAvailableAlertObservationHeadings() throws ResourceNotFoundException {
-
+    public void testGetAvailableAlertObservationHeadings() throws Exception {
         User user = TestUtils.createUser("testuser");
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
@@ -288,15 +245,27 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availablealertobservationheadings" )
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availablealertobservationheadings" )
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
         verify(observationHeadingService, Mockito.times(1)).getAvailableAlertObservationHeadings(user.getId());
     }
+
+    @Test
+    public void testGetPatientEnteredObservationHeadings() throws Exception {
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/patiententeredobservationheadings")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(observationHeadingService, Mockito.times(1)).getPatientEnteredObservationHeadings(eq(user.getId()));
+    }
 }
-
-

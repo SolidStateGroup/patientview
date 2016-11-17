@@ -164,6 +164,26 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     /**
+     * Get available ObservationHeading (result types) for a User, where patient entered results
+     * are currently available.
+     * @param userId ID of User to retrieve ObservationHeadings for
+     * @return List of ObservationHeading objects
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @ApiOperation(value = "Get Available Patient Entered Observations Types For a User", notes = "Given a User ID "
+            + "retrieve a list of available observation types for that user (where they have "
+            + "patient entered observation data).")
+    @RequestMapping(value = "/user/{userId}/patiententeredobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> getPatientEnteredObservationHeadings(
+            @PathVariable("userId") Long userId) throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(
+                observationHeadingService.getPatientEnteredObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    /**
      * Get the available ResultCluster (groups of result types available to Users when entering their own results).
      * @return List of ResultCluster objects
      */
