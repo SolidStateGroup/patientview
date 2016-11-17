@@ -154,7 +154,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
             modalInstance.result.then(function () {
                 $scope.successMessage = 'Result successfully deleted';
-                $scope.getObservations();
+                $scope.getPatientEnteredObservationHeadings(null, $scope.loggedInUser.id);
             }, function () {
                 // closed
             });
@@ -222,7 +222,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             }
 
             ObservationService.saveResultCluster($scope.loggedInUser.id, $scope.editResult).then(function() {
-                $scope.successMessage = 'Results successfully update in PatientView.';
+                $scope.successMessage = 'Your result has been successfully updated.';
                 $scope.editResult = '';
                 $scope.editMode = false;
                 //$scope.editResult.openedResult.showEdit = false;

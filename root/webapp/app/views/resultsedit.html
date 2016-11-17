@@ -24,7 +24,7 @@
                 <i class="icon-back-to pull-left"> </i>
                 Back to Results
             </a>
-            <span data-ng-show="observationHeading ">
+            <span data-ng-if="observationHeading && observationHeadings.length && !loading">
                 <span class="blue-text">{{observationHeading.heading}}</span>
             </span>
         </h1>

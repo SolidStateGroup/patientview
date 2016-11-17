@@ -268,6 +268,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             query.append(") ");
 
             List<String[]> codeArr = fhirResource.findValuesByQueryAndArray(query.toString(), 1);
+            if (codeArr.isEmpty()) {
+                return new ArrayList<>();
+            }
+
             List<String> codes = new ArrayList<>();
             for (String[] strings : codeArr) {
                 codes.add(strings[0].replace("\"", "").toLowerCase());
