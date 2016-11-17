@@ -367,6 +367,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
         // Build information for audit action
         StringBuilder information = new StringBuilder();
+        information.append("['" + observation.getName() + "'] ");
         information.append("Old values: ['");
         information.append(getObservationDate(observation));
         information.append("',  '");
