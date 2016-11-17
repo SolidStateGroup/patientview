@@ -36,11 +36,21 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
         $scope.getPatientEnteredObservationHeadings = function (code, userId) {
             ObservationHeadingService.getPatientEnteredObservationHeadings(userId).then(function (observationHeadings) {
-                $scope.observationHeadings = observationHeadings;
-                $scope.observationHeading = $scope.findObservationHeadingByCode(code);
-                $scope.selectedCode = code;
+                if (observationHeadings.length) {
+                    $scope.observationHeadings = observationHeadings;
+                    if (code) {
+                        $scope.observationHeading = $scope.findObservationHeadingByCode(code);
+                        $scope.selectedCode = code;
+                    } else {
+                        $scope.observationHeading = $scope.observationHeadings[0];
+                        $scope.selectedCode = $scope.observationHeading.code;
+                        $scope.codes.push($scope.selectedCode);
+                    }
 
-                $scope.getObservations();
+                    $scope.getObservations();
+                } else {
+                    delete $scope.loading;
+                }
             }, function () {
                 alert('Error retrieving result types');
             });
