@@ -53,8 +53,8 @@
         </div>
 
         <!--Table Body-->
-        <div class="item-header">
-            <div class="faux-row" data-ng-repeat="observation in tableObservations">
+        <div class="item-header" data-ng-repeat="observation in tableObservations">
+            <div class="faux-row">
                 <div class="row-item hidden">{{observation.logicalId}}</div>
                 <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <!-- edit pane -->
-            <div class="panel-body" data-ng-show="editResult.showEdit">
+            <div class="panel-body" data-ng-show="observation.showEdit">
                 <div data-ng-show="observation.editLoading" class="loading">
                     <img src="images/loading.gif" alt="Loading"/>
                     <p class="text-center" >
