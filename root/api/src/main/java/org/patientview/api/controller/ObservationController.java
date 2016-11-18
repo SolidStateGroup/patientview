@@ -165,7 +165,7 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{patientId}/observations/patiententered/{uuid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user/{patientId}/observations/{uuid}", method = RequestMethod.DELETE)
     @ResponseBody
     public void deletePatientEnteredResult(@PathVariable("patientId") Long patientId,
                                            @PathVariable("uuid") String uuid,

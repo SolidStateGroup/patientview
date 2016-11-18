@@ -119,8 +119,8 @@ function ($q, Restangular, UtilService) {
         // Remove a single result based on userId and uuid
         remove: function (userId, patientId, observation) {
             var deferred = $q.defer();
-            // DELETE /user/{userId}/observations/patiententered/{uuid}
-            Restangular.one('user', patientId).one('observations').one('patiententered', observation.logicalId).remove({"userId":userId})
+            // DELETE /user/{userId}/observations/{uuid}
+            Restangular.one('user', patientId).one('observations', observation.logicalId).remove({"userId":userId})
                 .then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
