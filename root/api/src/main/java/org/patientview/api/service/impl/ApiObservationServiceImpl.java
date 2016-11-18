@@ -330,9 +330,21 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
-        User patientUser = userRepository.findOne(userId);
+        User patientUser = userRepository.findOne(patientId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
+        }
+
+        // check if admin is viewing patient, otherwise editor is patient
+        User editor = null;
+        if(userId != null && !userId.equals(patientId)){
+            editor =  userRepository.findOne(userId);
+        }else{
+            editor  = patientUser;
+        }
+
+        if (editor == null) {
+            throw new ResourceNotFoundException("Editor User does not exist");
         }
 
         Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
@@ -386,7 +398,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         Audit audit = new Audit();
         audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_EDITED);
         audit.setUsername(patientUser.getUsername());
-        audit.setActorId(getCurrentUser().getId());
+        audit.setActorId(editor.getId());
         // audit.setGroup(group);
         audit.setSourceObjectId(patientUser.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
@@ -398,9 +410,21 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     public void deletePatientEnteredResult(Long userId, Long patientId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User patientUser = userRepository.findOne(userId);
+        User patientUser = userRepository.findOne(patientId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
+        }
+
+        // check if admin is viewing patient, otherwise editor is patient
+        User editor = null;
+        if(userId != null && !userId.equals(patientId)){
+            editor =  userRepository.findOne(userId);
+        }else{
+            editor  = patientUser;
+        }
+
+        if (editor == null) {
+            throw new ResourceNotFoundException("Editor User does not exist");
         }
 
         Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
@@ -439,7 +463,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         Audit audit = new Audit();
         audit.setAuditActions(AuditActions.PATIENT_ENTERED_RESULT_DELETED);
         audit.setUsername(patientUser.getUsername());
-        audit.setActorId(getCurrentUser().getId());
+        audit.setActorId(editor.getId());
         // audit.setGroup(group);
         audit.setSourceObjectId(patientUser.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
