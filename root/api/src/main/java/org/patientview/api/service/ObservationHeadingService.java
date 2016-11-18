@@ -97,7 +97,19 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @UserOnly
     List<ObservationHeading> getAvailableObservationHeadings(Long userId)
-    throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Get available ObservationHeading (result types) for a User, where patient entered results
+     * are currently available.
+     * @param userId ID of User to retrieve ObservationHeadings for
+     * @return List of ObservationHeading objects
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    List<ObservationHeading> getPatientEnteredObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Get the available ResultCluster (groups of result types available to Users when entering their own results).
@@ -127,7 +139,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void removeObservationHeadingGroup(Long observationHeadingGroupId)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Update an ObservationHeading.
@@ -155,5 +167,5 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException;
 }

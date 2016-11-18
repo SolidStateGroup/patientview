@@ -22,25 +22,22 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             $scope.codes = [];
             $scope.observations = [];
 
-            // handle single result type from query parameter
-            var code = $routeParams.code;
-
-            if (code instanceof Array) {
-                $scope.codes = code;
-            } else {
-                $scope.codes.push(code);
-            }
-
-            $scope.getAvailableObservationHeadings($scope.codes[0], $scope.loggedInUser.id);
+            $scope.getPatientEnteredObservationHeadings();
         };
 
-        $scope.getAvailableObservationHeadings = function (code, userId) {
-            ObservationHeadingService.getAvailableObservationHeadings(userId).then(function (observationHeadings) {
-                $scope.observationHeadings = observationHeadings;
-                $scope.observationHeading = $scope.findObservationHeadingByCode(code);
-                $scope.selectedCode = code;
+        $scope.getPatientEnteredObservationHeadings = function () {
+            ObservationHeadingService.getPatientEnteredObservationHeadings($scope.loggedInUser.id)
+                .then(function (observationHeadings) {
+                if (observationHeadings.length) {
+                    $scope.observationHeadings = _.sortBy(observationHeadings, 'heading');
+                    $scope.observationHeading = $scope.observationHeadings[0];
+                    $scope.selectedCode = $scope.observationHeading.code;
+                    $scope.codes.push($scope.selectedCode);
 
-                $scope.getObservations();
+                    $scope.getObservations();
+                } else {
+                    delete $scope.loading;
+                }
             }, function () {
                 alert('Error retrieving result types');
             });
@@ -48,12 +45,14 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
         $scope.getObservations = function () {
             $scope.loading = true;
+
             var promises = [];
             var obs = [];
             var selectedObs;
 
             $scope.codes.forEach(function (code, index) {
-                promises.push(ObservationService.getByCodePatientEntered($scope.loggedInUser.id, code).then(function (observations) {
+                promises.push(ObservationService.getByCodePatientEntered($scope.loggedInUser.id, code)
+                    .then(function (observations) {
                     if (observations.length) {
                         obs[code] = _.sortBy(observations, 'applies').reverse();
 
@@ -62,7 +61,6 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
                         }
                     } else {
                         delete obs[code];
-                        //delete $scope.selectedObservation;
                     }
 
                 }, function () {
@@ -144,7 +142,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
 
             modalInstance.result.then(function () {
                 $scope.successMessage = 'Result successfully deleted';
-                $scope.getObservations();
+                $scope.getPatientEnteredObservationHeadings(null, $scope.loggedInUser.id);
             }, function () {
                 // closed
             });
@@ -212,7 +210,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             }
 
             ObservationService.saveResultCluster($scope.loggedInUser.id, $scope.editResult).then(function() {
-                $scope.successMessage = 'Results successfully update in PatientView.';
+                $scope.successMessage = 'Your result has been successfully updated.';
                 $scope.editResult = '';
                 $scope.editMode = false;
                 //$scope.editResult.openedResult.showEdit = false;

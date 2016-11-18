@@ -16,23 +16,23 @@
 <div class="header-select row">
     <div class=" col-md-7">
         <h1>
-            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading" data-ng-if="!r">
+            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-if="!r">
                 <i class="icon-back-to pull-left"> </i>
                 Back to Results
             </a>
-            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-show="!loading"
-               data-ng-if="r">
+            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-if="r">
                 <i class="icon-back-to pull-left"> </i>
                 Back to Results
             </a>
-            <span data-ng-show="observationHeading ">
-                <span class="blue-text">{{observationHeading.heading}}</span></span>
+            <span data-ng-if="observationHeading && observationHeadings.length && !loading">
+                <span class="blue-text">{{observationHeading.heading}}</span>
+            </span>
         </h1>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3" data-ng-if="observationHeadings.length && !loading">
         <h3 class="select-title">Select Result:</h3>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2" data-ng-if="observationHeadings.length && !loading">
         <select class="form-control pull-right" data-ng-model="selectedCode"
                 data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
                 data-ng-change="changeObservationHeading(selectedCode)">
@@ -42,7 +42,7 @@
 <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 <div class="page-content">
     <!-- data grid -->
-    <div class="faux-table four-col" data-ng-cloak>
+    <div class="faux-table four-col" data-ng-cloak data-ng-if="tableObservations.length && !loading">
         <!-- header -->
         <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
@@ -53,14 +53,8 @@
         </div>
 
         <!--Table Body-->
-        <div class="item-header">
-            <div class="faux-row" data-ng-show="!tableObservations.length">
-                <div class="row-item">
-                    <p><br/><br/>No results available for this selection<br/><br/><br/>
-                    <p>
-                </div>
-            </div>
-            <div class="faux-row" data-ng-repeat="observation in tableObservations">
+        <div class="item-header" data-ng-repeat="observation in tableObservations">
+            <div class="faux-row">
                 <div class="row-item hidden">{{observation.logicalId}}</div>
                 <div class="row-item accordion-heading-text">{{observation.appliesFormatted}}</div>
                 <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
@@ -74,7 +68,7 @@
                 </div>
             </div>
             <!-- edit pane -->
-            <div class="panel-body" data-ng-show="editResult.showEdit">
+            <div class="panel-body" data-ng-show="observation.showEdit">
                 <div data-ng-show="observation.editLoading" class="loading">
                     <img src="images/loading.gif" alt="Loading"/>
                     <p class="text-center" >
@@ -94,7 +88,11 @@
         </div>
     </div>
 
+    <div class="alert alert-warning" data-ng-show="!observationHeadings.length && !loading">No patient entered results found</div>
+    <div class="alert alert-warning" data-ng-show="!tableObservations.length && observationHeadings.length && !loading">Please make a selection</div>
 </div>
-<div data-ng-show="loading" class="container"><br/><br/>
-    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+<div data-ng-show="loading" class="container">
+    <div class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Results</h3>
+    </div>
 </div>
