@@ -141,13 +141,14 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{userId}/observations/patiententered", method = RequestMethod.POST,
+    @RequestMapping(value = "/user/{userId}/observations/{patientId}/patiententered", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updatePatientEnteredResult(@PathVariable("userId") Long userId,
+                                           @PathVariable("patientId") Long patientId,
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.updatePatientEnteredResult(userId, enteredResult);
+        apiObservationService.updatePatientEnteredResult(userId, patientId, enteredResult);
     }
 
     /**
@@ -160,11 +161,13 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{userId}/observations/{uuid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user/{userId}/observations/{patientId}/{uuid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deletePatientEnteredResult(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
+    public void deletePatientEnteredResult(@PathVariable("userId") Long userId,
+                                           @PathVariable("patientId") Long patientId,
+                                           @PathVariable("uuid") String uuid)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.deletePatientEnteredResult(userId, uuid);
+        apiObservationService.deletePatientEnteredResult(userId, patientId, uuid);
     }
 
     /**
