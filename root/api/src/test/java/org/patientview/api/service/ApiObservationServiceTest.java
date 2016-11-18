@@ -383,7 +383,7 @@ public class ApiObservationServiceTest {
         when(observationService.copyObservation(eq(observation), eq(fhirObservation.getApplies()),
                 eq(fhirObservation.getValue()))).thenReturn(observation);
 
-        apiObservationService.updatePatientEnteredResult(patient.getId(), fhirObservation);
+        apiObservationService.updatePatientEnteredResult(null, patient.getId(), fhirObservation);
 
         // verify
         verify(fhirResource, times(1)).updateEntity(eq(observation), eq("observation"),
@@ -444,7 +444,7 @@ public class ApiObservationServiceTest {
                 .thenReturn(foundIds);
         when(fhirResource.get(eq(fhirLink.getResourceId()), eq(ResourceType.Observation))).thenReturn(observation);
 
-        apiObservationService.deletePatientEnteredResult(patient.getId(), uuid.toString());
+        apiObservationService.deletePatientEnteredResult(null, patient.getId(), uuid.toString());
 
         // verify
         verify(fhirResource, times(1)).deleteEntity(eq(uuid), eq("observation"));

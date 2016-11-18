@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$routeParams', '$location',
+angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rootScope', '$routeParams', '$location',
     'ObservationHeadingService', 'ObservationService', "UtilService", '$modal', '$timeout', '$filter', '$q',
-    function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, UtilService,
+    function ($scope, $rootScope, $routeParams, $location, ObservationHeadingService, ObservationService, UtilService,
               $modal, $timeout, $filter, $q) {
 
         $scope.init = function () {
@@ -208,8 +208,12 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
                 alert('Result Date cannot be in the future');
                 return false;
             }
+            var previouseUserId = -1;
+            if($rootScope.previousLoggedInUser){
+                previouseUserId = $rootScope.previousLoggedInUser.id;
+            }
 
-            ObservationService.saveResultCluster($scope.loggedInUser.id, $scope.editResult).then(function() {
+            ObservationService.saveResultCluster(previouseUserId, $scope.loggedInUser.id, $scope.editResult).then(function() {
                 $scope.successMessage = 'Your result has been successfully updated.';
                 $scope.editResult = '';
                 $scope.editMode = false;

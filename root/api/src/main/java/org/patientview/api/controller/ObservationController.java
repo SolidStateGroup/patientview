@@ -141,13 +141,18 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{userId}/observations/patiententered", method = RequestMethod.POST,
+    @RequestMapping(value = "/user/{patientId}/observations/patiententered/", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void updatePatientEnteredResult(@PathVariable("userId") Long userId,
+    public void updatePatientEnteredResult(@PathVariable("patientId") Long patientId,
+                                          @RequestParam(required = false) Long userId,
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.updatePatientEnteredResult(userId, enteredResult);
+
+        if(userId == -1){
+            userId = null;
+        }
+        apiObservationService.updatePatientEnteredResult(userId, patientId, enteredResult);
     }
 
     /**
@@ -160,11 +165,16 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{userId}/observations/{uuid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user/{patientId}/observations/{uuid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deletePatientEnteredResult(@PathVariable("userId") Long userId, @PathVariable("uuid") String uuid)
+    public void deletePatientEnteredResult(@PathVariable("patientId") Long patientId,
+                                           @PathVariable("uuid") String uuid,
+                                           @RequestParam(required = false) Long userId)
             throws ResourceNotFoundException, FhirResourceException {
-        apiObservationService.deletePatientEnteredResult(userId, uuid);
+        if(userId == -1){
+            userId = null;
+        }
+        apiObservationService.deletePatientEnteredResult(userId, patientId, uuid);
     }
 
     /**
