@@ -13,24 +13,24 @@ import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.builder.ObservationBuilder;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.ObservationsBuilder;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.BasicObservation;
 import org.patientview.persistence.model.DateRange;
-import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ObservationService;
 import org.patientview.util.Util;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -76,6 +76,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     private IdentifierRepository identifierRepository;
 
     private String nhsno;
+
+    private static final String OBSERVATION_COMMENT_CODE = "comment";
 
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
@@ -322,11 +324,20 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         if (StringUtils.isNotEmpty(value)) {
             try {
-                Quantity quantity = new Quantity();
-                quantity.setValue(createDecimal(value));
-                quantity.setComparatorSimple(getComparator(comparator));
-                quantity.setUnitsSimple(observationHeading.getUnits());
-                observation.setValue(quantity);
+                // need a quick fix, as allowed to save comment as Quantity if numeric
+                if (OBSERVATION_COMMENT_CODE.equals(observationHeading.getCode())) {
+                    CodeableConcept comment = new CodeableConcept();
+                    comment.setTextSimple(value);
+                    comment.addCoding().setDisplaySimple(observationHeading.getHeading());
+                    observation.setValue(comment);
+
+                } else {
+                    Quantity quantity = new Quantity();
+                    quantity.setValue(createDecimal(value));
+                    quantity.setComparatorSimple(getComparator(comparator));
+                    quantity.setUnitsSimple(observationHeading.getUnits());
+                    observation.setValue(quantity);
+                }
             } catch (ParseException pe) {
                 // parse exception, likely to be a string, e.g. comments store as text
                 CodeableConcept comment = new CodeableConcept();
@@ -481,7 +492,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     String codeString = results.getString(3).replace("\"", "");
 
                     // ignore DIAGNOSTIC_RESULT
-                    if(!codeString.equals(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString())) {
+                    if (!codeString.equals(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString())) {
 
                         Date applies = null;
 
