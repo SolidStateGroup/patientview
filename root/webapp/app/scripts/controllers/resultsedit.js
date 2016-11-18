@@ -29,7 +29,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$rout
             ObservationHeadingService.getPatientEnteredObservationHeadings($scope.loggedInUser.id)
                 .then(function (observationHeadings) {
                 if (observationHeadings.length) {
-                    $scope.observationHeadings = observationHeadings;
+                    $scope.observationHeadings = _.sortBy(observationHeadings, 'heading');
                     $scope.observationHeading = $scope.observationHeadings[0];
                     $scope.selectedCode = $scope.observationHeading.code;
                     $scope.codes.push($scope.selectedCode);
