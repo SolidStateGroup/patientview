@@ -77,7 +77,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     private String nhsno;
 
-    private static final String OBSERVATION_COMMENT_CODE = "comment";
+    private static final String OBSERVATION_HEADER_COMMENT_CODE = "resultcomment";
 
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
@@ -325,7 +325,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         if (StringUtils.isNotEmpty(value)) {
             try {
                 // need a quick fix, as allowed to save comment as Quantity if numeric
-                if (OBSERVATION_COMMENT_CODE.equals(observationHeading.getCode())) {
+                if (OBSERVATION_HEADER_COMMENT_CODE.equals(observationHeading.getCode())) {
                     CodeableConcept comment = new CodeableConcept();
                     comment.setTextSimple(value);
                     comment.addCoding().setDisplaySimple(observationHeading.getHeading());
