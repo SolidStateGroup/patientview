@@ -37,6 +37,8 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
@@ -51,6 +53,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
@@ -323,7 +326,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
     @Override
-    public void updatePatientEnteredResult(Long userId, org.patientview.api.model.FhirObservation enteredResult)
+    public void updatePatientEnteredResult(Long userId, Long patientId, org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
@@ -392,7 +395,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     @Override
-    public void deletePatientEnteredResult(Long userId, String uuid)
+    public void deletePatientEnteredResult(Long userId, Long patientId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
 
         User patientUser = userRepository.findOne(userId);
