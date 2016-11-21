@@ -199,7 +199,7 @@ public class ObservationControllerTest {
         fhirObservation.setValue("60");
 
         mockMvc.perform(MockMvcRequestBuilders
-                .post("/user/" + patient.getId() + "/observations/patiententered/?userId=-1")
+                .post("/user/" + patient.getId() + "/observations/patiententered/?adminId=-1")
                 .content(mapper.writeValueAsString(fhirObservation)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -217,7 +217,7 @@ public class ObservationControllerTest {
         UUID uuid = UUID.randomUUID();
 
         mockMvc.perform(MockMvcRequestBuilders
-                .delete("/user/" + patient.getId() + "/observations/"+uuid.toString()+"?userId=-1"))
+                .delete("/user/" + patient.getId() + "/observations/"+uuid.toString()+"?adminId=-1"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

@@ -141,18 +141,18 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{patientId}/observations/patiententered/", method = RequestMethod.POST,
+    @RequestMapping(value = "/user/{userId}/observations/patiententered/", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void updatePatientEnteredResult(@PathVariable("patientId") Long patientId,
-                                          @RequestParam(required = false) Long userId,
+    public void updatePatientEnteredResult(@PathVariable("userId") Long userId,
+                                          @RequestParam(required = false) Long adminId,
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
-        if(userId == -1){
-            userId = null;
+        if(adminId == null || adminId == -1){
+            adminId = null;
         }
-        apiObservationService.updatePatientEnteredResult(userId, patientId, enteredResult);
+        apiObservationService.updatePatientEnteredResult(userId, adminId, enteredResult);
     }
 
     /**
@@ -165,16 +165,16 @@ public class ObservationController extends BaseController<ObservationController>
      * @throws FhirResourceException
      */
     @ExcludeFromApiDoc
-    @RequestMapping(value = "/user/{patientId}/observations/{uuid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user/{userId}/observations/{uuid}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deletePatientEnteredResult(@PathVariable("patientId") Long patientId,
+    public void deletePatientEnteredResult(@PathVariable("userId") Long userId,
                                            @PathVariable("uuid") String uuid,
-                                           @RequestParam(required = false) Long userId)
+                                           @RequestParam(required = false) Long adminId)
             throws ResourceNotFoundException, FhirResourceException {
-        if(userId == -1){
-            userId = null;
+        if(adminId == null || adminId == -1){
+            adminId = null;
         }
-        apiObservationService.deletePatientEnteredResult(userId, patientId, uuid);
+        apiObservationService.deletePatientEnteredResult(userId, adminId, uuid);
     }
 
     /**

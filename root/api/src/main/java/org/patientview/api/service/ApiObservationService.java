@@ -61,30 +61,30 @@ public interface ApiObservationService {
      * Used when Users update their own results on the Edit Own Results page, takes a  UserResultCluster and
      * updates record in FHIR under the PATIENT_ENTERED Group.
      *
-     * @param userId        ID of admin User(viewing patient) or patient User
-     * @param patientId     ID of patient User to update patient entered results
+     * @param adminId        ID of admin User(viewing patient) or patient User
+     * @param userId     ID of patient User to update patient entered results
      * @param enteredResult a patient entered result to updated
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void updatePatientEnteredResult(Long userId, Long patientId, FhirObservation enteredResult)
+    void updatePatientEnteredResult(Long userId, Long adminId, FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Used when Users wants to delete their own results on the Edit Own Results page, takes a uuid and
      * deletes record from FHIR database.
      *
-     * @param userId    ID of admin User(viewing patient) or patient User
-     * @param patientId ID of patient User user to delete patient entered results
+     * @param adminId    ID of admin User(viewing patient) or patient User
+     * @param userId ID of patient User user to delete patient entered results
      * @param uuid      a logical id of user entered results to be deleted
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void deletePatientEnteredResult(Long userId, Long patientId, String uuid) throws ResourceNotFoundException, FhirResourceException;
+    void deletePatientEnteredResult(Long userId, Long adminId, String uuid) throws ResourceNotFoundException, FhirResourceException;
 
     // API
     /**

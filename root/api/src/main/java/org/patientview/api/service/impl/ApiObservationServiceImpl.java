@@ -326,19 +326,19 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
     @Override
-    public void updatePatientEnteredResult(Long userId, Long patientId, org.patientview.api.model.FhirObservation enteredResult)
+    public void updatePatientEnteredResult(Long userId, Long adminId, org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
-        User patientUser = userRepository.findOne(patientId);
+        User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
         }
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor = null;
-        if(userId != null && !userId.equals(patientId)){
-            editor =  userRepository.findOne(userId);
+        if(adminId != null && !adminId.equals(userId)){
+            editor =  userRepository.findOne(adminId);
         }else{
             editor  = patientUser;
         }
@@ -407,18 +407,18 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     @Override
-    public void deletePatientEnteredResult(Long userId, Long patientId, String uuid)
+    public void deletePatientEnteredResult(Long userId, Long adminId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User patientUser = userRepository.findOne(patientId);
+        User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
         }
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor = null;
-        if(userId != null && !userId.equals(patientId)){
-            editor =  userRepository.findOne(userId);
+        if(adminId != null && !adminId.equals(userId)){
+            editor =  userRepository.findOne(adminId);
         }else{
             editor  = patientUser;
         }

@@ -94,7 +94,7 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        saveResultCluster: function (userId, patientId, resultCluster) {
+        saveResultCluster: function (adminId, userId, resultCluster) {
 
             var date = new Date(resultCluster.year, resultCluster.month - 1, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);
 
@@ -107,7 +107,7 @@ function ($q, Restangular, UtilService) {
 
             var deferred = $q.defer();
             // POST /user/{userId}/observations/patiententered
-            Restangular.one('user', patientId).one('observations').one('patiententered').customPOST(observation, "?userId="+userId)
+            Restangular.one('user', userId).one('observations').one('patiententered').customPOST(observation, "?adminId="+adminId)
                 .then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
@@ -117,10 +117,10 @@ function ($q, Restangular, UtilService) {
 
         },
         // Remove a single result based on userId and uuid
-        remove: function (userId, patientId, observation) {
+        remove: function (adminId, userId, observation) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/observations/{uuid}
-            Restangular.one('user', patientId).one('observations', observation.logicalId).remove({"userId":userId})
+            Restangular.one('user', userId).one('observations', observation.logicalId).remove({"adminId":adminId})
                 .then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
