@@ -124,6 +124,18 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         }
     };
 
+        $scope.generateKey = function () {
+            $scope.apiKeySuccessMessage = null;
+            $scope.apiKeyErrorMessage = null;
+
+            UserService.generateApiKey($rootScope.loggedInUser.id).then(function () {
+                getUser();
+                $scope.apiKeySuccessMessage = 'Your api key has been successfully generated';
+            }, function (result) {
+                $scope.apiKeyErrorMessage = result.data;
+            });
+        };
+
     // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter

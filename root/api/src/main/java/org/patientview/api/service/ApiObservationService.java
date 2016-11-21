@@ -4,10 +4,12 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
+import org.patientview.api.model.ObservationHeading;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservationRange;
@@ -54,6 +56,36 @@ public interface ApiObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
+
+    /**
+     * Used when Users update their own results on the Edit Own Results page, takes a  UserResultCluster and
+     * updates record in FHIR under the PATIENT_ENTERED Group.
+     *
+     * @param adminId        ID of admin User(viewing patient) or patient User
+     * @param userId     ID of patient User to update patient entered results
+     * @param enteredResult a patient entered result to updated
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    void updatePatientEnteredResult(Long userId, Long adminId, FhirObservation enteredResult)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    /**
+     * Used when Users wants to delete their own results on the Edit Own Results page, takes a uuid and
+     * deletes record from FHIR database.
+     *
+     * @param adminId    ID of admin User(viewing patient) or patient User
+     * @param userId ID of patient User user to delete patient entered results
+     * @param uuid      a logical id of user entered results to be deleted
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    void deletePatientEnteredResult(Long userId, Long adminId, String uuid) throws ResourceNotFoundException, FhirResourceException;
+
     // API
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c), used in results table
@@ -67,6 +99,21 @@ public interface ApiObservationService {
      */
     @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
     List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
+    /**
+     * Get a list of patient entered observations for a User of a specific Code (e.g. Creatinine, HbA1c),
+     * used in results table view when editing results.
+     *
+     * @param userId ID of User to retrieve observations for
+     * @param code Code of the observation type to retrieve
+     * @return List of FhirObservation representing patient entered test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @RoleOnly(roles = { RoleName.PATIENT, RoleName.UNIT_ADMIN_API })
+    List<FhirObservation> getPatientEnteredByCode(Long userId, String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
@@ -137,4 +184,21 @@ public interface ApiObservationService {
      */
     @RoleOnly(roles = { RoleName.IMPORTER })
     ServerResponse importObservations(FhirObservationRange fhirObservationRange);
+
+    /**
+     * Get a list of patient entered observations by given a patient user identifier (NHS number)
+     * with a start and end date
+     *
+     * @param identifier an NHS number of the patient user to retrieve observations for
+     * @param fromDate start date to search from in yyyy-mm-dd
+     * @param toDate end date to search to in yyyy-mm-dd
+     * @return a list of ObservationHeading objects containing user entered observations
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     * @throws ResourceForbiddenException
+     */
+    @RoleOnly(roles = {RoleName.IMPORTER})
+    List<ObservationHeading> getPatientEnteredObservations(String identifier, String fromDate, String toDate)
+            throws ResourceNotFoundException, FhirResourceException,
+            ResourceForbiddenException, ResourceInvalidException;
 }

@@ -13,6 +13,17 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             });
             return deferred.promise;
         },
+        // edit patient entered results
+        getPatientEnteredObservationHeadings: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/availableobservationheadings
+            Restangular.one('user', userId).customGET('patiententeredobservationheadings').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getSavedObservationHeadings: function(userId) {
             var deferred = $q.defer();
             // GET /user/{userId}/savedobservationheadings

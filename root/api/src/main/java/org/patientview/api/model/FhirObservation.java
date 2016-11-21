@@ -1,14 +1,19 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * FhirObservation, representing an Observation and the Group which provided the data.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FhirObservation {
 
+    private UUID logicalId;
     private Long id;
     private Date applies;
     private String name;
@@ -42,6 +47,14 @@ public class FhirObservation {
         this.location = fhirObservation.getLocation();
         this.units = fhirObservation.getUnits();
         this.diagram = fhirObservation.getDiagram();
+    }
+
+    public UUID getLogicalId() {
+        return logicalId;
+    }
+
+    public void setLogicalId(UUID logicalId) {
+        this.logicalId = logicalId;
     }
 
     public Long getId() {

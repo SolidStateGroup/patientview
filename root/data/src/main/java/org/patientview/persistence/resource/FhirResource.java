@@ -263,6 +263,54 @@ public class FhirResource {
         }
     }
 
+    /**
+     * Execute query to return a list of array values.
+     * Depending on the query created, the number of fields to find, should map to
+     * the size of the array values to return
+     *
+     * @param sql sql to execute
+     * @param size size of the array values to map
+     * @return a list of array values
+     * @throws FhirResourceException
+     */
+    public List<String[]> findValuesByQueryAndArray(String sql, int size) throws FhirResourceException {
+        Connection connection = null;
+
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            List<String[]> observations = new ArrayList<>();
+
+            while ((results.next())) {
+                String[] res = new String[size];
+                // array of values to return from 0 to n, result to retrieve from 1 to n+1
+                for (int i = 0; i < size; i++) {
+                    res[i] = results.getString(i + 1);
+                }
+                observations.add(res);
+            }
+
+            connection.close();
+            return observations;
+        } catch (SQLException e) {
+            LOG.error("Unable to find values by query {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType)
             throws FhirResourceException {
         Connection connection = null;

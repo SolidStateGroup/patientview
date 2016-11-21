@@ -112,7 +112,11 @@ public enum AuditActions {
     MEMBERSHIP_REQUEST_SENT("Membership request sent"),
 
     // export
-    EXPORT_PATIENT_LIST("Export Patient List");
+    EXPORT_PATIENT_LIST("Export Patient List"),
+
+    // audit for patient entered result
+    PATIENT_ENTERED_RESULT_EDITED("Patient entered result edited"),
+    PATIENT_ENTERED_RESULT_DELETED("Patient entered result deleted");
 
     private String name;
     AuditActions(String name) { this.name = name; }

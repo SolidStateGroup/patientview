@@ -44,6 +44,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByEmailCaseInsensitive(@Param("email") String email);
 
     @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.identifiers i " +
+            "WHERE  u.deleted = false " +
+            "AND (i IN (SELECT id FROM Identifier id WHERE id.identifier = :identifier)) ")
+    List<User> findByIdentifier(@Param("identifier") String identifier);
+
+    @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "JOIN u.identifiers i " +

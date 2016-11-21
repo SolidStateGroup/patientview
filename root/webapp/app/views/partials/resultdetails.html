@@ -1,0 +1,53 @@
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-6">
+            <label class="inner-title">Date of result:</label>
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-control date-input" data-ng-model="editResult.day"
+                            data-ng-options="day as day for day in days">
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control date-input" data-ng-model="editResult.month"
+                            data-ng-options="month as month for month in months">
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control date-input" data-ng-model="editResult.year"
+                            data-ng-options="year as year for year in years">
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="inner-title">Time</label>
+            <div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <select class="form-control date-input" data-ng-model="editResult.hour"
+                                data-ng-options="hour as hour for hour in hours">
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control date-input" data-ng-model="editResult.minute"
+                                data-ng-options="minute as minute for minute in minutes"> </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label for="result-value" class="control-label">Value</label>
+            <div>
+                <input type="text" id="result-value" data-ng-model="editResult.value" class="form-control input-value"/>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Enter Your Own Results</h3>
+    </div>
+</div>

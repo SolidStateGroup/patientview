@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,6 +63,18 @@ public class ObservationHeadingRepositoryTest {
 
         List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode("OBS1");
         Assert.assertEquals("There should be 1 observation heading available", 1, observationHeadings.size());
+        Assert.assertTrue("The observation heading should be the one created",
+                observationHeadings.get(0).equals(observationHeading));
+    }
+
+    @Test
+    public void testFindAllByCode() {
+        ObservationHeading observationHeading = dataTestUtils.createObservationHeading("OBS1");
+        ObservationHeading observationHeading2 = dataTestUtils.createObservationHeading("OBS2");
+
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findAllByCode(
+                Arrays.asList(observationHeading.getCode().toLowerCase(), observationHeading2.getCode().toLowerCase()));
+        Assert.assertEquals("There should be 2 observation heading available", 2, observationHeadings.size());
         Assert.assertTrue("The observation heading should be the one created",
                 observationHeadings.get(0).equals(observationHeading));
     }

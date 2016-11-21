@@ -207,10 +207,8 @@ public class AuthenticationServiceTest {
         apiKey.setType(ApiKeyTypes.CKD);
         apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
         apiKey.setKey("abc123");
-        List<ApiKey> apiKeys = new ArrayList<>();
-        apiKeys.add(apiKey);
 
-        when(apiKeyRepository.findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()))).thenReturn(apiKeys);
+        when(apiKeyRepository.findOneByKey(eq(apiKey.getKey()))).thenReturn(apiKey);
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
 
@@ -220,9 +218,80 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token should be set", returned.getToken());
         Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
 
-        verify(apiKeyRepository, times(1)).findByKeyAndType(eq(apiKey.getKey()), eq(apiKey.getType()));
+        verify(apiKeyRepository, times(1)).findOneByKey(eq(apiKey.getKey()));
         verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
+    /**
+     * Test authentication with an apiKey not found
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testAuthenticate_apiKey_KeyNotFound() {
+        String password = "doNotShow";
+
+        // User
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+
+        // UserToken
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken("sometoken");
+
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.CKD);
+        apiKey.setKey("abc123");
+
+        when(apiKeyRepository.findOneByKey(eq(apiKey.getKey()))).thenReturn(null);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password, apiKey.getKey()));
+
+        Assert.assertNotNull("token should be set", returned.getToken());
+    }
+
+    /**
+     * Test authentication with an apiKey invalid type
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testAuthenticate_apiKey_TypeInvalid() {
+        String password = "doNotShow";
+
+        // User
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+
+        // UserToken
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken("sometoken");
+
+        // ApiKey
+        ApiKey apiKey = new ApiKey();
+        apiKey.setType(ApiKeyTypes.IMPORTER);
+        apiKey.setExpiryDate(new DateTime(new Date()).plusMonths(1).toDate());
+        apiKey.setKey("abc123");
+
+        when(apiKeyRepository.findOneByKey(eq(apiKey.getKey()))).thenReturn(apiKey);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password, apiKey.getKey()));
+
+        Assert.assertNotNull("token should be set", returned.getToken());
     }
 
     @Test
@@ -378,7 +447,7 @@ public class AuthenticationServiceTest {
      * Fail: The authentication has not been done
      */
     @Test(expected = AuthenticationServiceException.class)
-    public void testAuthenticatePreAuthenticationToken_Failure() throws AuthenticationServiceException{
+    public void testAuthenticatePreAuthenticationToken_Failure() throws AuthenticationServiceException {
         String testToken = "XXX-XXX-ZZZ";
 
         User tokenUser = TestUtils.createUser("TokenUser");
@@ -468,7 +537,7 @@ public class AuthenticationServiceTest {
         String word = "ABC1234";
         Map<String, String> letters = new HashMap<>();
         letters.put("salt", salt);
-        for (int i=0; i<word.length(); i++) {
+        for (int i = 0; i < word.length(); i++) {
             letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
         }
 
@@ -482,7 +551,7 @@ public class AuthenticationServiceTest {
         authenticationService.checkSecretWord(user, entered);
     }
 
-    @Test (expected = ResourceForbiddenException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testCheckSecretWord_incorrect()
             throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
         // current user and security
@@ -501,7 +570,7 @@ public class AuthenticationServiceTest {
         String word = "ABC1234";
         Map<String, String> letters = new HashMap<>();
         letters.put("salt", salt);
-        for (int i=0; i<word.length(); i++) {
+        for (int i = 0; i < word.length(); i++) {
             letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
         }
 
@@ -515,7 +584,7 @@ public class AuthenticationServiceTest {
         authenticationService.checkSecretWord(user, entered);
     }
 
-    @Test (expected = ResourceForbiddenException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testCheckSecretWord_notSet()
             throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
         // current user and security
@@ -607,6 +676,8 @@ public class AuthenticationServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
         when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
+        when(apiConditionService.hasAnyConditions(eq(foundUserToken.getUser().getId()), eq(Boolean.TRUE))).
+                thenReturn(Boolean.FALSE);
 
         org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
 
@@ -616,8 +687,8 @@ public class AuthenticationServiceTest {
         Assert.assertTrue("user should have shouldEnterCondition as true", userToken.isShouldEnterCondition());
 
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
-        verify(apiConditionService, times(1)).getUserEntered(
-                eq(foundUserToken.getUser().getId()), eq(DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED), eq(true));
+        verify(apiConditionService, times(1)).hasAnyConditions(
+                eq(foundUserToken.getUser().getId()), eq(true));
     }
 
     @Test
@@ -629,11 +700,11 @@ public class AuthenticationServiceTest {
         User user = TestUtils.createUser("testUser");
         String salt = "saltsaltsalt";
         user.setSecretWord("{"
-                    + "\"salt\" : \"" + salt + "\", "
-                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
-                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
-                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
 
         Group group = TestUtils.createGroup("testGroup");
@@ -677,7 +748,7 @@ public class AuthenticationServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
-    @Test (expected = ResourceForbiddenException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testGetUserInformation_enteredWrongSecretWord()
             throws ResourceNotFoundException, ResourceForbiddenException {
         String token = "abc123456";
@@ -686,11 +757,11 @@ public class AuthenticationServiceTest {
         User user = TestUtils.createUser("testUser");
         String salt = "saltsaltsalt";
         user.setSecretWord("{"
-                    + "\"salt\" : \"" + salt + "\", "
-                    + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
-                    + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
-                    + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                    + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
 
         Group group = TestUtils.createGroup("testGroup");

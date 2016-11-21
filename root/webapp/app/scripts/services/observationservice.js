@@ -35,6 +35,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getByCodePatientEntered: function (userId, code) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/observations/{code}/patiententered
+            Restangular.one('user', userId).one('observations').one(code).one('patiententered').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getByCodes: function (userId, codes, limit, offset, orderDirection) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations
@@ -83,6 +93,41 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        saveResultCluster: function (adminId, userId, resultCluster) {
+
+            var date = new Date(resultCluster.year, resultCluster.month - 1, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);
+
+            var observation = {};
+            observation.applies = date;
+            observation.logicalId = resultCluster.logicalId;
+            observation.name = resultCluster.name;
+            observation.value = resultCluster.value;
+            observation.group = resultCluster.group;
+
+            var deferred = $q.defer();
+            // POST /user/{userId}/observations/patiententered
+            Restangular.one('user', userId).one('observations').one('patiententered').customPOST(observation, "?adminId="+adminId)
+                .then(function (successResult) {
+                    deferred.resolve(successResult);
+                }, function (failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+
+        },
+        // Remove a single result based on userId and uuid
+        remove: function (adminId, userId, observation) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/observations/{uuid}
+            Restangular.one('user', userId).one('observations', observation.logicalId).remove({"adminId":adminId})
+                .then(function (successResult) {
+                    deferred.resolve(successResult);
+                }, function (failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
         }
+
     };
 }]);

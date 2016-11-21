@@ -1,5 +1,5 @@
 <style>
-    .secret-word-set{
+    .secret-word-set {
         font-weight: bold;
         color: green;
     }
@@ -18,7 +18,8 @@
             <a href="#/settings#change-contact-details" target="_self">Change Contact Details</a> |
             <a href="#/settings#change-password" target="_self">Change Password</a> |
             <a href="#/settings#change-secret-word" target="_self">Change Secret Word</a> |
-            <a href="#/settings#change-photo" target="_self">Add or Change Photo</a>
+            <a href="#/settings#change-photo" target="_self">Add or Change Photo</a> |
+            <a href="#/settings#generate-api-key" target="_self">Generate API key</a>
             <br/><br/>
 
             <div class="form-group">
@@ -204,8 +205,8 @@
         <a name="change-photo"></a>
         <form class="form-horizontal" id="imageForm" name="imageForm">
             <h4>Your PatientView Photo</h4>
-            <p>Please upload a photo of yourself here. The photo will be visible to members of staff with the ability 
-                to view your PatientView records. <br/>Note images must be under 10MB in size and will automatically be 
+            <p>Please upload a photo of yourself here. The photo will be visible to members of staff with the ability
+                to view your PatientView records. <br/>Note images must be under 10MB in size and will automatically be
                 resized.</p>
             <div class="form-group" data-ng-show="userdetails.picture">
                 <div class="col-sm-10 col-md-offset-2">
@@ -215,7 +216,7 @@
             <div class="form-group" data-ng-show="userdetails.picture">
                 <div class="col-sm-10 col-md-offset-2">
                     <a href="" class="btn btn-danger" data-ng-click="deletePicture()"
-                       data-ng-confirm-click="Are you sure you wish to delete this photo?" >Remove</a>
+                       data-ng-confirm-click="Are you sure you wish to delete this photo?">Remove</a>
                 </div>
             </div>
             <div class="form-group" data-ng-show="pictureChangeSuccessMessage">
@@ -247,5 +248,63 @@
                 </div>
             </div>
         </form>
+
+        <hr>
+
+        <a name="generate-api-key"></a>
+        <form class="form-horizontal" data-ng-cloak id="account-api-key-form">
+            <h4>Generate an API key</h4>
+            <p>An API key is for advanced users who wish to retrieve their PatientView data programmatically.
+                For example, to integrate their results with data from other systems or to visualise their records in
+                different ways.
+            </p>
+            <p>Once an API key is generated, please refer to the
+                <a href="https://www.patientview.org/apidocs" target="_blank">PatientView technical documentation</a>
+                under 'Patient API Documentation' section to learn more about how to retrieve your data with your
+                username, password and API key. If you have any queries regarding key renewal please
+                <a href="#/contact">contact support</a>.
+            </p>
+
+            <div class="form-group">
+                <label for="secretWord1" class="col-sm-2 control-label">API Key:</label>
+                <div class="col-sm-6">
+                    <label id="apiKey" class="form-control disabled" data-ng-bind="userdetails.apiKey.key"></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="expiryDate" class="col-sm-2 control-label">Expiry Date:</label>
+                <div class="col-sm-4">
+                    <label id="expiryDate" class="" data-ng-show="userdetails.apiKey.expiryDate">
+                        {{userdetails.apiKey.expiryDate | date:'dd-MMM-yyyy HH:mm'}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <button data-ng-click="generateKey()"
+                            data-ng-if="userdetails.apiKey.expired" class="btn blue">
+                        Renew API Key
+                    </button>
+                    <button data-ng-click="generateKey()"
+                            data-ng-if="userdetails.apiKey == null" class="btn blue">
+                        Generate API Key
+                    </button>
+
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="apiKeyErrorMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-danger">
+                    <p><strong>Error generating key: </strong> {{apiKeyErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="apiKeySuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{apiKeySuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+
     </div>
 </div>

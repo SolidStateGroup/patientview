@@ -252,4 +252,24 @@ public class ImportControllerTest {
 
         verify(apiPractitionerService, Mockito.times(1)).importPractitioner(any(FhirPractitioner.class));
     }
+
+    @Test
+    public void exportPatientEnteredObservations() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.IMPORTER);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/export/patients/123/enteredobservations")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(apiObservationService,
+                Mockito.times(1)).getPatientEnteredObservations(
+                any(String.class), any(String.class), any(String.class));
+    }
 }

@@ -7,15 +7,12 @@ import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ApiConditionService;
-import org.patientview.service.FhirLinkService;
+import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.CodeService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
-import org.patientview.persistence.repository.CodeRepository;
-import org.patientview.service.PractitionerService;
 import org.patientview.api.service.UserService;
-import org.patientview.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -31,10 +28,15 @@ import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.ConditionService;
+import org.patientview.service.FhirLinkService;
+import org.patientview.service.PractitionerService;
+import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -303,6 +305,40 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
         }
 
         return new ArrayList<>();
+    }
+
+    @Override
+    @Transactional
+    public boolean hasAnyConditions(Long userId, boolean isLogin)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+
+        User patientUser = userService.get(userId);
+        if (!isLogin && !userService.currentUserCanGetUser(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.addAll(patientUser.getFhirLinks());
+
+        if (!CollectionUtils.isEmpty(fhirLinks)) {
+
+            for (FhirLink fhirLink : fhirLinks) {
+                List<Condition> conditions = new ArrayList<>();
+
+                conditions.addAll(fhirResource.findResourceByQuery("SELECT content::varchar " + "FROM condition "
+                        + "WHERE content -> 'subject' ->> 'display' = '"
+                        + fhirLink.getResourceId() + "' ", Condition.class));
+
+                if (conditions != null && !conditions.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

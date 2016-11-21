@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +32,18 @@ public interface ObservationService {
 
     Observation buildObservation(DateTime applies, String value, String comparator, String comments,
                                  ObservationHeading observationHeading) throws FhirResourceException;
+
+    /**
+     * Helper method to copy updated values from fhir observation to observation
+     * Only updates applies, and value
+     *
+     * @param observation
+     * @param applies
+     * @param value
+     * @return a new copied over observation with changes applied
+     * @throws FhirResourceException
+     */
+    Observation copyObservation(Observation observation, Date applies, String value) throws FhirResourceException;
 
     /**
      * Delete all Observations from FHIR given a Set of FhirLink, used when deleting a patient and in migration.

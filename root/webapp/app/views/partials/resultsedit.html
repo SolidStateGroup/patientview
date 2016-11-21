@@ -1,7 +1,7 @@
 <div data-ng-show="!loading">
     <h1>Enter Your Own Results
         <ul class="unstyled inline pull-right">
-            <li><a href="/#/resultsedit" class="btn blue pull-right" data-ng-show="!loading">Edit Own Results</a></li>
+            <li><a href="/#/results-edit" class="btn blue pull-right" data-ng-show="!loading">Edit Own Results</a></li>
             <li><a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results Home</a></li>
         </ul>
     </h1>
@@ -126,7 +126,7 @@
 </div>
 
 <div data-ng-show="loading" class="container"><br/><br/>
-    <div class="loading">
+    <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Enter Your Own Results</h3>
     </div>
 </div>

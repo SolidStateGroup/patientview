@@ -224,22 +224,41 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // if valid CKD api key then can bypass secret word check
         boolean validApiKey = false;
         if (StringUtils.isNotEmpty(credentials.getApiKey())) {
-            List<ApiKey> apiKeys = apiKeyRepository.findByKeyAndType(credentials.getApiKey(), ApiKeyTypes.CKD);
-            if (!CollectionUtils.isEmpty(apiKeys)) {
-                for (ApiKey apiKeyEntity : apiKeys) {
-                    if (apiKeyEntity.getExpiryDate() == null) {
+
+            /**
+             * Need to validate different key types and apply logic accordingly
+             * Currently supports CKD and PATIENT key types
+             */
+
+            ApiKey apiKey = apiKeyRepository.findOneByKey(credentials.getApiKey());
+
+            // based on type
+            if (apiKey == null) {
+                throw new AuthenticationServiceException("API key not found");
+            }
+
+            switch (apiKey.getType()) {
+                case CKD:
+                case PATIENT:
+                    // check if has not expired yet
+                    if (apiKey.getExpiryDate() == null) {
                         validApiKey = true;
-                    } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    } else if (apiKey.getExpiryDate().getTime() > now.getTime()) {
                         validApiKey = true;
                     }
-                }
+                    break;
+                default:
+                    throw new AuthenticationServiceException("Invalid API key type");
             }
 
             if (!validApiKey) {
                 throw new AuthenticationServiceException("Invalid API key");
             }
 
-            setRateLimit(userToken, ApiKeyTypes.CKD);
+            // set rate limit for CKD
+            if (ApiKeyTypes.CKD == apiKey.getType()) {
+                setRateLimit(userToken, ApiKeyTypes.CKD);
+            }
         } else {
             setRateLimit(userToken, null);
         }
@@ -399,6 +418,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     /**
      * Check if User must set a secret word. todo: will be updated in future to include forcing staff to set etc
+     *
      * @param user User to check if must set a secret word
      * @return boolean if secret word must be set
      */
@@ -576,8 +596,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
@@ -691,7 +711,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                     for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
                         if (groupFeature.getFeature() != null
                                 && groupFeature.getFeature().getName().equals(
-                                        FeatureType.ENTER_OWN_DIAGNOSES.toString())) {
+                                FeatureType.ENTER_OWN_DIAGNOSES.toString())) {
                             groupHasFeature = true;
                         }
                     }
@@ -703,10 +723,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             return;
         }
 
-        // check patient has a DIAGNOSIS_PATIENT_ENTERED Condition
+        // check patient has a any entered Condition
         try {
-            if (CollectionUtils.isEmpty(
-                    apiConditionService.getUserEntered(user.getId(), DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, true))) {
+            if (!apiConditionService.hasAnyConditions(user.getId(), true)) {
                 userToken.setShouldEnterCondition(true);
             }
         } catch (FhirResourceException | ResourceForbiddenException | ResourceNotFoundException e) {

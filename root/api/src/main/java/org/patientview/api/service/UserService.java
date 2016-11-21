@@ -141,6 +141,13 @@ public interface UserService {
     boolean currentUserCanGetUser(User user);
 
     /**
+     * Check if current User is in the same UNIT group as another user.
+     * @param user User to get
+     * @return True if current User has the same UNIT group as the other User
+     */
+    boolean currentUserSameUnitGroup(User user, RoleName roleName);
+
+    /**
      * Check if current User has the permissions to switch to another User.
      * @param user User to switch to
      * @return True if current User can switch to the other User
@@ -432,4 +439,14 @@ public interface UserService {
      */
     @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
+
+    /**
+     * Create or re generate new api key for User
+     *
+     * @param userId Id of User to update secret word for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    void generateApiKey(final Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 }

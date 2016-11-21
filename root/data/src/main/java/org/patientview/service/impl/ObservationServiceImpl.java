@@ -13,24 +13,24 @@ import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.builder.ObservationBuilder;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.ObservationsBuilder;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.BasicObservation;
 import org.patientview.persistence.model.DateRange;
-import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ObservationService;
 import org.patientview.util.Util;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -76,6 +76,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     private IdentifierRepository identifierRepository;
 
     private String nhsno;
+
+    private static final String OBSERVATION_HEADER_COMMENT_CODE = "resultcomment";
 
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
@@ -322,11 +324,20 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         if (StringUtils.isNotEmpty(value)) {
             try {
-                Quantity quantity = new Quantity();
-                quantity.setValue(createDecimal(value));
-                quantity.setComparatorSimple(getComparator(comparator));
-                quantity.setUnitsSimple(observationHeading.getUnits());
-                observation.setValue(quantity);
+                // need a quick fix, as allowed to save comment as Quantity if numeric
+                if (OBSERVATION_HEADER_COMMENT_CODE.equals(observationHeading.getCode())) {
+                    CodeableConcept comment = new CodeableConcept();
+                    comment.setTextSimple(value);
+                    comment.addCoding().setDisplaySimple(observationHeading.getHeading());
+                    observation.setValue(comment);
+
+                } else {
+                    Quantity quantity = new Quantity();
+                    quantity.setValue(createDecimal(value));
+                    quantity.setComparatorSimple(getComparator(comparator));
+                    quantity.setUnitsSimple(observationHeading.getUnits());
+                    observation.setValue(quantity);
+                }
             } catch (ParseException pe) {
                 // parse exception, likely to be a string, e.g. comments store as text
                 CodeableConcept comment = new CodeableConcept();
@@ -348,6 +359,45 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
 
         return observation;
+    }
+
+    @Override
+    public Observation copyObservation(Observation observation, Date applies, String value)
+            throws FhirResourceException {
+
+        Observation newObservation = observation.copy();
+
+        if (applies != null) {
+            DateTime dateTime = new DateTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(applies);
+            DateAndTime dateAndTime = new DateAndTime(calendar);
+            dateTime.setValue(dateAndTime);
+            newObservation.setApplies(dateTime);
+        }
+
+        if (StringUtils.isNotEmpty(value)) {
+            try {
+
+                if (observation.getValue().getClass().equals(Quantity.class)) {
+                    // quantity value
+                    Quantity quantity = (Quantity) newObservation.getValue();
+                    quantity.setValue(createDecimal(value));
+                    newObservation.setValue(quantity);
+                } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                    // comment text
+                    CodeableConcept comment = (CodeableConcept) newObservation.getValue();
+                    comment.setTextSimple(value);
+                    newObservation.setValue(comment);
+                    newObservation.setCommentsSimple(value);
+                } else {
+                    throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
+                }
+            } catch (ParseException pe) {
+                throw new FhirResourceException("Cannot convert FHIR observation, invalid quantity");
+            }
+        }
+        return newObservation;
     }
 
     private Date convertDateTime(DateTime dateTime) {
@@ -442,7 +492,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     String codeString = results.getString(3).replace("\"", "");
 
                     // ignore DIAGNOSTIC_RESULT
-                    if(!codeString.equals(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString())) {
+                    if (!codeString.equals(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString())) {
 
                         Date applies = null;
 
