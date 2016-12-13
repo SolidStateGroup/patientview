@@ -87,6 +87,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private static Integer maximumLoginAttempts;
     private static Integer sessionLength;
 
+    private static final int SECRET_WORD_LETTER_COUNT = 2;
+
     @Inject
     private ApiConditionService apiConditionService;
 
@@ -283,6 +285,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                 List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
 
+                // choose 2 secret word letters
                 Random ran = new Random();
                 int randomInt = ran.nextInt(possibleIndexes.size() - 1);
                 toReturn.setSecretWordIndexes(new ArrayList<String>());
@@ -454,6 +457,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         String salt = secretWordMap.get("salt");
+
+        if (letterMap.keySet().size() < SECRET_WORD_LETTER_COUNT) {
+            throw new ResourceForbiddenException("Must include all requested secret word letters");
+        }
 
         // check entered letters against salted values
         for (String toCheck : letterMap.keySet()) {
