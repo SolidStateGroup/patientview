@@ -95,7 +95,7 @@ public class Group extends AuditModel {
     @Transient
     private List<Group> childGroups = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
 
     public String getName() {
