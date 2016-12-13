@@ -127,6 +127,22 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             getUserInformation(userToken);
         };
 
+        $scope.secretWordLettersSet = function(secretWordChoices) {
+            if (secretWordChoices == undefined) {
+                return false;
+            }
+
+            var count = 0;
+
+            for (var key in secretWordChoices) {
+                if (secretWordChoices.hasOwnProperty(key)) {
+                    ++count;
+                }
+            }
+
+            return count >= $scope.secretWordIndexes.length;
+        };
+
         var init = function () {
             $scope.keyPressCount = 0;
 
