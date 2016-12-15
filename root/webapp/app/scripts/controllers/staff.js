@@ -275,6 +275,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             var allowedRoles = [];
             for (i = 0; i < roles.length; i++) {
                 if ($scope.roleIds.indexOf(roles[i].id) != -1) {
+                    if ($scope.permissions.isSuperAdmin) {
+                        roles[i].visible = true;
+                    }
                     allowedRoles.push(roles[i]);
                 }
             }
