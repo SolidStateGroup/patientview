@@ -975,6 +975,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      *
      * @return Page of api User
      */
+    @Override
     public Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -993,6 +994,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         throw new ResourceNotFoundException("Unknown Group");
                     }
                     if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
+                        throw new ResourceForbiddenException("Forbidden");
+                    }
+                    // validate that if group is a SPECIALTY group that the user has the SPECIALTY_ADMIN role
+                    if (entityGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
+                            && !ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
                 }
