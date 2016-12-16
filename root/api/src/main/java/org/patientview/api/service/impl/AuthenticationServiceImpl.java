@@ -179,7 +179,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         String username = credentials.getUsername();
         String password = credentials.getPassword();
 
-        if (username == null || password == null) {
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
