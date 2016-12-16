@@ -214,6 +214,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
+        // if user has IMPORTER role then stop and advise importer endpoint
+        if (ApiUtil.userHasRole(user, RoleName.IMPORTER)) {
+            throw new AuthenticationServiceException("This account has IMPORTER role, " +
+                    "please use import login endpoint");
+        }
+
         Date now = new Date();
 
         UserToken userToken = new UserToken();
