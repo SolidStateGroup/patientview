@@ -179,12 +179,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         String username = credentials.getUsername();
         String password = credentials.getPassword();
 
+        // temporary logging for PSQLException testing on production
+        LOG.info("Authenticating '" + username + "'");
+
+        // validate null
+        if (username == null || password == null) {
+            throw new AuthenticationServiceException("Incorrect username or password.");
+        }
+
+        // trim username (ipad adds space if you tap space after username to auto enter details)
+        // also replace null character (causing PSQLException: ERROR: invalid byte sequence for encoding "UTF8": 0x00)
+        username = username.trim().replaceAll("\\x00", "");
+
+        // strip spaces from beginning and end of password
+        password = password.trim();
+
+        // check not empty
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
-        // trim username (ipad adds space if you tap space after username to auto enter details)
-        username = username.trim();
         User user = userRepository.findByUsernameCaseInsensitive(username);
 
         if (user == null) {
@@ -196,9 +210,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
-
-        // strip spaces from beginning and end of password
-        password = password.trim();
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password)) && user.getSalt() == null) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
