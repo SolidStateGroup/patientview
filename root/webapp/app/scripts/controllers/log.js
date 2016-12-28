@@ -38,8 +38,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         } else {
             $scope.selectedGroup.push(id);
         }
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
@@ -57,13 +55,9 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         }
 
         $scope.selectedGroup = newSelectedGroupList;
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.removeSelectedGroup = function (group) {
         $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
 
     // filter by audit action
@@ -74,8 +68,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         } else {
             $scope.selectedAuditAction.push(auditAction);
         }
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.isAuditActionChecked = function (auditAction) {
         if (_.contains($scope.selectedAuditAction, auditAction)) {
@@ -85,13 +77,9 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     };
     $scope.removeAllAuditActions = function () {
         $scope.selectedAuditAction = [];
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.removeSelectedAuditAction = function (auditAction) {
         $scope.selectedAuditAction.splice($scope.selectedAuditAction.indexOf(auditAction), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
 
     $scope.getItems = function() {
