@@ -4,10 +4,13 @@
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    'DiagnosisService', 'CodeService', 'PatientService',
+    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies, DiagnosisService, CodeService, PatientService) {
+        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins) {
+
+    // mixins for filters and shared code
+    angular.extend($scope, Mixins);
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -155,7 +158,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             window.open(downloadUrl, "Your download is now starting.");
         }
 
-    }
+    };
 
     $scope.getUser = function(openedUser) {
         UserService.get(openedUser.id).then(function (user) {
@@ -479,13 +482,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    $scope.isGroupChecked = function (id) {
-        if (_.contains($scope.selectedGroup, id)) {
-            return 'glyphicon glyphicon-ok pull-right';
-        }
-        return false;
-    };
-
     // Opened for edit
     $scope.opened = function (openedUser) {
         $scope.successMessage = '';
@@ -637,54 +633,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    $scope.printSuccessMessageCompat = function() {
-        // ie8 compatibility
-        var printContent = $('#success-message').clone();
-        printContent.children('.print-success-message').remove();
-        var windowUrl = 'PatientView';
-        var uniqueName = new Date();
-        var windowName = 'Print' + uniqueName.getTime();
-        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
-        printWindow.document.write(printContent.html());
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-    };
-
-    $scope.removeAllSelectedGroup = function (groupType) {
-        delete $scope.successMessage;
-        var newSelectedGroupList = [];
-
-        for (var i=0; i<$scope.selectedGroup.length; i++) {
-            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
-                newSelectedGroupList.push($scope.selectedGroup[i]);
-            }
-        }
-
-        $scope.selectedGroup = newSelectedGroupList;
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
     $scope.removeDiagnosis = function () {
         DiagnosisService.removeStaffEntered($scope.editUser.id).then(function() {
             $scope.getUser($scope.editUser);
         }, function() {
             alert('Failed to remove diagnosis.');
         })
-    };
-
-    $scope.removeSelectedGroup = function (group) {
-        delete $scope.successMessage;
-        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
-    $scope.removeStatusFilter = function() {
-        delete $scope.statusFilter;
-        $scope.getItems();
     };
 
     // reset user password
@@ -758,13 +712,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    // multi search
-    $scope.search = function() {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
     // send verification email
     $scope.sendVerificationEmail = function (userId) {
         $scope.printSuccessMessage = false;
@@ -790,36 +737,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 // closed
             });
         });
-    };
-
-    // filter users by group
-    $scope.setSelectedGroup = function () {
-        delete $scope.successMessage;
-        var id = this.group.id;
-        if (_.contains($scope.selectedGroup, id)) {
-            $scope.selectedGroup = _.without($scope.selectedGroup, id);
-        } else {
-            $scope.selectedGroup.push(id);
-        }
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
-    $scope.sortBy = function(sortField) {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        if ($scope.sortField !== sortField) {
-            $scope.sortDirection = 'ASC';
-            $scope.sortField = sortField;
-        } else {
-            if ($scope.sortDirection === 'ASC') {
-                $scope.sortDirection = 'DESC';
-            } else {
-                $scope.sortDirection = 'ASC';
-            }
-        }
-
-        $scope.getItems();
     };
 
     // view patient

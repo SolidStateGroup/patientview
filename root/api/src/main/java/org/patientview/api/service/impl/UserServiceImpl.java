@@ -14,7 +14,6 @@ import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -102,7 +101,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.patientview.api.util.ApiUtil.currentUserHasRole;
+import static org.patientview.api.util.ApiUtil.doesContainGroupAndRole;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
+import static org.patientview.api.util.ApiUtil.isInEnum;
 
 /**
  * Created by james@solidstategroup.com
@@ -648,7 +650,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // UNIT_ADMIN can get users from other groups (used when updating existing user)
         // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
-        if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN) || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN)) {
+        if (currentUserHasRole(RoleName.UNIT_ADMIN) || currentUserHasRole(RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
                         || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -678,7 +680,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // we only should check  UNIT type group, ignore parent group (SPECIALITY)
         for (GroupRole groupRole : user.getGroupRoles()) {
             if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
-                    && (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), roleName))) {
+                    && (doesContainGroupAndRole(groupRole.getGroup().getId(), roleName))) {
                 return true;
             }
         }
@@ -1000,7 +1002,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     }
                     // validate that if group is a SPECIALTY group that the user has the SPECIALTY_ADMIN role
                     if (entityGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
-                            && !ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
+                            && !currentUserHasRole(RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
                 }
@@ -1068,7 +1070,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         StatusFilter statusFilter = null;
 
         // get status filter for filtering users by status (e.g. locked, active, inactive)
-        if (ApiUtil.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
+        if (isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
             statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
         }
 
