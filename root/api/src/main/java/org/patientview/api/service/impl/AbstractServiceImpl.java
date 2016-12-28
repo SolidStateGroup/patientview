@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -12,6 +13,8 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -32,11 +35,11 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }
 
-    protected static <T> List<T> convertIterable(Iterable<T> iterable) {
+    protected static <T> List<T> convertIterable(final Iterable<T> iterable) {
         return Util.convertIterable(iterable);
     }
 
-    protected List<Long> convertStringArrayToLongs(String[] strings) {
+    protected List<Long> convertStringArrayToLongs(final String[] strings) {
         final List<Long> longs = new ArrayList<>();
         if (ArrayUtils.isNotEmpty(strings)) {
             for (String string : strings) {
@@ -48,7 +51,21 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return longs;
     }
 
-    protected boolean isUserMemberOfGroup(User user, Group group) {
+    protected PageRequest createPageRequest(final int page, final int size,
+                                            final String sortField, final String sortDirection) {
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals(Sort.Direction.DESC.toString())) {
+                direction = Sort.Direction.DESC;
+            }
+
+            return new PageRequest(page, size, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            return new PageRequest(page, size);
+        }
+    }
+
+    protected boolean isUserMemberOfGroup(final User user, final Group group) {
         // unit admins / specialty admins can only add groups they belong to
         if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
