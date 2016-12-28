@@ -177,17 +177,6 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
 
         PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
-
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {

@@ -8,26 +8,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     $scope.sortField = 'creationDate';
     $scope.sortDirection = 'DESC';
 
-    var tempFilterText = '';
-    var filterTextTimeout;
-
-    // watches
-    // update page on user typed search text
-    $scope.$watch('searchText', function (value) {
-        if (value !== undefined) {
-            if (filterTextTimeout) {
-                $timeout.cancel(filterTextTimeout);
-            }
-            $scope.currentPage = 0;
-
-            tempFilterText = value;
-            filterTextTimeout = $timeout(function () {
-                $scope.filterText = tempFilterText;
-                $scope.getItems();
-            }, 2000); // delay 2000 ms
-        }
-    });
-
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
         $scope.currentPage = value;
@@ -164,12 +144,25 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         $scope.openedEnd = true;
     };
 
-    $scope.setDateRange = function(start, end) {
-        if (start === undefined) {
+    $scope.reset = function() {
+        var oneWeek = 604800000;
+        $scope.dateStart = new Date(new Date().getTime() - oneWeek);
+        $scope.dateEnd = new Date();
+        $scope.currentPage = 0;
+        $scope.selectedAuditAction = [];
+        $scope.selectedGroup = [];
+        delete $scope.filterText;
+        delete $scope.sortField;
+        delete $scope.sortDirection;
+        $scope.getItems();
+    };
+
+    $scope.search = function() {
+        if ($scope.dateStart === undefined) {
             var oneWeek = 604800000;
             $scope.dateStart = new Date(new Date().getTime() - oneWeek);
         }
-        if (end === undefined) {
+        if ($scope.dateEnd === undefined) {
             $scope.dateEnd = new Date();
         }
         $scope.currentPage = 0;
