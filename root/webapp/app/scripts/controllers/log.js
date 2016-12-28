@@ -151,9 +151,9 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         $scope.currentPage = 0;
         $scope.selectedAuditAction = [];
         $scope.selectedGroup = [];
-        delete $scope.filterText;
-        delete $scope.sortField;
-        delete $scope.sortDirection;
+        $scope.filterText = '';
+        $scope.sortField = 'creationDate';
+        $scope.sortDirection = 'DESC';
         $scope.getItems();
     };
 
