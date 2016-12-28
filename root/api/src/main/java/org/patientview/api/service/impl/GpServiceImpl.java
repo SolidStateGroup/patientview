@@ -971,7 +971,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // validate no existing users with this email
-        if (userService.getByEmail(gpDetails.getEmail()) != null) {
+        List<User> foundUsers = userRepository.findByEmailCaseInsensitive(gpDetails.getEmail());
+        if (!CollectionUtils.isEmpty(foundUsers)) {
             throw new VerificationException("A user already exists with this email address");
         }
 

@@ -174,27 +174,20 @@ public class UserController extends BaseController<UserController> {
     /**
      * Create a new User.
      * @param user User object containing all required information
-     * @return ID of newly created User
+     * @return Long ID of newly created User
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
+     * @throws VerificationException
+     * @throws FhirResourceException
+     * @throws EntityExistsException
      */
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Long> createUser(@RequestBody org.patientview.persistence.model.User user)
-            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException, FhirResourceException {
-        try {
-            return new ResponseEntity<>(userService.createUserWithPasswordEncryption(user), HttpStatus.CREATED);
-        } catch (EntityExistsException eee) {
-            User foundUser = userService.getByUsername(user.getUsername());
-            if (foundUser != null) {
-                // found by username
-                return new ResponseEntity<>(foundUser.getId(), HttpStatus.CONFLICT);
-            } else {
-                // found by email
-                return new ResponseEntity<>(userService.getByEmail(user.getEmail()).getId(), HttpStatus.CONFLICT);
-            }
-        }
+            throws ResourceNotFoundException, ResourceForbiddenException, VerificationException, FhirResourceException,
+            EntityExistsException {
+        return new ResponseEntity<>(userService.createUserWithPasswordEncryption(user), HttpStatus.CREATED);
     }
 
     /**
