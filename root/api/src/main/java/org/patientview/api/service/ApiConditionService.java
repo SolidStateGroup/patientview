@@ -9,7 +9,6 @@ import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.RoleName;
 
-import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -62,7 +61,6 @@ public interface ApiConditionService {
      * @param userId User ID of current User
      * @param codes List of String code of diagnoses
      * @throws ResourceNotFoundException
-     * @throws EntityExistsException
      * @throws FhirResourceException
      * @throws ResourceForbiddenException
      */

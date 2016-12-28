@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Class to control the crud operations of the News.
  *
@@ -48,22 +50,22 @@ import java.util.Set;
 public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implements NewsService {
 
     @Inject
-    private UserRepository userRepository;
+    private EntityManager entityManager;
 
     @Inject
     private GroupRepository groupRepository;
 
     @Inject
-    private RoleRepository roleRepository;
-
-    @Inject
     private NewsItemRepository newsItemRepository;
 
     @Inject
-    private EntityManager entityManager;
+    private RoleRepository roleRepository;
 
     @Inject
     private StaticDataManager staticDataManager;
+
+    @Inject
+    private UserRepository userRepository;
 
     public Long add(final NewsItem newsItem) {
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
@@ -81,13 +83,14 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 }
 
                 newsLink.setNewsItem(newsItem);
-                newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
+                newsLink.setCreator(getCurrentUser());
             }
         }
 
         // set updater and update time (used for ordering correctly)
-        newsItem.setCreator(getCurrentUser());
-        newsItem.setLastUpdater(getCurrentUser());
+        User currentUser = getCurrentUser();
+        newsItem.setCreator(currentUser);
+        newsItem.setLastUpdater(currentUser);
         newsItem.setLastUpdate(newsItem.getCreated());
 
         return newsItemRepository.save(newsItem).getId();
@@ -121,9 +124,30 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             NewsLink newsLink = new NewsLink();
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
-            newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
+            newsLink.setCreator(getCurrentUser());
             entityNewsItem.getNewsLinks().add(newsLink);
             newsItemRepository.save(entityNewsItem);
+        }
+    }
+
+    /**
+     * Card #458: news permissions.
+     */
+    private void checkRolePermissions(Role entityRole) throws ResourceForbiddenException {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            // can do everything
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
+            // no public or global admin news
+            if (Arrays.asList(new String[]{"PUBLIC", "GLOBAL_ADMIN"}).contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        } else {
+            // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
+            // unit admin, staff admin, gp admin, disease group admin
+            if (Arrays.asList(new String[]{"PUBLIC", "SPECIALTY_ADMIN", "GLOBAL_ADMIN"})
+                    .contains(entityRole.getName().toString())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
         }
     }
 
@@ -155,21 +179,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // #458 restrict roles
-        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
-            // can do everything
-        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
-            // no public or global admin news
-            if (Arrays.asList(new String[]{"PUBLIC", "GLOBAL_ADMIN"}).contains(entityRole.getName().toString())) {
-                throw new ResourceForbiddenException("Forbidden");
-            }
-        } else {
-            // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
-            // unit admin, staff admin, gp admin, disease group admin
-            if (Arrays.asList(new String[]{"PUBLIC", "SPECIALTY_ADMIN", "GLOBAL_ADMIN"})
-                    .contains(entityRole.getName().toString())) {
-                throw new ResourceForbiddenException("Forbidden");
-            }
-        }
+        checkRolePermissions(entityRole);
 
         boolean found = false;
 
@@ -187,7 +197,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
             newsLink.setRole(entityRole);
-            newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
+            newsLink.setCreator(getCurrentUser());
             entityNewsItem.getNewsLinks().add(newsLink);
 
             newsItemRepository.save(entityNewsItem);
@@ -211,21 +221,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // #458 restrict roles
-        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
-            // can do everything
-        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
-            // no public or global admin news
-            if (Arrays.asList(new String[]{"PUBLIC", "GLOBAL_ADMIN"}).contains(entityRole.getName().toString())) {
-                throw new ResourceForbiddenException("Forbidden");
-            }
-        } else {
-            // #458 "Unit Admin can create news for Unit Admins/Unit Staff/Patients/Logged In Users"
-            // unit admin, staff admin, gp admin, disease group admin
-            if (Arrays.asList(new String[]{"PUBLIC", "SPECIALTY_ADMIN", "GLOBAL_ADMIN"})
-                    .contains(entityRole.getName().toString())) {
-                throw new ResourceForbiddenException("Forbidden");
-            }
-        }
+        checkRolePermissions(entityRole);
 
         boolean found = false;
 
@@ -239,7 +235,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         if (!found) {
             User creator = getCurrentUser();
-            creator = userRepository.findOne(creator.getId());
 
             NewsLink newsLink = new NewsLink();
             newsLink.setNewsItem(entityNewsItem);
@@ -268,14 +263,21 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return false;
+        }
 
         return (newsItem.getCreator() != null && newsItem.getCreator().getId().equals(currentUser.getId()))
                 || (newsItem.getLastUpdater() != null && newsItem.getLastUpdater().getId().equals(currentUser.getId()));
     }
 
-    private boolean canModifyNewsLink(NewsLink newsLink) {
+    private boolean canModifyNewsLink(final NewsLink newsLink) {
         if (newsLink.getGroup() != null && ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             User currentUser = getCurrentUser();
+            if (currentUser == null) {
+                return false;
+            }
+
             for (GroupRole groupRole : currentUser.getGroupRoles()) {
                 if (groupRole.getGroup().equals(newsLink.getGroup())) {
                     return true;

@@ -65,6 +65,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 09/07/2014
@@ -393,10 +395,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         Set<Group> groups = new HashSet<>();
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             // GLOBAL_ADMIN can reach all groups
             groups = new HashSet<>(Util.convertIterable(groupRepository.findAll()));
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             // SPECIALTY_ADMIN gets groups and child groups if available
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             parentGroups = addParentAndChildGroups(parentGroups);
@@ -408,7 +410,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
             // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
             groups.addAll(getSupportGroups());
-        } else if (doesContainRoles(RoleName.PATIENT)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.PATIENT)) {
             // PATIENT do not add specialty type groups
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             for (Group parentGroup : parentGroups) {
@@ -416,7 +418,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                     groups.add(parentGroup);
                 }
             }
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             // UNIT_ADMIN get all groups (participant list is secured later)
             groups.addAll(groupRepository.findAll());
         } else {
@@ -447,7 +449,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     public Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId) {
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
 
             Page<Group> groupList = groupRepository.findAll("%%", new PageRequest(0, Integer.MAX_VALUE));
 

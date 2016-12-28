@@ -30,7 +30,6 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
-import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
@@ -74,6 +73,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Created by james@solidstategroup.com
@@ -227,8 +228,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // if user has IMPORTER role then stop and advise importer endpoint
         if (ApiUtil.userHasRole(user, RoleName.IMPORTER)) {
-            throw new AuthenticationServiceException("This account has IMPORTER role, " +
-                    "please use import login endpoint");
+            throw new AuthenticationServiceException("This account has IMPORTER role, "
+                    + "please use import login endpoint");
         }
 
         Date now = new Date();
@@ -620,8 +621,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
+    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);

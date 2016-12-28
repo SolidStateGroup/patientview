@@ -84,6 +84,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Conversation service, for CRUD operations related to Conversations and Messages.
  *
@@ -1504,12 +1506,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // to store list of users per role
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             userMap = getGlobalAdminRecipients(groupId);
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
                 RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
             userMap = getStaffRecipients(userId, groupId);
-        } else  if (doesContainRoles(RoleName.PATIENT)) {
+        } else  if (ApiUtil.currentUserHasRole(RoleName.PATIENT)) {
             userMap = getPatientRecipients(userId, groupId);
         }
 

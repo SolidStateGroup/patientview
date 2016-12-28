@@ -79,6 +79,8 @@ import java.util.Properties;
 import java.util.RandomAccess;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 18/01/2016
@@ -361,8 +363,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         try {
             HttpURLConnection huc = (HttpURLConnection) new URL(url).openConnection();
             huc.setRequestMethod("HEAD");  //OR  huc.setRequestMethod ("GET");
-            huc.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; " +
-                    ".NET CLR 1.0.3705; .NET CLR 1.1.4322; .NET CLR 1.2.30703)");
+            huc.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; "
+                    + ".NET CLR 1.0.3705; .NET CLR 1.1.4322; .NET CLR 1.2.30703)");
             huc.connect();
             return huc.getResponseCode();
         } catch (Exception e) {
@@ -522,8 +524,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         Date now = new Date();
 
         // if NHS Choices Condition is found and not already set to status 200 and not updated in last month
-        if (condition != null &&
-                (condition.getIntroductionUrlStatus() == null || !condition.getIntroductionUrlStatus().equals(200))
+        if (condition != null
+                && (condition.getIntroductionUrlStatus() == null || !condition.getIntroductionUrlStatus().equals(200))
                 && (condition.getIntroductionUrlLastUpdateDate() == null
                 || condition.getIntroductionUrlLastUpdateDate().before(oneMonthAgo))) {
             // check against both urls
@@ -581,11 +583,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             // check Link exists already with NHS Choices type
             for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-                if (link.getLinkType() != null &&
-                        LinkTypes.NHS_CHOICES.id()== link.getLinkType().getId()) {
+                if (link.getLinkType() != null && LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
                     foundLink = link;
                 }
             }
+
+            User currentUser = getCurrentUser();
 
             if (foundLink == null && foundIntroductionPage) {
                 // no existing link, introduction page exists, create new Link
@@ -601,27 +604,27 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
                 nhschoicesLink.setName(linkType.getDescription());
                 nhschoicesLink.setCode(entityCode);
-                nhschoicesLink.setCreator(getCurrentUser());
+                nhschoicesLink.setCreator(currentUser);
                 nhschoicesLink.setCreated(now);
-                nhschoicesLink.setLastUpdater(getCurrentUser());
+                nhschoicesLink.setLastUpdater(currentUser);
                 nhschoicesLink.setLastUpdate(nhschoicesLink.getCreated());
 
                 // forth it to be always first
                 nhschoicesLink.setDisplayOrder(1);
 
                 entityCode.getLinks().add(nhschoicesLink);
-                entityCode.setLastUpdater(getCurrentUser());
+                entityCode.setLastUpdater(currentUser);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
             } else if (foundLink != null && foundIntroductionPage) {
                 // existing link, introduction page exists, update link
                 foundLink.setDisplayOrder(1);
                 foundLink.setLink(condition.getIntroductionUrl());
-                foundLink.setLastUpdater(getCurrentUser());
+                foundLink.setLastUpdater(currentUser);
                 foundLink.setLastUpdate(now);
                 entityCode.setLastUpdate(now);
                 codeRepository.save(entityCode);
-            } else if (foundLink != null && !foundIntroductionPage) {
+            } else if (foundLink != null) {
                 // existing link, introduction page does not exist, remove link
                 entityCode.getLinks().remove(foundLink);
                 entityCode.setLastUpdate(now);

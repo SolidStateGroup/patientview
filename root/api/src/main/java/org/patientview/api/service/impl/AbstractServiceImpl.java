@@ -5,7 +5,6 @@ import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -13,15 +12,9 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,41 +32,8 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }
 
-    protected List<Role> getRoles() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated (r)");
-        }
-
-        if (CollectionUtils.isEmpty(authentication.getAuthorities())) {
-            return Collections.EMPTY_LIST;
-        }
-
-        return ApiUtil.convertAuthorities(authentication.getAuthorities());
-    }
-
-    protected User getUser() {
-        return ApiUtil.getUser();
-    }
-
-    protected boolean doesContainRoles(RoleName... roleNames) {
-        return ApiUtil.currentUserHasRole(roleNames);
-    }
-
     protected static <T> List<T> convertIterable(Iterable<T> iterable) {
         return Util.convertIterable(iterable);
-    }
-
-
-    @PostConstruct
-    public void init() {
-        LOG.info("Service started");
-    }
-
-    @PreDestroy
-    public void close() {
-        LOG.info("Service closing");
     }
 
     protected List<Long> convertStringArrayToLongs(String[] strings) {
@@ -158,12 +118,5 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         }
 
         return false;
-    }
-
-    protected User getCurrentUser() {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return null;
-        }
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

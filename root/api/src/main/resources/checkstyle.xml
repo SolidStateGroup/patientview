@@ -152,7 +152,7 @@
         <!--<module name="HiddenField"/> TODO: turn this back on-->
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
-        <module name="MagicNumber"/>
+        <!-- <module name="MagicNumber"/> -->
         <module name="MissingSwitchDefault"/>
 
         <!-- added 09/10/14 to avoid checks on exceptions thrown to base controller handler -->

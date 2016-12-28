@@ -37,8 +37,6 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ServerResponse;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.UserInformation;
-import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
@@ -53,7 +51,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
@@ -83,6 +80,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Observation service, for management and retrieval of observations (test results), stored in FHIR.
@@ -326,7 +325,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
 
     @Override
-    public void updatePatientEnteredResult(Long userId, Long adminId, org.patientview.api.model.FhirObservation enteredResult)
+    public void updatePatientEnteredResult(Long userId, Long adminId,
+                                           org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
@@ -336,10 +336,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         // check if admin is viewing patient, otherwise editor is patient
-        User editor = null;
-        if(adminId != null && !adminId.equals(userId)){
+        User editor;
+        if (adminId != null && !adminId.equals(userId)) {
             editor =  userRepository.findOne(adminId);
-        }else{
+        } else {
             editor  = patientUser;
         }
 
@@ -370,7 +370,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         if (!uuids.contains(enteredResult.getLogicalId())) {
             throw new ResourceNotFoundException("Could not find observation in the list.");
         }
-        Observation observation = (Observation) fhirResource.get(enteredResult.getLogicalId(), ResourceType.Observation);
+        Observation observation
+                = (Observation) fhirResource.get(enteredResult.getLogicalId(), ResourceType.Observation);
         if (observation == null) {
             throw new ResourceNotFoundException("Could not find observation.");
         }
@@ -416,10 +417,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         // check if admin is viewing patient, otherwise editor is patient
-        User editor = null;
-        if(adminId != null && !adminId.equals(userId)){
+        User editor;
+        if (adminId != null && !adminId.equals(userId)) {
             editor =  userRepository.findOne(adminId);
-        }else{
+        } else {
             editor  = patientUser;
         }
 
@@ -625,8 +626,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
 
-            if (fhirLink.getActive() &&
-                    fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+            if (fhirLink.getActive()
+                    && fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  ");
                 query.append("logical_id, ");
@@ -1185,8 +1186,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group,
-                                                        List<ObservationHeading> observationHeadings,
-                                                        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+                                            List<ObservationHeading> observationHeadings,
+                                            Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
         group = groupRepository.findOne(group.getId());
 
@@ -1541,8 +1542,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         for (FhirLink fhirLink : fhirLinks) {
 
             // get only patient entered data
-            if (fhirLink.getActive() &&
-                    fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+            if (fhirLink.getActive()
+                    && fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  ");
                 query.append("CONTENT ->> 'appliesDateTime', ");

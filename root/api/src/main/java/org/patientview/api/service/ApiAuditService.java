@@ -23,8 +23,8 @@ public interface ApiAuditService {
      * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * of page etc
      * @return Page containing a number of Audit objects, each of which has a Date, Action etc
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @throws ResourceNotFoundException thrown if user missing group data
+     * @throws ResourceForbiddenException thrown if unauthorised
      */
     Page<Audit> findAll(GetParameters getParameters) throws ResourceNotFoundException, ResourceForbiddenException;
 }

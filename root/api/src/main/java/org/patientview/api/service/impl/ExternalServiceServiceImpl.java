@@ -10,8 +10,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.ExternalServiceTaskQueueItemRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,8 @@ import java.util.Properties;
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
-@Service public class ExternalServiceServiceImpl implements ExternalServiceService {
+@Service public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
+        implements ExternalServiceService {
 
     @Inject
     private ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
@@ -36,7 +35,6 @@ import java.util.Properties;
     private Properties properties;
 
     private static final int HTTP_OK = 200;
-    protected final Logger LOG = LoggerFactory.getLogger(ExternalServiceServiceImpl.class);
 
     @Override
     public void addToQueue(ExternalServices externalService, String xml, User creator, Date created) {

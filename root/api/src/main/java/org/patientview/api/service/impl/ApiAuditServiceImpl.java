@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
  * Logon)
@@ -96,12 +98,7 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
     }
 
     /**
-     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
-     * of page etc
-     * @return Page containing a number of Audit objects, each of which has a Date, Action etc
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public Page<Audit> findAll(GetParameters getParameters)

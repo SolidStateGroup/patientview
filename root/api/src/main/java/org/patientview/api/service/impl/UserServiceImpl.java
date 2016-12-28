@@ -102,6 +102,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
@@ -675,8 +677,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // we only should check  UNIT type group, ignore parent group (SPECIALITY)
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString()) &&
-                    (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), roleName))) {
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
+                    && (ApiUtil.doesContainGroupAndRole(groupRole.getGroup().getId(), roleName))) {
                 return true;
             }
         }
@@ -1533,7 +1535,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void moveUsersGroup(final Long groupFromId, final Long groupToId, final Long roleId,
-                               final boolean checkParentGroup) throws ResourceForbiddenException, ResourceNotFoundException {
+                               final boolean checkParentGroup)
+            throws ResourceForbiddenException, ResourceNotFoundException {
 
         // check all exist
         final Group groupFrom = groupRepository.findOne(groupFromId);

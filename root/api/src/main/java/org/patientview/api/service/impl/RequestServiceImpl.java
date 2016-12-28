@@ -43,6 +43,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 30/07/2014
@@ -135,7 +137,6 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         Page<Request> requests = requestRepository.findAllByStatuses(
                 submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
 
-        //List<Request> outDatedRequests = new ArrayList<>();
         int count = 0;
         Date now = new Date();
         String dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(now);
@@ -409,11 +410,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             requestTypes.addAll(Arrays.asList(RequestTypes.values()));
         }
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             requestPage = findAll(statusList, groupIdList, requestTypes, pageable);
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             requestPage = findByParentUser(user, statusList, groupIdList, requestTypes, pageable);
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             requestPage = findByUser(user, statusList, groupIdList, requestTypes, pageable);
         } else {
             throw new SecurityException("Invalid role for requests");
@@ -428,11 +429,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             return requestRepository.countSubmittedByParentUser(userId);
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             return requestRepository.countSubmittedByUser(userId);
-        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             return requestRepository.countSubmitted();
         }
 
@@ -455,7 +456,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         if (request.getStatus() == RequestStatus.COMPLETED) {
-            User user = getUser();
+            User user = getCurrentUser();
             entityRequest.setCompletedBy(userRepository.findOne(user.getId()));
             entityRequest.setCompletionDate(new Date());
         }

@@ -74,6 +74,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Class to control the crud operations of the Observation Headings.
  * <p/>
@@ -84,7 +86,7 @@ import java.util.TreeMap;
 public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> implements ExportService {
 
     @Inject
-    AuditService auditService;
+    private AuditService auditService;
 
     @Inject
     private ApiObservationService apiObservationService;
@@ -250,10 +252,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             String content = fhirDoc.getContent().replaceAll("&#\\d*;", "");
             document.addValueToNextCell(content);
         }
-        return getDownloadContent("Letters",
-                makeCSVString(
-                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
 
+        return getDownloadContent("Letters", makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -281,9 +282,9 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             document.addValueToNextCell(medicationStatement.getDose());
             document.addValueToNextCell(medicationStatement.getGroup().getName());
         }
-        return getDownloadContent("Medicines",
-                makeCSVString(
-                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+
+        return getDownloadContent("Medicines", makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -299,7 +300,6 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Date");
         document.addHeader("Unit");
         document.addHeader("Comments");
-
 
         //If there are no codes sent with the request, get all codes applicable for this user
         for (ObservationHeading heading : observationHeadingService.getAvailableObservationHeadings(userId)) {
@@ -335,7 +335,6 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                         }
                         document.appendUnqiueValueToCurrentRowCell(2,
                                 results.get(heading.toUpperCase()).get(0).getComments());
-
 
                         document.addValueToNextCell(results.get(heading.toUpperCase()).get(0).getValue().trim());
                         //Add the unit
@@ -376,9 +375,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
             }
             document.addValueToCellCascade(1, StringUtils.join(unitNames, ","));
         }
-        return getDownloadContent("Results",
-                makeCSVString(
-                        document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
+        return getDownloadContent("Results", makeCSVString(
+                document.getDocument()).getBytes(Charset.forName("UTF-8")), userId, fromDate, toDate, FileTypes.CSV);
     }
 
     @Override
@@ -613,8 +611,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     }
                     // if is a ranged value then get value
                     if (questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.SINGLE_SELECT_RANGE)
-                            || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
-                            || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT)
+                        || questionAnswer.getQuestion().getElementType().equals(QuestionElementTypes.TEXT_NUMERIC)) {
                         answerMap.put(questionAnswer.getQuestion().getType(), questionAnswer.getValue());
                     }
                 }

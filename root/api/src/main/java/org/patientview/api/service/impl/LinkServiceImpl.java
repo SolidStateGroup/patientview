@@ -17,6 +17,8 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 15/07/2014
@@ -131,7 +133,6 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
     }
 
     public void reorderLinks(String code) {
-
         // update Code with link if does not exist
         Code entityCode = codeRepository.findOneByCode(code);
         if (entityCode == null) {
@@ -143,23 +144,19 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
         int linkDisplayOrder = 1;
 
         for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-            if (link.getLinkType() != null &&
-                    LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
+            if (link.getLinkType() != null && LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
                 linkMap.put(LinkTypes.NHS_CHOICES.name(), link);
                 linkDisplayOrder++;
-            } else if (link.getLinkType() != null &&
-                    LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
+            } else if (link.getLinkType() != null && LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
                 linkMap.put(LinkTypes.MEDLINE_PLUS.name(), link);
                 linkDisplayOrder++;
             }
         }
 
         for (org.patientview.persistence.model.Link link : entityCode.getLinks()) {
-            if (link.getLinkType() != null &&
-                    LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
+            if (link.getLinkType() != null && LinkTypes.NHS_CHOICES.id() == link.getLinkType().getId()) {
                 link.setDisplayOrder(1);
-            } else if (link.getLinkType() != null &&
-                    LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
+            } else if (link.getLinkType() != null && LinkTypes.MEDLINE_PLUS.id() == link.getLinkType().getId()) {
                 if (linkMap.containsKey(LinkTypes.NHS_CHOICES.name())) {
                     link.setDisplayOrder(2);
                 } else {

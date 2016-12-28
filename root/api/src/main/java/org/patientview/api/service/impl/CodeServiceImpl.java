@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Class to control the crud operations of Codes.
  * <p>

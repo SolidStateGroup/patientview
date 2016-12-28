@@ -90,6 +90,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 02/02/2016

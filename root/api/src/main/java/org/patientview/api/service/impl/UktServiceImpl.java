@@ -3,9 +3,8 @@ package org.patientview.api.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
-import org.patientview.service.EncounterService;
-import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ApiPatientService;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UktService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -21,9 +20,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.persistence.resource.FhirResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.patientview.service.EncounterService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -45,15 +42,10 @@ import java.util.UUID;
  * Created by jamesr@solidstategroup.com
  * Created on 05/01/2015
  */
-@Service public class UktServiceImpl implements UktService {
-
-    protected final Logger LOG = LoggerFactory.getLogger(UktService.class);
+@Service public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implements UktService {
 
     @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
-    private UserRepository userRepository;
+    private ApiPatientService apiPatientService;
 
     @Inject
     private EncounterService encounterService;
@@ -62,13 +54,13 @@ import java.util.UUID;
     private GroupService groupService;
 
     @Inject
-    private ApiPatientService apiPatientService;
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private Properties properties;
 
     @Inject
-    private FhirResource fhirResource;
+    private UserRepository userRepository;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.

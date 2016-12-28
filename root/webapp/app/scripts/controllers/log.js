@@ -177,7 +177,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     };
 
     var init = function() {
-
         var i, group;
         $scope.allGroups = [];
         $scope.groupIds = [];
@@ -194,7 +193,8 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         var groups = $scope.loggedInUser.userInformation.userGroups;
         $scope.auditActions = $scope.loggedInUser.userInformation.auditActions;
 
-        // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+        // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in
+        // generic which is visible==false)
         for (i = 0; i < groups.length; i++) {
             group = groups[i];
             if (group.visible === true) {

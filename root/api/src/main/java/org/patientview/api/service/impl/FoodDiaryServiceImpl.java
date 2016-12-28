@@ -4,7 +4,6 @@ import com.opencsv.CSVReader;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.service.FoodDiaryService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FoodDiary;
@@ -22,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Food Diary service, used when patient's enter foods that disagree with them
  *
@@ -30,7 +31,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class FoodDiaryServiceImpl implements FoodDiaryService {
+public class FoodDiaryServiceImpl extends AbstractServiceImpl<FoodDiaryServiceImpl> implements FoodDiaryService {
 
     @Inject
     private FoodDiaryRepository foodDiaryRepository;
@@ -130,7 +131,7 @@ public class FoodDiaryServiceImpl implements FoodDiaryService {
                     foodDiary.setComment(comment);
                 }
 
-                foodDiary.setCreator(ApiUtil.getUser());
+                foodDiary.setCreator(getCurrentUser());
                 foodDiaryRepository.save(foodDiary);
                 success++;
             }

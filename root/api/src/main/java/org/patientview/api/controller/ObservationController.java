@@ -149,7 +149,7 @@ public class ObservationController extends BaseController<ObservationController>
                                     @RequestBody FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
-        if(adminId == null || adminId == -1){
+        if (adminId == null || adminId == -1) {
             adminId = null;
         }
         apiObservationService.updatePatientEnteredResult(userId, adminId, enteredResult);
@@ -171,7 +171,7 @@ public class ObservationController extends BaseController<ObservationController>
                                            @PathVariable("uuid") String uuid,
                                            @RequestParam(required = false) Long adminId)
             throws ResourceNotFoundException, FhirResourceException {
-        if(adminId == null || adminId == -1){
+        if (adminId == null || adminId == -1) {
             adminId = null;
         }
         apiObservationService.deletePatientEnteredResult(userId, adminId, uuid);

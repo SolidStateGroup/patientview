@@ -15,6 +15,7 @@ import org.patientview.persistence.model.CodeExternalStandard;
 import org.patientview.persistence.model.ExternalStandard;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalStandardType;
 import org.patientview.persistence.model.enums.LinkTypes;
 import org.patientview.persistence.repository.CodeExternalStandardRepository;
@@ -37,6 +38,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * MedlinePlusService implementation
  */
@@ -44,19 +47,19 @@ import java.util.Set;
 public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServiceImpl> implements MedlinePlusService {
 
     @Inject
-    private CodeRepository codeRepository;
-
-    @Inject
-    private LookupRepository lookupRepository;
-
-    @Inject
     private CodeExternalStandardRepository codeExternalStandardRepository;
+
+    @Inject
+    private CodeRepository codeRepository;
 
     @Inject
     private ExternalStandardRepository externalStandardRepository;
 
     @Inject
     private LinkService linkService;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     @Override
     @Transactional
@@ -124,15 +127,15 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             String linkUrl = null;
 
             // Deep down in json, need to check all the bits before getting url
-            if (json.getFeed() != null &&
-                    json.getFeed().getEntry() != null &&
-                    json.getFeed().getEntry().length > 0 &&
-                    json.getFeed().getEntry()[0].getLink().length > 0) {
+            if (json.getFeed() != null
+                    && json.getFeed().getEntry() != null
+                    && json.getFeed().getEntry().length > 0
+                    && json.getFeed().getEntry()[0].getLink().length > 0) {
 
                 linkUrl = json.getFeed().getEntry()[0].getLink()[0].getHref();
+                User currentUser = getCurrentUser();
 
                 if (existingLink == null) {
-
                     Lookup linkType = lookupRepository.findOne(LinkTypes.MEDLINE_PLUS.id());
                     // should have them already configured
                     if (linkType == null) {
@@ -145,9 +148,9 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                     medlinePlusLink.setLink(linkUrl);
                     medlinePlusLink.setName(linkType.getDescription());
                     medlinePlusLink.setCode(entityCode);
-                    medlinePlusLink.setCreator(getCurrentUser());
+                    medlinePlusLink.setCreator(currentUser);
                     medlinePlusLink.setCreated(now);
-                    medlinePlusLink.setLastUpdater(getCurrentUser());
+                    medlinePlusLink.setLastUpdater(currentUser);
                     medlinePlusLink.setLastUpdate(medlinePlusLink.getCreated());
 
                     if (entityCode.getLinks().isEmpty()) {
@@ -157,11 +160,11 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                     }
 
                     entityCode.getLinks().add(medlinePlusLink);
-                    entityCode.setLastUpdater(getCurrentUser());
+                    entityCode.setLastUpdater(currentUser);
                 } else {
                     // update existing MedlineLink link
                     existingLink.setLink(linkUrl);
-                    existingLink.setLastUpdater(getCurrentUser());
+                    existingLink.setLastUpdater(currentUser);
                     existingLink.setLastUpdate(now);
                 }
                 LOG.info("Done medline plus link for code {}", codeExternalEntity.getCodeString());
@@ -177,9 +180,7 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
         } catch (Exception e) {
             LOG.error("Failed to add MediaPlus link to Code", e);
         }
-
     }
-
 
     @Override
     @Transactional
@@ -208,8 +209,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                     String nhsChoiceCode = getCellContent(nextRow.getCell(0));
                     String icd10Code = getCellContent(nextRow.getCell(24));
 
-                    if ((nhsChoiceCode != null && !nhsChoiceCode.isEmpty()) &&
-                            (icd10Code != null && !icd10Code.isEmpty())) {
+                    if ((nhsChoiceCode != null && !nhsChoiceCode.isEmpty())
+                            && (icd10Code != null && !icd10Code.isEmpty())) {
 
                         // find NHSChoices Code
                         Code entityCode = codeRepository.findOneByCode(nhsChoiceCode);
@@ -233,8 +234,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                         // check if we already have ICD-10 code for this Code
                         CodeExternalStandard standardToAdd = null;
                         for (CodeExternalStandard codeExternalStandard : codeExternalStandards) {
-                            if (ExternalStandardType.ICD_10.id() ==
-                                    codeExternalStandard.getExternalStandard().getId()) {
+                            if (ExternalStandardType.ICD_10.id()
+                                    == codeExternalStandard.getExternalStandard().getId()) {
                                 standardToAdd = codeExternalStandard;
                             }
                         }
@@ -278,7 +279,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
             LOG.error("NonUniqueResultException: " + nure.getMessage());
         }
         long end = System.currentTimeMillis();
-        LOG.info("Done Synchronising Nhschoices codes with ICD-10 codes, total {}, timing {}", syncCount, (end - start));
+        LOG.info("Done Synchronising Nhschoices codes with ICD-10 codes, total {}, timing {}",
+                syncCount, (end - start));
     }
 
     private String getCellContent(Cell cell) {
