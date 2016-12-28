@@ -1,83 +1,111 @@
-<div data-ng-show="editUser.picture.length" class="form-horizontal text-center" data-ng-if="editUser.id">
-    <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+<div data-ng-show="!passedDobCheck">
+    <h4>As a security check please enter the patient's date of birth below:</h4>
     <br/><br/>
-</div>
-        
-<div class="form-horizontal" role="form">
-    <div class="form-group">
-        <label for="new-user-username" class="col-sm-2 control-label">Username</label>
-        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-username">{{editUser.username}}</span></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-email" class="col-sm-2 control-label">Email</label>
-        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-email">{{editUser.email}}</span></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-forename" class="col-sm-2 control-label">Forename</label>
-        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-forename">{{editUser.forename}}</span></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-surname" class="col-sm-2 control-label">Surname</label>
-        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-surname">{{editUser.surname}}</span></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-dateofbirth" class="col-sm-2 control-label">Date of Birth</label>
-        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-dateofbirth">{{editUser.dateOfBirth | date:'dd-MMM-yyyy'}}</span></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-locked" class="col-sm-2 control-label">Locked</label>
-        <div class="col-sm-9"><input type="checkbox" id="new-user-locked" name="new-user-locked"
-                                     data-ng-model="editUser.locked" data-ng-disabled="true"/></div>
-    </div>
-    <div class="form-group">
-        <label for="new-user-email-verified" class="col-sm-2 control-label">Email Address Verified</label>
-        <div class="col-sm-9"><input type="checkbox" id="new-user-email-verified"
-                                     data-ng-model="editUser.emailVerified" data-ng-disabled="true"/></div>
-    </div>
-    <div class="form-group hidden">
-        <label for="new-user-dummy" class="col-sm-2 control-label">Override Identifier Validation</label>
-        <div class="col-sm-9"><input type="checkbox" id="new-user-dummy"
-                                     data-ng-model="editUser.dummy" data-ng-disabled="true"/></div>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-2">
+            Day:<select data-ng-model="dobCheck.selectedDay"
+                        data-ng-options="option.toString() as option for option in days"
+                        class="form-control"></select>
+        </div>
+        <div class="col-md-2">
+            Month:<select data-ng-model="dobCheck.selectedMonth"
+                          data-ng-options="option.toString() as option for option in months"
+                          class="form-control"></select>
+        </div>
+        <div class="col-md-2">
+            Year:<select data-ng-model="dobCheck.selectedYear"
+                         data-ng-options="option.toString() as option for option in years"
+                         class="form-control"></select>
+        </div>
+        <div class="col-md-2">
+            <br/>
+            <button type="button" class="btn blue" data-ng-click="validateDateOfBirth(dobCheck)"
+                data-ng-disabled="!dobCheck.selectedDay || !dobCheck.selectedMonth || !dobCheck.selectedYear">Validate</button>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-sm-offset-1 col-sm-11">
-        <div class="added-container">
-            <label class="inner-title">Groups &amp; Roles </label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
-            </p>
-            <br/>
-            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
-                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
-                <li class="group-list-role pull-left"><span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span></li>
-                <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id]">
-                    <span class="group-list-delete">
-                        <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
-                            data-ng-click="removeGroupRole(userFormExisting, editUser, groupRole)" >Delete</button>
-                    </span>
-                </li>
-            </ul>
+<div data-ng-show="passedDobCheck">
+    <div class="alert alert-warning">A user with this {{searchType}} already exists. Add them to your group if required,
+        then close this window.</div>
+
+    <div data-ng-show="editUser.picture.length" class="form-horizontal text-center" data-ng-if="editUser.id">
+        <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+        <br/><br/>
+    </div>
+
+    <div class="form-horizontal" role="form">
+        <div class="form-group">
+            <label for="new-user-username" class="col-sm-2 control-label">Username</label>
+            <div class="col-sm-9"><span type="text" class="form-control" id="new-user-username">{{editUser.username}}</span></div>
         </div>
-        <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
-            <label class="inner-title">Add New Group &amp; Role </label>
-            <div class="select-add-group">
-                <select class="form-control" data-ng-model="editUser.groupToAdd"
-                    data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
-                </select>
-                <div class="bracket-input">
-                    <span class="bracket pre">(</span>
-                    <select class="form-control" data-ng-model="editUser.selectedRole"
-                        data-ng-options="role.id as role.description for role in editUser.roles | orderBy:'name'">
-                    </select>
-                    <span class="bracket post">)</span>
-                </div>
-                <button type="button" class="btn blue group-add-button"
-                        data-ng-click="addGroupRole(userFormExisting, editUser, editUser.groupToAdd, editUser.selectedRole)"
-                        data-ng-disabled="!editUser.selectedRole">Add</button>
+        <div class="form-group">
+            <label for="new-user-email" class="col-sm-2 control-label">Email</label>
+            <div class="col-sm-9"><span type="text" class="form-control" id="new-user-email">{{editUser.email}}</span></div>
+        </div>
+        <div class="form-group">
+            <label for="new-user-forename" class="col-sm-2 control-label">Forename</label>
+            <div class="col-sm-9"><span type="text" class="form-control" id="new-user-forename">{{editUser.forename}}</span></div>
+        </div>
+        <div class="form-group">
+            <label for="new-user-surname" class="col-sm-2 control-label">Surname</label>
+            <div class="col-sm-9"><span type="text" class="form-control" id="new-user-surname">{{editUser.surname}}</span></div>
+        </div>
+        <div class="form-group">
+            <label for="new-user-locked" class="col-sm-2 control-label">Locked</label>
+            <div class="col-sm-9"><input type="checkbox" id="new-user-locked" name="new-user-locked"
+                                         data-ng-model="editUser.locked" data-ng-disabled="true"/></div>
+        </div>
+        <div class="form-group">
+            <label for="new-user-email-verified" class="col-sm-2 control-label">Email Address Verified</label>
+            <div class="col-sm-9"><input type="checkbox" id="new-user-email-verified"
+                                         data-ng-model="editUser.emailVerified" data-ng-disabled="true"/></div>
+        </div>
+        <div class="form-group hidden">
+            <label for="new-user-dummy" class="col-sm-2 control-label">Override Identifier Validation</label>
+            <div class="col-sm-9"><input type="checkbox" id="new-user-dummy"
+                                         data-ng-model="editUser.dummy" data-ng-disabled="true"/></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-11">
+            <div class="added-container">
+                <label class="inner-title">Groups &amp; Roles </label>
+                <p>Choose which groups/roles this user should belong to. More information
+                    <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+                </p>
+                <br/>
+                <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+                    <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
+                    <li class="group-list-role pull-left"><span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span></li>
+                    <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id]">
+                        <span class="group-list-delete">
+                            <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
+                                data-ng-click="removeGroupRole(userFormExisting, editUser, groupRole)" >Delete</button>
+                        </span>
+                    </li>
+                </ul>
             </div>
-            <span class="hidden">{{editUser.selectedRole}}</span>
+            <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
+                <label class="inner-title">Add New Group &amp; Role </label>
+                <div class="select-add-group">
+                    <select class="form-control" data-ng-model="editUser.groupToAdd"
+                        data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
+                    </select>
+                    <div class="bracket-input">
+                        <span class="bracket pre">(</span>
+                        <select class="form-control" data-ng-model="editUser.selectedRole"
+                            data-ng-options="role.id as role.description for role in editUser.roles | orderBy:'name'">
+                        </select>
+                        <span class="bracket post">)</span>
+                    </div>
+                    <button type="button" class="btn blue group-add-button"
+                            data-ng-click="addGroupRole(userFormExisting, editUser, editUser.groupToAdd, editUser.selectedRole)"
+                            data-ng-disabled="!editUser.selectedRole">Add</button>
+                </div>
+                <span class="hidden">{{editUser.selectedRole}}</span>
+            </div>
         </div>
     </div>
 </div>

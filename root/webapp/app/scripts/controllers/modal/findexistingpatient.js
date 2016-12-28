@@ -1,13 +1,20 @@
 'use strict';
 var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups',
-    'allowedRoles', 'identifierTypes', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService) {
+    'allowedRoles', 'identifierTypes', 'UserService', 'UtilService',
+function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService,
+    UtilService) {
     $scope.permissions = permissions;
     $scope.allGroups = allGroups;
     $scope.allowedRoles = allowedRoles;
     $scope.identifierTypes = identifierTypes;
     $scope.editMode = false;
     $scope.editUser = {};
+
+    // for date of birth check
+    $scope.years = UtilService.generateYears();
+    $scope.months = UtilService.generateMonths();
+    $scope.days = UtilService.generateDays();
+    $scope.dobCheck = { 'selectedYear': $scope.years[0], 'selectedMonth': $scope.months[0], 'selectedDay': $scope.days[0] };
 
     // click Find by username button
     $scope.findByUsername = function () {
@@ -40,10 +47,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         $scope.editUser = result;
         $scope.existingUser = true;
         $scope.editMode = true;
-        $scope.warningMessage = 'A user with this '
-            + searchType
-            + ' already exists. Add them to your group if required, then close this window. '
-            + 'You can then edit their details normally as they will appear in the refreshed list.';
+        $scope.searchType = searchType;
+        delete $scope.warningMessage;
         $scope.pagedItems = [];
         var i;
 
@@ -87,4 +92,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+
+    $scope.validateDateOfBirth = function(dobCheck) {
+        $scope.passedDobCheck = true;
+    }
 }];
