@@ -2,7 +2,7 @@
     <h4>As a security check please enter the patient's date of birth below:</h4>
     <br/><br/>
     <div class="row">
-        <div class="col-md-offset-2 col-md-2">
+        <div class="col-md-2">
             Day:<select data-ng-model="dobCheck.day"
                         data-ng-options="option.toString() as option for option in days"
                         class="form-control"></select>
@@ -28,7 +28,9 @@
 </div>
 <div data-ng-show="!passedDobCheck && !hasDob">
     <br/>
-    <div class="alert alert-warning">No date of birth found for this patient, please contact PatientView support to complete the move.</div>
+    <div class="alert alert-warning">No date of birth found for this patient. In order to complete the move,
+        PatientView requires that a date of birth be present for the patient. Please contact the PatientView support
+        team to complete the move.</div>
 </div>
 
 <div data-ng-show="passedDobCheck && !confirmAddGroupRole">
