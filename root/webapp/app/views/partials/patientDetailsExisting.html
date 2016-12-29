@@ -1,28 +1,34 @@
-<div data-ng-show="!passedDobCheck">
+<div data-ng-show="!passedDobCheck && hasDob">
     <h4>As a security check please enter the patient's date of birth below:</h4>
     <br/><br/>
     <div class="row">
         <div class="col-md-offset-2 col-md-2">
-            Day:<select data-ng-model="dobCheck.selectedDay"
+            Day:<select data-ng-model="dobCheck.day"
                         data-ng-options="option.toString() as option for option in days"
                         class="form-control"></select>
         </div>
         <div class="col-md-2">
-            Month:<select data-ng-model="dobCheck.selectedMonth"
+            Month:<select data-ng-model="dobCheck.month"
                           data-ng-options="option.toString() as option for option in months"
                           class="form-control"></select>
         </div>
         <div class="col-md-2">
-            Year:<select data-ng-model="dobCheck.selectedYear"
+            Year:<select data-ng-model="dobCheck.year"
                          data-ng-options="option.toString() as option for option in years"
                          class="form-control"></select>
         </div>
         <div class="col-md-2">
             <br/>
             <button type="button" class="btn blue" data-ng-click="validateDateOfBirth(dobCheck)"
-                data-ng-disabled="!dobCheck.selectedDay || !dobCheck.selectedMonth || !dobCheck.selectedYear">Validate</button>
+                data-ng-disabled="!dobCheck.day || !dobCheck.month || !dobCheck.year">Validate</button>
         </div>
     </div>
+    <br/>
+    <div class="alert alert-warning" data-ng-show="failedDobCheck">Please confirm the date of birth is correct.</div>
+</div>
+<div data-ng-show="!passedDobCheck && !hasDob">
+    <br/>
+    <div class="alert alert-warning">No date of birth found for this patient, please contact PatientView support to complete the move.</div>
 </div>
 
 <div data-ng-show="passedDobCheck">

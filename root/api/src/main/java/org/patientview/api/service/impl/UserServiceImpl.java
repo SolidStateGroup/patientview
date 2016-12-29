@@ -963,16 +963,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return findUser(userId);
     }
 
-    @Override
-    public org.patientview.api.model.User getByUsername(String username) {
-        User foundUser = userRepository.findByUsernameCaseInsensitive(username);
-        if (foundUser == null) {
-            return null;
-        } else {
-            return new org.patientview.api.model.User(foundUser);
-        }
-    }
-
     /**
      * Get users based on a list of groups and roles
      * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
@@ -1252,6 +1242,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public org.patientview.api.model.User getByUsername(String username) {
+        User foundUser = userRepository.findByUsernameCaseInsensitive(username);
+        if (foundUser == null) {
+            return null;
+        } else {
+            return new org.patientview.api.model.User(foundUser);
+        }
+    }
+
+    @Override
     public org.patientview.api.model.User getUser(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -1352,6 +1352,55 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         throw new ResourceNotFoundException("No Users found");
     }
 
+    @Override
+    public Group getGenericGroup() {
+        return genericGroup;
+    }
+
+    @Override
+    public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
+        User user = findUser(userId);
+        return userInformationRepository.findByUser(user);
+    }
+
+    private Email getPasswordResetEmail(User user, String password) {
+        Email email = new Email();
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
+        email.setRecipients(new String[]{user.getEmail()});
+        email.setSubject("PatientView - Your Password Has Been Reset");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Dear ");
+        sb.append(user.getForename());
+        sb.append(" ");
+        sb.append(user.getSurname());
+        sb.append(", <br/><br/>Your password on <a href=\"");
+        sb.append(properties.getProperty("site.url"));
+        sb.append("\">PatientView</a> ");
+        sb.append("has been reset. Your new password is: <br/><br/>");
+        sb.append(password);
+        email.setBody(sb.toString());
+
+        return email;
+    }
+
+    @Override
+    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            return Base64.decodeBase64(user.getPicture());
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Get users based on a list of groups, roles and user features
      *
@@ -1407,55 +1456,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         throw new ResourceNotFoundException("No Users found");
     }
 
-    @Override
-    public Group getGenericGroup() {
-        return genericGroup;
-    }
-
-    @Override
-    public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
-        User user = findUser(userId);
-        return userInformationRepository.findByUser(user);
-    }
-
-    private Email getPasswordResetEmail(User user, String password) {
-        Email email = new Email();
-        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
-        email.setSenderName(properties.getProperty("smtp.sender.name"));
-        email.setRecipients(new String[]{user.getEmail()});
-        email.setSubject("PatientView - Your Password Has Been Reset");
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Dear ");
-        sb.append(user.getForename());
-        sb.append(" ");
-        sb.append(user.getSurname());
-        sb.append(", <br/><br/>Your password on <a href=\"");
-        sb.append(properties.getProperty("site.url"));
-        sb.append("\">PatientView</a> ");
-        sb.append("has been reset. Your new password is: <br/><br/>");
-        sb.append(password);
-        email.setBody(sb.toString());
-
-        return email;
-    }
-
-    @Override
-    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        if (!currentUserCanGetUser(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-        if (StringUtils.isNotEmpty(user.getPicture())) {
-            return Base64.decodeBase64(user.getPicture());
-        } else {
-            return null;
-        }
-    }
-
+    /**
+     * Get an Email object for verifing a user's email address.
+     * @param user User object with user details
+     * @return Email with correct subject, text etc
+     */
     private Email getVerifyEmailEmail(User user) {
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
@@ -1480,6 +1485,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return email;
     }
 
+    /**
+     * Check if collection of GroupRole contains a specific Group.
+     * @param groupRoles Set of GroupRole to check
+     * @param group Group to find
+     * @return true if collection of GroupRole contains Group
+     */
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
         for (GroupRole groupRole : groupRoles) {
             if (groupRole.getGroup().equals(group)) {
@@ -1503,6 +1514,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userRepository.save(user);
     }
 
+    /**
+     * Check if User is a patient by iterating through GroupRoles for a PATIENT type Role.
+     * @param user User to check is a patient
+     * @return true if User has a GroupRole with RoleType.PATIENT
+     */
     private boolean isUserAPatient(User user) {
         for (GroupRole groupRole : user.getGroupRoles()) {
             if (!groupRole.getRole().getRoleType().getValue().equals(RoleType.PATIENT)) {

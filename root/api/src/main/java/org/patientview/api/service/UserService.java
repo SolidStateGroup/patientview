@@ -394,6 +394,12 @@ public interface UserService {
     Boolean sendVerificationEmail(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException;
 
+    /**
+     * Set a User's deleted status to false.
+     * @param userId Long ID of User to undelete
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RoleOnly
     void undelete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -439,7 +445,7 @@ public interface UserService {
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
 
     /**
-     * Create or re generate new api key for User
+     * Create or re generate new api key for User.
      *
      * @param userId Id of User to update secret word for
      * @throws ResourceNotFoundException

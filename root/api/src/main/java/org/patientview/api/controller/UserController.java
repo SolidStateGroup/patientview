@@ -257,6 +257,20 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
+     * Get UserInformation (About Me etc) associated with a User.
+     * @param userId ID of User to retrieve UserInformation for
+     * @return List of UserInformation
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<UserInformation>> getInformation(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
+    }
+
+    /**
      * Get a User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
      * @param userId ID of User to retrieve picture for
      * @return byte[] binary picture data
@@ -291,25 +305,23 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
-    // required by migration
-    @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<User> getUserByUsernameMigration(@RequestParam("username") String username) {
-        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
-    }
-
     /**
-     * Get UserInformation (About Me etc) associated with a User.
-     * @param userId ID of User to retrieve UserInformation for
-     * @return List of UserInformation
+     * Get a User by email, used when searching for existing staff.
+     * @param email String email used to search for Users
+     * @return User object
      * @throws ResourceNotFoundException
      */
-    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/email/{email}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<UserInformation>> getInformation(@PathVariable("userId") Long userId)
+    public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email)
             throws ResourceNotFoundException {
-        return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
+        User user = userService.getByEmail(email.replace("[DOT]", "."));
+        if (user == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
     }
 
     /**
@@ -345,23 +357,11 @@ public class UserController extends BaseController<UserController> {
         }
     }
 
-    /**
-     * Get a User by email, used when searching for existing staff.
-     * @param email String email used to search for Users
-     * @return User object
-     * @throws ResourceNotFoundException
-     */
-    @RequestMapping(value = "/user/email/{email}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    // required by migration
+    @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email)
-            throws ResourceNotFoundException {
-        User user = userService.getByEmail(email.replace("[DOT]", "."));
-        if (user == null) {
-            throw new ResourceNotFoundException();
-        } else {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }
+    public ResponseEntity<User> getUserByUsernameMigration(@RequestParam("username") String username) {
+        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
     /**
