@@ -12,6 +12,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.passedDobCheck = false;
     $scope.failedDobCheck = false;
     $scope.confirmAddGroupRole = false;
+    $scope.addGroupRoleLoading = false;
+    $scope.addGroupRoleDone = false;
 
     // for date of birth check
     $scope.years = UtilService.generateYears();
@@ -21,9 +23,12 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         'month': $scope.months[0], 'day': $scope.days[0] };
 
     $scope.addGroupRoleConfirmed = function() {
+        $scope.addGroupRoleLoading = true;
         UserService.addGroupRole($scope.editUser, $scope.editUser.groupToAdd.id, $scope.editUser.selectedRole.id).then(function () {
-            $modalInstance.dismiss('cancel');
+            $scope.addGroupRoleLoading = false;
+            $scope.addGroupRoleDone = true;
         }, function () {
+            $scope.addGroupRoleLoading = false;
             alert('Error adding group role, may already exist');
         });
     };

@@ -1,4 +1,4 @@
-<div data-ng-show="!passedDobCheck && hasDob">
+<div data-ng-if="!passedDobCheck && hasDob">
     <h4>As a security check please enter the patient's date of birth below:</h4>
     <br/><br/>
     <div class="row">
@@ -111,14 +111,21 @@
     </div>
 </div>
 
-<div data-ng-show="confirmAddGroupRole">
+<div data-ng-show="confirmAddGroupRole && !addGroupRoleDone">
     <h4>Please Confirm:</h4>
     <p>You are updating patient <strong>{{editUser.forename}} {{editUser.surname}}</strong> with identifier(s)
         <strong data-ng-repeat="identifier in editUser.identifiers">{{identifier.identifier}}</strong>.
     </p>
     <p>They will be added to group <strong>{{editUser.groupToAdd.name}}</strong> with role <strong>{{editUser.selectedRole.description}}</strong>.</p>
     <br/>
-    <button type="button" class="btn blue" data-ng-click="addGroupRoleConfirmed()">Confirm</button>
+    <button type="button" class="btn blue" data-ng-click="addGroupRoleConfirmed()" data-ng-disabled="addGroupRoleLoading">Confirm</button>
     &nbsp;
-    <button type="button" class="btn" data-ng-click="confirmAddGroupRole = !confirmAddGroupRole">Cancel</button>
+    <button type="button" class="btn" data-ng-click="confirmAddGroupRole = !confirmAddGroupRole" data-ng-disabled="addGroupRoleLoading">Cancel</button>
+</div>
+
+<div data-ng-show="addGroupRoleDone">
+    <h4>Success</h4>
+    <p>Patient <strong>{{editUser.forename}} {{editUser.surname}}</strong> with identifier(s)
+        <strong data-ng-repeat="identifier in editUser.identifiers">{{identifier.identifier}}</strong>.
+    has been added to group <strong>{{editUser.groupToAdd.name}}</strong> with role <strong>{{editUser.selectedRole.description}}</strong>.</p>
 </div>
