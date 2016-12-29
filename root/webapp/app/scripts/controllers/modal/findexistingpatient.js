@@ -10,6 +10,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.editMode = false;
     $scope.editUser = {};
     $scope.passedDobCheck = false;
+    $scope.failedDobCheck = false;
+    $scope.confirmAddGroupRole = false;
 
     // for date of birth check
     $scope.years = UtilService.generateYears();
@@ -17,6 +19,14 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.days = UtilService.generateDays();
     $scope.dobCheck = { 'year': $scope.years[0],
         'month': $scope.months[0], 'day': $scope.days[0] };
+
+    $scope.addGroupRoleConfirmed = function() {
+        UserService.addGroupRole($scope.editUser, $scope.editUser.groupToAdd.id, $scope.editUser.selectedRole.id).then(function () {
+            $modalInstance.dismiss('cancel');
+        }, function () {
+            alert('Error adding group role, may already exist');
+        });
+    };
 
     // click Find by username button
     $scope.findByUsername = function () {
