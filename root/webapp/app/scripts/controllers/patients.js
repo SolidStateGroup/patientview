@@ -199,27 +199,76 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // set latest staff entered diagnosis if present
             if ($scope.canAddDiagnosis()) {
-                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
-                    if (conditions.length) {
-                        var latest = conditions[0];
-                        for (var i = 0; i < conditions.length; i++) {
-                            if (conditions[i].date > latest.date) {
-                                latest = conditions[i];
+                // get diagnosis codes if not already retrieved for previous patient, note: selectize needs to happen
+                // after all data is loaded
+                if ($scope.diagnosisCodes) {
+                    // get staff entered diagnosis (condition)
+                    DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                        if (conditions.length) {
+                            var latest = conditions[0];
+                            for (var i = 0; i < conditions.length; i++) {
+                                if (conditions[i].date > latest.date) {
+                                    latest = conditions[i];
+                                }
+                            }
+                            if (latest.status === 'confirmed') {
+                                $scope.editUser.staffEnteredDiagnosis = latest;
                             }
                         }
-                        if (latest.status === 'confirmed') {
-                            $scope.editUser.staffEnteredDiagnosis = latest;
-                        }
-                    }
 
-                    $timeout(function() {
-                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
-                            sortField: 'text'
+                        $timeout(function() {
+                            $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                                sortField: 'text'
+                            });
                         });
+                    }, function () {
+                        alert('Error retrieving staff entered condition information');
                     });
-                }, function () {
-                    alert('Error retrieving staff entered condition information');
-                });
+                } else {
+                    // don't already have diagnosisCodes in scope, retrieve
+                    StaticDataService.getLookupsByType('CODE_TYPE').then(function (codeTypes) {
+                        if (codeTypes.length > 0) {
+                            var arr = [];
+                            for (var i = 0; i < codeTypes.length; i++) {
+                                if (codeTypes[i].value === 'DIAGNOSIS') {
+                                    arr.push(codeTypes[i].id);
+                                }
+                            }
+
+                            var getParameters = {};
+                            getParameters.codeTypes = arr;
+                            getParameters.sortField = 'description';
+
+                            CodeService.getAll(getParameters).then(function (page) {
+                                $scope.diagnosisCodes = page.content;
+
+                                // get staff entered diagnosis (condition)
+                                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                                    if (conditions.length) {
+                                        var latest = conditions[0];
+                                        for (var i = 0; i < conditions.length; i++) {
+                                            if (conditions[i].date > latest.date) {
+                                                latest = conditions[i];
+                                            }
+                                        }
+                                        if (latest.status === 'confirmed') {
+                                            $scope.editUser.staffEnteredDiagnosis = latest;
+                                        }
+                                    }
+
+                                    $timeout(function () {
+                                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                                            sortField: 'text'
+                                        });
+                                    });
+                                }, function () {
+                                    alert('Error retrieving staff entered condition information');
+                                });
+                            }, function () {
+                            });
+                        }
+                    });
+                }
             }
 
             // timeout required to send broadcast after everything else done
@@ -353,29 +402,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         $scope.permissions.messagingEnabled = ConversationService.userHasMessagingFeature();
 
-        // get diagnosis codes
-        if ($scope.permissions.canEditPatients) {
-            StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
-                if (codeTypes.length > 0) {
-                    var arr = [];
-                    for (var i=0; i<codeTypes.length; i++) {
-                        if (codeTypes[i].value === 'DIAGNOSIS') {
-                            arr.push(codeTypes[i].id);
-                        }
-                    }
-
-                    var getParameters = {};
-                    getParameters.codeTypes = arr;
-                    getParameters.sortField = 'description';
-
-                    CodeService.getAll(getParameters).then(function (page) {
-                        $scope.diagnosisCodes = page.content;
-                    }, function () {
-                    });
-                }
-            });
-        }
-
         // get patient type roles
         var roles = $scope.loggedInUser.userInformation.patientRoles;
 
@@ -504,8 +530,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.editCode = '';
             openedUser.showEdit = true;
             openedUser.editLoading = true;
-
-            // now using lightweight group list, do GET on id to get full group and populate editGroup
             $scope.getUser(openedUser)
         }
     };
