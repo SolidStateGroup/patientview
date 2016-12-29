@@ -118,6 +118,13 @@ public interface CodeService {
     Page<Code> getAllCodes(GetParameters getParameters);
 
     /**
+     * Get all Code with CodeType of DIAGNOSIS.
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    List<BaseCode> getAllDiagnosisCodes() throws ResourceNotFoundException;
+
+    /**
      * Get Codes given a Category id
      * @param categoryId Long id of Category
      * @return List of BaseCode

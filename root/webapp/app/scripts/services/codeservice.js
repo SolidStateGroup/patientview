@@ -110,6 +110,16 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        getAllDiagnosisCodes: function () {
+            var deferred = $q.defer();
+            // GET /code/diagnosis
+            Restangular.one('code/diagnosis').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getByCategory: function(categoryId) {
             var deferred = $q.defer();
             // GET /codes/category/{categoryId}

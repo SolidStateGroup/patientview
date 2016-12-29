@@ -376,6 +376,27 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    public List<BaseCode> getAllDiagnosisCodes() throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("DIAGNOSIS Code type not found");
+        }
+
+        List<Code> codes = codeRepository.findAllByType(codeType);
+        List<BaseCode> reduced = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(codes)) {
+            for (Code code : codes) {
+                if (!code.isHideFromPatients() && !code.isRemovedExternally()) {
+                    reduced.add(new BaseCode(code));
+                }
+            }
+        }
+
+        return reduced;
+    }
+
+    @Override
     public List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException {
         Category category = categoryRepository.findOne(categoryId);
         if (category == null) {

@@ -226,47 +226,32 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     });
                 } else {
                     // don't already have diagnosisCodes in scope, retrieve
-                    StaticDataService.getLookupsByType('CODE_TYPE').then(function (codeTypes) {
-                        if (codeTypes.length > 0) {
-                            var arr = [];
-                            for (var i = 0; i < codeTypes.length; i++) {
-                                if (codeTypes[i].value === 'DIAGNOSIS') {
-                                    arr.push(codeTypes[i].id);
+                    CodeService.getAllDiagnosisCodes().then(function (codes) {
+                        $scope.diagnosisCodes = codes;
+
+                        // get staff entered diagnosis (condition)
+                        DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                            if (conditions.length) {
+                                var latest = conditions[0];
+                                for (var i = 0; i < conditions.length; i++) {
+                                    if (conditions[i].date > latest.date) {
+                                        latest = conditions[i];
+                                    }
+                                }
+                                if (latest.status === 'confirmed') {
+                                    $scope.editUser.staffEnteredDiagnosis = latest;
                                 }
                             }
 
-                            var getParameters = {};
-                            getParameters.codeTypes = arr;
-                            getParameters.sortField = 'description';
-
-                            CodeService.getAll(getParameters).then(function (page) {
-                                $scope.diagnosisCodes = page.content;
-
-                                // get staff entered diagnosis (condition)
-                                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
-                                    if (conditions.length) {
-                                        var latest = conditions[0];
-                                        for (var i = 0; i < conditions.length; i++) {
-                                            if (conditions[i].date > latest.date) {
-                                                latest = conditions[i];
-                                            }
-                                        }
-                                        if (latest.status === 'confirmed') {
-                                            $scope.editUser.staffEnteredDiagnosis = latest;
-                                        }
-                                    }
-
-                                    $timeout(function () {
-                                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
-                                            sortField: 'text'
-                                        });
-                                    });
-                                }, function () {
-                                    alert('Error retrieving staff entered condition information');
+                            $timeout(function () {
+                                $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                                    sortField: 'text'
                                 });
-                            }, function () {
                             });
-                        }
+                        }, function () {
+                            alert('Error retrieving staff entered condition information');
+                        });
+                    }, function () {
                     });
                 }
             }

@@ -80,6 +80,14 @@ public class CodeControllerTest {
     }
 
     @Test
+    public void testGetAllDiagnosisCodes() throws Exception {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        mockMvc.perform(MockMvcRequestBuilders.get("/code/diagnosis"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+        verify(codeService, Mockito.times(1)).getAllDiagnosisCodes();
+    }
+
+    @Test
     public void testGetByCategory() throws Exception {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
         mockMvc.perform(MockMvcRequestBuilders.get("/codes/category/1"))

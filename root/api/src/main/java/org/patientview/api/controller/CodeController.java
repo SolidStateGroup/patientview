@@ -142,6 +142,17 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
+     * Get all Code with CodeType of DIAGNOSIS.
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/code/diagnosis", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> getAllDiagnosisCodes() throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.getAllDiagnosisCodes(), HttpStatus.OK);
+    }
+
+    /**
      * Get Codes with standard type PATIENTVIEW
      * @return List of BaseCode
      * @throws ResourceNotFoundException
