@@ -71,7 +71,7 @@ public class UserController extends BaseController<UserController> {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.POST)
     @ResponseBody
     public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -86,7 +86,7 @@ public class UserController extends BaseController<UserController> {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.POST)
     @ResponseBody
     public void addGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
                              @PathVariable("roleId") Long roleId)

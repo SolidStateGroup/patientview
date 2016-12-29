@@ -106,7 +106,7 @@ public class UserControllerTest {
 
         Feature feature = TestUtils.createFeature("testFeature");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + staffUser.getId() + "/features/" + feature.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + staffUser.getId() + "/features/" + feature.getId()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -139,7 +139,7 @@ public class UserControllerTest {
 
         String url = "/user/" + staffUser.getId() + "/group/" + group.getId() + "/role/" + newStaffRole.getId();
 
-        mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.post(url)).andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(userService, Mockito.times(1)).addGroupRole(
                 eq(staffUser.getId()), eq(group.getId()), eq(newStaffRole.getId()));
