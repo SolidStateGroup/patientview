@@ -20,6 +20,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
     // click Find by username button
     $scope.findByUsername = function () {
+        delete $scope.warningMessage;
         UserService.findByUsername($('#username').val()).then(function(result) {
             $scope.searchType = 'username';
             initDobCheck(result);
@@ -30,6 +31,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
     // click Find by identifier button
     $scope.findByIdentifier = function () {
+        delete $scope.warningMessage;
         UserService.findByIdentifier($('#identifier').val()).then(function(result) {
             $scope.searchType = 'identifier';
             initDobCheck(result);
@@ -40,6 +42,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
     // click Find by email button
     $scope.findByEmail = function () {
+        delete $scope.warningMessage;
         UserService.findByEmail($('#email').val()).then(function(result) {
             $scope.searchType = 'email';
             initDobCheck(result);
