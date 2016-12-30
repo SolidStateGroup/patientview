@@ -324,10 +324,12 @@ public class ConversationServiceTest {
     }
 
     @Test
-    public void testCreateConversation() throws ResourceForbiddenException {
+    public void testCreateConversation() throws Exception {
 
         // set up group
         Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
@@ -392,16 +394,23 @@ public class ConversationServiceTest {
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
-        try {
-            conversationService.addConversation(user1.getId(), conversation);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("resource not found exception");
-        }
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain patient group",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
+        assertTrue("Email should contain patient role",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
     }
 
     @Test
     public void testCreateConversation_anonymousFeedback() throws Exception {
-
         Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         Feature patientSupportContactFeature = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
 
@@ -496,7 +505,6 @@ public class ConversationServiceTest {
 
     @Test
     public void testCreateConversation_publicFeedback() throws Exception {
-
         Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         Feature patientSupportContactFeature = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
 
@@ -596,10 +604,11 @@ public class ConversationServiceTest {
     }
 
     @Test
-    public void testCreateConversation_PatientToUnitAdmin() throws ResourceForbiddenException {
-
+    public void testCreateConversation_PatientToUnitAdmin() throws Exception {
         // set up group
         Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
@@ -662,11 +671,19 @@ public class ConversationServiceTest {
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
-        try {
-            conversationService.addConversation(user1.getId(), conversation);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("resource not found exception");
-        }
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain patient group",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
+        assertTrue("Email should contain patient role",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
     }
 
     @Test(expected=ResourceForbiddenException.class)
