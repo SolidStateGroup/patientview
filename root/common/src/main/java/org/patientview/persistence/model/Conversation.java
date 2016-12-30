@@ -63,6 +63,10 @@ public class Conversation extends AuditModel {
     @Transient
     private Long userId;
 
+    // true when creating anonymous feedback to unit, hide patient details when sending emails to conversation users
+    @Transient
+    private boolean anonymous = false;
+
     public ConversationTypes getType() {
         return type;
     }
@@ -149,5 +153,13 @@ public class Conversation extends AuditModel {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
 }

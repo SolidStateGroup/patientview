@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -140,7 +139,7 @@ public class ConversationController extends BaseController<ConversationControlle
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.POST)
     @ResponseBody
     public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -241,26 +240,7 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
-     * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
-     * Conversation to populate the drop-down select of available recipients after a Group is selected.
-     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
-     * @param userId ID of User retrieving available Conversation recipients
-     * @param groupId ID of Group to find available Conversation recipients for
-     * @return Object containing Lists of BaseUser organised by Role
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<HashMap<String, List<BaseUser>>> getRecipients(@PathVariable("userId") Long userId,
-            @RequestParam(value = "groupId", required = false) Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(conversationService.getRecipients(userId, groupId), HttpStatus.OK);
-    }
-
-    /**
-     * Fast method of returning available Conversation recipients when a User has selected a Group in the UI.
+     * Return available Conversation recipients when a User has selected a Group in the UI.
      * Note: returns HTML as a String to avoid performance issues in ie8
      * @param userId ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
@@ -268,12 +248,12 @@ public class ConversationController extends BaseController<ConversationControlle
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RequestMapping(value = "/user/{userId}/conversations/recipientsfast", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getRecipientsFast(@PathVariable("userId") Long userId,
+    public ResponseEntity<String> getRecipients(@PathVariable("userId") Long userId,
             @RequestParam(value = "groupId", required = false) Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(conversationService.getRecipientsFast(userId, groupId), HttpStatus.OK);
+        return new ResponseEntity<>(conversationService.getRecipientsAsHtml(userId, groupId), HttpStatus.OK);
     }
 
     /**
