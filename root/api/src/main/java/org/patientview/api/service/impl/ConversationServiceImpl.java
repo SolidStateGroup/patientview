@@ -944,106 +944,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Create a new Set of ConversationUser given ConversationUsers and Conversation type (may need to add more Users)
-     * @param conversationUsers Set of Conversation Users to add to
-     * @param conversation Conversation with type determining addition of new ConversationUsers
-     * @param creator User creating new ConversationUsers
-     * @return Set of ConversationUser
-     * @throws ResourceNotFoundException
-     */
-    private Set<ConversationUser> getConversationUsers(Set<ConversationUser> conversationUsers,
-                                                       Conversation conversation, User creator)
-            throws ResourceNotFoundException {
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-
-        for (ConversationUser conversationUser : conversationUsers) {
-            ConversationUser newConversationUser = new ConversationUser();
-            newConversationUser.setConversation(conversation);
-            newConversationUser.setUser(conversationUser.getUser());
-            newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
-                    ? false : conversationUser.getAnonymous());
-            newConversationUser.setCreator(creator);
-            newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
-            conversationUserSet.add(newConversationUser);
-        }
-
-        // now handle contacting unit staff
-        if (conversation.getType().equals(ConversationTypes.CONTACT_UNIT)) {
-            if (conversation.getGroupId() == null) {
-                throw new ResourceNotFoundException("Missing Group ID parameter when sending message");
-            }
-            if (conversation.getStaffFeature() == null)  {
-                throw new ResourceNotFoundException("Missing Staff feature parameter when sending message");
-            }
-
-            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
-            Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
-
-            if (entityGroup == null) {
-                throw new ResourceNotFoundException("Could not find Group when sending message");
-            }
-            if (entityFeature == null) {
-                throw new ResourceNotFoundException("Could not find Staff feature when sending message");
-            }
-
-            List<User> staffUsers = new ArrayList<>();
-
-            // if need unit technical contact. if no unit technical contact, try patient support contact
-            if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
-                if (staffUsers.isEmpty()) {
-                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
-                }
-            }
-
-            // if need patient support contact
-            if (conversation.getStaffFeature().equals(FeatureType.PATIENT_SUPPORT_CONTACT)) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
-            }
-
-            // if empty then try default messaging contact
-            if (staffUsers.isEmpty()) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
-            }
-
-            if (staffUsers.isEmpty()) {
-                throw new ResourceNotFoundException("No support staff available to send message");
-            }
-
-            // add found staff to conversation if not already
-            for (User user : staffUsers) {
-                if (!conversationUsersContainsUser(conversationUserSet, user)) {
-                    ConversationUser newConversationUser = new ConversationUser();
-                    newConversationUser.setConversation(conversation);
-                    newConversationUser.setUser(user);
-                    newConversationUser.setAnonymous(false);
-                    newConversationUser.setCreator(creator);
-                    conversationUserSet.add(newConversationUser);
-                }
-            }
-        }
-
-        // add INBOX conversation user label for all ConversationUser
-        for (ConversationUser conversationUser : conversationUserSet) {
-            ConversationUserLabel conversationUserLabel = new ConversationUserLabel();
-            conversationUserLabel.setConversationUser(conversationUser);
-            conversationUserLabel.setCreated(new Date());
-            conversationUserLabel.setCreator(creator);
-            conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
-
-            if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
-                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
-            }
-
-            conversationUser.getConversationUserLabels().add(conversationUserLabel);
-        }
-
-        return conversationUserSet;
-    }
-
-    /**
      * @inheritDoc
      */
     @Override
@@ -1215,6 +1115,106 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         } else {
             return null;
         }
+    }
+
+    /**
+     * Create a new Set of ConversationUser given ConversationUsers and Conversation type (may need to add more Users)
+     * @param conversationUsers Set of Conversation Users to add to
+     * @param conversation Conversation with type determining addition of new ConversationUsers
+     * @param creator User creating new ConversationUsers
+     * @return Set of ConversationUser
+     * @throws ResourceNotFoundException
+     */
+    private Set<ConversationUser> getConversationUsers(Set<ConversationUser> conversationUsers,
+                                                       Conversation conversation, User creator)
+            throws ResourceNotFoundException {
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+
+        for (ConversationUser conversationUser : conversationUsers) {
+            ConversationUser newConversationUser = new ConversationUser();
+            newConversationUser.setConversation(conversation);
+            newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
+            newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
+                    ? false : conversationUser.getAnonymous());
+            newConversationUser.setCreator(creator);
+            newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUserSet.add(newConversationUser);
+        }
+
+        // now handle contacting unit staff
+        if (conversation.getType().equals(ConversationTypes.CONTACT_UNIT)) {
+            if (conversation.getGroupId() == null) {
+                throw new ResourceNotFoundException("Missing Group ID parameter when sending message");
+            }
+            if (conversation.getStaffFeature() == null)  {
+                throw new ResourceNotFoundException("Missing Staff feature parameter when sending message");
+            }
+
+            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+            Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
+
+            if (entityGroup == null) {
+                throw new ResourceNotFoundException("Could not find Group when sending message");
+            }
+            if (entityFeature == null) {
+                throw new ResourceNotFoundException("Could not find Staff feature when sending message");
+            }
+
+            List<User> staffUsers = new ArrayList<>();
+
+            // if need unit technical contact. if no unit technical contact, try patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+                if (staffUsers.isEmpty()) {
+                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
+                }
+            }
+
+            // if need patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.PATIENT_SUPPORT_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+            }
+
+            // if empty then try default messaging contact
+            if (staffUsers.isEmpty()) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
+            }
+
+            if (staffUsers.isEmpty()) {
+                throw new ResourceNotFoundException("No support staff available to send message");
+            }
+
+            // add found staff to conversation if not already
+            for (User user : staffUsers) {
+                if (!conversationUsersContainsUser(conversationUserSet, user)) {
+                    ConversationUser newConversationUser = new ConversationUser();
+                    newConversationUser.setConversation(conversation);
+                    newConversationUser.setUser(user);
+                    newConversationUser.setAnonymous(false);
+                    newConversationUser.setCreator(creator);
+                    conversationUserSet.add(newConversationUser);
+                }
+            }
+        }
+
+        // add INBOX conversation user label for all ConversationUser
+        for (ConversationUser conversationUser : conversationUserSet) {
+            ConversationUserLabel conversationUserLabel = new ConversationUserLabel();
+            conversationUserLabel.setConversationUser(conversationUser);
+            conversationUserLabel.setCreated(new Date());
+            conversationUserLabel.setCreator(creator);
+            conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+
+            if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            }
+
+            conversationUser.getConversationUserLabels().add(conversationUserLabel);
+        }
+
+        return conversationUserSet;
     }
 
     /**
@@ -1864,20 +1864,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     // name
                     sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
 
-                    // group roles
-                    int count = 0;
+                    if (userHasRole(sender, RoleName.GLOBAL_ADMIN)) {
+                        sb.append(RoleName.GLOBAL_ADMIN.getName());
+                    } else {
+                        // group roles
+                        int count = 0;
 
-                    for (GroupRole groupRole : sender.getGroupRoles()) {
-                        // do not list SPECIALTY groups
-                        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
-                                && Boolean.TRUE.equals(groupRole.getGroup().getVisible())) {
-                            sb.append(groupRole.getRole().getName().getName()).append(" at ");
-                            sb.append(groupRole.getGroup().getName());
-                            if (count < sender.getGroupRoles().size() - 1) {
-                                sb.append(", ");
+                        for (GroupRole groupRole : sender.getGroupRoles()) {
+                            if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())) {
+                                sb.append(groupRole.getRole().getName().getName()).append(" at ");
+                                sb.append(groupRole.getGroup().getName());
+                                if (count < sender.getGroupRoles().size() - 1) {
+                                    sb.append(", ");
+                                }
                             }
+                            count++;
                         }
-                        count++;
                     }
                 }
 

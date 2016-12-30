@@ -492,8 +492,8 @@ public class ConversationServiceTest {
         verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
         verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
         verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
-        verify(userRepository, times(2)).findOne(eq(user1.getId()));
-        verify(userRepository, times(1)).findOne(eq(user2.getId()));
+        verify(userRepository, times(3)).findOne(eq(user1.getId()));
+        verify(userRepository, times(2)).findOne(eq(user2.getId()));
         verify(emailService, times(1)).sendEmail(emailCaptor.capture());
 
         Email email = emailCaptor.getValue();
@@ -588,8 +588,8 @@ public class ConversationServiceTest {
         verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
         verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
         verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
-        verify(userRepository, times(2)).findOne(eq(user1.getId()));
-        verify(userRepository, times(1)).findOne(eq(user2.getId()));
+        verify(userRepository, times(3)).findOne(eq(user1.getId()));
+        verify(userRepository, times(2)).findOne(eq(user2.getId()));
         verify(emailService, times(1)).sendEmail(emailCaptor.capture());
 
         Email email = emailCaptor.getValue();
