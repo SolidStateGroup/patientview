@@ -27,6 +27,13 @@ public class EmailServiceTest {
     @Autowired
     private EmailServiceImpl emailService;
 
+    /**
+     * Send email, testing locally means must have correct SMTP details in local-api.properties. If authentication
+     * with a test SMTP server is required uncomment lines in TestCommonConfig.java.
+     * Suggested test local SMTP server is FakeSMTP, https://nilhcem.github.io/FakeSMTP/.
+     * @throws MailException
+     * @throws MessagingException
+     */
     @Ignore("Email should be tested manually")
     @Test
     public void testSendEmail() throws MailException, MessagingException {
@@ -34,7 +41,7 @@ public class EmailServiceTest {
 
         Email email = new Email();
         email.setBody("test body");
-        email.setRecipients(new String[]{"nadim@solidstategroup.com", "jamesr@solidstategroup.com", "andrewmoffatt777@hotmail.com"});
+        email.setRecipients(new String[]{"jamesr@solidstategroup.com"});
         email.setSubject("test subject");
         email.setSenderEmail("no-reply@solidstategroup.com");
         email.setSenderName("PatientView Team");
@@ -49,7 +56,7 @@ public class EmailServiceTest {
         Email email = new Email();
         email.setBcc(true);
         email.setBody("test body");
-        email.setRecipients(new String[]{"nadim@solidstategroup.com", "jamesr@solidstategroup.com"});
+        email.setRecipients(new String[]{"jamesr@solidstategroup.com"});
         email.setSubject("BCC test");
         email.setSenderEmail("no-reply@solidstategroup.com");
         email.setSenderName("PatientView Team");

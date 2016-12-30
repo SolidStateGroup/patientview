@@ -25,18 +25,21 @@ public class TestCommonConfig {
     public JavaMailSenderImpl javaMailSender() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(properties.getProperty("smtp.host"));
-        javaMailSender.setUsername(properties.getProperty("smtp.username"));
-        javaMailSender.setPassword(properties.getProperty("smtp.password"));
+
+        // for testing a SMTP server with authentication, uncomment these lines
+        // javaMailSender.setUsername(properties.getProperty("smtp.username"));
+        // javaMailSender.setPassword(properties.getProperty("smtp.password"));
 
         Properties javaMailProperties = new Properties();
         javaMailProperties.setProperty("smtp.host", properties.getProperty("smtp.host"));
         javaMailProperties.setProperty("smtp.username", properties.getProperty("smtp.username"));
         javaMailProperties.setProperty("smtp.password", properties.getProperty("smtp.password"));
-        javaMailProperties.setProperty("mail.debug","false");
-        javaMailProperties.setProperty("mail.smtp.auth","true");
-        javaMailProperties.setProperty("mail.smtp.ssl.enable","true");
-        javaMailProperties.setProperty("mail.smtp.starttls.enable","true");
-        javaMailProperties.setProperty("mail.smtp.port","465");
+        javaMailProperties.setProperty("mail.debug", properties.getProperty("mail.debug"));
+        javaMailProperties.setProperty("mail.smtp.auth", properties.getProperty("mail.smtp.auth"));
+        javaMailProperties.setProperty("mail.smtp.ssl.enable", properties.getProperty("mail.smtp.ssl.enable"));
+        javaMailProperties.setProperty("mail.smtp.starttls.enable",
+                properties.getProperty("mail.smtp.starttls.enable"));
+        javaMailProperties.setProperty("mail.smtp.port", properties.getProperty("mail.smtp.port"));
 
         javaMailSender.setJavaMailProperties(javaMailProperties);
         return javaMailSender;
