@@ -1869,7 +1869,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                     for (GroupRole groupRole : sender.getGroupRoles()) {
                         // do not list SPECIALTY groups
-                        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())
+                                && Boolean.TRUE.equals(groupRole.getGroup().getVisible())) {
                             sb.append(groupRole.getRole().getName().getName()).append(" at ");
                             sb.append(groupRole.getGroup().getName());
                             if (count < sender.getGroupRoles().size() - 1) {
