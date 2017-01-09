@@ -72,7 +72,7 @@ import static org.mockito.Mockito.when;
 public class AuthenticationServiceTest {
 
     @Mock
-    ApiConditionService apiConditionService;
+    private ApiConditionService apiConditionService;
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
@@ -639,6 +639,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
         Assert.assertTrue("group messaging should be set", userToken.isGroupMessagingEnabled());
+        Assert.assertTrue("UserToken mustSetSecretWord should be true", userToken.isMustSetSecretWord());
 
         verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));

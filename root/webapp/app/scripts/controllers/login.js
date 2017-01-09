@@ -20,33 +20,47 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                 localStorageService.set('loggedInUser', user);
                 $scope.loading = false;
 
-                if (userInformation.routes !== undefined && userInformation.routes.length) {
-                    if (user.changePassword) {
-                        $rootScope.routes = [];
-                        $rootScope.routes.push(RouteService.getChangePasswordRoute());
-                        localStorageService.set('routes', $rootScope.routes);
+                if (user.changePassword) {
+                    // remove messaging link if present
+                    $rootScope.loggedInUser.userInformation.groupMessagingEnabled = false;
 
-                        // manually call buildroute, ios fix
-                        $rootScope.buildRoute();
+                    // clear all routes other than change password
+                    $rootScope.routes = [];
+                    $rootScope.routes.push(RouteService.getChangePasswordRoute());
+                    localStorageService.set('routes', $rootScope.routes);
 
-                        $location.path('/changepassword');
-                    } else {
+                    // manually call buildroute, ios fix
+                    $rootScope.buildRoute();
+
+                    // redirect to change password
+                    $location.path('/changepassword');
+                }  else if (userInformation.mustSetSecretWord) {
+                    // remove messaging link if present
+                    $rootScope.loggedInUser.userInformation.groupMessagingEnabled = false;
+
+                    // clear all routes other than set secret word
+                    $rootScope.routes = [];
+                    $rootScope.routes.push(RouteService.getSetSecretWordRoute());
+                    localStorageService.set('routes', $rootScope.routes);
+
+                    // manually call buildroute, ios fix
+                    $rootScope.buildRoute();
+
+                    // redirect to set secret word
+                    $location.path('/setsecretword');
+                } else {
+                    if (userInformation.routes !== undefined && userInformation.routes.length) {
                         $rootScope.routes = userInformation.routes;
                         localStorageService.set('routes', userInformation.routes);
 
                         // manually call buildroute, ios fix
                         $rootScope.buildRoute();
 
-                        if (userInformation.mustSetSecretWord) {
-                            $location.path('/setsecretword');
-                        } else {
-                            $location.path('/dashboard');
-                        }
+                        $location.path('/dashboard');
+                    } else {
+                        alert('Error retrieving routes, please contact PatientView support');
+                        $location.path('/logout');
                     }
-                } else {
-                    // error getting routes
-                    alert('Error retrieving routes, please contact PatientView support');
-                    $location.path('/logout');
                 }
 
                 $rootScope.startTimers();
@@ -105,11 +119,6 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                 }
 
                 var username = $scope.username;
-
-                if (username.length >= 3
-                    && username.substring(username.length - 3, username.length).toUpperCase() == '-GP') {
-                    //$scope.showGpLoginMessage = true;
-                }
 
                 $scope.loading = false;
             });

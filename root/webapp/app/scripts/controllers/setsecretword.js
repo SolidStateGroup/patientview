@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('SetSecretWordCtrl', ['UserService', '$scope', '$rootScope',
-    function (UserService, $scope, $rootScope) {
+angular.module('patientviewApp').controller('SetSecretWordCtrl', ['AuthService', 'UserService', '$scope', '$rootScope',
+    'localStorageService', '$location',
+    function (AuthService, UserService, $scope, $rootScope, localStorageService, $location) {
 
     $scope.saveSecretWord = function () {
         $scope.loading = true;
@@ -25,4 +26,30 @@ angular.module('patientviewApp').controller('SetSecretWordCtrl', ['UserService',
             });
         }
     };
+
+    // same procedure as login, using previously authenticated token
+    $scope.getUserInformation = function() {
+        $scope.loading = true;
+        AuthService.getUserInformation({'token': $rootScope.authToken}).then(function (userInformation) {
+            // set user information
+            var user = userInformation.user;
+            delete userInformation.user;
+            user.userInformation = userInformation;
+
+            // set logged in user
+            $rootScope.loggedInUser = user;
+            localStorageService.set('loggedInUser', user);
+
+            // set routes
+            $rootScope.routes = userInformation.routes;
+            localStorageService.set('routes', userInformation.routes);
+
+            // manually call buildroute, ios fix
+            $rootScope.buildRoute();
+
+            // redirect to dashboard
+            $location.path('/dashboard');
+            $scope.loading = false;
+        });
+    }
 }]);
