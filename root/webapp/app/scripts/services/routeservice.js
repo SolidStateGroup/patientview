@@ -231,7 +231,7 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                 'title': 'Set Secret Word',
                 'lookup': {
                     'id': 99,
-                    'value': 'TOP',
+                    'value': 'NOT_DISPLAYED',
                     'lookupType': {
                         'id': 3,
                         'type': 'MENU',
