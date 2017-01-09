@@ -99,7 +99,8 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    // EAGER for userHasStaffMessagingFeatures()
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
