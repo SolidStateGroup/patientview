@@ -879,6 +879,70 @@ CREATE TABLE PV_Nhs_Indicators
   PRIMARY KEY (Id)
 );
 
+-- Notes tables
+
+CREATE TABLE PV_Note
+(
+  Id               BIGINT    NOT NULL,
+  Note_Type        VARCHAR(100) NOT NULL,
+  User_Id          BIGINT    REFERENCES PV_User (Id),
+  Body             TEXT      NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Update_Date      TIMESTAMP,
+  PRIMARY KEY (Id)
+);
+
+-- Pathway tables
+
+CREATE TABLE PV_Pathway
+(
+  Id               BIGINT    NOT NULL,
+  User_Id          BIGINT    REFERENCES PV_User (Id),
+  Pathway_Type     VARCHAR(100) NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Update_Date      TIMESTAMP,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Pathway_Stage
+(
+  Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id) NOT NULL,
+  Stage_Id         BIGINT    REFERENCES PV_Stage (Id) NOT NULL
+);
+
+CREATE TABLE PV_Stage
+(
+  Id               BIGINT    NOT NULL,
+  Name             VARCHAR(500),
+  Stage_Type       VARCHAR(100) NOT NULL,
+  Stage_Status     VARCHAR(100) NOT NULL,
+  version          INTEGER NOT NULL DEFAULT 1,
+  Started_Date     TIMESTAMP,
+  Stopped_Date     TIMESTAMP,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Stage_Data
+(
+  Id                BIGINT    NOT NULL,
+  Stage_Id          BIGINT    REFERENCES PV_Stage (Id),
+  Step              INTEGER NOT NULL DEFAULT 1,
+  Bloods            TEXT,
+  Crossmatching     TEXT,
+  Xrays             TEXT,
+  Ecg               TEXT,
+  Caregiver_Text    TEXT,
+  Carelocation_Text TEXT,
+  Creation_Date     TIMESTAMP NOT NULL,
+  Update_Date       TIMESTAMP,
+  PRIMARY KEY (Id)
+);
+
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1
