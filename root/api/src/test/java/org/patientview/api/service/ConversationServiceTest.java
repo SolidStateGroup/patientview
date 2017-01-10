@@ -324,92 +324,6 @@ public class ConversationServiceTest {
     }
 
     @Test
-    public void testCreateConversation() throws Exception {
-
-        // set up group
-        Group testGroup = TestUtils.createGroup("testGroup");
-        testGroup.setGroupType(TestUtils.createLookup(
-                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
-        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
-        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
-        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
-        testGroup.getGroupFeatures().add(groupFeature);
-
-        // add user1 as specialty admin
-        User user1 = TestUtils.createUser("newTestUser1");
-        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
-        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
-        user1.setGroupRoles(new TreeSet<GroupRole>());
-        user1.getGroupRoles().add(groupRole);
-        user1.setUserFeatures(new HashSet<UserFeature>());
-        UserFeature userFeature1 = TestUtils.createUserFeature(messagingFeature, user1);
-        user1.getUserFeatures().add(userFeature1);
-
-        // add user2 as unit admin
-        User user2 = TestUtils.createUser("newTestUser2");
-        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
-        user2.setGroupRoles(new TreeSet<GroupRole>());
-        user2.getGroupRoles().add(groupRole2);
-        user2.setUserFeatures(new HashSet<UserFeature>());
-        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
-        user2.getUserFeatures().add(userFeature2);
-
-        // authenticate user1
-        TestUtils.authenticateTest(user1, user1.getGroupRoles());
-
-        Conversation conversation = new Conversation();
-        conversation.setId(3L);
-        conversation.setType(ConversationTypes.MESSAGE);
-
-        ConversationUser conversationUser1 = new ConversationUser();
-        conversationUser1.setId(4L);
-        conversationUser1.setUser(user1);
-        conversationUser1.setConversation(conversation);
-        conversationUser1.setAnonymous(false);
-
-        ConversationUser conversationUser2 = new ConversationUser();
-        conversationUser2.setId(5L);
-        conversationUser2.setUser(user2);
-        conversationUser2.setConversation(conversation);
-        conversationUser2.setAnonymous(false);
-
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-        conversationUserSet.add(conversationUser1);
-        conversationUserSet.add(conversationUser2);
-        conversation.setConversationUsers(conversationUserSet);
-
-        Message message = new Message();
-        message.setId(6L);
-        message.setConversation(conversation);
-        message.setUser(user1);
-        message.setType(MessageTypes.MESSAGE);
-
-        List<Message> messageList = new ArrayList<>();
-        messageList.add(message);
-        conversation.setMessages(messageList);
-
-        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
-        when(properties.getProperty(eq("site.url"))).thenReturn("");
-
-        conversationService.addConversation(user1.getId(), conversation);
-
-        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
-
-        Email email = emailCaptor.getValue();
-        List<String> recipients = Arrays.asList(email.getRecipients());
-
-        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
-        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
-        assertTrue("Email should contain patient group",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
-        assertTrue("Email should contain patient role",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
-    }
-
-    @Test
     public void testCreateConversation_anonymousFeedback() throws Exception {
         Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         Feature patientSupportContactFeature = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
@@ -501,189 +415,6 @@ public class ConversationServiceTest {
 
         assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
         assertFalse("Email should not contain patient name", email.getBody().contains(user1.getName()));
-    }
-
-    @Test
-    public void testCreateConversation_publicFeedback() throws Exception {
-        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
-        Feature patientSupportContactFeature = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
-
-        // set up group
-        Group testGroup = TestUtils.createGroup("testGroup");
-        testGroup.setGroupType(TestUtils.createLookup(
-                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
-        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
-        testGroup.getGroupFeatures().add(TestUtils.createGroupFeature(messagingFeature, testGroup));
-
-        // add user1 as patient sending anonymous feedback
-        User user1 = TestUtils.createUser("patientUser");
-        user1.setForename("patient");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        user1.setGroupRoles(new TreeSet<GroupRole>());
-        user1.getGroupRoles().add(TestUtils.createGroupRole(role, testGroup, user1));
-        user1.setUserFeatures(new HashSet<UserFeature>());
-        user1.getUserFeatures().add(TestUtils.createUserFeature(messagingFeature, user1));
-
-        // add user2 as unit admin
-        User user2 = TestUtils.createUser("staffUser");
-        user2.setName("staff");
-        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        user2.setGroupRoles(new TreeSet<GroupRole>());
-        user2.getGroupRoles().add(TestUtils.createGroupRole(role2, testGroup, user2));
-        user2.setUserFeatures(new HashSet<UserFeature>());
-        user2.getUserFeatures().add(TestUtils.createUserFeature(messagingFeature, user2));
-        user2.getUserFeatures().add(TestUtils.createUserFeature(patientSupportContactFeature, user2));
-
-        // authenticate user1
-        TestUtils.authenticateTest(user1, user1.getGroupRoles());
-
-        // new public (non anonymous) conversation
-        Conversation conversation = new Conversation();
-        conversation.setId(3L);
-        conversation.setType(ConversationTypes.CONTACT_UNIT);
-        conversation.setAnonymous(false);
-        conversation.setGroupId(testGroup.getId());
-        conversation.setStaffFeature(FeatureType.PATIENT_SUPPORT_CONTACT);
-
-        ConversationUser conversationUser1 = new ConversationUser();
-        conversationUser1.setId(4L);
-        conversationUser1.setUser(user1);
-        conversationUser1.setConversation(conversation);
-        conversationUser1.setAnonymous(false);
-
-        ConversationUser conversationUser2 = new ConversationUser();
-        conversationUser2.setId(5L);
-        conversationUser2.setUser(user2);
-        conversationUser2.setConversation(conversation);
-        conversationUser2.setAnonymous(false);
-
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-        conversationUserSet.add(conversationUser1);
-        conversationUserSet.add(conversationUser2);
-        conversation.setConversationUsers(conversationUserSet);
-
-        Message message = new Message();
-        message.setId(6L);
-        message.setConversation(conversation);
-        message.setUser(user1);
-        message.setType(MessageTypes.CONTACT_UNIT);
-
-        List<Message> messageList = new ArrayList<>();
-        messageList.add(message);
-        conversation.setMessages(messageList);
-
-        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString())))
-                .thenReturn(patientSupportContactFeature);
-        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
-        when(properties.getProperty(eq("site.url"))).thenReturn("");
-        when(userRepository.findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature)))
-                .thenReturn(Arrays.asList(user2));
-        when(userRepository.findOne(eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(eq(user2.getId()))).thenReturn(user2);
-
-        conversationService.addConversation(user1.getId(), conversation);
-
-        verify(conversationRepository, times(1)).save(any(Conversation.class));
-        verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
-        verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
-        verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
-        verify(userRepository, times(3)).findOne(eq(user1.getId()));
-        verify(userRepository, times(2)).findOne(eq(user2.getId()));
-        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
-
-        Email email = emailCaptor.getValue();
-        List<String> recipients = Arrays.asList(email.getRecipients());
-
-        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
-        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
-        assertTrue("Email should contain patient group",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
-        assertTrue("Email should contain patient role",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
-    }
-
-    @Test
-    public void testCreateConversation_PatientToUnitAdmin() throws Exception {
-        // set up group
-        Group testGroup = TestUtils.createGroup("testGroup");
-        testGroup.setGroupType(TestUtils.createLookup(
-                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
-        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
-        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
-        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
-        testGroup.getGroupFeatures().add(groupFeature);
-
-        // add user1 as patient
-        User user1 = TestUtils.createUser("newTestUser1");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
-        user1.setGroupRoles(new TreeSet<GroupRole>());
-        user1.getGroupRoles().add(groupRole);
-        user1.setUserFeatures(new HashSet<UserFeature>());
-
-        // add user2 as unit admin
-        User user2 = TestUtils.createUser("newTestUser2");
-        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
-        user2.setGroupRoles(new TreeSet<GroupRole>());
-        user2.getGroupRoles().add(groupRole2);
-        user2.setUserFeatures(new HashSet<UserFeature>());
-        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
-        user2.getUserFeatures().add(userFeature2);
-
-        // authenticate user1
-        TestUtils.authenticateTest(user1, user1.getGroupRoles());
-
-        Conversation conversation = new Conversation();
-        conversation.setId(3L);
-        conversation.setType(ConversationTypes.MESSAGE);
-
-        ConversationUser conversationUser1 = new ConversationUser();
-        conversationUser1.setId(4L);
-        conversationUser1.setUser(user1);
-        conversationUser1.setConversation(conversation);
-        conversationUser1.setAnonymous(false);
-
-        ConversationUser conversationUser2 = new ConversationUser();
-        conversationUser2.setId(5L);
-        conversationUser2.setUser(user2);
-        conversationUser2.setConversation(conversation);
-        conversationUser2.setAnonymous(false);
-
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-        conversationUserSet.add(conversationUser1);
-        conversationUserSet.add(conversationUser2);
-        conversation.setConversationUsers(conversationUserSet);
-
-        Message message = new Message();
-        message.setId(6L);
-        message.setConversation(conversation);
-        message.setUser(user1);
-        message.setType(MessageTypes.MESSAGE);
-
-        List<Message> messageList = new ArrayList<>();
-        messageList.add(message);
-        conversation.setMessages(messageList);
-
-        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
-        when(properties.getProperty(eq("site.url"))).thenReturn("");
-
-        conversationService.addConversation(user1.getId(), conversation);
-
-        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
-
-        Email email = emailCaptor.getValue();
-        List<String> recipients = Arrays.asList(email.getRecipients());
-
-        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
-        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
-        assertTrue("Email should contain patient group",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
-        assertTrue("Email should contain patient role",
-                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
     }
 
     @Test(expected=ResourceForbiddenException.class)
@@ -832,6 +563,280 @@ public class ConversationServiceTest {
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
         }
+    }
+
+    @Test
+    public void testCreateConversation_publicFeedback() throws Exception {
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        Feature patientSupportContactFeature = TestUtils.createFeature(FeatureType.PATIENT_SUPPORT_CONTACT.toString());
+
+        // set up group
+        Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(TestUtils.createGroupFeature(messagingFeature, testGroup));
+
+        // set up specialty
+        Group testSpecialty = TestUtils.createGroup("testSpecialty");
+        testSpecialty.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString()));
+
+        // add user1 as patient sending anonymous feedback
+        User user1 = TestUtils.createUser("patientUser");
+        user1.setForename("patient");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(TestUtils.createGroupRole(role, testGroup, user1));
+        user1.getGroupRoles().add(TestUtils.createGroupRole(role, testSpecialty, user1));
+        user1.setUserFeatures(new HashSet<UserFeature>());
+        user1.getUserFeatures().add(TestUtils.createUserFeature(messagingFeature, user1));
+
+        // add user2 as unit admin
+        User user2 = TestUtils.createUser("staffUser");
+        user2.setName("staff");
+        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        user2.setGroupRoles(new TreeSet<GroupRole>());
+        user2.getGroupRoles().add(TestUtils.createGroupRole(role2, testGroup, user2));
+        user2.setUserFeatures(new HashSet<UserFeature>());
+        user2.getUserFeatures().add(TestUtils.createUserFeature(messagingFeature, user2));
+        user2.getUserFeatures().add(TestUtils.createUserFeature(patientSupportContactFeature, user2));
+
+        // authenticate user1
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+
+        // new public (non anonymous) conversation
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.CONTACT_UNIT);
+        conversation.setAnonymous(false);
+        conversation.setGroupId(testGroup.getId());
+        conversation.setStaffFeature(FeatureType.PATIENT_SUPPORT_CONTACT);
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.CONTACT_UNIT);
+
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString())))
+                .thenReturn(patientSupportContactFeature);
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+        when(userRepository.findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature)))
+                .thenReturn(Arrays.asList(user2));
+        when(userRepository.findOne(eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(eq(user2.getId()))).thenReturn(user2);
+
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
+        verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
+        verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
+        verify(userRepository, times(3)).findOne(eq(user1.getId()));
+        verify(userRepository, times(2)).findOne(eq(user2.getId()));
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain patient group", email.getBody().contains(testGroup.getName()));
+        assertTrue("Email should contain patient role", email.getBody().contains(role.getName().getName()));
+        assertFalse("Email should not contain patient specialty", email.getBody().contains(testSpecialty.getName()));
+    }
+
+    @Test
+    public void testCreateConversation_PatientToUnitAdmin() throws Exception {
+        // set up group
+        Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        // add user1 as patient
+        User user1 = TestUtils.createUser("newTestUser1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(groupRole);
+        user1.setUserFeatures(new HashSet<UserFeature>());
+
+        // add user2 as unit admin
+        User user2 = TestUtils.createUser("newTestUser2");
+        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
+        user2.setGroupRoles(new TreeSet<GroupRole>());
+        user2.getGroupRoles().add(groupRole2);
+        user2.setUserFeatures(new HashSet<UserFeature>());
+        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
+        user2.getUserFeatures().add(userFeature2);
+
+        // authenticate user1
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.MESSAGE);
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.MESSAGE);
+
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain patient group",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
+        assertTrue("Email should contain patient role",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
+    }
+
+    @Test
+    public void testCreateConversation_specialtyAdminToUnitAdmin() throws Exception {
+
+        // set up group
+        Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString()));
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        // add user1 as specialty admin
+        User user1 = TestUtils.createUser("newTestUser1");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(groupRole);
+        user1.setUserFeatures(new HashSet<UserFeature>());
+        UserFeature userFeature1 = TestUtils.createUserFeature(messagingFeature, user1);
+        user1.getUserFeatures().add(userFeature1);
+
+        // add user2 as unit admin
+        User user2 = TestUtils.createUser("newTestUser2");
+        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
+        user2.setGroupRoles(new TreeSet<GroupRole>());
+        user2.getGroupRoles().add(groupRole2);
+        user2.setUserFeatures(new HashSet<UserFeature>());
+        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
+        user2.getUserFeatures().add(userFeature2);
+
+        // authenticate user1
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.MESSAGE);
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.MESSAGE);
+
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain staff name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain staff group",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
+        assertTrue("Email should contain staff role",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
     }
 
     @Test

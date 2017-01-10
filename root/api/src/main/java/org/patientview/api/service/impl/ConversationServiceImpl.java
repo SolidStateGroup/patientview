@@ -1861,25 +1861,36 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                 // if conversation is not anonymous (anonymous feedback to unit), add user details
                 if (!anonymous) {
-                    // name
-                    sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
+                    StringBuilder roleSb = new StringBuilder();
 
                     if (userHasRole(sender, RoleName.GLOBAL_ADMIN)) {
-                        sb.append(RoleName.GLOBAL_ADMIN.getName());
+                        // handle global admins
+                        roleSb.append(RoleName.GLOBAL_ADMIN.getName());
                     } else {
                         // group roles
                         int count = 0;
 
+                        boolean isSpecialtyAdmin = userHasRole(sender, RoleName.SPECIALTY_ADMIN);
+
+                        // only include visible groups and non specialty groups
                         for (GroupRole groupRole : sender.getGroupRoles()) {
-                            if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())) {
-                                sb.append(groupRole.getRole().getName().getName()).append(" at ");
-                                sb.append(groupRole.getGroup().getName());
+                            if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())
+                                    && (!GroupTypes.SPECIALTY.toString().equals(
+                                            groupRole.getGroup().getGroupType().getValue()) || isSpecialtyAdmin)) {
+                                roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
+                                roleSb.append(groupRole.getGroup().getName());
                                 if (count < sender.getGroupRoles().size() - 1) {
-                                    sb.append(", ");
+                                    roleSb.append(", ");
                                 }
                             }
                             count++;
                         }
+                    }
+
+                    if (roleSb.length() > 0) {
+                        // name
+                        sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
+                        sb.append(roleSb);
                     }
                 }
 
