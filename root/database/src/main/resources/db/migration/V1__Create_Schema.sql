@@ -926,7 +926,6 @@ CREATE TABLE DV_Stage_Data
 (
   Id                BIGINT    NOT NULL,
   Stage_Id          BIGINT    REFERENCES PV_Stage (Id),
-  Step              INTEGER NOT NULL DEFAULT 1,
   Bloods            BOOL NOT NULL,
   Crossmatching     BOOL NOT NULL,
   Xrays             BOOL NOT NULL,
