@@ -1,16 +1,15 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * NoteTypes enumerator denotes note type
- * for org.patientview.persistence.model.Note
- *
+ * PathwayTypes enumerator denotes pathway type
+ * for org.patientview.persistence.model.Pathway
  */
-public enum NoteTypes {
-    DONORVIEW("Donor View");
+public enum PathwayTypes {
+    DONORPATHWAY("Donor Pathway");
 
     private String name;
 
-    NoteTypes(String name) {
+    PathwayTypes(String name) {
         this.name = name;
     }
 
