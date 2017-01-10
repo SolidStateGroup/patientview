@@ -888,9 +888,9 @@ CREATE TABLE PV_Note
   User_Id          BIGINT    REFERENCES PV_User (Id),
   Body             TEXT      NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
-  Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
-  Update_Date      TIMESTAMP,
+  Last_Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Last_Update_Date      TIMESTAMP,
   PRIMARY KEY (Id)
 );
 
@@ -902,9 +902,9 @@ CREATE TABLE PV_Pathway
   User_Id          BIGINT    REFERENCES PV_User (Id),
   Pathway_Type     VARCHAR(100) NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
-  Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
-  Update_Date      TIMESTAMP,
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id) NOT NULL,
   PRIMARY KEY (Id)
 );
 
@@ -938,7 +938,7 @@ CREATE TABLE PV_Stage_Data
   Caregiver_Text    TEXT,
   Carelocation_Text TEXT,
   Creation_Date     TIMESTAMP NOT NULL,
-  Update_Date       TIMESTAMP,
+  Last_Update_Date  TIMESTAMP,
   PRIMARY KEY (Id)
 );
 
