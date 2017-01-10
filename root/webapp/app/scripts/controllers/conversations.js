@@ -317,6 +317,7 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'ARCHIVED')
             .then(function() {
                 $scope.currentPage = 0;
+                $rootScope.setUnreadConversationCount();
                 getItems();
             }, function() {
                 alert('Error archiving');
@@ -333,6 +334,7 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
             ConversationService.addConversationUserLabel($scope.loggedInUser.id, conversation.id, 'INBOX')
             .then(function() {
                 $scope.currentPage = 0;
+                $rootScope.setUnreadConversationCount();
                 getItems();
             }, function() {
                 alert('Error unarchiving');
