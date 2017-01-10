@@ -937,8 +937,10 @@ CREATE TABLE PV_Stage_Data
   Ecg               TEXT,
   Caregiver_Text    TEXT,
   Carelocation_Text TEXT,
-  Creation_Date     TIMESTAMP NOT NULL,
-  Last_Update_Date  TIMESTAMP,
+  Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id) NOT NULL,
   PRIMARY KEY (Id)
 );
 
