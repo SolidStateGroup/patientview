@@ -34,7 +34,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
                     // redirect to change password
                     $location.path('/changepassword');
-                }  else if (userInformation.mustSetSecretWord) {
+                } else if (userInformation.mustSetSecretWord) {
                     // remove messaging link if present
                     $rootScope.loggedInUser.userInformation.groupMessagingEnabled = false;
 

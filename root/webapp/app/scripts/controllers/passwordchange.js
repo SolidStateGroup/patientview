@@ -4,69 +4,48 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
     '$scope', '$rootScope', '$cookies', 'UtilService', 'localStorageService',
     function (RouteService,UserService,AuthService,$scope,$rootScope,$cookies,UtilService,localStorageService) {
 
-    $scope.userdetails = $rootScope.loggedInUser;
-
     $scope.savePassword = function () {
         $scope.successMessage = null;
         $scope.passwordErrorMessage = null;
-        if ($scope.pw !== $scope.userdetails.confirmPassword) {
+        if ($scope.pw !== $scope.confirmPassword) {
             $scope.passwordErrorMessage = 'The passwords do not match';
         } else {
             $scope.loading = true;
 
-            AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword})
-                .then(function (userToken) {
+            UserService.changePassword($rootScope.loggedInUser.id, $scope.pw).then(function () {
+                AuthService.getUserInformation({'token' : $rootScope.authToken}).then(function (userInformation) {
+                    var user = userInformation.user;
+                    delete userInformation.user;
+                    user.userInformation = userInformation;
 
-                // set the password
-                $scope.userdetails.password = $scope.pw;
+                    $rootScope.loggedInUser = user;
+                    localStorageService.set('loggedInUser', user);
 
-                // set the authtoken
-                $rootScope.authToken = userToken.token;
-                $cookies.authToken = userToken.token;
-                localStorageService.set('authToken', userToken.token);
+                    if (userInformation.mustSetSecretWord) {
+                        // remove messaging link if present
+                        $rootScope.loggedInUser.userInformation.groupMessagingEnabled = false;
 
-                UserService.changePassword($scope.userdetails).then(function () {
-
-                    // successfully changed user password
-                    $scope.successMessage = 'The password has been changed';
-
-                    AuthService.getUserInformation({'token' : userToken.token}).then(function (userInformation) {
-
-                        // get user information (securityroles, userGroups), store in session
-                        var user = userInformation.user;
-                        delete userInformation.user;
-                        user.userInformation = userInformation;
-
-                        $rootScope.loggedInUser = user;
-                        localStorageService.set('loggedInUser', user);
+                        // clear all routes other than set secret word
+                        $rootScope.routes = [];
+                        $rootScope.routes.push(RouteService.getSetSecretWordRoute());
+                        localStorageService.set('routes', $rootScope.routes);
+                    } else {
                         $rootScope.routes = userInformation.routes;
                         localStorageService.set('routes', userInformation.routes);
+                    }
 
-                        $scope.loading = false;
-
-                        /*$interval(function(){
-                            $location.path("/dashboard");
-                        },3000);*/
-
-                    }, function(result) {
-                        if (result.data) {
-                            $scope.passwordErrorMessage = ' - ' + result.data;
-                        } else {
-                            $scope.passwordErrorMessage = ' ';
-                        }
-                        $scope.loading = false;
-                    });
-                }, function () {
-                    $scope.passwordErrorMessage = '- There was an error';
+                    $scope.successMessage = 'The password has been changed';
+                    $scope.loading = false;
+                }, function(result) {
+                    if (result.data) {
+                        $scope.passwordErrorMessage = ' - ' + result.data;
+                    } else {
+                        $scope.passwordErrorMessage = ' ';
+                    }
                     $scope.loading = false;
                 });
-
-            }, function (result) {
-                if (result.data) {
-                    $scope.passwordErrorMessage = ' - Current password incorrect';
-                } else {
-                    $scope.passwordErrorMessage = ' ';
-                }
+            }, function () {
+                $scope.passwordErrorMessage = '- There was an error';
                 $scope.loading = false;
             });
         }
