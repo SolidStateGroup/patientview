@@ -23,6 +23,7 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
         var conversation = {};
         conversation.type = 'CONTACT_UNIT';
         conversation.title = $scope.conversation.title;
+        conversation.anonymous = $scope.conversation.anonymous;
         conversation.messages = [];
         conversation.open = true;
 
