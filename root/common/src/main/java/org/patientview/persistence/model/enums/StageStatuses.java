@@ -1,8 +1,8 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * PathwayTypes enumerator denotes pathway type
- * for org.patientview.persistence.model.Pathway
+ * StageStatuses enumerator denotes statuses
+ * for org.patientview.persistence.model.Stage steps
  */
 public enum StageStatuses {
     PENDING("Pending"),
