@@ -889,8 +889,8 @@ CREATE TABLE PV_Note
   Body             TEXT      NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
-  Last_Updated_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
-  Last_Update_Date      TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Last_Update_Date TIMESTAMP,
   PRIMARY KEY (Id)
 );
 
