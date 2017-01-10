@@ -908,16 +908,11 @@ CREATE TABLE PV_Pathway
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Pathway_Stage
-(
-  Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id) NOT NULL,
-  Stage_Id         BIGINT    REFERENCES PV_Stage (Id) NOT NULL
-);
-
 CREATE TABLE PV_Stage
 (
   Id               BIGINT    NOT NULL,
   Name             VARCHAR(500),
+  Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id),
   Stage_Type       VARCHAR(100) NOT NULL,
   Stage_Status     VARCHAR(100) NOT NULL,
   version          INTEGER NOT NULL DEFAULT 1,
@@ -926,15 +921,16 @@ CREATE TABLE PV_Stage
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Stage_Data
+-- Table specific for capturing Donorview stage data
+CREATE TABLE DV_Stage_Data
 (
   Id                BIGINT    NOT NULL,
   Stage_Id          BIGINT    REFERENCES PV_Stage (Id),
   Step              INTEGER NOT NULL DEFAULT 1,
-  Bloods            TEXT,
-  Crossmatching     TEXT,
-  Xrays             TEXT,
-  Ecg               TEXT,
+  Bloods            BOOL NOT NULL,
+  Crossmatching     BOOL NOT NULL,
+  Xrays             BOOL NOT NULL,
+  Ecg               BOOL NOT NULL,
   Caregiver_Text    TEXT,
   Carelocation_Text TEXT,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
