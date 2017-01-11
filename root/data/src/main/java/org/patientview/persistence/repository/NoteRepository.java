@@ -18,5 +18,5 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
             "FROM    Note n " +
             "JOIN    n.user u " +
             "WHERE   u = :user AND noteType:noteType")
-    List<Note> findByUserAndNoteType(@Param("user") User user, NoteTypes noteType);
+    List<Note> findByUserAndNoteType(@Param("user") User user, @Param("noteType") NoteTypes noteType);
 }
