@@ -1,5 +1,6 @@
 package org.patientview.test.util;
 
+import org.patientview.persistence.model.DonorStageData;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
@@ -21,6 +22,7 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
+import org.patientview.persistence.model.Stage;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
@@ -32,6 +34,8 @@ import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.model.enums.StageTypes;
+import org.patientview.persistence.model.enums.StageStatuses;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,21 +44,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Id can be passed when not using any persistence to test against.
- *
- *
+ * <p/>
+ * <p/>
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
  */
@@ -62,16 +57,18 @@ public final class TestUtils {
 
     final static User creator;
 
-    static {creator = createUser("testCreator");}
-
-    private static Long getId() {
-        long range = 1234567L;
-        Random r = new Random();
-        return (long) (r.nextDouble()*range);
+    static {
+        creator = createUser("testCreator");
     }
 
     private TestUtils() {
 
+    }
+
+    private static Long getId() {
+        long range = 1234567L;
+        Random r = new Random();
+        return (long) (r.nextDouble() * range);
     }
 
     public static User createUser(String name) {
@@ -170,7 +167,7 @@ public final class TestUtils {
 
     }
 
-    public static UserFeature createUserFeature( Feature feature, User user) {
+    public static UserFeature createUserFeature(Feature feature, User user) {
         UserFeature userFeature = new UserFeature();
         userFeature.setId(getId());
         userFeature.setCreated(new Date());
@@ -321,7 +318,7 @@ public final class TestUtils {
 
         Group group = createGroup("AuthenticationGroup");
         for (RoleName roleName : roleNames) {
-            authorities.add(createGroupRole( createRole(roleName), group, user));
+            authorities.add(createGroupRole(createRole(roleName), group, user));
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -399,7 +396,7 @@ public final class TestUtils {
         return newsItem;
     }
 
-    public static NewsLink createNewsLink( NewsItem newsItem, Group group, Role role) {
+    public static NewsLink createNewsLink(NewsItem newsItem, Group group, Role role) {
         NewsLink newsLink = new NewsLink();
         newsLink.setId(getId());
         newsLink.setNewsItem(newsItem);
@@ -484,8 +481,39 @@ public final class TestUtils {
         stage.setStageType(stageType);
         stage.setStageStatus(StageStatuses.PENDING);
         stage.setStarted(new Date());
-        stage.setStageData(new HashSet());
+        stage.setStageData(createStageData(stage));
         return stage;
+    }
+
+    public static Set<DonorStageData> createStageData(Stage stage) {
+
+        Set<DonorStageData> dataSet = new HashSet<>();
+
+        {
+            DonorStageData data = new DonorStageData();
+            data.setStage(stage);
+            data.setCaregiverText("Caregiver text");
+            data.setCarelocationText("Carelocation text");
+            data.setCreator(creator);
+
+            dataSet.add(data);
+        }
+
+        {
+            DonorStageData data = new DonorStageData();
+            data.setStage(stage);
+            data.setBloods(true);
+            data.setCrossmatching(true);
+            data.setXrays(true);
+            data.setEcg(true);
+            data.setCaregiverText("Caregiver text");
+            data.setCarelocationText("Carelocation text");
+            data.setCreator(creator);
+
+            dataSet.add(data);
+        }
+
+        return dataSet;
     }
 
 }
