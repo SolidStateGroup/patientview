@@ -477,4 +477,15 @@ public final class TestUtils {
         //observationHeading.setCreator(creator);
         return observationHeading;
     }
+
+    public static Stage createStage(String name, StageTypes stageType) {
+        Stage stage = new Stage();
+        stage.setName(name);
+        stage.setStageType(stageType);
+        stage.setStageStatus(StageStatuses.PENDING);
+        stage.setStarted(new Date());
+        stage.setStageData(new HashSet());
+        return stage;
+    }
+
 }
