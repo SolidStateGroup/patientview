@@ -53,7 +53,7 @@ public class Stage extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date stopped;
 
-    @OneToMany(mappedBy = "stage", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<DonorStageData> stageData;
 
 
