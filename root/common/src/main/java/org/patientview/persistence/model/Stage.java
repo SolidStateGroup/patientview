@@ -56,6 +56,8 @@ public class Stage extends BaseModel {
     @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<DonorStageData> stageData;
 
+    @Column(name = "back_to_previous_point")
+    private Integer backToPreviousPoint;
 
     public Pathway getPathway() {
         return pathway;
