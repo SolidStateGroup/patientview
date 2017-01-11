@@ -15,8 +15,10 @@
         <form name="userFormNew" data-ng-show="!existingUser">
             <div data-ng-include src="'views/partials/patientDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
         </form>
-        </div>            
+        </div>
     </div>
+
+    <a class="btn blue pull-right" href="" data-ng-click="continueToDonorPathway(editUser.id)" data-ng-show="!showForm && canContinueToDonorPathway()">Continue to Donor Pathway</a>
 
     <a class="btn blue pull-right" href="" data-ng-click="showFormUI()" data-ng-show="!showForm">Create Another Patient</a>
 

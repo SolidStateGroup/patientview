@@ -3,3 +3,4 @@
 webapp/dist/**/*
 **/node_modules
 webapp/dist
+**/bower_components

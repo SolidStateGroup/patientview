@@ -2,8 +2,9 @@
 
 angular.module('patientviewApp').controller('NewUserCtrl', ['$scope', '$rootScope', '$location', 'UserService',
     'UtilService', 'StaticDataService', '$timeout', 'CodeService', 'DiagnosisService', 'GroupService', '$route',
+    'DonorPathwayService',
 function ($scope, $rootScope, $location, UserService, UtilService, StaticDataService, $timeout, CodeService,
-          DiagnosisService, GroupService, $route) {
+          DiagnosisService, GroupService, $route, DonorPathwayService) {
 
     $scope.canAddDiagnosis = function () {
         // only Cardiol specialty and child groups of Cardiol
@@ -372,6 +373,19 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         printWindow.focus();
         printWindow.print();
         printWindow.close();
+    };
+
+    $scope.canContinueToDonorPathway = function() {
+        return _.find($scope.editUser.groupRoles, function (role) {
+            return _.find(role.group.groupFeatures, function (feature) {
+                return feature.feature.name == 'RENAL_DONOR_UNIT';
+            });
+        });
+    };
+
+    $scope.continueToDonorPathway = function (userId) {
+        DonorPathwayService.setUserId(userId);
+        $location.path('/donorpathway');
     };
 
     init();

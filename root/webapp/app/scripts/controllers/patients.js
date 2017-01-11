@@ -1,13 +1,13 @@
 'use strict';
 
 // Patient controller
-angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
+angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout',
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins',
+    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins', 'DonorPathwayService',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins) {
+        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins, DonorPathwayService) {
 
     // mixins for filters and shared code
     angular.extend($scope, Mixins);
@@ -158,6 +158,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             window.open(downloadUrl, "Your download is now starting.");
         }
 
+    };
+
+    // reset user password
+    $scope.editDonorPathway = function (userId) {
+        DonorPathwayService.setUserId(userId);
+        $location.path('/donorpathway');
     };
 
     $scope.getUser = function(openedUser) {
@@ -315,6 +321,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     alert('Error retrieving patient management information');
                 });
         }
+    };
+
+    // Check whether user has a group feature by name
+    $scope.hasGroupFeature = function(user, name) {
+        return _.find(user.groupRoles, function (role) {
+            return _.find(role.group.groupFeatures, function (feature) {
+                return feature.feature.name == name;
+            });
+        });
     };
 
     // Init
