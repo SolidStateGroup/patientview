@@ -3,6 +3,7 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * DonorStageData entity model represents stage data specific to DonorView pathway
@@ -33,6 +34,17 @@ public class DonorStageData extends AuditModel {
 
     @Column(name = "carelocation_text")
     private String carelocationText;
+
+    @PrePersist
+    public void prePersist() {
+        setCreated(new Date());
+        setLastUpdate(new Date());
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        setLastUpdate(new Date());
+    }
 
     public Stage getStage() {
         return stage;
