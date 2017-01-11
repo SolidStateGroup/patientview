@@ -885,7 +885,7 @@ CREATE TABLE PV_Note
 (
   Id               BIGINT    NOT NULL,
   Note_Type        VARCHAR(100) NOT NULL,
-  User_Id          BIGINT    REFERENCES PV_User (Id),
+  User_Id          BIGINT    REFERENCES PV_User (Id) NOT NULL,
   Body             TEXT      NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
@@ -899,7 +899,7 @@ CREATE TABLE PV_Note
 CREATE TABLE PV_Pathway
 (
   Id               BIGINT    NOT NULL,
-  User_Id          BIGINT    REFERENCES PV_User (Id),
+  User_Id          BIGINT    REFERENCES PV_User (Id) NOT NULL,
   Pathway_Type     VARCHAR(100) NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
@@ -912,10 +912,11 @@ CREATE TABLE PV_Stage
 (
   Id               BIGINT    NOT NULL,
   Name             VARCHAR(500),
-  Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id),
+  Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id) NOT NULL,
   Stage_Type       VARCHAR(100) NOT NULL,
   Stage_Status     VARCHAR(100) NOT NULL,
   version          INTEGER NOT NULL DEFAULT 1,
+  Back_To_Previous_Point INTEGER DEFAULT NULL,
   Started_Date     TIMESTAMP,
   Stopped_Date     TIMESTAMP,
   PRIMARY KEY (Id)
@@ -925,7 +926,7 @@ CREATE TABLE PV_Stage
 CREATE TABLE DV_Stage_Data
 (
   Id                BIGINT    NOT NULL,
-  Stage_Id          BIGINT    REFERENCES PV_Stage (Id),
+  Stage_Id          BIGINT    REFERENCES PV_Stage (Id) NOT NULL,
   Bloods            BOOL NOT NULL,
   Crossmatching     BOOL NOT NULL,
   Xrays             BOOL NOT NULL,
