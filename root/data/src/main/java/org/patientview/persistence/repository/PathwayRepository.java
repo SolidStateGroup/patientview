@@ -1,10 +1,15 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Pathway;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.PathwayTypes;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Pathway JPA repository
