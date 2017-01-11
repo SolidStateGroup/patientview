@@ -47,6 +47,18 @@ public class PathwayRepositoryTest {
         pathway.setPathwayType(PathwayTypes.DONORPATHWAY);
         pathway.setCreator(user);
         pathway.setLastUpdater(user);
+
+        // add few satges
+        {
+            Stage stage = TestUtils.createStage("Point 1 - Consultation", StageTypes.CONSULTATION);
+            stage.setPathway(pathway);
+        }
+        {
+            Stage stage = TestUtils.createStage("Point 2 - Testing", StageTypes.TESTING);
+            stage.setPathway(pathway);
+        }
+
+
         Pathway create = pathwayRepository.save(pathway);
 
         Pathway found = pathwayRepository.findOne(create.getId());
