@@ -256,6 +256,23 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                     }
                 }
             };
-        }
+        },
+        getDonorPathwayRoute: function() {
+            return {
+                'url': '/donorpathway',
+                'templateUrl': 'views/donorpathway.html',
+                'controller': 'DonorPathwayCtrl',
+                'title': 'DonorView Pathway',
+                'lookup': {
+                    'id': 97,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
     };
 }]);

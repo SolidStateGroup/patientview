@@ -1,0 +1,73 @@
+<h1>DonorView Pathway</h1>
+
+<aside class="col-md-4">
+    <div class="panel-header content-panel lowlight">
+        <h3>Phase 1</h3>
+        <ul class="nav navbar-tabs">
+            <li><a>Point 1 - Consultation<div style="display: inline-block; width: 20px; height: 20px; background-color: green; border-radius: 5px; margin-left: 10px; top: 5px"></div></a></li>
+            <li><a>Point 2 - Testing</a></li>
+            <li><a>Point 3 - Review</a></li>
+        </ul>
+    </div>
+</aside>
+
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <form class="form-horizontal" data-ng-cloak id="donor-pathway-form">
+            <h3>Point &lt;Number&gt; - &lt;Name&gt;</h3>
+            <div style="height: 200px; border: thin solid black; background:
+       linear-gradient(to top left,
+           rgba(0,0,0,0) 0%,
+           rgba(0,0,0,0) calc(50% - 1.5px),
+           rgba(0,0,0,1) 50%,
+           rgba(0,0,0,0) calc(50% + 1.5px),
+           rgba(0,0,0,0) 100%),
+       linear-gradient(to top right,
+           rgba(0,0,0,0) 0%,
+           rgba(0,0,0,0) calc(50% - 1.5px),
+           rgba(0,0,0,1) 50%,
+           rgba(0,0,0,0) calc(50% + 1.5px),
+           rgba(0,0,0,0) 100%);"></div>
+            <h4>Status</h4>
+            <div style="height: 40px; border: thin solid black; background:
+       linear-gradient(to top left,
+           rgba(0,0,0,0) 0%,
+           rgba(0,0,0,0) calc(50% - 0.8px),
+           rgba(0,0,0,1) 50%,
+           rgba(0,0,0,0) calc(50% + 0.8px),
+           rgba(0,0,0,0) 100%),
+       linear-gradient(to top right,
+           rgba(0,0,0,0) 0%,
+           rgba(0,0,0,0) calc(50% - 0.8px),
+           rgba(0,0,0,1) 50%,
+           rgba(0,0,0,0) calc(50% + 0.8px),
+           rgba(0,0,0,0) 100%);"></div>
+            <div style="margin-top: 10px">
+                <button class="btn btn-grey">Save</button>
+                <button class="btn btn-grey">Save & Notify Donor</button>
+                <button class="btn btn-grey">Cancel</button>
+            </div>
+        </form>
+
+        <form class="form-horizontal" data-ng-cloak id="donor-pathway-notes-form">
+            <h4>Notes</h4>
+            <table class="table">
+                <thead class="table-head">
+                    <tr>
+                        <th>Date</th>
+                        <th>Entered by</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sample 1</td>
+                        <td>Sample 1</td>
+                        <td>Sample 1</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-grey">Add Note</button>
+        </form>
+    </div>
+</div>
