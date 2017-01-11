@@ -8,26 +8,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     $scope.sortField = 'creationDate';
     $scope.sortDirection = 'DESC';
 
-    var tempFilterText = '';
-    var filterTextTimeout;
-
-    // watches
-    // update page on user typed search text
-    $scope.$watch('searchText', function (value) {
-        if (value !== undefined) {
-            if (filterTextTimeout) {
-                $timeout.cancel(filterTextTimeout);
-            }
-            $scope.currentPage = 0;
-
-            tempFilterText = value;
-            filterTextTimeout = $timeout(function () {
-                $scope.filterText = tempFilterText;
-                $scope.getItems();
-            }, 2000); // delay 2000 ms
-        }
-    });
-
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
         $scope.currentPage = value;
@@ -58,8 +38,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         } else {
             $scope.selectedGroup.push(id);
         }
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
@@ -77,13 +55,9 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         }
 
         $scope.selectedGroup = newSelectedGroupList;
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.removeSelectedGroup = function (group) {
         $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
 
     // filter by audit action
@@ -94,8 +68,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         } else {
             $scope.selectedAuditAction.push(auditAction);
         }
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.isAuditActionChecked = function (auditAction) {
         if (_.contains($scope.selectedAuditAction, auditAction)) {
@@ -105,13 +77,9 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     };
     $scope.removeAllAuditActions = function () {
         $scope.selectedAuditAction = [];
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
     $scope.removeSelectedAuditAction = function (auditAction) {
         $scope.selectedAuditAction.splice($scope.selectedAuditAction.indexOf(auditAction), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
     };
 
     $scope.getItems = function() {
@@ -164,12 +132,25 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         $scope.openedEnd = true;
     };
 
-    $scope.setDateRange = function(start, end) {
-        if (start === undefined) {
+    $scope.reset = function() {
+        var oneWeek = 604800000;
+        $scope.dateStart = new Date(new Date().getTime() - oneWeek);
+        $scope.dateEnd = new Date();
+        $scope.currentPage = 0;
+        $scope.selectedAuditAction = [];
+        $scope.selectedGroup = [];
+        $scope.filterText = '';
+        $scope.sortField = 'creationDate';
+        $scope.sortDirection = 'DESC';
+        $scope.getItems();
+    };
+
+    $scope.search = function() {
+        if ($scope.dateStart === undefined) {
             var oneWeek = 604800000;
             $scope.dateStart = new Date(new Date().getTime() - oneWeek);
         }
-        if (end === undefined) {
+        if ($scope.dateEnd === undefined) {
             $scope.dateEnd = new Date();
         }
         $scope.currentPage = 0;
@@ -177,7 +158,6 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
     };
 
     var init = function() {
-
         var i, group;
         $scope.allGroups = [];
         $scope.groupIds = [];
@@ -194,7 +174,8 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         var groups = $scope.loggedInUser.userInformation.userGroups;
         $scope.auditActions = $scope.loggedInUser.userInformation.auditActions;
 
-        // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+        // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in
+        // generic which is visible==false)
         for (i = 0; i < groups.length; i++) {
             group = groups[i];
             if (group.visible === true) {

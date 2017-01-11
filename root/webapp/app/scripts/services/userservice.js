@@ -6,8 +6,8 @@ function ($q, Restangular, UtilService) {
         // Add new feature to user
         addFeature: function (user, featureId) {
             var deferred = $q.defer();
-            // PUT /user/{userId}/features/{featureId}
-            Restangular.one('user', user.id).one('features',featureId).put().then(function(successResult) {
+            // POST /user/{userId}/features/{featureId}
+            Restangular.one('user', user.id).one('features',featureId).post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -17,8 +17,8 @@ function ($q, Restangular, UtilService) {
         // add new grouprole
         addGroupRole: function (user, groupId, roleId) {
             var deferred = $q.defer();
-            // PUT /user/{userId}/group/{groupId}/role/{roleId}
-            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).put().then(function(successResult) {
+            // POST /user/{userId}/group/{groupId}/role/{roleId}
+            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -38,11 +38,10 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // Change user's password, sets the change flag to false
-        changePassword: function (user) {
+        changePassword: function (userId, password) {
             var deferred = $q.defer();
-            var newPasword = user.password;
             // POST /user/{userId}/changePassword
-            Restangular.one('user', user.id).post('changePassword', {'password':newPasword}).then(function(successResult) {
+            Restangular.one('user', userId).post('changePassword', {'password': password}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

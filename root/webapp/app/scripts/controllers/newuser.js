@@ -161,31 +161,16 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                 });
 
                 // get list of diagnoses if allowed
-                StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
-                    if (codeTypes.length > 0) {
-                        var arr = [];
-                        for (var i=0; i<codeTypes.length; i++) {
-                            if (codeTypes[i].value === 'DIAGNOSIS') {
-                                arr.push(codeTypes[i].id);
-                            }
-                        }
+                CodeService.getAllDiagnosisCodes().then(function (codes) {
+                    $scope.diagnosisCodes = codes;
 
-                        var getParameters = {};
-                        getParameters.codeTypes = arr;
-                        getParameters.sortField = 'description';
-
-                        CodeService.getAll(getParameters).then(function (page) {
-                            $scope.diagnosisCodes = page.content;
-
-                            // set diagnosis dropdown
-                            $timeout(function() {
-                                $('#select-diagnosis').selectize({
-                                    sortField: 'text'
-                                });
-                            });
-                        }, function () {
+                    // set diagnosis dropdown
+                    $timeout(function() {
+                        $('#select-diagnosis').selectize({
+                            sortField: 'text'
                         });
-                    }
+                    });
+                }, function () {
                 });
             }
 

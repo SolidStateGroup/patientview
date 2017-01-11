@@ -4,10 +4,13 @@
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    'DiagnosisService', 'CodeService', 'PatientService',
+    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies, DiagnosisService, CodeService, PatientService) {
+        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins) {
+
+    // mixins for filters and shared code
+    angular.extend($scope, Mixins);
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -155,7 +158,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             window.open(downloadUrl, "Your download is now starting.");
         }
 
-    }
+    };
 
     $scope.getUser = function(openedUser) {
         UserService.get(openedUser.id).then(function (user) {
@@ -196,27 +199,61 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // set latest staff entered diagnosis if present
             if ($scope.canAddDiagnosis()) {
-                DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
-                    if (conditions.length) {
-                        var latest = conditions[0];
-                        for (var i = 0; i < conditions.length; i++) {
-                            if (conditions[i].date > latest.date) {
-                                latest = conditions[i];
+                // get diagnosis codes if not already retrieved for previous patient, note: selectize needs to happen
+                // after all data is loaded
+                if ($scope.diagnosisCodes) {
+                    // get staff entered diagnosis (condition)
+                    DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                        if (conditions.length) {
+                            var latest = conditions[0];
+                            for (var i = 0; i < conditions.length; i++) {
+                                if (conditions[i].date > latest.date) {
+                                    latest = conditions[i];
+                                }
+                            }
+                            if (latest.status === 'confirmed') {
+                                $scope.editUser.staffEnteredDiagnosis = latest;
                             }
                         }
-                        if (latest.status === 'confirmed') {
-                            $scope.editUser.staffEnteredDiagnosis = latest;
-                        }
-                    }
 
-                    $timeout(function() {
-                        $('#select-diagnosis-' + $scope.editUser.id).selectize({
-                            sortField: 'text'
+                        $timeout(function() {
+                            $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                                sortField: 'text'
+                            });
                         });
+                    }, function () {
+                        alert('Error retrieving staff entered condition information');
                     });
-                }, function () {
-                    alert('Error retrieving staff entered condition information');
-                });
+                } else {
+                    // don't already have diagnosisCodes in scope, retrieve
+                    CodeService.getAllDiagnosisCodes().then(function (codes) {
+                        $scope.diagnosisCodes = codes;
+
+                        // get staff entered diagnosis (condition)
+                        DiagnosisService.getStaffEntered(openedUser.id).then(function (conditions) {
+                            if (conditions.length) {
+                                var latest = conditions[0];
+                                for (var i = 0; i < conditions.length; i++) {
+                                    if (conditions[i].date > latest.date) {
+                                        latest = conditions[i];
+                                    }
+                                }
+                                if (latest.status === 'confirmed') {
+                                    $scope.editUser.staffEnteredDiagnosis = latest;
+                                }
+                            }
+
+                            $timeout(function () {
+                                $('#select-diagnosis-' + $scope.editUser.id).selectize({
+                                    sortField: 'text'
+                                });
+                            });
+                        }, function () {
+                            alert('Error retrieving staff entered condition information');
+                        });
+                    }, function () {
+                    });
+                }
             }
 
             // timeout required to send broadcast after everything else done
@@ -350,29 +387,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         $scope.permissions.messagingEnabled = ConversationService.userHasMessagingFeature();
 
-        // get diagnosis codes
-        if ($scope.permissions.canEditPatients) {
-            StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
-                if (codeTypes.length > 0) {
-                    var arr = [];
-                    for (var i=0; i<codeTypes.length; i++) {
-                        if (codeTypes[i].value === 'DIAGNOSIS') {
-                            arr.push(codeTypes[i].id);
-                        }
-                    }
-
-                    var getParameters = {};
-                    getParameters.codeTypes = arr;
-                    getParameters.sortField = 'description';
-
-                    CodeService.getAll(getParameters).then(function (page) {
-                        $scope.diagnosisCodes = page.content;
-                    }, function () {
-                    });
-                }
-            });
-        }
-
         // get patient type roles
         var roles = $scope.loggedInUser.userInformation.patientRoles;
 
@@ -479,13 +493,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    $scope.isGroupChecked = function (id) {
-        if (_.contains($scope.selectedGroup, id)) {
-            return 'glyphicon glyphicon-ok pull-right';
-        }
-        return false;
-    };
-
     // Opened for edit
     $scope.opened = function (openedUser) {
         $scope.successMessage = '';
@@ -508,8 +515,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.editCode = '';
             openedUser.showEdit = true;
             openedUser.editLoading = true;
-
-            // now using lightweight group list, do GET on id to get full group and populate editGroup
             $scope.getUser(openedUser)
         }
     };
@@ -637,54 +642,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    $scope.printSuccessMessageCompat = function() {
-        // ie8 compatibility
-        var printContent = $('#success-message').clone();
-        printContent.children('.print-success-message').remove();
-        var windowUrl = 'PatientView';
-        var uniqueName = new Date();
-        var windowName = 'Print' + uniqueName.getTime();
-        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
-        printWindow.document.write(printContent.html());
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-    };
-
-    $scope.removeAllSelectedGroup = function (groupType) {
-        delete $scope.successMessage;
-        var newSelectedGroupList = [];
-
-        for (var i=0; i<$scope.selectedGroup.length; i++) {
-            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
-                newSelectedGroupList.push($scope.selectedGroup[i]);
-            }
-        }
-
-        $scope.selectedGroup = newSelectedGroupList;
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
     $scope.removeDiagnosis = function () {
         DiagnosisService.removeStaffEntered($scope.editUser.id).then(function() {
             $scope.getUser($scope.editUser);
         }, function() {
             alert('Failed to remove diagnosis.');
         })
-    };
-
-    $scope.removeSelectedGroup = function (group) {
-        delete $scope.successMessage;
-        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
-    $scope.removeStatusFilter = function() {
-        delete $scope.statusFilter;
-        $scope.getItems();
     };
 
     // reset user password
@@ -758,13 +721,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
     };
 
-    // multi search
-    $scope.search = function() {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
     // send verification email
     $scope.sendVerificationEmail = function (userId) {
         $scope.printSuccessMessage = false;
@@ -790,36 +746,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 // closed
             });
         });
-    };
-
-    // filter users by group
-    $scope.setSelectedGroup = function () {
-        delete $scope.successMessage;
-        var id = this.group.id;
-        if (_.contains($scope.selectedGroup, id)) {
-            $scope.selectedGroup = _.without($scope.selectedGroup, id);
-        } else {
-            $scope.selectedGroup.push(id);
-        }
-        $scope.currentPage = 0;
-        $scope.getItems();
-    };
-
-    $scope.sortBy = function(sortField) {
-        delete $scope.successMessage;
-        $scope.currentPage = 0;
-        if ($scope.sortField !== sortField) {
-            $scope.sortDirection = 'ASC';
-            $scope.sortField = sortField;
-        } else {
-            if ($scope.sortDirection === 'ASC') {
-                $scope.sortDirection = 'DESC';
-            } else {
-                $scope.sortDirection = 'ASC';
-            }
-        }
-
-        $scope.getItems();
     };
 
     // view patient

@@ -3,13 +3,13 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CaptchaService;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.RequestService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.persistence.model.Email;
-import org.patientview.api.service.EmailService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -42,6 +41,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Created by james@solidstategroup.com
@@ -135,7 +136,6 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         Page<Request> requests = requestRepository.findAllByStatuses(
                 submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
 
-        //List<Request> outDatedRequests = new ArrayList<>();
         int count = 0;
         Date now = new Date();
         String dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(now);
@@ -376,21 +376,10 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         List<Long> groupIdList = convertStringArrayToLongs(getParameters.getGroupIds());
-
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         Page<Request> requestPage;
 
@@ -409,11 +398,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             requestTypes.addAll(Arrays.asList(RequestTypes.values()));
         }
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             requestPage = findAll(statusList, groupIdList, requestTypes, pageable);
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             requestPage = findByParentUser(user, statusList, groupIdList, requestTypes, pageable);
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             requestPage = findByUser(user, statusList, groupIdList, requestTypes, pageable);
         } else {
             throw new SecurityException("Invalid role for requests");
@@ -428,11 +417,11 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             return requestRepository.countSubmittedByParentUser(userId);
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             return requestRepository.countSubmittedByUser(userId);
-        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             return requestRepository.countSubmitted();
         }
 
@@ -455,7 +444,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         }
 
         if (request.getStatus() == RequestStatus.COMPLETED) {
-            User user = getUser();
+            User user = getCurrentUser();
             entityRequest.setCompletedBy(userRepository.findOne(user.getId()));
             entityRequest.setCompletionDate(new Date());
         }

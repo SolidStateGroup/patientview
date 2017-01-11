@@ -1,11 +1,11 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -13,15 +13,11 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.CollectionUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,44 +35,11 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }
 
-    protected List<Role> getRoles() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated (r)");
-        }
-
-        if (CollectionUtils.isEmpty(authentication.getAuthorities())) {
-            return Collections.EMPTY_LIST;
-        }
-
-        return ApiUtil.convertAuthorities(authentication.getAuthorities());
-    }
-
-    protected User getUser() {
-        return ApiUtil.getUser();
-    }
-
-    protected boolean doesContainRoles(RoleName... roleNames) {
-        return ApiUtil.currentUserHasRole(roleNames);
-    }
-
-    protected static <T> List<T> convertIterable(Iterable<T> iterable) {
+    protected static <T> List<T> convertIterable(final Iterable<T> iterable) {
         return Util.convertIterable(iterable);
     }
 
-
-    @PostConstruct
-    public void init() {
-        LOG.info("Service started");
-    }
-
-    @PreDestroy
-    public void close() {
-        LOG.info("Service closing");
-    }
-
-    protected List<Long> convertStringArrayToLongs(String[] strings) {
+    protected List<Long> convertStringArrayToLongs(final String[] strings) {
         final List<Long> longs = new ArrayList<>();
         if (ArrayUtils.isNotEmpty(strings)) {
             for (String string : strings) {
@@ -88,7 +51,21 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return longs;
     }
 
-    protected boolean isUserMemberOfGroup(User user, Group group) {
+    protected PageRequest createPageRequest(final int page, final int size,
+                                            final String sortField, final String sortDirection) {
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals(Sort.Direction.DESC.toString())) {
+                direction = Sort.Direction.DESC;
+            }
+
+            return new PageRequest(page, size, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            return new PageRequest(page, size);
+        }
+    }
+
+    protected boolean isUserMemberOfGroup(final User user, final Group group) {
         // unit admins / specialty admins can only add groups they belong to
         if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
@@ -158,12 +135,5 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         }
 
         return false;
-    }
-
-    protected User getCurrentUser() {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return null;
-        }
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

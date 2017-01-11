@@ -22,6 +22,7 @@ import javax.persistence.NonUniqueResultException;
 import java.util.List;
 
 import static java.lang.Integer.parseInt;
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Created by jamesr@solidstategroup.com

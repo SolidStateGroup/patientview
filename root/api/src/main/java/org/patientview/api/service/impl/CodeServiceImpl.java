@@ -33,7 +33,6 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -47,6 +46,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Class to control the crud operations of Codes.
@@ -346,20 +347,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         String[] standardTypes = getParameters.getStandardTypes();
         String filterText = getParameters.getFilterText();
 
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         List<Long> codeTypesList = convertStringArrayToLongs(codeTypes);
         List<Long> standardTypesList = convertStringArrayToLongs(standardTypes);
@@ -382,6 +373,27 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         return codeRepository.findAllFiltered(filterText, pageable);
+    }
+
+    @Override
+    public List<BaseCode> getAllDiagnosisCodes() throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("DIAGNOSIS Code type not found");
+        }
+
+        List<Code> codes = codeRepository.findAllByType(codeType);
+        List<BaseCode> reduced = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(codes)) {
+            for (Code code : codes) {
+                if (!code.isHideFromPatients() && !code.isRemovedExternally()) {
+                    reduced.add(new BaseCode(code));
+                }
+            }
+        }
+
+        return reduced;
     }
 
     @Override

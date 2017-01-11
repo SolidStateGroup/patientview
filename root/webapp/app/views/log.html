@@ -5,8 +5,9 @@
     <div class="content-panel filter-panel">
         <div class="search-container">
             <i class="icon-search-black"></i>
-            <input type="text" data-ng-model="searchText" placeholder="Search by Identifier, User or Actor..."
-                   class="form-control input-block-level" id="log-search"/>
+            <input type="text" data-ng-model="filterText" placeholder="Search by Identifier, User or Actor..."
+                   class="form-control input-block-level" id="log-search"
+                   data-ng-keyup="$event.keyCode == 13 ? search() : null"/>
         </div>
         <div class="panel-footer clearfix">
             <div class="content-inner">
@@ -118,7 +119,9 @@
                             </p>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn blue set-date-range" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
+                            <button class="btn blue set-date-range" data-ng-click="search()">Run Filter</button>
+                            &nbsp;
+                            <button class="btn blue set-date-range" data-ng-click="reset()">Reset</button>
                         </div>
                     </div>
 

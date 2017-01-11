@@ -190,7 +190,7 @@
 <!-- condition information (diagnosis) if in heart failure -->
 <div class="row" data-ng-if="canAddDiagnosis()">
     <hr/>
-    <div class="col-md-12">
+    <div class="col-md-12" data-ng-if="diagnosisCodes">
         <label class="control-label">Condition Information</label>
         <p>Please enter information related to the patient's condition below. This is necessary when the data is not sent automatically from the unit to PatientView.</p>
         <div class="row diagnosis-staff">
@@ -224,6 +224,11 @@
             <div class="col-md-1">
                 <button type="button" class="btn blue link-update-button" data-ng-click="addDiagnosis(editUser.id, selectedDiagnosis)">Save</button>
             </div>
+        </div>
+    </div>
+    <div data-ng-show="!diagnosisCodes" class="container"><br/><br/>
+        <div class="loading">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Condition Information</h3>
         </div>
     </div>
 </div>

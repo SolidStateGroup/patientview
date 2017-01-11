@@ -4,7 +4,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
@@ -18,6 +17,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+
+import static org.patientview.api.util.ApiUtil.currentUserHasRole;
+import static org.patientview.api.util.ApiUtil.doesContainChildGroupAndRole;
+import static org.patientview.api.util.ApiUtil.doesContainGroupAndRole;
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+import static org.patientview.api.util.ApiUtil.getRoles;
 
 /**
  * Created by james@solidstategroup.com
@@ -77,9 +82,9 @@ public final class SecurityAspect {
             throw new SecurityException("The user must be authenticated");
         }
 
-        RoleName[] roles = ApiUtil.getRoles(joinPoint);
+        RoleName[] roles = getRoles(joinPoint);
 
-        if (roles != null && (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN) || ApiUtil.currentUserHasRole(roles))) {
+        if (roles != null && (currentUserHasRole(RoleName.GLOBAL_ADMIN) || currentUserHasRole(roles))) {
             LOG.debug("User has passed role validation");
         } else {
             throw new ResourceForbiddenException("The user does not have the required role");
@@ -127,11 +132,11 @@ public final class SecurityAspect {
             return;
         }
 
-        RoleName[] roles = ApiUtil.getRoles(joinPoint);
+        RoleName[] roles = getRoles(joinPoint);
 
-        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                || ApiUtil.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
-                || ApiUtil.doesContainGroupAndRole(groupId, roles)) {
+        if (currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
+                || doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
         } else {
             throw new ResourceForbiddenException("Failed group validation");
@@ -149,12 +154,18 @@ public final class SecurityAspect {
     @Before("@annotation(org.patientview.api.annotation.UserOnly)")
     public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
         Long requestId = getId(joinPoint);
-        Long userId = ApiUtil.getUser().getId();
-        if (!requestId.equals(userId)) {
-            LOG.debug("User with id: {id} should not be accessing the resource for user id {}", userId, requestId);
-            throw new ResourceForbiddenException("You have to be logged in as the requested user");
+        if (requestId == null) {
+            throw new ResourceForbiddenException("ID not found");
         }
 
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            throw new ResourceForbiddenException("You must be logged in");
+        }
+
+        if (!requestId.equals(currentUser.getId())) {
+            throw new ResourceForbiddenException("You have to be logged in as the requested user");
+        }
     }
 
     /**

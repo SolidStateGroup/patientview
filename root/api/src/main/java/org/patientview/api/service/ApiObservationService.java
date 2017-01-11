@@ -68,7 +68,7 @@ public interface ApiObservationService {
      * @throws FhirResourceException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
+    @RoleOnly(roles = { RoleName.PATIENT })
     void updatePatientEnteredResult(Long userId, Long adminId, FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException;
 
@@ -83,8 +83,9 @@ public interface ApiObservationService {
      * @throws FhirResourceException
      */
     @UserOnly
-    @RoleOnly(roles = {RoleName.PATIENT})
-    void deletePatientEnteredResult(Long userId, Long adminId, String uuid) throws ResourceNotFoundException, FhirResourceException;
+    @RoleOnly(roles = { RoleName.PATIENT })
+    void deletePatientEnteredResult(Long userId, Long adminId, String uuid)
+            throws ResourceNotFoundException, FhirResourceException;
 
     // API
     /**
@@ -197,7 +198,7 @@ public interface ApiObservationService {
      * @throws FhirResourceException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.IMPORTER})
+    @RoleOnly(roles = { RoleName.IMPORTER })
     List<ObservationHeading> getPatientEnteredObservations(String identifier, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException,
             ResourceForbiddenException, ResourceInvalidException;

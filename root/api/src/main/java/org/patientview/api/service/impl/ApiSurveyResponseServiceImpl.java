@@ -72,6 +72,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 05/06/2015

@@ -18,7 +18,6 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -63,7 +62,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -84,6 +82,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.patientview.api.util.ApiUtil.currentUserHasRole;
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+import static org.patientview.api.util.ApiUtil.isInEnum;
+import static org.patientview.api.util.ApiUtil.userHasRole;
+
 /**
  * Conversation service, for CRUD operations related to Conversations and Messages.
  *
@@ -101,9 +104,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private AuditService auditService;
 
     @Inject
-    private EmailService emailService;
-
-    @Inject
     private ConversationRepository conversationRepository;
 
     @Inject
@@ -111,6 +111,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationUserLabelRepository conversationUserLabelRepository;
+
+    @Inject
+    private EmailService emailService;
 
     @Inject
     private EntityManager entityManager;
@@ -149,21 +152,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private UserService userService;
 
     /**
-     * Add a new conversation.
-     * @param conversation Conversation to add
-     * @return Conversation, newly added
-     */
-    public Conversation add(Conversation conversation) {
-        // TODO: add conversation
-        return null;
-    }
-
-    /**
-     * Create a new conversation, including recipients and associated Message.
-     * @param userId ID of User creating Conversation
-     * @param conversation Conversation object containing all required properties and first Message content
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void addConversation(Long userId, Conversation conversation)
@@ -177,8 +166,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
 
-        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        creator = userRepository.findOne(creator.getId());
+        User creator = getCurrentUser();
         User entityUser = findEntityUser(userId);
 
         // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not
@@ -219,11 +207,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // set conversation users
             Set<ConversationUser> conversationUsers
-                    = createEntityConversationUserSet(conversation.getConversationUsers(), newConversation, creator);
+                    = getConversationUsers(conversation.getConversationUsers(), newConversation, creator);
             newConversation.setConversationUsers(conversationUsers);
 
             // send email notification to conversation users
-            sendNewMessageEmails(conversationUsers);
+            sendNewMessageEmails(conversationUsers, conversation.isAnonymous(), entityUser);
 
             // set updated, used in UI to order conversations
             newConversation.setLastUpdate(new Date());
@@ -244,6 +232,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public void addConversationToRecipientsByFeature(Long userId, String featureName, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException, VerificationException {
@@ -318,11 +309,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Add a User to a Conversation by creating a new ConversationUser with ConversationLabel.INBOX.
-     * @param conversationId ID of Conversation to add User to
-     * @param userId ID of User to be added to Conversation
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void addConversationUser(Long conversationId, Long userId)
@@ -370,12 +357,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Add a label to a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
-     * @param userId ID of User to add Conversation label to
-     * @param conversationId ID of Conversation to add label to
-     * @param conversationLabel ConversationLabel label to add to Conversation for this User
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
@@ -424,6 +406,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.save(conversation);
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public ExternalConversation addExternalConversation(ExternalConversation conversation) {
         // validate essential properties are present and token is correct
@@ -534,7 +519,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 return rejectExternalConversation(
                         "if group code set, must set user feature", conversation);
             }
-            if (!ApiUtil.isInEnum(conversation.getUserFeature(), FeatureType.class)) {
+            if (!isInEnum(conversation.getUserFeature(), FeatureType.class)) {
                 return rejectExternalConversation(
                         "if group code set, must set suitable user feature", conversation);
             }
@@ -651,18 +636,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversation;
     }
 
-    private ExternalConversation rejectExternalConversation(String message, ExternalConversation externalConversation) {
-        externalConversation.setSuccess(false);
-        externalConversation.setErrorMessage(message);
-        return externalConversation;
-    }
-
     /**
-     * Add a Message to an existing Conversation.
-     * @param conversationId ID of Conversation to add Message to
-     * @param message Message object
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
@@ -707,15 +682,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // send email notification to conversation users
-        sendNewMessageEmails(entityConversation.getConversationUsers());
+        sendNewMessageEmails(entityConversation.getConversationUsers(), false, entityUser);
     }
 
     /**
-     * Add a read receipt for a Message given the Message and User IDs.
-     * @param messageId ID of Message to add read receipt for
-     * @param userId ID of User who has read the Message
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void addMessageReadReceipt(Long messageId, Long userId)
@@ -845,19 +816,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         int usersWithMessagingFeaturesCount = 0;
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-
-            User entityUser = userRepository.findOne(conversationUser.getUser().getId());
+            User user = userRepository.findOne(conversationUser.getUser().getId());
 
             // GLOBAL_ADMIN and PATIENT users always have messaging features
-            if (userHasRole(entityUser, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
+            if (userHasRole(user, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
                 usersWithMessagingFeaturesCount++;
-            } else if (userHasStaffMessagingFeatures(entityUser)) {
+            } else if (userHasStaffMessagingFeatures(user)) {
                 usersWithMessagingFeaturesCount++;
             }
 
             // check conversation user member of at least one group with messaging enabled
-            if (!userHasRole(entityUser, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)
-                    && !userGroupsHaveMessagingFeature(entityUser)) {
+            if (!userHasRole(user, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)
+                    && !userGroupsHaveMessagingFeature(user)) {
                 return false;
             }
         }
@@ -865,7 +835,27 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return (conversation.getConversationUsers().size() == usersWithMessagingFeaturesCount);
     }
 
-    private List<org.patientview.api.model.BaseUser> convertUsersToTransportBaseUsers(List<User> users) {
+    /**
+     * Return true if a set of ConversationUser contains User.
+     * @param conversationUserSet Set of ConversationUser to find User in
+     * @param user User to find
+     * @return true if User found in Set of ConversationUser
+     */
+    private boolean conversationUsersContainsUser(Set<ConversationUser> conversationUserSet, User user) {
+        for (ConversationUser conversationUser : conversationUserSet) {
+            if (conversationUser.getUser().equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Convert a List of User to BaseUser.
+     * @param users List of Users to convert
+     * @return List of BaseUser
+     */
+    private List<org.patientview.api.model.BaseUser> convertUsersToBaseUsers(List<User> users) {
         List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
 
         for (User user : users) {
@@ -878,97 +868,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    private Set<ConversationUser> createEntityConversationUserSet(Set<ConversationUser> conversationUsers,
-                                                                  Conversation conversation, User creator)
-            throws ResourceNotFoundException {
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-
-        for (ConversationUser conversationUser : conversationUsers) {
-            ConversationUser newConversationUser = new ConversationUser();
-            newConversationUser.setConversation(conversation);
-            newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
-            newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
-                    ? false : conversationUser.getAnonymous());
-            newConversationUser.setCreator(creator);
-            newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
-            conversationUserSet.add(newConversationUser);
-        }
-
-        // now handle contacting unit staff
-        if (conversation.getType().equals(ConversationTypes.CONTACT_UNIT)) {
-            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
-            Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
-
-            if (entityGroup == null || entityFeature == null) {
-                throw new ResourceNotFoundException("Missing parameters when sending message");
-            }
-
-            List<User> staffUsers = new ArrayList<>();
-
-            // if need unit technical contact. if no unit technical contact, try patient support contact
-            if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
-                if (staffUsers.isEmpty()) {
-                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
-                }
-            }
-
-            // if need patient support contact
-            if (conversation.getStaffFeature().equals(FeatureType.PATIENT_SUPPORT_CONTACT)) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
-            }
-
-            // if empty then try default messaging contact
-            if (staffUsers.isEmpty()) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
-            }
-
-            if (staffUsers.isEmpty()) {
-                throw new ResourceNotFoundException("No support staff available to send message");
-            }
-
-            // add found staff to conversation
-            for (User user : staffUsers) {
-                ConversationUser newConversationUser = new ConversationUser();
-                newConversationUser.setConversation(conversation);
-                newConversationUser.setUser(userRepository.findOne(user.getId()));
-                newConversationUser.setAnonymous(false);
-                newConversationUser.setCreator(creator);
-                conversationUserSet.add(newConversationUser);
-            }
-        }
-
-        // add INBOX conversation user label for all ConversationUser
-        for (ConversationUser conversationUser : conversationUserSet) {
-            ConversationUserLabel conversationUserLabel = new ConversationUserLabel();
-            conversationUserLabel.setConversationUser(conversationUser);
-            conversationUserLabel.setCreated(new Date());
-            conversationUserLabel.setCreator(creator);
-            conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
-
-            if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
-                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
-            }
-
-            conversationUser.getConversationUserLabels().add(conversationUserLabel);
-        }
-
-        return conversationUserSet;
-    }
-
     /**
-     * Delete a Conversation given ID.
-     * @param conversationId ID of Conversation to delete
-     */
-    public void delete(Long conversationId) {
-        conversationRepository.delete(conversationId);
-    }
-
-    /**
-     * Delete a User from all Conversations, used during User deletion.
-     * @param user User to delete from all Conversations
+     * @inheritDoc
      */
     @Override
     public void deleteUserFromConversations(User user) {
@@ -1043,11 +944,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Get a Conversation, including Messages given a Conversation ID.
-     * @param conversationId ID of Conversation to retrieve
-     * @return Conversation object
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public org.patientview.api.model.Conversation findByConversationId(Long conversationId)
@@ -1071,12 +968,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Get a Page of Conversation objects given a User (who is a member of the Conversations).
-     * @param userId ID of User to retrieve Conversations for
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
-     * @return Page of Conversation objects
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, GetParameters getParameters)
@@ -1181,23 +1073,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Get Conversation by ID.
-     * @param conversationId ID of Conversation to get
-     * @return Conversation object
-     */
-    @Override
-    public Conversation get(Long conversationId) {
-        return anonymiseConversation(conversationRepository.findOne(conversationId));
-    }
-
-    /**
-     * Get a Conversation User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
-     * Will only retrieve picture if current user is a member of conversation.
-     * @param conversationId ID of User to retrieve picture for
-     * @param userId ID of User to retrieve picture for
-     * @return byte[] binary picture data
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public byte[] getConversationUserPicture(Long conversationId, Long userId)
@@ -1242,13 +1118,107 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Get a List of BaseUser (used as Conversation recipients) for a Group based on the feature passed in, currently
-     * DEFAULT_MESSAGING_CONTACT. Used when creating a membership request from patients page.
-     * @param groupId ID of Group to find available recipients for
-     * @param featureName String name of Feature that Users must have to be recipients
-     * @return List of BaseUser
+     * Create a new Set of ConversationUser given ConversationUsers and Conversation type (may need to add more Users)
+     * @param conversationUsers Set of Conversation Users to add to
+     * @param conversation Conversation with type determining addition of new ConversationUsers
+     * @param creator User creating new ConversationUsers
+     * @return Set of ConversationUser
      * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     */
+    private Set<ConversationUser> getConversationUsers(Set<ConversationUser> conversationUsers,
+                                                       Conversation conversation, User creator)
+            throws ResourceNotFoundException {
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+
+        for (ConversationUser conversationUser : conversationUsers) {
+            ConversationUser newConversationUser = new ConversationUser();
+            newConversationUser.setConversation(conversation);
+            newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
+            newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
+                    ? false : conversationUser.getAnonymous());
+            newConversationUser.setCreator(creator);
+            newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUserSet.add(newConversationUser);
+        }
+
+        // now handle contacting unit staff
+        if (conversation.getType().equals(ConversationTypes.CONTACT_UNIT)) {
+            if (conversation.getGroupId() == null) {
+                throw new ResourceNotFoundException("Missing Group ID parameter when sending message");
+            }
+            if (conversation.getStaffFeature() == null)  {
+                throw new ResourceNotFoundException("Missing Staff feature parameter when sending message");
+            }
+
+            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+            Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
+
+            if (entityGroup == null) {
+                throw new ResourceNotFoundException("Could not find Group when sending message");
+            }
+            if (entityFeature == null) {
+                throw new ResourceNotFoundException("Could not find Staff feature when sending message");
+            }
+
+            List<User> staffUsers = new ArrayList<>();
+
+            // if need unit technical contact. if no unit technical contact, try patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+                if (staffUsers.isEmpty()) {
+                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
+                }
+            }
+
+            // if need patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.PATIENT_SUPPORT_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+            }
+
+            // if empty then try default messaging contact
+            if (staffUsers.isEmpty()) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
+            }
+
+            if (staffUsers.isEmpty()) {
+                throw new ResourceNotFoundException("No support staff available to send message");
+            }
+
+            // add found staff to conversation if not already
+            for (User user : staffUsers) {
+                if (!conversationUsersContainsUser(conversationUserSet, user)) {
+                    ConversationUser newConversationUser = new ConversationUser();
+                    newConversationUser.setConversation(conversation);
+                    newConversationUser.setUser(user);
+                    newConversationUser.setAnonymous(false);
+                    newConversationUser.setCreator(creator);
+                    conversationUserSet.add(newConversationUser);
+                }
+            }
+        }
+
+        // add INBOX conversation user label for all ConversationUser
+        for (ConversationUser conversationUser : conversationUserSet) {
+            ConversationUserLabel conversationUserLabel = new ConversationUserLabel();
+            conversationUserLabel.setConversationUser(conversationUser);
+            conversationUserLabel.setCreated(new Date());
+            conversationUserLabel.setCreator(creator);
+            conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
+
+            if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
+                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            }
+
+            conversationUser.getConversationUserLabels().add(conversationUserLabel);
+        }
+
+        return conversationUserSet;
+    }
+
+    /**
+     * @inheritDoc
      */
     @Override
     public List<BaseUser> getGroupRecipientsByFeature(Long groupId, String featureName)
@@ -1263,9 +1233,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // only users with certain roles
-        if (!(ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
-                || ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)
-                || ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN))) {
+        if (!(currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                || currentUserHasRole(RoleName.UNIT_ADMIN)
+                || currentUserHasRole(RoleName.SPECIALTY_ADMIN))) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -1283,9 +1253,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
         Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
-        return convertUsersToTransportBaseUsers(page.getContent());
+        return convertUsersToBaseUsers(page.getContent());
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public Long getStaffRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException {
         User user = findEntityUser(userId);
@@ -1394,7 +1367,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (Role role : staffRoles) {
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
+            List<BaseUser> users = convertUsersToBaseUsers(
                     userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
@@ -1403,7 +1376,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (Role role : patientRoles) {
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
+            List<BaseUser> users = convertUsersToBaseUsers(
                     userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
@@ -1474,7 +1447,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (Role role : staffRoles) {
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
+            List<BaseUser> users = convertUsersToBaseUsers(
                     userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
@@ -1486,15 +1459,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
-     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
      * @param userId ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
      * @return Object containing Lists of BaseUser organised by Role
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @Override
-    public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
+    private HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         if (!loggedInUserHasMessagingFeatures()) {
@@ -1504,12 +1475,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // to store list of users per role
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             userMap = getGlobalAdminRecipients(groupId);
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+        } else if (currentUserHasRole(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
                 RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
             userMap = getStaffRecipients(userId, groupId);
-        } else  if (doesContainRoles(RoleName.PATIENT)) {
+        } else  if (currentUserHasRole(RoleName.PATIENT)) {
             userMap = getPatientRecipients(userId, groupId);
         }
 
@@ -1521,16 +1492,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Fast method of returning available Conversation recipients when a User has selected a Group in the UI.
-     * Note: returns HTML as a String to avoid performance issues in ie8
-     * @param userId ID of User retrieving available Conversation recipients
-     * @param groupId ID of Group to find available Conversation recipients for
-     * @return HTML String for drop-down select
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
-    public String getRecipientsFast(Long userId, Long groupId)
+    public String getRecipientsAsHtml(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
 
@@ -1683,7 +1648,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (Role role : staffRoles) {
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-            List<BaseUser> users = convertUsersToTransportBaseUsers(
+            List<BaseUser> users = convertUsersToBaseUsers(
                     userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
@@ -1694,7 +1659,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             for (Role role : patientRoles) {
                 getParameters.setRoleIds(new String[]{role.getId().toString()});
 
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
+                List<BaseUser> users = convertUsersToBaseUsers(
                         userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
                 userMap.put(role.getName().getName(), users);
@@ -1705,10 +1670,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Get the number of unread Messages (those with no read receipt) for a User.
-     * @param userId ID of User to find number of unread messages for
-     * @return Long containing number of unread messages
-     * @throws ResourceNotFoundException
+     * @inheritDoc
      */
     @Override
     public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
@@ -1723,12 +1685,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * @return True if current logged in User has messaging features, false if not
      */
     private boolean loggedInUserHasMessagingFeatures() {
-        User loggedInUser = getCurrentUser();
-        if (ApiUtil.currentUserHasRole(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
+        if (currentUserHasRole(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 
-        return userHasStaffMessagingFeatures(userRepository.findOne(loggedInUser.getId()));
+        return userHasStaffMessagingFeatures(getCurrentUser());
     }
 
     /**
@@ -1748,11 +1709,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Remove a User from a Conversation by deleting the ConversationUser.
-     * @param conversationId ID of Conversation to remove User from
-     * @param userId ID of User to be removed from Conversation
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * Handle errors when creating ExternalConversation.
+     * @param message String reason for rejection
+     * @param externalConversation ExternalConversation to reject
+     * @return ExternalConversation with success false and error message set
+     */
+    private ExternalConversation rejectExternalConversation(String message, ExternalConversation externalConversation) {
+        externalConversation.setSuccess(false);
+        externalConversation.setErrorMessage(message);
+        return externalConversation;
+    }
+
+    /**
+     * @inheritDoc
      */
     @Override
     public void removeConversationUser(Long conversationId, Long userId)
@@ -1787,12 +1756,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Remove a label from a User's Conversation, e.g. ConversationLabel.ARCHIVED for archived Conversations.
-     * @param userId ID of User to remove Conversation label from
-     * @param conversationId ID of Conversation to add label from
-     * @param conversationLabel ConversationLabel label to remove from Conversation for this User
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
@@ -1833,22 +1797,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Update an existing Conversation.
-     * @param conversation Conversation to update
-     * @return Updated Conversation
-     * @throws ResourceNotFoundException
-     */
-    public Conversation save(Conversation conversation) throws ResourceNotFoundException {
-        Conversation entityConversation = conversationRepository.findOne(conversation.getId());
-        if (entityConversation == null) {
-            throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversation.getId()));
-        }
-
-        // TODO: save conversation fields
-        return conversationRepository.save(entityConversation);
-    }
-
-    /**
      * Send an email to PatientView central support.
      * @param entityUser User sending email
      * @param conversation Conversation containing Message for email content
@@ -1885,13 +1833,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * Send new Message emails to a Set of Users.
      * @param conversationUsers Set of ConversationUsers to retrieve User details from
+     * @param anonymous boolean set to true if creator of conversation is anonymous, as when sending anonymous
+     *                  unit feedback
+     * @param sender User who added message
      */
-    private void sendNewMessageEmails(Set<ConversationUser> conversationUsers) {
+    private void sendNewMessageEmails(Set<ConversationUser> conversationUsers, boolean anonymous, User sender) {
         for (ConversationUser conversationUser : conversationUsers) {
             User user = conversationUser.getUser();
 
             // only send messages to other users, not current user and only if user has email address
-            if (!user.getId().equals(getCurrentUser().getId()) && StringUtils.isNotEmpty(user.getEmail())
+            if (!user.getId().equals(getCurrentUser().getId())
+                    && StringUtils.isNotEmpty(user.getEmail())
                     && !user.getUsername().equals(DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName())) {
 
                 Email email = new Email();
@@ -1901,13 +1853,47 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 email.setRecipients(new String[]{user.getEmail()});
 
                 StringBuilder sb = new StringBuilder();
-                sb.append("Dear ");
-                sb.append(user.getForename());
-                sb.append(" ");
+                sb.append("Dear ").append(user.getForename()).append(" ");
                 sb.append(user.getSurname());
                 sb.append(", <br/><br/>You have a new message on <a href=\"");
                 sb.append(properties.getProperty("site.url"));
                 sb.append("\">PatientView</a>");
+
+                // if conversation is not anonymous (anonymous feedback to unit), add user details
+                if (!anonymous) {
+                    StringBuilder roleSb = new StringBuilder();
+
+                    if (userHasRole(sender, RoleName.GLOBAL_ADMIN)) {
+                        // handle global admins
+                        roleSb.append(RoleName.GLOBAL_ADMIN.getName());
+                    } else {
+                        // group roles
+                        int count = 0;
+
+                        boolean isSpecialtyAdmin = userHasRole(sender, RoleName.SPECIALTY_ADMIN);
+
+                        // only include visible groups and non specialty groups
+                        for (GroupRole groupRole : sender.getGroupRoles()) {
+                            if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())
+                                    && (!GroupTypes.SPECIALTY.toString().equals(
+                                            groupRole.getGroup().getGroupType().getValue()) || isSpecialtyAdmin)) {
+                                roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
+                                roleSb.append(groupRole.getGroup().getName());
+                                if (count < sender.getGroupRoles().size() - 1) {
+                                    roleSb.append(", ");
+                                }
+                            }
+                            count++;
+                        }
+                    }
+
+                    if (roleSb.length() > 0) {
+                        // name
+                        sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
+                        sb.append(roleSb);
+                    }
+                }
+
                 sb.append("<br/><br/>Please log in to view your message.<br/>");
                 email.setBody(sb.toString());
 
@@ -1916,6 +1902,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     emailService.sendEmail(email);
                 } catch (MailException | MessagingException me) {
                     LOG.error("Cannot send email: {}", me);
+                }
+
+                // only send messages to other users, not current user and only if user has email address
+                if (!user.getId().equals(getCurrentUser().getId()) && StringUtils.isNotEmpty(user.getEmail())
+                        && !user.getUsername().equals(DummyUsernames.PATIENTVIEW_NOTIFICATIONS.getName())) {
+
                 }
             }
         }
@@ -1931,9 +1923,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return false;
         }
 
-        User entityUser = userRepository.findOne(user.getId());
-
-        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+        for (GroupRole groupRole : user.getGroupRoles()) {
             if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
                 for (GroupRelationship groupRelationship : groupRole.getGroup().getGroupRelationships()) {
                     if (groupRelationship.getRelationshipType().equals(RelationshipTypes.CHILD)) {
@@ -1956,29 +1946,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Check User has at least one of the RoleNames passed in.
-     * @param user User to check Role membership for
-     * @param roleNames RoleName(s) to check User has
-     * @return true if User has at least one of the RoleNames passed in
-     */
-    private boolean userHasRole(User user, RoleName ... roleNames) {
-        if (user == null) {
-            return false;
-        }
-
-        User entityUser = userRepository.findOne(user.getId());
-
-        for (GroupRole groupRole : entityUser.getGroupRoles()) {
-            for (RoleName roleNameArg : roleNames) {
-                if (groupRole.getRole().getName().equals(roleNameArg)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Check User has at least one Feature from a restricted list of staff messaging Features.
      * @param user User to check has staff messaging Feature
      * @return True if User has at least one Feature from a restricted list of staff messaging Features, false if not
@@ -1988,14 +1955,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return false;
         }
 
-        User entityUser = userRepository.findOne(user.getId());
-
-        if (CollectionUtils.isEmpty(entityUser.getUserFeatures())) {
+        if (CollectionUtils.isEmpty(user.getUserFeatures())) {
             return false;
         }
 
-        for (UserFeature userFeature : entityUser.getUserFeatures()) {
-            if (ApiUtil.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
+        for (UserFeature userFeature : user.getUserFeatures()) {
+            if (isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
                 return true;
             }
         }

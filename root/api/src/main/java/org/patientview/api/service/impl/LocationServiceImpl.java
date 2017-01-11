@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 30/07/2014

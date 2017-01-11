@@ -23,9 +23,9 @@ import java.util.List;
  * <p>
  * See https://medlineplus.gov/connect/service.html for more information
  */
-public class MedlineplusApiClient {
+public final class MedlineplusApiClient {
 
-    protected final Logger LOG = LoggerFactory.getLogger(MedlineplusApiClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MedlineplusApiClient.class);
 
     private CodeSystem codeSystem;
     private String apiUrl;
@@ -34,9 +34,9 @@ public class MedlineplusApiClient {
     private CloseableHttpClient client;
     private static final String BASE_URL = "https://apps.nlm.nih.gov/medlineplus/services/mpconnect_service.cfm";
 
-    private String CODE_SYSTEM_PARAM = "mainSearchCriteria.v.cs";
-    private String RESPONSE_TYPE_PARAM = "knowledgeResponseType";
-    private String CODE_PARAM = "mainSearchCriteria.v.c";
+    private static final String CODE_SYSTEM_PARAM = "mainSearchCriteria.v.cs";
+    private static final String RESPONSE_TYPE_PARAM = "knowledgeResponseType";
+    private static final String CODE_PARAM = "mainSearchCriteria.v.c";
 
 
     private MedlineplusApiClient() {
@@ -162,11 +162,11 @@ public class MedlineplusApiClient {
      * Helper method to build full url baseUrl + endpoint uri + params
      */
     private String buildFullUrl() {
-        return apiUrl + "?" + CODE_SYSTEM_PARAM + "=" + codeSystem.code() +
-                "&" + RESPONSE_TYPE_PARAM + "=" + contentType;
+        return apiUrl + "?" + CODE_SYSTEM_PARAM + "=" + codeSystem.code()
+                + "&" + RESPONSE_TYPE_PARAM + "=" + contentType;
     }
 
-    public static class Builder {
+    public static final class Builder {
         private MedlineplusApiClient result;
 
         private Builder() {

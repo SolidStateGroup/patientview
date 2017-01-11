@@ -1,27 +1,55 @@
 'use strict';
 var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups',
-    'allowedRoles', 'identifierTypes', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService) {
+    'allowedRoles', 'identifierTypes', 'UserService', 'UtilService',
+function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService,
+    UtilService) {
     $scope.permissions = permissions;
     $scope.allGroups = allGroups;
     $scope.allowedRoles = allowedRoles;
     $scope.identifierTypes = identifierTypes;
     $scope.editMode = false;
     $scope.editUser = {};
+    $scope.passedDobCheck = false;
+    $scope.failedDobCheck = false;
+    $scope.confirmAddGroupRole = false;
+    $scope.addGroupRoleLoading = false;
+    $scope.addGroupRoleDone = false;
+
+    // for date of birth check
+    $scope.years = UtilService.generateYears();
+    $scope.months = UtilService.generateMonths();
+    $scope.days = UtilService.generateDays();
+    $scope.dobCheck = { 'year': $scope.years[0],
+        'month': $scope.months[0], 'day': $scope.days[0] };
+
+    $scope.addGroupRoleConfirmed = function() {
+        $scope.addGroupRoleLoading = true;
+        UserService.addGroupRole($scope.editUser, $scope.editUser.groupToAdd.id, $scope.editUser.selectedRole.id).then(function () {
+            $scope.addGroupRoleLoading = false;
+            $scope.addGroupRoleDone = true;
+        }, function () {
+            $scope.addGroupRoleLoading = false;
+            alert('Error adding group role, may already exist');
+        });
+    };
 
     // click Find by username button
     $scope.findByUsername = function () {
+        delete $scope.warningMessage;
         UserService.findByUsername($('#username').val()).then(function(result) {
-            showUserOnScreen(result, "username");
+            $scope.searchType = 'username';
+            initDobCheck(result);
         }, function () {
             $scope.warningMessage = 'No patient exists with this username';
         });
     };
 
-    // click Find by username button
+    // click Find by identifier button
     $scope.findByIdentifier = function () {
+        delete $scope.warningMessage;
         UserService.findByIdentifier($('#identifier').val()).then(function(result) {
-            showUserOnScreen(result, "identifier");
+            $scope.searchType = 'identifier';
+            initDobCheck(result);
         }, function () {
             $scope.warningMessage = 'No patient exists with this identifier';
         });
@@ -29,21 +57,18 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
     // click Find by email button
     $scope.findByEmail = function () {
+        delete $scope.warningMessage;
         UserService.findByEmail($('#email').val()).then(function(result) {
-            showUserOnScreen(result, "email");
+            $scope.searchType = 'email';
+            initDobCheck(result);
         }, function () {
             $scope.warningMessage = 'No patient exists with this email address';
         });
     };
 
-    var showUserOnScreen = function (result, searchType) {
-        $scope.editUser = result;
-        $scope.existingUser = true;
+    var showUserOnScreen = function () {
         $scope.editMode = true;
-        $scope.warningMessage = 'A user with this '
-            + searchType
-            + ' already exists. Add them to your group if required, then close this window. '
-            + 'You can then edit their details normally as they will appear in the refreshed list.';
+        delete $scope.warningMessage;
         $scope.pagedItems = [];
         var i;
 
@@ -87,4 +112,33 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+
+    var initDobCheck = function(user) {
+        $scope.passedDobCheck = false;
+        $scope.existingUser = true;
+
+        // validate if user has a date of birth (all patients should)
+        if (user.dateOfBirth === null || user.dateOfBirth === undefined) {
+            $scope.hasDob = false;
+        } else {
+            // has date of birth, in format YYYY-MM-DD
+            $scope.editUser = user;
+            $scope.hasDob = true;
+        }
+    };
+
+    $scope.validateDateOfBirth = function(dobCheck) {
+        $scope.failedDobCheck = false;
+        var year = $scope.editUser.dateOfBirth.split('-')[0].toString();
+        var month = $scope.editUser.dateOfBirth.split('-')[1].toString();
+        var day = $scope.editUser.dateOfBirth.split('-')[2].toString();
+
+        $scope.passedDobCheck = (dobCheck.year === year && dobCheck.month === month && dobCheck.day === day);
+
+        if (!$scope.passedDobCheck) {
+            $scope.failedDobCheck = true;
+        } else {
+            showUserOnScreen();
+        }
+    }
 }];

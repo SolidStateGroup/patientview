@@ -15,6 +15,8 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.CodeCategory;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeStandardTypes;
@@ -23,8 +25,10 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.CategoryRepository;
 import org.patientview.persistence.repository.CodeRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +51,9 @@ public class CodeServiceTest {
 
     @InjectMocks
     CodeService codeService = new CodeServiceImpl();
+
+    @Mock
+    LookupRepository lookupRepository;
 
     @Mock
     NhsChoicesService nhsChoicesService;
@@ -94,6 +101,45 @@ public class CodeServiceTest {
         verify(codeRepository, Mockito.times(1)).findOne(eq(code.getId()));
         verify(nhsChoicesService, Mockito.times(1)).setIntroductionUrl(eq(code.getCode()));
         verify(nhsChoicesService, Mockito.times(1)).setDescription(eq(code.getCode()));
+    }
+
+    @Test
+    public void testGetAllDiagnosisCodes() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.CODE_TYPE);
+        Lookup lookup = TestUtils.createLookup(lookupType, CodeTypes.DIAGNOSIS.toString());
+
+        Code code = new Code();
+        code.setCodeType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.CODE_TYPE),
+                CodeTypes.DIAGNOSIS.toString()));
+        code.setStandardType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.CODE_STANDARD),
+                CodeStandardTypes.PATIENTVIEW.toString()));
+        code.setCode("code");
+        code.setId(1L);
+
+        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(CodeTypes.DIAGNOSIS.toString())))
+                .thenReturn(lookup);
+        when(codeRepository.findAllByType(eq(lookup))).thenReturn(Arrays.asList(code));
+
+        List<BaseCode> diagnosisCodes = codeService.getAllDiagnosisCodes();
+
+        Assert.assertFalse("The returned List of BaseCode should not be empty", diagnosisCodes.isEmpty());
+        Assert.assertEquals("Should have the correct Code code", diagnosisCodes.get(0).getCode(), code.getCode());
+        Assert.assertEquals("Should have the correct Code description",
+                diagnosisCodes.get(0).getDescription(), code.getDescription());
+
+        verify(lookupRepository, Mockito.times(1)).findByTypeAndValue(eq(LookupTypes.CODE_TYPE),
+                eq(CodeTypes.DIAGNOSIS.toString()));
+        verify(codeRepository, Mockito.times(1)).findAllByType(eq(lookup));
     }
 
     @Test

@@ -47,7 +47,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -64,6 +63,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Created by james@solidstategroup.com
@@ -393,10 +394,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         Set<Group> groups = new HashSet<>();
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             // GLOBAL_ADMIN can reach all groups
             groups = new HashSet<>(Util.convertIterable(groupRepository.findAll()));
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
             // SPECIALTY_ADMIN gets groups and child groups if available
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             parentGroups = addParentAndChildGroups(parentGroups);
@@ -408,7 +409,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
             // add CENTRAL_SUPPORT groups (similar to specialties but with no children)
             groups.addAll(getSupportGroups());
-        } else if (doesContainRoles(RoleName.PATIENT)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.PATIENT)) {
             // PATIENT do not add specialty type groups
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             for (Group parentGroup : parentGroups) {
@@ -416,7 +417,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                     groups.add(parentGroup);
                 }
             }
-        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+        } else if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)) {
             // UNIT_ADMIN get all groups (participant list is secured later)
             groups.addAll(groupRepository.findAll());
         } else {
@@ -447,7 +448,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     public Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId) {
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
 
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
 
             Page<Group> groupList = groupRepository.findAll("%%", new PageRequest(0, Integer.MAX_VALUE));
 
@@ -552,21 +553,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         Page<Group> groupPage = getUserGroupsData(userId, getParameters);
         if (groupPage == null) {
@@ -586,21 +576,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         Page<Group> groupPage = getUserGroupsData(userId, getParameters);
         if (groupPage == null) {
@@ -619,21 +598,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         String sortDirection = getParameters.getSortDirection();
         String[] groupTypes = getParameters.getGroupTypes();
         String filterText = getParameters.getFilterText();
-
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         List<Long> groupTypesList = convertStringArrayToLongs(groupTypes);
 

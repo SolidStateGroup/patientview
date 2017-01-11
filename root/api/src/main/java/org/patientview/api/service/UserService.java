@@ -53,7 +53,7 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addFeature(Long userId, Long featureId)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+        throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Add a Group and associated Role to a User.
@@ -65,7 +65,7 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
-    throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
+        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     /**
      * Add UserInformation to a User, used when a patient adds More About Me etc.
@@ -93,8 +93,6 @@ public interface UserService {
      * Change the picture associated with a User account. (base64)
      * @param userId ID of User to change picture
      * @param base64 Base64 string of image
-     * @return String containing picture information, required by IE8 in response to uploading a file
-     * @throws ResourceInvalidException
      */
     @UserOnly
     void addPicture(Long userId, String base64);
@@ -103,7 +101,6 @@ public interface UserService {
      * Used when a User changes their own password.
      * @param userId ID of User to change password
      * @param password New password
-     * @return ResponseEntity, typically HTTP OK unless password does not match security requirements
      * @throws ResourceNotFoundException
      */
     @AuditTrail(value = AuditActions.PASSWORD_CHANGE, objectType = User.class)
@@ -163,7 +160,7 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void delete(Long userId, boolean forceDelete)
-    throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+        throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
      * Remove a Feature from a User.
@@ -174,7 +171,7 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteFeature(Long userId, Long featureId)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+        throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Delete all FhirLinks belonging to a User, used during deletion of a patient and in migration.
@@ -230,10 +227,11 @@ public interface UserService {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
-     * Get a User by email, used when searching for existing staff and creating new Users.
+     * Get a User by email, used when searching for existing staff/patients.
      * @param email String email used to search for Users
      * @return User object
      */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     org.patientview.api.model.User getByEmail(String email);
 
     /**
@@ -396,6 +394,12 @@ public interface UserService {
     Boolean sendVerificationEmail(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException;
 
+    /**
+     * Set a User's deleted status to false.
+     * @param userId Long ID of User to undelete
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RoleOnly
     void undelete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -441,7 +445,7 @@ public interface UserService {
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
 
     /**
-     * Create or re generate new api key for User
+     * Create or re generate new api key for User.
      *
      * @param userId Id of User to update secret word for
      * @throws ResourceNotFoundException

@@ -1,7 +1,18 @@
+<style>
+    .h1link {
+        font-size: 14px;
+        font-weight: normal;
+    }
+</style>
+
 <div data-ng-show="!loading">
     <h1>Patients
         <a class="btn blue" data-ng-show="permissions.canCreatePatients" href="/#/newpatient">Create New</a>
-        <button class="btn blue" data-ng-click="openModalFindExistingPatient('lg')" data-ng-show="permissions.canCreatePatients">Add Existing Patient</button>
+        <span data-ng-show="permissions.canCreatePatients">
+        <button class="btn blue" data-ng-click="openModalFindExistingPatient('lg')">Add Existing PatientView Patient</button>
+        <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/" target="_blank" class="h1link">
+            About Adding Patients</a>
+        </span>
     </h1>
 
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>

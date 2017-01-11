@@ -19,8 +19,8 @@ public class ValueTypeJson {
         return value;
     }
 
-    public void setValue(String _value) {
-        this.value = _value;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public String getType() {

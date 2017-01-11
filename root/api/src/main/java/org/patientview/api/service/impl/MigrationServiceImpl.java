@@ -100,6 +100,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 05/11/2014.
@@ -309,15 +311,17 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 List<Identifier> identifiers = identifierService.getIdentifierByValue(fhirPatient.getIdentifier());
                 identifier = identifiers.get(0);
             } catch (ResourceNotFoundException e) {
+                User currentUser = getCurrentUser();
+
                 identifier = new Identifier();
                 identifier.setIdentifier(fhirPatient.getIdentifier());
-                identifier.setCreator(getCurrentUser());
+                identifier.setCreator(currentUser);
                 identifier.setUser(entityUser);
                 identifier.setIdentifierType(
                         lookupService.findByTypeAndValue(LookupTypes.IDENTIFIER,
                                 CommonUtils.getIdentifierType(fhirPatient.getIdentifier()).toString()));
 
-                identifier.setCreator(getCurrentUser());
+                identifier.setCreator(currentUser);
                 identifier.setUser(entityUser);
                 identifier = identifierRepository.save(identifier);
             }
@@ -1223,7 +1227,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 : migrationUser.getMedicationStatements()) {
             Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
             FhirLink fhirLink
-                    = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
+                = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
 
             if (fhirLink == null) {
                 fhirLink = createPatientAndFhirLink(entityUser, fhirMedicationStatement.getGroup(), identifier);
@@ -1273,7 +1277,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     // AllergyIntolerance and Substance (allergy)
     private void migrateAllergies(MigrationUser migrationUser, User entityUser, Set<FhirLink> fhirLinks,
-                                  HashMap<String, Identifier> identifierMap) throws ResourceNotFoundException, FhirResourceException {
+                                  HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException {
         // DiagnosticReports (and associated Observation)
         for (FhirAllergy fhirAllergy : migrationUser.getAllergies()) {
             Identifier identifier = identifierMap.get(fhirAllergy.getIdentifier());

@@ -6,9 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.ConversationUserLabel;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -22,7 +24,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -34,17 +36,10 @@ import java.util.List;
 public class ConversationRepositoryTest {
 
     @Inject
-    ConversationRepository conversationRepository;
+    private ConversationRepository conversationRepository;
 
     @Inject
-    DataTestUtils dataTestUtils;
-
-    User creator;
-
-    @Before
-    public void setup () {
-        creator = dataTestUtils.createUser("testCreator");
-    }
+    private DataTestUtils dataTestUtils;
 
     @Test
     public void testCreateConversation() {
@@ -167,7 +162,6 @@ public class ConversationRepositoryTest {
             conversationUser2.setConversation(conversation);
 
             conversation.setConversationUsers(new HashSet<ConversationUser>());
-
             conversation.getConversationUsers().add(conversationUser2);
 
             conversation.setTitle(String.valueOf(i+1));
@@ -177,6 +171,7 @@ public class ConversationRepositoryTest {
 
             // user1 has messages on last 25
             // has read 20 of them
+            // 5 are archived
             if (i > 4) {
                 conversation.getConversationUsers().add(conversationUser1);
                 Message message = new Message();
@@ -193,7 +188,23 @@ public class ConversationRepositoryTest {
                 }
 
                 conversation.getMessages().add(message);
+
+                // set first 20 with this user to inbox, 5 to archived
+                if (i < 25) {
+                    Set<ConversationUserLabel> conversationUserLabelSet = new HashSet<>();
+                    conversationUserLabelSet.add(
+                            new ConversationUserLabel(conversationUser1, ConversationLabel.INBOX));
+                    conversation.getConversationUsers().iterator().next()
+                            .setConversationUserLabels(conversationUserLabelSet);
+                } else {
+                    Set<ConversationUserLabel> conversationUserLabelSet = new HashSet<>();
+                    conversationUserLabelSet.add(
+                            new ConversationUserLabel(conversationUser1, ConversationLabel.ARCHIVED));
+                    conversation.getConversationUsers().iterator().next()
+                            .setConversationUserLabels(conversationUserLabelSet);
+                }
             }
+
 
             conversationRepository.save(conversation);
         }
@@ -202,10 +213,7 @@ public class ConversationRepositoryTest {
         Page<Conversation> entityConversations = conversationRepository.findByUser(user1, pageableAll);
         Assert.assertEquals("Should find 25 Conversations for user", 25, entityConversations.getContent().size());
 
-        List<Conversation> conversationList = conversationRepository.getUnreadConversations(user1.getId());
-        Assert.assertEquals("Should find 5 unread Conversations for user", 5, conversationList.size());
-
         Long count = conversationRepository.getUnreadConversationCount(user1.getId());
-        Assert.assertEquals("Should find 5 unread Conversations for user", (Long)5L, count);
+        Assert.assertEquals("Should find 5 unread Conversations for user", (Long) 5L, count);
     }
 }

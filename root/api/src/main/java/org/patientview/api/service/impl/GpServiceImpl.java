@@ -90,6 +90,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 02/02/2016
@@ -969,7 +971,8 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // validate no existing users with this email
-        if (userService.getByEmail(gpDetails.getEmail()) != null) {
+        List<User> foundUsers = userRepository.findByEmailCaseInsensitive(gpDetails.getEmail());
+        if (!CollectionUtils.isEmpty(foundUsers)) {
             throw new VerificationException("A user already exists with this email address");
         }
 

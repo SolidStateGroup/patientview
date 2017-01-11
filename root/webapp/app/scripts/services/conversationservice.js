@@ -55,8 +55,8 @@ function ($http, $q, Restangular, UserService, $rootScope) {
         },
         addMessageReadReceipt: function (messageId, userId) {
             var deferred = $q.defer();
-            // PUT /message/{messageId}/readreceipt/{userId}
-            Restangular.one('message', messageId).one('readreceipt', userId).put().then(function(successResult) {
+            // POST /message/{messageId}/readreceipt/{userId}
+            Restangular.one('message', messageId).one('readreceipt', userId).post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -106,8 +106,8 @@ function ($http, $q, Restangular, UserService, $rootScope) {
         },
         getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipientsfast?groupId=123
-            Restangular.one('user', userId).one('conversations/recipientsfast')
+            // GET /user/{userId}/conversations/recipients?groupId=123
+            Restangular.one('user', userId).one('conversations/recipients')
                 .get({'groupId' : groupId}).then(function(successResult) {
                     deferred.resolve(successResult);
                 }, function(failureResult) {

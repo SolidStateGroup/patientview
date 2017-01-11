@@ -33,9 +33,11 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
     private static final int BATCH_SIZE = 50;
 
+    /**
+     * @inheritDoc
+     */
+    @Override
     public boolean sendEmail(Email email) throws MailException, MessagingException {
-        //LOG.info("Email: Preparing to send email");
-
         // only send emails if enabled in properties file
         if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
 
@@ -81,23 +83,18 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                             fromAddress.setPersonal("PatientView User");
                             helper.setTo(fromAddress);
                         }
-                        //LOG.info("Email: Set from " + fromAddress.getPersonal() + " ("
-                        // + fromAddress.getAddress() + ")");
                     } catch (UnsupportedEncodingException uee) {
                         helper.setFrom(email.getSenderEmail());
 
                         if (email.isBcc()) {
                             helper.setTo(email.getSenderEmail());
                         }
-                        //LOG.info("Email: Set from " + email.getSenderEmail());
                     }
 
                     helper.setText(properties.getProperty("email.header") + email.getBody()
                             + properties.getProperty("email.footer"), true);
 
                     try {
-                        //LOG.info("Email: Attempting to send email to " + Arrays.toString(recipientBatch)
-                        //        + " with subject '" + email.getSubject() + "'");
                         javaMailSender.send(message);
                         LOG.info("Email: Sent email to " + Arrays.toString(recipientBatch) + " with subject '"
                                 + email.getSubject() + "'");
@@ -115,6 +112,28 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
         }
     }
 
+    /**
+     * Validate email address.
+     * @param email String email address to validate
+     * @return false if not a valid email address
+     */
+    private static boolean isValidEmailAddress(String email) {
+        boolean result = true;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+        } catch (AddressException ex) {
+            result = false;
+        }
+        return result;
+    }
+
+    /**
+     * Split an array of Strings into a List of smaller arrays.
+     * @param originalArray String array
+     * @param chunkSize int size of new smaller arrays
+     * @return List of String arrays
+     */
     private List<String[]> splitArray(String[] originalArray, int chunkSize) {
         List<String> validEmails = new ArrayList<>();
         for (String email : originalArray) {
@@ -144,16 +163,5 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
             }
         }
         return listOfArrays;
-    }
-
-    private static boolean isValidEmailAddress(String email) {
-        boolean result = true;
-        try {
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-        } catch (AddressException ex) {
-            result = false;
-        }
-        return result;
     }
 }

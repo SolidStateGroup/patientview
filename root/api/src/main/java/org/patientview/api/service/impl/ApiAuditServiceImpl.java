@@ -5,7 +5,6 @@ import org.patientview.api.model.Audit;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.User;
 import org.patientview.api.service.ApiAuditService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -21,13 +20,16 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.patientview.api.util.ApiUtil.currentUserHasRole;
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
+import static org.patientview.api.util.ApiUtil.getCurrentUserGroupRoles;
 
 /**
  * Audit service, used for creating, modifying, retrieving Audits, used when the security context cannot be used (e.g.
@@ -96,12 +98,7 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
     }
 
     /**
-     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
-     * of page etc
-     * @return Page containing a number of Audit objects, each of which has a Date, Action etc
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
+     * @inheritDoc
      */
     @Override
     public Page<Audit> findAll(GetParameters getParameters)
@@ -110,10 +107,10 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
         // if specialty admin or group admin only return information relating to your groups
-        if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+        if (!currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
             if (groupIds.isEmpty()) {
                 // haven't filtered on group, add list of user's group ids
-                List<GroupRole> groupRoles = ApiUtil.getCurrentUserGroupRoles();
+                List<GroupRole> groupRoles = getCurrentUserGroupRoles();
 
                 for (GroupRole groupRole : groupRoles) {
                     if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
@@ -174,20 +171,10 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
             end = new Date();
         }
 
-        PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
-        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
-            }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
-        } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
-        }
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
@@ -206,7 +193,7 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
             }
         } else {
             // include final check to see if global admin as others should have group ids
-            if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            if (!currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
                 throw new ResourceForbiddenException("Forbidden");
             }
 

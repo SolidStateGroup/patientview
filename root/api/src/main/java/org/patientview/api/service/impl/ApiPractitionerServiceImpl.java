@@ -28,7 +28,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.GpLetterService;
-import org.patientview.service.PractitionerService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +65,6 @@ public class ApiPractitionerServiceImpl extends AbstractServiceImpl<ApiPractitio
 
     @Inject
     private IdentifierRepository identifierRepository;
-
-    @Inject
-    private PractitionerService practitionerService;
 
     @Inject
     private UserRepository userRepository;

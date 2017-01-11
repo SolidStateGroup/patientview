@@ -8,7 +8,6 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.ApiConditionService;
-import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.LookupService;
@@ -33,7 +32,6 @@ import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
-import org.patientview.service.ConditionService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.PractitionerService;
 import org.patientview.util.Util;
@@ -47,6 +45,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Created by jamesr@solidstategroup.com
