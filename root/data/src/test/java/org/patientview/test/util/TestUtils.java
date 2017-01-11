@@ -12,6 +12,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Pathway;
 import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
@@ -27,6 +28,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.PathwayTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -474,46 +476,4 @@ public final class TestUtils {
         //observationHeading.setCreator(creator);
         return observationHeading;
     }
-
-    public static Stage createStage(String name, StageTypes stageType) {
-        Stage stage = new Stage();
-        stage.setName(name);
-        stage.setStageType(stageType);
-        stage.setStageStatus(StageStatuses.PENDING);
-        stage.setStarted(new Date());
-        stage.setStageData(createStageData(stage));
-        return stage;
-    }
-
-    public static Set<DonorStageData> createStageData(Stage stage) {
-
-        Set<DonorStageData> dataSet = new HashSet<>();
-
-        {
-            DonorStageData data = new DonorStageData();
-            data.setStage(stage);
-            data.setCaregiverText("Caregiver text");
-            data.setCarelocationText("Carelocation text");
-            data.setCreator(creator);
-
-            dataSet.add(data);
-        }
-
-        {
-            DonorStageData data = new DonorStageData();
-            data.setStage(stage);
-            data.setBloods(true);
-            data.setCrossmatching(true);
-            data.setXrays(true);
-            data.setEcg(true);
-            data.setCaregiverText("Caregiver text");
-            data.setCarelocationText("Carelocation text");
-            data.setCreator(creator);
-
-            dataSet.add(data);
-        }
-
-        return dataSet;
-    }
-
 }
