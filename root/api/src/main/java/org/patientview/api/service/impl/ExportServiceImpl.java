@@ -26,6 +26,7 @@ import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GpMaster;
@@ -44,10 +45,12 @@ import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GpMasterRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
@@ -96,6 +99,12 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
 
     @Inject
     private DocumentService documentService;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private GpMasterRepository gpMasterRepository;
@@ -657,6 +666,33 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                 makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), userId,
                 new SimpleDateFormat("dd-MMM-yyyy").format(fromDate),
                 new SimpleDateFormat("dd-MMM-yyyy").format(toDate), FileTypes.CSV);
+    }
+
+    @Override
+    public HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException {
+        CSVDocumentBuilder document = new CSVDocumentBuilder();
+        document.addHeader("Identifier");
+        document.addHeader("Group");
+        document.addHeader("Treatment");
+
+        for (FhirLink fhirLink : fhirLinkRepository.findAll()) {
+            List<String> treatments = fhirResource.getEncounterTreatmentsBySubjectId(fhirLink.getResourceId());
+
+            if (!treatments.isEmpty()) {
+                for (String treatment : treatments) {
+                    if (StringUtils.isNotEmpty(treatment)) {
+                        document.createNewRow();
+                        document.resetCurrentPosition();
+                        document.addValueToNextCell(fhirLink.getIdentifier().getIdentifier());
+                        document.addValueToNextCell(fhirLink.getGroup().getCode());
+                        document.addValueToNextCell(treatment);
+                    }
+                }
+            }
+        }
+
+        return getDownloadContent("Treatment Export",
+            makeCSVString(document.getDocument()).getBytes(Charset.forName("UTF-8")), null, null, null, FileTypes.CSV);
     }
 
     /**

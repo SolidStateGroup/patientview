@@ -131,4 +131,10 @@ public class ExportController extends BaseController<ExportController> {
             @PathVariable("type") String type) throws ResourceNotFoundException {
         return exportService.downloadSurveyResponses(userId, type);
     }
+
+    @RequestMapping(value = "/export/treatment/download", method = RequestMethod.GET)
+    @ResponseBody
+    public HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException{
+        return exportService.downloadTreatmentData();
+    }
 }

@@ -640,6 +640,51 @@ public class FhirResource {
         return existingMap;
     }
 
+    // e.g. encounter type text = TP, subject id = 1231-14141-1241asda-asdad
+    public List<String> getEncounterTreatmentsBySubjectId(final UUID subjectId) throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT content #> '{type,0}'->>'text' ");
+        query.append("FROM Encounter WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' AND content #> '{identifier,0}'->>'value' = 'TREATMENT' ");
+        query.append(" ");
+
+        LOG.info(query.toString());
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<String> treatments = new ArrayList<>();
+
+            while ((results.next())) {
+                treatments.add(results.getString(1));
+            }
+
+            connection.close();
+            return treatments;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     // check for existing by letter content, letter has no class
     public Map<String, String> getExistingLetterDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
             throws FhirResourceException {

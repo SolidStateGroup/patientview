@@ -105,4 +105,7 @@ public interface ExportService {
      */
     @UserOnly
     HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException;
+
+    //@RoleOnly
+    HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException;
 }
