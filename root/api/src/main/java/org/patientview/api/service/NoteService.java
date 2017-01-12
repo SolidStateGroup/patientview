@@ -62,7 +62,7 @@ public interface NoteService {
      * Get a list of Notes for a user.
      *
      * @param userId   ID of User to retrieve Note for
-     * @param noteType Type of the Note, currently only AlertTypes.DONORVIEW exist
+     * @param noteType Type of the Note, currently only NoteTypes.DONORVIEW exist
      * @return List of user's Notes
      * @throws ResourceNotFoundException
      */
