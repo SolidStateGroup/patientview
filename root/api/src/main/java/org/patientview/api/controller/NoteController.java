@@ -32,7 +32,7 @@ public class NoteController extends BaseController<NoteController> {
     /**
      * Creates new Note for a User.
      *
-     * @param userId ID of User adding Note
+     * @param userId an ID of User adding Note
      * @param note   a Note to be added for a user
      * @throws ResourceNotFoundException
      */
@@ -47,7 +47,7 @@ public class NoteController extends BaseController<NoteController> {
     /**
      * Get a Note for a user.
      *
-     * @param userId ID of User to retrieve
+     * @param userId an ID of User to retrieve
      * @param noteId an id of the Note to retrieve
      * @return a Note object
      * @throws ResourceNotFoundException
@@ -64,7 +64,7 @@ public class NoteController extends BaseController<NoteController> {
     /**
      * Update Note for a user.
      *
-     * @param userId ID of User to update the Note  for
+     * @param userId an ID of User to update the Note  for
      * @param note   a Note containing updated properties
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -80,7 +80,7 @@ public class NoteController extends BaseController<NoteController> {
     /**
      * Remove a Note for a User.
      *
-     * @param userId ID of User to remove Note from
+     * @param userId an ID of User to remove Note from
      * @param noteId an ID of the Note to remove
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -95,8 +95,8 @@ public class NoteController extends BaseController<NoteController> {
     /**
      * Get a User's Notes, given the NoteTypes type of Note.
      *
-     * @param userId   ID of User to retrieve Note for
-     * @param noteType Type of the Note, currently only NoteTypes.DONORVIEW exist
+     * @param userId   an ID of User to retrieve Note for
+     * @param noteType a Type of the Note, currently only NoteTypes.DONORVIEW exist
      * @return A List of Note of type NoteTypes
      * @throws ResourceNotFoundException
      */
