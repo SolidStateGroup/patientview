@@ -122,4 +122,12 @@ public class Stage extends BaseModel {
     public void setStageData(Set<DonorStageData> stageData) {
         this.stageData = stageData;
     }
+
+    public Integer getBackToPreviousPoint() {
+        return backToPreviousPoint;
+    }
+
+    public void setBackToPreviousPoint(Integer backToPreviousPoint) {
+        this.backToPreviousPoint = backToPreviousPoint;
+    }
 }
