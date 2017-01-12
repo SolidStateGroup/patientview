@@ -420,6 +420,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         addParentGroupRoles(userId, groupRole, creator, isPatient);
+
+        if (!CollectionUtils.isEmpty(groupRole.getGroup().getGroupFeatures())) {
+            for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
+
+                // for donor patient and initialize donor pathway
+                if (groupFeature.getFeature().getName().equals(FeatureType.RENAL_DONOR_UNIT.toString())) {
+
+                    // check if we need to setup pathway for user
+                    if (pathwayService.getPathway(user.getId(), PathwayTypes.DONORPATHWAY) == null) {
+                        pathwayService.setupPathway(user);
+                    }
+                }
+            }
+        }
+
         return groupRole;
     }
 
