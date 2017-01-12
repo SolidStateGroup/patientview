@@ -675,18 +675,18 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Group");
         document.addHeader("Treatment");
 
-        for (FhirLink fhirLink : fhirLinkRepository.findAll()) {
-            List<String> treatments = fhirResource.getEncounterTreatmentsBySubjectId(fhirLink.getResourceId());
+        // map of subject id to treatment code
+        Map<String, List<String>> treatments = fhirResource.getAllEncounterTreatments();
 
-            if (!treatments.isEmpty()) {
-                for (String treatment : treatments) {
-                    if (StringUtils.isNotEmpty(treatment)) {
-                        document.createNewRow();
-                        document.resetCurrentPosition();
-                        document.addValueToNextCell(fhirLink.getIdentifier().getIdentifier());
-                        document.addValueToNextCell(fhirLink.getGroup().getCode());
-                        document.addValueToNextCell(treatment);
-                    }
+        for (FhirLink fhirLink : fhirLinkRepository.findAll()) {
+            String subjectId = fhirLink.getResourceId().toString();
+            if (!CollectionUtils.isEmpty(treatments.get(subjectId))) {
+                for (String code : treatments.get(subjectId)) {
+                    document.createNewRow();
+                    document.resetCurrentPosition();
+                    document.addValueToNextCell(fhirLink.getIdentifier().getIdentifier());
+                    document.addValueToNextCell(fhirLink.getGroup().getCode());
+                    document.addValueToNextCell(code);
                 }
             }
         }

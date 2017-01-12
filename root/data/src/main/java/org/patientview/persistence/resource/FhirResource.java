@@ -640,18 +640,14 @@ public class FhirResource {
         return existingMap;
     }
 
-    // e.g. encounter type text = TP, subject id = 1231-14141-1241asda-asdad
-    public List<String> getEncounterTreatmentsBySubjectId(final UUID subjectId) throws FhirResourceException {
+    public Map<String, List<String>> getAllEncounterTreatments() throws FhirResourceException {
 
         // build query
         StringBuilder query = new StringBuilder();
-        query.append("SELECT content #> '{type,0}'->>'text' ");
-        query.append("FROM Encounter WHERE content -> 'subject' ->> 'display' = '");
-        query.append(subjectId);
-        query.append("' AND content #> '{identifier,0}'->>'value' = 'TREATMENT' ");
-        query.append(" ");
+        query.append("SELECT content -> 'subject' ->> 'display', content #> '{type,0}'->>'text' ");
+        query.append("FROM Encounter WHERE content #> '{identifier,0}'->>'value' = 'TREATMENT' ");
 
-        LOG.info(query.toString());
+        //LOG.info(query.toString());
 
         Connection connection = null;
 
@@ -660,16 +656,22 @@ public class FhirResource {
             connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
-            List<String> treatments = new ArrayList<>();
+            Map<String, List<String>> toReturn = new HashMap<>();
+
 
             while ((results.next())) {
-                treatments.add(results.getString(1));
+
+                if (toReturn.get(results.getString(1)) == null) {
+                    toReturn.put(results.getString(1), new ArrayList<String>());
+                }
+
+                toReturn.get(results.getString(1)).add(results.getString(2));
             }
 
             connection.close();
-            return treatments;
+            return toReturn;
         } catch (SQLException e) {
-            LOG.error("Unable to get logical ids by subject id {}", e);
+            LOG.error("Unable to retrieve {}", e);
 
             // try and close the open connection
             try {
