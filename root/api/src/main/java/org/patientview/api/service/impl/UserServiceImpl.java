@@ -12,6 +12,7 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.PathwayService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;
@@ -41,6 +42,7 @@ import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.PathwayTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -186,6 +188,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private ApiKeyRepository apiKeyRepository;
 
+    @Inject
+    private PathwayService pathwayService;
+
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
@@ -216,6 +221,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Group patientManagementGroup = null;
         Identifier firstIdentifier = null;
+        boolean initPathway = false;
 
         User creator = getCurrentUser();
         user.setCreator(creator);
@@ -283,6 +289,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                                         FeatureType.IBD_PATIENT_MANAGEMENT.toString())) {
                                     patientManagementGroup = groupRole.getGroup();
                                 }
+
+                                // for donor patient and initialize donor pathway
+                                if (groupFeature.getFeature().getName().equals(
+                                        FeatureType.RENAL_DONOR_UNIT.toString())) {
+                                    initPathway = true;
+                                }
                             }
                         }
                     }
@@ -331,6 +343,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     newUser, patientManagementGroup, firstIdentifier, user.getPatientManagement());
         }
 
+
+        if (initPathway) {
+            try {
+                // setup pathway for patient
+                pathwayService.setupPathway(user);
+            } catch (Exception e) {
+                LOG.error("Failed to setup Pathway for user {}", user.getId());
+            }
+        }
         return newUser.getId();
     }
 
@@ -1458,6 +1479,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get an Email object for verifing a user's email address.
+     *
      * @param user User object with user details
      * @return Email with correct subject, text etc
      */
@@ -1487,8 +1509,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Check if collection of GroupRole contains a specific Group.
+     *
      * @param groupRoles Set of GroupRole to check
-     * @param group Group to find
+     * @param group      Group to find
      * @return true if collection of GroupRole contains Group
      */
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
@@ -1516,6 +1539,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Check if User is a patient by iterating through GroupRoles for a PATIENT type Role.
+     *
      * @param user User to check is a patient
      * @return true if User has a GroupRole with RoleType.PATIENT
      */
