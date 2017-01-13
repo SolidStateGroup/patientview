@@ -62,6 +62,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
                 entityStage.setStageStatus(stage.getStageStatus());
                 entityStage.setVersion(stage.getVersion());
                 entityStage.setBackToPreviousPoint(stage.getBackToPreviousPoint());
+                entityStage.setFurtherInvestigation(stage.getFurtherInvestigation());
 
                 // update StageData
                 if (stage.getData() != null) {
