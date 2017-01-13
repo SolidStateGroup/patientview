@@ -1,27 +1,44 @@
 package org.patientview.api.model;
 
-import org.patientview.persistence.model.enums.NoteTypes;
+import org.patientview.persistence.model.enums.PathwayTypes;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Note represent a note taken by admin for patient throughout application.
+ * Pathway represents pathway for the User eg Donorview
  */
 public class Pathway implements Serializable {
 
     private Long id;
-    private NoteTypes noteType;
-    private String body;
+    private PathwayTypes pathwayType;
+    private BaseUser user;
+    private BaseUser creator;
+    private Map<String, Stage> stages;
     private Date lastUpdate;
     private Date created;
-    private BaseUser creator;
 
     public Pathway() {
     }
 
     public Pathway(org.patientview.persistence.model.Pathway pathway) {
+        this.id = pathway.getId();
+        this.pathwayType = pathway.getPathwayType();
+        if (pathway.getUser() != null) {
+            setUser(new BaseUser(pathway.getUser()));
+        }
+        this.created = pathway.getCreated();
+        if (pathway.getCreator() != null) {
+            setCreator(new BaseUser(pathway.getCreator()));
+        }
+        this.lastUpdate = pathway.getLastUpdate();
 
+        stages = new HashMap<>();
+        for (org.patientview.persistence.model.Stage stage : pathway.getStages()) {
+            stages.put(stage.getStageType().getName(), new Stage(stage));
+        }
     }
 
     public Long getId() {
@@ -32,28 +49,20 @@ public class Pathway implements Serializable {
         this.id = id;
     }
 
-    public NoteTypes getNoteType() {
-        return noteType;
+    public PathwayTypes getPathwayType() {
+        return pathwayType;
     }
 
-    public void setNoteType(NoteTypes noteType) {
-        this.noteType = noteType;
+    public void setPathwayType(PathwayTypes pathwayType) {
+        this.pathwayType = pathwayType;
     }
 
-    public String getBody() {
-        return body;
+    public BaseUser getUser() {
+        return user;
     }
 
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public void setUser(BaseUser user) {
+        this.user = user;
     }
 
     public BaseUser getCreator() {
@@ -62,6 +71,22 @@ public class Pathway implements Serializable {
 
     public void setCreator(BaseUser creator) {
         this.creator = creator;
+    }
+
+    public Map<String, Stage> getStages() {
+        return stages;
+    }
+
+    public void setStages(Map<String, Stage> stages) {
+        this.stages = stages;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public Date getCreated() {
