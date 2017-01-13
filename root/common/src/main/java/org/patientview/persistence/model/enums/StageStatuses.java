@@ -8,7 +8,7 @@ public enum StageStatuses {
     PENDING("Pending"),
     STARTED("Started"),
     ON_HOLD("On Hold"),
-    COMPLETE("Complete"),
+    COMPLETED("Completed"),
     STOPPED("Stopped");
 
     private String name;
