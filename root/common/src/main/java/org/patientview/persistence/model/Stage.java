@@ -11,13 +11,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Stage entity model represents different steps in a Pathway
@@ -53,11 +51,12 @@ public class Stage extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date stopped;
 
-    @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<DonorStageData> stageData;
+    @OneToOne(mappedBy = "stage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private DonorStageData stageData;
 
     @Column(name = "back_to_previous_point")
-    private Integer backToPreviousPoint;
+    @Enumerated(EnumType.STRING)
+    private StageTypes backToPreviousPoint;
 
     public Pathway getPathway() {
         return pathway;
@@ -115,19 +114,19 @@ public class Stage extends BaseModel {
         this.stopped = stopped;
     }
 
-    public Set<DonorStageData> getStageData() {
+    public DonorStageData getStageData() {
         return stageData;
     }
 
-    public void setStageData(Set<DonorStageData> stageData) {
+    public void setStageData(DonorStageData stageData) {
         this.stageData = stageData;
     }
 
-    public Integer getBackToPreviousPoint() {
+    public StageTypes getBackToPreviousPoint() {
         return backToPreviousPoint;
     }
 
-    public void setBackToPreviousPoint(Integer backToPreviousPoint) {
+    public void setBackToPreviousPoint(StageTypes backToPreviousPoint) {
         this.backToPreviousPoint = backToPreviousPoint;
     }
 }
