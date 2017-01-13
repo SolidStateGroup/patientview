@@ -28,6 +28,7 @@ import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ExternalServices;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -132,6 +133,9 @@ public class UserServiceTest {
     @Mock
     private UserTokenRepository userTokenRepository;
 
+    @Mock
+    private PathwayService pathwayService;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -178,6 +182,48 @@ public class UserServiceTest {
                 any(User.class), any(Long.class), eq(AuditObjectTypes.User), eq((Group) null));
         verify(auditService, times(1)).createAudit(eq(AuditActions.ADMIN_GROUP_ROLE_ADD), eq(newUser.getUsername()),
                 any(User.class), any(Long.class), eq(AuditObjectTypes.User), eq(group));
+    }
+
+    @Test
+    public void testAdd_patient() throws EntityExistsException, ResourceForbiddenException,
+            ResourceNotFoundException, FhirResourceException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // User to add
+        User newUser = new User();
+        Group patientGroup = TestUtils.createGroup("testGroup");
+        patientGroup.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.RENAL_DONOR_UNIT.toString()), group));
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        GroupRole newPatientGroupRole = TestUtils.createGroupRole(patientRole, patientGroup, newUser);
+        newUser.setGroupRoles(new HashSet<GroupRole>());
+        newUser.getGroupRoles().add(newPatientGroupRole);
+        UserFeature patientUserFeature = TestUtils.createUserFeature(TestUtils.createFeature("feature"), newUser);
+        newUser.setUserFeatures(new HashSet<UserFeature>());
+        newUser.getUserFeatures().add(patientUserFeature);
+
+        //when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRoleRepository.save(eq(newPatientGroupRole))).thenReturn(newPatientGroupRole);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(patientRole.getId()))).thenReturn(patientRole);
+        when(userRepository.save(eq(newUser))).thenReturn(newUser);
+
+        userService.add(newUser);
+
+        verify(userFeatureRepository, times(1)).save(eq(patientUserFeature));
+        verify(userRepository, times(1)).save(eq(newUser));
+        verify(auditService, times(1)).createAudit(eq(AuditActions.PATIENT_ADD), eq(newUser.getUsername()),
+                any(User.class), any(Long.class), eq(AuditObjectTypes.User), eq((Group) null));
+        verify(pathwayService, times(1)).setupPathway(eq(newUser));
     }
 
     @Test
@@ -355,7 +401,7 @@ public class UserServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
-    @Test (expected = ResourceForbiddenException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testChangeSecretWord_notLetters() throws ResourceNotFoundException, ResourceForbiddenException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -966,6 +1012,7 @@ public class UserServiceTest {
     /**
      * Test: User has forgotten password. Update a user with a new password and set the change flag.
      * Fail: Does not find the Resource
+     *
      * @throws ResourceNotFoundException
      */
     @Test
