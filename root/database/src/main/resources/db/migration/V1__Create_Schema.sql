@@ -916,7 +916,7 @@ CREATE TABLE PV_Stage
   Stage_Type       VARCHAR(100) NOT NULL,
   Stage_Status     VARCHAR(100) NOT NULL,
   version          INTEGER NOT NULL DEFAULT 1,
-  Back_To_Previous_Point INTEGER DEFAULT NULL,
+  Back_To_Previous_Point VARCHAR(100) DEFAULT NULL,
   Started_Date     TIMESTAMP,
   Stopped_Date     TIMESTAMP,
   PRIMARY KEY (Id)
