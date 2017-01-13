@@ -95,7 +95,7 @@ public class PathwayBuilder {
                 Stage stage = new Stage();
                 stage.setName("Testing");
                 stage.setVersion(1);
-                stage.setStageType(StageTypes.REVIEW);
+                stage.setStageType(StageTypes.TESTING);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
                 stage.setFurtherInvestigation(false);
