@@ -77,6 +77,7 @@ public class PathwayBuilder {
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
+                stage.setStageData(data);
 
                 stage.setPathway(result);
                 stages.add(stage);
@@ -94,7 +95,7 @@ public class PathwayBuilder {
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
-
+                stage.setStageData(data);
 
                 stage.setPathway(result);
                 stages.add(stage);
@@ -112,7 +113,7 @@ public class PathwayBuilder {
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
-
+                stage.setStageData(data);
 
                 stage.setPathway(result);
                 stages.add(stage);
