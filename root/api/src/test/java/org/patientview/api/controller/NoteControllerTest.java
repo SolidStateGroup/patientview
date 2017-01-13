@@ -84,10 +84,11 @@ public class NoteControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/notes/" + 123)
+        long noteId = 123;
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/notes/" + noteId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(noteService, Mockito.times(1)).getNote(user.getId(), anyLong());
+        verify(noteService, Mockito.times(1)).getNote(user.getId(), noteId);
     }
 
     @Test
@@ -136,10 +137,11 @@ public class NoteControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
+        NoteTypes type = NoteTypes.DONORVIEW;
         mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/notes/"
-                + NoteTypes.DONORVIEW.toString())
+                + NoteTypes.DONORVIEW.toString()+ "/type")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(noteService, Mockito.times(1)).getNotes(user.getId(), any(NoteTypes.class));
+        verify(noteService, Mockito.times(1)).getNotes(user.getId(), type);
     }
 }
