@@ -47,6 +47,7 @@ public class NoteServiceImpl extends AbstractServiceImpl<NoteServiceImpl> implem
         newNote.setBody(note.getBody());
         newNote.setNoteType(note.getNoteType());
         newNote.setCreator(currentUser);
+        newNote.setLastUpdater(currentUser);
 
         noteRepository.save(newNote);
     }
