@@ -20,15 +20,8 @@ public class Pathway implements Serializable {
     public Pathway() {
     }
 
-    public Pathway(org.patientview.persistence.model.Note note) {
-        this.setId(note.getId());
-        this.noteType = note.getNoteType();
-        this.body = note.getBody();
-        this.lastUpdate = note.getLastUpdate();
-        this.created = note.getCreated();
-        if (note.getCreator() != null) {
-            setCreator(new BaseUser(note.getCreator()));
-        }
+    public Pathway(org.patientview.persistence.model.Pathway pathway) {
+
     }
 
     public Long getId() {
