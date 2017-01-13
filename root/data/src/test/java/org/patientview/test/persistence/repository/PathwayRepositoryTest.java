@@ -70,13 +70,11 @@ public class PathwayRepositoryTest {
             Assert.assertNotNull("Should have saved stage started date", stage.getStarted());
 
             // check stage data
-            Assert.assertNotNull("Should have stage data", stage.getStageData());
-            for (DonorStageData data : stage.getStageData()) {
-                //Assert.assertNotNull("Should have creator date set", data.getCreator());
-                Assert.assertNotNull("Should have created date set", data.getCreated());
-                Assert.assertNotNull("Should have updated date set", data.getLastUpdate());
-            }
+            DonorStageData data = stage.getStageData();
+            Assert.assertNotNull("Should have stage data", data);
 
+            Assert.assertNotNull("Should have created date set", data.getCreated());
+            Assert.assertNotNull("Should have updated date set", data.getLastUpdate());
         }
     }
 
@@ -129,35 +127,20 @@ public class PathwayRepositoryTest {
         return stage;
     }
 
-    private Set<DonorStageData> createStageData(Stage stage) {
+    private DonorStageData createStageData(Stage stage) {
 
-        Set<DonorStageData> dataSet = new HashSet<>();
+        DonorStageData data = new DonorStageData();
+        data.setStage(stage);
+        data.setBloods(true);
+        data.setCrossmatching(true);
+        data.setXrays(true);
+        data.setEcg(true);
+        data.setCaregiverText("Caregiver text");
+        data.setCarelocationText("Carelocation text");
+        data.setCreator(creator);
 
-        {
-            DonorStageData data = new DonorStageData();
-            data.setStage(stage);
-            data.setCaregiverText("Caregiver text");
-            data.setCarelocationText("Carelocation text");
-            data.setCreator(creator);
 
-            dataSet.add(data);
-        }
-
-        {
-            DonorStageData data = new DonorStageData();
-            data.setStage(stage);
-            data.setBloods(true);
-            data.setCrossmatching(true);
-            data.setXrays(true);
-            data.setEcg(true);
-            data.setCaregiverText("Caregiver text");
-            data.setCarelocationText("Carelocation text");
-            data.setCreator(creator);
-
-            dataSet.add(data);
-        }
-
-        return dataSet;
+        return data;
     }
 
 }
