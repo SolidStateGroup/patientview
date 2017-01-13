@@ -672,7 +672,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     public HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException {
         CSVDocumentBuilder document = new CSVDocumentBuilder();
         document.addHeader("Identifier");
-        document.addHeader("Group");
+        document.addHeader("Group Code");
+        document.addHeader("Group Name");
         document.addHeader("Treatment");
 
         // map of subject id to treatment code
@@ -686,6 +687,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
                     document.resetCurrentPosition();
                     document.addValueToNextCell(fhirLink.getIdentifier().getIdentifier());
                     document.addValueToNextCell(fhirLink.getGroup().getCode());
+                    document.addValueToNextCell(fhirLink.getGroup().getName());
                     document.addValueToNextCell(code);
                 }
             }

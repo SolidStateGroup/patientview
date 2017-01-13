@@ -132,6 +132,11 @@ public class ExportController extends BaseController<ExportController> {
         return exportService.downloadSurveyResponses(userId, type);
     }
 
+    /**
+     * Download all patient's treatment data (Encounter type TREATMENT, from rrtstatus in import XML).
+     * @return byte array CSV file containing identifier, group code, group name, treatment code
+     * @throws FhirResourceException thrown getting data from FHIR
+     */
     @RequestMapping(value = "/export/treatment/download", method = RequestMethod.GET)
     @ResponseBody
     public HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException{
