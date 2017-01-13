@@ -83,23 +83,13 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $scope.passwordSuccessMessage = null;
         $scope.passwordErrorMessage = null;
 
-        if ($scope.pw !== $scope.userdetails.confirmPassword) {
+        if ($scope.pw !== $scope.confirmPassword) {
             $scope.passwordErrorMessage = 'The passwords do not match';
         } else {
-            AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword}).then(function () {
-                $scope.userdetails.password =  $scope.pw;
-
-                UserService.changePassword($scope.userdetails).then(function () {
-                    $scope.passwordSuccessMessage = 'The password has been saved';
-                }, function () {
-                    $scope.passwordErrorMessage = 'There was an error';
-                });
-            }, function (result) {
-                if (result.data) {
-                    $scope.passwordErrorMessage = 'Current password incorrect';
-                } else {
-                    $scope.passwordErrorMessage = ' ';
-                }
+            UserService.changePassword($rootScope.loggedInUser.id, $scope.pw).then(function () {
+                $scope.passwordSuccessMessage = 'The password has been saved';
+            }, function () {
+                $scope.passwordErrorMessage = 'There was an error';
             });
         }
     };
@@ -124,17 +114,17 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         }
     };
 
-        $scope.generateKey = function () {
-            $scope.apiKeySuccessMessage = null;
-            $scope.apiKeyErrorMessage = null;
+    $scope.generateKey = function () {
+        $scope.apiKeySuccessMessage = null;
+        $scope.apiKeyErrorMessage = null;
 
-            UserService.generateApiKey($rootScope.loggedInUser.id).then(function () {
-                getUser();
-                $scope.apiKeySuccessMessage = 'Your api key has been successfully generated';
-            }, function (result) {
-                $scope.apiKeyErrorMessage = result.data;
-            });
-        };
+        UserService.generateApiKey($rootScope.loggedInUser.id).then(function () {
+            getUser();
+            $scope.apiKeySuccessMessage = 'Your api key has been successfully generated';
+        }, function (result) {
+            $scope.apiKeyErrorMessage = result.data;
+        });
+    };
 
     // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
