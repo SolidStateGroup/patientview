@@ -1,9 +1,11 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.Note;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.enums.NoteTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,9 @@ public interface NoteService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN,
+            RoleName.GP_ADMIN, RoleName.UNIT_ADMIN})
     void createNote(Long userId, Note Note)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -35,6 +40,9 @@ public interface NoteService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN,
+            RoleName.GP_ADMIN, RoleName.UNIT_ADMIN})
     Note getNote(Long userId, Long noteId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -45,6 +53,9 @@ public interface NoteService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN,
+            RoleName.GP_ADMIN, RoleName.UNIT_ADMIN})
     void updateNote(Long userId, Note note) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -56,6 +67,9 @@ public interface NoteService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN,
+            RoleName.GP_ADMIN, RoleName.UNIT_ADMIN})
     void removeNote(Long userId, Long noteId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -66,5 +80,8 @@ public interface NoteService {
      * @return List of user's Notes
      * @throws ResourceNotFoundException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN,
+            RoleName.GP_ADMIN, RoleName.UNIT_ADMIN})
     List<Note> getNotes(Long userId, NoteTypes noteType) throws ResourceNotFoundException;
 }
