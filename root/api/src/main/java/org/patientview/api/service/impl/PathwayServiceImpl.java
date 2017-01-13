@@ -4,9 +4,12 @@ import org.patientview.api.service.PathwayService;
 import org.patientview.builder.PathwayBuilder;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.DonorStageData;
 import org.patientview.persistence.model.Pathway;
+import org.patientview.persistence.model.Stage;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.PathwayTypes;
+import org.patientview.persistence.model.enums.StageTypes;
 import org.patientview.persistence.repository.PathwayRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -46,7 +49,32 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        // TODO: copy over values for update
+        // update properties
+        entity.setLastUpdater(currentUser);
+        for (Stage entityStage : entity.getStages()) {
+            StageTypes type = entityStage.getStageType();
+            org.patientview.api.model.Stage stage = pathway.getStages().get(type.getName());
+            if (stage != null) {
+
+                // Update stage
+                entityStage.setStageStatus(stage.getStageStatus());
+                entityStage.setVersion(stage.getVersion());
+                entityStage.setBackToPreviousPoint(stage.getBackToPreviousPoint());
+
+                // update StageData
+                if (stage.getData() != null) {
+                    DonorStageData entityStageData = entityStage.getStageData();
+                    entityStageData.setBloods(stage.getData().getBloods());
+                    entityStageData.setCrossmatching(stage.getData().getCrossmatching());
+                    entityStageData.setXrays(stage.getData().getXrays());
+                    entityStageData.setEcg(stage.getData().getEcg());
+                    entityStageData.setCaregiverText(stage.getData().getCaregiverText());
+                    entityStageData.setCarelocationText(stage.getData().getCarelocationText());
+                    entityStageData.setLastUpdater(currentUser);
+                }
+            }
+        }
+
         pathwayRepository.save(entity);
     }
 
@@ -82,5 +110,4 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
         pathwayRepository.save(pathway);
     }
-
 }
