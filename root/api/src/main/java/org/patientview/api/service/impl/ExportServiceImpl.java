@@ -41,6 +41,7 @@ import org.patientview.persistence.model.SurveyResponseScore;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.QuestionElementTypes;
 import org.patientview.persistence.model.enums.QuestionTypes;
 import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
@@ -679,9 +680,11 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         // map of subject id to treatment code
         Map<String, List<String>> treatments = fhirResource.getAllEncounterTreatments();
 
+        // don't include if no treatment code or ECS group
         for (FhirLink fhirLink : fhirLinkRepository.findAll()) {
             String subjectId = fhirLink.getResourceId().toString();
-            if (!CollectionUtils.isEmpty(treatments.get(subjectId))) {
+            if (!CollectionUtils.isEmpty(treatments.get(subjectId))
+                    && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
                 for (String code : treatments.get(subjectId)) {
                     document.createNewRow();
                     document.resetCurrentPosition();
