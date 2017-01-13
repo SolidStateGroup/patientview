@@ -43,6 +43,11 @@ public class PathwayBuilder {
             return this;
         }
 
+        public Builder setLastUpdater(User user) {
+            result.setLastUpdater(user);
+            return this;
+        }
+
         public Builder setType(PathwayTypes pathwayTypes) {
             result.setPathwayType(pathwayTypes);
             return this;
@@ -73,10 +78,12 @@ public class PathwayBuilder {
                 stage.setStageType(StageTypes.CONSULTATION);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
 
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
                 stage.setStageData(data);
 
                 stage.setPathway(result);
@@ -91,10 +98,12 @@ public class PathwayBuilder {
                 stage.setStageType(StageTypes.REVIEW);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
 
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
                 stage.setStageData(data);
 
                 stage.setPathway(result);
@@ -109,10 +118,12 @@ public class PathwayBuilder {
                 stage.setStageType(StageTypes.REVIEW);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
 
                 DonorStageData data = new DonorStageData();
                 data.setStage(stage);
                 data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
                 stage.setStageData(data);
 
                 stage.setPathway(result);
