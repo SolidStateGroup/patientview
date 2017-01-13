@@ -917,6 +917,7 @@ CREATE TABLE PV_Stage
   Stage_Status     VARCHAR(100) NOT NULL,
   version          INTEGER NOT NULL DEFAULT 1,
   Back_To_Previous_Point VARCHAR(100) DEFAULT NULL,
+  Further_Investigation BOOL DEFAULT FALSE,
   Started_Date     TIMESTAMP,
   Stopped_Date     TIMESTAMP,
   PRIMARY KEY (Id)
@@ -927,10 +928,10 @@ CREATE TABLE DV_Stage_Data
 (
   Id                BIGINT    NOT NULL,
   Stage_Id          BIGINT    REFERENCES PV_Stage (Id) NOT NULL,
-  Bloods            BOOL NOT NULL,
-  Crossmatching     BOOL NOT NULL,
-  Xrays             BOOL NOT NULL,
-  Ecg               BOOL NOT NULL,
+  Bloods            BOOL DEFAULT FALSE,
+  Crossmatching     BOOL DEFAULT FALSE,
+  Xrays             BOOL DEFAULT FALSE,
+  Ecg               BOOL DEFAULT FALSE,
   Caregiver_Text    TEXT,
   Carelocation_Text TEXT,
   Created_By       BIGINT REFERENCES PV_User (Id) NOT NULL,
