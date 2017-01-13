@@ -16,6 +16,7 @@ public class Pathway implements Serializable {
     private PathwayTypes pathwayType;
     private BaseUser user;
     private BaseUser creator;
+    private BaseUser lastUpdater;
     private Map<String, Stage> stages;
     private Date lastUpdate;
     private Date created;
@@ -32,6 +33,9 @@ public class Pathway implements Serializable {
         this.created = pathway.getCreated();
         if (pathway.getCreator() != null) {
             setCreator(new BaseUser(pathway.getCreator()));
+        }
+        if (pathway.getLastUpdater() != null) {
+            setLastUpdater(new BaseUser(pathway.getLastUpdater()));
         }
         this.lastUpdate = pathway.getLastUpdate();
 
@@ -71,6 +75,14 @@ public class Pathway implements Serializable {
 
     public void setCreator(BaseUser creator) {
         this.creator = creator;
+    }
+
+    public BaseUser getLastUpdater() {
+        return lastUpdater;
+    }
+
+    public void setLastUpdater(BaseUser lastUpdater) {
+        this.lastUpdater = lastUpdater;
     }
 
     public Map<String, Stage> getStages() {
