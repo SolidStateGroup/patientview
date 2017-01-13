@@ -23,6 +23,7 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
 
     @Query("SELECT  n FROM Note n " +
             "WHERE  n.user = :user " +
-            "AND    n.noteType = :noteType")
+            "AND    n.noteType = :noteType " +
+            "ORDER BY n.created DESC")
     List<Note> findByUserAndNoteType(@Param("user") User user, @Param("noteType") NoteTypes noteType);
 }
