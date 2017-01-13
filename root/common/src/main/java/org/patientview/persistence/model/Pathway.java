@@ -34,7 +34,7 @@ public class Pathway extends AuditModel {
     @Enumerated(EnumType.STRING)
     private PathwayTypes pathwayType;
 
-    @OneToMany(mappedBy = "pathway", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pathway", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Stage> stages;
 
     @PrePersist

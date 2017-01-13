@@ -105,4 +105,12 @@ public interface ExportService {
      */
     @UserOnly
     HttpEntity<byte[]> downloadSurveyResponses(Long userId, String type) throws ResourceNotFoundException;
+
+    /**
+     * Download all patient's treatment data (Encounter type TREATMENT, from rrtstatus in import XML).
+     * @return byte array CSV file containing identifier, group code, group name, treatment code
+     * @throws FhirResourceException thrown getting data from FHIR
+     */
+    @RoleOnly
+    HttpEntity<byte[]> downloadTreatmentData() throws FhirResourceException;
 }

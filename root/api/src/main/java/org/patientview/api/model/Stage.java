@@ -1,72 +1,52 @@
-package org.patientview.persistence.model;
+package org.patientview.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.StageStatuses;
 import org.patientview.persistence.model.enums.StageTypes;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Stage entity model represents different steps in a Pathway
+ * Stage model represents different steps in a Pathway for patient
  */
-@Entity
-@Table(name = "pv_stage")
-public class Stage extends BaseModel {
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pathway_id", nullable = false)
-    private Pathway pathway;
+public class Stage implements Serializable {
 
-    @Column(name = "name")
+    private Long id;
     private String name;
-
-    @Column(name = "stage_type", nullable = false)
-    @Enumerated(EnumType.STRING)
     private StageTypes stageType;
-
-    @Column(name = "stage_status", nullable = false)
-    @Enumerated(EnumType.STRING)
     private StageStatuses stageStatus;
-
-    @Column(name = "version", nullable = false)
     private Integer version;
-
-    @Column(name = "started_date")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date started;
-
-    @Column(name = "stopped_date")
-    @Temporal(TemporalType.TIMESTAMP)
     private Date stopped;
-
-    @OneToOne(mappedBy = "stage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private DonorStageData stageData;
-
-    @Column(name = "back_to_previous_point")
-    @Enumerated(EnumType.STRING)
+    private DonorStageData data;
     private StageTypes backToPreviousPoint;
-
-    @Column(name = "further_investigation")
     private Boolean furtherInvestigation;
 
-    public Pathway getPathway() {
-        return pathway;
+    public Stage() {
     }
 
-    public void setPathway(Pathway pathway) {
-        this.pathway = pathway;
+    public Stage(org.patientview.persistence.model.Stage stage) {
+        this.id = stage.getId();
+        this.name = stage.getName();
+        this.stageType = stage.getStageType();
+        this.stageStatus = stage.getStageStatus();
+        this.version = stage.getVersion();
+        this.started = stage.getStarted();
+        this.stopped = stage.getStopped();
+        if (stage.getStageData() != null) {
+            setData(new DonorStageData(stage.getStageData()));
+        }
+        this.backToPreviousPoint = stage.getBackToPreviousPoint();
+        this.furtherInvestigation = stage.getFurtherInvestigation();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -117,12 +97,12 @@ public class Stage extends BaseModel {
         this.stopped = stopped;
     }
 
-    public DonorStageData getStageData() {
-        return stageData;
+    public DonorStageData getData() {
+        return data;
     }
 
-    public void setStageData(DonorStageData stageData) {
-        this.stageData = stageData;
+    public void setData(DonorStageData data) {
+        this.data = data;
     }
 
     public StageTypes getBackToPreviousPoint() {

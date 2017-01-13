@@ -10,7 +10,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * Notes entity model
@@ -30,6 +33,17 @@ public class Note extends AuditModel {
 
     @Column(name = "body")
     private String body;
+
+    @PrePersist
+    public void prePersist() {
+        setCreated(new Date());
+        setLastUpdate(new Date());
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        setLastUpdate(new Date());
+    }
 
     public NoteTypes getNoteType() {
         return noteType;
