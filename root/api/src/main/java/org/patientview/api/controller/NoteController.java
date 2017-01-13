@@ -100,7 +100,7 @@ public class NoteController extends BaseController<NoteController> {
      * @return A List of Note of type NoteTypes
      * @throws ResourceNotFoundException
      */
-    @RequestMapping(value = "/user/{userId}/notes/{noteType}", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/{userId}/notes/{noteType}/type", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Note>> getNotes(
@@ -108,6 +108,4 @@ public class NoteController extends BaseController<NoteController> {
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(noteService.getNotes(userId, noteType), HttpStatus.OK);
     }
-
-
 }
