@@ -21,6 +21,7 @@ public class Stage implements Serializable {
     private Date stopped;
     private DonorStageData data;
     private StageTypes backToPreviousPoint;
+    private Boolean furtherInvestigation;
 
     public Stage() {
     }
@@ -37,6 +38,7 @@ public class Stage implements Serializable {
             setData(new DonorStageData(stage.getStageData()));
         }
         this.backToPreviousPoint = stage.getBackToPreviousPoint();
+        this.furtherInvestigation = stage.getFurtherInvestigation();
     }
 
     public Long getId() {
@@ -109,5 +111,13 @@ public class Stage implements Serializable {
 
     public void setBackToPreviousPoint(StageTypes backToPreviousPoint) {
         this.backToPreviousPoint = backToPreviousPoint;
+    }
+
+    public Boolean getFurtherInvestigation() {
+        return furtherInvestigation;
+    }
+
+    public void setFurtherInvestigation(Boolean furtherInvestigation) {
+        this.furtherInvestigation = furtherInvestigation;
     }
 }

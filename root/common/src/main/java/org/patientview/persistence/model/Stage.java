@@ -58,6 +58,9 @@ public class Stage extends BaseModel {
     @Enumerated(EnumType.STRING)
     private StageTypes backToPreviousPoint;
 
+    @Column(name = "further_investigation")
+    private Boolean furtherInvestigation;
+
     public Pathway getPathway() {
         return pathway;
     }
@@ -128,5 +131,13 @@ public class Stage extends BaseModel {
 
     public void setBackToPreviousPoint(StageTypes backToPreviousPoint) {
         this.backToPreviousPoint = backToPreviousPoint;
+    }
+
+    public Boolean getFurtherInvestigation() {
+        return furtherInvestigation;
+    }
+
+    public void setFurtherInvestigation(Boolean furtherInvestigation) {
+        this.furtherInvestigation = furtherInvestigation;
     }
 }
