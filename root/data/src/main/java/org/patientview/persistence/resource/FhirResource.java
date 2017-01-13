@@ -640,6 +640,53 @@ public class FhirResource {
         return existingMap;
     }
 
+    public Map<String, List<String>> getAllEncounterTreatments() throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT content -> 'subject' ->> 'display', content #> '{type,0}'->>'text' ");
+        query.append("FROM Encounter WHERE content #> '{identifier,0}'->>'value' = 'TREATMENT' ");
+
+        //LOG.info(query.toString());
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            Map<String, List<String>> toReturn = new HashMap<>();
+
+
+            while ((results.next())) {
+
+                if (toReturn.get(results.getString(1)) == null) {
+                    toReturn.put(results.getString(1), new ArrayList<String>());
+                }
+
+                toReturn.get(results.getString(1)).add(results.getString(2));
+            }
+
+            connection.close();
+            return toReturn;
+        } catch (SQLException e) {
+            LOG.error("Unable to retrieve {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     // check for existing by letter content, letter has no class
     public Map<String, String> getExistingLetterDocumentReferenceTypeAndContentBySubjectId(UUID resourceId)
             throws FhirResourceException {
