@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.Pathway;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -426,9 +427,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
                 // for donor patient and initialize donor pathway
                 if (groupFeature.getFeature().getName().equals(FeatureType.RENAL_DONOR_UNIT.toString())) {
-
+                    Pathway path = pathwayService.getPathway(user.getId(), PathwayTypes.DONORPATHWAY);
                     // check if we need to setup pathway for user
-                    if (pathwayService.getPathway(user.getId(), PathwayTypes.DONORPATHWAY) == null) {
+                    if (path == null) {
                         pathwayService.setupPathway(user);
                     }
                 }
@@ -485,7 +486,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
 
         // save grouprole with same role and parent group if doesn't exist already
-        if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
+        if (entityGroup != null && !CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
             for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
 

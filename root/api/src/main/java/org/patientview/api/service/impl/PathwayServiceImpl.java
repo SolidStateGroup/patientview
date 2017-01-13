@@ -13,6 +13,7 @@ import org.patientview.persistence.model.enums.StageTypes;
 import org.patientview.persistence.repository.PathwayRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -22,6 +23,7 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
  * Implementation of the NoteService
  */
 @Service
+@Transactional
 public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> implements PathwayService {
 
     @Inject
@@ -98,13 +100,19 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
     @Override
     public void setupPathway(User user) throws ResourceNotFoundException {
-        if (user == null) {
+
+        LOG.info("Initializing pathway for user {}", user.getId());
+        User currentUser = getCurrentUser();
+        User find = userRepository.findOne(user.getId());
+
+        if (find == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
         Pathway pathway = PathwayBuilder.newBuilder()
-                .setUser(user)
-                .setCreator(getCurrentUser())
+                .setUser(find)
+                .setCreator(currentUser)
+                .setLastUpdater(currentUser)
                 .setType(PathwayTypes.DONORPATHWAY)
                 .build();
 
