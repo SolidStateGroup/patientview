@@ -92,7 +92,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
         Pathway entity = pathwayRepository.findByUserAndPathwayType(user, pathwayType);
         if (entity == null) {
-            throw new ResourceNotFoundException("Could not find Pathway");
+            return null;
         }
 
         return new org.patientview.api.model.Pathway(entity);
