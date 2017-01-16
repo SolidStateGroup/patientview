@@ -16,6 +16,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.NoteTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -56,19 +57,28 @@ public class NoteControllerTest {
 
     @Test
     public void testCreateNote() throws Exception {
-        User user = TestUtils.createUser("testuser");
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
         Note note = new Note();
         note.setBody("Test Note");
         note.setNoteType(NoteTypes.DONORVIEW);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/notes")
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/" + patient.getId() + "/notes")
                 .content(mapper.writeValueAsString(note))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -76,36 +86,54 @@ public class NoteControllerTest {
 
     @Test
     public void testGetNote() throws Exception {
-        User user = TestUtils.createUser("testuser");
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
         long noteId = 123;
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/notes/" + noteId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + patient.getId() + "/notes/" + noteId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(noteService, Mockito.times(1)).getNote(user.getId(), noteId);
+        verify(noteService, Mockito.times(1)).getNote(patient.getId(), noteId);
     }
 
     @Test
     public void testUpdateNote() throws Exception {
-        User user = TestUtils.createUser("testuser");
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
         org.patientview.api.model.Note note = new org.patientview.api.model.Note();
         note.setBody("Test Note");
         note.setNoteType(NoteTypes.DONORVIEW);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/notes")
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + patient.getId() + "/notes")
                 .content(mapper.writeValueAsString(note))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -114,34 +142,52 @@ public class NoteControllerTest {
 
     @Test
     public void testDeleteNote() throws Exception {
-        User user = TestUtils.createUser("testuser");
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId() + "/notes/" + 123))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + patient.getId() + "/notes/" + 123))
                 .andExpect(MockMvcResultMatchers.status().isOk());
         verify(noteService, Mockito.times(1)).removeNote(anyLong(), anyLong());
     }
 
     @Test
     public void testGetNotes() throws Exception {
-        User user = TestUtils.createUser("testuser");
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
         NoteTypes type = NoteTypes.DONORVIEW;
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/notes/"
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + patient.getId() + "/notes/"
                 + NoteTypes.DONORVIEW.toString()+ "/type")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(noteService, Mockito.times(1)).getNotes(user.getId(), type);
+        verify(noteService, Mockito.times(1)).getNotes(patient.getId(), type);
     }
 }
