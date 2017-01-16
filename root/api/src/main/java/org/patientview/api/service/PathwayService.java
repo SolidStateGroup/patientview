@@ -24,8 +24,8 @@ public interface PathwayService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
-            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
     void updatePathway(Long userId, Pathway pathway)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -49,7 +49,7 @@ public interface PathwayService {
      * @param user ID of User to change the Alert preferences for
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
-            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
     void setupPathway(User user) throws ResourceNotFoundException;
 }
