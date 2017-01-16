@@ -13,9 +13,10 @@ public class Note implements Serializable {
     private Long id;
     private NoteTypes noteType;
     private String body;
-    private Date lastUpdate;
-    private Date created;
     private BaseUser creator;
+    private Date created;
+    private BaseUser lastUpdater;
+    private Date lastUpdate;
 
     public Note() {
     }
@@ -29,6 +30,10 @@ public class Note implements Serializable {
         if (note.getCreator() != null) {
             setCreator(new BaseUser(note.getCreator()));
         }
+        if (note.getLastUpdater() != null) {
+            setLastUpdater(new BaseUser(note.getLastUpdater()));
+        }
+        this.lastUpdate = note.getLastUpdate();
     }
 
     public Long getId() {
@@ -55,14 +60,6 @@ public class Note implements Serializable {
         this.body = body;
     }
 
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
     public BaseUser getCreator() {
         return creator;
     }
@@ -77,5 +74,21 @@ public class Note implements Serializable {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public BaseUser getLastUpdater() {
+        return lastUpdater;
+    }
+
+    public void setLastUpdater(BaseUser lastUpdater) {
+        this.lastUpdater = lastUpdater;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }
