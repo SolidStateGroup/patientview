@@ -29,7 +29,7 @@ public class NoteServiceImpl extends AbstractServiceImpl<NoteServiceImpl> implem
     private UserRepository userRepository;
 
     @Override
-    public void createNote(Long userId, org.patientview.api.model.Note note)
+    public org.patientview.api.model.Note createNote(Long userId, org.patientview.api.model.Note note)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         User currentUser = getCurrentUser();
@@ -49,7 +49,9 @@ public class NoteServiceImpl extends AbstractServiceImpl<NoteServiceImpl> implem
         newNote.setCreator(currentUser);
         newNote.setLastUpdater(currentUser);
 
-        noteRepository.save(newNote);
+        Note created = noteRepository.save(newNote);
+        org.patientview.api.model.Note noteApi = new org.patientview.api.model.Note(created);
+        return noteApi;
     }
 
     public org.patientview.api.model.Note getNote(Long userId, Long noteId)

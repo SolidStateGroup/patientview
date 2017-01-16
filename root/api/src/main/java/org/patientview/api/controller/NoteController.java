@@ -39,9 +39,9 @@ public class NoteController extends BaseController<NoteController> {
     @RequestMapping(value = "/user/{userId}/notes", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void createNote(@PathVariable("userId") Long userId, @RequestBody Note note)
+    public ResponseEntity<Note> createNote(@PathVariable("userId") Long userId, @RequestBody Note note)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        noteService.createNote(userId, note);
+        return new ResponseEntity<>(noteService.createNote(userId, note), HttpStatus.OK);
     }
 
     /**

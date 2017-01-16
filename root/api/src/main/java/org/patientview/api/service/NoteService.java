@@ -27,7 +27,7 @@ public interface NoteService {
      */
     @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
             RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
-    void createNote(Long userId, Note Note)
+    org.patientview.api.model.Note createNote(Long userId, Note Note)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
