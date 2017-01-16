@@ -915,7 +915,7 @@ CREATE TABLE PV_Stage
   Pathway_Id       BIGINT    REFERENCES PV_Pathway (Id) NOT NULL,
   Stage_Type       VARCHAR(100) NOT NULL,
   Stage_Status     VARCHAR(100) NOT NULL,
-  version          INTEGER NOT NULL DEFAULT 1,
+  version          INTEGER NOT NULL DEFAULT 0,
   Back_To_Previous_Point VARCHAR(100) DEFAULT NULL,
   Further_Investigation BOOL DEFAULT FALSE,
   Started_Date     TIMESTAMP,

@@ -74,7 +74,7 @@ public class PathwayBuilder {
             {
                 Stage stage = new Stage();
                 stage.setName("Consultation");
-                stage.setVersion(1);
+                stage.setVersion(0);
                 stage.setStageType(StageTypes.CONSULTATION);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
@@ -94,7 +94,7 @@ public class PathwayBuilder {
             {
                 Stage stage = new Stage();
                 stage.setName("Testing");
-                stage.setVersion(1);
+                stage.setVersion(0);
                 stage.setStageType(StageTypes.TESTING);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
@@ -114,7 +114,7 @@ public class PathwayBuilder {
             {
                 Stage stage = new Stage();
                 stage.setName("Review");
-                stage.setVersion(1);
+                stage.setVersion(0);
                 stage.setStageType(StageTypes.REVIEW);
                 stage.setStageStatus(StageStatuses.PENDING);
                 stage.setStarted(new Date());
