@@ -77,6 +77,6 @@ public interface NoteService {
      * @throws ResourceNotFoundException
      */
     @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
-            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN, RoleName.PATIENT})
     List<Note> getNotes(Long userId, NoteTypes noteType) throws ResourceNotFoundException;
 }
