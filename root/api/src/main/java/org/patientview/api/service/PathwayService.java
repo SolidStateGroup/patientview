@@ -48,8 +48,9 @@ public interface PathwayService {
      *
      * @param user ID of User to change the Alert preferences for
      * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
             RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
-    void setupPathway(User user) throws ResourceNotFoundException;
+    void setupPathway(User user) throws ResourceNotFoundException, ResourceForbiddenException;
 }

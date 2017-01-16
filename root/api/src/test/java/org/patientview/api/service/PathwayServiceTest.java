@@ -60,6 +60,9 @@ public class PathwayServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    UserService userService;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -104,6 +107,7 @@ public class PathwayServiceTest {
 
         PathwayTypes pathwayType = PathwayTypes.DONORPATHWAY;
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
         when(pathwayRepository.findByUserAndPathwayType(eq(patient), eq(pathwayType))).thenReturn(pathway);
 
         org.patientview.api.model.Pathway pathwayApi = pathwayService.getPathway(patient.getId(), pathwayType);
@@ -145,6 +149,7 @@ public class PathwayServiceTest {
 
         PathwayTypes pathwayType = PathwayTypes.DONORPATHWAY;
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
         when(pathwayRepository.findOne(eq(pathwayApi.getId()))).thenReturn(pathway);
 
         pathwayService.updatePathway(patient.getId(), pathwayApi);
@@ -173,6 +178,7 @@ public class PathwayServiceTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         pathwayService.setupPathway(patient);
         verify(pathwayRepository, Mockito.times(1)).save(any(Pathway.class));
@@ -211,6 +217,7 @@ public class PathwayServiceTest {
         PathwayTypes pathwayType = PathwayTypes.DONORPATHWAY;
 
         when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
         when(pathwayRepository.findByUserAndPathwayType(eq(patient), eq(pathwayType))).thenReturn(pathway);
 
         pathwayService.setupPathway(patient);

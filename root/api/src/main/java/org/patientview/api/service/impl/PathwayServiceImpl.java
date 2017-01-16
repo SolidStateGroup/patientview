@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.PathwayService;
+import org.patientview.api.service.UserService;
 import org.patientview.builder.PathwayBuilder;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -32,14 +33,21 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private UserService userService;
+
     @Override
     public void updatePathway(Long userId, org.patientview.api.model.Pathway pathway)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         User currentUser = getCurrentUser();
-        User user = userRepository.findOne(userId);
-        if (user == null) {
+        User patient = userRepository.findOne(userId);
+        if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");
+        }
+
+        if (!userService.currentUserCanGetUser(patient)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         Pathway entity = pathwayRepository.findOne(pathway.getId());
@@ -47,7 +55,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
             throw new ResourceNotFoundException("Could not find pathway");
         }
 
-        if (!user.getId().equals(entity.getUser().getId())) {
+        if (!patient.getId().equals(entity.getUser().getId())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -86,12 +94,16 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         // TODO: validate current user can edit user data
-        User user = userRepository.findOne(userId);
-        if (user == null) {
+        User patient = userRepository.findOne(userId);
+        if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Pathway entity = pathwayRepository.findByUserAndPathwayType(user, pathwayType);
+        if (!userService.currentUserCanGetUser(patient)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Pathway entity = pathwayRepository.findByUserAndPathwayType(patient, pathwayType);
         if (entity == null) {
             return null;
         }
@@ -101,23 +113,27 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
 
     @Override
-    public void setupPathway(User user) throws ResourceNotFoundException {
+    public void setupPathway(User user) throws ResourceNotFoundException, ResourceForbiddenException {
 
         LOG.info("Initializing pathway for user {}", user.getId());
         User currentUser = getCurrentUser();
 
-        User find = userRepository.findOne(user.getId());
-        if (find == null) {
+        User patient = userRepository.findOne(user.getId());
+        if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Pathway path = pathwayRepository.findByUserAndPathwayType(find, PathwayTypes.DONORPATHWAY);
+        if (!userService.currentUserCanGetUser(patient)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        Pathway path = pathwayRepository.findByUserAndPathwayType(patient, PathwayTypes.DONORPATHWAY);
         // check if we need to setup pathway for user
         if (path != null) {
             LOG.info("Pathway already exist for user {}", user.getId());
         } else {
             Pathway pathway = PathwayBuilder.newBuilder()
-                    .setUser(find)
+                    .setUser(patient)
                     .setCreator(currentUser)
                     .setLastUpdater(currentUser)
                     .setType(PathwayTypes.DONORPATHWAY)
