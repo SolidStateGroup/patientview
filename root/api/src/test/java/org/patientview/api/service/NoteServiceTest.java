@@ -135,6 +135,15 @@ public class NoteServiceTest {
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
 
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
         Note note = new Note();
         note.setId(1L);
@@ -206,6 +215,16 @@ public class NoteServiceTest {
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
 
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
         Note note = new Note();
         note.setId(1L);
         note.setBody("Test body");
@@ -231,6 +250,16 @@ public class NoteServiceTest {
         GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
         List<Note> notes = new ArrayList<>();
         {
