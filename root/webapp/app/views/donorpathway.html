@@ -1,73 +1,168 @@
-<h1>DonorView Pathway</h1>
-
-<aside class="col-md-4">
-    <div class="panel-header content-panel lowlight">
-        <h3>Phase 1</h3>
-        <ul class="nav navbar-tabs">
-            <li><a>Point 1 - Consultation<div style="display: inline-block; width: 20px; height: 20px; background-color: green; border-radius: 5px; margin-left: 10px; top: 5px"></div></a></li>
-            <li><a>Point 2 - Testing</a></li>
-            <li><a>Point 3 - Review</a></li>
-        </ul>
+<!-- add note modal -->
+<script type="text/ng-template" id="addNoteModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add note</h3>
     </div>
-</aside>
-
-<div class="content-panel user-settings">
-    <div class="content-inner">
-        <form class="form-horizontal" data-ng-cloak id="donor-pathway-form">
-            <h3>Point &lt;Number&gt; - &lt;Name&gt;</h3>
-            <div style="height: 200px; border: thin solid black; background:
-       linear-gradient(to top left,
-           rgba(0,0,0,0) 0%,
-           rgba(0,0,0,0) calc(50% - 1.5px),
-           rgba(0,0,0,1) 50%,
-           rgba(0,0,0,0) calc(50% + 1.5px),
-           rgba(0,0,0,0) 100%),
-       linear-gradient(to top right,
-           rgba(0,0,0,0) 0%,
-           rgba(0,0,0,0) calc(50% - 1.5px),
-           rgba(0,0,0,1) 50%,
-           rgba(0,0,0,0) calc(50% + 1.5px),
-           rgba(0,0,0,0) 100%);"></div>
-            <h4>Status</h4>
-            <div style="height: 40px; border: thin solid black; background:
-       linear-gradient(to top left,
-           rgba(0,0,0,0) 0%,
-           rgba(0,0,0,0) calc(50% - 0.8px),
-           rgba(0,0,0,1) 50%,
-           rgba(0,0,0,0) calc(50% + 0.8px),
-           rgba(0,0,0,0) 100%),
-       linear-gradient(to top right,
-           rgba(0,0,0,0) 0%,
-           rgba(0,0,0,0) calc(50% - 0.8px),
-           rgba(0,0,0,1) 50%,
-           rgba(0,0,0,0) calc(50% + 0.8px),
-           rgba(0,0,0,0) 100%);"></div>
-            <div style="margin-top: 10px">
-                <button class="btn btn-grey">Save</button>
-                <button class="btn btn-grey">Save & Notify Donor</button>
-                <button class="btn btn-grey">Cancel</button>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="control-label">
+                    Note
+                    <span class="error" data-ng-if="!note.body">
+                        (required)
+                    </span>
+                </label>
             </div>
-        </form>
+            <textarea id="note-body" data-ng-model="note.body" class="form-control" style="height: 100px;"
+                      debounce="500">
+            </textarea>
+        </div>
 
-        <form class="form-horizontal" data-ng-cloak id="donor-pathway-notes-form">
-            <h4>Notes</h4>
-            <table class="table">
-                <thead class="table-head">
-                    <tr>
-                        <th>Date</th>
-                        <th>Entered by</th>
-                        <th>Note</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Sample 1</td>
-                        <td>Sample 1</td>
-                        <td>Sample 1</td>
-                    </tr>
-                </tbody>
-            </table>
-            <button class="btn btn-grey">Add Note</button>
-        </form>
+        <div class="row" data-ng-if="errorMessage.length">
+            <br/>
+            <div class="col-md-12">
+                <div class="alert alert-danger">
+                    <span>{{errorMessage}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="btn-group pull-right">
+            <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+            <button class="btn blue" data-ng-click="ok()">Add Note</button>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="discardChangesModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Confirm</h3>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure you want to discard changes?</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-grey" data-ng-click="cancel()">No</button>
+        <button class="btn btn-primary" data-ng-click="ok()">Yes</button>
+    </div>
+</script>
+
+<style>
+    .point-status-box {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
+
+<div data-ng-show="!loading && !fatalErrorMessage">
+    <h1>DonorView Pathway</h1>
+
+    <aside class="col-md-4">
+        <div class="panel-header content-panel lowlight">
+            <h3>Phase 1</h3>
+            <ul class="nav navbar-tabs">
+                <li><a data-ng-click="showPoint('Consultation')">Point 1 - Consultation<div class="point-status-box" data-ng-style="{'background-color': stages.Consultation.stageStatus == 'COMPLETED' ? 'green' : 'gray'}"/></a></li>
+                <li><a data-ng-click="showPoint('Testing')">Point 2 - Testing<div class="point-status-box" data-ng-style="{'background-color': stages.Testing.stageStatus == 'COMPLETED' ? 'green' : 'gray'}"/></a></li>
+                <li><a data-ng-click="showPoint('Review')">Point 3 - Review<div class="point-status-box" data-ng-style="getReviewStatusColour()"/></a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <div class="content-panel user-settings">
+        <div class="content-inner">
+            <form class="form-horizontal" data-ng-cloak id="donor-pathway-form">
+                <h3>{{editStage.stageType == 'CONSULTATION' ? 'Point 1 -' : editStage.stageType == 'TESTING' ? 'Point 2 -' : 'Point 3 -'}} {{editStage.name}}</h3>
+                <div data-ng-show="editStage.stageType == 'TESTING'">
+                    <div>
+                        <input type="checkbox" data-ng-model="editStage.data.bloods" data-ng-disabled="editStage.stageStatus != 'STARTED'" /> Bloods
+                    </div>
+                    <div>
+                        <input type="checkbox" data-ng-model="editStage.data.crossmatching" data-ng-disabled="editStage.stageStatus != 'STARTED'" /> Cross matching
+                    </div>
+                    <div>
+                        <input type="checkbox" data-ng-model="editStage.data.xrays" data-ng-disabled="editStage.stageStatus != 'STARTED'" /> X-rays
+                    </div>
+                    <div>
+                        <input type="checkbox" data-ng-model="editStage.data.ecg" data-ng-disabled="editStage.stageStatus != 'STARTED'" /> ECG
+                    </div>
+                </div>
+                <div data-ng-show="editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING'">
+                    <p>Who is looking after my care at this point?<input class="form-control" id="caregiver" ng-model="editStage.data.caregiverText" data-ng-disabled="editStage.stageStatus != 'STARTED'" /></p>
+                    <p>If you have any queries please contact<input class="form-control" id="carelocation" ng-model="editStage.data.carelocationText" data-ng-disabled="editStage.stageStatus != 'STARTED'" /></p>
+                </div>
+                <h4>Status</h4>
+                <div data-ng-show="editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING'">
+                    <input type="checkbox" id="moveToNextPoint" ng-model="moveToNextPoint" name="moveToNextPoint" ng-disabled="stages[getStageKeyFromType(editStage.stageType)].stageStatus != 'STARTED'" /> Move to next point
+                </div>
+                <div class="radio-button-list" data-ng-show="editStage.stageType == 'REVIEW'">
+                    <div>
+                        <input type="radio" class="radio-button" data-ng-model="editStage.furtherInvestigation" ng-value="true" ng-change="onFurtherInvestigation()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> Further investigation
+                    </div>
+                    <div>
+                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="COMPLETED" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> Move forward to next point
+                    </div>
+                    <div>
+                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="ON_HOLD" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> On hold
+                    </div>
+                    <div>
+                        <input type="radio" class="radio-button" data-ng-model="editStage.backToPreviousPoint" ng-value="editStage.backToPreviousPoint ? editStage.backToPreviousPoint : 'CHOOSE'"
+                            ng-change="onBackToPreviousPoint()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> Back to previous point
+                        <div data-ng-show="editStage.backToPreviousPoint">
+                            <select data-ng-model="editStage.backToPreviousPoint" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" id="selBackToPreviousPoint">
+                                <option value="CONSULTATION">Point 1 - Consultation</option>
+                                <option value="TESTING">Point 2 - Testing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="STOPPED" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> Stop
+                    </div>
+                </div>
+                <div class="form-save">
+                    <button class="btn btn-grey" data-ng-click="save()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save</button>
+                    <button class="btn btn-grey" data-ng-click="save(true)" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save & Notify Donor</button>
+                    <button class="btn btn-grey" data-ng-click="cancel()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Cancel</button>
+                </div>
+                <div class="alert alert-danger form-save" data-ng-show="saveErrorMessage">{{saveErrorMessage}}</div>
+            </form>
+
+            <form class="form-horizontal" data-ng-cloak id="donor-pathway-notes-form" data-ng-show="!notesLoading">
+                <h4>Notes</h4>
+                <table class="table">
+                    <thead class="table-head">
+                        <tr>
+                            <th>Date</th>
+                            <th>Entered by</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="note in notes">
+                            <td>{{getDate(note.created)}}</td>
+                            <td>{{note.creator.forename}} {{note.creator.surname}}</td>
+                            <td>{{note.body}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn btn-grey" data-ng-click="addNote()">Add Note</button>
+            </form>
+            <div class="alert alert-danger form-save" data-ng-show="noteErrorMessage">{{noteErrorMessage}}</div>
+            <div data-ng-show="notesLoading && !noteErrorMessage" class="loading">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{notesLoadingMessage}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading && !fatalErrorMessage" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
     </div>
 </div>
