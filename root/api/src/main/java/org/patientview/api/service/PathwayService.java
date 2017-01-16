@@ -1,10 +1,12 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.Pathway;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.PathwayTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public interface PathwayService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
     void updatePathway(Long userId, Pathway pathway)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -34,6 +38,8 @@ public interface PathwayService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN, RoleName.PATIENT})
     Pathway getPathway(Long userId, PathwayTypes pathwayType)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -43,5 +49,7 @@ public interface PathwayService {
      * @param user ID of User to change the Alert preferences for
      * @throws ResourceNotFoundException
      */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
     void setupPathway(User user) throws ResourceNotFoundException;
 }
