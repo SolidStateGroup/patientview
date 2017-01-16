@@ -1,7 +1,7 @@
 <!-- add note modal -->
-<script type="text/ng-template" id="addNoteModal.html">
+<script type="text/ng-template" id="noteModal.html">
     <div class="modal-header">
-        <h3 class="modal-title">Add note</h3>
+        <h3 class="modal-title">{{edit ? 'Edit' : 'Add'}} note</h3>
     </div>
     <div class="modal-body">
         <div class="row">
@@ -14,8 +14,7 @@
                 </label>
             </div>
             <textarea id="note-body" data-ng-model="note.body" class="form-control" style="height: 100px;"
-                      debounce="500">
-            </textarea>
+                    debounce="500" />
         </div>
 
         <div class="row" data-ng-if="errorMessage.length">
@@ -30,7 +29,7 @@
     <div class="modal-footer">
         <div class="btn-group pull-right">
             <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
-            <button class="btn blue" data-ng-click="ok()">Add Note</button>
+            <button class="btn blue" data-ng-click="ok()">{{edit ? 'Save Changes' : 'Add Note'}}</button>
         </div>
     </div>
 </script>
@@ -68,9 +67,9 @@
         <div class="panel-header content-panel lowlight">
             <h3>Phase 1</h3>
             <ul class="nav navbar-tabs">
-                <li><a data-ng-click="showPoint('Consultation')">Point 1 - Consultation<div class="point-status-box" data-ng-style="{'background-color': stages.Consultation.stageStatus == 'COMPLETED' ? 'green' : 'gray'}"/></a></li>
-                <li><a data-ng-click="showPoint('Testing')">Point 2 - Testing<div class="point-status-box" data-ng-style="{'background-color': stages.Testing.stageStatus == 'COMPLETED' ? 'green' : 'gray'}"/></a></li>
-                <li><a data-ng-click="showPoint('Review')">Point 3 - Review<div class="point-status-box" data-ng-style="getReviewStatusColour()"/></a></li>
+                <li><a data-ng-click="showPoint('Consultation')">Point 1 - Consultation<div class="point-status-box" data-ng-if="stages.Consultation.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Consultation.stageStatus == 'STARTED' ? 'green' : 'gray'}"/></a></li>
+                <li><a data-ng-click="showPoint('Testing')">Point 2 - Testing<div class="point-status-box" data-ng-if="stages.Testing.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Testing.stageStatus == 'STARTED' ? 'green' : 'gray'}"/></a></li>
+                <li><a data-ng-click="showPoint('Review')">Point 3 - Review<div class="point-status-box" data-ng-if="stages.Review.stageStatus != 'PENDING'" data-ng-style="getReviewStatusColour()"/></a></li>
             </ul>
         </div>
     </aside>
@@ -113,9 +112,9 @@
                     </div>
                     <div>
                         <input type="radio" class="radio-button" data-ng-model="editStage.backToPreviousPoint" ng-value="editStage.backToPreviousPoint ? editStage.backToPreviousPoint : 'CHOOSE'"
-                            ng-change="onBackToPreviousPoint()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" /> Back to previous point
+                            ng-change="onBackToPreviousPoint()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !devAllowBack" /> Back to previous point
                         <div data-ng-show="editStage.backToPreviousPoint">
-                            <select data-ng-model="editStage.backToPreviousPoint" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD'" id="selBackToPreviousPoint">
+                            <select data-ng-model="editStage.backToPreviousPoint" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !devAllowBack" id="selBackToPreviousPoint">
                                 <option value="CONSULTATION">Point 1 - Consultation</option>
                                 <option value="TESTING">Point 2 - Testing</option>
                             </select>
@@ -139,15 +138,17 @@
                     <thead class="table-head">
                         <tr>
                             <th>Date</th>
-                            <th>Entered by</th>
+                            <th>{{created == lastUpdate ? 'Entered by' : 'Last updated by'}}</th>
                             <th>Note</th>
+                            <th><th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr data-ng-repeat="note in notes">
-                            <td>{{getDate(note.created)}}</td>
-                            <td>{{note.creator.forename}} {{note.creator.surname}}</td>
+                        <tr data-ng-repeat="note in notes | orderBy:'-lastUpdate'">
+                            <td>{{getDate(note.lastUpdate)}}</td>
+                            <td>{{note.lastUpdater.forename}} {{note.lastUpdater.surname}}</td>
                             <td>{{note.body}}</td>
+                            <td><button class="btn btn-grey" data-ng-click="editNote(note)">Edit</button>
                         </tr>
                     </tbody>
                 </table>

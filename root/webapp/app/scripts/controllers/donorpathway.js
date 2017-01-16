@@ -22,6 +22,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         $scope.editStages = {Consultation: {}, Testing: {}, Review: {}};
         $scope.editStage = {};
         $scope.moveToNextPoint = false;
+        // $scope.devAllowBack = true;
 
         var init = function () {
             if (!$scope.userId) {
@@ -38,15 +39,13 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     $scope.editStages = $scope.editPathway.stages;
                     if ($scope.stages.Consultation.stageStatus != 'COMPLETED') {
                         $scope.editStage = $scope.editStages.Consultation;
-                        $scope.editStage.stageStatus = 'STARTED';
+                        checkPending();
                     } else if ($scope.stages.Testing.stageStatus != 'COMPLETED') {
                         $scope.editStage = $scope.editStages.Testing;
-                        $scope.editStage.stageStatus = 'STARTED';
+                        checkPending();
                     } else {
                         $scope.editStage = $scope.editStages.Review;
-                        if ($scope.editStage.stageStatus == 'PENDING') {
-                            $scope.editStage.stageStatus = 'STARTED';
-                        }
+                        checkPending();
                         $scope.reviewStatus = $scope.editStage.stageStatus;
                     }
                     $scope.loading = false;
@@ -61,6 +60,14 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                 }, function () {
                     $scope.noteErrorMessage = 'Error retrieving notes';
                 });
+        };
+
+        var checkPending = function () {
+            if ($scope.editStage.stageStatus == 'PENDING') {
+                $scope.editStage.version++;
+                $scope.editStage.stageStatus = 'STARTED';
+                updatePathway();
+            }
         };
 
         $scope.showPoint = function (point) {
@@ -88,9 +95,10 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     angular.element(!editStage.data.caregiverText ? '#caregiver' : '#carelocation').focus();
                     return;
                 }
-                // Set next stage to started
+                // Set next stage to started and increase version number
                 var nextStage = editStage.stageType == 'CONSULTATION' ? 'Testing' : 'Review';
                 $scope.editStages[nextStage].stageStatus = 'STARTED';
+                $scope.editStages[nextStage].version++;
                 if (editStage.stageType == 'CONSULTATION') {
                     $scope.editStages.Review.stageStatus = 'PENDING';
                 } else {
@@ -118,13 +126,13 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                         angular.element('#selBackToPreviousPoint').focus();
                         return;
                     }
-                    // Set selected point to started and any inbetween points as pending
-                    $scope.editStages[$scope.getStageKeyFromType(editStage.backToPreviousPoint)].stageStatus = 'STARTED';
+                    // Set selected point to started and increase version number
+                    $scope.editStage = $scope.editStages[$scope.getStageKeyFromType(editStage.backToPreviousPoint)];
+                    $scope.editStage.stageStatus = 'STARTED';
+                    $scope.editStage.version++;
                     if (editStage.backToPreviousPoint == 'CONSULTATION') {
                         $scope.editStages.Testing.stageStatus = 'PENDING';
                     }
-
-                    $scope.editStage = $scope.editStages[$scope.getStageKeyFromType(editStage.backToPreviousPoint)];
 
                     // Set review point back to pending
                     editStage.stageStatus = 'PENDING';
@@ -138,6 +146,11 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                 }
             }
 
+            // Update the pathway
+            updatePathway();
+        };
+
+        var updatePathway = function () {
             DonorPathwayService.updatePathway($scope.editPathway)
                 .then(function () {
                     $scope.pathway = _.cloneDeep($scope.editPathway);
@@ -175,23 +188,52 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
 
             // open modal and pass in required objects for use in modal scope
             var modalInstance = $modal.open({
-                templateUrl: 'addNoteModal.html',
+                templateUrl: 'noteModal.html',
                 controller: AddNoteModalInstanceCtrl,
                 size: 'lg',
-                backdrop: 'static'
+                backdrop: 'static',
             });
 
             // handle modal close (via button click)
             modalInstance.result.then(function (note) {
                 note.noteType = 'DONORVIEW';
                 DonorPathwayService.addNote(note)
-                    .then(function () {
+                    .then(function (note) {
                         $scope.notes.push(note);
                     }, function (failureResult) {
                         $scope.noteErrorMessage = 'There was an error adding the note';
                     });
             });
         };
+
+        $scope.editNote = function (note) {
+            delete $scope.noteErrorMessage;
+
+            // open modal and pass in required objects for use in modal scope
+            var modalInstance = $modal.open({
+                templateUrl: 'noteModal.html',
+                controller: EditNoteModalInstanceCtrl,
+                size: 'lg',
+                backdrop: 'static',
+                resolve: {
+                    note: function () {
+                        return _.cloneDeep(note);
+                    }
+                }
+            });
+
+            // handle modal close (via button click)
+            modalInstance.result.then(function (updatedNote) {
+                DonorPathwayService.updateNote(updatedNote)
+                    .then(function () {
+                        note.body = updatedNote.body;
+                        note.lastUpdate = updatedNote.lastUpdate;
+                        note.lastUpdater = updatedNote.lastUpdater;
+                    }, function (failureResult) {
+                        $scope.noteErrorMessage = 'There was an error updating the note';
+                    });
+            });
+        }
 
         $scope.onReviewStatus = function () {
             $scope.editStage.backToPreviousPoint = null;
@@ -217,7 +259,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                 case 'PENDING':
                 case 'STARTED':
                 default:
-                    colour = 'gray';
+                    colour = 'green';
                     break;
 
                 case 'ON_HOLD':
@@ -229,7 +271,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     break;
 
                 case 'COMPLETED':
-                    colour = 'green';
+                    colour = 'gray';
                     break;
             }
             return {'background-color': colour};
