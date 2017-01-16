@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.model.Pathway;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -43,7 +42,6 @@ import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.GroupTypes;
-import org.patientview.persistence.model.enums.PathwayTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -427,10 +425,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
                 // for donor patient and initialize donor pathway
                 if (groupFeature.getFeature().getName().equals(FeatureType.RENAL_DONOR_UNIT.toString())) {
-                    Pathway path = pathwayService.getPathway(user.getId(), PathwayTypes.DONORPATHWAY);
-                    // check if we need to setup pathway for user
-                    if (path == null) {
+                    try {
+                        // setup pathway for patient
                         pathwayService.setupPathway(user);
+                    } catch (Exception e) {
+                        LOG.error("Failed to setup Pathway for user {}", user.getId());
                     }
                 }
             }

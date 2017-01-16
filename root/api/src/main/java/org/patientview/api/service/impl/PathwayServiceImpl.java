@@ -85,6 +85,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
     public org.patientview.api.model.Pathway getPathway(Long userId, PathwayTypes pathwayType)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
+        // TODO: validate current user can edit user data
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -104,19 +105,25 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
         LOG.info("Initializing pathway for user {}", user.getId());
         User currentUser = getCurrentUser();
-        User find = userRepository.findOne(user.getId());
 
+        User find = userRepository.findOne(user.getId());
         if (find == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Pathway pathway = PathwayBuilder.newBuilder()
-                .setUser(find)
-                .setCreator(currentUser)
-                .setLastUpdater(currentUser)
-                .setType(PathwayTypes.DONORPATHWAY)
-                .build();
+        Pathway path = pathwayRepository.findByUserAndPathwayType(find, PathwayTypes.DONORPATHWAY);
+        // check if we need to setup pathway for user
+        if (path != null) {
+            LOG.info("Pathway already exist for user {}", user.getId());
+        } else {
+            Pathway pathway = PathwayBuilder.newBuilder()
+                    .setUser(find)
+                    .setCreator(currentUser)
+                    .setLastUpdater(currentUser)
+                    .setType(PathwayTypes.DONORPATHWAY)
+                    .build();
 
-        pathwayRepository.save(pathway);
+            pathwayRepository.save(pathway);
+        }
     }
 }
