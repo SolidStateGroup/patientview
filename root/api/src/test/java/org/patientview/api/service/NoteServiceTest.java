@@ -99,7 +99,7 @@ public class NoteServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API, RoleType.STAFF);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -169,7 +169,7 @@ public class NoteServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN_API, RoleType.STAFF);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
