@@ -381,8 +381,8 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         printWindow.close();
     };
 
-    $scope.continueToDonorPathway = function (userId) {
-        DonorPathwayService.setUserId(userId);
+    $scope.continueToDonorPathway = function () {
+        DonorPathwayService.setUserId($scope.newUserId);
         $location.path('/donorpathway');
     };
 
