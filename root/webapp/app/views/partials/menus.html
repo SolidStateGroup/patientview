@@ -2,12 +2,12 @@
     <p align="center">YOU ARE ABOUT TO BE LOGGED OUT FOR INACTIVITY</p>
     <p align="center">Please <a href="" data-ng-click="resetTimeoutTimers()">CLICK HERE</a> to stay logged in.</p>
 </div>
-        
+
 <div class="alert alert-danger" data-ng-show="showTestHeader()">
     <p align="center">THIS IS A COPY OF PATIENTVIEW USED FOR TESTING - PLEASE LOG IN AT THE MAIN SITE</p>
     <p align="center">Please visit <a href="https://www.patientview.org">www.patientview.org</a></p>
 </div>
-        
+
 <div data-ng-show="previousAuthToken && !switchingUser" class="container" data-ng-cloak>
     <div class="back-to-admin clearfix">
         <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> <span class="hidden-xs">Back to Admin Area</span></a>
@@ -18,7 +18,8 @@
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
         <div class="navbar-header">
-            <a data-ng-hide="!loggedInUser" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
+            <a data-ng-hide="!loggedInUser || loggedInUser.userInformation && loggedInUser.userInformation.donorView" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
+            <a data-ng-hide="!loggedInUser || !loggedInUser.userInformation || !loggedInUser.userInformation.donorView" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/dv-logo.png" alt="patient view"/></a>
             <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled mobile-list" data-ng-hide="!loggedInUser">
@@ -56,7 +57,7 @@
                 <div data-ng-if="loggedInUser.picture.length" class="pull-left">
                     <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-header-picture" src="">
                 </div>
-                
+
                 <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
                 <ul class="nav navbar-nav inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
