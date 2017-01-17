@@ -3,12 +3,13 @@
 angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scope', 'DonorPathwayService',
     function ($scope, DonorPathwayService) {
 
-    var init = function() {
-        $scope.loading = true;
+    $scope.loading = true;
+    $scope.notesLoading = true;
 
+    var init = function() {
         // Get the donor pathway
         DonorPathwayService.setUserId($scope.loggedInUser.id);
-        return DonorPathwayService.getPathway('DONORPATHWAY')
+        DonorPathwayService.getPathway('DONORPATHWAY')
             .then(function (pathway) {
                 if (!pathway) {
                     $scope.fatalErrorMessage = 'Error retrieving pathway';
@@ -27,10 +28,47 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
                 $scope.readOnly = true;
                 $scope.loading = false;
             });
+
+        // Get donor pathway notes
+        DonorPathwayService.getNotes('DONORVIEW')
+            .then(function (notes) {
+                $scope.notes = notes;
+                $scope.notesLoading = false;
+            }, function () {
+                $scope.noteErrorMessage = 'Error retrieving notes';
+            });
     };
 
     $scope.showPoint = function (point) {
         $scope.editStage = $scope.editStages[point];
+    };
+
+    $scope.getReviewStatusColour = function () {
+        var colour;
+        switch ($scope.stages.Review.stageStatus) {
+            case 'PENDING':
+            case 'STARTED':
+            default:
+                colour = 'green';
+                break;
+
+            case 'ON_HOLD':
+                colour = '#ffbf00';
+                break;
+
+            case 'STOPPED':
+                colour = 'red';
+                break;
+
+            case 'COMPLETED':
+                colour = 'gray';
+                break;
+        }
+        return {'background-color': colour};
+    };
+
+    $scope.getDate = function (ts) {
+        return moment(ts).format('DD/MM/YYYY');
     };
 
     init();
