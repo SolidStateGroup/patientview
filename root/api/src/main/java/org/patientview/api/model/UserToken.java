@@ -49,6 +49,9 @@ public class UserToken {
     // used to show/hide enter own diagnosis on dashboard
     private boolean shouldEnterCondition = false;
 
+    // if donor patient display donor view related branding
+    private boolean donorView = false;
+
     public UserToken() {
     }
 
@@ -249,5 +252,13 @@ public class UserToken {
 
     public void setShouldEnterCondition(boolean shouldEnterCondition) {
         this.shouldEnterCondition = shouldEnterCondition;
+    }
+
+    public boolean isDonorView() {
+        return donorView;
+    }
+
+    public void setDonorView(boolean donorView) {
+        this.donorView = donorView;
     }
 }
