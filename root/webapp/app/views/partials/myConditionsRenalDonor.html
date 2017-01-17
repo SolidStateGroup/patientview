@@ -1,0 +1,12 @@
+<div>
+    <div>
+        <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
+        <div data-ng-show="!loading" data-ng-include src="'views/partials/donorpathwayDetails.html'"></div>
+        <div data-ng-show="loading && !fatalErrorMessage" class="container"><br/><br/>
+            <div data-ng-show="loading" class="loading">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{loadingMessage}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
