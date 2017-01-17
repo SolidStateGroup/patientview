@@ -32,6 +32,7 @@ import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupCodes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
@@ -767,7 +768,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     /**
-     * Check if user
+     * Set donor view if user only belongs to Renal Donor group.
      *
      * @param userToken
      * @param user
@@ -776,15 +777,19 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (user != null && !CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
-                if (groupRole.getGroup() != null) {
 
-                    // check make sure User belong to Renal Donor group only
+                if (groupRole.getGroup() != null) {
                     Group group = groupRole.getGroup();
-                    if (group.getCode().equals(GroupCodes.RD.toString())) {
-                        userToken.setDonorView(true);
-                    } else {
-                        userToken.setDonorView(true);
-                        break;
+
+                    // check make sure User belong to Renal Donor parent group SPECIALITY only
+                    if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+
+                        if (group.getCode().equals(GroupCodes.RD.toString()) || group.getCode().equals("Generic")) {
+                            userToken.setDonorView(true);
+                        } else {
+                            userToken.setDonorView(false);
+                            break;
+                        }
                     }
                 }
             }
