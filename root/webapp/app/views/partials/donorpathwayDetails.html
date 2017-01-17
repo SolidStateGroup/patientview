@@ -7,10 +7,10 @@
         margin-left: 10px;
         vertical-align: middle;
     }
-    .aside-link {
+    .point-link {
         cursor: pointer;
     }
-    .active {
+    .point-active {
         font-weight: bold;
         border: thin solid;
     }
@@ -21,17 +21,17 @@
         <h3>Phase 1</h3>
         <ul class="nav">
             <li>
-                <a ng-class="editStage.stageType == 'CONSULTATION' ? 'aside-link active' : 'aside-link'" data-ng-click="showPoint('Consultation')">Point 1 - Consultation
+                <a ng-class="editStage.stageType == 'CONSULTATION' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Consultation')">Point 1 - Consultation
                    <div class="point-status-box" data-ng-if="stages.Consultation.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Consultation.stageStatus == 'STARTED' ? 'green' : 'gray'}"/>
                 </a
             ></li>
             <li>
-                <a ng-class="editStage.stageType == 'TESTING' ? 'aside-link active' : 'aside-link'" data-ng-click="showPoint('Testing')">Point 2 - Testing
+                <a ng-class="editStage.stageType == 'TESTING' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Testing')">Point 2 - Testing
                     <div class="point-status-box" data-ng-if="stages.Testing.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Testing.stageStatus == 'STARTED' ? 'green' : 'gray'}"/>
                 </a>
             </li>
             <li>
-                <a ng-class="editStage.stageType == 'REVIEW' ? 'aside-link active' : 'aside-link'" data-ng-click="showPoint('Review')">Point 3 - Review
+                <a ng-class="editStage.stageType == 'REVIEW' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Review')">Point 3 - Review
                     <div class="point-status-box" data-ng-if="stages.Review.stageStatus != 'PENDING'" data-ng-style="getReviewStatusColour()"/>
                 </a>
             </li>
