@@ -251,6 +251,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                     'with username: ' + $scope.editUser.username + ' ' +
                     'and password: ' + password;
                 $scope.showForm = false;
+                $scope.newUserId = userId;
                 $scope.canContinueToDonorPathway = _.find($scope.editUser.groupRoles, function (role) {
                     return _.find(role.group.groupFeatures, function (feature) {
                         return feature.feature.name == 'RENAL_DONOR_UNIT';

@@ -20,7 +20,7 @@
 
     <a class="btn blue pull-right" href="" data-ng-click="showFormUI()" data-ng-show="!showForm">Create Another Patient</a>
 
-    <a class="btn blue pull-right" href="" data-ng-click="continueToDonorPathway(editUser.id)" data-ng-show="!showForm && canContinueToDonorPathway">Continue to Donor Pathway</a>
+    <a class="btn blue pull-right" href="" data-ng-click="continueToDonorPathway(newUserId)" data-ng-show="!showForm && canContinueToDonorPathway">Continue to Donor Pathway</a>
 
     <a class="btn blue pull-right" href="" data-ng-click="create()" data-ng-show="showForm" data-ng-disabled="!userFormNew.$valid
                         || (!editUser.groupRoles || editUser.groupRoles.length == 0)
