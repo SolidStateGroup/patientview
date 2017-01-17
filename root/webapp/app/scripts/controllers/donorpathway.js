@@ -33,6 +33,10 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             // Get the donor pathway
             DonorPathwayService.getPathway('DONORPATHWAY')
                 .then(function (pathway) {
+                    if (!pathway) {
+                        $scope.fatalErrorMessage = 'Error retrieving pathway';
+                        return;
+                    }
                     $scope.pathway = pathway;
                     $scope.stages = pathway.stages;
                     $scope.editPathway = _.cloneDeep($scope.pathway);
@@ -157,10 +161,6 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     $scope.stages = $scope.pathway.stages;
                 }, function (failureResult) {
                     $scope.saveErrorMessage = 'There was an error updating the pathway';
-
-                    // @TODO review
-                    // Restore original data
-                    //$scope.editStages = _.cloneDeep($scope.stages);
                 });
         };
 
