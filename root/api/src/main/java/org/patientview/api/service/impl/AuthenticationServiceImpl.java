@@ -31,6 +31,7 @@ import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupCodes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
@@ -293,7 +294,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // choose two characters to check and add to secret word indexes for ui
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
-                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                        }.getType());
 
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -468,7 +470,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
-                user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                }.getType());
 
         if (secretWordMap.isEmpty()) {
             throw new ResourceForbiddenException("Secret word not found");
@@ -509,6 +512,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setGroupMessagingEnabled(true);
 
             setShouldEnterCondition(transportUserToken, userToken.getUser());
+
+            setDonorView(transportUserToken, userToken.getUser());
         }
 
         // staff
@@ -624,8 +629,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
@@ -758,6 +763,31 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             }
         } catch (FhirResourceException | ResourceForbiddenException | ResourceNotFoundException e) {
             LOG.info("Error retrieving patient Conditions on authenticate, continuing..");
+        }
+    }
+
+    /**
+     * Check if user
+     *
+     * @param userToken
+     * @param user
+     */
+    private void setDonorView(org.patientview.api.model.UserToken userToken, User user) {
+
+        if (user != null && !CollectionUtils.isEmpty(user.getGroupRoles())) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getGroup() != null) {
+
+                    // check make sure User belong to Renal Donor group only
+                    Group group = groupRole.getGroup();
+                    if (group.getCode().equals(GroupCodes.RD.toString())) {
+                        userToken.setDonorView(true);
+                    } else {
+                        userToken.setDonorView(true);
+                        break;
+                    }
+                }
+            }
         }
     }
 
