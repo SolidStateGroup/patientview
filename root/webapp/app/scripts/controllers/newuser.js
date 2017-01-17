@@ -251,6 +251,11 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                     'with username: ' + $scope.editUser.username + ' ' +
                     'and password: ' + password;
                 $scope.showForm = false;
+                $scope.canContinueToDonorPathway = _.find($scope.editUser.groupRoles, function (role) {
+                    return _.find(role.group.groupFeatures, function (feature) {
+                        return feature.feature.name == 'RENAL_DONOR_UNIT';
+                    });
+                });
 
                 // now add staff entered diagnosis if present
                 if ($scope.editUser.staffEnteredDiagnosis) {
@@ -373,14 +378,6 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         printWindow.focus();
         printWindow.print();
         printWindow.close();
-    };
-
-    $scope.canContinueToDonorPathway = function() {
-        return _.find($scope.editUser.groupRoles, function (role) {
-            return _.find(role.group.groupFeatures, function (feature) {
-                return feature.feature.name == 'RENAL_DONOR_UNIT';
-            });
-        });
     };
 
     $scope.continueToDonorPathway = function (userId) {
