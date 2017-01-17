@@ -92,6 +92,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private static Integer sessionLength;
 
     private static final int SECRET_WORD_LETTER_COUNT = 2;
+    private static final String GENERIC_GROUP_CODE = "Generic";
 
     @Inject
     private ApiConditionService apiConditionService;
@@ -782,9 +783,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                     Group group = groupRole.getGroup();
 
                     // check make sure User belong to Renal Donor parent group SPECIALITY only
-                    if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    if (group.getGroupType() != null &&
+                            group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
 
-                        if (group.getCode().equals(GroupCodes.RD.toString()) || group.getCode().equals("Generic")) {
+                        if (group.getCode().equals(GroupCodes.RD.toString()) ||
+                                group.getCode().equals(GENERIC_GROUP_CODE)) {
                             userToken.setDonorView(true);
                         } else {
                             userToken.setDonorView(false);
