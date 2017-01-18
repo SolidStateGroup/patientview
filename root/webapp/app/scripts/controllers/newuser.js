@@ -251,7 +251,8 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                     'with username: ' + $scope.editUser.username + ' ' +
                     'and password: ' + password;
                 $scope.showForm = false;
-                $scope.newUserId = userId;
+                $scope.savedUser = _.clone($scope.editUser);
+                $scope.savedUser.id = userId;
                 $scope.canContinueToDonorPathway = _.find($scope.editUser.groupRoles, function (role) {
                     return _.find(role.group.groupFeatures, function (feature) {
                         return feature.feature.name == 'RENAL_DONOR_UNIT';
@@ -382,7 +383,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
     };
 
     $scope.continueToDonorPathway = function () {
-        DonorPathwayService.setUserId($scope.newUserId);
+        DonorPathwayService.setUser($scope.savedUser);
         $location.path('/donorpathway');
     };
 

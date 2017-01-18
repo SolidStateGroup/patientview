@@ -161,8 +161,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // reset user password
-    $scope.editDonorPathway = function (userId) {
-        DonorPathwayService.setUserId(userId);
+    $scope.editDonorPathway = function (user) {
+        DonorPathwayService.setUser(user);
         $location.path('/donorpathway');
     };
 

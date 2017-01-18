@@ -4,28 +4,19 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
     '$routeParams', '$location', '$route', '$modal',
     function (localStorageService, UserService, DonorPathwayService, $scope, $rootScope, UtilService, FileUploader, $routeParams, $location, $route, $modal) {
 
-        var DiscardChangesModalInstanceCtrl = ['$scope', '$modalInstance',
-            function ($scope, $modalInstance) {
-                $scope.ok = function () {
-                    $modalInstance.close();
-                };
-                $scope.cancel = function () {
-                    $modalInstance.dismiss('cancel');
-                };
-            }];
+        $scope.user = DonorPathwayService.getUser();
 
-        $scope.userId = DonorPathwayService.getUserId();
-
+        $scope.state = {};
         $scope.loading = true;
-        $scope.notesLoading = true;
+        $scope.state.notesLoading = true;
         $scope.stages = {Consultation: {}, Testing: {}, Review: {}};
         $scope.editStages = {Consultation: {}, Testing: {}, Review: {}};
         $scope.editStage = {};
-        $scope.moveToNextPoint = false;
-        // $scope.devAllowBack = true;
+        $scope.state.moveToNextPoint = false;
+        // $scope.state.devAllowBack = true;
 
         var init = function () {
-            if (!$scope.userId) {
+            if (!$scope.user) {
                 $scope.fatalErrorMessage = 'Error retrieving pathway';
                 return;
             }
@@ -50,7 +41,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     } else {
                         $scope.editStage = $scope.editStages.Review;
                         checkPending();
-                        $scope.reviewStatus = $scope.editStage.stageStatus;
+                        $scope.state.reviewStatus = $scope.editStage.stageStatus;
                     }
                     $scope.loading = false;
                 }, function () {
@@ -60,9 +51,9 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             DonorPathwayService.getNotes('DONORVIEW')
                 .then(function (notes) {
                     $scope.notes = notes;
-                    $scope.notesLoading = false;
+                    $scope.state.notesLoading = false;
                 }, function () {
-                    $scope.noteErrorMessage = 'Error retrieving notes';
+                    $scope.state.noteErrorMessage = 'Error retrieving notes';
                 });
         };
 
@@ -76,13 +67,13 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
 
         $scope.showPoint = function (point) {
             $scope.editStage = $scope.editStages[point];
-            $scope.moveToNextPoint = $scope.editStage.stageStatus == 'COMPLETED';
+            $scope.state.moveToNextPoint = $scope.editStage.stageStatus == 'COMPLETED';
             if ($scope.editStage.stageType == 'REVIEW') {
                 if ($scope.editStage.furtherInvestigation) {
-                    $scope.reviewStatus = 'STARTED';
+                    $scope.state.reviewStatus = 'STARTED';
                 } else {
                     if ($scope.editStage.stageStatus != 'STARTED') {
-                        $scope.reviewStatus = $scope.editStage.stageStatus;
+                        $scope.state.reviewStatus = $scope.editStage.stageStatus;
                     }
                 }
             }
@@ -91,42 +82,40 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         $scope.save = function (notify) {
             var editStage = $scope.editStage;
 
-            delete $scope.saveErrorMessage;
+            delete $scope.state.saveErrorMessage;
 
             if (editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') {
                 if (!editStage.data.caregiverText || !editStage.data.carelocationText) {
-                    $scope.saveErrorMessage = 'Please fill out all fields.';
+                    $scope.state.saveErrorMessage = 'Please fill out all fields.';
                     angular.element(!editStage.data.caregiverText ? '#caregiver' : '#carelocation').focus();
                     return;
                 }
-                // Set next stage to started and increase version number
-                var nextStage = editStage.stageType == 'CONSULTATION' ? 'Testing' : 'Review';
-                $scope.editStages[nextStage].stageStatus = 'STARTED';
-                $scope.editStages[nextStage].version++;
-                if (editStage.stageType == 'CONSULTATION') {
-                    $scope.editStages.Review.stageStatus = 'PENDING';
-                } else {
-                    $scope.editStages.Review.backToPreviousPoint = null;
-                }
-
-                // Set current stage to completed
-                $scope.editStages[$scope.getStageKeyFromType(editStage.stageType)].stageStatus = 'COMPLETED';
 
                 // Check whether we should move to next point
-                if ($scope.moveToNextPoint) {
+                if ($scope.state.moveToNextPoint) {
+                    // Set next stage to started and increase version number
+                    var nextStage = editStage.stageType == 'CONSULTATION' ? 'Testing' : 'Review';
+                    $scope.editStages[nextStage].stageStatus = 'STARTED';
+                    $scope.editStages[nextStage].version++;
+                    if (editStage.stageType == 'CONSULTATION') {
+                        $scope.editStages.Review.stageStatus = 'PENDING';
+                    } else {
+                        $scope.editStages.Review.backToPreviousPoint = null;
+                    }
+
+                    // Set current stage to completed
+                    $scope.editStage.stageStatus = 'COMPLETED';
+
                     // Go to next stage
                     $scope.editStage = $scope.editStages[nextStage];
-                    if (nextStage == 'TESTING') {
-                        $scope.moveToNextPoint = false;
+                    if (nextStage == 'Testing') {
+                        $scope.state.moveToNextPoint = false;
                     }
-                } else {
-                    // Set edit stage to completed
-                    editStage.stageStatus = 'COMPLETED';
                 }
             } else {
                 if (editStage.backToPreviousPoint) {
                     if (editStage.backToPreviousPoint == 'CHOOSE') {
-                        $scope.saveErrorMessage = 'Please select the point on the pathway that should be reverted to.';
+                        $scope.state.saveErrorMessage = 'Please select the point on the pathway that should be reverted to.';
                         angular.element('#selBackToPreviousPoint').focus();
                         return;
                     }
@@ -141,12 +130,12 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     // Set review point back to pending
                     editStage.stageStatus = 'PENDING';
                 } else {
-                    if (!editStage.furtherInvestigation && (!$scope.reviewStatus || $scope.reviewStatus == 'STARTED' || $scope.reviewStatus == 'PENDING')) {
-                        $scope.saveErrorMessage = 'Please select a status for this point.';
+                    if (!editStage.furtherInvestigation && (!$scope.state.reviewStatus || $scope.state.reviewStatus == 'STARTED' || $scope.state.reviewStatus == 'PENDING')) {
+                        $scope.state.saveErrorMessage = 'Please select a status for this point.';
                         return;
                     }
-                    editStage.stageStatus = $scope.reviewStatus;
-                    $scope.editStages.Review.stageStatus = $scope.reviewStatus;
+                    editStage.stageStatus = $scope.state.reviewStatus;
+                    $scope.editStages.Review.stageStatus = $scope.state.reviewStatus;
                 }
             }
 
@@ -160,7 +149,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     $scope.pathway = _.cloneDeep($scope.editPathway);
                     $scope.stages = $scope.pathway.stages;
                 }, function (failureResult) {
-                    $scope.saveErrorMessage = 'There was an error updating the pathway';
+                    $scope.state.saveErrorMessage = 'There was an error updating the pathway';
                 });
         };
 
@@ -175,7 +164,9 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
 
             // handle modal close (via button click)
             modalInstance.result.then(function () {
-                $scope.editStage = _.cloneDeep($scope.stages[$scope.getStageKeyFromType($scope.editStage.stageType)]);
+                $scope.editPathway = _.cloneDeep($scope.pathway);
+                $scope.editStages = $scope.editPathway.stages;
+                $scope.editStage = $scope.editStages[$scope.getStageKeyFromType($scope.editStage.stageType)];
             });
         };
 
@@ -184,7 +175,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.addNote = function () {
-            delete $scope.noteErrorMessage;
+            delete $scope.state.noteErrorMessage;
 
             // open modal and pass in required objects for use in modal scope
             var modalInstance = $modal.open({
@@ -201,13 +192,13 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                     .then(function (note) {
                         $scope.notes.push(note);
                     }, function (failureResult) {
-                        $scope.noteErrorMessage = 'There was an error adding the note';
+                        $scope.state.noteErrorMessage = 'There was an error adding the note';
                     });
             });
         };
 
         $scope.editNote = function (note) {
-            delete $scope.noteErrorMessage;
+            delete $scope.state.noteErrorMessage;
 
             // open modal and pass in required objects for use in modal scope
             var modalInstance = $modal.open({
@@ -230,10 +221,10 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
                         note.lastUpdate = updatedNote.lastUpdate;
                         note.lastUpdater = updatedNote.lastUpdater;
                     }, function (failureResult) {
-                        $scope.noteErrorMessage = 'There was an error updating the note';
+                        $scope.state.noteErrorMessage = 'There was an error updating the note';
                     });
             });
-        }
+        };
 
         $scope.onReviewStatus = function () {
             $scope.editStage.backToPreviousPoint = null;
@@ -242,7 +233,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.onBackToPreviousPoint = function () {
-            $scope.reviewStatus = 'PENDING';
+            $scope.state.reviewStatus = 'PENDING';
             $scope.editStage.stageStatus = 'STARTED';
             $scope.editStage.furtherInvestigation = false;
         };
@@ -250,7 +241,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         $scope.onFurtherInvestigation = function () {
             $scope.editStage.backToPreviousPoint = null;
             $scope.editStage.stageStatus = 'STARTED';
-            $scope.reviewStatus = 'STARTED';
+            $scope.state.reviewStatus = 'STARTED';
         };
 
         $scope.getReviewStatusColour = function () {

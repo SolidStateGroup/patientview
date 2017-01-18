@@ -29,7 +29,8 @@
                 <div data-ng-include src="'views/partials/myConditionsDiabetes.html'" data-ng-if="currentSpecialty.code === 'Diabetes'"></div>
                 <div data-ng-include src="'views/partials/myConditionsIbd.html'" data-ng-if="currentSpecialty.code === 'IBD'"></div>
                 <div data-ng-include src="'views/partials/myConditionsHeart.html'" data-ng-if="currentSpecialty.code === 'Cardiol'"></div>
-                <div data-ng-if="['Renal', 'Diabetes', 'IBD', 'Cardiol'].indexOf(currentSpecialty.code) == -1">
+                <div data-ng-include src="'views/partials/myConditionsRenalDonor.html'" data-ng-if="currentSpecialty.code === 'RD'" data-ng-controller="MyConditionsRenalDonorCtrl"></div>
+                <div data-ng-if="['Renal', 'Diabetes', 'IBD', 'Cardiol', 'RD'].indexOf(currentSpecialty.code) == -1">
                     <div data-ng-include src="'views/partials/myConditionsOtherSpecialty.html'"></div>
                 </div>
             </div>

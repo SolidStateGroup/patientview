@@ -341,7 +341,7 @@
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                     <li><a href="" data-ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View Patient</a></li>
                                     <!-- TODO set back to RENAL_DONOR_UNIT once group feature exists-->
-                                    <li data-ng-show="hasGroupFeature(user, 'RENAL_DONOR_UNIT')"><a href="" data-ng-click="editDonorPathway(user.id)" class="dropdown-menu-accordion-item">Edit Donor Pathway</a></li>
+                                    <li data-ng-show="hasGroupFeature(user, 'RENAL_DONOR_UNIT')"><a href="" data-ng-click="editDonorPathway(user)" class="dropdown-menu-accordion-item">Edit Donor Pathway</a></li>
                                     <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
                                     <li data-ng-show="permissions.messagingEnabled"><a href="" data-ng-click="openModalNewConversation('lg', user)" class="dropdown-menu-accordion-item">Send Secure Message</a></li>
                                     <li data-ng-show="permissions.showMembershipRequestMenuOption"><a href="" data-ng-click="openModalCreateMembershipRequest(user)" class="dropdown-menu-accordion-item">Send Membership Request</a></li>
