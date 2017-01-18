@@ -514,7 +514,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken.setGroupMessagingEnabled(true);
 
             setShouldEnterCondition(transportUserToken, userToken.getUser());
+        }
 
+        // load donor view brand for patient and unit admin
+        if (ApiUtil.userHasRole(userToken.getUser(), RoleName.PATIENT) ||
+                ApiUtil.userHasRole(userToken.getUser(), RoleName.UNIT_ADMIN)) {
             setDonorView(transportUserToken, userToken.getUser());
         }
 
