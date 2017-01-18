@@ -3,12 +3,13 @@
 angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scope', 'DonorPathwayService',
     function ($scope, DonorPathwayService) {
 
+    $scope.state = {};
     $scope.loading = true;
-    $scope.notesLoading = true;
+    $scope.state.notesLoading = true;
 
     var init = function() {
         // Get the donor pathway
-        DonorPathwayService.setUserId($scope.loggedInUser.id);
+        DonorPathwayService.setUser($scope.loggedInUser);
         DonorPathwayService.getPathway('DONORPATHWAY')
             .then(function (pathway) {
                 if (!pathway) {
@@ -23,9 +24,9 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
                     $scope.editStage = $scope.editStages.Testing;
                 } else {
                     $scope.editStage = $scope.editStages.Review;
-                    $scope.reviewStatus = $scope.editStage.stageStatus;
+                    $scope.state.reviewStatus = $scope.editStage.stageStatus;
                 }
-                $scope.readOnly = true;
+                $scope.state.readOnly = true;
                 $scope.loading = false;
             });
 
@@ -33,9 +34,9 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
         DonorPathwayService.getNotes('DONORVIEW')
             .then(function (notes) {
                 $scope.notes = notes;
-                $scope.notesLoading = false;
+                $scope.state.notesLoading = false;
             }, function () {
-                $scope.noteErrorMessage = 'Error retrieving notes';
+                $scope.state.noteErrorMessage = 'Error retrieving notes';
             });
     };
 

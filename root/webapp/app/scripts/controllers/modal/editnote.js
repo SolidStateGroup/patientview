@@ -1,8 +1,9 @@
 'use strict';
-var EditNoteModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'note',
-    function ($scope, $rootScope, $modalInstance, note) {
+var EditNoteModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'note', '$modal',
+    function ($scope, $rootScope, $modalInstance, note, $modal) {
         var init = function () {
             $scope.note = note;
+            $scope.originalBody = note.body;
             $scope.edit = true;
 
             delete $scope.errorMessage;
@@ -26,8 +27,24 @@ var EditNoteModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'note
         };
 
         $scope.cancel = function () {
-            delete $scope.errorMessage;
-            $modalInstance.dismiss('cancel');
+            if ($scope.originalBody !== note.body) {
+            // open modal and pass in required objects for use in modal scope
+                var modalInstance = $modal.open({
+                    templateUrl: 'discardChangesModal.html',
+                    controller: DiscardChangesModalInstanceCtrl,
+                    size: 'lg',
+                    backdrop: 'static'
+                });
+
+                // handle modal close (via button click)
+                modalInstance.result.then(function () {
+                    delete $scope.errorMessage;
+                    $modalInstance.dismiss('cancel');
+                });
+            } else {
+                delete $scope.errorMessage;
+                $modalInstance.dismiss('cancel');
+            }
         };
 
         init();

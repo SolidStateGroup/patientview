@@ -19,7 +19,7 @@
     }
 </style>
 
-<aside class="col-md-4">
+<aside class="col-md-4" style="padding-left: 0">
     <div class="panel-header content-panel lowlight">
         <h3>Phase 1</h3>
         <ul class="nav">
@@ -49,68 +49,83 @@
             <div class="point-section">
                 <div style="margin-bottom: 20px" data-ng-show="editStage.stageType == 'TESTING'">
                     <div>
-                        <input type="checkbox" data-ng-model="editStage.data.bloods" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /> Bloods
+                        <input type="checkbox" data-ng-model="editStage.data.bloods" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" /> Bloods
                     </div>
                     <div>
-                        <input type="checkbox" data-ng-model="editStage.data.crossmatching" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /> Cross matching
+                        <input type="checkbox" data-ng-model="editStage.data.crossmatching" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" /> Cross matching
                     </div>
                     <div>
-                        <input type="checkbox" data-ng-model="editStage.data.xrays" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /> X-rays
+                        <input type="checkbox" data-ng-model="editStage.data.xrays" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" /> X-rays
                     </div>
                     <div>
-                        <input type="checkbox" data-ng-model="editStage.data.ecg" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /> ECG
+                        <input type="checkbox" data-ng-model="editStage.data.ecg" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" /> ECG
                     </div>
                 </div>
                 <div data-ng-show="editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING'">
-                    <p>Who is looking after my care at this point?<input class="form-control" id="caregiver" ng-model="editStage.data.caregiverText" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /></p>
-                    <p>If you have any queries please contact<input class="form-control" id="carelocation" ng-model="editStage.data.carelocationText" data-ng-disabled="editStage.stageStatus != 'STARTED' || readOnly" /></p>
+                    <p>Who is looking after my care at this point? <span class="error" data-ng-if="!state.readOnly && !editStage.data.caregiverText">(required)</span>
+                        <input class="form-control" id="caregiver" ng-model="editStage.data.caregiverText" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" />
+                    </p>
+                    <p>If you have any queries please contact <span class="error" data-ng-if="!state.readOnly && !editStage.data.carelocationText">(required)</span>
+                        <input class="form-control" id="carelocation" ng-model="editStage.data.carelocationText" data-ng-disabled="editStage.stageStatus != 'STARTED' || state.readOnly" />
+                    </p>
                 </div>
             </div>
             <div class="point-section">
-                <h4 data-ng-hide="(editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') && readOnly">Status</h4>
-                <div data-ng-show="(editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') && !readOnly">
-                    <input type="checkbox" id="moveToNextPoint" ng-model="moveToNextPoint" name="moveToNextPoint" ng-disabled="stages[getStageKeyFromType(editStage.stageType)].stageStatus != 'STARTED' || readOnly" /> Move to next point
+                <h4 data-ng-hide="(editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') && state.readOnly">
+                    Status
+                    <span class="error"
+                          data-ng-if="!state.readOnly && editStage.stageType == 'REVIEW' && !editStage.backToPreviousPoint && !editStage.furtherInvestigation && (!state.reviewStatus || state.reviewStatus == 'STARTED' || state.reviewStatus == 'PENDING')">
+                          (required)
+                    </span>
+                </h4>
+
+                <div data-ng-show="(editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') && !state.readOnly">
+                    <input type="checkbox" data-ng-model="state.moveToNextPoint" ng-disabled="stages[getStageKeyFromType(editStage.stageType)].stageStatus != 'STARTED' || state.readOnly" /> Move to next point
                 </div>
                 <div class="radio-button-list" data-ng-show="editStage.stageType == 'REVIEW'">
                     <div>
-                        <input type="radio" class="radio-button" data-ng-model="editStage.furtherInvestigation" ng-value="true" ng-change="onFurtherInvestigation()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || readOnly" /> Further investigation
+                        <input type="radio" class="radio-button" data-ng-model="editStage.furtherInvestigation"
+                               ng-value="true" ng-change="onFurtherInvestigation()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || state.readOnly" /> Further investigation
                     </div>
                     <div>
-                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="COMPLETED" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || readOnly" /> Move forward to next point
+                        <input type="radio" class="radio-button" data-ng-model="state.reviewStatus" value="COMPLETED"
+                               ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || state.readOnly" /> Move forward to next point
                     </div>
                     <div>
-                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="ON_HOLD" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || readOnly" /> On hold
+                        <input type="radio" class="radio-button" data-ng-model="state.reviewStatus" value="ON_HOLD"
+                               ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || state.readOnly" /> On hold
                     </div>
                     <div>
                         <input type="radio" class="radio-button" data-ng-model="editStage.backToPreviousPoint" ng-value="editStage.backToPreviousPoint ? editStage.backToPreviousPoint : 'CHOOSE'"
-                            ng-change="onBackToPreviousPoint()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !devAllowBack || readOnly" /> Back to previous point
+                            ng-change="onBackToPreviousPoint()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !state.devAllowBack || state.readOnly" /> Back to previous point
                         <div data-ng-show="editStage.backToPreviousPoint">
-                            <select data-ng-model="editStage.backToPreviousPoint" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !devAllowBack || readOnly" id="selBackToPreviousPoint">
+                            <select data-ng-model="editStage.backToPreviousPoint" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' && !state.devAllowBack || state.readOnly" id="selBackToPreviousPoint">
+                                <option value="CHOOSE">Please select...</option>
                                 <option value="CONSULTATION">Point 1 - Consultation</option>
                                 <option value="TESTING">Point 2 - Testing</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <input type="radio" class="radio-button" data-ng-model="reviewStatus" value="STOPPED" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || readOnly" /> Stop
+                        <input type="radio" class="radio-button" data-ng-model="state.reviewStatus" value="STOPPED" ng-change="onReviewStatus()" ng-disabled="stages.Review.stageStatus != 'STARTED' && stages.Review.stageStatus != 'ON_HOLD' || state.readOnly" /> Stop
                     </div>
                 </div>
             </div>
-            <div class="form-save" data-ng-hide="readOnly">
-                <button class="btn btn-grey" data-ng-click="save()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save</button>
-                <button class="btn btn-grey" data-ng-click="save(true)" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save & Notify Donor</button>
+            <div class="form-save" data-ng-hide="state.readOnly">
+                <button class="btn btn-primary" data-ng-click="save()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save</button>
+                <button class="btn btn-primary" data-ng-click="save(true)" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save & Notify Donor</button>
                 <button class="btn btn-grey" data-ng-click="cancel()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Cancel</button>
             </div>
-            <div class="alert alert-danger form-save" data-ng-show="saveErrorMessage">{{saveErrorMessage}}</div>
+            <div class="alert alert-danger form-save" data-ng-show="state.saveErrorMessage">{{state.saveErrorMessage}}</div>
         </form>
 
         <form class="form-horizontal point-section" data-ng-cloak id="donor-pathway-notes-form" data-ng-show="!notesLoading">
             <h4>Notes</h4>
-            <table class="table" style="margin-bottom: 0">
+            <table class="table" data-ng-style="{'margin-bottom': notes.length ? '0' : '20px'}">
                 <thead class="table-head">
                     <tr>
                         <th>Date</th>
-                        <th>{{created == lastUpdate ? 'Entered by' : 'Last updated by'}}</th>
+                        <th>Last updated by</th>
                         <th>Note</th>
                         <th><th>
                     </tr>
@@ -120,15 +135,15 @@
                         <td style="vertical-align: middle">{{getDate(note.lastUpdate)}}</td>
                         <td style="vertical-align: middle">{{note.lastUpdater.forename}} {{note.lastUpdater.surname}}</td>
                         <td style="vertical-align: middle">{{note.body}}</td>
-                        <td style="vertical-align: middle"><button data-ng-hide="readOnly" class="btn btn-grey" data-ng-click="editNote(note)">Edit</button>
+                        <td style="vertical-align: middle"><button data-ng-hide="state.readOnly" class="btn btn-primary" data-ng-click="editNote(note)">Edit</button>
                     </tr>
                 </tbody>
             </table>
-            <button class="btn btn-grey" data-ng-hide="readOnly" data-ng-click="addNote()">Add Note</button>
+            <button class="btn btn-primary" data-ng-hide="state.readOnly" data-ng-click="addNote()">Add Note</button>
         </form>
-        <div class="alert alert-danger form-save" data-ng-show="noteErrorMessage">{{noteErrorMessage}}</div>
-        <div data-ng-show="notesLoading && !noteErrorMessage" class="loading">
-            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{notesLoadingMessage}}</h3>
+        <div class="alert alert-danger form-save" data-ng-show="state.noteErrorMessage">{{state.noteErrorMessage}}</div>
+        <div data-ng-show="state.notesLoading && !state.noteErrorMessage" class="loading">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; {{state.notesLoadingMessage}}</h3>
         </div>
     </div>
 </div>

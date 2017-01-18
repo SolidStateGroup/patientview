@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangular', function ($q, Restangular) {
-    var userId;
+    var user;
 
     return {
-        setUserId(id) {
-          userId = id;
+        setUser(donor) {
+          user = donor;
         },
-        getUserId() {
-          return userId;
+        getUser() {
+          return user;
         },
         addNote: function (note) {
             var deferred = $q.defer();
             // POST /user/{userId}/notes
-            Restangular.one('user', userId).one('notes').customPOST(note).then(function(successResult) {
+            Restangular.one('user', user.id).one('notes').customPOST(note).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -23,7 +23,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         getNote: function (noteId) {
             var deferred = $q.defer();
             // GET /user/{userId}/notes/{noteId}
-            Restangular.one('user', userId).one('notes', noteId).get().then(function(successResult) {
+            Restangular.one('user', user.id).one('notes', noteId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -33,7 +33,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         updateNote: function (note) {
             var deferred = $q.defer();
             // PUT /user/{userId}/notes
-            Restangular.one('user', userId).one('notes').customPUT(note).then(function(successResult) {
+            Restangular.one('user', user.id).one('notes').customPUT(note).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -43,7 +43,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         deleteNote: function (noteId) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/notes/{noteId}
-            Restangular.one('user', userId).one('notes', noteId).remove().then(function(successResult) {
+            Restangular.one('user', user.id).one('notes', noteId).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -53,7 +53,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         getNotes: function (noteType) {
             var deferred = $q.defer();
             // GET /user/{userId}/notes/{noteType}/type
-            Restangular.one('user', userId).one('notes', noteType).one('type').get().then(function(successResult) {
+            Restangular.one('user', user.id).one('notes', noteType).one('type').get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -63,7 +63,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         getPathway: function (pathwayType) {
             var deferred = $q.defer();
             // GET /user/{userId}/pathway/{pathwayType}
-            Restangular.one('user', userId).one('pathway', pathwayType).get().then(function(successResult) {
+            Restangular.one('user', user.id).one('pathway', pathwayType).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -73,7 +73,7 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
         updatePathway: function (pathway) {
             var deferred = $q.defer();
             // PUT /user/{userId}/pathway
-            Restangular.one('user', userId).one('pathway').customPUT(pathway).then(function(successResult) {
+            Restangular.one('user', user.id).one('pathway').customPUT(pathway).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
