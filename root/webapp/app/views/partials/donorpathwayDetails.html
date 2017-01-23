@@ -19,6 +19,14 @@
     }
 </style>
 
+<h1>
+    DonorView Pathway - {{user.forename}} {{user.surname}}
+    <a href="/#/patients" class="btn blue pull-left back-to-results" data-ng-if="!state.readOnly">
+        <i class="icon-back-to pull-left"> </i>
+        Back to Patients
+    </a>
+</h1>
+
 <aside class="col-md-4" style="padding-left: 0">
     <div class="panel-header content-panel lowlight">
         <h3>Phase 1</h3>
@@ -125,16 +133,16 @@
                 <thead class="table-head">
                     <tr>
                         <th>Date</th>
-                        <th>Last modified by</th>
+                        <th style="white-space: nowrap">Last modified by</th>
                         <th>Note</th>
                         <th><th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="note in notes | orderBy:'-lastUpdate'">
-                        <td style="vertical-align: middle">{{getDate(note.lastUpdate)}}</td>
-                        <td style="vertical-align: middle">{{note.lastUpdater.forename}} {{note.lastUpdater.surname}}</td>
-                        <td style="vertical-align: middle">{{note.body}}</td>
+                        <td>{{getDate(note.lastUpdate)}}</td>
+                        <td>{{note.lastUpdater.forename}} {{note.lastUpdater.surname}}</td>
+                        <td style="white-space: pre">{{note.body}}</td>
                         <td style="vertical-align: middle"><button data-ng-hide="state.readOnly" class="btn btn-primary" data-ng-click="editNote(note)">Edit</button>
                     </tr>
                 </tbody>

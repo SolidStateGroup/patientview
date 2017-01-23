@@ -3,6 +3,7 @@
 angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scope', 'DonorPathwayService',
     function ($scope, DonorPathwayService) {
 
+    $scope.user = $scope.loggedInUser;
     $scope.state = {};
     $scope.loading = true;
     $scope.state.notesLoading = true;

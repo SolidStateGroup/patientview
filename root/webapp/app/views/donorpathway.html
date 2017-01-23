@@ -50,14 +50,6 @@
 <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
 <div data-ng-show="!loading && !fatalErrorMessage">
-    <h1>
-        DonorView Pathway - {{user.forename}} {{user.surname}}
-        <a href="/#/patients" class="btn blue pull-left back-to-results" data-ng-if="!r">
-            <i class="icon-back-to pull-left"> </i>
-            Back to Patients
-        </a>
-    </h1>
-
     <div data-ng-include src="'views/partials/donorpathwayDetails.html'"></div>
 </div>
 
