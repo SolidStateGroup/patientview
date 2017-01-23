@@ -279,5 +279,15 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             }
         };
 
+        $scope.openPointsModal = function () {
+            // open modal and pass in required objects for use in modal scope
+            var modalInstance = $modal.open({
+                templateUrl: 'views/modal/donorPathwayPointsModal.html',
+                controller: DiscardChangesModalInstanceCtrl,
+                size: 'lg',
+                backdrop: 'static'
+            });
+        };
+
         init();
     }]);

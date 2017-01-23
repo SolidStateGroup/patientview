@@ -54,6 +54,22 @@
     <div class="content-inner">
         <form class="form-horizontal" data-ng-cloak id="donor-pathway-form">
             <h3>{{editStage.stageType == 'CONSULTATION' ? 'Point 1 -' : editStage.stageType == 'TESTING' ? 'Point 2 -' : 'Point 3 -'}} {{editStage.name}}</h3>
+            <div data-ng-show="editStage.stageType == 'CONSULTATION'">
+                <p>Welcome to Donor View – you are currently at Point 1 along the Donor Pathway</p>
+
+                <p>You will have been given access to this donor portal because you have expressed a desire to become a potential living kidney donor.</p>
+
+                <p>Donor View will enable you as a donor to view test results and monitor your progress through the pathway. It will also highlight what point you are at along the pathway.</p>
+
+                <p>It will also provide you with a contact name in case you have any questions. You can also ask a question through Donor View of the healthcare professional who is looking after you during your journey on the pathway. Where key decisions need to be made they will have been discussed with you separately. Donor View will provide you with information on the Pathway, confirm results and indicate what you can expect next on the Pathway.</p>
+            </div>
+            <div data-ng-show="editStage.stageType == 'TESTING'">
+                <p>When you arrive at Point 2 this will mean that you are entering a period of testing. This testing will cover such things as routine bloods, cross matching with the recipient, x-rays and ECCGs. These tests will determine your suitability as a donor. Your test results will be displayed on the system when available.</p>
+            </div>
+            <div data-ng-show="editStage.stageType == 'REVIEW'">
+                <p>When you arrive at Point 3 this will mean that your results are being reviewed by a clinician to assess your suitability as a donor. When that decision has been made it will outline whether you are able to move forward to the next point, whether you need further testing, whether you are on hold for other reasons or if the decision is no to donating. The outcome of the review will also have been conveyed to you outside of Donor View.</p>
+            </div>
+            <p><a class="point-link" data-ng-click="openPointsModal()">There are 7 points along the pathway which will lead you, if suitable, to donate your kidney.</a></p>
             <div class="point-section">
                 <div style="margin-bottom: 20px" data-ng-show="editStage.stageType == 'TESTING'">
                     <div>
