@@ -142,7 +142,7 @@
                     <tr data-ng-repeat="note in notes | orderBy:'-lastUpdate'">
                         <td>{{getDate(note.lastUpdate)}}</td>
                         <td>{{note.lastUpdater.forename}} {{note.lastUpdater.surname}}</td>
-                        <td style="white-space: pre">{{note.body}}</td>
+                        <td style="white-space: pre-wrap">{{note.body}}</td>
                         <td style="vertical-align: middle"><button data-ng-hide="state.readOnly" class="btn btn-primary" data-ng-click="editNote(note)">Edit</button>
                     </tr>
                 </tbody>
