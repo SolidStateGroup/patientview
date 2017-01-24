@@ -140,11 +140,11 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             }
 
             // Update the pathway
-            updatePathway();
+            updatePathway(notify);
         };
 
-        var updatePathway = function () {
-            DonorPathwayService.updatePathway($scope.editPathway)
+        var updatePathway = function (notify) {
+            DonorPathwayService.updatePathway($scope.editPathway, notify ? true : false)
                 .then(function () {
                     $scope.pathway = _.cloneDeep($scope.editPathway);
                     $scope.stages = $scope.pathway.stages;

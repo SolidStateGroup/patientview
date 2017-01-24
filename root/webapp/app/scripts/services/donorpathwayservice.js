@@ -70,10 +70,10 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
-        updatePathway: function (pathway) {
+        updatePathway: function (pathway, notify) {
             var deferred = $q.defer();
-            // PUT /user/{userId}/pathway
-            Restangular.one('user', user.id).one('pathway').customPUT(pathway).then(function(successResult) {
+            // PUT /user/{userId}/pathway/{notify}
+            Restangular.one('user', user.id).one('pathway', notify).customPUT(pathway).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
