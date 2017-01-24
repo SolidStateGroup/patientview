@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.List;
+import java.util.Properties;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
@@ -44,6 +45,9 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
     @Inject
     private EmailService emailService;
+
+    @Inject
+    private Properties properties;
 
     @Override
     public void updatePathway(Long userId, org.patientview.api.model.Pathway pathway, boolean notify)
@@ -100,6 +104,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
         // send notification email to patient if selected
         if (notify) {
             Email email = EmailTemplateBuilder.newBuilder()
+                    .setProperties(properties)
                     .setUser(patient)
                     .buildDonorViewEmail()
                     .build();
@@ -108,9 +113,9 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
                 LOG.info("Sending DonorView notification email to {} ", patient.getId());
                 emailService.sendEmail(email);
             } catch (MailException e) {
-                LOG.error("MailException in sending DonorView notification email to {} ", patient.getId());
+                LOG.error("MailException in sending DonorView notification email to {} ", patient.getId(), e);
             } catch (MessagingException m) {
-                LOG.error("MessagingException in sending DonorView notification email to {} ", patient.getId());
+                LOG.error("MessagingException in sending DonorView notification email to {} ", patient.getId(), m);
             }
         }
     }
