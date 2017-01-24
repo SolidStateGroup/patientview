@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.List;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
@@ -93,7 +94,6 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
     public org.patientview.api.model.Pathway getPathway(Long userId, PathwayTypes pathwayType)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        // TODO: validate current user can edit user data
         User patient = userRepository.findOne(userId);
         if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -140,6 +140,29 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
                     .build();
 
             pathwayRepository.save(pathway);
+        }
+    }
+
+    @Override
+    public void deletePathways(User user)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User patient = userRepository.findOne(user.getId());
+        if (patient == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        if (!userService.currentUserCanGetUser(patient)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        // get a list of any existing Pathways, if any
+        List<Pathway> pathwayList = pathwayRepository.findByUser(patient);
+        if (pathwayList != null && !pathwayList.isEmpty()) {
+            LOG.info("Deleting {} pathways for user {}", pathwayList.size(), user.getId());
+            for (Pathway pathway : pathwayList) {
+                pathwayRepository.delete(pathway);
+            }
         }
     }
 }

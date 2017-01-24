@@ -26,7 +26,9 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -224,6 +226,48 @@ public class PathwayServiceTest {
         verify(pathwayRepository, Mockito.times(0)).save(any(Pathway.class));
     }
 
+    @Test
+    public void testDeletePathways_forUser() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // user to add note for
+        Group groupPatient = TestUtils.createGroup("GROUP1");
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        User patient = TestUtils.createUser("testUser");
+        GroupRole groupRolePatient = TestUtils.createGroupRole(rolePatient, groupPatient, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        List<Pathway> pathwayList = new ArrayList<>();
+
+        Pathway pathway = PathwayBuilder.newBuilder()
+                .setUser(patient)
+                .setCreator(user)
+                .setLastUpdater(user)
+                .setType(PathwayTypes.DONORPATHWAY)
+                .build();
+        pathway.setId(1L);
+        pathwayList.add(pathway);
+
+
+        PathwayTypes pathwayType = PathwayTypes.DONORPATHWAY;
+
+        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
+        when(pathwayRepository.findByUser(eq(patient))).thenReturn(pathwayList);
+
+        pathwayService.deletePathways(patient);
+        verify(pathwayRepository, Mockito.times(1)).delete(any(Pathway.class));
+    }
 
 }
 

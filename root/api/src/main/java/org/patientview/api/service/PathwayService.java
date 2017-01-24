@@ -32,7 +32,7 @@ public interface PathwayService {
     /**
      * Get a Pathway fo a User, given the PathwayTypes type of Pathway.
      *
-     * @param userId      an ID of User to retrieve Alerts for
+     * @param userId      an ID of User to retrieve Pathway for
      * @param pathwayType a Type of the Pathway, currently only PathwayTypes.DONORPATHWAY
      * @return a Pathway of a type PathwayTypes
      * @throws ResourceNotFoundException
@@ -46,11 +46,22 @@ public interface PathwayService {
     /**
      * Initialise a Pathway for given user.
      *
-     * @param user ID of User to change the Alert preferences for
+     * @param user a User to initialise the Pathway for
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
             RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
     void setupPathway(User user) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Deletes any available Pathways for given user.
+     *
+     * @param user a User to delete Pathways for
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
+    void deletePathways(User user) throws ResourceNotFoundException, ResourceForbiddenException;
 }

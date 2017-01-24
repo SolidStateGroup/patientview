@@ -92,6 +92,17 @@ public class PathwayRepositoryTest {
         Assert.assertNotNull("Should have found at donor pathway", donorPath);
     }
 
+    @Test
+    public void givenPathwayRepo_whenDeletePathway_correctDeleted() {
+        Pathway toDelete = pathwayRepository.findByUserAndPathwayType(donor, PathwayTypes.DONORPATHWAY);
+
+        pathwayRepository.delete(toDelete);
+
+        // check if deleted
+        Pathway deleted = pathwayRepository.findOne(pathwayId);
+        Assert.assertNull("Should have not returned any donor pathway", deleted);
+    }
+
     private Pathway buildPathway(User donor) {
         Pathway pathway = new Pathway();
         pathway.setUser(donor);
