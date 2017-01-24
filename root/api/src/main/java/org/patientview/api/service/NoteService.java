@@ -69,6 +69,17 @@ public interface NoteService {
     void removeNote(Long userId, Long noteId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Remove all Note for a User.
+     *
+     * @param userId ID of User to remove Note from
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
+            RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN, RoleName.GP_ADMIN})
+    void removeNotes(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Get a list of Notes for a user.
      *
      * @param userId   ID of User to retrieve Note for

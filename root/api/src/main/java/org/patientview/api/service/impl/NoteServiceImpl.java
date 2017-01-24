@@ -119,6 +119,23 @@ public class NoteServiceImpl extends AbstractServiceImpl<NoteServiceImpl> implem
     }
 
     @Override
+    public void removeNotes(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<Note> noteList = noteRepository.findByUser(user);
+        if (noteList != null && !noteList.isEmpty()) {
+            LOG.info("Deleting {} notes for user {}", noteList.size(), user.getId());
+            for (Note note : noteList) {
+                noteRepository.delete(note);
+            }
+        }
+    }
+
+    @Override
     public List<org.patientview.api.model.Note> getNotes(Long userId, NoteTypes noteType)
             throws ResourceNotFoundException {
 
