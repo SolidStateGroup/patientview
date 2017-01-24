@@ -12,6 +12,7 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.NoteService;
 import org.patientview.api.service.PathwayService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
@@ -189,6 +190,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private PathwayService pathwayService;
+
+    @Inject
+    private NoteService noteService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -769,6 +773,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 alertRepository.deleteByUserId(user.getId());
                 deleteFhirLinks(user.getId());
                 deleteIdentifiers(user.getId());
+
+                // delete any Pathway associated with
+                pathwayService.deletePathways(user);
+
+                // delete any notes associated with patient
+                noteService.removeNotes(user.getId());
+
                 userRepository.delete(user);
             } else {
                 // staff member, mark as deleted

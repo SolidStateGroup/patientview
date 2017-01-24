@@ -26,7 +26,7 @@ public class PathwayBuilderTest {
         Assert.assertNotNull("Should have creator", pathway.getCreator());
         Assert.assertEquals("Should have created pathway", pathway.getPathwayType(), PathwayTypes.DONORPATHWAY);
         Assert.assertNotNull("Should have stages", pathway.getStages());
-        Assert.assertTrue("Should have 3 stages", pathway.getStages().size() == 3);
+        Assert.assertTrue("Should have 7 stages", pathway.getStages().size() == 7);
         for (Stage stage : pathway.getStages()) {
             Assert.assertNotNull("Should have name", stage.getName());
             Assert.assertNotNull("Should have version", stage.getVersion());

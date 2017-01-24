@@ -136,6 +136,9 @@ public class UserServiceTest {
     @Mock
     private PathwayService pathwayService;
 
+    @Mock
+    private NoteService noteService;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);

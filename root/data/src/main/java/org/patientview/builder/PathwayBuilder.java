@@ -129,6 +129,87 @@ public class PathwayBuilder {
                 stage.setPathway(result);
                 stages.add(stage);
             }
+
+            // Stage 4
+            {
+                Stage stage = new Stage();
+                stage.setName("Further Testing");
+                stage.setVersion(0);
+                stage.setStageType(StageTypes.FURTHER_TESTING);
+                stage.setStageStatus(StageStatuses.PENDING);
+                stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
+
+                DonorStageData data = new DonorStageData();
+                data.setStage(stage);
+                data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
+                stage.setStageData(data);
+
+                stage.setPathway(result);
+                stages.add(stage);
+            }
+
+            // Stage 5
+            {
+                Stage stage = new Stage();
+                stage.setName("Planning");
+                stage.setVersion(0);
+                stage.setStageType(StageTypes.PLANNING);
+                stage.setStageStatus(StageStatuses.PENDING);
+                stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
+
+                DonorStageData data = new DonorStageData();
+                data.setStage(stage);
+                data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
+                stage.setStageData(data);
+
+                stage.setPathway(result);
+                stages.add(stage);
+            }
+
+            // Stage 6
+            {
+                Stage stage = new Stage();
+                stage.setName("Operation");
+                stage.setVersion(0);
+                stage.setStageType(StageTypes.OPERATION);
+                stage.setStageStatus(StageStatuses.PENDING);
+                stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
+
+                DonorStageData data = new DonorStageData();
+                data.setStage(stage);
+                data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
+                stage.setStageData(data);
+
+                stage.setPathway(result);
+                stages.add(stage);
+            }
+
+            // Stage 7
+            {
+                Stage stage = new Stage();
+                stage.setName("Post Operation");
+                stage.setVersion(0);
+                stage.setStageType(StageTypes.POST_OPERATION);
+                stage.setStageStatus(StageStatuses.PENDING);
+                stage.setStarted(new Date());
+                stage.setFurtherInvestigation(false);
+
+                DonorStageData data = new DonorStageData();
+                data.setStage(stage);
+                data.setCreator(result.getCreator());
+                data.setLastUpdater(result.getLastUpdater());
+                stage.setStageData(data);
+
+                stage.setPathway(result);
+                stages.add(stage);
+            }
+
             result.setStages(stages);
         }
 
