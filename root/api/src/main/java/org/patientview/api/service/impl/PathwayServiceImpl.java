@@ -1,11 +1,14 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.builder.EmailTemplateBuilder;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.PathwayService;
 import org.patientview.api.service.UserService;
 import org.patientview.builder.PathwayBuilder;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.DonorStageData;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Pathway;
 import org.patientview.persistence.model.Stage;
 import org.patientview.persistence.model.User;
@@ -13,10 +16,12 @@ import org.patientview.persistence.model.enums.PathwayTypes;
 import org.patientview.persistence.model.enums.StageTypes;
 import org.patientview.persistence.repository.PathwayRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.util.List;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -37,8 +42,11 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
     @Inject
     private UserService userService;
 
+    @Inject
+    private EmailService emailService;
+
     @Override
-    public void updatePathway(Long userId, org.patientview.api.model.Pathway pathway)
+    public void updatePathway(Long userId, org.patientview.api.model.Pathway pathway, boolean notify)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         User currentUser = getCurrentUser();
@@ -88,6 +96,23 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
         }
 
         pathwayRepository.save(entity);
+
+        // send notification email to patient if selected
+        if (notify) {
+            Email email = EmailTemplateBuilder.newBuilder()
+                    .setUser(patient)
+                    .buildDonorViewEmail()
+                    .build();
+
+            try {
+                LOG.info("Sending DonorView notification email to {} ", patient.getId());
+                emailService.sendEmail(email);
+            } catch (MailException e) {
+                LOG.error("MailException in sending DonorView notification email to {} ", patient.getId());
+            } catch (MessagingException m) {
+                LOG.error("MessagingException in sending DonorView notification email to {} ", patient.getId());
+            }
+        }
     }
 
     @Override

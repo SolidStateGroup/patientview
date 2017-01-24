@@ -21,12 +21,13 @@ public interface PathwayService {
      *
      * @param userId  an ID of User to update the Pathway for
      * @param pathway a Pathway containing updated properties
+     * @param notify  whether to send notification email to user
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.UNIT_ADMIN, RoleName.DISEASE_GROUP_ADMIN,
             RoleName.SPECIALTY_ADMIN, RoleName.GLOBAL_ADMIN})
-    void updatePathway(Long userId, Pathway pathway)
+    void updatePathway(Long userId, Pathway pathway, boolean notify)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
