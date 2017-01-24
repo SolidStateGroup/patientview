@@ -19,13 +19,15 @@
     }
 </style>
 
-<h1>
-    DonorView Pathway - {{user.forename}} {{user.surname}}
-    <a href="/#/patients" class="btn blue pull-left back-to-results" data-ng-if="!state.readOnly">
-        <i class="icon-back-to pull-left"> </i>
-        Back to Patients
-    </a>
-</h1>
+<div>
+    <h1>
+        <a href="/#/patients" class="btn blue pull-left back-to-results" data-ng-if="!state.readOnly">
+            <i class="icon-back-to pull-left"> </i>
+            Back to Patients
+        </a>
+        DonorView Pathway - {{user.forename}} {{user.surname}}
+    </h1>
+</div>
 
 <aside class="col-md-4" style="padding-left: 0">
     <div class="panel-header content-panel lowlight">
@@ -64,6 +66,8 @@
                 <p>It will also provide you with a contact name in case you have any questions. You can also ask a question through Donor View of the healthcare professional who is looking after you during your journey on the pathway. Where key decisions need to be made they will have been discussed with you separately. Donor View will provide you with information on the Pathway, confirm results and indicate what you can expect next on the Pathway.</p>
 
                 <p><a class="point-link" data-ng-click="openPointsModal()">There are 7 points along the pathway which will lead you, if suitable, to donate your kidney.</a></p>
+
+                <p>When you arrive at Point 1 this will mean that you have had your initial consultation with a Living Donor Coordinator at your hospital.  During that consultation you will have been provided with further information and then registered on Donor View.  This will be the start of your journey through the Donor Pathway.</p>
             </div>
             <div data-ng-show="editStage.stageType == 'TESTING'">
                 <p>When you arrive at Point 2 this will mean that you are entering a period of testing. This testing will cover such things as routine bloods, cross matching with the recipient, x-rays and ECCGs. These tests will determine your suitability as a donor. Your test results will be displayed on the system when available.</p>
