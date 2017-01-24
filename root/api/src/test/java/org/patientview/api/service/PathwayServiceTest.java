@@ -154,7 +154,7 @@ public class PathwayServiceTest {
         when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
         when(pathwayRepository.findOne(eq(pathwayApi.getId()))).thenReturn(pathway);
 
-        pathwayService.updatePathway(patient.getId(), pathwayApi);
+        pathwayService.updatePathway(patient.getId(), pathwayApi, false);
         verify(pathwayRepository, Mockito.times(1)).save(any(Pathway.class));
     }
 

@@ -89,11 +89,11 @@ public class PathwayControllerTest {
         pathway.setPathwayType(PathwayTypes.DONORPATHWAY);
         pathway.setStages(new HashMap<String, Stage>());
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/pathway")
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/pathway/false")
                 .content(mapper.writeValueAsString(pathway))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(pathwayService, Mockito.times(1)).updatePathway(anyLong(), any(Pathway.class));
+        verify(pathwayService, Mockito.times(1)).updatePathway(anyLong(), any(Pathway.class), any(Boolean.class));
     }
 
     @Test
