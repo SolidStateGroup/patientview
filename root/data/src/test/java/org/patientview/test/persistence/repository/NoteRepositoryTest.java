@@ -39,13 +39,23 @@ public class NoteRepositoryTest {
         creator = dataTestUtils.createUser("testCreator");
         user = dataTestUtils.createUser("donorUser");
 
-        Note note = new Note();
-        note.setNoteType(NoteTypes.DONORVIEW);
-        note.setBody("tTest note");
-        note.setUser(user);
-        note.setCreator(creator);
-        Note created = noteRepository.save(note);
-        noteId = created.getId();
+        {
+            Note note = new Note();
+            note.setNoteType(NoteTypes.DONORVIEW);
+            note.setBody("Test note");
+            note.setUser(user);
+            note.setCreator(creator);
+            Note created = noteRepository.save(note);
+            noteId = created.getId();
+        }
+        {
+            Note note = new Note();
+            note.setNoteType(NoteTypes.DONORVIEW);
+            note.setBody("Another note");
+            note.setUser(user);
+            note.setCreator(creator);
+            noteRepository.save(note);
+        }
     }
 
     @Test
@@ -66,5 +76,25 @@ public class NoteRepositoryTest {
 
         List<Note> list = noteRepository.findByUserAndNoteType(user, NoteTypes.DONORVIEW);
         Assert.assertTrue("Should have found at least 1 note", list.size() > 0);
+    }
+
+    @Test
+    public void givenNoteRepo_whenFindByUser_correctFound() {
+
+        List<Note> list = noteRepository.findByUser(user);
+        Assert.assertTrue("Should have found at least 1 note", list.size() > 0);
+    }
+
+    @Test
+    public void givenNoteRepo_whenDeleteNotes_correctDeleted() {
+        List<Note> list = noteRepository.findByUser(user);
+
+        for (Note note : list) {
+            noteRepository.delete(note);
+        }
+
+        // check if deleted
+        List<Note> emptyList = noteRepository.findByUser(user);
+        Assert.assertTrue("Should have not returned any notes", emptyList.isEmpty());
     }
 }
