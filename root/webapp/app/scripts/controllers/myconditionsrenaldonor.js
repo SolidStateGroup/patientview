@@ -1,8 +1,9 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scope', 'DonorPathwayService',
-    function ($scope, DonorPathwayService) {
+angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scope', 'DonorPathwayService', '$modal',
+    function ($scope, DonorPathwayService, $modal) {
 
+    $scope.user = $scope.loggedInUser;
     $scope.state = {};
     $scope.loading = true;
     $scope.state.notesLoading = true;
@@ -70,6 +71,16 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
 
     $scope.getDate = function (ts) {
         return moment(ts).format('DD/MM/YYYY');
+    };
+
+    $scope.openPointsModal = function () {
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modal/donorPathwayPointsModal.html',
+            controller: DiscardChangesModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static'
+        });
     };
 
     init();
