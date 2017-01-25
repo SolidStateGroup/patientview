@@ -35,17 +35,23 @@
         <ul class="nav">
             <li>
                 <a ng-class="editStage.stageType == 'CONSULTATION' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Consultation')">Point 1 - Consultation
-                   <div class="point-status-box" data-ng-if="stages.Consultation.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Consultation.stageStatus == 'STARTED' ? 'green' : 'gray'}"/>
+                   <div class="point-status-box" data-ng-if="stages.Consultation.stageStatus != 'PENDING'"
+                        data-ng-style="getStageStatusColour(stages.Consultation.stageStatus)"
+                        data-toggle="tooltip" title="{{getStageStatusTooltipText(stages.Consultation.stageStatus)}}"/>
                 </a
             ></li>
             <li>
                 <a ng-class="editStage.stageType == 'TESTING' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Testing')">Point 2 - Testing
-                    <div class="point-status-box" data-ng-if="stages.Testing.stageStatus != 'PENDING'" data-ng-style="{'background-color': stages.Testing.stageStatus == 'STARTED' ? 'green' : 'gray'}"/>
+                    <div class="point-status-box" data-ng-if="stages.Testing.stageStatus != 'PENDING'"
+                         data-ng-style="getStageStatusColour(stages.Testing.stageStatus)"
+                         data-toggle="tooltip" title="{{getStageStatusTooltipText(stages.Testing.stageStatus)}}"/>
                 </a>
             </li>
             <li>
                 <a ng-class="editStage.stageType == 'REVIEW' ? 'point-link point-active' : 'point-link'" data-ng-click="showPoint('Review')">Point 3 - Review
-                    <div class="point-status-box" data-ng-if="stages.Review.stageStatus != 'PENDING'" data-ng-style="getReviewStatusColour()"/>
+                    <div class="point-status-box" data-ng-if="stages.Review.stageStatus != 'PENDING'"
+                         data-ng-style="getStageStatusColour(stages.Review.stageStatus)"
+                         data-toggle="tooltip" title="{{getStageStatusTooltipText(stages.Review.stageStatus)}}"/>
                 </a>
             </li>
         </ul>
@@ -144,6 +150,7 @@
                 <button class="btn btn-primary" data-ng-click="save()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save</button>
                 <button class="btn btn-primary" data-ng-click="save(true)" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save & Notify Donor</button>
                 <button class="btn btn-grey" data-ng-click="cancel()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Cancel</button>
+                <span class="saved-notification pull-right" data-ng-show="state.saved && !state.saveErrorMessage">&nbsp; Saved Successfully!</span>
             </div>
             <div class="alert alert-danger form-save" data-ng-show="state.saveErrorMessage">{{state.saveErrorMessage}}</div>
         </form>

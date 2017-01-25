@@ -61,7 +61,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             if ($scope.editStage.stageStatus == 'PENDING') {
                 $scope.editStage.version++;
                 $scope.editStage.stageStatus = 'STARTED';
-                updatePathway();
+                updatePathway(false, true);
             }
         };
 
@@ -160,9 +160,12 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             updatePathway(notify);
         };
 
-        var updatePathway = function (notify) {
-            DonorPathwayService.updatePathway($scope.editPathway, notify ? true : false)
+        var updatePathway = function (notify, silent) {
+            DonorPathwayService.updatePathway($scope.editPathway, notify)
                 .then(function () {
+                    if (!silent) {
+                        $scope.state.saved = true;
+                    }
                     $scope.pathway = _.cloneDeep($scope.editPathway);
                     $scope.stages = $scope.pathway.stages;
                 }, function (failureResult) {
@@ -188,7 +191,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.getDate = function (ts) {
-            return moment(ts).format('DD/MM/YYYY');
+            return DonorPathwayService.getDate(ts);
         };
 
         $scope.addNote = function () {
@@ -261,28 +264,12 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             $scope.state.reviewStatus = 'STARTED';
         };
 
-        $scope.getReviewStatusColour = function () {
-            var colour;
-            switch ($scope.stages.Review.stageStatus) {
-                case 'PENDING':
-                case 'STARTED':
-                default:
-                    colour = 'green';
-                    break;
+        $scope.getStageStatusColour = function (stageStatus) {
+            return DonorPathwayService.getStageStatusColour(stageStatus);
+        };
 
-                case 'ON_HOLD':
-                    colour = '#ffbf00';
-                    break;
-
-                case 'STOPPED':
-                    colour = 'red';
-                    break;
-
-                case 'COMPLETED':
-                    colour = 'gray';
-                    break;
-            }
-            return {'background-color': colour};
+        $scope.getStageStatusTooltipText = function (stageStatus) {
+            return DonorPathwayService.getStageStatusTooltipText(stageStatus);
         };
 
         $scope.getStageKeyFromType = function (type) {

@@ -45,32 +45,16 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
         $scope.editStage = $scope.editStages[point];
     };
 
-    $scope.getReviewStatusColour = function () {
-        var colour;
-        switch ($scope.stages.Review.stageStatus) {
-            case 'PENDING':
-            case 'STARTED':
-            default:
-                colour = 'green';
-                break;
+    $scope.getStageStatusColour = function (stageStatus) {
+        return DonorPathwayService.getStageStatusColour(stageStatus);
+    };
 
-            case 'ON_HOLD':
-                colour = '#ffbf00';
-                break;
-
-            case 'STOPPED':
-                colour = 'red';
-                break;
-
-            case 'COMPLETED':
-                colour = 'gray';
-                break;
-        }
-        return {'background-color': colour};
+    $scope.getStageStatusTooltipText = function (stageStatus) {
+        return DonorPathwayService.getStageStatusTooltipText(stageStatus);
     };
 
     $scope.getDate = function (ts) {
-        return moment(ts).format('DD/MM/YYYY');
+        return DonorPathwayService.getDate(ts);
     };
 
     $scope.openPointsModal = function () {

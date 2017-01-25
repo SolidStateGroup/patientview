@@ -80,5 +80,47 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
+        getStageStatusTooltipText: function (stageStatus) {
+            switch (stageStatus) {
+                case 'PENDING':
+                    return 'Pending';
+                case 'STARTED':
+                    return 'Started'
+                case 'ON_HOLD':
+                    return 'On Hold';
+                case 'STOPPED':
+                    return 'Stopped';
+                case 'COMPLETED':
+                    return 'Completed';
+                default:
+                    return '';
+            }
+        },
+        getDate: function (ts) {
+            return moment(ts).format('DD/MM/YYYY');
+        },
+        getStageStatusColour: function (stageStatus) {
+            var colour;
+            switch (stageStatus) {
+                case 'PENDING':
+                case 'STARTED':
+                default:
+                    colour = 'green';
+                    break;
+
+                case 'ON_HOLD':
+                    colour = '#ffbf00';
+                    break;
+
+                case 'STOPPED':
+                    colour = 'red';
+                    break;
+
+                case 'COMPLETED':
+                    colour = 'gray';
+                    break;
+            }
+            return {'background-color': colour};
+        }
     };
 }]);
