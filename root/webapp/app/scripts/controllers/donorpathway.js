@@ -66,6 +66,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.showPoint = function (point) {
+            $scope.state.saved = false;
             $scope.editStage = $scope.editStages[point];
             $scope.state.moveToNextPoint = $scope.editStage.stageStatus == 'COMPLETED';
             if ($scope.editStage.stageType == 'REVIEW') {
@@ -247,18 +248,21 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.onReviewStatus = function () {
+            $scope.state.saved = false;
             $scope.editStage.backToPreviousPoint = null;
             $scope.editStage.furtherInvestigation = false;
             $scope.editStage.stageStatus = 'STARTED';
         };
 
         $scope.onBackToPreviousPoint = function () {
+            $scope.state.saved = false;
             $scope.state.reviewStatus = 'PENDING';
             $scope.editStage.stageStatus = 'STARTED';
             $scope.editStage.furtherInvestigation = false;
         };
 
         $scope.onFurtherInvestigation = function () {
+            $scope.state.saved = false;
             $scope.editStage.backToPreviousPoint = null;
             $scope.editStage.stageStatus = 'STARTED';
             $scope.state.reviewStatus = 'STARTED';

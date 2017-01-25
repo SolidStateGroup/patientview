@@ -150,7 +150,9 @@
                 <button class="btn btn-primary" data-ng-click="save()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save</button>
                 <button class="btn btn-primary" data-ng-click="save(true)" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Save & Notify Donor</button>
                 <button class="btn btn-grey" data-ng-click="cancel()" data-ng-disabled="editStage.stageStatus != 'STARTED' && editStage.stageStatus != 'ON_HOLD'">Cancel</button>
-                <span class="saved-notification pull-right" data-ng-show="state.saved && !state.saveErrorMessage">&nbsp; Saved Successfully!</span>
+            </div>
+            <div class="alert alert-success form-save" data-ng-show="state.saved && !state.saveErrorMessage">
+                <h5>Data saved successfully</h5>
             </div>
             <div class="alert alert-danger form-save" data-ng-show="state.saveErrorMessage">{{state.saveErrorMessage}}</div>
         </form>
