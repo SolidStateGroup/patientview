@@ -21,4 +21,14 @@ public interface EmailService {
      * @throws MessagingException
      */
     boolean sendEmail(Email email) throws MailException, MessagingException;
+
+    /**
+     * Send an Email, created in another service.
+     * @param email Email object containing all required properties
+     * @param donorview if email sent to donor user, will use different branding
+     * @return True if successfully sent or mail redirected etc, false or exception if not
+     * @throws MailException
+     * @throws MessagingException
+     */
+    boolean sendEmail(Email email, boolean donorview) throws MailException, MessagingException;
 }

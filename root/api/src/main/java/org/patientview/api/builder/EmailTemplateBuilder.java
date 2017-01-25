@@ -49,7 +49,7 @@ public class EmailTemplateBuilder {
 
         public Builder buildDonorViewEmail() {
             this.result.setRecipients(new String[]{user.getEmail()});
-            this.result.setSubject("'DonorView - you have an update");
+            this.result.setSubject("DonorView - you have an update");
 
             // build body
             StringBuilder sb = new StringBuilder();

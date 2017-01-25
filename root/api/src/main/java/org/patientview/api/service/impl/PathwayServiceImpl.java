@@ -111,7 +111,7 @@ public class PathwayServiceImpl extends AbstractServiceImpl<PathwayServiceImpl> 
 
             try {
                 LOG.info("Sending DonorView notification email to {} ", patient.getId());
-                emailService.sendEmail(email);
+                emailService.sendEmail(email, true);
             } catch (MailException e) {
                 LOG.error("MailException in sending DonorView notification email to {} ", patient.getId(), e);
             } catch (MessagingException m) {
