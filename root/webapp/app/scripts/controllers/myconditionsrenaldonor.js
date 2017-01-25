@@ -77,7 +77,7 @@ angular.module('patientviewApp').controller('MyConditionsRenalDonorCtrl',['$scop
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
             templateUrl: 'views/modal/donorPathwayPointsModal.html',
-            controller: DiscardChangesModalInstanceCtrl,
+            controller: ConfirmModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static'
         });

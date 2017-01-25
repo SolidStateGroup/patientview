@@ -1,5 +1,5 @@
 'use strict';
-var DiscardChangesModalInstanceCtrl = ['$scope', '$modalInstance',
+var ConfirmModalInstanceCtrl = ['$scope', '$modalInstance',
     function ($scope, $modalInstance) {
         $scope.ok = function () {
             $modalInstance.close();

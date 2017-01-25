@@ -31,7 +31,7 @@ var EditNoteModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'note
             // open modal and pass in required objects for use in modal scope
                 var modalInstance = $modal.open({
                     templateUrl: 'discardChangesModal.html',
-                    controller: DiscardChangesModalInstanceCtrl,
+                    controller: ConfirmModalInstanceCtrl,
                     size: 'lg',
                     backdrop: 'static'
                 });

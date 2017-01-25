@@ -47,6 +47,19 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="notifyDonorModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Confirm</h3>
+    </div>
+    <div class="modal-body">
+        <p>Your changes will be saved and a notification sent to the donor. Do you wish to continue?</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-grey" data-ng-click="cancel()">No</button>
+        <button class="btn btn-primary" data-ng-click="ok()">Yes</button>
+    </div>
+</script>
+
 <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
 <div data-ng-show="!loading && !fatalErrorMessage">

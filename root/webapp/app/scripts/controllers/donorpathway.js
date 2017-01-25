@@ -80,10 +80,27 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
         };
 
         $scope.save = function (notify) {
-            var editStage = $scope.editStage;
-
             delete $scope.state.saveErrorMessage;
 
+            // open modal and pass in required objects for use in modal scope
+            if (notify) {
+                var modalInstance = $modal.open({
+                    templateUrl: 'notifyDonorModal.html',
+                    controller: ConfirmModalInstanceCtrl,
+                    size: 'lg',
+                    backdrop: 'static'
+                });
+
+                modalInstance.result.then(function () {
+                    savePathway(true);
+                });
+            } else {
+                savePathway(false);
+            }
+        };
+
+        var savePathway = function (notify) {
+            var editStage = $scope.editStage;
             if (editStage.stageType == 'CONSULTATION' || editStage.stageType == 'TESTING') {
                 if (!editStage.data.caregiverText || !editStage.data.carelocationText) {
                     $scope.state.saveErrorMessage = 'Please fill out all fields.';
@@ -157,7 +174,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             // open modal and pass in required objects for use in modal scope
             var modalInstance = $modal.open({
                 templateUrl: 'discardChangesModal.html',
-                controller: DiscardChangesModalInstanceCtrl,
+                controller: ConfirmModalInstanceCtrl,
                 size: 'lg',
                 backdrop: 'static'
             });
@@ -283,7 +300,7 @@ angular.module('patientviewApp').controller('DonorPathwayCtrl', ['localStorageSe
             // open modal and pass in required objects for use in modal scope
             var modalInstance = $modal.open({
                 templateUrl: 'views/modal/donorPathwayPointsModal.html',
-                controller: DiscardChangesModalInstanceCtrl,
+                controller: ConfirmModalInstanceCtrl,
                 size: 'lg',
                 backdrop: 'static'
             });
