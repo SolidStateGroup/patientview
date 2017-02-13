@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
+import org.patientview.persistence.model.Email;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -38,6 +38,15 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
      */
     @Override
     public boolean sendEmail(Email email) throws MailException, MessagingException {
+
+        return sendEmail(email, false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public boolean sendEmail(Email email, boolean donorview) throws MailException, MessagingException {
         // only send emails if enabled in properties file
         if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
 
@@ -91,8 +100,16 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                         }
                     }
 
-                    helper.setText(properties.getProperty("email.header") + email.getBody()
+                    String header;
+                    // apply donorview specific branding
+                    if(donorview){
+                        header = properties.getProperty("email.donorview.header");
+                    }else{
+                        header = properties.getProperty("email.header");
+                    }
+                    helper.setText(header + email.getBody()
                             + properties.getProperty("email.footer"), true);
+
 
                     try {
                         javaMailSender.send(message);
