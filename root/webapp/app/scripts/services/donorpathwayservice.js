@@ -4,10 +4,10 @@ angular.module('patientviewApp').factory('DonorPathwayService', ['$q', 'Restangu
     var user;
 
     return {
-        setUser(donor) {
+        setUser: function (donor) {
           user = donor;
         },
-        getUser() {
+        getUser: function () {
           return user;
         },
         addNote: function (note) {
