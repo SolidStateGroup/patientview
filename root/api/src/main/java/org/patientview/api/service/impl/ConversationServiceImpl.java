@@ -894,8 +894,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 if (!conversationUser.getUser().getId().equals(user.getId())) {
 
                     // remove as creator if set
-                    if (conversationUser.getCreator().getId().equals(user.getId())) {
+                    if (conversationUser.getCreator() != null
+                            && conversationUser.getCreator().getId().equals(user.getId())) {
                         conversationUser.setCreator(null);
+                    }
+                    if (conversationUser.getLastUpdater() != null
+                            && conversationUser.getLastUpdater().getId().equals(user.getId())) {
+                        conversationUser.setLastUpdater(null);
                     }
 
                     removedUserConversationUsers.add(conversationUser);
@@ -916,6 +921,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             for (Message message : conversation.getMessages()) {
                 if (message.getUser().getId().equals(user.getId())) {
                     message.setUser(null);
+                }
+                if (message.getLastUpdater() != null && message.getLastUpdater().getId().equals(user.getId())) {
+                    message.setLastUpdater(null);
+                }
+                if (message.getCreator() != null && message.getCreator().getId().equals(user.getId())) {
+                    message.setCreator(null);
                 }
 
                 // remove read receipts for this user
