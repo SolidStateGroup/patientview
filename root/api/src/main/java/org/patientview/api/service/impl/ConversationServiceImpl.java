@@ -877,6 +877,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
 
+        LOG.info("deleteUserFromConversations, " + conversations.size() + " conversations");
+
         // required if previously failed to cleanly delete conversation user labels (RPV-582)
         List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
         for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
@@ -889,8 +891,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (Conversation conversation : conversations) {
             // remove from conversation user list
+            LOG.info("conversation id: " + conversation.getId() + ", remove " + user.getId()
+                    + " from conversation user list");
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
-            for (ConversationUser conversationUser :conversation.getConversationUsers()) {
+            for (ConversationUser conversationUser : conversation.getConversationUsers()) {
                 if (!conversationUser.getUser().getId().equals(user.getId())) {
 
                     // remove as creator if set
@@ -917,6 +921,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversation.setConversationUsers(removedUserConversationUsers);
 
             // remove from messages
+            LOG.info("conversation id: " + conversation.getId() + ", remove " + user.getId()
+                    + " from messages");
             List<Message> removedUserMessages = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
                 LOG.info("message id " + message.getId());
@@ -948,7 +954,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 removedUserMessages.add(message);
             }
 
-            LOG.info("save " + removedUserMessages.size() + " messages");
+            LOG.info("conversation id: " + conversation.getId() + ", save " + removedUserMessages.size() + " messages");
 
             messageRepository.save(removedUserMessages);
             conversation.setMessages(removedUserMessages);
