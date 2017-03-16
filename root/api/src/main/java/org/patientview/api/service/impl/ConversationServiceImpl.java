@@ -877,7 +877,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
 
-        LOG.info("deleteUserFromConversations, " + conversations.size() + " conversations");
+        LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
 
         // required if previously failed to cleanly delete conversation user labels (RPV-582)
         List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
@@ -891,7 +891,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (Conversation conversation : conversations) {
             // remove from conversation user list
-            LOG.info("conversation id: " + conversation.getId() + ", remove " + user.getId()
+            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
                     + " from conversation user list");
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
             for (ConversationUser conversationUser : conversation.getConversationUsers()) {
@@ -921,22 +921,20 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversation.setConversationUsers(removedUserConversationUsers);
 
             // remove from messages
-            LOG.info("conversation id: " + conversation.getId() + ", remove " + user.getId()
+            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
                     + " from messages");
             List<Message> removedUserMessages = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
-                LOG.info("message id " + message.getId());
-
                 if (message.getUser().getId().equals(user.getId())) {
-                    LOG.info("message id " + message.getId() + " user null");
+                    LOG.info("message id: " + message.getId() + " set user null");
                     message.setUser(null);
                 }
                 if (message.getLastUpdater() != null && message.getLastUpdater().getId().equals(user.getId())) {
-                    LOG.info("message id " + message.getId() + " last updater null");
+                    LOG.info("message id: " + message.getId() + " set last updater null");
                     message.setLastUpdater(null);
                 }
                 if (message.getCreator() != null && message.getCreator().getId().equals(user.getId())) {
-                    LOG.info("message id " + message.getId() + " creator null");
+                    LOG.info("message id: " + message.getId() + " set creator null");
                     message.setCreator(null);
                 }
 
