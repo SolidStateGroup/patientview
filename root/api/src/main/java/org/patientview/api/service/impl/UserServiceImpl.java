@@ -717,25 +717,39 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 isPatient = true;
             }
 
+            LOG.info("user: " + user.getId() + ", start delete user process");
+
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
+                LOG.info("user: " + user.getId() + ", delete existing patient data");
                 patientService.deleteExistingPatientData(user.getFhirLinks());
+                LOG.info("user: " + user.getId() + ", delete observation data");
                 observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
             if (isPatient || forceDelete) {
                 // patient, delete from conversations and associated messages, other non user tables
+                LOG.info("user: " + user.getId() + ", delete user from conversations");
                 conversationService.deleteUserFromConversations(user);
+                LOG.info("user: " + user.getId() + ", delete user from audit");
                 auditService.deleteUserFromAudit(user);
+                LOG.info("user: " + user.getId() + ", delete user tokens");
                 userTokenRepository.deleteByUserId(user.getId());
+                LOG.info("user: " + user.getId() + ", delete user from migration");
                 userMigrationRepository.deleteByUserId(user.getId());
+                LOG.info("user: " + user.getId() + ", delete user from user observation headings");
                 userObservationHeadingRepository.deleteByUserId(user.getId());
+                LOG.info("user: " + user.getId() + ", delete user from alerts");
                 alertRepository.deleteByUserId(user.getId());
+                LOG.info("user: " + user.getId() + ", delete fhir links");
                 deleteFhirLinks(user.getId());
+                LOG.info("user: " + user.getId() + ", delete identifiers");
                 deleteIdentifiers(user.getId());
+                LOG.info("user: " + user.getId() + ", delete user");
                 userRepository.delete(user);
             } else {
                 // staff member, mark as deleted
+                LOG.info("user: " + user.getId() + ", mark staff user as deleted");
                 user.setDeleted(true);
                 userRepository.save(user);
             }
