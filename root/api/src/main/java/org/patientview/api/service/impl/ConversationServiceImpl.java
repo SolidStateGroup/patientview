@@ -942,6 +942,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                 removedUserMessages.add(message);
             }
+
+            messageRepository.save(removedUserMessages);
             conversation.setMessages(removedUserMessages);
 
             if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
