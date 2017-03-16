@@ -919,13 +919,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             // remove from messages
             List<Message> removedUserMessages = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
+                LOG.info("message id " + message.getId());
+
                 if (message.getUser().getId().equals(user.getId())) {
+                    LOG.info("message id " + message.getId() + " user null");
                     message.setUser(null);
                 }
                 if (message.getLastUpdater() != null && message.getLastUpdater().getId().equals(user.getId())) {
+                    LOG.info("message id " + message.getId() + " last updater null");
                     message.setLastUpdater(null);
                 }
                 if (message.getCreator() != null && message.getCreator().getId().equals(user.getId())) {
+                    LOG.info("message id " + message.getId() + " creator null");
                     message.setCreator(null);
                 }
 
@@ -942,6 +947,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                 removedUserMessages.add(message);
             }
+
+            LOG.info("save " + removedUserMessages.size() + " messages");
 
             messageRepository.save(removedUserMessages);
             conversation.setMessages(removedUserMessages);
