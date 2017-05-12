@@ -1,8 +1,12 @@
-/* result clusters (requires observation headings) */
+/* result clusters (requires observation headings)
+ Using Custom form for Dialysis Treatment hence not adding any observation headings to
+*/
 INSERT INTO "pv_result_cluster" ( "id", "name")
 VALUES (1 , 'Blood Pressure, Glucose, Weight' );
 INSERT INTO "pv_result_cluster" ( "id", "name")
 VALUES (2 , 'U + E test' );
+INSERT INTO "pv_result_cluster" ( "id", "name")
+VALUES (3 , 'Dialysis Treatment' );
 
 INSERT INTO "pv_result_cluster_observation_heading" ( "display_order", "id", "observation_heading_id", "result_cluster_id")
 VALUES ( 1, 1, (SELECT id FROM pv_observation_heading WHERE pv_observation_heading.code ='bpsys'),  1);
