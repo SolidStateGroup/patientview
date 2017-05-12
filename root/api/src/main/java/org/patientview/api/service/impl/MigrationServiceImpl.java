@@ -370,7 +370,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
         Observation observation = observationService.buildObservation(dateTime,
                 fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
-                observationHeading);
+                observationHeading, true);
 
         observation.setSubject(Util.createResourceReference(fhirLink.getResourceId()));
 

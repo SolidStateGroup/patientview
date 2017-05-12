@@ -255,7 +255,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                 if (!idValue.getValue().isEmpty()) {
                     fhirObservations.add(observationService.buildObservation(applies, idValue.getValue(), null,
-                            userResultCluster.getComments(), observationHeading));
+                            userResultCluster.getComments(), observationHeading, true));
                 }
             }
 
@@ -311,7 +311,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                     Observation observation =
                             observationService.buildObservation(applies, userResultCluster.getComments(), null,
-                                    userResultCluster.getComments(), commentObservationHeadings.get(0));
+                                    userResultCluster.getComments(), commentObservationHeadings.get(0), true);
 
                     observation.setSubject(patientReference);
                     fhirDatabaseObservations.add(
@@ -415,7 +415,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
             // now build fhir observation
             fhirObservations.add(observationService.buildObservation(applies, value, null,
-                    comments, observationHeading));
+                    comments, observationHeading, false));
         }
 
         if (!fhirObservations.isEmpty()) {
@@ -465,7 +465,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                 Observation observation =
                         observationService.buildObservation(applies, commentsResult, null,
-                                commentsResult, commentObservationHeadings.get(0));
+                                commentsResult, commentObservationHeadings.get(0), false);
 
                 observation.setSubject(patientReference);
                 fhirDatabaseObservations.add(
@@ -812,7 +812,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 query.append("CONTENT -> 'name' ->> 'text', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
-                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text', ");
+                query.append("CONTENT ->> 'status' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
@@ -825,7 +826,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 }
 
                 // Get a list of values for observation
-                List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 6);
+                List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 7);
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
@@ -872,6 +873,16 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                 }
                             }
 
+                            // need status to check if editable
+                            if (StringUtils.isNotEmpty(json[6])) {
+                                String status = json[6];
+                                if (status.equals(Observation.ObservationStatus.final_.toCode())) {
+                                    fhirObservation.setEditable(false);
+                                } else {
+                                    fhirObservation.setEditable(true);
+                                }
+                            }
+
                             Group fhirGroup = fhirLink.getGroup();
                             if (fhirGroup != null) {
                                 fhirObservation.setGroup(new BaseGroup(fhirGroup));
@@ -879,6 +890,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                             fhirObservations.add(fhirObservation);
                         } catch (DatatypeConfigurationException e) {
+                            LOG.error(e.getMessage());
+                        } catch (Exception e) {
                             LOG.error(e.getMessage());
                         }
                     }

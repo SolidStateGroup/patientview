@@ -226,7 +226,7 @@ public class ApiObservationServiceTest {
         when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
         when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
         when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
-                any(String.class), eq(observationHeading1))).thenReturn(observation);
+                any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
         when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
@@ -400,7 +400,7 @@ public class ApiObservationServiceTest {
         when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
         when(observationHeadingRepository.findOneByCode(any(String.class))).thenReturn(observationHeading1);
         when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
-                any(String.class), eq(observationHeading1))).thenReturn(observation);
+                any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
         when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());

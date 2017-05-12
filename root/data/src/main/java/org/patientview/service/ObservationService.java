@@ -31,7 +31,7 @@ public interface ObservationService {
     Observation buildNonTestObservation(FhirObservation fhirObservation) throws FhirResourceException;
 
     Observation buildObservation(DateTime applies, String value, String comparator, String comments,
-                                 ObservationHeading observationHeading) throws FhirResourceException;
+                                 ObservationHeading observationHeading, boolean editable) throws FhirResourceException;
 
     /**
      * Helper method to copy updated values from fhir observation to observation
