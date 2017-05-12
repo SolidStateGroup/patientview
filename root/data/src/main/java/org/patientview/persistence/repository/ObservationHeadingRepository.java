@@ -32,5 +32,8 @@ public interface ObservationHeadingRepository extends CrudRepository<Observation
     List<ObservationHeading> findAllByCode(@Param("codes") List<String> codes);
 
     @Query("SELECT oh FROM ObservationHeading oh WHERE lower(oh.code) = lower(:code)")
+    ObservationHeading findOneByCode(@Param("code") String code);
+
+    @Query("SELECT oh FROM ObservationHeading oh WHERE lower(oh.code) = lower(:code)")
     List<ObservationHeading> findByCode(@Param("code") String code);
 }
