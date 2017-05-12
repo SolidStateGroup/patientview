@@ -56,6 +56,22 @@ public interface ApiObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
+    /**
+     * Custom implementation to handle entering own results for Dialysis Treatment results.
+     * Used when Users enter Dialysis Treatment results on the Enter Own Results page and
+     * stores in FHIR under the PATIENT_ENTERED Group.
+     *
+     * @param userId             ID of User to store patient entered results
+     * @param resultClusterMap List of UserResultCluster objects used to represent a number of user entered results
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     * @throws ResourceInvalidException
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
+    void addUserDialysisTreatmentResult(Long userId, Map<String, String> resultClusterMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException;
+
 
     /**
      * Used when Users update their own results on the Edit Own Results page, takes a  UserResultCluster and
