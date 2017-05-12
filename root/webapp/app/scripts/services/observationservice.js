@@ -82,7 +82,6 @@ function ($q, Restangular, UtilService) {
                     }
 
                     userResultCluster.values = values;
-                    alert(values);
                     toSend.push(UtilService.cleanObject(userResultCluster, 'resultCluster'));
                 }
 
