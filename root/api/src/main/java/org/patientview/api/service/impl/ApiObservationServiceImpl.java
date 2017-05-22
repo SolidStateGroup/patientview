@@ -382,27 +382,27 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             switch (key) {
                 case "PreWeight":
                     code = "weight";
-                    comments = "Pre";
+                    comments = "PRE";
                     break;
                 case "PostWeight":
                     code = "weight";
-                    comments = "Post";
+                    comments = "POST";
                     break;
                 case "PreBpsys":
                     code = "bpsys";
-                    comments = "Pre";
+                    comments = "PRE";
                     break;
                 case "PreBpdia":
                     code = "bpdia";
-                    comments = "Pre";
+                    comments = "PRE";
                     break;
                 case "PostBpsys":
                     code = "bpsys";
-                    comments = "Post";
+                    comments = "POST";
                     break;
                 case "PostBpdia":
                     code = "bpdia";
-                    comments = "Post";
+                    comments = "POST";
                     break;
                 default:
                     comments = commentsResult;
