@@ -29,7 +29,7 @@ public class FhirObservation {
     // only used by my IBD
     private String diagram;
 
-    private boolean editable;
+    private boolean editable = true;
 
     public FhirObservation() {
     }
