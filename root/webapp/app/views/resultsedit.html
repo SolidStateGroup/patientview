@@ -61,9 +61,12 @@
                 <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
                 <div class="row-item actions">
                     <!-- Edit, Actions dropdown buttons -->
-                    <div class="btn-group">
-                        <button type="button" class="btn blue edit-button" data-ng-click="opened(observation)">Edit</button>
-                        <button type="button" class="btn negative" data-ng-click="remove(observationHeading, observation)">Del</button>
+                    <div class="btn-group" data-ng-if="observation.editable" >
+                        <button type="button" class="btn blue edit-button" data-ng-click="opened(observation)" data-ng-disabled="!observation.editable">Edit</button>
+                        <button type="button" class="btn negative" data-ng-click="remove(observationHeading, observation)" data-ng-disabled="!observation.editable">Del</button>
+                    </div>
+                    <div class="btn-group" data-ng-if="!observation.editable" >
+                         <span class="badge badge-small warning"></span> Not editable
                     </div>
                 </div>
             </div>

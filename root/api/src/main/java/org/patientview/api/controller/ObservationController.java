@@ -11,6 +11,7 @@ import org.patientview.api.service.MigrationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.MigrationUser;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RESTful interface for management and retrieval of observations (test results), stored in FHIR.
@@ -87,6 +89,24 @@ public class ObservationController extends BaseController<ObservationController>
                                   @RequestBody List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
         apiObservationService.addUserResultClusters(userId, userResultClusters);
+    }
+
+    /**
+     * Used when Users enter their own results on the Enter Own Results page, takes a list of UserResultCluster and
+     * stores in FHIR under the PATIENT_ENTERED Group.
+     * @param userId ID of User to store patient entered results
+     * @param resultClusterMap List of UserResultCluster objects used to represent a number of user entered results
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/user/{userId}/observations/resultclusters/custom", method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void addDialysisResultClusters(@PathVariable("userId") Long userId,
+                                  @RequestBody Map<String, String> resultClusterMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException {
+        apiObservationService.addUserDialysisTreatmentResult(userId, resultClusterMap);
     }
 
     // API

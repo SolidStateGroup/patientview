@@ -29,6 +29,8 @@ public class FhirObservation {
     // only used by my IBD
     private String diagram;
 
+    private boolean editable = true;
+
     public FhirObservation() {
     }
 
@@ -151,5 +153,13 @@ public class FhirObservation {
 
     public void setDiagram(String diagram) {
         this.diagram = diagram;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 }
