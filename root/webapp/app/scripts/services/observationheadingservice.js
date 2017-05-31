@@ -141,6 +141,11 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             for (var i=0;i<observationHeading.observationHeadingGroups.length;i++) {
                 observationHeading.observationHeadingGroups[i]
                     = UtilService.cleanObject(observationHeading.observationHeadingGroups[i], 'observationHeadingGroup');
+
+                // reduce group object
+                var groupId = observationHeading.observationHeadingGroups[i].group.id;
+                observationHeading.observationHeadingGroups[i].group = { 'id' : groupId };
+
                 delete observationHeading.observationHeadingGroups[i].id;
             }
 

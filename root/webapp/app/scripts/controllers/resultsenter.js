@@ -51,22 +51,35 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
                 }
             }
 
-            $scope.userResultClusters.push(userResultCluster);
+            // for Dialysis Treatment allow to enter only one result at the time
+            // as we have custom endpoints for this
+            if(resultCluster.id == '3'){
+                $scope.dialysis = true;
+                $scope.userResultClusters = [];
+                $scope.userResultClusters.push(userResultCluster);
+            }else{
+                $scope.userResultClusters.push(userResultCluster);
+                $scope.dialysis = false;
+                // TODO: if we have Dialysis Treatment in the list remove it
+            }
         }
     };
 
     $scope.removeUserResultCluster = function(resultCluster) {
         $scope.userResultClusters.splice($scope.userResultClusters.indexOf(resultCluster), 1);
+        $scope.dialysis = false;
     };
 
     $scope.cancel = function() {
         $scope.userResultClusters = [];
+        $scope.dialysis = false;
     };
 
     $scope.save = function() {
-        ObservationService.saveResultClusters($scope.loggedInUser.id, $scope.userResultClusters).then(function() {
+        ObservationService.saveResultClusters($scope.loggedInUser.id, $scope.userResultClusters, $scope.dialysis).then(function() {
             $scope.successMessage = 'Results successfully sent to PatientView. If required, more results can be added below.';
             $scope.userResultClusters = [];
+            $scope.dialysis = false;
         }, function () {
             alert('Cannot save your results');
         });
@@ -79,6 +92,15 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             // check date is ok
             if (!UtilService.validationDateNoFuture(resultCluster.day, resultCluster.month, resultCluster.year)) {
                 return false;
+            }
+
+            // Dialysis Treatment specific check, need all values entered
+            if($scope.dialysis && resultCluster.HdHours && resultCluster.HdLocation && resultCluster.eprex &&
+                resultCluster.TargetWeight && resultCluster.PreWeight && resultCluster.PostWeight &&
+                resultCluster.UfVolume && resultCluster.pulse && resultCluster.PreBpsys && resultCluster.PreBpdia &&
+                resultCluster.PostBpsys && resultCluster.PostBpdia && resultCluster.hypotension &&
+                resultCluster.BodyTemperature && resultCluster.bps && resultCluster.DialFlow && resultCluster.LitresProcessed){
+                return true;
             }
 
             // check at least one entry in results
@@ -95,6 +117,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
 
     var init = function() {
         $scope.loading = true;
+        $scope.dialysis = false;
         $scope.userResultClusters = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();

@@ -54,7 +54,7 @@ public class Message extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "created_by")
     private User creator;
 

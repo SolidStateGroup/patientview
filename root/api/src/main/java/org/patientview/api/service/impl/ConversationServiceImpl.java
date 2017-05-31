@@ -877,6 +877,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
 
+        LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
+
         // required if previously failed to cleanly delete conversation user labels (RPV-582)
         List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
         for (ConversationUserLabel conversationUserLabel : conversationUserLabels) {
@@ -889,13 +891,20 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (Conversation conversation : conversations) {
             // remove from conversation user list
+            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
+                    + " from conversation user list");
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
-            for (ConversationUser conversationUser :conversation.getConversationUsers()) {
+            for (ConversationUser conversationUser : conversation.getConversationUsers()) {
                 if (!conversationUser.getUser().getId().equals(user.getId())) {
 
                     // remove as creator if set
-                    if (conversationUser.getCreator().getId().equals(user.getId())) {
+                    if (conversationUser.getCreator() != null
+                            && conversationUser.getCreator().getId().equals(user.getId())) {
                         conversationUser.setCreator(null);
+                    }
+                    if (conversationUser.getLastUpdater() != null
+                            && conversationUser.getLastUpdater().getId().equals(user.getId())) {
+                        conversationUser.setLastUpdater(null);
                     }
 
                     removedUserConversationUsers.add(conversationUser);
@@ -912,10 +921,21 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversation.setConversationUsers(removedUserConversationUsers);
 
             // remove from messages
+            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
+                    + " from messages");
             List<Message> removedUserMessages = new ArrayList<>();
             for (Message message : conversation.getMessages()) {
                 if (message.getUser().getId().equals(user.getId())) {
+                    LOG.info("message id: " + message.getId() + " set user null");
                     message.setUser(null);
+                }
+                if (message.getLastUpdater() != null && message.getLastUpdater().getId().equals(user.getId())) {
+                    LOG.info("message id: " + message.getId() + " set last updater null");
+                    message.setLastUpdater(null);
+                }
+                if (message.getCreator() != null && message.getCreator().getId().equals(user.getId())) {
+                    LOG.info("message id: " + message.getId() + " set creator null");
+                    message.setCreator(null);
                 }
 
                 // remove read receipts for this user
@@ -931,6 +951,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                 removedUserMessages.add(message);
             }
+
+            LOG.info("conversation id: " + conversation.getId() + ", save " + removedUserMessages.size() + " messages");
+
+            messageRepository.save(removedUserMessages);
             conversation.setMessages(removedUserMessages);
 
             if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {

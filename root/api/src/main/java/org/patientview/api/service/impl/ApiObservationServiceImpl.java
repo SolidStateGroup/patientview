@@ -255,7 +255,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                 if (!idValue.getValue().isEmpty()) {
                     fhirObservations.add(observationService.buildObservation(applies, idValue.getValue(), null,
-                            userResultCluster.getComments(), observationHeading));
+                            userResultCluster.getComments(), observationHeading, true));
                 }
             }
 
@@ -311,7 +311,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                     Observation observation =
                             observationService.buildObservation(applies, userResultCluster.getComments(), null,
-                                    userResultCluster.getComments(), commentObservationHeadings.get(0));
+                                    userResultCluster.getComments(), commentObservationHeadings.get(0), true);
 
                     observation.setSubject(patientReference);
                     fhirDatabaseObservations.add(
@@ -323,6 +323,158 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
+    @Override
+    public void addUserDialysisTreatmentResult(Long userId, Map<String, String> resultClusterMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException {
+
+        // Patient adds his own results
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("User does not exist");
+        }
+
+        Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+        if (patientEnteredResultsGroup == null) {
+            throw new ResourceNotFoundException("Group for patient entered results does not exist");
+        }
+
+        List<ObservationHeading> commentObservationHeadings
+                = observationHeadingRepository.findByCode(COMMENT_RESULT_HEADING);
+        if (CollectionUtils.isEmpty(commentObservationHeadings)) {
+            throw new ResourceNotFoundException("Comment type observation heading does not exist");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+        // use first identifier for patient
+        Identifier patientIdentifier = patientUser.getIdentifiers().iterator().next();
+        String commentsResult = resultClusterMap.get("comments");
+
+        /**
+         * Dialysis Treatment results require entering all values
+         * Using custom form to handle Pre and Post values for already existing
+         * observation codes (e.g weight) and adding Pre or Post as comment to fhirobservation
+         */
+        DateTime applies = createDateTime(resultClusterMap);
+        List<Observation> fhirObservations = new ArrayList<>();
+
+        for (Map.Entry<String, String> result : resultClusterMap.entrySet()) {
+
+            String key = result.getKey();
+            // observation code defaults to key value, except some cases (pre/post)
+            String code = key;
+            String value = result.getValue();
+            String comments = null;
+
+            if (null == value || value.isEmpty()) {
+                LOG.error("Missing value for key {}", code);
+                throw new ResourceInvalidException("Missing required value");
+            }
+
+            // ignore time fields
+            if (key.equals("day") || key.equals("month") || key.equals("year") ||
+                    key.equals("hour") || key.equals("minute") || key.equals("comments")) {
+                continue;
+            }
+
+            // need to handle Post and Pre and overwrite the codes
+            switch (key) {
+                case "PreWeight":
+                    code = "weight";
+                    comments = "PRE";
+                    break;
+                case "PostWeight":
+                    code = "weight";
+                    comments = "POST";
+                    break;
+                case "PreBpsys":
+                    code = "bpsys";
+                    comments = "PRE";
+                    break;
+                case "PreBpdia":
+                    code = "bpdia";
+                    comments = "PRE";
+                    break;
+                case "PostBpsys":
+                    code = "bpsys";
+                    comments = "POST";
+                    break;
+                case "PostBpdia":
+                    code = "bpdia";
+                    comments = "POST";
+                    break;
+                default:
+                    comments = commentsResult;
+            }
+
+            ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(code);
+            if (observationHeading == null) {
+                throw new ResourceNotFoundException("Observation Heading not found for code " + code);
+            }
+
+            // now build fhir observation
+            fhirObservations.add(observationService.buildObservation(applies, value, null,
+                    comments, observationHeading, false));
+        }
+
+        if (!fhirObservations.isEmpty()) {
+
+            // create FHIR Patient & fhirlink if not exists with PATIENT_ENTERED group, userId and identifier
+            FhirLink fhirLink = Util.getFhirLink(
+                    patientEnteredResultsGroup, patientIdentifier.getIdentifier(), patientUser.getFhirLinks());
+
+            if (fhirLink == null) {
+                Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
+                FhirDatabaseEntity fhirPatient
+                        = fhirResource.createEntity(patient, ResourceType.Patient.name(), "patient");
+
+                // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
+                fhirLink = new FhirLink();
+                fhirLink.setUser(patientUser);
+                fhirLink.setIdentifier(patientIdentifier);
+                fhirLink.setGroup(patientEnteredResultsGroup);
+                fhirLink.setResourceId(fhirPatient.getLogicalId());
+                fhirLink.setVersionId(fhirPatient.getVersionId());
+                fhirLink.setResourceType(ResourceType.Patient.name());
+                fhirLink.setActive(true);
+
+                if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
+                    patientUser.setFhirLinks(new HashSet<FhirLink>());
+                }
+
+                patientUser.getFhirLinks().add(fhirLink);
+                userRepository.save(patientUser);
+            }
+
+            ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+
+            // store observations ready for native creation rather than fhir_create
+            List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+
+            // save observations
+            for (Observation observation : fhirObservations) {
+                observation.setSubject(patientReference);
+
+                fhirDatabaseObservations.add(
+                        new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+            }
+
+            // create comment observation based on patient entered comments
+            if (!(commentsResult == null || commentsResult.isEmpty())) {
+
+                Observation observation =
+                        observationService.buildObservation(applies, commentsResult, null,
+                                commentsResult, commentObservationHeadings.get(0), false);
+
+                observation.setSubject(patientReference);
+                fhirDatabaseObservations.add(
+                        new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+            }
+
+            observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
+        }
+    }
 
     @Override
     public void updatePatientEnteredResult(Long userId, Long adminId,
@@ -338,9 +490,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor =  userRepository.findOne(adminId);
+            editor = userRepository.findOne(adminId);
         } else {
-            editor  = patientUser;
+            editor = patientUser;
         }
 
         if (editor == null) {
@@ -419,9 +571,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor =  userRepository.findOne(adminId);
+            editor = userRepository.findOne(adminId);
         } else {
-            editor  = patientUser;
+            editor = patientUser;
         }
 
         if (editor == null) {
@@ -496,6 +648,31 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             }
             if (StringUtils.isNotEmpty(resultCluster.getMinute())) {
                 dateAndTime.setMinute(Integer.parseInt(resultCluster.getMinute()));
+            } else {
+                dateAndTime.setMinute(0);
+            }
+            dateAndTime.setSecond(0);
+            dateTime.setValue(dateAndTime);
+            return dateTime;
+        } catch (Exception e) {
+            throw new FhirResourceException("Error converting date");
+        }
+    }
+
+    private DateTime createDateTime(Map<String, String> resultMap) throws FhirResourceException {
+        try {
+            DateTime dateTime = new DateTime();
+            DateAndTime dateAndTime = DateAndTime.now();
+            dateAndTime.setYear(Integer.parseInt(resultMap.get("year")));
+            dateAndTime.setMonth(Integer.parseInt(resultMap.get("month")));
+            dateAndTime.setDay(Integer.parseInt(resultMap.get("day")));
+            if (StringUtils.isNotEmpty(resultMap.get("hour"))) {
+                dateAndTime.setHour(Integer.parseInt(resultMap.get("hour")));
+            } else {
+                dateAndTime.setHour(0);
+            }
+            if (StringUtils.isNotEmpty(resultMap.get("minute"))) {
+                dateAndTime.setMinute(Integer.parseInt(resultMap.get("minute")));
             } else {
                 dateAndTime.setMinute(0);
             }
@@ -635,7 +812,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 query.append("CONTENT -> 'name' ->> 'text', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
-                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text', ");
+                query.append("CONTENT ->> 'status' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
@@ -648,7 +826,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 }
 
                 // Get a list of values for observation
-                List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 6);
+                List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 7);
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
@@ -695,6 +873,16 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                 }
                             }
 
+                            // need status to check if editable
+                            if (StringUtils.isNotEmpty(json[6])) {
+                                String status = json[6];
+                                if (status.equals(Observation.ObservationStatus.final_.toCode())) {
+                                    fhirObservation.setEditable(false);
+                                } else {
+                                    fhirObservation.setEditable(true);
+                                }
+                            }
+
                             Group fhirGroup = fhirLink.getGroup();
                             if (fhirGroup != null) {
                                 fhirObservation.setGroup(new BaseGroup(fhirGroup));
@@ -702,6 +890,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                             fhirObservations.add(fhirObservation);
                         } catch (DatatypeConfigurationException e) {
+                            LOG.error(e.getMessage());
+                        } catch (Exception e) {
                             LOG.error(e.getMessage());
                         }
                     }
@@ -1185,9 +1375,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     // note: doesn't return change since last observation, must be retrieved separately
-    private ObservationSummary getObservationSummaryMap(Group group,
-                                            List<ObservationHeading> observationHeadings,
-                                            Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+    private ObservationSummary getObservationSummaryMap(
+            Group group, List<ObservationHeading> observationHeadings,
+            Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
         group = groupRepository.findOne(group.getId());
 

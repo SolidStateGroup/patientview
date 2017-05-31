@@ -68,8 +68,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -224,7 +226,7 @@ public class ApiObservationServiceTest {
         when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
         when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
         when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
-                any(String.class), eq(observationHeading1))).thenReturn(observation);
+                any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
         when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
@@ -321,6 +323,91 @@ public class ApiObservationServiceTest {
                 .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
 
         apiObservationService.addTestObservations(patient.getId(), group.getId(), fhirObservationRange);
+    }
+
+
+    @Test
+    public void testAddDialysisTreatmentResult() throws Exception {
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setId(2L);
+        identifier.setIdentifier("1111111111");
+        user.getIdentifiers().add(identifier);
+
+        Group patientEnteredGroup = TestUtils.createGroup("testGroup");
+        patientEnteredGroup.setCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        ObservationHeading observationHeading1 = new ObservationHeading();
+        observationHeading1.setId(3L);
+        observationHeading1.setCode("eprex");
+
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading1);
+
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("day","01");
+        resultMap.put("month","01");
+        resultMap.put("year","2017");
+        resultMap.put("HdHours","1");
+        resultMap.put("HdLocation","Amex");
+        resultMap.put("eprex","12");
+        resultMap.put("TargetWeight","90");
+        resultMap.put("PreWeight","80");
+        resultMap.put("PostWeight","90");
+        resultMap.put("UfVolume","12");
+        resultMap.put("pulse","123");
+        resultMap.put("PreBpsys","12");
+        resultMap.put("PreBpdia","122");
+        resultMap.put("PostBpsys","123");
+        resultMap.put("PostBpdia","123");
+
+        Patient fhirPatient = new Patient();
+
+        JSONObject fhirPatientJson = new JSONObject();
+        String versionId = "31d2f326-230a-4ce0-879b-443154a4d9e6";
+        String resourceId = "d52847eb-c2c7-4015-ba6c-952962536287";
+
+        JSONArray resultArray = new JSONArray();
+        JSONObject resource = new JSONObject();
+        JSONArray links = new JSONArray();
+        JSONObject link = new JSONObject();
+        link.put("href", "http://www.patientview.org/patient/" + versionId);
+        links.put(link);
+        resource.put("link", links);
+        resource.put("id", resourceId);
+        resultArray.put(resource);
+        fhirPatientJson.put("entry", resultArray);
+
+        FhirDatabaseEntity entity = new FhirDatabaseEntity(fhirPatientJson.toString(), ResourceType.Patient.name());
+        entity.setLogicalId(UUID.randomUUID());
+
+        Observation observation = new Observation();
+
+        when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient")))
+                .thenReturn(entity);
+        when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
+        when(groupRepository.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString())))
+                .thenReturn(patientEnteredGroup);
+        when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
+        when(observationHeadingRepository.findOneByCode(any(String.class))).thenReturn(observationHeading1);
+        when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
+                any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
+        when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
+
+        apiObservationService.addUserDialysisTreatmentResult(user.getId(), resultMap);
+
+        verify(observationService, times(1)).insertFhirDatabaseObservations(any(List.class));
     }
 
 

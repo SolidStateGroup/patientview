@@ -314,13 +314,16 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     @Override
     public Observation buildObservation(DateTime applies, String value, String comparator, String comments,
-                                        ObservationHeading observationHeading) throws FhirResourceException {
+                                        ObservationHeading observationHeading, boolean editable)
+            throws FhirResourceException {
         Observation observation = new Observation();
         if (applies != null) {
             observation.setApplies(applies);
         }
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-        observation.setStatusSimple(Observation.ObservationStatus.registered);
+        // set flag to control if observation is editable
+        observation.setStatusSimple(editable ? Observation.ObservationStatus.registered :
+                Observation.ObservationStatus.final_);
 
         if (StringUtils.isNotEmpty(value)) {
             try {

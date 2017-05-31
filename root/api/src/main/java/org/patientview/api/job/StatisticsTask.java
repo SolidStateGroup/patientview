@@ -1,5 +1,6 @@
 package org.patientview.api.job;
 
+import org.joda.time.DateTime;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.Timer;
 import org.patientview.persistence.model.enums.StatisticPeriod;
@@ -44,18 +45,7 @@ public class StatisticsTask {
             Date endDate = calendar.getTime();
 
             // set start date to one month ago
-            calendar.roll(Calendar.MONTH, -1);
-
-            // if january need to set to previous year (december)
-            if (calendar.get(Calendar.MONTH) == Calendar.JANUARY) {
-                calendar.roll(Calendar.YEAR, -1);
-            }
-
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            Date startDate = calendar.getTime();
+            Date startDate = new DateTime().minusMonths(1).withTimeAtStartOfDay().withDayOfMonth(1).toDate();
 
             LOG.info("Creating statistics (monthly) for period " + startDate.toString() + " to " + endDate.toString());
             groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
