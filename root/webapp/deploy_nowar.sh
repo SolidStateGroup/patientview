@@ -19,7 +19,7 @@ else
     echo "Starting build process";
 fi
 
-cd root/webapp;
+#cd root/webapp;
 
 #/usr/bin/npm install
 npm install
