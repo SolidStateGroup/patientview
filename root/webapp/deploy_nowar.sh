@@ -44,7 +44,7 @@ else
 fi
 
 #/usr/local/bin/grunt $gruntTask
-~/.nvm/versions/node/v8.0.0/bin/grunt $gruntTask
+/root/.nvm/versions/node/v8.0.0/bin/grunt $gruntTask
 
 if [ $? -eq 0 ]; then
     echo 'SUCCESS'
