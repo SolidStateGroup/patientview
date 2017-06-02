@@ -43,8 +43,7 @@ else
 	echo "Installed bower dependencies"
 fi
 
-#/usr/local/bin/grunt $gruntTask
-/root/.nvm/versions/node/v8.0.0/bin/grunt $gruntTask
+/usr/local/bin/grunt $gruntTask
 
 if [ $? -eq 0 ]; then
     echo 'SUCCESS'
