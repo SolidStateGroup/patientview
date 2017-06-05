@@ -80,7 +80,7 @@ INSERT INTO "pv_observation_heading"(
     "default_panel_order", "decimal_places", "creation_date", "created_by", "last_update_date", "last_updated_by") VALUES
      (nextval('hibernate_sequence'), 'HdHours','Hours', 'in hours',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
      (nextval('hibernate_sequence'),'HdLocation','Location', 'in hours',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
-     (nextval('hibernate_sequence'),'eprex','Eprex (iu)', 'in iu',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'eprex','Eprex', 'in iu',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
      (nextval('hibernate_sequence'),'TargetWeight','Target Weight', 'in kg',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
      (nextval('hibernate_sequence'),'UfVolume','UF Volume', 'in mL',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
      (nextval('hibernate_sequence'),'BodyTemperature','Body Temp', 'in °C',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
