@@ -45,6 +45,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getHomeDialysisResults: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/observations/patiententered/home-dialysis
+            Restangular.one('user', userId).one('observations').one('patiententered').one('home-dialysis').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getByCodes: function (userId, codes, limit, offset, orderDirection) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations
