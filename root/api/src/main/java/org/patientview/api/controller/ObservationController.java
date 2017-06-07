@@ -152,6 +152,28 @@ public class ObservationController extends BaseController<ObservationController>
     }
 
     /**
+     * Get a list of patient entered observations for a User of a Dialysis Treatment result cluster.
+     * <p>
+     * We are using custom form to enter results hence using custom endpoint to return a list of results
+     *
+     * @param userId ID of User to retrieve observations for
+     * @return List of FhirObservation representing test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @ApiOperation(value = "Get patient entered Observations of a Dialysis Treatment result cluster For a User",
+            notes = "Given a User ID, retrieve patient entered observations.")
+    @RequestMapping(value = "/user/{userId}/observations/patiententered/home-dialysis", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<FhirObservation>> getPatientEnteredObservationsHomeDialysis(
+            @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredDialysisTreatment(userId), HttpStatus.OK);
+    }
+
+    /**
      * Used when Users updated their own results on the Edit Own Results page, takes a UserResultCluster and
      * updates record in FHIR under the PATIENT_ENTERED Group.
      *
