@@ -44,7 +44,9 @@
                 <div class="col-md-12">
                     <h4>Step 2:</h4>
                     <p class="instructions">Enter result(s) along with the date/time of each result.
-                    <span data-ng-show="!dialysis">Not all values need to be entered if they aren't available.</span></p>
+                        <span data-ng-show="!dialysis">Not all values need to be entered if they aren't available.</span>
+                        <span data-ng-show="dialysis">All values except comments are required and must be entered prior to clicking Save.</span>
+                    </p>
                 </div>
             </div>
 
@@ -95,9 +97,9 @@
 
                         <span class="results-enter">
                             <span>Hours: </span>
-                            <input type="text" data-ng-model="userResultCluster.HdHours"
+                            <input type="number" data-ng-model="userResultCluster.HdHours"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="99" ng-pattern="/\d+/" required />
                         </span>
 
                          <span class="results-enter">
@@ -111,9 +113,9 @@
                         </span>
                         <span class="results-enter">
                             <span>Eprex (iu): </span>
-                            <input type="text" data-ng-model="userResultCluster.eprex"
+                            <input type="number" data-ng-model="userResultCluster.eprex"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="99999" ng-pattern="/\d+/" required />
                         </span>
                         </div>
                     </div>
@@ -124,27 +126,27 @@
 
                         <span class="results-enter">
                             <span>Target Weight (kg): </span>
-                            <input type="text" data-ng-model="userResultCluster.TargetWeight"
+                            <input type="number" data-ng-model="userResultCluster.TargetWeight"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
                         </span>
                          <span class="results-enter">
                             <span>Pre Weight (kg): </span>
-                            <input type="text" data-ng-model="userResultCluster.PreWeight"
+                            <input type="number" data-ng-model="userResultCluster.PreWeight"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
                         </span>
                         <span class="results-enter">
                             <span>Post Weight (kg): </span>
-                            <input type="text" data-ng-model="userResultCluster.PostWeight"
+                            <input type="number" data-ng-model="userResultCluster.PostWeight"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
                         </span>
                         <span class="results-enter">
                             <span>UF Volume (mL): </span>
-                            <input type="text" data-ng-model="userResultCluster.UfVolume"
+                            <input type="number" data-ng-model="userResultCluster.UfVolume"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="9999" ng-pattern="/\d+/" required />
                         </span>
                         </div>
                     </div>
@@ -154,33 +156,33 @@
 
                         <span class="results-enter">
                             <span>Pulse (bpm): </span>
-                            <input type="text" data-ng-model="userResultCluster.pulse"
+                            <input type="number" data-ng-model="userResultCluster.pulse"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>Pre BP systolic: </span>
-                            <input type="text" data-ng-model="userResultCluster.PreBpsys"
+                            <input type="number" data-ng-model="userResultCluster.PreBpsys"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>/diastolic: </span>
-                            <input type="text" data-ng-model="userResultCluster.PreBpdia"
+                            <input type="number" data-ng-model="userResultCluster.PreBpdia"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>Post BP systolic: </span>
-                            <input type="text" data-ng-model="userResultCluster.PostBpsys"
+                            <input type="number" data-ng-model="userResultCluster.PostBpsys"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>/diastolic: </span>
-                            <input type="text" data-ng-model="userResultCluster.PostBpdia"
+                            <input type="number" data-ng-model="userResultCluster.PostBpdia"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>Symptomatic Hypotension: </span>
@@ -197,28 +199,28 @@
 
                          <span class="results-enter">
                             <span>Body Temp (°C): </span>
-                            <input type="text" data-ng-model="userResultCluster.BodyTemperature"
+                            <input type="number" data-ng-model="userResultCluster.BodyTemperature"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
                         </span>
 
                          <span class="results-enter">
                             <span>BPS: </span>
-                            <input type="text" data-ng-model="userResultCluster.bps"
+                            <input type="number" data-ng-model="userResultCluster.bps"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>Dial Flow: </span>
-                            <input type="text" data-ng-model="userResultCluster.DialFlow"
+                            <input type="number" data-ng-model="userResultCluster.DialFlow"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="999" ng-pattern="/\d+/" required />
                         </span>
                         <span class="results-enter">
                             <span>Litres Processed: </span>
-                            <input type="text" data-ng-model="userResultCluster.LitresProcessed"
+                            <input type="number" data-ng-model="userResultCluster.LitresProcessed"
                                    class="form-control input-value"
-                                   only-num-decimal/>
+                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
                         </span>
 
                         </div>
