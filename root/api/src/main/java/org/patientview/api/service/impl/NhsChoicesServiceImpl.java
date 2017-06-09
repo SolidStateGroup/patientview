@@ -351,7 +351,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
             // return full path
             return details;
-        } catch (IOException | ParseException e) {
+        } catch (Exception e) {
             LOG.info("Could not retrieve overview url from NHS choices for practice with code "
                     + practiceCode + ", continuing");
         }
