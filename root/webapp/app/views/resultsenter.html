@@ -99,7 +99,7 @@
                             <span>Hours: </span>
                             <input type="number" data-ng-model="userResultCluster.HdHours"
                                    class="form-control input-value"
-                                   min="0" max="99" ng-pattern="/\d+/" required />
+                                   min="0" max="99" ng-pattern="/\d+/" required placeholder="0-99" />
                         </span>
 
                          <span class="results-enter">
@@ -115,7 +115,7 @@
                             <span>Eprex (iu): </span>
                             <input type="number" data-ng-model="userResultCluster.eprex"
                                    class="form-control input-value"
-                                   min="0" max="99999" ng-pattern="/\d+/" required />
+                                   min="0" max="99999" ng-pattern="/\d+/" required placeholder="0-99999" />
                         </span>
                         </div>
                     </div>
@@ -128,25 +128,25 @@
                             <span>Target Weight (kg): </span>
                             <input type="number" data-ng-model="userResultCluster.TargetWeight"
                                    class="form-control input-value"
-                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required placeholder="0-999.9" />
                         </span>
                          <span class="results-enter">
                             <span>Pre Weight (kg): </span>
                             <input type="number" data-ng-model="userResultCluster.PreWeight"
                                    class="form-control input-value"
-                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required placeholder="0-999.9" />
                         </span>
                         <span class="results-enter">
                             <span>Post Weight (kg): </span>
                             <input type="number" data-ng-model="userResultCluster.PostWeight"
                                    class="form-control input-value"
-                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
+                                   min="0" max="999.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required placeholder="0-999.9" />
                         </span>
                         <span class="results-enter">
                             <span>UF Volume (mL): </span>
                             <input type="number" data-ng-model="userResultCluster.UfVolume"
                                    class="form-control input-value"
-                                   min="0" max="9999" ng-pattern="/\d+/" required />
+                                   min="0" max="9999" ng-pattern="/\d+/" required placeholder="0-9999" />
                         </span>
                         </div>
                     </div>
@@ -158,31 +158,31 @@
                             <span>Pulse (bpm): </span>
                             <input type="number" data-ng-model="userResultCluster.pulse"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>Pre BP systolic: </span>
                             <input type="number" data-ng-model="userResultCluster.PreBpsys"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>/diastolic: </span>
                             <input type="number" data-ng-model="userResultCluster.PreBpdia"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>Post BP systolic: </span>
                             <input type="number" data-ng-model="userResultCluster.PostBpsys"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>/diastolic: </span>
                             <input type="number" data-ng-model="userResultCluster.PostBpdia"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>Symptomatic Hypotension: </span>
@@ -201,26 +201,26 @@
                             <span>Body Temp (°C): </span>
                             <input type="number" data-ng-model="userResultCluster.BodyTemperature"
                                    class="form-control input-value"
-                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
+                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required placeholder="0-99.9" />
                         </span>
 
                          <span class="results-enter">
                             <span>BPS: </span>
                             <input type="number" data-ng-model="userResultCluster.bps"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>Dial Flow: </span>
                             <input type="number" data-ng-model="userResultCluster.DialFlow"
                                    class="form-control input-value"
-                                   min="0" max="999" ng-pattern="/\d+/" required />
+                                   min="0" max="999" ng-pattern="/\d+/" required placeholder="0-999" />
                         </span>
                         <span class="results-enter">
                             <span>Litres Processed: </span>
                             <input type="number" data-ng-model="userResultCluster.LitresProcessed"
                                    class="form-control input-value"
-                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required />
+                                   min="0" max="99.9" step="0.1" ng-pattern="/^\d+(\.\d{1})?$/" required placeholder="0-99.9" />
                         </span>
 
                         </div>
