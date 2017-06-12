@@ -70,6 +70,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -897,6 +898,153 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     }
                 }
             }
+        }
+        return fhirObservations;
+    }
+
+    @Override
+    public List<org.patientview.api.model.FhirObservation> getPatientEnteredDialysisTreatment(final Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+
+        // check user exists
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // check either current user or API user with rights to a User's groups
+        if (!(getCurrentUser().getId().equals(userId) || ApiUtil.isCurrentUserApiUserForUser(user))) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        /**
+         * build list of ObservationHeading codes we need for retrieving patient entered results.
+         * Make sure all are in lower case to match
+         */
+        String[] codesArr = {"hdhours", "hdlocation", "eprex", "targetweight", "weight", "ufvolume", "pulse",
+                "bpsys", "bodytemperature", "hypotension", "bps", "dialflow", "litresprocessed"};
+
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findAllByCode(
+                new ArrayList<>(Arrays.asList(codesArr)));
+        List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
+
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadings) {
+            observationHeadingMap.put(observationHeading.getCode(), observationHeading);
+        }
+
+        for (ObservationHeading heading : observationHeadings) {
+
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+
+                if (fhirLink.getActive()
+                        && fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                    StringBuilder query = new StringBuilder();
+                    query.append("SELECT  ");
+                    query.append("logical_id, ");
+                    query.append("CONTENT ->> 'appliesDateTime', ");
+                    query.append("CONTENT -> 'name' ->> 'text', ");
+                    query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
+                    query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
+                    query.append("CONTENT -> 'valueCodeableConcept' ->> 'text', ");
+                    query.append("CONTENT ->> 'status', ");
+                    query.append("CONTENT ->> 'comments' ");
+                    query.append("FROM   observation ");
+                    query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
+                    query.append(fhirLink.getResourceId().toString());
+                    query.append("' ");
+
+                    if (StringUtils.isNotEmpty(heading.getCode())) {
+                        query.append("AND UPPER(content-> 'name' ->> 'text') = '");
+                        query.append(heading.getCode().toUpperCase());
+                        query.append("' ");
+                    }
+
+                    // Get a list of values for observation
+                    List<String[]> observationValues = fhirResource.findValuesByQueryAndArray(query.toString(), 8);
+
+                    // convert to transport observations
+                    for (String[] json : observationValues) {
+                        if (!StringUtils.isEmpty(json[0])) {
+                            try {
+                                org.patientview.api.model.FhirObservation fhirObservation =
+                                        new org.patientview.api.model.FhirObservation();
+
+                                // remove timezone and parse date
+                                String dateString = json[1];
+                                XMLGregorianCalendar xmlDate
+                                        = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                                Date date = xmlDate.toGregorianCalendar().getTime();
+
+                                ObservationHeading observationHeading = observationHeadingMap.get(json[2]);
+                                // convert logical id 
+                                fhirObservation.setLogicalId(UUID.fromString(json[0]));
+                                fhirObservation.setApplies(date);
+                                // if we have Pre/Post comments append to name
+                                if (StringUtils.isNotEmpty(json[7])) {
+                                    String comment = json[7];
+                                    fhirObservation.setName("(" + comment + ") " + json[2]);
+                                } else {
+                                    fhirObservation.setName(json[2]);
+                                }
+
+                                fhirObservation.setUnits(observationHeading.getUnits());
+
+                                // handle decimal points if set for this observation type
+                                if (StringUtils.isNotEmpty(json[3])) {
+                                    try {
+
+                                        if (observationHeading != null) {
+                                            if (observationHeading.getDecimalPlaces() != null) {
+                                                fhirObservation.setValue(new BigDecimal(json[3]).setScale(
+                                                        observationHeading.getDecimalPlaces().intValue(),
+                                                        BigDecimal.ROUND_HALF_UP).toString());
+                                            } else {
+                                                fhirObservation.setValue(
+                                                        new DecimalFormat("0.#####").format(Double.valueOf(json[3])));
+                                            }
+                                        } else {
+                                            fhirObservation.setValue(
+                                                    new DecimalFormat("0.#####").format(Double.valueOf(json[3])));
+                                        }
+                                    } catch (NumberFormatException nfe) {
+                                        fhirObservation.setValue(json[2]);
+                                    }
+                                } else {
+                                    // textual value, trim if larger than size
+                                    if (json.length >= 6 && StringUtils.isNotEmpty(json[5])) {
+                                        fhirObservation.setValue(json[5]);
+                                    }
+                                }
+
+                                Group fhirGroup = fhirLink.getGroup();
+                                if (fhirGroup != null) {
+                                    fhirObservation.setGroup(new BaseGroup(fhirGroup));
+                                }
+
+                                /**
+                                 * Results (weight, pulse etc) can be also be from results cluster other then
+                                 * Dialysis Treatment hence we need to check if they are read only,
+                                 * which would indicate they belong to Dialysis Treatment cluster
+                                 * TODO: need to find better solution to handle this
+                                 */
+                                if (StringUtils.isNotEmpty(json[6])) {
+                                    String status = json[6];
+                                    if (status.equals(Observation.ObservationStatus.final_.toCode())) {
+                                        fhirObservation.setEditable(false);
+                                        fhirObservations.add(fhirObservation);
+                                    }
+                                }
+                            } catch (DatatypeConfigurationException e) {
+                                LOG.error(e.getMessage());
+                            } catch (Exception e) {
+                                LOG.error(e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+
         }
         return fhirObservations;
     }
