@@ -134,6 +134,20 @@ public interface ApiObservationService {
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
+     * Get a list of patient entered observations for a User of a Dialysis Treatment result cluster,
+     * used in results table view when viewing Dialysis results.
+     *
+     * @param userId ID of User to retrieve observations for
+     * @return List of FhirObservation representing patient entered test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN_API})
+    List<FhirObservation> getPatientEnteredDialysisTreatment(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+
+    /**
      * Used when retrieving non test FHIR Observations from FHIR.
      *
      * @param fhirLink FhirLink link between User and Patient in FHIR
