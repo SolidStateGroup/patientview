@@ -140,11 +140,6 @@ input.ng-pristine + ul#strength {
   display: none;
 }
 
-/** TODO review this, has effect across all input fields */
-input.ng-dirty.ng-invalid {
-  border: 1px solid Red;
-}
-
 /* line 118, ../sass/_utils.scss */
 ul#strength {
   display: inline;
