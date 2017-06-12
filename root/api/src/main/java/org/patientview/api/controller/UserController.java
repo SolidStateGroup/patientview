@@ -530,7 +530,7 @@ public class UserController extends BaseController<UserController> {
      * @param username String username to check if User already exists
      * @return True or false if username belongs to User that already exists
      */
-    @RequestMapping(value = "/user/usernameexists/{username}", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/usernameexists/{username:.+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Boolean> usernameExists(@PathVariable("username") String username) {
