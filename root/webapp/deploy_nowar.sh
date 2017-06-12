@@ -19,9 +19,10 @@ else
     echo "Starting build process";
 fi
 
-cd root/webapp;
+#cd root/webapp;
 
-/usr/bin/npm install
+#/usr/bin/npm install
+npm install
 
 if test $? -ne 0
 then
@@ -31,7 +32,8 @@ else
 	echo "Installed npm dependencies"
 fi
 
-/usr/bin/bower install --allow-root
+#/usr/bin/bower install --allow-root
+bower install --allow-root
 
 if test $? -ne 0
 then
@@ -41,7 +43,7 @@ else
 	echo "Installed bower dependencies"
 fi
 
-/usr/local/bin/grunt $gruntTask
+/usr/local/bin/grunt $gruntTask --force
 
 if [ $? -eq 0 ]; then
     echo 'SUCCESS'
