@@ -72,9 +72,11 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-offset-2">
+                    {{missingLetters(secretWordChoices)}}
                     <a class="pull-right" href="#/forgottenpassword">Forgotten your secret word?</a>
                     <ul class="unstyled inline">
-                        <li><button data-ng-click="loginWithSecretWord()" class="btn blue">Log In</button></li>
+                        <li><button data-ng-click="loginWithSecretWord()" class="btn blue" data-ng-disabled="!secretWordLettersSet(secretWordChoices)">
+                            Log In</button></li>
                     </ul>
                 </div>
             </div>

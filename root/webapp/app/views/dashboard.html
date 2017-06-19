@@ -89,9 +89,7 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="!((groupRole.role.name == 'MEMBER' && groupRole.group.code == 'GENERAL_PRACTICE')
-                                                        || (groupRole.role.name == 'PATIENT' && groupRole.group.code == 'Generic')
-                                                        || (groupRole.role.name == 'MEMBER' && groupRole.group.code == 'Generic'))"
+                                        data-ng-if="showGroupRole(groupRole)"
                                         class="group-li">
 
                                         <!-- renal, diabetes, heart failure, ibd -->
