@@ -314,6 +314,12 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
             });
         };
 
+        $scope.showGroupRole = function(groupRole) {
+            return !((groupRole.role.name == 'MEMBER' && groupRole.group.code == 'GENERAL_PRACTICE')
+            || (groupRole.role.name == 'PATIENT' && groupRole.group.code == 'Generic')
+            || (groupRole.role.name == 'MEMBER' && groupRole.group.code == 'Generic'));
+        };
+
         $scope.viewNewsItem = function (news) {
             var modalInstance = $modal.open({
                 templateUrl: 'views/modal/viewNewsModal.html',
