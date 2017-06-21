@@ -14,25 +14,24 @@
 </script>
 
 <div class="header-select row">
-    <div class=" col-md-7">
+    <div class=" col-md-8">
         <h1>
-            <a href="/#/results" class="btn blue pull-left back-to-results" data-ng-if="!r">
-                <i class="icon-back-to pull-left"> </i>
-                Back to Results
+            <a href="/#/resultsenter" class="btn blue pull-left back-to-results">
+                Enter Your Results
             </a>
-            <a href="/#/results?r={{r}}" class="btn blue pull-left back-to-results" data-ng-if="r">
-                <i class="icon-back-to pull-left"> </i>
-                Back to Results
-            </a>
-            <button class="btn blue pull-left back-to-results" data-ng-click="viewDialysisResults()" data-ng-if="dialysisResults.length && !loading">
-                View Dialysis Results
+            <button class="btn blue pull-left back-to-results" data-ng-click="viewDialysisResults()"
+                    data-ng-if="dialysisResults.length && !loading">
+                Dialysis Results
             </button>
-            <span data-ng-if="observationHeading && observationHeadings.length && !loading">
-                <span class="blue-text">{{observationHeading.heading}}</span>
+            <span data-ng-if="dialysis">
+                <span class="blue-text">Dialysis Results</span>
             </span>
+            <div data-ng-if="observationHeading && observationHeadings.length && !loading && !dialysis">
+                <span class="blue-text">{{observationHeading.heading}}</span>
+            </div>
         </h1>
     </div>
-    <div class="col-md-3" data-ng-if="observationHeadings.length && !loading">
+    <div class="col-md-2" data-ng-if="observationHeadings.length && !loading">
         <h3 class="select-title">Select Result:</h3>
     </div>
     <div class="col-md-2" data-ng-if="observationHeadings.length && !loading">

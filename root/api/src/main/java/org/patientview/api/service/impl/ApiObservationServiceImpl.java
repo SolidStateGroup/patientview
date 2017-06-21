@@ -136,6 +136,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
+    private static final String COMMENT_PRE = "PRE";
+    private static final String COMMENT_POST = "POST";
     private static final int THREE = 3;
     private static final int FOUR = 4;
     private static final int FIVE = 5;
@@ -383,27 +385,27 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             switch (key) {
                 case "PreWeight":
                     code = "weight";
-                    comments = "PRE";
+                    comments = COMMENT_PRE;
                     break;
                 case "PostWeight":
                     code = "weight";
-                    comments = "POST";
+                    comments = COMMENT_POST;
                     break;
                 case "PreBpsys":
                     code = "bpsys";
-                    comments = "PRE";
+                    comments = COMMENT_PRE;
                     break;
                 case "PreBpdia":
                     code = "bpdia";
-                    comments = "PRE";
+                    comments = COMMENT_PRE;
                     break;
                 case "PostBpsys":
                     code = "bpsys";
-                    comments = "POST";
+                    comments = COMMENT_POST;
                     break;
                 case "PostBpdia":
                     code = "bpdia";
-                    comments = "POST";
+                    comments = COMMENT_POST;
                     break;
                 default:
                     comments = commentsResult;
@@ -980,12 +982,18 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                 // convert logical id 
                                 fhirObservation.setLogicalId(UUID.fromString(json[0]));
                                 fhirObservation.setApplies(date);
-                                // if we have Pre/Post comments append to name
-                                if (StringUtils.isNotEmpty(json[7])) {
+
+                                /**
+                                 * if we have Pre/Post comments append to name
+                                 * ignore if it's not Pre/Post comment as can be user comments
+                                 */
+                                if (StringUtils.isNotEmpty(json[7]) &&
+                                        (COMMENT_PRE.equalsIgnoreCase(json[7]) ||
+                                                COMMENT_POST.equalsIgnoreCase(json[7]))) {
                                     String comment = json[7];
-                                    fhirObservation.setName("(" + comment + ") " + json[2]);
+                                    fhirObservation.setName("(" + comment + ") " + observationHeading.getHeading());
                                 } else {
-                                    fhirObservation.setName(json[2]);
+                                    fhirObservation.setName(observationHeading.getHeading());
                                 }
 
                                 fhirObservation.setUnits(observationHeading.getUnits());
