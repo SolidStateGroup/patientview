@@ -97,19 +97,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     public void process(PatientRecord patientRecord, String xml, Long importerUserId)
             throws ImportResourceException {
 
-        String identifier = null;
-
         // attempt to get identifier if exists, used by audit
-        if (patientRecord.getPatient() != null
-                && patientRecord.getPatient().getPatientNumbers() != null
-                && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
-                && StringUtils.isNotEmpty(
-                patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
-            identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
-        }
+        String identifier = ukrdcService.findIdentifier(patientRecord);
 
         try {
-            ukrdcService.process(patientRecord, xml, importerUserId);
+            ukrdcService.process(patientRecord, xml, identifier, importerUserId);
             LOG.info(identifier + ": UKRDC PatientRecord processed");
         } catch (Exception e) {
             LOG.error(identifier + ": UKRDC PatientRecord process error", e);
