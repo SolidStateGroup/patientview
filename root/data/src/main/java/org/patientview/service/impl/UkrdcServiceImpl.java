@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import uk.org.rixg.Document;
+import uk.org.rixg.PatientNumber;
 import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
@@ -78,10 +79,10 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyService surveyService;
 
     @Override
-    public void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception {
+    public void process(PatientRecord patientRecord, String xml, String identifierNumber, Long importerUserId)
+            throws Exception {
         // identifier
-        List<Identifier> identifiers = identifierRepository.findByValue(
-                patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber());
+        List<Identifier> identifiers = identifierRepository.findByValue(identifierNumber);
         Identifier identifier = identifiers.get(0);
 
         // user
@@ -101,7 +102,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                     // audit
                     auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, identifiers.get(0).getIdentifier(),
                             null, e.getMessage(), xml, importerUserId);
-                    throw(e);
+                    throw (e);
                 }
             }
         }
@@ -118,7 +119,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                     LOG.info(identifiers.get(0).getIdentifier() + ": document type '"
                             + document.getDocumentType().getCode() + "' added");
                 } catch (Exception e) {
-                    throw(e);
+                    throw (e);
                 }
             }
         }
@@ -271,18 +272,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             throw new ImportResourceException("PatientNumbers must have at least one Number");
         }
 
-        String patientNumber = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
-
-        if (StringUtils.isEmpty(patientNumber)) {
-            throw new ImportResourceException("PatientNumbers Number must not be empty");
-        }
-
-        List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
-        if (CollectionUtils.isEmpty(identifiers)) {
-            throw new ImportResourceException("No patient found with identifier '" + patientNumber + "'", true);
-        }
-        if (identifiers.size() != 1) {
-            throw new ImportResourceException("Multiple identifiers found with value '" + patientNumber + "'");
+        if (StringUtils.isEmpty(findIdentifier(patientRecord))) {
+            throw new ImportResourceException("Could match PatientNumbers to any patient identifier");
         }
 
         // validate surveys
@@ -307,6 +298,32 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 validateDocument(document);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public String findIdentifier(PatientRecord patientRecord) {
+
+        if (patientRecord.getPatient() != null
+                && patientRecord.getPatient().getPatientNumbers() != null
+                && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())) {
+
+            /**
+             * Go through the list of patient identifiers and check if we have any patients matching any.
+             * We should find only one match for
+             */
+            for (PatientNumber number : patientRecord.getPatient().getPatientNumbers().getPatientNumber()) {
+                String patientNumber = number.getNumber();
+                if (StringUtils.isNotEmpty(patientNumber)) {
+                    List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
+                    if (!CollectionUtils.isEmpty(identifiers) && identifiers.size() == 1) {
+                        return patientNumber;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void validateDocument(Document document) throws ImportResourceException {
