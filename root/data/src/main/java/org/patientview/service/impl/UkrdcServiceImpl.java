@@ -310,7 +310,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
             /**
              * Go through the list of patient identifiers and check if we have any patients matching any.
-             * We should find only one match for
+             * We should find only one (patient) identifier for given patient numbers
              */
             for (PatientNumber number : patientRecord.getPatient().getPatientNumbers().getPatientNumber()) {
                 String patientNumber = number.getNumber();
