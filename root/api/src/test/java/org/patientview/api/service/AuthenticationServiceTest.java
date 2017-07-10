@@ -26,7 +26,6 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
-import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -337,6 +336,59 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
         Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
+
+        verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
+    /**
+     * Unit test to check make sure secret word indexes are returned in ASC order eg 2, 4, 0r 0,8 ect
+     */
+    @Test
+    public void testAuthenticate_secretWord_indexOrder() {
+        String password = "doNotShow";
+        String token = "abc123456";
+        String salt = "saltsaltsalt";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password));
+
+        Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
+        Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
+        Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
+        Assert.assertTrue("Index should be in ASC order", Integer.parseInt(returned.getSecretWordIndexes().get(0))
+                < Integer.parseInt(returned.getSecretWordIndexes().get(1)));
 
         verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));

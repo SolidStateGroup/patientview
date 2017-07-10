@@ -65,6 +65,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -303,16 +304,23 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 secretWordMapNoSalt.remove("salt");
 
                 List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
+                List<String> secretWordIndexes = new ArrayList<>();
 
                 // choose 2 secret word letters
                 Random ran = new Random();
                 int randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                toReturn.setSecretWordIndexes(new ArrayList<String>());
-                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+                String indexOne = possibleIndexes.get(randomInt);
 
                 possibleIndexes.remove(randomInt);
                 randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                toReturn.getSecretWordIndexes().add(possibleIndexes.get(randomInt));
+                String indexTwo = possibleIndexes.get(randomInt);
+
+                // need to make sure indexes are returned in ASC order
+                secretWordIndexes.add(indexOne);
+                secretWordIndexes.add(indexTwo);
+                Collections.sort(secretWordIndexes);
+                toReturn.setSecretWordIndexes(secretWordIndexes);
+
                 toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
 
                 // set temporary token
