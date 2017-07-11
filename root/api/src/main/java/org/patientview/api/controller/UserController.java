@@ -166,9 +166,13 @@ public class UserController extends BaseController<UserController> {
 
     @RequestMapping(value = "/user/{userId}/changeSecretWord", method = RequestMethod.POST)
     @ResponseBody
-    public void changeSecretWord(@PathVariable("userId") Long userId, @RequestBody SecretWordInput secretWordInput)
+    public ResponseEntity<String> changeSecretWord(@PathVariable("userId") Long userId,
+                                                   @RequestBody SecretWordInput secretWordInput,
+                                                   @RequestParam(value = "salt", required = false) String salt)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        userService.changeSecretWord(userId, secretWordInput);
+        return new ResponseEntity<>(
+                userService.changeSecretWord(userId, secretWordInput, StringUtils.isNotBlank(salt)),
+                HttpStatus.OK);
     }
 
     /**

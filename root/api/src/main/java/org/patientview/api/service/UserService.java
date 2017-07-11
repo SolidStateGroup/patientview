@@ -111,11 +111,12 @@ public interface UserService {
      * Update a User's secret word
      * @param userId Id of User to update secret word for
      * @param secretWordInput String pair containing secret word
+     * @param includeSalt whether to include salt in response
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @UserOnly
-    void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
+    String changeSecretWord(final Long userId, final SecretWordInput secretWordInput, final boolean includeSalt)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

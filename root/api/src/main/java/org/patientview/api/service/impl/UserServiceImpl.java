@@ -548,7 +548,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void changeSecretWord(Long userId, SecretWordInput secretWordInput)
+    public String changeSecretWord(Long userId, SecretWordInput secretWordInput, boolean includeSalt)
             throws ResourceNotFoundException, ResourceForbiddenException {
         if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {
             throw new ResourceForbiddenException("Secret word must be set");
@@ -582,6 +582,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setSecretWord(new JSONObject(letters).toString());
             user.setHideSecretWordNotification(true);
             userRepository.save(user);
+            return includeSalt ? salt : null;
         } catch (NoSuchAlgorithmException e) {
             throw new ResourceForbiddenException("Error saving");
         }
