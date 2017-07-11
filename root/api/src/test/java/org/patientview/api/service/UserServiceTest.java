@@ -350,9 +350,31 @@ public class UserServiceTest {
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
-        userService.changeSecretWord(user.getId(), secretWordInput);
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
 
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testChangeSecretWord_returnSalt() throws ResourceNotFoundException, ResourceForbiddenException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        String salt = userService.changeSecretWord(user.getId(), secretWordInput, true);
+
+        verify(userRepository, times(1)).save(any(User.class));
+        Assert.assertNotNull("Should return salt", salt);
     }
 
     @Test (expected = ResourceForbiddenException.class)
@@ -371,7 +393,7 @@ public class UserServiceTest {
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
-        userService.changeSecretWord(user.getId(), secretWordInput);
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
     }
 
     @Test
