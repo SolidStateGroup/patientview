@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -586,6 +588,34 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } catch (NoSuchAlgorithmException e) {
             throw new ResourceForbiddenException("Error saving");
         }
+    }
+
+    public boolean isSecretWordChanged(Long userId, String salt)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (StringUtils.isEmpty(salt)) {
+            throw new ResourceForbiddenException("Secret word salt must be set");
+        }
+
+        User user = findUser(userId);
+        if (user == null) {
+            throw new ResourceForbiddenException("Forbidden, User not found");
+        }
+
+        // convert from JSON string to map
+        Map<String, String> secretWordMap = new Gson().fromJson(
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                }.getType());
+
+        if (secretWordMap.isEmpty()) {
+            throw new ResourceForbiddenException("Secret word not found");
+        }
+        if (StringUtils.isEmpty(secretWordMap.get("salt"))) {
+            throw new ResourceForbiddenException("Secret word salt not found");
+        }
+
+        String userSalt = secretWordMap.get("salt");
+
+        return userSalt.equals(salt);
     }
 
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {

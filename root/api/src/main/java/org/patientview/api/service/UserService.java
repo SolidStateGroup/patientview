@@ -120,6 +120,19 @@ public interface UserService {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Check if secret word has changed.
+     * Used by mobile up to compare if secret word was updated using web
+     *
+     * @param userId Id of User to check secret word for
+     * @param salt   original salt value
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    boolean isSecretWordChanged(final Long userId, final String salt)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
      * Create a new User, encrypting their password.
      * @param user User object containing all required information
      * @return ID of newly created User
