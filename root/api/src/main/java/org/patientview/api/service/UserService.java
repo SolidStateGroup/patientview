@@ -127,6 +127,7 @@ public interface UserService {
      * @param salt   original salt value
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
+     * @return True if current secret word has been changed for the user, false otherwise
      */
     @UserOnly
     boolean isSecretWordChanged(final Long userId, final String salt)

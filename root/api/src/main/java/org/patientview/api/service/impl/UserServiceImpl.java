@@ -615,7 +615,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         String userSalt = secretWordMap.get("salt");
 
-        return userSalt.equals(salt);
+        return !userSalt.equals(salt);
     }
 
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
