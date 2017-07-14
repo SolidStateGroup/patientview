@@ -634,7 +634,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             incrementFailedLogon(user);
             throw new ResourceForbiddenException("Letters do not match your secret word");
         }
-
     }
 
     private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
