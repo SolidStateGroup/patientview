@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +15,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -53,6 +55,7 @@ import org.springframework.mail.MailException;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -375,6 +378,51 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).save(any(User.class));
         Assert.assertNotNull("Should return salt", salt);
+    }
+
+    @Test
+    public void testIsSecretWordChanged_theSame() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+
+        //  generate secret word
+        String salt = CommonUtils.generateSalt();
+        User user = TestUtils.createUser("testUser");
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        boolean isChanged = userService.isSecretWordChanged(user.getId(), salt);
+
+        Assert.assertFalse("Salt should be the same", isChanged);
+    }
+
+    @Test
+    public void testIsSecretWordChanged_changed() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+
+        //  generate secret word
+        String salt = CommonUtils.generateSalt();
+        String oldSalt = CommonUtils.generateSalt();
+        User user = TestUtils.createUser("testUser");
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        boolean isChanged = userService.isSecretWordChanged(user.getId(), oldSalt);
+
+        Assert.assertTrue("Salt should be be different", isChanged);
     }
 
     @Test (expected = ResourceForbiddenException.class)
