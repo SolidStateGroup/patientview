@@ -622,11 +622,19 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         // check entered letters against salted values
+        boolean checkFailed = false;
         for (String toCheck : letterMap.keySet()) {
             if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
-                throw new ResourceForbiddenException("Letters do not match your secret word");
+                checkFailed = true;
             }
         }
+
+        // Increase logon attempts
+        if (checkFailed) {
+            incrementFailedLogon(user);
+            throw new ResourceForbiddenException("Letters do not match your secret word");
+        }
+
     }
 
     private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
