@@ -175,6 +175,14 @@ public class UserController extends BaseController<UserController> {
                 HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/user/{userId}/checkSecretWord/{salt}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Boolean> checkSecretWord(@PathVariable("userId") Long userId,
+                                                   @PathVariable(value = "salt") String salt)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(userService.isSecretWordChanged(userId, salt), HttpStatus.OK);
+    }
+
     /**
      * Create a new User.
      * @param user User object containing all required information
