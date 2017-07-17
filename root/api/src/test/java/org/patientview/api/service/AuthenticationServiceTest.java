@@ -310,7 +310,9 @@ public class AuthenticationServiceTest {
                 + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
                 + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
                 + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
-                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("E" + salt) + "\", "
+                + "\"5\" : \"" + DigestUtils.sha256Hex("F" + salt) + "\", "
+                + "\"6\" : \"" + DigestUtils.sha256Hex("G" + salt) + "\" "
                 + "}");
 
         // set group and roles
@@ -336,7 +338,7 @@ public class AuthenticationServiceTest {
 
         Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
-        Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
+        Assert.assertEquals("secret word indexes should contain 3 entries", 3, returned.getSecretWordIndexes().size());
 
 
         verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
