@@ -633,6 +633,41 @@ public class AuthenticationServiceTest {
     }
 
     @Test(expected = ResourceForbiddenException.class)
+    public void testCheckSecretWord_indexTooLong()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("1", "B");
+        entered.put("3", "1");
+        entered.put("4", "2");
+        entered.put("5", "3");
+
+        authenticationService.checkSecretWord(user, entered);
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
     public void testCheckSecretWord_incorrect()
             throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
         // current user and security
