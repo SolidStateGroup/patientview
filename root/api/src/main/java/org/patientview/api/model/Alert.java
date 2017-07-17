@@ -35,8 +35,8 @@ public class Alert {
         this.webAlertViewed = alert.isWebAlertViewed();
         this.emailAlert = alert.isEmailAlert();
         this.emailAlertSent = alert.isEmailAlertSent();
-        this.mobileAlert = alert.isMobileAlert();
-        this.mobileAlertSent = alert.isMobileAlertSent();
+//        this.mobileAlert = alert.isMobileAlert();
+//        this.mobileAlertSent = alert.isMobileAlertSent();
         this.latestValue = alert.getLatestValue();
         this.latestDate = alert.getLatestDate();
         this.user = new BaseUser(user);
