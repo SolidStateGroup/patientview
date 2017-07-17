@@ -91,7 +91,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private static Integer sessionLength;
     public static final long MOBILE_SESSION_TIMEOUT = 631139040000l; // 20 years
 
-    private static final int SECRET_WORD_LETTER_COUNT = 2;
+    private static final int SECRET_WORD_LETTER_COUNT = 3; // mobile uses 3 letters check
 
     @Inject
     private ApiConditionService apiConditionService;
@@ -444,7 +444,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
                 List<String> secretWordIndexes = new ArrayList<>();
 
-                // choose 2 secret word letters
+                // For mobile choose 3 secret word letters
                 Random ran = new Random();
                 int randomInt = ran.nextInt(possibleIndexes.size() - 1);
                 String indexOne = possibleIndexes.get(randomInt);
@@ -453,9 +453,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 randomInt = ran.nextInt(possibleIndexes.size() - 1);
                 String indexTwo = possibleIndexes.get(randomInt);
 
+                possibleIndexes.remove(randomInt);
+                randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                String indexThree = possibleIndexes.get(randomInt);
+
                 // need to make sure indexes are returned in ASC order
                 secretWordIndexes.add(indexOne);
                 secretWordIndexes.add(indexTwo);
+                secretWordIndexes.add(indexThree);
                 Collections.sort(secretWordIndexes);
                 toReturn.setSecretWordIndexes(secretWordIndexes);
 
