@@ -91,7 +91,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private static Integer sessionLength;
     public static final long MOBILE_SESSION_TIMEOUT = 631139040000l; // 20 years
 
-    private static final int SECRET_WORD_LETTER_COUNT = 3; // mobile uses 3 letters check
+    private static final int SECRET_WORD_LETTER_COUNT = 2;
+    private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
 
     @Inject
     private ApiConditionService apiConditionService;
@@ -622,7 +623,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         String salt = secretWordMap.get("salt");
 
-        if (letterMap.keySet().size() < SECRET_WORD_LETTER_COUNT) {
+        // We accept only 2 letters for Web or 3 letters  for Mobile
+        if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT &&
+                letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
             throw new ResourceForbiddenException("Must include all requested secret word letters");
         }
 
