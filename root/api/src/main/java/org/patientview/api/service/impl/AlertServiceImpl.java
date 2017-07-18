@@ -158,7 +158,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         newAlert.setEmailAlert(alert.isEmailAlert());
         newAlert.setEmailAlertSent(true);
         newAlert.setMobileAlert(alert.isMobileAlert());
-        newAlert.setMobileAlertSent(true);
+        newAlert.setMobileAlertSent(alert.isMobileAlertSent());
         newAlert.setCreated(new Date());
         newAlert.setCreator(user);
 
