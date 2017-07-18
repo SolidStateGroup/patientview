@@ -372,6 +372,22 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    @Async
+    public void sendPushNotification() {
+        List<Alert> alerts = alertRepository.findByMobileAlertSetAndNotSent();
+        LOG.info("Alerts: " + alerts.size() + " alerts found for push notification");
+
+        // TODO: send push notification to firebase
+
+        Date now = new Date();
+        for (Alert alert : alerts) {
+            alert.setEmailAlertSent(true);
+            alert.setLastUpdate(now);
+            alertRepository.save(alert);
+        }
+    }
+
+    @Override
     public void removeAlert(Long userId, Long alertId) throws ResourceNotFoundException, ResourceForbiddenException {
 
         User user = userRepository.findOne(userId);

@@ -86,6 +86,11 @@ public interface AlertService {
     void sendIndividualAlertEmails();
 
     /**
+     * Check for results mobile alerts and sends push notifications to Users
+     */
+    void sendPushNotification();
+
+    /**
      * Update a User's preferences for an alert, such as the notification settings.
      * @param userId ID of User to change the Alert preferences for
      * @param alert Alert object, containing updated properties
