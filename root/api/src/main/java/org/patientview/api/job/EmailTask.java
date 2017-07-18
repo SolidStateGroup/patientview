@@ -25,5 +25,6 @@ public class EmailTask {
     public void sendAlertEmails() {
         //alertService.sendAlertEmails();
         alertService.sendIndividualAlertEmails();
+        alertService.sendPushNotification();
     }
 }
