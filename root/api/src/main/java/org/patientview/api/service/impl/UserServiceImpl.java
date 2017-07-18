@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
@@ -187,6 +188,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
+
+    @Inject
+    private AuthenticationService authenticationService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -547,6 +551,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+
+        // cleanup any session linked with user except the current one
+        authenticationService.cleanUpUserTokens(user.getId());
     }
 
     @Override
@@ -1503,6 +1510,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get an Email object for verifing a user's email address.
+     *
      * @param user User object with user details
      * @return Email with correct subject, text etc
      */
@@ -1532,8 +1540,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Check if collection of GroupRole contains a specific Group.
+     *
      * @param groupRoles Set of GroupRole to check
-     * @param group Group to find
+     * @param group      Group to find
      * @return true if collection of GroupRole contains Group
      */
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
@@ -1561,6 +1570,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Check if User is a patient by iterating through GroupRoles for a PATIENT type Role.
+     *
      * @param user User to check is a patient
      * @return true if User has a GroupRole with RoleType.PATIENT
      */
