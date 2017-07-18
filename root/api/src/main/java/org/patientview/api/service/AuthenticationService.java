@@ -127,4 +127,14 @@ public interface AuthenticationService extends UserDetailsService {
      */
     @RoleOnly(roles = { RoleName.PATIENT })
     String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException;
+
+    /**
+     * Cleanup all the session tokens for the user except the current session.
+     *
+     * Used when user changes his password we need to invalidate all the session except the current one
+     *
+     * @param userId ID of the user to clean sessions for
+     */
+    @RoleOnly(roles = { RoleName.PATIENT })
+    void cleanUpUserTokens(Long userId);
 }

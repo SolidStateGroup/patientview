@@ -1011,6 +1011,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userToken.getToken();
     }
 
+    @Override
+    public void cleanUpUserTokens(Long userId) {
+        LOG.info("Cleaning up user {} session tokens", userId);
+        try {
+            // when user changes his password we need to invalidate all the session except the current one
+            UserToken sessionToken = ApiUtil.getCurrentUserToken();
+
+            List<UserToken> tokens = userTokenRepository.findByUser(userId);
+            if (tokens != null && sessionToken != null) {
+                for (UserToken token : tokens) {
+                    if (!token.getToken().equals(sessionToken.getToken())) {
+                        userTokenRepository.delete(token);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to cleanup user sessions, after password update", e);
+        }
+    }
+
     private void updateUserAndAuditLogin(User user, String password) {
         user.setFailedLogonAttempts(0);
 
