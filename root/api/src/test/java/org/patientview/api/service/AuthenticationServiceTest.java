@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -1000,5 +1001,51 @@ public class AuthenticationServiceTest {
         when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(false);
 
         authenticationService.switchToUser(switchUser.getId());
+    }
+
+    @Test
+    public void testCleanupUserTokens_CurrentlyPatient() throws Exception {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        Date now = new Date();
+
+        // set up auth context
+        UserToken currentToken = new UserToken();
+        currentToken.setUser(user);
+        currentToken.setToken(CommonUtils.getAuthToken());
+        currentToken.setCreated(now);
+        currentToken.setExpiration(new Date(now.getTime()));
+        currentToken.setUser(user);
+        TestUtils.authenticateTest(user, currentToken);
+
+        UserToken userToken1 = new UserToken();
+        userToken1.setUser(user);
+        userToken1.setToken(CommonUtils.getAuthToken());
+        userToken1.setCreated(now);
+        userToken1.setExpiration(new Date(now.getTime()));
+
+        UserToken userToken2 = new UserToken();
+        userToken2.setUser(user);
+        userToken2.setToken(CommonUtils.getAuthToken());
+        userToken2.setCreated(now);
+        userToken2.setExpiration(new Date(now.getTime()));
+
+        List<UserToken> tokens = new ArrayList<>();
+        tokens.add(userToken1);
+        tokens.add(userToken2);
+
+        when(userTokenRepository.findByUser(any(Long.class))).thenReturn(tokens);
+
+        authenticationService.cleanUpUserTokens(user.getId());
+
+        verify(userTokenRepository, times(2)).delete(any(UserToken.class));
     }
 }

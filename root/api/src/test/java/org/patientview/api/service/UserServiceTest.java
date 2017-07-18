@@ -135,6 +135,9 @@ public class UserServiceTest {
     @Mock
     private UserTokenRepository userTokenRepository;
 
+    @Mock
+    private AuthenticationService authenticationService;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -1011,7 +1014,8 @@ public class UserServiceTest {
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
-        verify(userRepository, times(3)).findOne(eq(user.getId()));
+        verify(userRepository, times(1)).findOne(eq(user.getId()));
+        verify(authenticationService, times(1)).cleanUpUserTokens(eq(user.getId()));
     }
 
     @Test
