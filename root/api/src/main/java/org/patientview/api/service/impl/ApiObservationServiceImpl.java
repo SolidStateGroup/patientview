@@ -1773,6 +1773,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                         alert.setLatestDate(observationDate);
                                         alert.setLatestValue(observationValue);
                                         alert.setEmailAlertSent(false);
+                                        alert.setMobileAlertSent(false);
                                         alert.setWebAlertViewed(false);
                                         alert.setUpdated(true);
                                     } else {
@@ -1781,6 +1782,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                             alert.setLatestDate(observationDate);
                                             alert.setLatestValue(observationValue);
                                             alert.setEmailAlertSent(false);
+                                            alert.setMobileAlertSent(false);
                                             alert.setWebAlertViewed(false);
                                             alert.setUpdated(true);
                                         }

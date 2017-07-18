@@ -81,6 +81,7 @@ public class ObservationsBuilder {
                                 alert.setLatestDate(CommonUtils.getDateFromString(result.getDatestamp()));
                                 alert.setLatestValue(result.getValue());
                                 alert.setEmailAlertSent(false);
+                                alert.setMobileAlertSent(false);
                                 alert.setWebAlertViewed(false);
                                 alert.setUpdated(true);
                             } else {
@@ -90,6 +91,7 @@ public class ObservationsBuilder {
                                     alert.setLatestDate(CommonUtils.getDateFromString(result.getDatestamp()));
                                     alert.setLatestValue(result.getValue());
                                     alert.setEmailAlertSent(false);
+                                    alert.setMobileAlertSent(false);
                                     alert.setWebAlertViewed(false);
                                     alert.setUpdated(true);
                                 }
