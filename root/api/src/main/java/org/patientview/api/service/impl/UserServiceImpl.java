@@ -548,12 +548,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setLocked(Boolean.FALSE);
             user.setFailedLogonAttempts(0);
             userRepository.save(user);
+
+            // cleanup any session linked with user except the current one
+            authenticationService.cleanUpUserTokens(user.getId());
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
-        // cleanup any session linked with user except the current one
-        authenticationService.cleanUpUserTokens(user.getId());
     }
 
     @Override
@@ -591,6 +592,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setSecretWord(new JSONObject(letters).toString());
             user.setHideSecretWordNotification(true);
             userRepository.save(user);
+
+            // cleanup any session linked with user except the current one
+            authenticationService.cleanUpUserTokens(user.getId());
+
             return includeSalt ? salt : null;
         } catch (NoSuchAlgorithmException e) {
             throw new ResourceForbiddenException("Error saving");
