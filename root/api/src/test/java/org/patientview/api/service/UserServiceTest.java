@@ -359,6 +359,7 @@ public class UserServiceTest {
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
         verify(userRepository, times(1)).save(any(User.class));
+        verify(authenticationService, times(1)).cleanUpUserTokens(any(Long.class));
     }
 
     @Test
