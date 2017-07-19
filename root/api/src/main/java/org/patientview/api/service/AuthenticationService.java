@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
@@ -135,6 +136,6 @@ public interface AuthenticationService extends UserDetailsService {
      *
      * @param userId ID of the user to clean sessions for
      */
-    @RoleOnly(roles = { RoleName.PATIENT })
+    @UserOnly
     void cleanUpUserTokens(Long userId);
 }
