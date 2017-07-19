@@ -390,6 +390,8 @@ public class UserServiceTest {
 
         //  generate secret word
         String salt = CommonUtils.generateSalt();
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
         User user = TestUtils.createUser("testUser");
         user.setSecretWord("{"
                 + "\"salt\" : \"" + salt + "\", "
@@ -398,6 +400,11 @@ public class UserServiceTest {
                 + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
                 + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
