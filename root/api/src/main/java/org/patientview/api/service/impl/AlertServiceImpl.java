@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
+import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirObservation;
@@ -91,6 +92,9 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private FirebaseClient notificationClient;
 
     @Override
     public void addAlert(Long userId, org.patientview.api.model.Alert alert)
@@ -373,15 +377,25 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Override
     @Async
-    public void sendPushNotification() {
+    public void pushNotifications() {
         List<Alert> alerts = alertRepository.findByMobileAlertSetAndNotSent();
-        LOG.info("Alerts: " + alerts.size() + " alerts found for push notification");
+        LOG.info("Notifications: " + alerts.size() + " alerts found for push notification");
 
-        // TODO: send push notification to firebase
+        // Patient might have multiple alerts setup,
+        // we only need to send one notification per Patient
+        Set<Long> userIds = new HashSet<>();
+        for (Alert alert : alerts) {
+            userIds.add(alert.getUser().getId());
+        }
+
+        // send notification to user using firebase
+        for (Long userId : userIds) {
+            notificationClient.push(userId);
+        }
 
         Date now = new Date();
         for (Alert alert : alerts) {
-            alert.setEmailAlertSent(true);
+            alert.setMobileAlert(true);
             alert.setLastUpdate(now);
             alertRepository.save(alert);
         }

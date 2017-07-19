@@ -88,7 +88,7 @@ public interface AlertService {
     /**
      * Check for results mobile alerts and sends push notifications to Users
      */
-    void sendPushNotification();
+    void pushNotifications();
 
     /**
      * Update a User's preferences for an alert, such as the notification settings.
