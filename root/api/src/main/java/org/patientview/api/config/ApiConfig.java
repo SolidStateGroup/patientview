@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.aspect.SecurityAspect;
+import org.patientview.api.client.FirebaseClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +27,8 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = { "org.patientview.api.service", "org.patientview.api.aspect", "org.patientview.api.job",
-        "org.patientview.persistence.resource", "org.patientview.service.*" })
+@ComponentScan(basePackages = {"org.patientview.api.service", "org.patientview.api.aspect", "org.patientview.api.job",
+        "org.patientview.persistence.resource", "org.patientview.service.*"})
 @EnableWebMvc
 @EnableScheduling
 @EnableAsync
@@ -68,6 +69,7 @@ public class ApiConfig {
 
     /**
      * Configure JavaMailSender, used when sending emails.
+     *
      * @return JavaMailSenderImpl with properties set from environment specific .properties file
      */
     @Bean
@@ -92,6 +94,7 @@ public class ApiConfig {
 
     /**
      * Configure ThreadPoolTaskExecutor used by migration process when migrating observations quickly from PatientView1
+     *
      * @return ThreadPoolTaskExecutor
      */
     @Bean
@@ -105,6 +108,7 @@ public class ApiConfig {
 
     /**
      * Configure CommonsMultipartResolver for use when receiving MultiPartFile uploads
+     *
      * @return CommonsMultipartResolver
      */
     @Bean
@@ -113,5 +117,13 @@ public class ApiConfig {
         commonsMultipartResolver.setDefaultEncoding("utf-8");
         commonsMultipartResolver.setMaxUploadSize(TEN_MB); // 10MB
         return commonsMultipartResolver;
+    }
+
+    @Bean
+    public FirebaseClient notificationClient() {
+        return FirebaseClient.newBuilder()
+                .setKey(properties.getProperty("firebase.live"))
+                .setLive(new Boolean(properties.getProperty("firebase.api-key")))
+                .build();
     }
 }
