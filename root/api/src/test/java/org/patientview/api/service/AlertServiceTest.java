@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.impl.AlertServiceImpl;
@@ -91,6 +92,9 @@ public class AlertServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    private FirebaseClient notificationClient;
 
     @Before
     public void setup() {
@@ -351,6 +355,41 @@ public class AlertServiceTest {
         alertService.sendIndividualAlertEmails();
 
         verify(emailService, Mockito.times(2)).sendEmail(any(Email.class));
+        verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
+    }
+
+    @Test
+    public void testPushNotifications() throws Exception {
+
+        User user = TestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+
+        Alert alert = new Alert();
+        alert.setMobileAlertSent(false);
+        alert.setMobileAlert(true);
+        alert.setUser(user);
+        alert.setId(1L);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        User user2 = TestUtils.createUser("test2User");
+        user2.setEmail("test2@solidstategroup.com");
+
+        Alert alert2 = new Alert();
+        alert2.setMobileAlertSent(false);
+        alert2.setMobileAlert(true);
+        alert2.setUser(user2);
+        alert2.setId(2L);
+        alert2.setAlertType(AlertTypes.RESULT);
+
+        List<Alert> alerts = new ArrayList<>();
+        alerts.add(alert);
+        alerts.add(alert2);
+
+        when(alertRepository.findByMobileAlertSetAndNotSent()).thenReturn(alerts);
+
+        alertService.pushNotifications();
+
+        verify(notificationClient, Mockito.times(2)).push(any(Long.class));
         verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
     }
 }
