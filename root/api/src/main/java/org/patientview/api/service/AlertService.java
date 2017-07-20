@@ -35,7 +35,7 @@ public interface AlertService {
      * @throws FhirResourceException
      */
     @UserOnly
-    void addAlert(Long userId, Alert alert)
+    org.patientview.api.model.Alert addAlert(Long userId, Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**

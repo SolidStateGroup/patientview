@@ -97,7 +97,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     private FirebaseClient notificationClient;
 
     @Override
-    public void addAlert(Long userId, org.patientview.api.model.Alert alert)
+    public org.patientview.api.model.Alert addAlert(Long userId, org.patientview.api.model.Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -117,6 +117,12 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                         = observationHeadingRepository.findOne(alert.getObservationHeading().getId());
                 if (observationHeading == null) {
                     throw new ResourceNotFoundException("Could not find result type");
+                }
+
+                // need to make sure we only have one alert for this result type per user
+                List<Alert> alerts = alertRepository.findByUserAndObservationHeading(user, observationHeading);
+                if (!CollectionUtils.isEmpty(alerts)) {
+                    throw new ResourceForbiddenException("Alert for result already exist");
                 }
 
                 List<FhirObservation> fhirObservations
@@ -166,7 +172,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         newAlert.setCreated(new Date());
         newAlert.setCreator(user);
 
-        alertRepository.save(newAlert);
+        newAlert = alertRepository.save(newAlert);
+        return new org.patientview.api.model.Alert(newAlert, user);
     }
 
     @Override
