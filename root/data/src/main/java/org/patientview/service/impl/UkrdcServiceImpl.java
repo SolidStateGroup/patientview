@@ -79,14 +79,14 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyService surveyService;
 
     @Override
-    public void process(PatientRecord patientRecord, String xml, String identifierNumber, Long importerUserId)
+    public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
             throws Exception {
         // identifier
-        List<Identifier> identifiers = identifierRepository.findByValue(identifierNumber);
-        Identifier identifier = identifiers.get(0);
+        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+        Identifier foundIdentifier = identifiers.get(0);
 
         // user
-        User user = identifier.getUser();
+        User user = foundIdentifier.getUser();
 
         // if surveys, then process surveys
         if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
@@ -115,7 +115,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
             for (Document document : patientRecord.getDocuments().getDocument()) {
                 try {
-                    processDocument(document, user, identifier, group);
+                    processDocument(document, user, foundIdentifier, group);
                     LOG.info(identifiers.get(0).getIdentifier() + ": document type '"
                             + document.getDocumentType().getCode() + "' added");
                 } catch (Exception e) {
@@ -273,7 +273,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         }
 
         if (StringUtils.isEmpty(findIdentifier(patientRecord))) {
-            throw new ImportResourceException("Could match PatientNumbers to any patient identifier");
+            throw new ImportResourceException("Could not match PatientNumbers to any patient identifier");
         }
 
         // validate surveys
