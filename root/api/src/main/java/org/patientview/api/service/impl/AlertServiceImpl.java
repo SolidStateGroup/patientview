@@ -443,6 +443,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             entityAlert.setWebAlert(alert.isWebAlert());
             entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
             entityAlert.setEmailAlert(alert.isEmailAlert());
+            entityAlert.setMobileAlert(alert.isMobileAlert());
             alertRepository.save(entityAlert);
         } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
             if (!alert.isWebAlert() && !alert.isEmailAlert()) {
@@ -451,6 +452,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                 entityAlert.setWebAlert(alert.isWebAlert());
                 entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
                 entityAlert.setEmailAlert(alert.isEmailAlert());
+                entityAlert.setMobileAlert(alert.isMobileAlert());
                 alertRepository.save(entityAlert);
             }
         } else {
