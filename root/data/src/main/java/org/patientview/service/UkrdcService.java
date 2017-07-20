@@ -11,7 +11,7 @@ import uk.org.rixg.PatientRecord;
  */
 public interface UkrdcService {
 
-    void process(PatientRecord patientRecord, String xml, String identifierNumber, Long importerUserId)
+    void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
             throws Exception;
 
     /**
