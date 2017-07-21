@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.service.QueueService;
@@ -13,6 +14,7 @@ import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import uk.org.rixg.PatientRecord;
 
 import javax.annotation.PostConstruct;
@@ -100,6 +102,17 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             if (!ire.isAnonymous()) {
                 // attempt to get identifier if exists, used by audit
                 String identifier = ukrdcService.findIdentifier(patientRecord);
+                if (StringUtils.isBlank(identifier)) {
+                    // no match in PV db, fall back to first patient number
+                    if (patientRecord.getPatient() != null
+                            && patientRecord.getPatient().getPatientNumbers() != null
+                            && !CollectionUtils.isEmpty(
+                            patientRecord.getPatient().getPatientNumbers().getPatientNumber())
+                            && StringUtils.isNotEmpty(
+                            patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
+                        identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
+                    }
+                }
 
                 // audit
                 auditService.createAudit(AuditActions.UKRDC_VALIDATE_FAIL, identifier,
