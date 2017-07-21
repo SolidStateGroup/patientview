@@ -170,6 +170,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("token should be set", returned.getToken());
         Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
 
+        verify(userTokenRepository, times(1)).deleteExpiredByUserId(eq(user.getId()));
         verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
@@ -219,6 +220,7 @@ public class AuthenticationServiceTest {
         Assert.assertEquals("correct token should be set", userToken.getToken(), returned.getToken());
 
         verify(apiKeyRepository, times(1)).findOneByKey(eq(apiKey.getKey()));
+        verify(userTokenRepository, times(1)).deleteExpiredByUserId(eq(user.getId()));
         verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
@@ -341,7 +343,7 @@ public class AuthenticationServiceTest {
         Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
         Assert.assertEquals("secret word indexes should contain 3 entries", 3, returned.getSecretWordIndexes().size());
 
-
+        verify(userTokenRepository, times(1)).deleteExpiredByUserId(eq(user.getId()));
         verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
     }
