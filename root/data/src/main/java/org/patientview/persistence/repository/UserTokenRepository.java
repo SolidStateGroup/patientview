@@ -41,4 +41,8 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserToken WHERE user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM UserToken WHERE user.id = :userId AND expiration_date < NOW()")
+    void deleteExpiredByUserId(@Param("userId") Long userId);
 }
