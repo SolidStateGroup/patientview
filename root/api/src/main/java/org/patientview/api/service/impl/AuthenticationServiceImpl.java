@@ -339,6 +339,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             updateUserAndAuditLogin(user, password);
         }
 
+        // clean up any expired tokens for user
+        userTokenRepository.deleteExpiredByUserId(user.getId());
+
         return toReturn;
     }
 
@@ -477,6 +480,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             updateUserAndAuditLogin(user, password);
         }
+
+        // clean up any expired tokens for user
+        userTokenRepository.deleteExpiredByUserId(user.getId());
 
         return toReturn;
     }
@@ -792,8 +798,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                     userToken.getUser().getId(), AuditObjectTypes.User, null);
         }
 
-        // delete all user tokens associated with this user (should only ever be one per user)
-        userTokenRepository.deleteByUserId(userToken.getUser().getId());
+        // delete current user token associated with this user
+        // should not delete all tokens for user as we need them for different devices
+        userTokenRepository.delete(userToken);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
