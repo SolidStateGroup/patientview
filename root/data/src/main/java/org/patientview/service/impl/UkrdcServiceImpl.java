@@ -79,13 +79,12 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyService surveyService;
 
     @Override
-    public void process(PatientRecord patientRecord, String xml, Long importerUserId)
+    public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
             throws Exception {
-
-        // // check if we have anything against the patient in db
-        String identifier = findIdentifier(patientRecord);
+        // identifier
         List<Identifier> identifiers = identifierRepository.findByValue(identifier);
         Identifier foundIdentifier = identifiers.get(0);
+        String foundIdentifierStr = foundIdentifier.getIdentifier();
 
         // user
         User user = foundIdentifier.getUser();
@@ -95,14 +94,14 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             for (uk.org.rixg.Survey survey : patientRecord.getSurveys().getSurvey()) {
                 try {
                     processSurvey(survey, user);
-                    LOG.info(identifiers.get(0).getIdentifier() + ": survey response type '"
+                    LOG.info(foundIdentifierStr + ": survey response type '"
                             + survey.getSurveyType().getCode() + "' added");
                     // audit
-                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, identifiers.get(0).getIdentifier(),
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, foundIdentifierStr,
                             null, null, xml, importerUserId);
                 } catch (Exception e) {
                     // audit
-                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, identifiers.get(0).getIdentifier(),
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, foundIdentifierStr,
                             null, e.getMessage(), xml, importerUserId);
                     throw (e);
                 }
@@ -118,7 +117,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             for (Document document : patientRecord.getDocuments().getDocument()) {
                 try {
                     processDocument(document, user, foundIdentifier, group);
-                    LOG.info(identifiers.get(0).getIdentifier() + ": document type '"
+                    LOG.info(foundIdentifierStr + ": document type '"
                             + document.getDocumentType().getCode() + "' added");
                 } catch (Exception e) {
                     throw (e);
