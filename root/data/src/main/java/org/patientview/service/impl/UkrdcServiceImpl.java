@@ -79,9 +79,11 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyService surveyService;
 
     @Override
-    public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
+    public void process(PatientRecord patientRecord, String xml, Long importerUserId)
             throws Exception {
-        // identifier
+
+        // // check if we have anything against the patient in db
+        String identifier = findIdentifier(patientRecord);
         List<Identifier> identifiers = identifierRepository.findByValue(identifier);
         Identifier foundIdentifier = identifiers.get(0);
 
