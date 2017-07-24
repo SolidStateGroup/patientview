@@ -35,6 +35,7 @@ public interface AuthenticationService extends UserDetailsService {
 
     /**
      * Authenticate a User given credentials.
+     * Extra security added to mobile, and will return 3 random characters from secret word.
      *
      * @param credentials   Credentials object containing username, password
      * @param includeSecret whether to set secret in user token

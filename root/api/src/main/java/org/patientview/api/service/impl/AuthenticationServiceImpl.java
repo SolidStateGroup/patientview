@@ -439,7 +439,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // set user token (must not be null)
             userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
 
-            // choose two characters to check and add to secret word indexes for ui
+            // choose tree characters to check and add to secret word indexes for ui
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
                         user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
