@@ -3,7 +3,6 @@ package org.patientview.importer.manager.impl;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -30,7 +29,6 @@ import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
@@ -98,18 +96,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             throws ImportResourceException {
 
         String identifier = null;
-
-        // attempt to get identifier if exists, used by audit
-        if (patientRecord.getPatient() != null
-                && patientRecord.getPatient().getPatientNumbers() != null
-                && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
-                && StringUtils.isNotEmpty(
-                patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
-            identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
-        }
-
         try {
-            ukrdcService.process(patientRecord, xml, importerUserId);
+            // attempt to get identifier if exists, used by audit
+            identifier = ukrdcService.findIdentifier(patientRecord);
+
+            ukrdcService.process(patientRecord, xml, identifier, importerUserId);
             LOG.info(identifier + ": UKRDC PatientRecord processed");
         } catch (Exception e) {
             LOG.error(identifier + ": UKRDC PatientRecord process error", e);

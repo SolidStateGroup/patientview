@@ -11,7 +11,8 @@ import uk.org.rixg.PatientRecord;
  */
 public interface UkrdcService {
 
-    void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception;
+    void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
+            throws Exception;
 
     /**
      * Validate UKRDC xml, including basic Patient, Surveys, Documents. Errors include:
@@ -58,4 +59,13 @@ public interface UkrdcService {
      * @throws ImportResourceException
      */
     void validate(PatientRecord patientRecord) throws ImportResourceException;
+
+    /**
+     * Helper method to check all PatientNumbers against patient records
+     *
+     * @param patientRecord a UKRDC xml based object
+     * @return a patient identifier or null if no match found
+     * @throws ImportResourceException
+     */
+    String findIdentifier(PatientRecord patientRecord) throws ImportResourceException;
 }

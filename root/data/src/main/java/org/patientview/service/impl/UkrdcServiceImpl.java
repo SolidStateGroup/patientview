@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import uk.org.rixg.Document;
+import uk.org.rixg.PatientNumber;
 import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
@@ -78,30 +79,31 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyService surveyService;
 
     @Override
-    public void process(PatientRecord patientRecord, String xml, Long importerUserId) throws Exception {
+    public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
+            throws Exception {
         // identifier
-        List<Identifier> identifiers = identifierRepository.findByValue(
-                patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber());
-        Identifier identifier = identifiers.get(0);
+        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+        Identifier foundIdentifier = identifiers.get(0);
+        String foundIdentifierStr = foundIdentifier.getIdentifier();
 
         // user
-        User user = identifier.getUser();
+        User user = foundIdentifier.getUser();
 
         // if surveys, then process surveys
         if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
             for (uk.org.rixg.Survey survey : patientRecord.getSurveys().getSurvey()) {
                 try {
                     processSurvey(survey, user);
-                    LOG.info(identifiers.get(0).getIdentifier() + ": survey response type '"
+                    LOG.info(foundIdentifierStr + ": survey response type '"
                             + survey.getSurveyType().getCode() + "' added");
                     // audit
-                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, identifiers.get(0).getIdentifier(),
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_SUCCESS, foundIdentifierStr,
                             null, null, xml, importerUserId);
                 } catch (Exception e) {
                     // audit
-                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, identifiers.get(0).getIdentifier(),
+                    auditService.createAudit(AuditActions.SURVEY_RESPONSE_FAIL, foundIdentifierStr,
                             null, e.getMessage(), xml, importerUserId);
-                    throw(e);
+                    throw (e);
                 }
             }
         }
@@ -114,11 +116,11 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
             for (Document document : patientRecord.getDocuments().getDocument()) {
                 try {
-                    processDocument(document, user, identifier, group);
-                    LOG.info(identifiers.get(0).getIdentifier() + ": document type '"
+                    processDocument(document, user, foundIdentifier, group);
+                    LOG.info(foundIdentifierStr + ": document type '"
                             + document.getDocumentType().getCode() + "' added");
                 } catch (Exception e) {
-                    throw(e);
+                    throw (e);
                 }
             }
         }
@@ -271,19 +273,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             throw new ImportResourceException("PatientNumbers must have at least one Number");
         }
 
-        String patientNumber = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
-
-        if (StringUtils.isEmpty(patientNumber)) {
-            throw new ImportResourceException("PatientNumbers Number must not be empty");
-        }
-
-        List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
-        if (CollectionUtils.isEmpty(identifiers)) {
-            throw new ImportResourceException("No patient found with identifier '" + patientNumber + "'", true);
-        }
-        if (identifiers.size() != 1) {
-            throw new ImportResourceException("Multiple identifiers found with value '" + patientNumber + "'");
-        }
+        // check if we have anything against the patient in db
+        findIdentifier(patientRecord);
 
         // validate surveys
         if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
@@ -307,6 +298,51 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 validateDocument(document);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public String findIdentifier(PatientRecord patientRecord) throws ImportResourceException {
+
+        String identifier = null;
+
+        if (patientRecord.getPatient() != null
+                && patientRecord.getPatient().getPatientNumbers() != null
+                && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())) {
+
+            /**
+             * Go through the list of patient identifiers and check if we have any patients matching any.
+             * We should find only one (patient) identifier for given patient numbers
+             */
+            for (PatientNumber number : patientRecord.getPatient().getPatientNumbers().getPatientNumber()) {
+                String patientNumber = number.getNumber();
+                if (StringUtils.isNotEmpty(patientNumber)) {
+
+                    List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
+
+                    // just continue until we find one
+                    if (CollectionUtils.isEmpty(identifiers)) {
+                        identifier = null;
+                        continue;
+                    }
+                    if (!CollectionUtils.isEmpty(identifiers) && identifiers.size() > 1) {
+                        throw new ImportResourceException("Found more then one identifier for patient number "
+                                + patientNumber);
+                    }
+
+                    identifier = patientNumber;
+                    break;
+                }
+            }
+        } else {
+            throw new ImportResourceException("Missing patient number in PatientRecord");
+        }
+
+        if (StringUtils.isEmpty(identifier)) {
+            throw new ImportResourceException("Could not match PatientNumbers to any patient identifier");
+        }
+
+        return identifier;
     }
 
     private void validateDocument(Document document) throws ImportResourceException {
