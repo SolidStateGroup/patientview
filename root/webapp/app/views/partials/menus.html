@@ -14,6 +14,12 @@
         <p class="admin-header">You are viewing as a patient. Caution with sending messages and entering results.</p>
     </div>
 </div>
+<!--[if lt IE 7]>
+<div class=" alert alert-warning" data-ng-hide="!loggedInUser">
+   <p class="browsehappy" align="center">You seem to be using an <strong>unsupported</strong> browser, {{getCurrentBrowser()}},
+       and PatientView may not behave normally. Almost all up to date browsers are supported. <a href="http://rixg.org/patientview2/">More info...</a></p>
+</div>
+<![endif]-->
 
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
