@@ -133,7 +133,10 @@ public interface AuthenticationService extends UserDetailsService {
     /**
      * Cleanup all the session tokens for the user except the current session.
      *
-     * Used when user changes his password we need to invalidate all the session except the current one
+     * Used when user changes his password we need to invalidate all the session except the current one.
+     *
+     * This method require user to be logged in as UserToken associated with current security context is
+     * used to compare with other sessions in DB.
      *
      * @param userId ID of the user to clean sessions for
      */
