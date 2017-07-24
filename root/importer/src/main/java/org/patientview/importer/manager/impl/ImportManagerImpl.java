@@ -3,7 +3,6 @@ package org.patientview.importer.manager.impl;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -30,7 +29,6 @@ import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import uk.org.rixg.PatientRecord;
 
 import javax.inject.Inject;
@@ -97,10 +95,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     public void process(PatientRecord patientRecord, String xml, Long importerUserId)
             throws ImportResourceException {
 
-        // attempt to get identifier if exists, used by audit
-        String identifier = ukrdcService.findIdentifier(patientRecord);
-
+        String identifier = null;
         try {
+            // attempt to get identifier if exists, used by audit
+            identifier = ukrdcService.findIdentifier(patientRecord);
+
             ukrdcService.process(patientRecord, xml, identifier, importerUserId);
             LOG.info(identifier + ": UKRDC PatientRecord processed");
         } catch (Exception e) {

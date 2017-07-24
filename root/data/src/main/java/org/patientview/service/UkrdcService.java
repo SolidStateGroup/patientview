@@ -65,6 +65,7 @@ public interface UkrdcService {
      *
      * @param patientRecord a UKRDC xml based object
      * @return a patient identifier or null if no match found
+     * @throws ImportResourceException
      */
-    String findIdentifier(PatientRecord patientRecord);
+    String findIdentifier(PatientRecord patientRecord) throws ImportResourceException;
 }

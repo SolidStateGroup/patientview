@@ -272,9 +272,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             throw new ImportResourceException("PatientNumbers must have at least one Number");
         }
 
-        if (StringUtils.isEmpty(findIdentifier(patientRecord))) {
-            throw new ImportResourceException("Could not match PatientNumbers to any patient identifier");
-        }
+        // check if we have anything against the patient in db
+        findIdentifier(patientRecord);
 
         // validate surveys
         if (patientRecord.getSurveys() != null && !CollectionUtils.isEmpty(patientRecord.getSurveys().getSurvey())) {
@@ -302,7 +301,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     @Override
     @Transactional
-    public String findIdentifier(PatientRecord patientRecord) {
+    public String findIdentifier(PatientRecord patientRecord) throws ImportResourceException {
+
+        String identifier = null;
 
         if (patientRecord.getPatient() != null
                 && patientRecord.getPatient().getPatientNumbers() != null
@@ -315,15 +316,32 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             for (PatientNumber number : patientRecord.getPatient().getPatientNumbers().getPatientNumber()) {
                 String patientNumber = number.getNumber();
                 if (StringUtils.isNotEmpty(patientNumber)) {
+
                     List<Identifier> identifiers = identifierRepository.findByValue(patientNumber);
-                    if (!CollectionUtils.isEmpty(identifiers) && identifiers.size() == 1) {
-                        return patientNumber;
+
+                    // just continue until we find one
+                    if (CollectionUtils.isEmpty(identifiers)) {
+                        identifier = null;
+                        continue;
                     }
+                    if (!CollectionUtils.isEmpty(identifiers) && identifiers.size() > 1) {
+                        throw new ImportResourceException("Found more then one identifier for patient number "
+                                + patientNumber);
+                    }
+
+                    identifier = patientNumber;
+                    break;
                 }
             }
+        } else {
+            throw new ImportResourceException("Missing patient number in PatientRecord");
         }
 
-        return null;
+        if (StringUtils.isEmpty(identifier)) {
+            throw new ImportResourceException("Could not match PatientNumbers to any patient identifier");
+        }
+
+        return identifier;
     }
 
     private void validateDocument(Document document) throws ImportResourceException {
