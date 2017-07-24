@@ -109,9 +109,11 @@ public interface UserService {
 
     /**
      * Update a User's secret word
-     * @param userId Id of User to update secret word for
+     *
+     * @param userId          Id of User to update secret word for
      * @param secretWordInput String pair containing secret word
-     * @param includeSalt whether to include salt in response
+     * @param includeSalt     whether to include salt in response
+     * @return newly generated salt a null if include salt param is false
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
@@ -125,9 +127,9 @@ public interface UserService {
      *
      * @param userId Id of User to check secret word for
      * @param salt   original salt value
+     * @return True if current secret word has been changed for the user, false otherwise
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
-     * @return True if current secret word has been changed for the user, false otherwise
      */
     @UserOnly
     boolean isSecretWordChanged(final Long userId, final String salt)
