@@ -122,8 +122,8 @@ public class ApiConfig {
     @Bean
     public FirebaseClient notificationClient() {
         return FirebaseClient.newBuilder()
-                .setKey(properties.getProperty("firebase.live"))
-                .setLive(new Boolean(properties.getProperty("firebase.api-key")))
+                .setKey(properties.getProperty("firebase.api-key"))
+                .setLive(new Boolean(properties.getProperty("firebase.live")))
                 .build();
     }
 }
