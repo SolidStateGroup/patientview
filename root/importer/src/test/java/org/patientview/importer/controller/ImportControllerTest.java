@@ -546,6 +546,20 @@ public class ImportControllerTest {
         post(getFileFromString("data/xml/gplogin_test_2/vvvv.xml"));
     }
 
+
+    // used to test mobile alerts notification for patient
+    @Test
+    @Ignore("IntegrationTest")
+    public void testImportResults_AlertNotification() throws Exception {
+        List<String> files = new ArrayList<>();
+        // contain real data, must be added to folder manually
+        files.add("data/xml/alerts/alerts_test.xml");
+
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
+
     String getTestFile() throws IOException, URISyntaxException {
         // local testing
         //String fileName = "data/xml/SAC02_01436_1111111111.xml";
