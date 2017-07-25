@@ -402,7 +402,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
         Date now = new Date();
         for (Alert alert : alerts) {
-            alert.setMobileAlert(true);
+            alert.setMobileAlertSent(true);
             alert.setLastUpdate(now);
             alertRepository.save(alert);
         }
