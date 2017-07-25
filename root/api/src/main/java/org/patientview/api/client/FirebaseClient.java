@@ -31,6 +31,8 @@ public class FirebaseClient {
      * @return FcmResponse object containing HTTP response info.
      */
     public String push(Long userId) {
+        LOG.info("Sending mobile push notification for user {}", userId);
+        LOG.info("Live {}  key", userId, SERVER_KEY);
         if (SERVER_KEY == null) {
             LOG.info("No Server-Key has been defined for firebase client.");
             return null;
@@ -69,7 +71,7 @@ public class FirebaseClient {
             HttpEntity<String> httpEntity = new HttpEntity<String>(body.toString(), httpHeaders);
             String response = restTemplate.postForObject(API_URL, httpEntity, String.class);
 
-            LOG.debug("Firebase client response " + response);
+            LOG.info("Firebase client response " + response);
             return response;
         } catch (Exception e) {
             LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
