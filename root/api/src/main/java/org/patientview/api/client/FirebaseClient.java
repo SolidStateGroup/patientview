@@ -1,5 +1,6 @@
 package org.patientview.api.client;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +33,8 @@ public class FirebaseClient {
      */
     public String push(Long userId) {
         LOG.info("Sending mobile push notification for user {}", userId);
-        LOG.info("Live {}  key", userId, SERVER_KEY);
-        if (SERVER_KEY == null) {
+        LOG.info("Live {}  key {}", userId, SERVER_KEY);
+        if (StringUtils.isEmpty(SERVER_KEY)) {
             LOG.info("No Server-Key has been defined for firebase client.");
             return null;
         }
