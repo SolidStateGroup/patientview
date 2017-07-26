@@ -291,6 +291,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // has secret word
             userToken.setCheckSecretWord(true);
 
+            boolean foundIndexes = false;
+            List<String> existingIndexes;
+
+            // get a list of none expired user token, could be more then one, multiple devices
+            List<UserToken> validTokens = userTokenRepository.findActiveByUser(user.getId());
+            // check if we have secret word indexes stored
+            for(UserToken token : validTokens){
+                if(null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()){
+
+                    existingIndexes = new ArrayList<>(token.getSecretWordIndexes());
+                    foundIndexes = true;
+                }
+            }
+
+            if(foundIndexes){
+
+            }else{
+                // follow the standard flow
+            }
+
             // choose two characters to check and add to secret word indexes for ui
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
@@ -299,6 +319,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
                 }
+
 
                 Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
                 secretWordMapNoSalt.remove("salt");
@@ -329,6 +350,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                 // set user token (must not be null)
                 userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
+                userToken.setSecretWordIndexes(Arrays.toString(secretWordIndexes.toArray()));
 
                 userTokenRepository.save(userToken);
             } catch (JsonSyntaxException jse) {
