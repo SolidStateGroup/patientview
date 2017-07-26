@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -47,6 +48,9 @@ public class UserToken extends BaseModel {
 
     @Column(name = "rate_limit", columnDefinition="numeric", precision=19, scale=2)
     private Double rateLimit;
+
+    @Column(name = "secret_word_indexes")
+    private Set<String> secretWordIndexes;
 
     public User getUser() {
         return user;
@@ -110,5 +114,13 @@ public class UserToken extends BaseModel {
 
     public void setRateLimit(Double rateLimit) {
         this.rateLimit = rateLimit;
+    }
+
+    public Set<String> getSecretWordIndexes() {
+        return secretWordIndexes;
+    }
+
+    public void setSecretWordIndexes(Set<String> secretWordIndexes) {
+        this.secretWordIndexes = secretWordIndexes;
     }
 }
