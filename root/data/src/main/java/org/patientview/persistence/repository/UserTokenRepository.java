@@ -43,6 +43,6 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     void deleteByUserId(@Param("userId") Long userId);
 
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM UserToken WHERE user.id = :userId AND expiration_date < NOW()")
+    @Query("DELETE FROM UserToken t WHERE user.id = :userId AND t.expiration < CURRENT_TIMESTAMP")
     void deleteExpiredByUserId(@Param("userId") Long userId);
 }
