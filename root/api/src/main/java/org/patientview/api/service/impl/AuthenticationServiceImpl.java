@@ -652,6 +652,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new ResourceForbiddenException("Secret word is not set");
         }
 
+        // extra check to make sure user not locked on secret words check
+        if (user.getLocked()) {
+            throw new ResourceForbiddenException("This account is locked");
+        }
+        if (user.getDeleted()) {
+            throw new ResourceForbiddenException("This account has been deleted");
+        }
+
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
                 user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
