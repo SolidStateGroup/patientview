@@ -27,6 +27,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -51,6 +52,11 @@ import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mail.MailException;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
@@ -351,6 +357,11 @@ public class UserServiceTest {
         groupRoles.add(groupRole);
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
+
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
 
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
 
@@ -1025,6 +1036,11 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
         String password = "newPassword";
 
         user.setChangePassword(Boolean.TRUE);
@@ -1281,5 +1297,29 @@ public class UserServiceTest {
 
         userService.usernameExists(staffUser.getUsername());
         verify(userRepository, times(1)).findByUsernameCaseInsensitive(eq(staffUser.getUsername()));
+    }
+
+    /**
+     * Helper class to help mock security context
+     */
+    private class TestAuthentication extends AbstractAuthenticationToken {
+        private final UserDetails principal;
+
+        public TestAuthentication(UserDetails principal) {
+            super(principal.getAuthorities());
+            this.principal = principal;
+        }
+
+        @Override
+        public UserToken getCredentials()
+        {
+            return new UserToken();
+        }
+
+        @Override
+        public UserDetails getPrincipal()
+        {
+            return principal;
+        }
     }
 }
