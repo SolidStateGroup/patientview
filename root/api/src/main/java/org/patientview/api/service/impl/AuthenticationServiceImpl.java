@@ -309,53 +309,54 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             }else{
                 // follow the standard flow
-            }
+                // choose two characters to check and add to secret word indexes for ui
+                try {
+                    Map<String, String> secretWordMap = new Gson().fromJson(
+                            user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
 
-            // choose two characters to check and add to secret word indexes for ui
-            try {
-                Map<String, String> secretWordMap = new Gson().fromJson(
-                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
+                    if (secretWordMap == null || secretWordMap.isEmpty()) {
+                        throw new AuthenticationServiceException("Secret word cannot be retrieved");
+                    }
 
-                if (secretWordMap == null || secretWordMap.isEmpty()) {
-                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
+
+                    Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
+                    secretWordMapNoSalt.remove("salt");
+
+                    List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
+                    List<String> secretWordIndexes = new ArrayList<>();
+
+                    // choose 2 secret word letters
+                    Random ran = new Random();
+                    int randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                    String indexOne = possibleIndexes.get(randomInt);
+
+                    possibleIndexes.remove(randomInt);
+                    randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                    String indexTwo = possibleIndexes.get(randomInt);
+
+                    // need to make sure indexes are returned in ASC order
+                    secretWordIndexes.add(indexOne);
+                    secretWordIndexes.add(indexTwo);
+                    Collections.sort(secretWordIndexes);
+                    toReturn.setSecretWordIndexes(secretWordIndexes);
+
+                    toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
+
+                    // set temporary token
+                    userToken.setSecretWordToken(CommonUtils.getAuthToken());
+                    toReturn.setSecretWordToken(userToken.getSecretWordToken());
+
+                    // set user token (must not be null)
+                    userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
+                    userToken.setSecretWordIndexes(Arrays.toString(secretWordIndexes.toArray()));
+
+                    userTokenRepository.save(userToken);
+                } catch (JsonSyntaxException jse) {
+                    throw new AuthenticationServiceException("Error retrieving secret word");
                 }
-
-
-                Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
-                secretWordMapNoSalt.remove("salt");
-
-                List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
-                List<String> secretWordIndexes = new ArrayList<>();
-
-                // choose 2 secret word letters
-                Random ran = new Random();
-                int randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                String indexOne = possibleIndexes.get(randomInt);
-
-                possibleIndexes.remove(randomInt);
-                randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                String indexTwo = possibleIndexes.get(randomInt);
-
-                // need to make sure indexes are returned in ASC order
-                secretWordIndexes.add(indexOne);
-                secretWordIndexes.add(indexTwo);
-                Collections.sort(secretWordIndexes);
-                toReturn.setSecretWordIndexes(secretWordIndexes);
-
-                toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
-
-                // set temporary token
-                userToken.setSecretWordToken(CommonUtils.getAuthToken());
-                toReturn.setSecretWordToken(userToken.getSecretWordToken());
-
-                // set user token (must not be null)
-                userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
-                userToken.setSecretWordIndexes(Arrays.toString(secretWordIndexes.toArray()));
-
-                userTokenRepository.save(userToken);
-            } catch (JsonSyntaxException jse) {
-                throw new AuthenticationServiceException("Error retrieving secret word");
             }
+
+
         } else {
             // no secret word, log in as usual
             userToken.setToken(CommonUtils.getAuthToken());
