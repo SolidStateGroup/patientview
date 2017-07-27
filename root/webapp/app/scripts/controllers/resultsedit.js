@@ -7,6 +7,7 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$root
 
         $scope.init = function () {
             $scope.loading = true;
+            $scope.dialysis = false;
 
             $scope.days = UtilService.generateDays();
             $scope.months = UtilService.generateMonths();
@@ -21,8 +22,10 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$root
 
             $scope.codes = [];
             $scope.observations = [];
+            $scope.dialysisResults = [];
 
             $scope.getPatientEnteredObservationHeadings();
+            $scope.getDialysisResults();
         };
 
         $scope.getPatientEnteredObservationHeadings = function () {
@@ -40,6 +43,35 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$root
                 }
             }, function () {
                 alert('Error retrieving result types');
+            });
+        };
+        $scope.getDialysisResults = function () {
+            var results = [];         
+            var promises = [];
+            var obs = [];
+
+            promises.push(ObservationService.getHomeDialysisResults($scope.loggedInUser.id)
+                .then(function (observations) {
+                    results = _.sortBy(observations, 'applies').reverse();
+                }, function () {
+                    alert('Error retrieving results');
+                    $scope.loading = false;
+                }));
+
+            $scope.tableObservations = false;
+            $scope.tableObservations = [];
+            $scope.tableObservationsKey = [];
+
+            $q.all(promises).then(function () {
+                $scope.observations = obs;
+                $scope.loading = false;
+               
+                    for (var i = 0; i < results.length; i++) {
+                        var observation = results[i];
+                        observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
+                        observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');
+                        $scope.dialysisResults.push(observation);
+                    }  
             });
         };
 
@@ -102,10 +134,15 @@ angular.module('patientviewApp').controller('ResultsEditCtrl', ['$scope', '$root
             }
         };
 
+        $scope.viewDialysisResults = function () {
+            $scope.dialysis = true;
+        };
+
         $scope.changeObservationHeading = function (code) {
             delete $scope.compareCode;
             delete $scope.editResult;
             delete $scope.successMessage;
+            $scope.dialysis = false;
 
             $scope.codes = [];
             $scope.codes.push(code);

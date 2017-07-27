@@ -4,7 +4,7 @@ import com.rabbitmq.client.Channel;
 import generated.Patientview;
 import generated.Survey;
 import generated.SurveyResponse;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.service.QueueService;
@@ -100,22 +100,27 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             LOG.info("UKRDC PatientRecord received, failed XML validation (" + ire.getMessage() + ")");
 
             if (!ire.isAnonymous()) {
-                String identifier = null;
-
                 // attempt to get identifier if exists, used by audit
-                if (patientRecord.getPatient() != null
-                        && patientRecord.getPatient().getPatientNumbers() != null
-                        && !CollectionUtils.isEmpty(patientRecord.getPatient().getPatientNumbers().getPatientNumber())
-                        && StringUtils.isNotEmpty(
-                        patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
-                    identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
+                String identifier = null;
+                try {
+                 identifier = ukrdcService.findIdentifier(patientRecord);
+                } catch (ImportResourceException ire2) {
+                    // no match in PV db, fall back to first patient number
+                    if (patientRecord.getPatient() != null
+                            && patientRecord.getPatient().getPatientNumbers() != null
+                            && !CollectionUtils.isEmpty(
+                            patientRecord.getPatient().getPatientNumbers().getPatientNumber())
+                            && StringUtils.isNotEmpty(
+                            patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber())) {
+                        identifier = patientRecord.getPatient().getPatientNumbers().getPatientNumber().get(0).getNumber();
+                    }
                 }
 
                 // audit
                 auditService.createAudit(AuditActions.UKRDC_VALIDATE_FAIL, identifier,
                         null, ire.getMessage(), stringWriter.toString(), importerUserId);
             }
-            throw(ire);
+            throw (ire);
         }
 
         // push to queue for processing
@@ -172,7 +177,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             // audit
             auditService.createAudit(AuditActions.SURVEY_VALIDATE_FAIL, null,
                     null, ire.getMessage(), stringWriter.toString(), importerUserId);
-            throw(ire);
+            throw (ire);
         }
 
         // push to queue for processing
@@ -207,7 +212,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             // audit
             auditService.createAudit(AuditActions.SURVEY_RESPONSE_VALIDATE_FAIL, surveyResponse.getIdentifier(),
                     null, ire.getMessage(), stringWriter.toString(), importerUserId);
-            throw(ire);
+            throw (ire);
         }
 
         // push to queue for processing

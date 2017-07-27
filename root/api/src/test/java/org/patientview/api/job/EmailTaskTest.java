@@ -45,5 +45,6 @@ public class EmailTaskTest {
         emailTask.sendAlertEmails();
         //verify(alertService, Mockito.times(1)).sendAlertEmails();
         verify(alertService, Mockito.times(1)).sendIndividualAlertEmails();
+        verify(alertService, Mockito.times(1)).pushNotifications();
     }
 }

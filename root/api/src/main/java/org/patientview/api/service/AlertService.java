@@ -35,7 +35,7 @@ public interface AlertService {
      * @throws FhirResourceException
      */
     @UserOnly
-    void addAlert(Long userId, Alert alert)
+    org.patientview.api.model.Alert addAlert(Long userId, Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
@@ -84,6 +84,11 @@ public interface AlertService {
     void sendAlertEmails();
 
     void sendIndividualAlertEmails();
+
+    /**
+     * Check for results mobile alerts and sends push notifications to Users
+     */
+    void pushNotifications();
 
     /**
      * Update a User's preferences for an alert, such as the notification settings.

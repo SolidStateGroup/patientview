@@ -11,6 +11,7 @@ import org.patientview.api.service.MigrationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirObservationRange;
 import org.patientview.persistence.model.MigrationUser;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RESTful interface for management and retrieval of observations (test results), stored in FHIR.
@@ -89,6 +91,24 @@ public class ObservationController extends BaseController<ObservationController>
         apiObservationService.addUserResultClusters(userId, userResultClusters);
     }
 
+    /**
+     * Used when Users enter their own results on the Enter Own Results page, takes a list of UserResultCluster and
+     * stores in FHIR under the PATIENT_ENTERED Group.
+     * @param userId ID of User to store patient entered results
+     * @param resultClusterMap List of UserResultCluster objects used to represent a number of user entered results
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/user/{userId}/observations/resultclusters/custom", method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void addDialysisResultClusters(@PathVariable("userId") Long userId,
+                                  @RequestBody Map<String, String> resultClusterMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException {
+        apiObservationService.addUserDialysisTreatmentResult(userId, resultClusterMap);
+    }
+
     // API
     /**
      * Get a list of all observations for a User of a specific Code (e.g. Creatinine, HbA1c).
@@ -129,6 +149,28 @@ public class ObservationController extends BaseController<ObservationController>
             @PathVariable("userId") Long userId, @PathVariable("code") String code)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(apiObservationService.getPatientEnteredByCode(userId, code), HttpStatus.OK);
+    }
+
+    /**
+     * Get a list of patient entered observations for a User of a Dialysis Treatment result cluster.
+     * <p>
+     * We are using custom form to enter results hence using custom endpoint to return a list of results
+     *
+     * @param userId ID of User to retrieve observations for
+     * @return List of FhirObservation representing test results in FHIR
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws FhirResourceException
+     */
+    @ExcludeFromApiDoc
+    @ApiOperation(value = "Get patient entered Observations of a Dialysis Treatment result cluster For a User",
+            notes = "Given a User ID, retrieve patient entered observations.")
+    @RequestMapping(value = "/user/{userId}/observations/patiententered/home-dialysis", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<FhirObservation>> getPatientEnteredObservationsHomeDialysis(
+            @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        return new ResponseEntity<>(apiObservationService.getPatientEnteredDialysisTreatment(userId), HttpStatus.OK);
     }
 
     /**

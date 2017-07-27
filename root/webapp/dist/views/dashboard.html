@@ -89,9 +89,7 @@
                             <dd>
                                 <ul class="unstyled groups-list">
                                     <li data-ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']"
-                                        data-ng-if="!((groupRole.role.name == 'MEMBER' && groupRole.group.code == 'GENERAL_PRACTICE')
-                                                        || (groupRole.role.name == 'PATIENT' && groupRole.group.code == 'Generic')
-                                                        || (groupRole.role.name == 'MEMBER' && groupRole.group.code == 'Generic'))"
+                                        data-ng-if="showGroupRole(groupRole)"
                                         class="group-li">
 
                                         <!-- renal, diabetes, heart failure, ibd -->
@@ -342,6 +340,14 @@
                                     <span data-ng-show="inactivePatients === null || inactivePatients === undefined">
                                         <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">unknown</a>)
                                     </span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="row" data-ng-if="permissions.showNhsIndicatorsLink && permissions.isRenalUser">
+                            <dl class="col-md-4">
+                                <dt>NHS Indicator Data</dt>
+                                <dd>
+                                    <a href="/#/nhsindicators?groupId={{graphGroupId}}#top">View NHS Indicator Statistics</a>
                                 </dd>
                             </dl>
                         </div>

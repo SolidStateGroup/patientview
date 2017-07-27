@@ -9,9 +9,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.ImportAlert;
 import org.patientview.api.service.impl.AlertServiceImpl;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Alert;
@@ -36,6 +38,7 @@ import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -92,6 +95,15 @@ public class AlertServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    private FirebaseClient notificationClient;
+
+    @Mock
+    private ObservationHeadingRepository observationHeadingRepository;
+
+    @Mock
+    private ApiObservationService apiObservationService;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -101,6 +113,86 @@ public class AlertServiceTest {
     @After
     public void tearDown() {
         TestUtils.removeAuthentication();
+    }
+
+    @Test
+    public void testAddAlert() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("Urea");
+        org.patientview.api.model.ObservationHeading observationModel =
+                new org.patientview.api.model.ObservationHeading(observationHeading);
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Alert alert = new Alert();
+
+        alert.setId(1L);
+        alert.setObservationHeading(observationHeading);
+        alert.setWebAlert(true);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(true);
+        alert.setEmailAlertSent(false);
+        alert.setUser(user);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(observationHeadingRepository.findOne(any(Long.class))).thenReturn(observationHeading);
+        when(alertRepository.findByUserAndObservationHeading(eq(user), eq(observationHeading)))
+                .thenReturn(null);
+        when(alertRepository.save(any(Alert.class))).thenReturn(alert);
+
+        alertService.addAlert(user.getId(), apiAlert);
+        verify(alertRepository, Mockito.times(1)).save(any(Alert.class));
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testAddAlert_alreadyExist() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("Urea");
+        org.patientview.api.model.ObservationHeading observationModel =
+                new org.patientview.api.model.ObservationHeading(observationHeading);
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // Alert set up by patient for new letters
+        Alert existingAlert = new Alert();
+        existingAlert.setAlertType(AlertTypes.RESULT);
+        existingAlert.setObservationHeading(observationHeading);
+        List<Alert> alerts = new ArrayList<>();
+        alerts.add(existingAlert);
+
+        Alert alert = new Alert();
+
+        alert.setId(1L);
+        alert.setObservationHeading(observationHeading);
+        alert.setWebAlert(true);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(true);
+        alert.setEmailAlertSent(false);
+        alert.setUser(user);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(observationHeadingRepository.findOne(any(Long.class))).thenReturn(observationHeading);
+        when(alertRepository.findByUserAndObservationHeading(eq(user), eq(observationHeading)))
+                .thenReturn(alerts);
+        when(alertRepository.save(any(Alert.class))).thenReturn(alert);
+
+        alertService.addAlert(user.getId(), apiAlert);
     }
 
     @Ignore("Security issue on live deploy, can be tested locally")
@@ -351,6 +443,41 @@ public class AlertServiceTest {
         alertService.sendIndividualAlertEmails();
 
         verify(emailService, Mockito.times(2)).sendEmail(any(Email.class));
+        verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
+    }
+
+    @Test
+    public void testPushNotifications() throws Exception {
+
+        User user = TestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+
+        Alert alert = new Alert();
+        alert.setMobileAlertSent(false);
+        alert.setMobileAlert(true);
+        alert.setUser(user);
+        alert.setId(1L);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        User user2 = TestUtils.createUser("test2User");
+        user2.setEmail("test2@solidstategroup.com");
+
+        Alert alert2 = new Alert();
+        alert2.setMobileAlertSent(false);
+        alert2.setMobileAlert(true);
+        alert2.setUser(user2);
+        alert2.setId(2L);
+        alert2.setAlertType(AlertTypes.RESULT);
+
+        List<Alert> alerts = new ArrayList<>();
+        alerts.add(alert);
+        alerts.add(alert2);
+
+        when(alertRepository.findByMobileAlertSetAndNotSent()).thenReturn(alerts);
+
+        alertService.pushNotifications();
+
+        verify(notificationClient, Mockito.times(2)).push(any(Long.class));
         verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
     }
 }

@@ -1,8 +1,12 @@
-/* result clusters (requires observation headings) */
+/* result clusters (requires observation headings)
+ Using Custom form for Dialysis Treatment hence not adding any observation headings to
+*/
 INSERT INTO "pv_result_cluster" ( "id", "name")
 VALUES (1 , 'Blood Pressure, Glucose, Weight' );
 INSERT INTO "pv_result_cluster" ( "id", "name")
 VALUES (2 , 'U + E test' );
+INSERT INTO "pv_result_cluster" ( "id", "name")
+VALUES (3 , 'Dialysis Treatment' );
 
 INSERT INTO "pv_result_cluster_observation_heading" ( "display_order", "id", "observation_heading_id", "result_cluster_id")
 VALUES ( 1, 1, (SELECT id FROM pv_observation_heading WHERE pv_observation_heading.code ='bpsys'),  1);
@@ -69,3 +73,18 @@ FROM pv_group
 WHERE type_id = 1
 AND visible = TRUE
 AND id NOT IN(SELECT group_id FROM pv_feature_group WHERE feature_id = featureIDmsg())
+
+-- Cannot rely on admin to populate this correctly so having this script to insert all new headings
+INSERT INTO "pv_observation_heading"(
+    "id","code", "heading", "name", "normal_range", "units", "min_graph", "max_graph", "info_link", "default_panel",
+    "default_panel_order", "decimal_places", "creation_date", "created_by", "last_update_date", "last_updated_by") VALUES
+     (nextval('hibernate_sequence'), 'HdHours','Hours', 'in hours',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'HdLocation','Location', 'in hours',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'eprex','Eprex', 'in iu',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'TargetWeight','Target Weight', 'in kg',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'UfVolume','UF Volume', 'in mL',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'BodyTemperature','Body Temp', 'in °C',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'hypotension','Symptomatic Hypotension', '',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'bps','BPS', '',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'DialFlow','Dial Flow', '',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL),
+     (nextval('hibernate_sequence'),'LitresProcessed','Litres Processed', '',   NULL, NULL, NULL, NULL,'', NULL, 1, NULL, NOW(), NULL, NULL, NULL);

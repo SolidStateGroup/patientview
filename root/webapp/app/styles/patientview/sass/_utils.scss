@@ -115,6 +115,12 @@ ol.unstyled {
 input.ng-pristine + ul#strength {
     display:none;
 }
+
+/** TODO review this, has effect across all input fields */
+input.ng-dirty.ng-invalid {
+  border: 1px solid Red;
+}
+
 ul#strength {
     display:inline;
     list-style:none;
