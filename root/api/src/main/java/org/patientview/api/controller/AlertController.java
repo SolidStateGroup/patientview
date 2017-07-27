@@ -42,15 +42,17 @@ public class AlertController extends BaseController<AlertController> {
      * Add an Alert for a User, can be a AlertTypes.RESULT or AlertTypes.LETTER alert.
      * @param userId ID of User adding Alert
      * @param alert Alert object, with User preferences, e.g. observation heading and web/email notification preferences
+     * @return created Alert
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
     @RequestMapping(value = "/user/{userId}/alert", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void addAlert(@PathVariable("userId") Long userId, @RequestBody Alert alert)
+    public ResponseEntity<Alert> addAlert(@PathVariable("userId") Long userId, @RequestBody Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         alertService.addAlert(userId, alert);
+        return new ResponseEntity<>(alertService.addAlert(userId, alert), HttpStatus.OK);
     }
 
     /**

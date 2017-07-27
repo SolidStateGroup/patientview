@@ -140,7 +140,13 @@ input.ng-pristine + ul#strength {
   display: none;
 }
 
-/* line 118, ../sass/_utils.scss */
+/** TODO review this, has effect across all input fields */
+/* line 120, ../sass/_utils.scss */
+input.ng-dirty.ng-invalid {
+  border: 1px solid Red;
+}
+
+/* line 124, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -150,12 +156,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 126, ../sass/_utils.scss */
+/* line 132, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 129, ../sass/_utils.scss */
+/* line 135, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -165,7 +171,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 137, ../sass/_utils.scss */
+/* line 143, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;

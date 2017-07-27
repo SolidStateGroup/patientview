@@ -45,6 +45,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getHomeDialysisResults: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/observations/patiententered/home-dialysis
+            Restangular.one('user', userId).one('observations').one('patiententered').one('home-dialysis').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getByCodes: function (userId, codes, limit, offset, orderDirection) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations
@@ -67,33 +77,50 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        saveResultClusters: function (userId, resultClusters) {
+        saveResultClusters: function (userId, resultClusters, isDialysis) {
             var toSend = [];
 
-            for (var i=0;i<resultClusters.length;i++) {
-                var userResultCluster = _.clone(resultClusters[i]);
-                var values = [];
+            if(!isDialysis){
+                for (var i=0;i<resultClusters.length;i++) {
+                    var userResultCluster = _.clone(resultClusters[i]);
+                    var values = [];                 
 
-                for (var key in userResultCluster.values) {
-                    if (userResultCluster.values.hasOwnProperty(key)) {
-                        values.push({'id':key, 'value':userResultCluster.values[key]});
+                    for (var key in userResultCluster.values) {
+                        if (userResultCluster.values.hasOwnProperty(key)) {
+                            values.push({'id':key, 'value':userResultCluster.values[key]});
+                        }
                     }
+
+                    userResultCluster.values = values;
+                    toSend.push(UtilService.cleanObject(userResultCluster, 'resultCluster'));
                 }
 
-                userResultCluster.values = values;
-                toSend.push(UtilService.cleanObject(userResultCluster, 'resultCluster'));
-            }
+                var deferred = $q.defer();
+                // POST /user/{userId}/observations/resultclusters
+                Restangular.one('user', userId).one('observations').one('resultclusters').customPOST(toSend)
+                    .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+                return deferred.promise;
+            }else{
+                var userResultCluster = _.clone(resultClusters[0]);
+                var deferred = $q.defer();
 
-            var deferred = $q.defer();
-            // POST /user/{userId}/observations/resultclusters
-            Restangular.one('user', userId).one('observations').one('resultclusters').customPOST(toSend)
-                .then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
+               var cleanedObj = UtilService.cleanObject(userResultCluster, 'dialysisTreatment');
+
+                // POST /user/{userId}/observations/resultclusters/custom
+                Restangular.one('user', userId).one('observations').one('resultclusters').one('custom').customPOST(cleanedObj)
+                    .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+                return deferred.promise;
+            }
+            
+        },        
         saveResultCluster: function (adminId, userId, resultCluster) {
 
             var date = new Date(resultCluster.year, resultCluster.month - 1, resultCluster.day, resultCluster.hour, resultCluster.minute, 0, 0);

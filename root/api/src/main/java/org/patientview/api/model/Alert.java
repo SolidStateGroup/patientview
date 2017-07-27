@@ -18,6 +18,8 @@ public class Alert {
     private boolean webAlertViewed;
     private boolean emailAlert;
     private boolean emailAlertSent;
+    private boolean mobileAlert;
+    private boolean mobileAlertSent;
     private String latestValue;
     private Date latestDate;
     private BaseUser user;
@@ -33,6 +35,8 @@ public class Alert {
         this.webAlertViewed = alert.isWebAlertViewed();
         this.emailAlert = alert.isEmailAlert();
         this.emailAlertSent = alert.isEmailAlertSent();
+        this.mobileAlert = alert.isMobileAlert();
+        this.mobileAlertSent = alert.isMobileAlertSent();
         this.latestValue = alert.getLatestValue();
         this.latestDate = alert.getLatestDate();
         this.user = new BaseUser(user);
@@ -87,6 +91,22 @@ public class Alert {
 
     public void setEmailAlertSent(boolean emailAlertSent) {
         this.emailAlertSent = emailAlertSent;
+    }
+
+    public boolean isMobileAlert() {
+        return mobileAlert;
+    }
+
+    public void setMobileAlert(boolean mobileAlert) {
+        this.mobileAlert = mobileAlert;
+    }
+
+    public boolean isMobileAlertSent() {
+        return mobileAlertSent;
+    }
+
+    public void setMobileAlertSent(boolean mobileAlertSent) {
+        this.mobileAlertSent = mobileAlertSent;
     }
 
     public String getLatestValue() {

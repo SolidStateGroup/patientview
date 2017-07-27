@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
+import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.ContactAlert;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirObservation;
@@ -92,8 +93,11 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private FirebaseClient notificationClient;
+
     @Override
-    public void addAlert(Long userId, org.patientview.api.model.Alert alert)
+    public org.patientview.api.model.Alert addAlert(Long userId, org.patientview.api.model.Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -113,6 +117,12 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                         = observationHeadingRepository.findOne(alert.getObservationHeading().getId());
                 if (observationHeading == null) {
                     throw new ResourceNotFoundException("Could not find result type");
+                }
+
+                // need to make sure we only have one alert for this result type per user
+                List<Alert> alerts = alertRepository.findByUserAndObservationHeading(user, observationHeading);
+                if (!CollectionUtils.isEmpty(alerts)) {
+                    throw new ResourceForbiddenException("Alert for result already exist");
                 }
 
                 List<FhirObservation> fhirObservations
@@ -157,10 +167,13 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         newAlert.setWebAlertViewed(true);
         newAlert.setEmailAlert(alert.isEmailAlert());
         newAlert.setEmailAlertSent(true);
+        newAlert.setMobileAlert(alert.isMobileAlert());
+        newAlert.setMobileAlertSent(true);
         newAlert.setCreated(new Date());
         newAlert.setCreator(user);
 
-        alertRepository.save(newAlert);
+        newAlert = alertRepository.save(newAlert);
+        return new org.patientview.api.model.Alert(newAlert, user);
     }
 
     @Override
@@ -370,6 +383,32 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    @Async
+    public void pushNotifications() {
+        List<Alert> alerts = alertRepository.findByMobileAlertSetAndNotSent();
+        LOG.info("Notifications: " + alerts.size() + " alerts found for push notification");
+
+        // Patient might have multiple alerts setup,
+        // we only need to send one notification per Patient
+        Set<Long> userIds = new HashSet<>();
+        for (Alert alert : alerts) {
+            userIds.add(alert.getUser().getId());
+        }
+
+        // send notification to user using firebase
+        for (Long userId : userIds) {
+            notificationClient.push(userId);
+        }
+
+        Date now = new Date();
+        for (Alert alert : alerts) {
+            alert.setMobileAlertSent(true);
+            alert.setLastUpdate(now);
+            alertRepository.save(alert);
+        }
+    }
+
+    @Override
     public void removeAlert(Long userId, Long alertId) throws ResourceNotFoundException, ResourceForbiddenException {
 
         User user = userRepository.findOne(userId);
@@ -411,6 +450,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             entityAlert.setWebAlert(alert.isWebAlert());
             entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
             entityAlert.setEmailAlert(alert.isEmailAlert());
+            entityAlert.setMobileAlert(alert.isMobileAlert());
             alertRepository.save(entityAlert);
         } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
             if (!alert.isWebAlert() && !alert.isEmailAlert()) {
@@ -419,6 +459,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                 entityAlert.setWebAlert(alert.isWebAlert());
                 entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
                 entityAlert.setEmailAlert(alert.isEmailAlert());
+                entityAlert.setMobileAlert(alert.isMobileAlert());
                 alertRepository.save(entityAlert);
             }
         } else {

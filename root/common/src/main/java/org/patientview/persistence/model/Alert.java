@@ -40,6 +40,12 @@ public class Alert extends AuditModel {
     @Column(name = "email_alert_sent", nullable = false)
     private boolean emailAlertSent;
 
+    @Column(name = "mobile_alert", nullable = false)
+    private boolean mobileAlert;
+
+    @Column(name = "mobile_alert_sent", nullable = false)
+    private boolean mobileAlertSent;
+
     @Column(name = "latest_value")
     private String latestValue;
 
@@ -99,6 +105,22 @@ public class Alert extends AuditModel {
 
     public void setEmailAlertSent(boolean emailAlertSent) {
         this.emailAlertSent = emailAlertSent;
+    }
+
+    public boolean isMobileAlert() {
+        return mobileAlert;
+    }
+
+    public void setMobileAlert(boolean mobileAlert) {
+        this.mobileAlert = mobileAlert;
+    }
+
+    public boolean isMobileAlertSent() {
+        return mobileAlertSent;
+    }
+
+    public void setMobileAlertSent(boolean mobileAlertSent) {
+        this.mobileAlertSent = mobileAlertSent;
     }
 
     public String getLatestValue() {

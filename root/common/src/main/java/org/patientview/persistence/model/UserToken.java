@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +11,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -45,8 +50,11 @@ public class UserToken extends BaseModel {
     @Column(name = "secret_word_token")
     private String secretWordToken;
 
-    @Column(name = "rate_limit", columnDefinition="numeric", precision=19, scale=2)
+    @Column(name = "rate_limit", columnDefinition = "numeric", precision = 19, scale = 2)
     private Double rateLimit;
+
+    @Column(name = "secret_word_indexes")
+    private String secretWordIndexes;
 
     public User getUser() {
         return user;
@@ -110,5 +118,18 @@ public class UserToken extends BaseModel {
 
     public void setRateLimit(Double rateLimit) {
         this.rateLimit = rateLimit;
+    }
+
+    public List<String> getSecretWordIndexes() {
+        if (StringUtils.isNotBlank(secretWordIndexes)) {
+            return new ArrayList<>(Arrays.asList((secretWordIndexes.split(","))));
+        }
+        return null;
+    }
+
+    public void setSecretWordIndexes(List<String> secretWordIndexes) {
+        if (null != secretWordIndexes && !secretWordIndexes.isEmpty()) {
+            this.secretWordIndexes = StringUtils.join(secretWordIndexes, ",");
+        }
     }
 }

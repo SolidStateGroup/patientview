@@ -49,6 +49,9 @@ public class UserToken {
     // used to show/hide enter own diagnosis on dashboard
     private boolean shouldEnterCondition = false;
 
+    // used to return encrypted secret word on initial login request
+    private String secretWord;
+
     public UserToken() {
     }
 
@@ -249,5 +252,13 @@ public class UserToken {
 
     public void setShouldEnterCondition(boolean shouldEnterCondition) {
         this.shouldEnterCondition = shouldEnterCondition;
+    }
+
+    public String getSecretWord() {
+        return secretWord;
+    }
+
+    public void setSecretWord(String secretWord) {
+        this.secretWord = secretWord;
     }
 }

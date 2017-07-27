@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.User;
 import org.patientview.api.model.UserToken;
@@ -31,6 +32,17 @@ public interface AuthenticationService extends UserDetailsService {
      * @throws AuthenticationServiceException
      */
     UserToken authenticate(Credentials credentials) throws AuthenticationServiceException;
+
+    /**
+     * Authenticate a User given credentials.
+     * Extra security added to mobile, and will return 3 random characters from secret word.
+     *
+     * @param credentials   Credentials object containing username, password
+     * @param includeSecret whether to set secret in user token
+     * @return UserToken containing authentication token, used in all future authenticated requests
+     * @throws AuthenticationServiceException
+     */
+    UserToken authenticateMobile(Credentials credentials, boolean includeSecret) throws AuthenticationServiceException;
 
     /**
      * Store Authentication object in Spring Security

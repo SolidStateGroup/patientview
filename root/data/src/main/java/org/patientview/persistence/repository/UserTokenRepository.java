@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -22,6 +23,12 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     UserToken findBySecretWordToken(String secretWordToken);
 
     UserToken findByToken(String token);
+
+    @Query("SELECT t FROM UserToken t WHERE user.id = :userId")
+    List<UserToken> findByUser(@Param("userId") Long userId);
+
+    @Query("SELECT t FROM UserToken t WHERE user.id = :userId AND t.expiration > CURRENT_TIMESTAMP")
+    List<UserToken> findActiveByUser(@Param("userId") Long userId);
 
     @Query("SELECT CASE WHEN (userToken.expiration < CURRENT_TIMESTAMP ) THEN TRUE ELSE FALSE END " +
             "FROM UserToken userToken WHERE userToken.token = :token")
@@ -37,4 +44,8 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserToken WHERE user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM UserToken t WHERE user.id = :userId AND t.expiration < CURRENT_TIMESTAMP")
+    void deleteExpiredByUserId(@Param("userId") Long userId);
 }
