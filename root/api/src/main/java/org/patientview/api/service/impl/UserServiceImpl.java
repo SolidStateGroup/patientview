@@ -10,13 +10,13 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -37,6 +37,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
@@ -188,9 +189,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
-
-    @Inject
-    private AuthenticationService authenticationService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -550,7 +548,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             userRepository.save(user);
 
             // cleanup any session linked with user except the current one
-            authenticationService.cleanUpUserTokens(user.getId());
+            cleanUpUserTokens(user.getId());
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -594,7 +592,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             userRepository.save(user);
 
             // cleanup any session linked with user except the current one
-            authenticationService.cleanUpUserTokens(user.getId());
+            cleanUpUserTokens(user.getId());
 
             return includeSalt ? salt : null;
         } catch (NoSuchAlgorithmException e) {
@@ -888,6 +886,35 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         for (GroupRole groupRole : toRemove) {
             deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
                     groupRole.getRole().getId(), false);
+        }
+    }
+
+    /**
+     * Cleanup all the session tokens for the user except the current session.
+     *
+     * Used when user changes his password we need to invalidate all the session except the current one.
+     *
+     * This method require user to be logged in as UserToken associated with current security context is
+     * used to compare with other sessions in DB.
+     *
+     * @param userId ID of the user to clean sessions for
+     */
+    private void cleanUpUserTokens(Long userId) {
+        LOG.info("Cleaning up user {} session tokens", userId);
+        try {
+            // when user changes his password we need to invalidate all the session except the current one
+            UserToken sessionToken = ApiUtil.getCurrentUserToken();
+
+            List<UserToken> tokens = userTokenRepository.findByUser(userId);
+            if (tokens != null && sessionToken != null) {
+                for (UserToken token : tokens) {
+                    if (!token.getToken().equals(sessionToken.getToken())) {
+                        userTokenRepository.delete(token);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to cleanup user sessions, after password update", e);
         }
     }
 
