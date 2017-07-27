@@ -48,4 +48,7 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     @Query("SELECT a FROM Alert a WHERE a.emailAlert = true AND a.emailAlertSent = false")
     List<Alert> findByEmailAlertSetAndNotSent();
+
+    @Query("SELECT a FROM Alert a WHERE a.mobileAlert = true AND a.mobileAlertSent = false")
+    List<Alert> findByMobileAlertSetAndNotSent();
 }

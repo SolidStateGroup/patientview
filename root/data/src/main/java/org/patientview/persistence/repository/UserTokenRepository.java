@@ -24,6 +24,9 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
 
     UserToken findByToken(String token);
 
+    @Query("SELECT t FROM UserToken t WHERE user.id = :userId")
+    List<UserToken> findByUser(@Param("userId") Long userId);
+
     @Query("SELECT t FROM UserToken t WHERE user.id = :userId AND t.expiration > CURRENT_TIMESTAMP")
     List<UserToken> findActiveByUser(@Param("userId") Long userId);
 
@@ -41,4 +44,8 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserToken WHERE user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM UserToken t WHERE user.id = :userId AND t.expiration < CURRENT_TIMESTAMP")
+    void deleteExpiredByUserId(@Param("userId") Long userId);
 }

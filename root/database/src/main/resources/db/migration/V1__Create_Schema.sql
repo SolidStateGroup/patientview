@@ -615,6 +615,8 @@ CREATE TABLE PV_Alert
   Web_Alert_Viewed            BOOLEAN      NOT NULL,
   Email_Alert                 BOOLEAN      NOT NULL,
   Email_Alert_Sent            BOOLEAN      NOT NULL,
+  Mobile_Alert                 BOOLEAN      NOT NULL,
+  Mobile_Alert_Sent            BOOLEAN      NOT NULL,
   User_Id                     BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Observation_Heading_Id      BIGINT       REFERENCES PV_Observation_Heading (Id),
   Latest_Value                TEXT,
