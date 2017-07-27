@@ -164,11 +164,42 @@ public class UserController extends BaseController<UserController> {
         userService.addPicture(userId, base64);
     }
 
+    /**
+     * Change the secret word for the user
+     *
+     * @param userId          a user id to change secret word for
+     * @param secretWordInput a String pair containing secret word
+     * @param salt            whether to include salt in response
+     * @return newly generated salt a null if include salt param is false
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/user/{userId}/changeSecretWord", method = RequestMethod.POST)
     @ResponseBody
-    public void changeSecretWord(@PathVariable("userId") Long userId, @RequestBody SecretWordInput secretWordInput)
+    public ResponseEntity<String> changeSecretWord(@PathVariable("userId") Long userId,
+                                                   @RequestBody SecretWordInput secretWordInput,
+                                                   @RequestParam(value = "salt", required = false) String salt)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        userService.changeSecretWord(userId, secretWordInput);
+        return new ResponseEntity<>(
+                userService.changeSecretWord(userId, secretWordInput, StringUtils.isNotBlank(salt)),
+                HttpStatus.OK);
+    }
+
+    /**
+     * Check if secret word has changed for the user.
+     *
+     * @param userId user id to validate secret word for
+     * @param salt   an original salt value
+     * @return if current secret word has been changed for the user, false otherwise
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/checkSecretWord/{salt}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Boolean> checkSecretWord(@PathVariable("userId") Long userId,
+                                                   @PathVariable(value = "salt") String salt)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(userService.isSecretWordChanged(userId, salt), HttpStatus.OK);
     }
 
     /**

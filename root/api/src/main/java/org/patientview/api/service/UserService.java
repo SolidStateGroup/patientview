@@ -109,13 +109,30 @@ public interface UserService {
 
     /**
      * Update a User's secret word
-     * @param userId Id of User to update secret word for
+     *
+     * @param userId          Id of User to update secret word for
      * @param secretWordInput String pair containing secret word
+     * @param includeSalt     whether to include salt in response
+     * @return newly generated salt a null if include salt param is false
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @UserOnly
-    void changeSecretWord(final Long userId, final SecretWordInput secretWordInput)
+    String changeSecretWord(final Long userId, final SecretWordInput secretWordInput, final boolean includeSalt)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Check if secret word has changed.
+     * Used by mobile up to compare if secret word was updated using web
+     *
+     * @param userId Id of User to check secret word for
+     * @param salt   original salt value
+     * @return True if current secret word has been changed for the user, false otherwise
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    boolean isSecretWordChanged(final Long userId, final String salt)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

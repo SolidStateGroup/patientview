@@ -8,6 +8,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -128,6 +129,19 @@ public final class ApiUtil {
         }
 
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    /**
+     * Get UserToken associated with current security context
+     *
+     * @return a UserToken object or null if nothing found
+     */
+    public static UserToken getCurrentUserToken() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return null;
+        }
+
+        return (UserToken) SecurityContextHolder.getContext().getAuthentication().getCredentials();
     }
 
     /**

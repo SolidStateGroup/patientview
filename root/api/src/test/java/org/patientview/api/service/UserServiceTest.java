@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +15,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -25,6 +27,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -49,10 +52,16 @@ import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.service.AuditService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mail.MailException;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -131,6 +140,9 @@ public class UserServiceTest {
 
     @Mock
     private UserTokenRepository userTokenRepository;
+
+    @Mock
+    private AuthenticationService authenticationService;
 
     @Before
     public void setUp() throws Exception {
@@ -346,13 +358,106 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
-        userService.changeSecretWord(user.getId(), secretWordInput);
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
 
         verify(userRepository, times(1)).save(any(User.class));
+        verify(userTokenRepository, times(1)).findByUser(user.getId());
+    }
+
+    @Test
+    public void testChangeSecretWord_returnSalt() throws ResourceNotFoundException, ResourceForbiddenException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
+        SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        String salt = userService.changeSecretWord(user.getId(), secretWordInput, true);
+
+        verify(userRepository, times(1)).save(any(User.class));
+        Assert.assertNotNull("Should return salt", salt);
+    }
+
+    @Test
+    public void testIsSecretWordChanged_theSame() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+
+        //  generate secret word
+        String salt = CommonUtils.generateSalt();
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        boolean isChanged = userService.isSecretWordChanged(user.getId(), salt);
+
+        Assert.assertFalse("Salt should be the same", isChanged);
+    }
+
+    @Test
+    public void testIsSecretWordChanged_changed() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        //  generate secret word
+        String salt = CommonUtils.generateSalt();
+        String oldSalt = CommonUtils.generateSalt();
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        boolean isChanged = userService.isSecretWordChanged(user.getId(), oldSalt);
+
+        Assert.assertTrue("Salt should be be different", isChanged);
     }
 
     @Test (expected = ResourceForbiddenException.class)
@@ -371,7 +476,7 @@ public class UserServiceTest {
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
 
-        userService.changeSecretWord(user.getId(), secretWordInput);
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
     }
 
     @Test
@@ -936,12 +1041,18 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
         String password = "newPassword";
 
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
         verify(userRepository, times(3)).findOne(eq(user.getId()));
+        verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
 
     @Test
@@ -1191,5 +1302,29 @@ public class UserServiceTest {
 
         userService.usernameExists(staffUser.getUsername());
         verify(userRepository, times(1)).findByUsernameCaseInsensitive(eq(staffUser.getUsername()));
+    }
+
+    /**
+     * Helper class to help mock security context
+     */
+    private class TestAuthentication extends AbstractAuthenticationToken {
+        private final UserDetails principal;
+
+        public TestAuthentication(UserDetails principal) {
+            super(principal.getAuthorities());
+            this.principal = principal;
+        }
+
+        @Override
+        public UserToken getCredentials()
+        {
+            return new UserToken();
+        }
+
+        @Override
+        public UserDetails getPrincipal()
+        {
+            return principal;
+        }
     }
 }

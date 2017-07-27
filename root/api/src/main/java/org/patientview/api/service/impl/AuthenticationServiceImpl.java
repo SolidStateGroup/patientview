@@ -89,8 +89,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
     private static Integer sessionLength;
+    public static final long MOBILE_SESSION_TIMEOUT = 631139040000l; // 20 years
 
     private static final int SECRET_WORD_LETTER_COUNT = 2;
+    private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
 
     @Inject
     private ApiConditionService apiConditionService;
@@ -296,9 +298,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             // get a list of none expired user token, could be more then one, multiple devices
             List<UserToken> validTokens = userTokenRepository.findActiveByUser(user.getId());
-            // check if we have secret word indexes stored
+            // check if we have secret word indexes stored and also if still secret word still need to be checked
             for (UserToken token : validTokens) {
-                if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()) {
+                if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()
+                        && token.isCheckSecretWord()
+                        && StringUtils.isNotBlank(token.getSecretWordToken())) {
                     foundToken = token;
                     break;
                 }
@@ -365,7 +369,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 }
             }
 
-
         } else {
             // no secret word, log in as usual
             userToken.setToken(CommonUtils.getAuthToken());
@@ -374,6 +377,151 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             updateUserAndAuditLogin(user, password);
         }
+
+        // clean up any expired tokens for user
+        userTokenRepository.deleteExpiredByUserId(user.getId());
+
+        return toReturn;
+    }
+
+    @CacheEvict(value = "authenticateOnToken", allEntries = true)
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    @Override
+    public org.patientview.api.model.UserToken authenticateMobile(Credentials credentials, boolean includeSecret)
+            throws AuthenticationServiceException {
+        String username = credentials.getUsername();
+        String password = credentials.getPassword();
+
+        // temporary logging for PSQLException testing on production
+        LOG.info("Authenticating mobile'" + username + "'");
+
+        // validate null
+        if (username == null || password == null) {
+            throw new AuthenticationServiceException("Incorrect username or password.");
+        }
+
+        // trim username (ipad adds space if you tap space after username to auto enter details)
+        // also replace null character (causing PSQLException: ERROR: invalid byte sequence for encoding "UTF8": 0x00)
+        username = username.trim().replaceAll("\\x00", "");
+
+        // strip spaces from beginning and end of password
+        password = password.trim();
+
+        // check not empty
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+            throw new AuthenticationServiceException("Incorrect username or password");
+        }
+
+        User user = userRepository.findByUsernameCaseInsensitive(username);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Incorrect username or password");
+        }
+        if (user.getLocked()) {
+            throw new AuthenticationServiceException("This account is locked");
+        }
+        if (user.getDeleted()) {
+            throw new AuthenticationServiceException("This account has been deleted");
+        }
+
+        if (!user.getPassword().equals(DigestUtils.sha256Hex(password)) && user.getSalt() == null) {
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
+            incrementFailedLogon(user);
+            throw new AuthenticationServiceException("Incorrect username or password");
+        } else if (user.getSalt() != null
+                && !user.getPassword().equals(
+                DigestUtils.sha256Hex(password + user.getSalt()))) {
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
+            incrementFailedLogon(user);
+            throw new AuthenticationServiceException("Incorrect username or password");
+        }
+
+        // Make sure only patients can access the mobile login
+        if (!ApiUtil.userHasRole(user, RoleName.PATIENT)) {
+            throw new AuthenticationServiceException("This account is not PATIENT, please make use user is a patient.");
+        }
+
+        Date now = new Date();
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + MOBILE_SESSION_TIMEOUT)); // 20 years
+
+        org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
+        setRateLimit(userToken, null);
+
+        // if user has a secret word set then set check secret word to true, informs ui and is used as second part
+        // of multi factor authentication
+        if (!StringUtils.isEmpty(user.getSecretWord())) {
+            // has secret word
+            userToken.setCheckSecretWord(true);
+            toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
+
+            // Check if mobile needs secure details to be returned with initial request
+            if (includeSecret) {
+                toReturn.setSecretWord(user.getSecretWord());
+            }
+
+            // set temporary token
+            userToken.setSecretWordToken(CommonUtils.getAuthToken());
+            toReturn.setSecretWordToken(userToken.getSecretWordToken());
+
+            // set user token (must not be null)
+            userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
+
+            // choose three characters to check and add to secret word indexes for ui
+            try {
+                Map<String, String> secretWordMap = new Gson().fromJson(
+                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                        }.getType());
+
+                if (secretWordMap == null || secretWordMap.isEmpty()) {
+                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
+                }
+
+                Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
+                secretWordMapNoSalt.remove("salt");
+
+                List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
+                List<String> secretWordIndexes = new ArrayList<>();
+
+                // For mobile choose 3 secret word letters
+                Random ran = new Random();
+                int randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                String indexOne = possibleIndexes.get(randomInt);
+
+                possibleIndexes.remove(randomInt);
+                randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                String indexTwo = possibleIndexes.get(randomInt);
+
+                possibleIndexes.remove(randomInt);
+                randomInt = ran.nextInt(possibleIndexes.size() - 1);
+                String indexThree = possibleIndexes.get(randomInt);
+
+                // need to make sure indexes are returned in ASC order
+                secretWordIndexes.add(indexOne);
+                secretWordIndexes.add(indexTwo);
+                secretWordIndexes.add(indexThree);
+                Collections.sort(secretWordIndexes);
+                toReturn.setSecretWordIndexes(secretWordIndexes);
+
+                userTokenRepository.save(userToken);
+            } catch (JsonSyntaxException jse) {
+                throw new AuthenticationServiceException("Error retrieving secret word");
+            }
+        } else {
+            // no secret word, log in as usual
+            userToken.setToken(CommonUtils.getAuthToken());
+            userToken = userTokenRepository.save(userToken);
+            toReturn.setToken(userToken.getToken());
+
+            updateUserAndAuditLogin(user, password);
+        }
+
+        // clean up any expired tokens for user
+        userTokenRepository.deleteExpiredByUserId(user.getId());
 
         return toReturn;
     }
@@ -506,6 +654,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new ResourceForbiddenException("Secret word is not set");
         }
 
+        // extra check to make sure user not locked on secret words check
+        if (user.getLocked()) {
+            throw new ResourceForbiddenException("This account is locked");
+        }
+        if (user.getDeleted()) {
+            throw new ResourceForbiddenException("This account has been deleted");
+        }
+
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
                 user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
@@ -520,15 +676,24 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         String salt = secretWordMap.get("salt");
 
-        if (letterMap.keySet().size() < SECRET_WORD_LETTER_COUNT) {
+        // We accept only 2 letters for Web or 3 letters  for Mobile
+        if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT &&
+                letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
             throw new ResourceForbiddenException("Must include all requested secret word letters");
         }
 
         // check entered letters against salted values
+        boolean checkFailed = false;
         for (String toCheck : letterMap.keySet()) {
             if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
-                throw new ResourceForbiddenException("Letters do not match your secret word");
+                checkFailed = true;
             }
+        }
+
+        // Increase logon attempts
+        if (checkFailed) {
+            incrementFailedLogon(user);
+            throw new ResourceForbiddenException("Letters do not match your secret word");
         }
     }
 
@@ -680,8 +845,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                     userToken.getUser().getId(), AuditObjectTypes.User, null);
         }
 
-        // delete all user tokens associated with this user (should only ever be one per user)
-        userTokenRepository.deleteByUserId(userToken.getUser().getId());
+        // delete current user token associated with this user
+        // should not delete all tokens for user as we need them for different devices
+        userTokenRepository.delete(userToken);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 

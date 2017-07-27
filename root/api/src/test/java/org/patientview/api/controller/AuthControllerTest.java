@@ -132,6 +132,19 @@ public class AuthControllerTest {
     }
 
     @Test
+    public void testLoginMobile() throws Exception {
+        Credentials credentials = new Credentials();
+        credentials.setUsername("testUser");
+        credentials.setPassword("doNotShow");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/loginmobile")
+                .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(authenticationService, Mockito.times(1)).authenticateMobile(any(Credentials.class), any(Boolean.class));
+    }
+
+    @Test
     public void testLogout() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/auth/logout/" + token))
                 .andExpect(MockMvcResultMatchers.status().isOk());

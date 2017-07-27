@@ -11,23 +11,24 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ContactPointTypes;
-import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RequestTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -344,6 +345,11 @@ public final class TestUtils {
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+    }
+
+    public static void authenticateTest(User user, UserToken token) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     public static void authenticateTestSingleGroupRole(String userName, String groupName, RoleName roleName) {
