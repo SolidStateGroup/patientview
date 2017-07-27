@@ -302,7 +302,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             for (UserToken token : validTokens) {
                 if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()
                         && token.isCheckSecretWord()
-                        && StringUtils.isNotBlank(foundToken.getSecretWordToken())) {
+                        && StringUtils.isNotBlank(token.getSecretWordToken())) {
                     foundToken = token;
                     break;
                 }
