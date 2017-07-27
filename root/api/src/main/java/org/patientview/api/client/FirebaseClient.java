@@ -9,7 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Firebase API cient implementation for sending out notification
+ * Firebase API client implementation for sending out notification.
  */
 public class FirebaseClient {
     private static Logger LOG = LoggerFactory.getLogger(FirebaseClient.class);
@@ -20,6 +20,9 @@ public class FirebaseClient {
     private FirebaseClient() {
     }
 
+    /**
+     * @return a FirebaseClient client builder
+     */
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -56,7 +59,6 @@ public class FirebaseClient {
             httpHeaders.set("Authorization", "key=" + SERVER_KEY);
             httpHeaders.set("Content-Type", "application/json;charset=UTF-8");
 
-
             JSONObject body = new JSONObject();
             body.put("to", topic);
             body.put("priority", "high");
@@ -77,9 +79,11 @@ public class FirebaseClient {
             LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
             return null;
         }
-
     }
 
+    /**
+     * Builder to initialize firebase client.
+     */
     public static class Builder {
 
         private FirebaseClient result;
@@ -101,6 +105,12 @@ public class FirebaseClient {
             return this;
         }
 
+        /**
+         * Set live if you want to hit live push notification url
+         *
+         * @param isLive a boolean to indicate if to use live urls for push notification
+         * @return
+         */
         public Builder setLive(Boolean isLive) {
             if (null == isLive) {
                 result.IS_LIVE = false;
