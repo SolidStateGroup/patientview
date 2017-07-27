@@ -288,36 +288,45 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // if user has a secret word set then set check secret word to true, informs ui and is used as second part
         // of multi factor authentication
         if (!StringUtils.isEmpty(user.getSecretWord()) && !validApiKey) {
-            // has secret word
-            userToken.setCheckSecretWord(true);
 
-            boolean foundIndexes = false;
-            List<String> existingIndexes;
+            UserToken foundToken = null;
+
+            // We need to check if we have valid token against the user so we can
+            // return the same indexes to front end
 
             // get a list of none expired user token, could be more then one, multiple devices
             List<UserToken> validTokens = userTokenRepository.findActiveByUser(user.getId());
             // check if we have secret word indexes stored
-            for(UserToken token : validTokens){
-                if(null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()){
-
-                    existingIndexes = new ArrayList<>(token.getSecretWordIndexes());
-                    foundIndexes = true;
+            for (UserToken token : validTokens) {
+                if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()) {
+                    foundToken = token;
+                    break;
                 }
             }
 
-            if(foundIndexes){
+            if (null != foundToken) {
+                toReturn.setSecretWordIndexes(foundToken.getSecretWordIndexes());
+                toReturn.setCheckSecretWord(foundToken.isCheckSecretWord());
+                toReturn.setSecretWordToken(foundToken.getSecretWordToken());
 
-            }else{
+                // update expiry
+                foundToken.setExpiration(new Date(now.getTime() + sessionLength));
+                userTokenRepository.save(foundToken);
+            } else {
+
+                // has secret word
+                userToken.setCheckSecretWord(true);
+
                 // follow the standard flow
                 // choose two characters to check and add to secret word indexes for ui
                 try {
                     Map<String, String> secretWordMap = new Gson().fromJson(
-                            user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
+                            user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                            }.getType());
 
                     if (secretWordMap == null || secretWordMap.isEmpty()) {
                         throw new AuthenticationServiceException("Secret word cannot be retrieved");
                     }
-
 
                     Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
                     secretWordMapNoSalt.remove("salt");
@@ -348,7 +357,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                     // set user token (must not be null)
                     userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
-                    userToken.setSecretWordIndexes(Arrays.toString(secretWordIndexes.toArray()));
+                    userToken.setSecretWordIndexes(secretWordIndexes);
 
                     userTokenRepository.save(userToken);
                 } catch (JsonSyntaxException jse) {
@@ -499,7 +508,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
-                user.getSecretWord(), new TypeToken<HashMap<String, String>>() { } .getType());
+                user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
+                }.getType());
 
         if (secretWordMap.isEmpty()) {
             throw new ResourceForbiddenException("Secret word not found");
@@ -655,8 +665,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsernameCaseInsensitive(username);
     }
 
-    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+    @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
