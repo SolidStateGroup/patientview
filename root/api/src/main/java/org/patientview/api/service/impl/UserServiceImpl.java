@@ -1815,6 +1815,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setContactNumber(user.getContactNumber());
         entityUser.setDateOfBirth(user.getDateOfBirth());
         entityUser.setRoleDescription(user.getRoleDescription());
+        entityUser.setFailedLogonAttempts(0);
         entityUser = userRepository.save(entityUser);
 
         // audit changed
