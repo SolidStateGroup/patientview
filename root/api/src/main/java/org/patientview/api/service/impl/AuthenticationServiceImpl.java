@@ -298,9 +298,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             // get a list of none expired user token, could be more then one, multiple devices
             List<UserToken> validTokens = userTokenRepository.findActiveByUser(user.getId());
-            // check if we have secret word indexes stored
+            // check if we have secret word indexes stored and also if still secret word still need to be checked
             for (UserToken token : validTokens) {
-                if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()) {
+                if (null != token.getSecretWordIndexes() && !token.getSecretWordIndexes().isEmpty()
+                        && token.isCheckSecretWord()
+                        && StringUtils.isNotBlank(foundToken.getSecretWordToken())) {
                     foundToken = token;
                     break;
                 }
