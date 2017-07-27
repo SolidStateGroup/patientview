@@ -49,6 +49,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -474,6 +475,70 @@ public class AuthenticationServiceTest {
         Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
         Assert.assertTrue("Index should be in ASC order", Integer.parseInt(returned.getSecretWordIndexes().get(0))
                 < Integer.parseInt(returned.getSecretWordIndexes().get(1)));
+
+        verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));
+    }
+
+    // test to validate that the same secret words indexes are returned
+    @Test
+    public void testAuthenticate_secretWord_ExistingToken() {
+        String password = "doNotShow";
+        String token = "abc123456";
+        String salt = "saltsaltsalt";
+
+
+        List<String> secretWordIndexes = new ArrayList<>();
+        secretWordIndexes.add("3");
+        secretWordIndexes.add("6");
+
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(false);
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+        foundUserToken.setSecretWordToken(token);
+        foundUserToken.setSecretWordIndexes(secretWordIndexes);
+
+        // list to return when searching for user
+        List<UserToken> userTokens = new ArrayList<>();
+        userTokens.add(foundUserToken);
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
+        when(userTokenRepository.findActiveByUser(any(Long.class))).thenReturn(userTokens);
+        org.patientview.api.model.UserToken returned
+                = authenticationService.authenticate(new Credentials(user.getUsername(), password));
+
+        Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
+        Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
+        Assert.assertEquals("secret word indexes should contain 2 entries", 2, returned.getSecretWordIndexes().size());
+        Assert.assertEquals("secret word indexes 0 should be 3", "3", returned.getSecretWordIndexes().get(0));
+        Assert.assertEquals("secret word indexes 1 should be 6", "6", returned.getSecretWordIndexes().get(1));
 
         verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
                 eq(user), eq(user.getId()), eq(AuditObjectTypes.User), any(Group.class));

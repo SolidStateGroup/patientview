@@ -27,6 +27,9 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Query("SELECT t FROM UserToken t WHERE user.id = :userId")
     List<UserToken> findByUser(@Param("userId") Long userId);
 
+    @Query("SELECT t FROM UserToken t WHERE user.id = :userId AND t.expiration > CURRENT_TIMESTAMP")
+    List<UserToken> findActiveByUser(@Param("userId") Long userId);
+
     @Query("SELECT CASE WHEN (userToken.expiration < CURRENT_TIMESTAMP ) THEN TRUE ELSE FALSE END " +
             "FROM UserToken userToken WHERE userToken.token = :token")
     boolean sessionExpired(@Param("token") String token);
