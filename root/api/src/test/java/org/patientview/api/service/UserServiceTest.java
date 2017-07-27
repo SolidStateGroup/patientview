@@ -359,7 +359,7 @@ public class UserServiceTest {
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
         verify(userRepository, times(1)).save(any(User.class));
-        verify(authenticationService, times(1)).cleanUpUserTokens(any(Long.class));
+        verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
 
     @Test
@@ -416,11 +416,19 @@ public class UserServiceTest {
     @Test
     public void testIsSecretWordChanged_changed() throws ResourceNotFoundException, ResourceForbiddenException,
             NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
         //  generate secret word
         String salt = CommonUtils.generateSalt();
         String oldSalt = CommonUtils.generateSalt();
-        User user = TestUtils.createUser("testUser");
         user.setSecretWord("{"
                 + "\"salt\" : \"" + salt + "\", "
                 + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
@@ -1023,7 +1031,7 @@ public class UserServiceTest {
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
         verify(userRepository, times(3)).findOne(eq(user.getId()));
-        verify(authenticationService, times(1)).cleanUpUserTokens(eq(user.getId()));
+        verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
 
     @Test
