@@ -385,6 +385,11 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
