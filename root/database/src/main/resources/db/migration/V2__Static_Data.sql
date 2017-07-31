@@ -224,15 +224,15 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (53, now(),
-'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId','1','10');
+'PATIENT_COUNT','SELECT COUNT(DISTINCT(user_id)) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (54, now(),
-'INACTIVE_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false','1','10');
+'INACTIVE_USER_COUNT', 'SELECT COUNT(DISTINCT(u.id)) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (55, now(),
-'LOCKED_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND u.deleted = false','1','10');
+'LOCKED_USER_COUNT', 'SELECT COUNT(DISTINCT(u.id)) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND u.deleted = false','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (56, now(),
@@ -240,11 +240,11 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (58, now(),
-'INACTIVE_PATIENT_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false AND gr.role_id = 1','1','10');
+'INACTIVE_PATIENT_COUNT', 'SELECT COUNT(DISTINCT(u.id)) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false AND gr.role_id = 1','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (59, now(),
-'LOCKED_PATIENT_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND u.deleted = false AND gr.role_id = 1','1','10');
+'LOCKED_PATIENT_COUNT', 'SELECT COUNT(DISTINCT(u.id)) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND u.deleted = false AND gr.role_id = 1','1','10');
 
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (1, 'Generic', 'Generic', 'Generic', null, 2, false, now(),1, false );
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (2, 'Renal', 'Renal', 'Renal', null, 2, true, now(),1 , true);
