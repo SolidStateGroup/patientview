@@ -99,6 +99,7 @@ public interface AuthenticationService extends UserDetailsService {
 
     /**
      * Check if the current session has expired given a String authentication token.
+     * Extends session by web or mobile length if not expired.
      * @param authToken String authentication token to check if session is expired
      * @return True if session expired, false if not
      */

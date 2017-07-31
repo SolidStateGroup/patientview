@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.UserTokenTypes;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -30,10 +31,6 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Query("SELECT t FROM UserToken t WHERE user.id = :userId AND t.expiration > CURRENT_TIMESTAMP")
     List<UserToken> findActiveByUser(@Param("userId") Long userId);
 
-    @Query("SELECT CASE WHEN (userToken.expiration < CURRENT_TIMESTAMP ) THEN TRUE ELSE FALSE END " +
-            "FROM UserToken userToken WHERE userToken.token = :token")
-    boolean sessionExpired(@Param("token") String token);
-
     @Query("SELECT expiration FROM UserToken WHERE token = :token")
     Date getExpiration(@Param("token") String token);
 
@@ -48,4 +45,7 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserToken t WHERE user.id = :userId AND t.expiration < CURRENT_TIMESTAMP")
     void deleteExpiredByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT type FROM UserToken WHERE token = :token")
+    UserTokenTypes getType(@Param("token") String token);
 }

@@ -35,6 +35,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.UserTokenTypes;
 import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -88,8 +89,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
-    private static Integer sessionLength;
-    public static final long MOBILE_SESSION_TIMEOUT = 631139040000l; // 20 years
+    private static Long sessionLength;
+    private static Long sessionLengthMobile;
 
     private static final int SECRET_WORD_LETTER_COUNT = 2;
     private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
@@ -140,8 +141,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     public void setParameter() {
         maximumLoginAttempts = Integer.parseInt(properties.getProperty("maximum.failed.logons"));
         LOG.debug("Setting the maximum failed logons attempts to {}", maximumLoginAttempts);
-        sessionLength = Integer.parseInt(properties.getProperty("session.length"));
+        sessionLength = Long.parseLong(properties.getProperty("session.length"));
         LOG.debug("Setting the session length to {}", sessionLength);
+        sessionLengthMobile = Long.parseLong(properties.getProperty("session.length.mobile"));
+        LOG.debug("Setting the mobile session length to {}", sessionLengthMobile);
     }
 
     private GroupRole addChildGroupsToGroupRole(GroupRole groupRole) throws ResourceNotFoundException {
@@ -326,7 +329,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 try {
                     Map<String, String> secretWordMap = new Gson().fromJson(
                             user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                            }.getType());
+                            } .getType());
 
                     if (secretWordMap == null || secretWordMap.isEmpty()) {
                         throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -447,7 +450,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setCreated(now);
-        userToken.setExpiration(new Date(now.getTime() + MOBILE_SESSION_TIMEOUT)); // 20 years
+        userToken.setExpiration(new Date(now.getTime() + sessionLengthMobile)); // 20 years
+        userToken.setType(UserTokenTypes.MOBILE);
 
         org.patientview.api.model.UserToken toReturn = new org.patientview.api.model.UserToken();
         setRateLimit(userToken, null);
@@ -475,7 +479,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
                         user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                        }.getType());
+                        } .getType());
 
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -665,7 +669,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
                 user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                }.getType());
+                } .getType());
 
         if (secretWordMap.isEmpty()) {
             throw new ResourceForbiddenException("Secret word not found");
@@ -677,8 +681,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         String salt = secretWordMap.get("salt");
 
         // We accept only 2 letters for Web or 3 letters  for Mobile
-        if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT &&
-                letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
+        if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT
+                && letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
             throw new ResourceForbiddenException("Must include all requested secret word letters");
         }
 
@@ -831,7 +835,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
+            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
@@ -857,17 +861,22 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             return true;
         }
 
-        // set expired to 30 mins in future, throw exception if expiration is set and before now
         Date now = new Date();
-        Date future = new Date(now.getTime() + sessionLength);
         Date expiration = userTokenRepository.getExpiration(authToken);
 
         if (expiration == null) {
             return true;
         } else {
-            if (userTokenRepository.sessionExpired(authToken)) {
+            if (expiration.before(now)) {
                 return true;
             } else {
+                // extend session by token type, assume all non mobile are WEB
+                Date future = new Date(now.getTime() + sessionLength);
+
+                if (UserTokenTypes.MOBILE.equals(userTokenRepository.getType(authToken))) {
+                    future = new Date(now.getTime() + sessionLengthMobile);
+                }
+
                 userTokenRepository.setExpiration(authToken, future);
                 return false;
             }

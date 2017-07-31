@@ -224,6 +224,7 @@ CREATE TABLE PV_User_Token
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   Rate_Limit      NUMERIC(19, 2),
+  Type            VARCHAR(50),
   PRIMARY KEY (Id)
 );
 
