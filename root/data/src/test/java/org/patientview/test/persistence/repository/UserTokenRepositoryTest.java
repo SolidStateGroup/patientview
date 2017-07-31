@@ -1,6 +1,7 @@
 package org.patientview.test.persistence.repository;
 
 import junit.framework.Assert;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.User;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -33,7 +35,6 @@ public class UserTokenRepositoryTest {
 
     @Test
     public void testCreateToken() {
-
         User user = dataTestUtils.createUser("testUser");
 
         UserToken userToken = new UserToken();
@@ -76,7 +77,6 @@ public class UserTokenRepositoryTest {
 
     @Test
     public void testUpdateExpiration() {
-
         User user = dataTestUtils.createUser("testUser");
 
         // past = 30m in past, recent = 10m in past
@@ -101,7 +101,6 @@ public class UserTokenRepositoryTest {
 
     @Test
     public void testGetExpiration() {
-
         User user = dataTestUtils.createUser("testUser");
 
         // past = 30m in past, recent = 10m in past
@@ -126,7 +125,6 @@ public class UserTokenRepositoryTest {
 
     @Test
     public void testDeleteByUserId() {
-
         User user = dataTestUtils.createUser("testUser");
         UserToken userToken = new UserToken();
         userToken.setCreated(new Date());
@@ -137,5 +135,62 @@ public class UserTokenRepositoryTest {
 
         userTokenRepository.deleteByUserId(user.getId());
         Assert.assertEquals("Should not get any UserToken", null, userTokenRepository.findByToken(userToken.getToken()));
+    }
+
+    @Test
+    public void testDeleteExpired() {
+        Date oneHourAgo = new DateTime(new Date()).minusHours(1).toDate();
+        Date oneHourAhead = new DateTime(new Date()).plusHours(1).toDate();
+        Date twoHoursAhead = new DateTime(new Date()).plusHours(2).toDate();
+
+        User user = dataTestUtils.createUser("testUser");
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setExpiration(oneHourAgo);
+        userTokenRepository.save(userToken);
+
+        UserToken userToken2 = new UserToken();
+        userToken2.setUser(user);
+        userToken2.setExpiration(oneHourAhead);
+        userTokenRepository.save(userToken2);
+
+        UserToken userToken3 = new UserToken();
+        userToken3.setUser(user);
+        userToken3.setExpiration(twoHoursAhead);
+        userTokenRepository.save(userToken3);
+
+        userTokenRepository.deleteExpired();
+
+        List<UserToken> userTokens = userTokenRepository.findByUser(user.getId());
+
+        Assert.assertEquals("Should get two UserToken", 2, userTokens.size());
+        Assert.assertEquals("Should get correct UserToken", userToken2.getId(), userTokens.get(0).getId());
+        Assert.assertEquals("Should get correct UserToken", userToken3.getId(), userTokens.get(1).getId());
+    }
+
+    @Test
+    public void testDeleteExpiredByUserId() {
+        Date oneHourAgo = new DateTime(new Date()).minusHours(1).toDate();
+        Date oneHourAhead = new DateTime(new Date()).plusHours(1).toDate();
+
+        User user = dataTestUtils.createUser("testUser");
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setExpiration(oneHourAgo);
+        userTokenRepository.save(userToken);
+
+        UserToken userToken2 = new UserToken();
+        userToken2.setUser(user);
+        userToken2.setExpiration(oneHourAhead);
+        userTokenRepository.save(userToken2);
+
+        userTokenRepository.deleteExpiredByUserId(user.getId());
+
+        List<UserToken> userTokens = userTokenRepository.findByUser(user.getId());
+
+        Assert.assertEquals("Should get one UserToken", 1, userTokens.size());
+        Assert.assertEquals("Should get correct UserToken", userToken2.getId(), userTokens.get(0).getId());
     }
 }

@@ -65,7 +65,7 @@ public class FirebaseClient {
             //body.put("dry_run", true); // to test without sending the message
 
             JSONObject notification = new JSONObject();
-            notification.put("body", "New results has arrived");
+            notification.put("body", "New results have arrived");
             notification.put("title", "New data has arrived on PatientView. Please log in to view");
 
             body.put("notification", notification);
