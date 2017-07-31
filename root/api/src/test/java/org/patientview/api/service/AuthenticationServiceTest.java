@@ -7,12 +7,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -30,6 +30,7 @@ import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.UserTokenTypes;
 import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.ExternalStandardRepository;
@@ -49,7 +50,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +61,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -123,6 +124,8 @@ public class AuthenticationServiceTest {
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
 
+    ArgumentCaptor<Date> dateCaptor = ArgumentCaptor.forClass(Date.class);
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -134,6 +137,7 @@ public class AuthenticationServiceTest {
 
         when(properties.getProperty(eq("maximum.failed.logons"))).thenReturn("3");
         when(properties.getProperty(eq("session.length"))).thenReturn("1800000");
+        when(properties.getProperty(eq("session.length.mobile"))).thenReturn("631139040000"); // 20 years
         this.authenticationService.setParameter();
     }
 
@@ -1121,5 +1125,62 @@ public class AuthenticationServiceTest {
         when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(false);
 
         authenticationService.switchToUser(switchUser.getId());
+    }
+
+    @Test
+    public void testSessionExpired_notExpiredWeb() {
+        String token = "abc123456";
+        Date expiration = new Date(new Date().getTime() + 1000000);
+        Date oneYear = new DateTime(new Date()).plusYears(1).toDate();
+
+        when(userTokenRepository.getExpiration(eq(token))).thenReturn(expiration);
+        when(userTokenRepository.getType(eq(token))).thenReturn(UserTokenTypes.WEB);
+
+        boolean expired = authenticationService.sessionExpired(token);
+
+        Assert.assertFalse("token should not be expired", expired);
+
+        verify(userTokenRepository, times(1)).getExpiration(eq(token));
+        verify(userTokenRepository, times(1)).getType(eq(token));
+        verify(userTokenRepository, times(1)).setExpiration(eq(token), dateCaptor.capture());
+
+        Assert.assertTrue("set date of expiration should be correct", dateCaptor.getValue().after(expiration));
+        Assert.assertTrue("set date of expiration should be correct", dateCaptor.getValue().before(oneYear));
+    }
+
+    @Test
+    public void testSessionExpired_notExpiredMobile() {
+        String token = "abc123456";
+        Date expiration = new Date(new Date().getTime() + 1800000);
+        Date oneYear = new DateTime(new Date()).plusYears(1).toDate();
+
+        when(userTokenRepository.getExpiration(eq(token))).thenReturn(expiration);
+        when(userTokenRepository.getType(eq(token))).thenReturn(UserTokenTypes.MOBILE);
+
+        boolean expired = authenticationService.sessionExpired(token);
+
+        Assert.assertFalse("token should not be expired", expired);
+
+        verify(userTokenRepository, times(1)).getExpiration(eq(token));
+        verify(userTokenRepository, times(1)).getType(eq(token));
+        verify(userTokenRepository, times(1)).setExpiration(eq(token), dateCaptor.capture());
+
+        Assert.assertTrue("set date of expiration should be correct", dateCaptor.getValue().after(oneYear));
+    }
+
+    @Test
+    public void testSessionExpired_expiredWeb() {
+        String token = "abc123456";
+        Date expiration = new Date(new Date().getTime() - 1800000);
+
+        when(userTokenRepository.getExpiration(eq(token))).thenReturn(expiration);
+
+        boolean expired = authenticationService.sessionExpired(token);
+
+        Assert.assertTrue("token should be expired", expired);
+
+        verify(userTokenRepository, times(1)).getExpiration(eq(token));
+        verify(userTokenRepository, times(0)).getType(anyString());
+        verify(userTokenRepository, times(0)).setExpiration(anyString(), any(Date.class));
     }
 }
