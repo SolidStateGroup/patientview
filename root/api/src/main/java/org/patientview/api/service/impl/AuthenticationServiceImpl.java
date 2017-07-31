@@ -844,15 +844,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("User is not currently logged in");
         }
 
+        User user = userToken.getUser();
+
         if (!expired) {
-            auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
-                    userToken.getUser().getId(), AuditObjectTypes.User, null);
+            auditService.createAudit(AuditActions.LOGGED_OFF, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
         }
 
         // delete current user token associated with this user
         // should not delete all tokens for user as we need them for different devices
         userTokenRepository.delete(userToken);
         SecurityContextHolder.getContext().setAuthentication(null);
+
+        // delete all expired user tokens
+        userTokenRepository.deleteExpiredByUserId(user.getId());
     }
 
     @Override
