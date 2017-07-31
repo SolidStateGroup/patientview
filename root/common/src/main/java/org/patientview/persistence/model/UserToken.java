@@ -6,6 +6,8 @@ import org.patientview.persistence.model.enums.UserTokenTypes;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -58,6 +60,7 @@ public class UserToken extends BaseModel {
     private String secretWordIndexes;
 
     @Column(name = "type")
+    @Enumerated(EnumType.STRING)
     private UserTokenTypes type = UserTokenTypes.WEB;
 
     public User getUser() {
