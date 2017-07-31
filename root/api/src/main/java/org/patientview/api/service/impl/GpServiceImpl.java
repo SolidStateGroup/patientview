@@ -314,11 +314,14 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                     patientGroupRoles.add(specialtyGroupRole);
                 }
 
-                // add new group role for newly created gp group
-                GroupRole patientGroupRole = new GroupRole(patientUser, gpGroup, patientRole);
-                patientGroupRole.setCreator(gpAdminUser);
-                patientGroupRoles.add(patientGroupRole);
-                patientUser.getGroupRoles().add(patientGroupRole);
+                // check user does not already have group role for newly created gp group
+                if (groupRoleRepository.findByUserGroupRole(patientUser, gpGroup, patientRole) == null) {
+                    // add new group role for newly created gp group
+                    GroupRole patientGroupRole = new GroupRole(patientUser, gpGroup, patientRole);
+                    patientGroupRole.setCreator(gpAdminUser);
+                    patientGroupRoles.add(patientGroupRole);
+                    patientUser.getGroupRoles().add(patientGroupRole);
+                }
             }
         }
 
