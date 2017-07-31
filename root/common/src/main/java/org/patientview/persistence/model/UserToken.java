@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.patientview.persistence.model.enums.UserTokenTypes;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -55,6 +56,9 @@ public class UserToken extends BaseModel {
 
     @Column(name = "secret_word_indexes")
     private String secretWordIndexes;
+
+    @Column(name = "type")
+    private UserTokenTypes type = UserTokenTypes.WEB;
 
     public User getUser() {
         return user;
@@ -131,5 +135,13 @@ public class UserToken extends BaseModel {
         if (null != secretWordIndexes && !secretWordIndexes.isEmpty()) {
             this.secretWordIndexes = StringUtils.join(secretWordIndexes, ",");
         }
+    }
+
+    public UserTokenTypes getType() {
+        return type;
+    }
+
+    public void setType(UserTokenTypes type) {
+        this.type = type;
     }
 }
