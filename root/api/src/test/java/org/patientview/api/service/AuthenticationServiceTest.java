@@ -63,6 +63,7 @@ import java.util.UUID;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -1055,6 +1056,31 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(new Credentials(user.getUsername(), password));
+    }
+
+    @Test
+    public void testLogout() throws AuthenticationServiceException {
+        Date now = new Date();
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setId(1L);
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + 1200));
+
+        when(userTokenRepository.findByToken(eq(userToken.getToken()))).thenReturn(userToken);
+
+        authenticationService.logout(userToken.getToken(), false);
+
+        verify(userTokenRepository, times(1)).findByToken(eq(userToken.getToken()));
+        verify(auditService, times(1)).createAudit(eq(AuditActions.LOGGED_OFF), eq(user.getUsername()),
+                eq(user), eq(user.getId()), eq(AuditObjectTypes.User), (Group) isNull());
+        verify(userTokenRepository, times(1)).delete(eq(userToken));
+        verify(userTokenRepository, times(1)).deleteExpiredByUserId(eq(user.getId()));
     }
 
     @Test
