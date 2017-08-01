@@ -53,6 +53,15 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                             $scope.statisticsDate = statistics.endDate;
                             $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
 
+                            // reset to 0
+                            $scope.lockedPatients = 0;
+                            $scope.lockedStaff = 0;
+                            $scope.inactivePatients = 0;
+                            $scope.inactiveStaff = 0;
+                            $scope.activeUsers = 0;
+                            $scope.activeStaff = 0;
+                            $scope.activePatients = 0;
+
                             if ($scope.lockedUsers && statistics.statistics.LOCKED_PATIENT_COUNT) {
                                 $scope.lockedPatients = statistics.statistics.LOCKED_PATIENT_COUNT;
                                 $scope.lockedStaff = $scope.lockedUsers - $scope.lockedPatients;
