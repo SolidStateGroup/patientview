@@ -38,6 +38,12 @@ public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
                                          @Param("role") Role role);
     @Query("SELECT   gr " +
             "FROM    GroupRole gr " +
+            "JOIN    gr.group g " +
+            "WHERE   g = :group ")
+    public List<GroupRole> findByGroup(@Param("group") Group group);
+
+    @Query("SELECT   gr " +
+            "FROM    GroupRole gr " +
             "JOIN    gr.user u " +
             "WHERE   u = :user ")
     public List<GroupRole> findByUser(@Param("user") User user);

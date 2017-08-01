@@ -422,6 +422,14 @@ public class UserController extends BaseController<UserController> {
         userService.hideSecretWordNotification(userId);
     }
 
+    /**
+     * List all duplicate GroupRole by iterating through groups and finding duplicates per group.
+     */
+    @RequestMapping(value = "/user/admin/listduplicategrouproles", method = RequestMethod.GET)
+    public String listDuplicateGroupRoles() {
+        return userService.listDuplicateGroupRoles();
+    }
+
     // Migration Only, are migrating passwords so create user with no password encryption
     @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
