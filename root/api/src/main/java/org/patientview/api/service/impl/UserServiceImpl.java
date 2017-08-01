@@ -818,18 +818,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 continue;
             }
 
-            List<Long> userIds = new ArrayList<>();
+            List<String> userRoleIds = new ArrayList<>();
 
             for (GroupRole groupRole : groupRoleRepository.findByGroup(group)) {
                 User user = groupRole.getUser();
+                Role role = groupRole.getRole();
                 Long userId = user.getId();
-                if (userIds.contains(userId)) {
+
+                String userRoleId = userId + "," + role.getId();
+
+                if (userRoleIds.contains(userRoleId)) {
                     duplicateGroupRoleIds.add(groupRole.getId());
                     LOG.info("Duplicate GroupRole: " + groupRole.getId() + ", Group ID: " + group.getId()
                             + ", Group name: " + group.getShortName() + ", User ID: " + userId
-                            + ", Username: " + user.getUsername() );
+                            + ", Username: " + user.getUsername() + ", Role name: " + role.getName());
                 }
-                userIds.add(userId);
+                userRoleIds.add(userRoleId);
             }
         }
         LOG.info(duplicateGroupRoleIds.size() + " duplicate GroupRoles");
