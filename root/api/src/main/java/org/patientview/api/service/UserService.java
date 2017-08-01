@@ -333,6 +333,12 @@ public interface UserService {
     void init();
 
     /**
+     * List all duplicate GroupRole by iterating through groups and finding duplicates per group.
+     */
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN })
+    String listDuplicateGroupRoles();
+
+    /**
      * Move Users between groups, with optional check to remove/add parent group if a member of only one group
      * @param groupFromId ID of Group to move users from
      * @param groupToId ID of Group to move users to
