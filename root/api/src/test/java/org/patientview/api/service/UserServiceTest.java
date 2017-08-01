@@ -1010,17 +1010,21 @@ public class UserServiceTest {
         Group patientGroup = TestUtils.createGroup("patientGroup");
         patientGroup.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        Role staffRole = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         GroupRole originalGroupRole = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        GroupRole differentGroupRole = TestUtils.createGroupRole(staffRole, patientGroup, patient);
         GroupRole duplicateGroupRole = TestUtils.createGroupRole(patientRole, patientGroup, patient);
 
         when(groupRepository.findAll()).thenReturn(Arrays.asList(group, patientGroup));
         when(groupRoleRepository.findByGroup(eq(group))).thenReturn(Collections.singletonList(groupRole));
         when(groupRoleRepository.findByGroup(eq(patientGroup)))
-                .thenReturn(Arrays.asList(originalGroupRole, duplicateGroupRole));
+                .thenReturn(Arrays.asList(originalGroupRole, differentGroupRole, duplicateGroupRole));
 
         String result = userService.listDuplicateGroupRoles();
 
         Assert.assertTrue("Should return correct ID in list", result.contains(duplicateGroupRole.getId().toString()));
+        Assert.assertEquals("String returned should be correct",
+                "(" + duplicateGroupRole.getId().toString() + ")", result);
 
         verify(groupRepository, times(1)).findAll();
         verify(groupRoleRepository, times(1)).findByGroup(eq(group));
