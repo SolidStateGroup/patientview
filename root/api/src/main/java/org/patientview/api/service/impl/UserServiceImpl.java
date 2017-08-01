@@ -810,6 +810,38 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public String listDuplicateGroupRoles() {
+        Set<Long> duplicateGroupRoleIds = new HashSet<>();
+
+        for (Group group : groupRepository.findAll()) {
+            if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                continue;
+            }
+
+            List<String> userRoleIds = new ArrayList<>();
+
+            for (GroupRole groupRole : groupRoleRepository.findByGroup(group)) {
+                User user = groupRole.getUser();
+                Role role = groupRole.getRole();
+                Long userId = user.getId();
+
+                String userRoleId = userId + "," + role.getId();
+
+                if (userRoleIds.contains(userRoleId)) {
+                    duplicateGroupRoleIds.add(groupRole.getId());
+                    LOG.info("Duplicate GroupRole: " + groupRole.getId() + ", Group ID: " + group.getId()
+                            + ", Group name: " + group.getShortName() + ", User ID: " + userId
+                            + ", Username: " + user.getUsername() + ", Role name: " + role.getName());
+                }
+                userRoleIds.add(userRoleId);
+            }
+        }
+        LOG.info(duplicateGroupRoleIds.size() + " duplicate GroupRoles");
+
+        return duplicateGroupRoleIds.isEmpty() ? null : "(" + StringUtils.join(duplicateGroupRoleIds, ",") + ")";
+    }
+
+    @Override
     public void deleteFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User user = findUser(userId);

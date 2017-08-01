@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Credentials;
@@ -39,6 +38,7 @@ import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -141,7 +141,7 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post(url)).andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(userService, Mockito.times(1)).addGroupRole(
+        verify(userService, times(1)).addGroupRole(
                 eq(staffUser.getId()), eq(group.getId()), eq(newStaffRole.getId()));
     }
 
@@ -258,7 +258,7 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(userService, Mockito.times(1)).deleteGroupRole(
+        verify(userService, times(1)).deleteGroupRole(
                 eq(staffUser.getId()), eq(group.getId()), eq(staffRole.getId()));
     }
 
@@ -301,7 +301,7 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(userService, Mockito.times(1)).delete(eq(staffUser.getId()), eq(false));
+        verify(userService, times(1)).delete(eq(staffUser.getId()), eq(false));
     }
 
     @Test
@@ -364,6 +364,24 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/user/" + testUser.getId() + "/hideSecretWordNotification"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testListDuplicateGroupRoles() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/admin/listduplicategrouproles"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(userService, times(1)).listDuplicateGroupRoles();
     }
 
     @Test
