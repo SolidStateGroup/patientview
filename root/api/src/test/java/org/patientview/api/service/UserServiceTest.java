@@ -63,6 +63,8 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -988,6 +990,41 @@ public class UserServiceTest {
         userService.hideSecretWordNotification(user.getId());
 
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testListDuplicateGroupRoles() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User patient = TestUtils.createUser("patient");
+        Group patientGroup = TestUtils.createGroup("patientGroup");
+        patientGroup.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        GroupRole originalGroupRole = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        GroupRole duplicateGroupRole = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+
+        when(groupRepository.findAll()).thenReturn(Arrays.asList(group, patientGroup));
+        when(groupRoleRepository.findByGroup(eq(group))).thenReturn(Collections.singletonList(groupRole));
+        when(groupRoleRepository.findByGroup(eq(patientGroup)))
+                .thenReturn(Arrays.asList(originalGroupRole, duplicateGroupRole));
+
+        String result = userService.listDuplicateGroupRoles();
+
+        Assert.assertTrue("Should return correct ID in list", result.contains(duplicateGroupRole.getId().toString()));
+
+        verify(groupRepository, times(1)).findAll();
+        verify(groupRoleRepository, times(1)).findByGroup(eq(group));
+        verify(groupRoleRepository, times(1)).findByGroup(eq(patientGroup));
     }
 
     /**
