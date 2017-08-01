@@ -1241,14 +1241,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // Updated as when more than 1 identifier, the patient was excluded
         // TODO Use more efficient method of checking (Distinct count isn't efficient)
-        if (andGroups) {
-            if (patient) {
-                userListSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
-                userCountSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
-            } else {
-                userListSql.append("HAVING COUNT(gr) = :groupCount ");
-                userCountSql.append("HAVING COUNT(gr) = :groupCount ");
-            }
+        if (andGroups && patient) {
+            userListSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
+            userCountSql.append("HAVING COUNT(gr) = :groupCount * COUNT(DISTINCT i) ");
         }
 
         userListSql.append(sortOrder);
@@ -1276,7 +1271,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         countQuery.setParameter("groupIds", groupIds);
         countQuery.setParameter("roleIds", roleIds);
 
-        if (andGroups) {
+        if (andGroups && patient) {
             query.setParameter("groupCount", Long.valueOf(groupIds.size()));
             countQuery.setParameter("groupCount", Long.valueOf(groupIds.size()));
         }
