@@ -303,6 +303,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         // add patients to group by creating group roles, including GENERAL_PRACTICE specialty group role if not present
         List<GroupRole> patientGroupRoles = new ArrayList<>();
 
+        // handle duplicate group roles check
+        List<Long> updatedPatientIds = new ArrayList<>();
+
         for (GpPatient gpPatient : gpDetails.getPatients()) {
             User patientUser = userRepository.findOne(gpPatient.getId());
             if (patientUser != null) {
@@ -315,12 +318,13 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 }
 
                 // check user does not already have group role for newly created gp group
-                if (groupRoleRepository.findByUserGroupRole(patientUser, gpGroup, patientRole) == null) {
+                if (!updatedPatientIds.contains(patientUser.getId())) {
                     // add new group role for newly created gp group
                     GroupRole patientGroupRole = new GroupRole(patientUser, gpGroup, patientRole);
                     patientGroupRole.setCreator(gpAdminUser);
                     patientGroupRoles.add(patientGroupRole);
                     patientUser.getGroupRoles().add(patientGroupRole);
+                    updatedPatientIds.add(patientUser.getId());
                 }
             }
         }
