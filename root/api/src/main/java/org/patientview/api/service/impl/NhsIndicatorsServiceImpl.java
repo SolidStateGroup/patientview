@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.TransformerUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.model.NhsIndicators;
@@ -11,14 +10,12 @@ import org.patientview.api.service.NhsIndicatorsService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
-import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NhsIndicatorsData;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
-import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.NhsIndicatorsRepository;
@@ -29,7 +26,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +56,8 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     private CodeRepository codeRepository;
 
     @Inject
-    private FhirLinkRepository fhirLinkRepository;
+    @Named("patientView")
+    private DataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
@@ -187,23 +190,10 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         LOG.info("Get NHS indicators, running for group ID: " + group.getId()
                 + ", short name: " + group.getShortName());
 
-        List<Group> groups = new ArrayList<>();
-
         // if specialty get child groups
         if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-            // specialty, get children
-            List<Group> children = groupRepository.findChildren(group);
-            LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY with "
-                    + children.size() + " children");
-            // ignore parent SPECIALTY group
-            groups = children;
-        } else {
-            // single group, just add group
-            groups.add(group);
-        }
-
-        if (groups.isEmpty()) {
-            // should never happen
+            LOG.info("Get NHS indicators (group " + group.getId()
+                    + "), is SPECIALTY, returning empty NHSIndicators as only applies to non SPECIALTY");
             return new NhsIndicators(group.getId());
         }
 
@@ -212,52 +202,19 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.setCodeMap(entityCodeMap);
 
         // get fhir links by current users in groups (do not include those who moved or were deleted)
-        Set<FhirLink> fhirLinks = new HashSet<>();
         List<Long> userIds = userRepository.findPatientUserIds(group.getId());
-
-        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
-                + userIds.size() + " total patient user IDs");
-
-        // batch up queries to avoid 32767 parameter limit due to potentially large numbers of user IDs
-        if (CollectionUtils.isNotEmpty(userIds)) {
-            int batchSize = 10000;
-            int batches = (userIds.size() / batchSize) + 1;
-            for (int i = 1; i <= batches; i++) {
-                int start = (i - 1) * batchSize;
-                int end = (i * batchSize) > userIds.size() ? userIds.size() : (i * batchSize);
-                fhirLinks.addAll(fhirLinkRepository.findByUserIdsAndGroups(userIds.subList(start, end), groups));
-            }
-            //fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(userIds, groups);
-        }
-
-        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
-                + fhirLinks.size() + " total patient FHIR links");
-
-        List<FhirLink> fhirLinksLoginAfter = new ArrayList<>();
         List<Long> userIdsLoginAfter = userRepository.findPatientUserIdsByRecentLogin(group.getId(), loginAfter);
 
         LOG.info("Get NHS indicators (group " + group.getId() + "), found "
-                + userIdsLoginAfter.size() + " patient user IDs logged in after " + loginAfter.toString());
+                + userIds.size() + " total patient user IDs, " + userIdsLoginAfter.size()
+                + " patient user IDs logged in after " + loginAfter.toString());
 
-        if (CollectionUtils.isNotEmpty(userIdsLoginAfter)) {
-            fhirLinksLoginAfter
-                    = fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(userIdsLoginAfter, groups, loginAfter);
-        }
+        List<UUID> uuids = getFhirLinkResourceIds(userIds);
+        List<UUID> uuidsLoginAfter = getFhirLinkResourceIds(userIdsLoginAfter);
 
         LOG.info("Get NHS indicators (group " + group.getId() + "), found "
-                + fhirLinksLoginAfter.size() + " patient FHIR links logged in after " + loginAfter.toString());
-
-        // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
-        List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
-                TransformerUtils.invokerTransformer("getResourceId"));
-
-        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuids.size() + " ResourceID UUIDs");
-
-        List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
-                TransformerUtils.invokerTransformer("getResourceId"));
-
-        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuidsLoginAfter.size()
-                + " ResourceID UUIDs logged in after " + loginAfter.toString());
+                + uuids.size() + " total Resource IDs, " + uuidsLoginAfter.size()
+                + " Resource IDs logged in after " + loginAfter.toString());
 
         // used when doing NOT IN for encounters that are not in code list
         Set<String> codesSearched = new HashSet<>();
@@ -272,11 +229,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             nhsIndicators.getData().getIndicatorCodeMap().put(indicator, codesToSearch);
             codesSearched.addAll(codesToSearch);
         }
-
-        LOG.info("Get NHS indicators (group " + group.getId() + "), completed indicator count for set treatments: "
-                + StringUtils.join(typeCodeMap.keySet().toArray(), ", ")
-                + ", total codes searched: "
-                + StringUtils.join(codesSearched.toArray(), ", "));
 
         // get "other"
         nhsIndicators.getData().getIndicatorCount().put("Other Treatment",
@@ -339,6 +291,50 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     @Override
     public List<Date> getNhsIndicatorsDates() {
         return nhsIndicatorsRepository.getDates();
+    }
+
+    /**
+     * Native call to get distinct resource ids from fhir link table given user ids.
+     * @param userIds List of user IDs
+     * @return List of UUID resource IDs
+     * @throws FhirResourceException thrown if issue querying patientview database
+     */
+    private List<UUID> getFhirLinkResourceIds(List<Long> userIds) throws FhirResourceException {
+        if (userIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String sql = "SELECT DISTINCT (resource_id) FROM pv_fhir_link WHERE user_id IN ("
+                + StringUtils.join(userIds, ",") + ")";
+
+        Connection connection = null;
+        List<UUID> resourceIds = new ArrayList<>();
+
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+
+            while ((results.next())) {
+                resourceIds.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+
+        return resourceIds;
     }
 
     private void storeNhsIndicators(List<NhsIndicators> nhsIndicatorList) throws JsonProcessingException {
