@@ -44,6 +44,8 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -110,6 +112,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @Inject
     private FhirResource fhirResource;
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public Long add(Group group) throws EntityExistsException {
         Group newGroup;
 
@@ -197,6 +200,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return newGroup.getId();
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addChildGroup(Long groupId, Long childGroupId) {
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(childGroupId);
@@ -205,6 +209,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         createRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addFeature(Long groupId, Long featureId) {
         GroupFeature groupFeature = new GroupFeature();
         groupFeature.setFeature(featureRepository.findOne(featureId));
@@ -213,6 +218,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         groupFeatureRepository.save(groupFeature);
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public UUID addOrganization(Group group) throws FhirResourceException {
         Organization organization = new Organization();
 
@@ -246,6 +252,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groups;
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addParentGroup(Long groupId, Long parentGroupId) {
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
@@ -316,6 +323,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         LOG.info("Delete " + id + " not Implemented");
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteChildGroup(Long groupId, Long childGroupId) {
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(childGroupId);
@@ -324,11 +332,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteFeature(Long groupId, Long featureId) {
         groupFeatureRepository.delete(groupFeatureRepository.findByGroupAndFeature(
                 groupRepository.findOne(groupId), featureRepository.findOne(featureId)));
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteParentGroup(Long groupId, Long parentGroupId) {
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
@@ -346,6 +356,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
+    @Cacheable(value = "findAllPublic")
     @Override
     public List<org.patientview.api.model.Group> findAllPublic() {
         List<org.patientview.api.model.Group> groups = convertToTransportGroups(
@@ -653,6 +664,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return false;
     }
 
+    @CacheEvict(value = "findAllPublic", allEntries = true)
     public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
