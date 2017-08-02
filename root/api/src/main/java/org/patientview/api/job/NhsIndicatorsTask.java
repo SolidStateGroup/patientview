@@ -30,11 +30,11 @@ public class NhsIndicatorsTask {
     @Scheduled(cron = "0 0 3 * * ?") // every day at 03:00
     public void generateNhsIndicators() {
         try {
-            LOG.info("Running generate NHS indicators task");
+            LOG.info("Running generate NHS indicators task (UNIT only)");
             Date start = new Date();
             nhsIndicatorsService.getAllNhsIndicatorsAndStore(true);
             LOG.info("NHS indicators task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
-        } catch (ResourceNotFoundException | FhirResourceException | JsonProcessingException e) {
+        } catch (Exception e) {
             LOG.error("Nhs Indicators scheduled task error: " + e.getMessage());
             e.printStackTrace();
         }
