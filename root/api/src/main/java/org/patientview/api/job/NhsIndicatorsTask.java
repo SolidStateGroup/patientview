@@ -26,7 +26,8 @@ public class NhsIndicatorsTask {
     @Inject
     private NhsIndicatorsService nhsIndicatorsService;
 
-    @Scheduled(cron = "0 0 3 * * ?") // every day at 03:00
+    @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
+    //@Scheduled(cron = "0 0 3 * * ?") // every day at 03:00
     public void generateNhsIndicators() {
         try {
             LOG.info("Running generate NHS indicators task");
