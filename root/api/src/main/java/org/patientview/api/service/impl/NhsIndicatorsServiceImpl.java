@@ -164,6 +164,19 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         return getNhsIndicators(group, typeCodeMap, codeMap, threeMonthsAgo);
     }
 
+    /**
+     * Get NHS indicators for a specific group.
+     * NOTE: there is a hard limit on parameters of 32767 (2 byte value) passed to a JPA prepared statement using
+     * Postgres so any searches for fhir links with a large number of patients will throw an exception.
+     * see: https://github.com/pgjdbc/pgjdbc/issues/90
+     * @param group Group to get NHS indicators for
+     * @param typeCodeMap Map of String to List of String containing type code map
+     * @param entityCodeMap Map of String to Code containing Code entities used for performance
+     * @param loginAfter Date after which a user must have logged in to be considered active
+     * @return NhsIndicators
+     * @throws ResourceNotFoundException if Group not found
+     * @throws FhirResourceException if FHIR throws exception
+     */
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
                    Map<String, Code> entityCodeMap, Date loginAfter)
             throws ResourceNotFoundException, FhirResourceException {
@@ -179,8 +192,11 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         // if specialty get child groups
         if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
             // specialty, get children
-            LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY");
-            groups.addAll(groupRepository.findChildren(group));
+            List<Group> children = groupRepository.findChildren(group);
+            LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY with "
+                    + children.size() + "children");
+            // ignore parent SPECIALTY group
+            groups = children;
         } else {
             // single group, just add group
             groups.add(group);
