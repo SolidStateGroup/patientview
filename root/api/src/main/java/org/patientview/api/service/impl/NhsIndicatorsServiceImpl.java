@@ -209,8 +209,8 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
                 + userIds.size() + " total patient user IDs, " + userIdsLoginAfter.size()
                 + " patient user IDs logged in after " + loginAfter.toString());
 
-        List<UUID> uuids = getFhirLinkResourceIds(userIds);
-        List<UUID> uuidsLoginAfter = getFhirLinkResourceIds(userIdsLoginAfter);
+        List<UUID> uuids = getFhirLinkResourceIds(userIds, group.getId());
+        List<UUID> uuidsLoginAfter = getFhirLinkResourceIds(userIdsLoginAfter, group.getId());
 
         LOG.info("Get NHS indicators (group " + group.getId() + "), found "
                 + uuids.size() + " total Resource IDs, " + uuidsLoginAfter.size()
@@ -299,13 +299,13 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
      * @return List of UUID resource IDs
      * @throws FhirResourceException thrown if issue querying patientview database
      */
-    private List<UUID> getFhirLinkResourceIds(List<Long> userIds) throws FhirResourceException {
+    private List<UUID> getFhirLinkResourceIds(List<Long> userIds, Long groupId) throws FhirResourceException {
         if (userIds.isEmpty()) {
             return new ArrayList<>();
         }
 
         String sql = "SELECT DISTINCT (resource_id) FROM pv_fhir_link WHERE user_id IN ("
-                + StringUtils.join(userIds, ",") + ")";
+                + StringUtils.join(userIds, ",") + ") AND group_id = " + groupId;
 
         Connection connection = null;
         List<UUID> resourceIds = new ArrayList<>();
