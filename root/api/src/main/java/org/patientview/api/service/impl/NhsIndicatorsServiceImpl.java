@@ -176,6 +176,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         // if specialty get child groups
         if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
             // specialty, get children
+            LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY");
             groups.addAll(convertIterable(groupRepository.findChildren(group)));
         } else {
             // single group, just add group
@@ -195,39 +196,41 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         List<FhirLink> fhirLinks = new ArrayList<>();
         List<Long> userIds = userRepository.findPatientUserIds(group.getId());
 
-        LOG.info("Get NHS indicators, found " + userIds.size() + " total patient user IDs");
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
+                + userIds.size() + " total patient user IDs");
 
         if (CollectionUtils.isNotEmpty(userIds)) {
             fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(userIds, groups);
         }
 
-        LOG.info("Get NHS indicators, found " + fhirLinks.size() + " total patient FHIR links");
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
+                + fhirLinks.size() + " total patient FHIR links");
 
         List<FhirLink> fhirLinksLoginAfter = new ArrayList<>();
         List<Long> userIdsLoginAfter = userRepository.findPatientUserIdsByRecentLogin(group.getId(), loginAfter);
 
-        LOG.info("Get NHS indicators, found " + userIdsLoginAfter.size() + " patient user IDs logged in after "
-                + loginAfter.toString());
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
+                + userIdsLoginAfter.size() + " patient user IDs logged in after " + loginAfter.toString());
 
         if (CollectionUtils.isNotEmpty(userIdsLoginAfter)) {
             fhirLinksLoginAfter
                     = fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(userIdsLoginAfter, groups, loginAfter);
         }
 
-        LOG.info("Get NHS indicators, found " + fhirLinksLoginAfter.size() + " patient FHIR links logged in after "
-                + loginAfter.toString());
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found "
+                + fhirLinksLoginAfter.size() + " patient FHIR links logged in after " + loginAfter.toString());
 
         // note: cannot directly get resourceId from FhirLink using JPA due to postgres driver
         List<UUID> uuids = (List<UUID>) CollectionUtils.collect(fhirLinks,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
-        LOG.info("Get NHS indicators, found " + uuids.size() + " ResourceID UUIDs");
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuids.size() + " ResourceID UUIDs");
 
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
-        LOG.info("Get NHS indicators, found " + uuids.size() + " ResourceID UUIDs logged in after "
-                + loginAfter.toString());
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuids.size()
+                + " ResourceID UUIDs logged in after " + loginAfter.toString());
 
         // used when doing NOT IN for encounters that are not in code list
         Set<String> codesSearched = new HashSet<>();
@@ -243,7 +246,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             codesSearched.addAll(codesToSearch);
         }
 
-        LOG.info("Get NHS indicators, completed indicator count for set treatments: "
+        LOG.info("Get NHS indicators (group " + group.getId() + "), completed indicator count for set treatments: "
                 + StringUtils.join(typeCodeMap.keySet().toArray(), ", ")
                 + ", total codes searched: "
                 + StringUtils.join(codesSearched.toArray(), ", "));
@@ -254,15 +257,13 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("Other Treatment",
                 fhirResource.getCountEncounterBySubjectIdsAndNotCodes(uuidsLoginAfter, new ArrayList<>(codesSearched)));
 
-        LOG.info("Get NHS indicators, completed getting other treatment counts");
-
         // get no treatment
         nhsIndicators.getData().getIndicatorCount().put("No Treatment Data",
                 userIds.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuids));
         nhsIndicators.getData().getIndicatorCountLoginAfter().put("No Treatment Data",
                 userIdsLoginAfter.size() - fhirResource.getCountEncounterTreatmentBySubjectIds(uuidsLoginAfter));
 
-        LOG.info("Get NHS indicators, completed getting counts for no treatment");
+        LOG.info("Get NHS indicators (group " + group.getId() + "), completed.");
 
         return nhsIndicators;
     }
