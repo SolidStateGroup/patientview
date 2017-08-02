@@ -597,7 +597,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
             if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                 if (roleType.equals(RoleType.STAFF)
-                        && (Util.convertIterable(groupRepository.findChildren(group)).contains(newsLink.getGroup())
+                        && (groupRepository.findChildren(group).contains(newsLink.getGroup())
                             || group.equals(newsLink.getGroup()))
                         && roleName.equals(RoleName.SPECIALTY_ADMIN)) {
                     return true;
