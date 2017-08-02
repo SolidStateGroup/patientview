@@ -13,6 +13,8 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.util.Util;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -53,6 +55,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
      * @return Map by date of group statistics
      * @throws ResourceNotFoundException
      */
+    @Cacheable(value = "getMonthlyGroupStatistics")
     @Override
     public List<GroupStatisticTO> getMonthlyGroupStatistics(final Long groupId)
             throws ResourceNotFoundException {
@@ -106,6 +109,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
      * @param endDate Date end date of statistics
      * @param statisticPeriod StatisticsPeriod, DAY, MONTH or CUMULATIVE_MONTH
      */
+    @CacheEvict(value = "getMonthlyGroupStatistics", allEntries = true)
     public void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
 
         // Create the groupStatistic object which we are going to persist repeatably
