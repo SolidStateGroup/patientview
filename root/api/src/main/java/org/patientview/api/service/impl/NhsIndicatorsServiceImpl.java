@@ -194,7 +194,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             // specialty, get children
             List<Group> children = groupRepository.findChildren(group);
             LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY with "
-                    + children.size() + "children");
+                    + children.size() + " children");
             // ignore parent SPECIALTY group
             groups = children;
         } else {
@@ -212,14 +212,22 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         nhsIndicators.setCodeMap(entityCodeMap);
 
         // get fhir links by current users in groups (do not include those who moved or were deleted)
-        List<FhirLink> fhirLinks = new ArrayList<>();
+        Set<FhirLink> fhirLinks = new HashSet<>();
         List<Long> userIds = userRepository.findPatientUserIds(group.getId());
 
         LOG.info("Get NHS indicators (group " + group.getId() + "), found "
                 + userIds.size() + " total patient user IDs");
 
+        // batch up queries to avoid 32767 parameter limit due to potentially large numbers of user IDs
         if (CollectionUtils.isNotEmpty(userIds)) {
-            fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(userIds, groups);
+            int batchSize = 10000;
+            int batches = (userIds.size() / batchSize) + 1;
+            for (int i = 1; i <= batches; i++) {
+                int start = (i - 1) * batchSize;
+                int end = (i * batchSize) > userIds.size() ? userIds.size() : (i * batchSize);
+                fhirLinks.addAll(fhirLinkRepository.findByUserIdsAndGroups(userIds.subList(start, end), groups));
+            }
+            //fhirLinks = fhirLinkRepository.findByUserIdsAndGroups(userIds, groups);
         }
 
         LOG.info("Get NHS indicators (group " + group.getId() + "), found "
