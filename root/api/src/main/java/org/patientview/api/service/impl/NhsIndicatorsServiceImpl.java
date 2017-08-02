@@ -119,8 +119,11 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         }
 
         if (store) {
+            LOG.info("Get NHS indicators, storing data");
             storeNhsIndicators(nhsIndicatorList);
         }
+
+        LOG.info("Get NHS indicators done");
 
         return nhsIndicatorList;
     }
