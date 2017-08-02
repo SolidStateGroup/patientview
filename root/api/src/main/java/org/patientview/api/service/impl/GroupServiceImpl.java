@@ -377,7 +377,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
         }
 
-        return Util.convertIterable(groupRepository.findChildren(group));
+        return groupRepository.findChildren(group);
     }
 
     public List<Group> findGroupsByUser(User user) {
