@@ -201,7 +201,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         NhsIndicators nhsIndicators = new NhsIndicators(group.getId());
         nhsIndicators.setCodeMap(entityCodeMap);
 
-        // get fhir links by current users in groups (do not include those who moved or were deleted)
+        // get current users in group (do not include those who moved or were deleted)
         List<Long> userIds = userRepository.findPatientUserIds(group.getId());
         List<Long> userIdsLoginAfter = userRepository.findPatientUserIdsByRecentLogin(group.getId(), loginAfter);
 
@@ -209,6 +209,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
                 + userIds.size() + " total patient user IDs, " + userIdsLoginAfter.size()
                 + " patient user IDs logged in after " + loginAfter.toString());
 
+        // get resource IDs of users in group
         List<UUID> uuids = getFhirLinkResourceIds(userIds, group.getId());
         List<UUID> uuidsLoginAfter = getFhirLinkResourceIds(userIdsLoginAfter, group.getId());
 
@@ -294,8 +295,9 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     }
 
     /**
-     * Native call to get distinct resource ids from fhir link table given user ids.
+     * Native call to get distinct resource ids from fhir link table given user ids and group.
      * @param userIds List of user IDs
+     * @param groupId Long ID of group
      * @return List of UUID resource IDs
      * @throws FhirResourceException thrown if issue querying patientview database
      */
@@ -316,7 +318,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             ResultSet results = statement.executeQuery(sql);
 
             while ((results.next())) {
-                resourceIds.add(UUID.fromString(results.getString(1)));
+                resourceIds.add((UUID) results.getObject(1));
             }
 
             connection.close();
