@@ -23,8 +23,8 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface NhsIndicatorsService {
     /**
-     * Get all NhsIndicators, with option to store results in database.
-     * @param store boolean sotre data in database
+     * Get all NhsIndicators (UNIT only), with option to store results in database.
+     * @param store boolean store data in database
      * @return List of NhsIndicators
      * @throws ResourceNotFoundException thrown when group not found
      * @throws FhirResourceException thrown when error retrieving from FHIR
