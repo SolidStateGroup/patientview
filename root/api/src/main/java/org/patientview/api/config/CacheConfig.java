@@ -33,6 +33,36 @@ public class CacheConfig implements CachingConfigurer {
         // evicted on log out / log in / get user information
         config.addCache(createCache("authenticateOnToken"));
 
+        // public group, used in my conditions and join requests
+        config.addCache(createCache("findAllPublic"));
+
+        // get monthly statistics, shown on dashboard
+        config.addCache(createCache("getMonthlyGroupStatistics"));
+
+        // news by user id, shown on dashboard, news pages
+        config.addCache(createCache("findNewsByUserId"));
+
+        // lookups, used when dealing with Code types
+        config.addCache(createCache("findLookupByTypeAndValue"));
+
+        // find Codes, used when retrieving patients in ApiPatientService.get()
+        config.addCache(createCache("findAllByCodeAndType"));
+
+        // find feature lookups, used during login
+        config.addCache(createCache("getFeaturesByType"));
+
+        // find lookup by type and value, used by front end and news
+        config.addCache(createCache("getLookupByTypeAndValue"));
+
+        // find lookup by type, used by front end
+        config.addCache(createCache("getLookupsByType"));
+
+        // find all lookups, used by front end
+        config.addCache(createCache("getAllLookups"));
+
+        // find all feature lookups, used by front end
+        config.addCache(createCache("getAllFeatures"));
+
         return net.sf.ehcache.CacheManager.newInstance(config);
     }
 
