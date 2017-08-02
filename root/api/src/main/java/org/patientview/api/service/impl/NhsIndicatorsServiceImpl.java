@@ -180,7 +180,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         if (group.getGroupType() != null && group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
             // specialty, get children
             LOG.info("Get NHS indicators (group " + group.getId() + "), is SPECIALTY");
-            groups.addAll(convertIterable(groupRepository.findChildren(group)));
+            groups.addAll(groupRepository.findChildren(group));
         } else {
             // single group, just add group
             groups.add(group);
