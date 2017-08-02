@@ -229,7 +229,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
         List<UUID> uuidsLoginAfter = (List<UUID>) CollectionUtils.collect(fhirLinksLoginAfter,
                 TransformerUtils.invokerTransformer("getResourceId"));
 
-        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuids.size()
+        LOG.info("Get NHS indicators (group " + group.getId() + "), found " + uuidsLoginAfter.size()
                 + " ResourceID UUIDs logged in after " + loginAfter.toString());
 
         // used when doing NOT IN for encounters that are not in code list
