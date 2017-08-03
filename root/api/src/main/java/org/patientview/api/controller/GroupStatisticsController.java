@@ -79,7 +79,7 @@ public class GroupStatisticsController extends BaseController<GroupStatisticsCon
 
         try {
             groupStatisticService.generateGroupStatisticAdminOnly(startDate, endDate, StatisticPeriod.MONTH);
-            LOG.info("Creating statistics for period " + startDate.toString()
+            LOG.info("Created statistics for period " + startDate.toString()
                     + " to " + endDate.toString() + " took "
                     + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (Exception e) {
