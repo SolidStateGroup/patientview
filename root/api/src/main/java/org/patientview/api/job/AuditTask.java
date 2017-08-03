@@ -36,13 +36,18 @@ public class AuditTask {
     //@Scheduled(cron = "0 */1 * * * ?") // every minute
     @Scheduled(cron = "0 0 2 * * ?") // every day at 02:00
     public void removeOldAuditXml() throws ResourceNotFoundException, FhirResourceException, UktException {
-        Boolean removeOldAuditXml = Boolean.parseBoolean(properties.getProperty("remove.old.audit.xml"));
+        try {
+            LOG.info("Cleaning old xml from audit data");
+            Boolean removeOldAuditXml = Boolean.parseBoolean(properties.getProperty("remove.old.audit.xml"));
 
-        if (removeOldAuditXml) {
-            Date start = new Date();
-            auditService.removeOldAuditXml();
-            LOG.info("Cleaning old xml from audit data took "
-                    + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+            if (removeOldAuditXml) {
+                Date start = new Date();
+                auditService.removeOldAuditXml();
+                LOG.info("Cleaning old xml from audit data took "
+                        + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+            }
+        } catch (Exception e) {
+            LOG.error("Error cleaning old xml from audit data: " + e.getMessage(), e);
         }
     }
 

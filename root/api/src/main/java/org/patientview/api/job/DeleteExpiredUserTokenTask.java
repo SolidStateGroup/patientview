@@ -27,10 +27,15 @@ public class DeleteExpiredUserTokenTask {
      * Delete expired UserToken
      */
     //@Scheduled(cron = "0 */1 * * * ?") // every minute
-    @Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
+    @Scheduled(cron = "0 0 5 * * ?") // every day at 05:00
     @Transactional
     public void deleteExpiredUserTokens() {
-        userTokenRepository.deleteExpired();
-        LOG.info("Deleted expired UserTokens");
+        LOG.info("Deleting expired UserTokens");
+        try {
+            userTokenRepository.deleteExpired();
+            LOG.info("Deleted expired UserTokens");
+        } catch (Exception e) {
+            LOG.error("Error deleting expired UserTokens: " + e.getMessage(), e);
+        }
     }
 }
