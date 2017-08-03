@@ -9,14 +9,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.service.RequestService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -35,19 +32,8 @@ import static org.mockito.Mockito.verify;
  */
 public class GroupControllerTest {
 
-    User creator;
-
     @Mock
     private GroupService groupService;
-
-    @Mock
-    private RequestService requestService;
-
-    @Mock
-    private GroupStatisticService groupStatisticService;
-
-    @Mock
-    private GroupRepository groupRepository;
 
     @InjectMocks
     private SecurityAspect securityAspect = SecurityAspect.aspectOf();
@@ -59,7 +45,6 @@ public class GroupControllerTest {
 
     @Before
     public void setup() {
-        creator = TestUtils.createUser("creator");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
     }
@@ -139,25 +124,4 @@ public class GroupControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
-
-    /**
-     * Test: The retrieval of the group statistics for a specific group
-     * Fail: The statistics service is not contacted about the request
-     */
-    @Test
-    public void testGroupStatistics() throws Exception {
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
 }
-
-
