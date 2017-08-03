@@ -20,6 +20,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Properties;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Base configuration for API
@@ -100,10 +102,19 @@ public class ApiConfig {
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(1);
-        threadPoolTaskExecutor.setMaxPoolSize(1);
+        threadPoolTaskExecutor.setCorePoolSize(5);
+        threadPoolTaskExecutor.setMaxPoolSize(5);
         threadPoolTaskExecutor.setQueueCapacity(Integer.MAX_VALUE);
         return threadPoolTaskExecutor;
+    }
+
+    /**
+     * Allow scheduled tasks to run on different threads.
+     * @return Executor
+     */
+    @Bean
+    public Executor taskScheduler() {
+        return Executors.newScheduledThreadPool(5);
     }
 
     /**
