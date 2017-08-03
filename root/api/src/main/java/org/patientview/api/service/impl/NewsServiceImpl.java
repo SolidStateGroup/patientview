@@ -19,7 +19,8 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.util.Util;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -67,6 +68,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     @Inject
     private UserRepository userRepository;
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public Long add(final NewsItem newsItem) {
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
@@ -96,6 +98,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItemRepository.save(newsItem).getId();
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
@@ -151,6 +154,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -204,6 +208,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
@@ -288,6 +293,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return true;
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void delete(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem newsItem = newsItemRepository.findOne(newsItemId);
         if (newsItem == null) {
@@ -309,6 +315,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
+    @Cacheable(value = "findNewsByUserId")
     public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsTypeId, boolean limitResults,
                                                                  Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
@@ -440,6 +447,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return new PageImpl<>(transportNewsItems, pageable, newsItems.size());
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
@@ -463,6 +471,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.save(entityNewsItem);
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void removeGroup(Long newsItemId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -492,6 +501,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.save(entityNewsItem);
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void removeNewsLink(Long newsItemId, Long newsLinkId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
@@ -516,6 +526,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.save(entityNewsItem);
     }
 
+    @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public void save(final NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
