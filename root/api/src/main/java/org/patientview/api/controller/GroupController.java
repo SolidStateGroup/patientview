@@ -197,21 +197,6 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get statistics for a Group given an ID.
-     * @param groupId ID of the Group to retrieve statistics for
-     * @return List of GroupStatisticTO objects with monthly statistics for a Group
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
-    }
-
-    /**
      * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc.
      * @param userId ID of User retrieving Groups
      * @param getParameters GetParameters object containing filters, page size, number etc

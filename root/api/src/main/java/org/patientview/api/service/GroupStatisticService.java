@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -29,6 +30,15 @@ public interface GroupStatisticService {
      * @param statisticPeriod StatisticPeriod enum, typically StatisticPeriod.MONTH
      */
     void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
+
+    /**
+     * Helper function to generate statistics from controller only as global admin. Calls generateGroupStatistic().
+     * @param startDate Start date of statistic period
+     * @param endDate End date of statistic period
+     * @param statisticPeriod StatisticPeriod enum, typically StatisticPeriod.MONTH
+     */
+    @RoleOnly
+    void generateGroupStatisticAdminOnly(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
 
     /**
      * Get statistics for a Group given an ID.
