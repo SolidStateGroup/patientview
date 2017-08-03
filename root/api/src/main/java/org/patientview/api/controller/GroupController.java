@@ -2,7 +2,6 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -194,21 +193,6 @@ public class GroupController extends BaseController<GroupController> {
     public ResponseEntity<List<BaseGroup>> getMessagingGroupsForUser(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(groupService.findMessagingGroupsByUserId(userId), HttpStatus.OK);
-    }
-
-    /**
-     * Get statistics for a Group given an ID.
-     * @param groupId ID of the Group to retrieve statistics for
-     * @return List of GroupStatisticTO objects with monthly statistics for a Group
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     */
-    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
     }
 
     /**

@@ -111,7 +111,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
      */
     @CacheEvict(value = "getMonthlyGroupStatistics", allEntries = true)
     public void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
-
         // Create the groupStatistic object which we are going to persist repeatably
         GroupStatistic groupStatistic = new GroupStatistic();
         groupStatistic.setStartDate(startDate);
@@ -119,35 +118,50 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setStatisticPeriod(statisticPeriod);
 
         for (Group group : groupRepository.findAll()) {
-            groupStatisticRepository.deleteByGroupStartDateAndPeriod(group, startDate, statisticPeriod);
-            groupStatistic.setGroup(group);
+            try {
+                LOG.info("Generating Group statistics for Group: " + group.getShortName() + ", startDate: "
+                        + startDate.toString() + ", endDate: " + endDate + ", statisticPeriod: "
+                        + statisticPeriod.toString());
+                groupStatisticRepository.deleteByGroupStartDateAndPeriod(group, startDate, statisticPeriod);
+                groupStatistic.setGroup(group);
 
-            for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTIC_TYPE).getLookups()) {
-                groupStatistic.setStatisticType(lookup);
+                for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTIC_TYPE).getLookups()) {
+                    groupStatistic.setStatisticType(lookup);
 
-                Query query = entityManager.createNativeQuery(lookup.getDescription());
-                query.setParameter("groupId", group.getId());
+                    Query query = entityManager.createNativeQuery(lookup.getDescription());
+                    query.setParameter("groupId", group.getId());
 
-                // do start/end date for those with startDate and endDate present
-                if (lookup.getDescription().contains("startDate")) {
-                    query.setParameter("startDate", startDate);
+                    // do start/end date for those with startDate and endDate present
+                    if (lookup.getDescription().contains("startDate")) {
+                        query.setParameter("startDate", startDate);
+                    }
+                    if (lookup.getDescription().contains("endDate")) {
+                        query.setParameter("endDate", endDate);
+                    }
+
+                    LOG.debug("Process statistic {}", groupStatistic.getStatisticType().getValue());
+
+                    // Direct cast as hibernate returns BigInteger
+                    try {
+                        groupStatistic.setValue((BigInteger) query.getSingleResult());
+                    } catch (Exception sge) {
+                        LOG.error("The SQL is invalid ", sge);
+                        LOG.error("The SQL is: " + lookup.getDescription());
+                    }
+                    groupStatisticRepository.save(groupStatistic);
+                    groupStatistic = createGroupStatistic(groupStatistic, group);
                 }
-                if (lookup.getDescription().contains("endDate")) {
-                    query.setParameter("endDate", endDate);
-                }
-
-                LOG.debug("Process statistic {}", groupStatistic.getStatisticType().getValue());
-                // Direct cast as hibernate returns BigInteger
-                try {
-                    groupStatistic.setValue((BigInteger) query.getSingleResult());
-                } catch (Exception sge) {
-                    LOG.error("The SQL is invalid ", sge);
-                    LOG.error("The SQL is: " + lookup.getDescription());
-                }
-                groupStatisticRepository.save(groupStatistic);
-                groupStatistic = createGroupStatistic(groupStatistic, group);
+            } catch (Exception e) {
+                LOG.error("Error processing group statistics for Group: " + group.getShortName() + ": "
+                        + e.getMessage() + ", continuing for other groups", e);
             }
         }
+    }
+
+    @Override
+    @CacheEvict(value = "getMonthlyGroupStatistics", allEntries = true)
+    public void generateGroupStatisticAdminOnly(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
+        generateGroupStatistic(startDate, endDate, statisticPeriod);
     }
 
     @Override

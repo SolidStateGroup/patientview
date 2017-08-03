@@ -1,8 +1,6 @@
 package org.patientview.api.job;
 
 import org.patientview.api.service.NhsChoicesService;
-import org.patientview.config.exception.ImportResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,17 +25,23 @@ public class NhsChoicesTask {
 
     //@Scheduled(cron = "0 */3 * * * ?") // every 3 minutes
     @Scheduled(cron = "0 0 4 * * ?") // every day at 04:00
-    public void updateAndSynchroniseCodes() throws ImportResourceException, ResourceNotFoundException {
+    public void updateAndSynchroniseCodes() {
         Date start = new Date();
 
-        // update NhschoicesConditions from NHS Choices API
-        nhsChoicesService.updateConditionsFromJob();
+        LOG.info("Starting update from NHS Choices and synchronise Codes task");
 
-        // synchronise updated NhschoicesConditions with Codes
-        nhsChoicesService.synchroniseConditionsFromJob();
+        try {
+            // update NhschoicesConditions from NHS Choices API
+            nhsChoicesService.updateConditionsFromJob();
 
-        LOG.info("Update from NHS Choices and synchronise Codes took "
-                + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+            // synchronise updated NhschoicesConditions with Codes
+            nhsChoicesService.synchroniseConditionsFromJob();
+
+            LOG.info("Update from NHS Choices and synchronise Codes took "
+                    + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        } catch (Exception e) {
+            LOG.error("Error updating from NHS Choices: " + e.getMessage(), e);
+        }
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
