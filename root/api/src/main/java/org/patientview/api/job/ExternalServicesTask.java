@@ -1,6 +1,8 @@
 package org.patientview.api.job;
 
 import org.patientview.api.service.ExternalServiceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import java.util.Properties;
 @Component
 public class ExternalServicesTask {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExternalServicesTask.class);
     @Inject
     private ExternalServiceService externalServiceService;
 
@@ -26,7 +29,12 @@ public class ExternalServicesTask {
     public void sendToExternalService() {
         String enabled = properties.getProperty("external.service.enabled");
         if (enabled != null && Boolean.parseBoolean(properties.getProperty("external.service.enabled"))) {
-            externalServiceService.sendToExternalService();
+            try {
+                LOG.info("Running sendToExternalService task");
+                externalServiceService.sendToExternalService();
+            } catch (Exception e) {
+                LOG.error("Error running sendToExternalService task: " + e.getMessage(), e);
+            }
         }
     }
 }

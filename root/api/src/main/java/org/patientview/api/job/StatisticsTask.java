@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Scheduled tasks for generating Group statistics.
@@ -40,15 +41,25 @@ public class StatisticsTask {
 
         // Only run of the first day of the month
         if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-
             // set end date to now
             Date endDate = calendar.getTime();
 
             // set start date to one month ago
             Date startDate = new DateTime().minusMonths(1).withTimeAtStartOfDay().withDayOfMonth(1).toDate();
+            Date startTask = new Date();
 
-            LOG.info("Creating statistics (monthly) for period " + startDate.toString() + " to " + endDate.toString());
-            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
+            try {
+                LOG.info("Creating statistics (monthly) for period " + startDate.toString()
+                        + " to " + endDate.toString());
+                groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
+                LOG.info("Creating statistics (monthly) for period " + startDate.toString()
+                        + " to " + endDate.toString() + " took "
+                        + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.");
+            } catch (Exception e) {
+                LOG.error("Error creating statistics (monthly) for period " + startDate.toString()
+                        + " to " + endDate.toString() + ": " + e.getMessage() + ", took "
+                        + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.", e);
+            }
         }
     }
 
@@ -72,6 +83,22 @@ public class StatisticsTask {
         Date startDate = calendar.getTime();
 
         LOG.info("Creating statistics (every 1am) for period " + startDate.toString() + " to " + endDate.toString());
-        groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
+        Date startTask = new Date();
+
+        try {
+            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
+            LOG.info("Creating statistics (every 1am) for period " + startDate.toString()
+                    + " to " + endDate.toString() + " took "
+                    + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.");
+        } catch (Exception e) {
+            LOG.error("Error creating statistics (every 1am) for period " + startDate.toString()
+                    + " to " + endDate.toString() + ": " + e.getMessage() + ", took "
+                    + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.", e);
+        }
+    }
+
+    private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }
