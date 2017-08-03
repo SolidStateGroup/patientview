@@ -7,6 +7,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.LookupTypesPatientManagement;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -41,6 +42,7 @@ public class LookupServiceImpl implements LookupService {
     }
 
     @Override
+    @Cacheable(value = "findLookupByTypeAndValue")
     public Lookup findByTypeAndValue(final LookupTypes lookupType, final String lookupValue) {
         return lookupRepository.findByTypeAndValue(lookupType, lookupValue);
     }
