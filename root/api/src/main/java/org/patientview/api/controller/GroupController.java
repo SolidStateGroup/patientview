@@ -2,7 +2,6 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceForbiddenException;

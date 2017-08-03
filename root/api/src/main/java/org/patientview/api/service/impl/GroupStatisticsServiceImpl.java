@@ -159,6 +159,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     }
 
     @Override
+    @CacheEvict(value = "getMonthlyGroupStatistics", allEntries = true)
     public void generateGroupStatisticAdminOnly(Date startDate, Date endDate, StatisticPeriod statisticPeriod) {
         generateGroupStatistic(startDate, endDate, statisticPeriod);
     }
