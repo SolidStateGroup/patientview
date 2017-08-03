@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.model.enums.StatisticType;
@@ -22,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -117,8 +119,18 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setEndDate(endDate);
         groupStatistic.setStatisticPeriod(statisticPeriod);
 
+        // ignore certain groups
+        List<String> ignoredGroupCodes = Arrays.asList("Generic",
+                HiddenGroupCodes.ECS.toString(),
+                HiddenGroupCodes.GENERAL_PRACTICE.toString(),
+                HiddenGroupCodes.PATIENT_ENTERED.toString(),
+                HiddenGroupCodes.STAFF_ENTERED.toString());
+
         for (Group group : groupRepository.findAll()) {
             try {
+                if (ignoredGroupCodes.contains(group.getCode())) {
+                    continue;
+                }
                 LOG.info("Generating Group statistics for Group: " + group.getShortName() + ", startDate: "
                         + startDate.toString() + ", endDate: " + endDate + ", statisticPeriod: "
                         + statisticPeriod.toString());
