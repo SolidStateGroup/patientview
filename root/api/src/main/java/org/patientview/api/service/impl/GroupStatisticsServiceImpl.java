@@ -120,7 +120,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setStatisticPeriod(statisticPeriod);
 
         // ignore certain groups
-        List<String> ignoredGroupCodes = Arrays.asList("Generic",
+        List<String> ignoredGroupCodes = Arrays.asList(
                 HiddenGroupCodes.ECS.toString(),
                 HiddenGroupCodes.GENERAL_PRACTICE.toString(),
                 HiddenGroupCodes.PATIENT_ENTERED.toString(),
