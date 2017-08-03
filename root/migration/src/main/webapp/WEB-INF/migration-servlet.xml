@@ -86,8 +86,8 @@
 
     <!-- async controllers -->
     <bean id="asyncTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="1" />
-        <property name="maxPoolSize" value="1" />
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="5" />
         <property name="queueCapacity" value="250" />
     </bean>
 
@@ -97,8 +97,8 @@
     </bean>
 
     <bean id="observationTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="1" />
-        <property name="maxPoolSize" value="1" />
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="5" />
         <property name="queueCapacity" value="99999999" />
     </bean>
 </beans>
