@@ -1,9 +1,6 @@
 package org.patientview.api.job;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.patientview.api.service.NhsIndicatorsService;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,8 +32,7 @@ public class NhsIndicatorsTask {
             nhsIndicatorsService.getAllNhsIndicatorsAndStore(true);
             LOG.info("NHS indicators task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (Exception e) {
-            LOG.error("Nhs Indicators scheduled task error: " + e.getMessage());
-            e.printStackTrace();
+            LOG.error("Nhs Indicators scheduled task error: " + e.getMessage(), e);
         }
     }
 
