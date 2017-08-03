@@ -31,6 +31,8 @@ import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.util.Util;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -92,6 +94,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     private MedlinePlusService medlinePlusService;
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public Code add(final Code code) throws EntityExistsException, ResourceInvalidException {
         if (code.getCodeType() == null || code.getCodeType().getId() == null) {
             throw new ResourceInvalidException("Code Type must be set");
@@ -174,6 +177,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public CodeCategory addCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
         Code code = codeRepository.findOne(codeId);
         if (code == null) {
@@ -189,6 +193,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public CodeExternalStandard addCodeExternalStandard(Long codeId, CodeExternalStandard codeExternalStandard)
             throws ResourceNotFoundException {
         Code code = codeRepository.findOne(codeId);
@@ -229,6 +234,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public Code cloneCode(final Long codeId) {
         // clone original
         Code entityCode = codeRepository.findOne(codeId);
@@ -260,12 +266,14 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void delete(final Long codeId) {
         codeRepository.delete(codeId);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void deleteCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
         Code code = codeRepository.findOne(codeId);
         if (code == null) {
@@ -281,6 +289,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void deleteCodeExternalStandard(Long codeExternalStandardId) throws ResourceNotFoundException {
         CodeExternalStandard codeExternalStandard = codeExternalStandardRepository.findOne(codeExternalStandardId);
         if (codeExternalStandard == null) {
@@ -301,6 +310,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @Cacheable(value = "findAllByCodeAndType")
     public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
         return codeRepository.findAllByCodeAndType(code, codeType);
     }
@@ -516,6 +526,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return code != null ? new BaseCode(code) : null;
     }
 
+    @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
         Code entityCode = codeRepository.findOne(code.getId());
         if (entityCode == null) {
@@ -541,6 +553,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
         CodeExternalStandard entityCodeExternalStandard
                 = codeExternalStandardRepository.findOne(codeExternalStandard.getId());

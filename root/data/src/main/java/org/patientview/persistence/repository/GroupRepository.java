@@ -116,7 +116,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "FROM   GroupRelationship gr " +
            "WHERE  gr.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD " +
            "AND    gr.sourceGroup = :group ")
-    Iterable<Group> findChildren(@Param("group") Group group);
+    List<Group> findChildren(@Param("group") Group group);
 
     @Query("SELECT g " +
             "FROM Group g " +
