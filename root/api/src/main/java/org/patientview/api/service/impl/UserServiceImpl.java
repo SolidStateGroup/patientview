@@ -1210,13 +1210,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // active users (INACTIVE_MONTH_LIMIT months)
         if (statusFilter != null && statusFilter.equals(StatusFilter.ACTIVE)) {
-            sql.append("AND u.lastLogin BETWEEN :startDate AND :endDate ");
+            sql.append("AND u.currentLogin BETWEEN :startDate AND :endDate ");
             dateRange = true;
         }
 
         // inactive users (INACTIVE_MONTH_LIMIT months)
         if (statusFilter != null && statusFilter.equals(StatusFilter.INACTIVE)) {
-            sql.append("AND (u.lastLogin NOT BETWEEN :startDate AND :endDate OR u.lastLogin = NULL) ");
+            sql.append("AND (u.currentLogin NOT BETWEEN :startDate AND :endDate OR u.currentLogin = NULL) ");
             dateRange = true;
         }
 
