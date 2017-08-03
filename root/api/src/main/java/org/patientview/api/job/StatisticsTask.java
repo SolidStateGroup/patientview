@@ -52,7 +52,7 @@ public class StatisticsTask {
                 LOG.info("Creating statistics (monthly) for period " + startDate.toString()
                         + " to " + endDate.toString());
                 groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
-                LOG.info("Creating statistics (monthly) for period " + startDate.toString()
+                LOG.info("Created statistics (monthly) for period " + startDate.toString()
                         + " to " + endDate.toString() + " took "
                         + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.");
             } catch (Exception e) {
@@ -87,7 +87,7 @@ public class StatisticsTask {
 
         try {
             groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
-            LOG.info("Creating statistics (every 1am) for period " + startDate.toString()
+            LOG.info("Created statistics (every 1am) for period " + startDate.toString()
                     + " to " + endDate.toString() + " took "
                     + getDateDiff(startTask, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (Exception e) {
