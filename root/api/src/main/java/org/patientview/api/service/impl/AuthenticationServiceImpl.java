@@ -841,7 +841,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         UserToken userToken = userTokenRepository.findByToken(token);
 
         if (userToken == null) {
-            throw new AuthenticationServiceException("User is not currently logged in");
+            // sometimes a user will click logout after session has expired and UserToken removed
+            SecurityContextHolder.getContext().setAuthentication(null);
+            return;
         }
 
         User user = userToken.getUser();
