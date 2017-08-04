@@ -329,11 +329,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             $timeout(function () {
                 if ($location.hash()) $anchorScroll();
             });
-        });
 
-        $rootScope.$on('$viewContentLoaded', function () {
-            $rootScope.setUnreadConversationCount();
-            $rootScope.setSubmittedRequestCount();
+            // fix for calling API on logout
+            if(currentRoute.originalPath !== '/logout') {
+                $rootScope.setUnreadConversationCount();
+                $rootScope.setSubmittedRequestCount();
+            }
         });
 
         $rootScope.logout = function (timeout) {
