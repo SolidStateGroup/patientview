@@ -162,7 +162,7 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         $scope.allGroups = [];
         $scope.groupIds = [];
         $scope.groupMap = {};
-        $scope.diseaseGroupsAvailable = false;
+        $scope.otherGroupsAvailable = false;
         $scope.unitsAvailable = false;
 
         // set up datepicker, with one week ago
@@ -179,17 +179,23 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
         for (i = 0; i < groups.length; i++) {
             group = groups[i];
             if (group.visible === true) {
-                $scope.allGroups.push(group);
-                $scope.groupIds.push(group.id);
-                $scope.groupMap[group.id] = group;
-
-                if (group.groupType.value === 'DISEASE_GROUP') {
-                    $scope.diseaseGroupsAvailable = true;
+                // other groups are disease groups and GPs
+                if (group.groupType.value === 'DISEASE_GROUP' || group.groupType.value === 'GENERAL_PRACTICE') {
+                    $scope.otherGroupsAvailable = true;
                 }
 
                 if (group.groupType.value === 'UNIT') {
                     $scope.unitsAvailable = true;
                 }
+
+                // add (GP) to differentiate between disease group and GP
+                if (group.groupType.value === 'GENERAL_PRACTICE') {
+                    group.shortName = group.shortName + ' (GP)';
+                }
+
+                $scope.allGroups.push(group);
+                $scope.groupIds.push(group.id);
+                $scope.groupMap[group.id] = group;
             }
         }
 

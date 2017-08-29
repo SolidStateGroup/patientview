@@ -40,20 +40,20 @@
                         </div>
 
                     </div>
-                    <!-- filter by disease group -->
-                    <div class="select-container pull-left" data-ng-show="diseaseGroupsAvailable">
-                        <div class="btn-group filter-select" id="filter-diseasegroup" dropdown>
+                    <!-- filter by other group (disease group and general practice) -->
+                    <div class="select-container pull-left" data-ng-show="otherGroupsAvailable">
+                        <div class="btn-group filter-select" id="filter-othergroup" dropdown>
                             <button class="btn dropdown-toggle">
                                 Filter By Other Group <span class="caret-container"><span class="caret"></span></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li>
-                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP')" class="a-filter-group">
+                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP'); removeAllSelectedGroup('GENERAL_PRACTICE');" class="a-filter-group">
                                         <i class="glyphicon glyphicon-remove"></i> Uncheck All
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP' || group.groupType.value==='GENERAL_PRACTICE'">
                                     <a data-ng-click="setSelectedGroup(group.id)" class="a-filter-group clearfix">
                                         <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
