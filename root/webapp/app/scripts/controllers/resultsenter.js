@@ -95,11 +95,24 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             }
 
             // Dialysis Treatment specific check, need all values entered
-            if($scope.dialysis && resultCluster.HdHours && resultCluster.HdLocation && resultCluster.eprex &&
-                resultCluster.TargetWeight && resultCluster.PreWeight && resultCluster.PostWeight &&
-                resultCluster.UfVolume && resultCluster.pulse && resultCluster.PreBpsys && resultCluster.PreBpdia &&
-                resultCluster.PostBpsys && resultCluster.PostBpdia && resultCluster.hypotension &&
-                resultCluster.BodyTemperature && resultCluster.bps && resultCluster.DialFlow && resultCluster.LitresProcessed){
+            if($scope.dialysis
+                && hasValue(resultCluster.HdHours)
+                && hasValue(resultCluster.HdLocation)
+                && hasValue(resultCluster.eprex)
+                && hasValue(resultCluster.TargetWeight)
+                && hasValue(resultCluster.PreWeight)
+                && hasValue(resultCluster.PostWeight)
+                && hasValue(resultCluster.UfVolume)
+                && hasValue(resultCluster.pulse)
+                && hasValue(resultCluster.PreBpsys)
+                && hasValue(resultCluster.PreBpdia)
+                && hasValue(resultCluster.PostBpsys)
+                && hasValue(resultCluster.PostBpdia)
+                && hasValue(resultCluster.hypotension)
+                && hasValue(resultCluster.BodyTemperature)
+                && hasValue(resultCluster.bps)
+                && hasValue(resultCluster.DialFlow)
+                && hasValue(resultCluster.LitresProcessed)) {
                 return true;
             }
 
@@ -113,6 +126,10 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             }
         }
         return false;
+    };
+
+    var hasValue = function(value) {
+        return value !== undefined;
     };
 
     var init = function() {
