@@ -9,7 +9,8 @@ public enum StaffMessagingFeatureType {
 
     MESSAGING("Messaging"),
     DEFAULT_MESSAGING_CONTACT("Default Messaging Contact"),
-    RENAL_SURVEY_FEEDBACK_RECIPIENT("Renal Survey Feedback Recipient");
+    RENAL_SURVEY_FEEDBACK_RECIPIENT("Renal Survey Feedback Recipient"),
+    UNIT_TECHNICAL_CONTACT("Unit Technical Contact");
 
     private String name;
     StaffMessagingFeatureType(String name) { this.name = name; }
