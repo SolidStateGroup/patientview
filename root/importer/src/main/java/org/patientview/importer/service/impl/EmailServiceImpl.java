@@ -38,56 +38,29 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
     @Inject
     private Properties properties;
 
-    public void sendErrorEmail(String errorMessage, String nhsNo, String unitCode) {
-        String centralSupportEmail = properties.getProperty("central.support.contact.email");
-        Group group = groupRepository.findByCode(unitCode);
+    public void sendErrorEmail(String message, String identifier, String groupCode, boolean onlyToCentralSupport) {
+        Group group = groupRepository.findByCode(groupCode);
         
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
         email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Importer Error");
-        String recipientNameText = "PatientView Support";
-        
-        List<String> recipientEmails = new ArrayList<>();
-
-        // if group is set get appropriate email address, either PV unit admins or central support
-        if (group != null) {
-            // get PV admin emails
-            for (ContactPoint contactPoint : group.getContactPoints()) {
-                if (contactPoint.getContactPointType().getValue().equals(ContactPointTypes.PV_ADMIN_EMAIL)) {
-                    recipientEmails.add(contactPoint.getContent());
-                    recipientNameText = "PatientView Admin";
-                }
-            }            
-        }
-        
-        // if no PV admin emails, send to central support
-        if (recipientEmails.isEmpty()) {
-            recipientEmails.add(centralSupportEmail);
-        }
-
-        email.setRecipients(recipientEmails.toArray(new String[recipientEmails.size()]));
+        email.setRecipients(getRecipients(group, onlyToCentralSupport));
         
         StringBuilder sb = new StringBuilder();
-        sb.append("Dear ");
-        sb.append(recipientNameText);
-        sb.append(", <br/><br/>There has been an error importing patient data:<br/>");
+        sb.append("Dear PatientView Support, <br/><br/>There has been an error importing patient data:<br/>");
 
-        if (group == null && nhsNo == null) {
-            recipientEmails.add(centralSupportEmail);
+        if (group == null && identifier == null) {
             sb.append("<br/>Could not convert incoming data.");
         }
 
-
-        // if NHS number is set, add identifier information
-        if (StringUtils.isNotEmpty(nhsNo)) {
-            sb.append("<br/>Identifier: ");
-            sb.append(nhsNo);
+        // if identifier is set, add identifier information
+        if (StringUtils.isNotEmpty(identifier)) {
+            sb.append("<br/>Identifier: ").append(identifier);
         }
 
         // add error message
-        sb.append("<br/>Message: ");
-        sb.append(errorMessage);
+        sb.append("<br/>Message: ").append(message);
         email.setBody(sb.toString());
 
         // try and send but ignore if exception and log
@@ -96,6 +69,33 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
         } catch (MailException | MessagingException me) {
             LOG.error("Cannot send email: {}", me);
         }
+    }
+
+    private String[] getRecipients(Group group, boolean onlyToCentralSupport) {
+        String centralSupportEmail = properties.getProperty("central.support.contact.email");
+
+        // if only for central support, single email address
+        if (onlyToCentralSupport) {
+            return new String[]{centralSupportEmail};
+        }
+
+        List<String> recipientEmails = new ArrayList<>();
+
+        // if group is set, get appropriate pv admin email address from group contact points
+        if (group != null) {
+            for (ContactPoint contactPoint : group.getContactPoints()) {
+                if (contactPoint.getContactPointType().getValue().equals(ContactPointTypes.PV_ADMIN_EMAIL)) {
+                    recipientEmails.add(contactPoint.getContent());
+                }
+            }
+        }
+
+        // if no PV admin emails, send to central support
+        if (recipientEmails.isEmpty()) {
+            recipientEmails.add(centralSupportEmail);
+        }
+
+        return recipientEmails.toArray(new String[recipientEmails.size()]);
     }
     
     private boolean sendEmail(Email email) throws MailException, MessagingException {
@@ -132,22 +132,18 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                     fromAddress.setPersonal("PatientView User");
                     helper.setTo(fromAddress);
                 }
-                //LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
             } catch (UnsupportedEncodingException uee) {
                 helper.setFrom(email.getSenderEmail());
 
                 if (email.isBcc()) {
                     helper.setTo(email.getSenderEmail());
                 }
-                //LOG.info("Email: Set from " + email.getSenderEmail());
             }
 
             helper.setText(properties.getProperty("email.header") + email.getBody()
                     + properties.getProperty("email.footer"), true);
 
             try {
-                //LOG.info("Email: Attempting to send email to " + Arrays.toString(email.getRecipients())
-                //        + " with subject '" + email.getSubject() + "'");
                 javaMailSender.send(message);
                 LOG.info("Email: Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
                         + email.getSubject() + "'");

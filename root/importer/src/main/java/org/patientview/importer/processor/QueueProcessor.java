@@ -100,7 +100,7 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error(ire.getMessage());
                 auditService.createAudit(AuditActions.PATIENT_DATA_FAIL, null, null,
                         ire.getMessage(), message, importerUserId);
-                emailService.sendErrorEmail(ire.getMessage(), null, null);
+                sendErrorEmail(ire.getMessage(), null, null, true);
                 fail = true;
             }
 
@@ -110,7 +110,7 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error(errorMessage);
                 auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null,
                         errorMessage, message, importerUserId);
-                emailService.sendErrorEmail(errorMessage, null, patient.getCentredetails().getCentrecode());
+                sendErrorEmail(errorMessage, null, patient.getCentredetails().getCentrecode(), true);
                 fail = true;
             }
 
@@ -123,7 +123,7 @@ public class QueueProcessor extends DefaultConsumer {
                 auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
                         patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage, 
                         message, importerUserId);
-                emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(), null);
+                sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(), null, true);
                 fail = true;
             }
 
@@ -141,10 +141,14 @@ public class QueueProcessor extends DefaultConsumer {
                     auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message, importerUserId);
-                    
-                    emailService.sendErrorEmail(ire.getMessage(),
+
+                    // RPV-697, only missing patient identifier will be sent to pv admins
+                    boolean onlyToCentralSupport = !(errorMessage.contains("Patient")
+                            && errorMessage.contains("does not exist"));
+
+                    sendErrorEmail(errorMessage,
                             patient.getPatient().getPersonaldetails().getNhsno(),
-                            patient.getCentredetails().getCentrecode());
+                            patient.getCentredetails().getCentrecode(), onlyToCentralSupport);
 
                     fail = true;
                 }
@@ -163,15 +167,31 @@ public class QueueProcessor extends DefaultConsumer {
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message, importerUserId);
 
-                    // don't send emails for certain specific errors
-                    if (errorMessageNeedsEmailSending(errorMessage)) {
-                        emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(),
-                                patient.getCentredetails().getCentrecode());
-                    }
+                    sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(),
+                            patient.getCentredetails().getCentrecode(), true);
                 }
             }
         }
 
+        /**
+         * Send importer error message to pv admins or central support using email service.
+         * @param message String error message
+         * @param identifier String patient identifier usually nhs number
+         * @param unitCode String unit/group code
+         * @param onlyToCentralSupport true if email should only be sent to central support
+         */
+        private void sendErrorEmail(String message, String identifier, String unitCode, boolean onlyToCentralSupport) {
+            // don't send emails for certain specific errors
+            if (errorMessageNeedsEmailSending(message)) {
+                emailService.sendErrorEmail(message, identifier, unitCode, onlyToCentralSupport);
+            }
+        }
+
+        /**
+         * Ignore certain errors (do not need email sending either to admins or central support)
+         * @param errorMessage String error message
+         * @return true if email should be sent
+         */
         private boolean errorMessageNeedsEmailSending(String errorMessage) {
             // don't send emails for FHIR stored procedure errors due to version id mismatch
             if (errorMessage.contains("ERROR: Wrong version_id")) {
