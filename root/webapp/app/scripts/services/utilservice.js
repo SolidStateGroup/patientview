@@ -105,6 +105,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return years;
         },
+        generateYears1990: function () {
+            var years = [];
+            years.push('');
+            for (var i=new Date().getFullYear();i>=1990;i--) {
+                years.push(i);
+            }
+            return years;
+        },
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
