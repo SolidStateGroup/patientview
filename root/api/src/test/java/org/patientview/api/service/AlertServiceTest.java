@@ -477,7 +477,7 @@ public class AlertServiceTest {
 
         alertService.pushNotifications();
 
-        verify(notificationClient, Mockito.times(2)).push(any(Long.class));
+        verify(notificationClient, Mockito.times(2)).notifyResult(any(Long.class));
         verify(alertRepository, Mockito.times(2)).save(any(Alert.class));
     }
 }
