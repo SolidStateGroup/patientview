@@ -45,7 +45,6 @@ public class FirebaseClient {
         }
 
         try {
-
             /**
              * We are using the same firebase app for Test and Live,
              * different topics per env
@@ -67,7 +66,6 @@ public class FirebaseClient {
             return null;
         }
     }
-
 
     /**
      * Send push notification for new message in conversation.
