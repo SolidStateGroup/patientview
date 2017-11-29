@@ -1968,7 +1968,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (ConversationUser conversationUser : conversationUsers) {
             User user = conversationUser.getUser();
 
-            // only send messages to other users, not current user and only if user has email address
+            // only send messages to other users, not current user
             if (!user.getId().equals(getCurrentUser().getId())) {
                 notificationClient.notifyMessage(user.getId(), conversationId);
             }
