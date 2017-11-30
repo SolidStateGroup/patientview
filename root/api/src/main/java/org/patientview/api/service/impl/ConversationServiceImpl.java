@@ -1936,6 +1936,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                         // name
                         sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
                         sb.append(roleSb);
+                        sb.append(".");
                     }
                 }
 
