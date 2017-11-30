@@ -60,7 +60,7 @@ public class FirebaseClient {
             notification.put("body", "New results have arrived");
             notification.put("title", "New data has arrived on PatientView. Please log in to view");
 
-            return push(topic, notification, null);
+            return push(topic, notification, null, null);
         } catch (Exception e) {
             LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
             return null;
@@ -102,7 +102,7 @@ public class FirebaseClient {
             JSONObject data = new JSONObject();
             data.put("conversationId", conversationId);
 
-            return push(topic, notification, data);
+            return push(topic, notification, data, conversationId.toString());
         } catch (Exception e) {
             LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
             return null;
@@ -117,7 +117,7 @@ public class FirebaseClient {
      * @param notification a message to be used to send to subscriber as notification
      * @return
      */
-    private String push(String topic, JSONObject notification, JSONObject data) {
+    private String push(String topic, JSONObject notification, JSONObject data, String groupBy) {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -128,6 +128,10 @@ public class FirebaseClient {
         body.put("to", topic);
         body.put("priority", "high");
         //body.put("dry_run", true); // to test without sending the message
+        // if we need to group notification by some common key
+        if (groupBy != null && !groupBy.isEmpty()) {
+            body.put("collapse_key", groupBy);
+        }
 
         if (data != null) {
             body.put("data", data);
