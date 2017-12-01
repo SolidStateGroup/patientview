@@ -1842,7 +1842,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Send an email to PatientView central support.
-     * @param entityUser User sending email
+     *
+     * @param entityUser   User sending email
      * @param conversation Conversation containing Message for email content
      */
     private void sendNewCentralSupportEmail(User entityUser, Conversation conversation) {
@@ -1914,21 +1915,25 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     } else {
                         // group roles
                         int count = 0;
-
                         boolean isSpecialtyAdmin = userHasRole(sender, RoleName.SPECIALTY_ADMIN);
+                        // need to have clean list in order to append comma correctly
+                        List<GroupRole> groupRoles = new ArrayList<>();
 
                         // only include visible groups and non specialty groups
                         for (GroupRole groupRole : sender.getGroupRoles()) {
                             if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())
                                     && (!GroupTypes.SPECIALTY.toString().equals(
                                     groupRole.getGroup().getGroupType().getValue()) || isSpecialtyAdmin)) {
-                                roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
-                                roleSb.append(groupRole.getGroup().getName());
-                                if (count < sender.getGroupRoles().size() - 1) {
-                                    roleSb.append(", ");
-                                }
+                                groupRoles.add(groupRole);
                             }
-                            count++;
+                        }
+                        // append comma
+                        for (GroupRole groupRole : groupRoles) {
+                            roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
+                            roleSb.append(groupRole.getGroup().getName());
+                            if (count < groupRoles.size() - 1) {
+                                roleSb.append(", ");
+                            }
                         }
                     }
 
