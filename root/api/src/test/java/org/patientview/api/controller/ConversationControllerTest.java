@@ -259,4 +259,28 @@ public class ConversationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    public void testGetRecipients() throws Exception {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Conversation conversation = new Conversation();
+        conversation.setId(1L);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations/"
+                +  "/recipients/list?groupId="+group.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(conversationService, Mockito.times(1))
+                .getRecipientsList(eq(user.getId()), eq(group.getId()));
+    }
 }
