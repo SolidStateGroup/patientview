@@ -1,4 +1,5 @@
 package org.patientview.api.controller;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -396,7 +397,7 @@ public class UserControllerTest {
     /**
      * Test: The url to reset a password
      * Fail: The service method does not get called
-     *
+     * <p>
      * * TODO Fix verify - possible problem with aspect
      */
     @Test
@@ -535,5 +536,23 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/user/usernameexists/" + user2.getUsername()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testGetUserStats() throws Exception {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId()+"/stats"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(userService, times(1)).getUserStats(user.getId());
     }
 }
