@@ -73,9 +73,11 @@ public class FirebaseClient {
      * notification.
      *
      * @param userId an id of the user to send notification for
+     * @param conversationId an id of conversation
+     * @param title a title for conversation
      * @return FcmResponse object containing HTTP response info.
      */
-    public String notifyMessage(Long userId, Long conversationId) {
+    public String notifyMessage(Long userId, Long conversationId, String title) {
         LOG.info("Sending message mobile push notification for user {}", userId);
         if (StringUtils.isEmpty(SERVER_KEY)) {
             LOG.error("No Server-Key has been defined for firebase client.");
@@ -99,8 +101,10 @@ public class FirebaseClient {
             notification.put("body", "A new message has arrived on PatientView. Please login to view");
             notification.put("title", "PatientView: New message(s) received");
 
+            // extra data to help the mobile app handling
             JSONObject data = new JSONObject();
             data.put("conversationId", conversationId);
+            data.put("conversationTitle", title);
 
             return push(topic, notification, data, conversationId.toString());
         } catch (Exception e) {
