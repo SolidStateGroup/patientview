@@ -689,7 +689,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         sendNewMessageEmails(entityConversation.getConversationUsers(), false, entityUser);
 
         // send push notification for mobile users
-        sendNewMessageNotification(entityConversation.getConversationUsers(), conversationId);
+        sendNewMessageNotification(entityConversation);
     }
 
     /**
@@ -1967,16 +1967,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * Send notification on new message to all users in the conversation
      *
-     * @param conversationUsers a list of users to notify
-     * @param conversationId    an id of conversation
+     * @param conversation a  conversation to send notifications for
      */
-    private void sendNewMessageNotification(Set<ConversationUser> conversationUsers, Long conversationId) {
-        for (ConversationUser conversationUser : conversationUsers) {
+    private void sendNewMessageNotification(Conversation conversation) {
+
+        // itterate over the list of users for this conversation and notify them of a new message
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             User user = conversationUser.getUser();
 
             // only send messages to other users, not current user
             if (!user.getId().equals(getCurrentUser().getId())) {
-                notificationClient.notifyMessage(user.getId(), conversationId);
+                notificationClient.notifyMessage(user.getId(), conversation.getId(), conversation.getTitle());
             }
         }
     }

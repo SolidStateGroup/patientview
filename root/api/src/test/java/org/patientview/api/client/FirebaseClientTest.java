@@ -33,7 +33,7 @@ public class FirebaseClientTest {
                 .setLive(false)
                 .build();
 
-        String response = client.notifyMessage(19333L, 123L);
+        String response = client.notifyMessage(19333L, 123L, "Test Title");
         Assert.assertNotNull("Should get response", response);
     }
 }
