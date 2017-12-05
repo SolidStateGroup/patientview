@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User service, for managing Users, User information, resetting passwords etc.
@@ -476,4 +477,17 @@ public interface UserService {
      */
     @UserOnly
     void generateApiKey(final Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Helper to generate different statistics summary map for patient.
+     * Used by mobile endpoint.
+     *
+     * @param userId an Id of User to generate summary for
+     * @return
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
+    Map<String, Integer> getUserStats(final Long userId) throws ResourceNotFoundException, FhirResourceException;
 }
