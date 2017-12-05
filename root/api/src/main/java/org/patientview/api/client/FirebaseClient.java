@@ -131,7 +131,7 @@ public class FirebaseClient {
         JSONObject body = new JSONObject();
         body.put("to", topic);
         body.put("priority", "high");
-        //body.put("dry_run", true); // to test without sending the message
+       
         // if we need to group notification by some common key
         if (groupBy != null && !groupBy.isEmpty()) {
             body.put("collapse_key", groupBy);

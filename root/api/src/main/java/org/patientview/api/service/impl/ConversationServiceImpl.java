@@ -90,7 +90,6 @@ import static org.patientview.api.util.ApiUtil.userHasRole;
 
 /**
  * Conversation service, for CRUD operations related to Conversations and Messages.
- * <p>
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
