@@ -397,7 +397,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
         // send notification to user using firebase
         for (Long userId : userIds) {
-            notificationClient.push(userId);
+            notificationClient.notifyResult(userId);
         }
 
         Date now = new Date();
