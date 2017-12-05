@@ -79,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -1592,6 +1593,58 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         sb.append("</select>");
         return sb.toString();
+    }
+
+    /**
+     * TODO: Add more comments to describe logic
+     * @inheritDoc
+     */
+    @Override
+    public Map<String, List<BaseUser>> getRecipientsList(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
+
+        Map<String, List<BaseUser>> recipients = new HashMap<>();
+
+        // sort correctly
+        List<String> sortOrder = new ArrayList<>();
+        sortOrder.add(RoleName.SPECIALTY_ADMIN.getName());
+        sortOrder.add(RoleName.UNIT_ADMIN.getName());
+        sortOrder.add(RoleName.STAFF_ADMIN.getName());
+        sortOrder.add(RoleName.PATIENT.getName());
+
+        List<String> sortedKeys = new ArrayList<>();
+
+        for (String keySorted : sortOrder) {
+            for (String key : userMap.keySet()) {
+                if (keySorted.equals(key) && !sortedKeys.contains(key)) {
+                    sortedKeys.add(key);
+                }
+            }
+        }
+
+        for (String key : userMap.keySet()) {
+            if (!sortedKeys.contains(key)) {
+                sortedKeys.add(key);
+            }
+        }
+
+        for (String userType : sortedKeys) {
+            List<BaseUser> users = userMap.get(userType);
+
+            if (!recipients.containsKey(userType)) {
+                recipients.put(userType, new ArrayList<BaseUser>());
+            }
+
+            if (!users.isEmpty()) {
+
+                for (BaseUser baseUser : users) {
+                    recipients.get(userType).add(baseUser);
+                }
+            }
+        }
+
+        return recipients;
     }
 
     /**
