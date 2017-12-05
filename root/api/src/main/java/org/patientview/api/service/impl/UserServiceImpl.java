@@ -10,7 +10,9 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.ConversationService;
+import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
@@ -189,6 +191,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
+
+    @Inject
+    private DocumentService documentService;
+
+    @Inject
+    private ApiMedicationService apiMedicationService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -2110,5 +2118,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         apiKeyRepository.save(key);
+    }
+
+    @Override
+    public Map<String, Integer> getUserStats(Long userId) throws ResourceNotFoundException, FhirResourceException {
+        User user = findUser(userId);
+
+        Map<String, Integer> statsMap = new HashMap<>();
+
+        Long unreadMessages = conversationService.getUnreadConversationCount(userId);
+        int medicines = apiMedicationService.getByUserId(userId).size();
+        int letters = documentService.getByUserIdAndClass(userId, null, null, null).size();
+
+        statsMap.put("unreadMessages", unreadMessages != null ? unreadMessages.intValue() : 0);
+        statsMap.put("medicines", medicines);
+        statsMap.put("letters", letters);
+
+        return statsMap;
     }
 }
