@@ -397,7 +397,6 @@ public class UserControllerTest {
     /**
      * Test: The url to reset a password
      * Fail: The service method does not get called
-     * <p>
      * * TODO Fix verify - possible problem with aspect
      */
     @Test
@@ -550,7 +549,7 @@ public class UserControllerTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId()+"/stats"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/stats"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(userService, times(1)).getUserStats(user.getId());
