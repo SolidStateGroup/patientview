@@ -1986,6 +1986,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                             if (count < groupRoles.size() - 1) {
                                 roleSb.append(", ");
                             }
+                            count++;
                         }
                     }
 
