@@ -51,7 +51,6 @@ public class AlertController extends BaseController<AlertController> {
     @ResponseBody
     public ResponseEntity<Alert> addAlert(@PathVariable("userId") Long userId, @RequestBody Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        alertService.addAlert(userId, alert);
         return new ResponseEntity<>(alertService.addAlert(userId, alert), HttpStatus.OK);
     }
 
