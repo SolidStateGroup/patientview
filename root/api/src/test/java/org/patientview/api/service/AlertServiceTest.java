@@ -351,6 +351,43 @@ public class AlertServiceTest {
     }
 
     @Test
+    public void testUpdateAlert_dontSave() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // all set to false, will remove alert for result
+        Alert alert = new Alert();
+
+        alert.setId(1L);
+        alert.setObservationHeading(observationHeading);
+        alert.setWebAlert(false);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(false);
+        alert.setEmailAlertSent(false);
+        alert.setMobileAlert(false);
+        alert.setMobileAlertSent(false);
+        alert.setUser(user);
+        alert.setAlertType(AlertTypes.RESULT);
+
+        org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+
+        alertService.updateAlert(user.getId(), apiAlert);
+        verify(alertRepository, Mockito.times(1)).delete(any(Alert.class));
+        verify(alertRepository, Mockito.times(1)).save(any(Alert.class));
+    }
+
+    @Test
     public void testSendAlertEmails() throws Exception {
 
         User user = TestUtils.createUser("testUser");
