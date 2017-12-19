@@ -372,6 +372,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 }
             }
 
+            // reset user login attempts after successfully entering username and password
+            resetLogonAttempts(user);
         } else {
             // no secret word, log in as usual
             userToken.setToken(CommonUtils.getAuthToken());
@@ -515,6 +517,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             } catch (JsonSyntaxException jse) {
                 throw new AuthenticationServiceException("Error retrieving secret word");
             }
+
+            // reset user login attempts after successfully entering username and password
+            resetLogonAttempts(user);
         } else {
             // no secret word, log in as usual
             userToken.setToken(CommonUtils.getAuthToken());
@@ -818,7 +823,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             failedLogonAttempts = 0;
         }
         ++failedLogonAttempts;
-        if (failedLogonAttempts > maximumLoginAttempts) {
+        if (failedLogonAttempts >= maximumLoginAttempts) {
             user.setLocked(Boolean.TRUE);
 
             auditService.createAudit(AuditActions.ACCOUNT_LOCKED, user.getUsername(), user,
@@ -826,6 +831,16 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         user.setFailedLogonAttempts(failedLogonAttempts);
+        userRepository.save(user);
+    }
+
+    /**
+     * Helper to set user login attempts to 0
+     *
+     * @param user a user to reset logon attempts for
+     */
+    private void resetLogonAttempts(User user) {
+        user.setFailedLogonAttempts(0);
         userRepository.save(user);
     }
 
