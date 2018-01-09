@@ -397,7 +397,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
         // send notification to user using firebase
         for (Long userId : userIds) {
-            notificationClient.push(userId);
+            notificationClient.notifyResult(userId);
         }
 
         Date now = new Date();
@@ -446,24 +446,33 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        boolean toSave = true;
+
         if (alert.getAlertType().equals(AlertTypes.RESULT)) {
+            /**
+             * when alert was created on mobile web and email are false
+             * check if removing mobile then remove alert
+             * to keep web view clean
+             */
+            if (!alert.isWebAlert() && !alert.isEmailAlert() && !alert.isMobileAlert()) {
+                alertRepository.delete(entityAlert);
+                toSave = false;
+            }
+        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
+            if (!alert.isWebAlert() && !alert.isEmailAlert()) {
+                alertRepository.delete(entityAlert);
+                toSave = false;
+            }
+        } else {
+            throw new ResourceNotFoundException("Incorrect alert type");
+        }
+
+        if (toSave) {
             entityAlert.setWebAlert(alert.isWebAlert());
             entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
             entityAlert.setEmailAlert(alert.isEmailAlert());
             entityAlert.setMobileAlert(alert.isMobileAlert());
             alertRepository.save(entityAlert);
-        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
-            if (!alert.isWebAlert() && !alert.isEmailAlert()) {
-                alertRepository.delete(entityAlert);
-            } else {
-                entityAlert.setWebAlert(alert.isWebAlert());
-                entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
-                entityAlert.setEmailAlert(alert.isEmailAlert());
-                entityAlert.setMobileAlert(alert.isMobileAlert());
-                alertRepository.save(entityAlert);
-            }
-        } else {
-            throw new ResourceNotFoundException("Incorrect alert type");
         }
     }
 }

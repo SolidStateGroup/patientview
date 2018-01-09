@@ -25,7 +25,7 @@ angular.module('patientviewApp').controller('ExportInfoModalInstanceCtrl',
 
         // Add to scope, remove blank values so date will always be selected
         $scope.months =  _.without(UtilService.generateMonths(), '');
-        $scope.years = _.without(UtilService.generateYears2000(), '');
+        $scope.years = _.without(UtilService.generateYears1990(), '');
         $scope.days =  _.without(UtilService.generateDays(), '');
 
         // Add the referrer (used for the end point)
