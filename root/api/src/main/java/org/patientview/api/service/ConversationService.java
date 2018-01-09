@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Conversation service, for operations related to Conversations and Messages.
@@ -172,6 +173,20 @@ public interface ConversationService {
      */
     @UserOnly
     String getRecipientsAsHtml(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Get available Conversation recipients by a Group.
+     * Used in mobile api.
+     *
+     * @param userId  ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return a list of BaseUsers grouped by user group
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    Map<String, List<BaseUser>> getRecipientsList(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

@@ -2,17 +2,11 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.api.model.enums.DummyUsernames;
-import org.patientview.config.exception.VerificationException;
-import org.patientview.persistence.model.ApiKey;
-import org.patientview.persistence.model.enums.ApiKeyTypes;
-import org.patientview.persistence.repository.ApiKeyRepository;
-import org.patientview.service.AuditService;
-import org.patientview.persistence.model.ConversationUserLabel;
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
@@ -20,8 +14,12 @@ import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.ConversationUserLabel;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -34,6 +32,7 @@ import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ConversationLabel;
@@ -46,6 +45,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.ConversationUserLabelRepository;
 import org.patientview.persistence.repository.ConversationUserRepository;
@@ -56,6 +56,7 @@ import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -79,6 +80,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -89,7 +91,6 @@ import static org.patientview.api.util.ApiUtil.userHasRole;
 
 /**
  * Conversation service, for CRUD operations related to Conversations and Messages.
- *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
@@ -150,6 +151,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private FirebaseClient notificationClient;
 
     /**
      * @inheritDoc
@@ -683,6 +687,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // send email notification to conversation users
         sendNewMessageEmails(entityConversation.getConversationUsers(), false, entityUser);
+
+        // send push notification for mobile users
+        sendNewMessageNotification(entityConversation);
     }
 
     /**
@@ -718,6 +725,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Anonymise Conversation by replacing Users who wish to remain anonymous with a dummy user if required.
+     *
      * @param conversation Conversation to anonymise (if required)
      * @return Conversation where Users have been made anonymous (if required)
      */
@@ -766,7 +774,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 } else {
                     message.getUser().setCanSwitchUser(
                             userService.currentUserCanSwitchToUser(message.getUser())
-                        && !getCurrentUser().equals(message.getUser()));
+                                    && !getCurrentUser().equals(message.getUser()));
                     newMessage.setUser(message.getUser());
                 }
             }
@@ -809,6 +817,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Verify all conversation users have messaging features and member of group with messaging enabled
+     *
      * @param conversation Conversation to verify
      * @return true if all conversation users have messaging features and member of group with messaging enabled
      */
@@ -837,8 +846,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Return true if a set of ConversationUser contains User.
+     *
      * @param conversationUserSet Set of ConversationUser to find User in
-     * @param user User to find
+     * @param user                User to find
      * @return true if User found in Set of ConversationUser
      */
     private boolean conversationUsersContainsUser(Set<ConversationUser> conversationUserSet, User user) {
@@ -852,6 +862,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Convert a List of User to BaseUser.
+     *
      * @param users List of Users to convert
      * @return List of BaseUser
      */
@@ -1084,6 +1095,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Helper method to get a User given their id.
+     *
      * @param userId ID of User to get
      * @return User object
      * @throws ResourceNotFoundException
@@ -1143,9 +1155,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Create a new Set of ConversationUser given ConversationUsers and Conversation type (may need to add more Users)
+     *
      * @param conversationUsers Set of Conversation Users to add to
-     * @param conversation Conversation with type determining addition of new ConversationUsers
-     * @param creator User creating new ConversationUsers
+     * @param conversation      Conversation with type determining addition of new ConversationUsers
+     * @param creator           User creating new ConversationUsers
      * @return Set of ConversationUser
      * @throws ResourceNotFoundException
      */
@@ -1170,7 +1183,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             if (conversation.getGroupId() == null) {
                 throw new ResourceNotFoundException("Missing Group ID parameter when sending message");
             }
-            if (conversation.getStaffFeature() == null)  {
+            if (conversation.getStaffFeature() == null) {
                 throw new ResourceNotFoundException("Missing Staff feature parameter when sending message");
             }
 
@@ -1331,6 +1344,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Get a Map of BaseUsers organised by Role type for global admins, used for potential Conversation recipients.
+     *
      * @param groupId ID of Group to get recipients for (optional, will get for all Groups if null)
      * @return Map of BaseUsers organised by Role type
      * @throws ResourceNotFoundException
@@ -1411,6 +1425,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Get a Map of BaseUsers organised by Role type for patients, used for potential Conversation recipients.
+     *
      * @param groupId ID of Group to get recipients for (optional, will use all a User's Groups if null)
      * @return Map of BaseUsers organised by Role type
      * @throws ResourceNotFoundException
@@ -1483,7 +1498,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
      * Conversation to populate the drop-down select of available recipients after a Group is selected.
-     * @param userId ID of User retrieving available Conversation recipients
+     *
+     * @param userId  ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
      * @return Object containing Lists of BaseUser organised by Role
      * @throws ResourceNotFoundException
@@ -1504,7 +1520,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         } else if (currentUserHasRole(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
                 RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
             userMap = getStaffRecipients(userId, groupId);
-        } else  if (currentUserHasRole(RoleName.PATIENT)) {
+        } else if (currentUserHasRole(RoleName.PATIENT)) {
             userMap = getPatientRecipients(userId, groupId);
         }
 
@@ -1595,7 +1611,60 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
+     * TODO: Add more comments to describe logic
+     * @inheritDoc
+     */
+    @Override
+    public Map<String, List<BaseUser>> getRecipientsList(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
+
+        Map<String, List<BaseUser>> recipients = new HashMap<>();
+
+        // sort correctly
+        List<String> sortOrder = new ArrayList<>();
+        sortOrder.add(RoleName.SPECIALTY_ADMIN.getName());
+        sortOrder.add(RoleName.UNIT_ADMIN.getName());
+        sortOrder.add(RoleName.STAFF_ADMIN.getName());
+        sortOrder.add(RoleName.PATIENT.getName());
+
+        List<String> sortedKeys = new ArrayList<>();
+
+        for (String keySorted : sortOrder) {
+            for (String key : userMap.keySet()) {
+                if (keySorted.equals(key) && !sortedKeys.contains(key)) {
+                    sortedKeys.add(key);
+                }
+            }
+        }
+
+        for (String key : userMap.keySet()) {
+            if (!sortedKeys.contains(key)) {
+                sortedKeys.add(key);
+            }
+        }
+
+        for (String userType : sortedKeys) {
+            List<BaseUser> users = userMap.get(userType);
+
+            if (!recipients.containsKey(userType)) {
+                recipients.put(userType, new ArrayList<BaseUser>());
+            }
+
+            if (!users.isEmpty()) {
+
+                for (BaseUser baseUser : users) {
+                    recipients.get(userType).add(baseUser);
+                }
+            }
+        }
+
+        return recipients;
+    }
+
+    /**
      * Get a Map of BaseUsers organised by Role type for staff members, used for potential Conversation recipients.
+     *
      * @param groupId ID of Group to get recipients for (optional, will use all a User's Groups if null)
      * @return Map of BaseUsers organised by Role type
      * @throws ResourceNotFoundException
@@ -1706,6 +1775,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Verify the current logged in User has messaging features, assume all patients and global admins do.
+     *
      * @return True if current logged in User has messaging features, false if not
      */
     private boolean loggedInUserHasMessagingFeatures() {
@@ -1718,6 +1788,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Verify the current logged in User is a member of a Conversation.
+     *
      * @param conversation Conversation to verify current logged in User is a member of
      * @return True if current logged in User is a member of the Conversation, false if not
      */
@@ -1734,7 +1805,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Handle errors when creating ExternalConversation.
-     * @param message String reason for rejection
+     *
+     * @param message              String reason for rejection
      * @param externalConversation ExternalConversation to reject
      * @return ExternalConversation with success false and error message set
      */
@@ -1822,7 +1894,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Send an email to PatientView central support.
-     * @param entityUser User sending email
+     *
+     * @param entityUser   User sending email
      * @param conversation Conversation containing Message for email content
      */
     private void sendNewCentralSupportEmail(User entityUser, Conversation conversation) {
@@ -1856,10 +1929,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Send new Message emails to a Set of Users.
+     *
      * @param conversationUsers Set of ConversationUsers to retrieve User details from
-     * @param anonymous boolean set to true if creator of conversation is anonymous, as when sending anonymous
-     *                  unit feedback
-     * @param sender User who added message
+     * @param anonymous         boolean set to true if creator of conversation is anonymous, as when sending anonymous
+     *                          unit feedback
+     * @param sender            User who added message
      */
     private void sendNewMessageEmails(Set<ConversationUser> conversationUsers, boolean anonymous, User sender) {
         for (ConversationUser conversationUser : conversationUsers) {
@@ -1893,19 +1967,24 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     } else {
                         // group roles
                         int count = 0;
-
                         boolean isSpecialtyAdmin = userHasRole(sender, RoleName.SPECIALTY_ADMIN);
+                        // need to have clean list in order to append comma correctly
+                        List<GroupRole> groupRoles = new ArrayList<>();
 
                         // only include visible groups and non specialty groups
                         for (GroupRole groupRole : sender.getGroupRoles()) {
                             if (Boolean.TRUE.equals(groupRole.getGroup().getVisible())
                                     && (!GroupTypes.SPECIALTY.toString().equals(
-                                            groupRole.getGroup().getGroupType().getValue()) || isSpecialtyAdmin)) {
-                                roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
-                                roleSb.append(groupRole.getGroup().getName());
-                                if (count < sender.getGroupRoles().size() - 1) {
-                                    roleSb.append(", ");
-                                }
+                                    groupRole.getGroup().getGroupType().getValue()) || isSpecialtyAdmin)) {
+                                groupRoles.add(groupRole);
+                            }
+                        }
+                        // append comma
+                        for (GroupRole groupRole : groupRoles) {
+                            roleSb.append(groupRole.getRole().getName().getName()).append(" at ");
+                            roleSb.append(groupRole.getGroup().getName());
+                            if (count < groupRoles.size() - 1) {
+                                roleSb.append(", ");
                             }
                             count++;
                         }
@@ -1915,6 +1994,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                         // name
                         sb.append(" from ").append(sender.getName()).append(". <br/><br/>This user is a ");
                         sb.append(roleSb);
+                        sb.append(".");
                     }
                 }
 
@@ -1938,7 +2018,26 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
+     * Send notification on new message to all users in the conversation
+     *
+     * @param conversation a  conversation to send notifications for
+     */
+    private void sendNewMessageNotification(Conversation conversation) {
+
+        // itterate over the list of users for this conversation and notify them of a new message
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            User user = conversationUser.getUser();
+
+            // only send messages to other users, not current user
+            if (!user.getId().equals(getCurrentUser().getId())) {
+                notificationClient.notifyMessage(user.getId(), conversation.getId(), conversation.getTitle());
+            }
+        }
+    }
+
+    /**
      * Verify at least one of a User's Groups has the MESSAGING Feature enabled.
+     *
      * @param user User to check has at least one Group with MESSAGING Feature enabled
      * @return True if User has at least one Group with MESSAGING Feature enabled, false if not
      */
@@ -1971,6 +2070,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Check User has at least one Feature from a restricted list of staff messaging Features.
+     *
      * @param user User to check has staff messaging Feature
      * @return True if User has at least one Feature from a restricted list of staff messaging Features, false if not
      */
