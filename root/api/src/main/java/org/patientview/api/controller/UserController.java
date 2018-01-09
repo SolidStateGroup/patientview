@@ -40,6 +40,7 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RESTful interface for managing and retrieving User data.
@@ -606,5 +607,23 @@ public class UserController extends BaseController<UserController> {
     public void generateApiKey(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         userService.generateApiKey(userId);
+    }
+
+
+    /**
+     * Mobile endpoint to get stats for patient user such as unreadMessages, medicines, letters etc.
+     *
+     * Should extend this if more stats are needed.
+     *
+     * @param userId
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/stats", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Map<String, Integer>> getUserStats(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(userService.getUserStats(userId), HttpStatus.OK);
     }
 }

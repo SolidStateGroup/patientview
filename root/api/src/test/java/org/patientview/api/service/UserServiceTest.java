@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.model.FhirDocumentReference;
+import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.config.exception.FhirResourceException;
@@ -68,6 +70,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -145,6 +148,12 @@ public class UserServiceTest {
 
     @Mock
     private AuthenticationService authenticationService;
+
+    @Mock
+    private DocumentService documentService;
+
+    @Mock
+    private ApiMedicationService apiMedicationService;
 
     @Before
     public void setUp() throws Exception {
@@ -1343,6 +1352,29 @@ public class UserServiceTest {
 
         userService.usernameExists(staffUser.getUsername());
         verify(userRepository, times(1)).findByUsernameCaseInsensitive(eq(staffUser.getUsername()));
+    }
+
+    @Test
+    public void testGetUserStats() throws FhirResourceException, ResourceNotFoundException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(conversationService.getUnreadConversationCount(eq(user.getId()))).thenReturn(10L);
+        when(apiMedicationService.getByUserId(eq(user.getId()))).thenReturn(new ArrayList<FhirMedicationStatement>());
+        when(documentService.getByUserIdAndClass(eq(user.getId()),
+                any(String.class), any(String.class), any(String.class))).
+                thenReturn(new ArrayList<FhirDocumentReference>());
+
+        Map<String, Integer> stats =  userService.getUserStats(user.getId());
+        Assert.assertNotNull("Stats map should have been returned", stats);
     }
 
     /**
