@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RESTful interface for Conversations and Messages, including unread count. Conversations have Message objects as
@@ -250,10 +251,29 @@ public class ConversationController extends BaseController<ConversationControlle
      */
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getRecipients(@PathVariable("userId") Long userId,
+    public ResponseEntity<String> getRecipientsHtml(@PathVariable("userId") Long userId,
             @RequestParam(value = "groupId", required = false) Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.getRecipientsAsHtml(userId, groupId), HttpStatus.OK);
+    }
+
+    /**
+     * Get available Conversation recipients by a Group.
+     * Used for mobile.
+     *
+     * @param userId  ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return a list of BaseUsers grouped by user group
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/user/{userId}/conversations/recipients/list", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Map<String, List<BaseUser>>> getRecipients(@PathVariable("userId") Long userId,
+                                                                     @RequestParam(value = "groupId",
+                                                                             required = false) Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(conversationService.getRecipientsList(userId, groupId), HttpStatus.OK);
     }
 
     /**

@@ -28,13 +28,16 @@ public class FirebaseClient {
     }
 
     /**
+     * Send push notification for new results.
+     * Only users with setting set to Mobile will be notified.
+     * <p>
      * Messages sent to targets.
      * This class interfaces with the FCM server by sending the Notification over HTTP-POST JSON.
      *
      * @param userId an id of the user to send notification for
      * @return FcmResponse object containing HTTP response info.
      */
-    public String push(Long userId) {
+    public String notifyResult(Long userId) {
         LOG.info("Sending mobile push notification for user {}", userId);
         if (StringUtils.isEmpty(SERVER_KEY)) {
             LOG.error("No Server-Key has been defined for firebase client.");
@@ -42,7 +45,6 @@ public class FirebaseClient {
         }
 
         try {
-
             /**
              * We are using the same firebase app for Test and Live,
              * different topics per env
@@ -54,32 +56,100 @@ public class FirebaseClient {
                 topic = "/topics/" + userId + "-results";
             }
 
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Authorization", "key=" + SERVER_KEY);
-            httpHeaders.set("Content-Type", "application/json;charset=UTF-8");
-
-            JSONObject body = new JSONObject();
-            body.put("to", topic);
-            body.put("priority", "high");
-            //body.put("dry_run", true); // to test without sending the message
-
             JSONObject notification = new JSONObject();
             notification.put("body", "New results have arrived");
             notification.put("title", "New data has arrived on PatientView. Please log in to view");
 
-            body.put("notification", notification);
-
-            HttpEntity<String> httpEntity = new HttpEntity<String>(body.toString(), httpHeaders);
-            String response = restTemplate.postForObject(API_URL, httpEntity, String.class);
-
-            LOG.info("Firebase client response " + response);
-            return response;
+            return push(topic, notification, null, null);
         } catch (Exception e) {
             LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
             return null;
         }
     }
+
+    /**
+     * Send push notification for new message in conversation.
+     * When users installed to mobile app they will be automatically subscribed to new message
+     * notification.
+     *
+     * @param userId an id of the user to send notification for
+     * @param conversationId an id of conversation
+     * @param title a title for conversation
+     * @return FcmResponse object containing HTTP response info.
+     */
+    public String notifyMessage(Long userId, Long conversationId, String title) {
+        LOG.info("Sending message mobile push notification for user {}", userId);
+        if (StringUtils.isEmpty(SERVER_KEY)) {
+            LOG.error("No Server-Key has been defined for firebase client.");
+            return null;
+        }
+
+        try {
+
+            /**
+             * The same firebase app for Test and Live
+             * but different topics per env
+             * LIVE: /topics/{userid}-messages
+             * TEST:  /topics/{userid}-test-messages
+             */
+            String topic = "/topics/" + userId + "-test-messages";
+            if (IS_LIVE) {
+                topic = "/topics/" + userId + "-messages";
+            }
+
+            JSONObject notification = new JSONObject();
+            notification.put("body", "A new message has arrived on PatientView. Please login to view");
+            notification.put("title", "PatientView: New message(s) received");
+
+            // extra data to help the mobile app handling
+            JSONObject data = new JSONObject();
+            data.put("conversationId", conversationId);
+            data.put("conversationTitle", title);
+
+            return push(topic, notification, data, conversationId.toString());
+        } catch (Exception e) {
+            LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
+            return null;
+        }
+    }
+
+
+    /**
+     * Common helper to send message to firebase
+     *
+     * @param topic        a topic in firebase
+     * @param notification a message to be used to send to subscriber as notification
+     * @return
+     */
+    private String push(String topic, JSONObject notification, JSONObject data, String groupBy) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", "key=" + SERVER_KEY);
+        httpHeaders.set("Content-Type", "application/json;charset=UTF-8");
+
+        JSONObject body = new JSONObject();
+        body.put("to", topic);
+        body.put("priority", "high");
+       
+        // if we need to group notification by some common key
+        if (groupBy != null && !groupBy.isEmpty()) {
+            body.put("collapse_key", groupBy);
+        }
+
+        if (data != null) {
+            body.put("data", data);
+        }
+
+        body.put("notification", notification);
+
+        HttpEntity<String> httpEntity = new HttpEntity<>(body.toString(), httpHeaders);
+        String response = restTemplate.postForObject(API_URL, httpEntity, String.class);
+
+        LOG.info("Firebase client response " + response);
+        return response;
+    }
+
 
     /**
      * Builder to initialize firebase client.
