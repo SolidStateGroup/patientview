@@ -163,6 +163,8 @@ public final class SecurityAspect {
             throw new ResourceForbiddenException("You must be logged in");
         }
 
+        LOG.info(">>>>>>>>>   REQUEST ID: " + requestId);
+        LOG.info(">>>>>>>>>   CURRENT ID: " + currentUser.getId());
         if (!requestId.equals(currentUser.getId())) {
             throw new ResourceForbiddenException("You have to be logged in as the requested user");
         }

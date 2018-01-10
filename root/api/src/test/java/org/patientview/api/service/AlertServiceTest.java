@@ -380,11 +380,11 @@ public class AlertServiceTest {
         org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findOne(alert.getId())).thenReturn(alert);
 
         alertService.updateAlert(user.getId(), apiAlert);
         verify(alertRepository, Mockito.times(1)).delete(any(Alert.class));
-        verify(alertRepository, Mockito.times(1)).save(any(Alert.class));
+        verify(alertRepository, Mockito.times(0)).save(any(Alert.class));
     }
 
     @Test
