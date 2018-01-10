@@ -272,15 +272,9 @@ public class ConversationControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        Conversation conversation = new Conversation();
-        conversation.setId(1L);
-
         mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations/"
                 +  "/recipients/list?groupId="+group.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(conversationService, Mockito.times(1))
-                .getRecipientsList(eq(user.getId()), eq(group.getId()));
     }
 }

@@ -1367,11 +1367,8 @@ public class UserServiceTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(conversationService.getUnreadConversationCount(eq(user.getId()))).thenReturn(10L);
-        when(apiMedicationService.getByUserId(eq(user.getId()))).thenReturn(new ArrayList<FhirMedicationStatement>());
-        when(documentService.getByUserIdAndClass(eq(user.getId()),
-                any(String.class), any(String.class), any(String.class))).
-                thenReturn(new ArrayList<FhirDocumentReference>());
+        when(conversationService.getUnreadConversationCount(user.getId())).thenReturn(10L);
+        when(apiMedicationService.getByUserId(user.getId())).thenReturn(new ArrayList<FhirMedicationStatement>());
 
         Map<String, Integer> stats =  userService.getUserStats(user.getId());
         Assert.assertNotNull("Stats map should have been returned", stats);
