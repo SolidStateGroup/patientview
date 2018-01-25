@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ForgottenPasswordCtrl', ['RouteService','AuthService', '$scope',
-    '$rootScope', 'UtilService', 'ENV', '$timeout',
-function (RouteService, AuthService, $scope, $rootScope, UtilService, ENV, $timeout) {
+    'ENV', '$timeout',
+function (RouteService, AuthService, $scope, ENV, $timeout) {
     $scope.credentials = {};
 
     $scope.submit = function () {
