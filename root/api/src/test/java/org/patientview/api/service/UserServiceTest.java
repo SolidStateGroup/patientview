@@ -155,6 +155,9 @@ public class UserServiceTest {
     @Mock
     private ApiMedicationService apiMedicationService;
 
+    @Mock
+    private CaptchaService captchaService;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -1130,12 +1133,13 @@ public class UserServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testResetPassword() throws ResourceNotFoundException, MailException, MessagingException {
+    public void testResetPassword() throws ResourceNotFoundException, MailException, MessagingException,
+            ResourceForbiddenException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
-        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail());
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail(), "capture");
 
         verify(emailService, times(1)).sendEmail(any(Email.class));
         verify(userRepository, times(1)).save(eq(user));
@@ -1147,13 +1151,14 @@ public class UserServiceTest {
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testResetPassword_WrongEmail() throws ResourceNotFoundException, MailException, MessagingException {
+    public void testResetPassword_WrongEmail() throws ResourceNotFoundException, MailException, MessagingException,
+            ResourceForbiddenException{
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
 
-        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail", "capture");
 
         verify(emailService, times(0)).sendEmail(any(Email.class));
         verify(userRepository, times(0)).save(eq(user));
@@ -1165,13 +1170,14 @@ public class UserServiceTest {
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testResetPassword_WrongUsername() throws ResourceNotFoundException, MailException, MessagingException {
+    public void testResetPassword_WrongUsername() throws ResourceNotFoundException, MailException, MessagingException,
+            ResourceForbiddenException{
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(null);
 
-        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail", "capture");
 
         verify(emailService, times(0)).sendEmail(any(Email.class));
         verify(userRepository, times(0)).save(eq(user));
