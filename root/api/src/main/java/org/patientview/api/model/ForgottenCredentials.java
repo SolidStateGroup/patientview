@@ -9,6 +9,7 @@ public class ForgottenCredentials {
 
     private String username;
     private String email;
+    private String captcha;
 
     public String getUsername() {
         return username;
@@ -24,5 +25,13 @@ public class ForgottenCredentials {
 
     public void setEmail(final String email) {
         this.email = email;
+    }
+
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(String captcha) {
+        this.captcha = captcha;
     }
 }
