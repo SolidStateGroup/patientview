@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.ApiMedicationService;
+import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
@@ -197,6 +198,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ApiMedicationService apiMedicationService;
+
+    @Inject
+    private CaptchaService captchaService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -1792,9 +1796,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // Stage 1 of Forgotten Password, user knows username and email
-    public void resetPasswordByUsernameAndEmail(String username, String email)
-            throws ResourceNotFoundException, MailException, MessagingException {
+    public void resetPasswordByUsernameAndEmail(String username, String email, String capture)
+            throws ResourceNotFoundException, MailException, MessagingException, ResourceForbiddenException {
         LOG.info("Forgotten password (username, email) for " + username);
+
+        if (!captchaService.verify(capture)) {
+            throw new ResourceForbiddenException("Captcha exception");
+        }
+
         User user = userRepository.findByUsernameCaseInsensitive(username);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find account");

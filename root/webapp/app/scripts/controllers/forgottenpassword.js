@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ForgottenPasswordCtrl', ['RouteService','AuthService', '$scope',
-function (RouteService, AuthService, $scope) {
+    'ENV', '$timeout',
+function (RouteService, AuthService, $scope, ENV, $timeout) {
     $scope.credentials = {};
 
     $scope.submit = function () {
@@ -17,4 +18,16 @@ function (RouteService, AuthService, $scope) {
             }
         });
     };
+
+    $scope.reCaptchaCallback = function(response) {
+        $scope.credentials.captcha = response;
+        $timeout(function() {
+            $scope.$apply();
+        });
+    };
+
+    $scope.getReCaptchaPublicKey = function() {
+        return ENV.reCaptchaPublicKey;
+    };
+
 }]);
