@@ -14,6 +14,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         $scope.request.selectedYear = '';
         $scope.request.selectedMonth = '';
         $scope.request.selectedDay = '';
+        $scope.request.showunits=false;
         
         // get type of request from route parameters, if none then assume JOIN_REQUEST
         if ($routeParams.type !== undefined) {
@@ -52,11 +53,17 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
 
         var formOk = true;
 
-        if (typeof $scope.request.unit === 'undefined') {
-            $scope.errorMessage = 'Please select a unit';
-            formOk = false;
-        } else {
-            groupId = $scope.request.unit;
+        // For GP is is speciality
+        if($scope.request.specialty == '8' ){
+            groupId = $scope.request.specialty;
+        }else{
+            // otherwise unit id
+            if (typeof $scope.request.unit === 'undefined') {
+                $scope.errorMessage = 'Please select a unit';
+                formOk = false;
+            } else {
+                groupId = $scope.request.unit;
+            }
         }
 
         if (UtilService.validateEmail($scope.request.email)) {
@@ -100,12 +107,21 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
 
     $scope.refreshUnits = function() {
         $scope.units = [];
+        $scope.request.showunits=false;
         if (typeof $scope.request.specialty !== 'undefined') {
-            $scope.childUnits.forEach(function(unit) {
-                if (_.findWhere(unit.parentGroups, {id: $scope.request.specialty})) {
-                    $scope.units.push(unit);
-                }
-            });
+
+            // Hide Units if GP speciality selected
+            if($scope.request.specialty == '8' ){
+                $scope.request.showunits=false;
+            }else{
+                $scope.request.showunits=true;
+                $scope.childUnits.forEach(function(unit) {
+                    if (_.findWhere(unit.parentGroups, {id: $scope.request.specialty})) {
+                        $scope.units.push(unit);
+                    }
+                });
+            }
+
         }
     };
 
