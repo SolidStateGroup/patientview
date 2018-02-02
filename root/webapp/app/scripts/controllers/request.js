@@ -14,7 +14,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         $scope.request.selectedYear = '';
         $scope.request.selectedMonth = '';
         $scope.request.selectedDay = '';
-        $scope.request.showunits=false;
+        $scope.request.showunits=true;
         
         // get type of request from route parameters, if none then assume JOIN_REQUEST
         if ($routeParams.type !== undefined) {

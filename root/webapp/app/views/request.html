@@ -147,8 +147,7 @@
                 <div class="col-md-5 col-sm-offset-4">
                     <button data-ng-click="submit()" class="btn blue"
                             data-ng-disabled="!request.selectedDay || !request.selectedMonth || !request.selectedYear
-                            || !request.email ">
-                        <!--|| !units.length || !request.unit || !request.captcha-->
+                            || !request.email || (request.showunits && !request.unit) || !request.captcha">
                         Submit Request</button>
                 </div>
             </div>
