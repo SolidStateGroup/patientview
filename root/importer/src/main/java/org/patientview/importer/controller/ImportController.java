@@ -69,10 +69,9 @@ public class ImportController {
         queueService.importRecord(patientRecord);
     }
 
-    @ExceptionHandler(ImportResourceException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String handleImportResourceException(ImportResourceException e) {
-        return e.getMessage();
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void handle(Exception e) {
+        LOG.warn("Returning HTTP 400 Bad Request", e);
     }
 }
