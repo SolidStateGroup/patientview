@@ -72,6 +72,8 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     @Inject
     private UserRepository userRepository;
 
+    private static final Long GP_GROUP_ID = 8L;
+
     @Override
     public Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -101,17 +103,41 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
             }
             email = createJoinRequestEmail(entityRequest);
         } else if (request.getType().equals(RequestTypes.FORGOT_LOGIN)) {
-            email = createForgottenCredentialsRequestEmail(entityRequest);
+
+            // check if it's GP or Patient request and build correct email template
+            if (group.getId().equals(GP_GROUP_ID)) {
+                email = createGPForgottenCredentialsRequestEmail(entityRequest);
+            } else {
+                email = createForgottenCredentialsRequestEmail(entityRequest);
+            }
         }
 
         if (email != null) {
-            ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
 
-            // send email, but continue if it cant be sent
-            if (contactPoint == null) {
-                LOG.error("No suitable group contact point set for request email");
+            boolean sendEmail = false;
+            /**
+             * For GP we send email to PV admins only
+             * For patients check Contact Point based on selected Unit
+             */
+            if (group.getId().equals(GP_GROUP_ID)) {
+                // For GP sending to admin onlt
+                String centralSupportEmail = properties.getProperty("central.support.contact.email");
+                email.setRecipients(new String[]{centralSupportEmail});
+                sendEmail = true;
             } else {
-                email.setRecipients(new String[]{contactPoint.getContent()});
+                ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
+
+                // send email, but continue if it cant be sent
+                if (contactPoint == null) {
+                    LOG.error("No suitable group contact point set for request email");
+                    sendEmail = false;
+                } else {
+                    email.setRecipients(new String[]{contactPoint.getContent()});
+                    sendEmail = true;
+                }
+            }
+
+            if (sendEmail) {
                 try {
                     emailService.sendEmail(email);
                 } catch (MessagingException | MailException me) {
@@ -171,7 +197,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
                                 // forgot login, so check if user has logged in since request created
                                 if ((user.getLastLogin() != null
                                         && user.getLastLogin().after(request.getCreated()))
-                                    || (user.getCurrentLogin() != null
+                                        || (user.getCurrentLogin() != null
                                         && user.getCurrentLogin().after(request.getCreated()))) {
                                     // set to COMPLETED and save
                                     request.setStatus(RequestStatus.COMPLETED);
@@ -200,7 +226,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
-                                                ContactPointTypes contactPointTypes) {
+                                         ContactPointTypes contactPointTypes) {
         if (contactPoints != null && contactPointTypes != null) {
             for (ContactPoint contactPoint : contactPoints) {
                 if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
@@ -254,6 +280,20 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         return email;
     }
 
+    private Email createGPForgottenCredentialsRequestEmail(Request request) {
+        Email email = new Email();
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
+        email.setSubject("PatientView - Forgot Login Request");
+
+        String body = "Dear Support, <br/><br/> "
+                + "A GP user has submitted a Forgot Login request. Please login to view and action."
+                + "<br/><br/>Regards, <br/>PatientView Team";
+
+        email.setBody(body);
+        return email;
+    }
+
     private Email createJoinRequestEmail(Request request) {
         Email email = new Email();
         email.setSenderEmail(properties.getProperty("smtp.sender.email"));
@@ -272,7 +312,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     private Page<Request> findByParentUser(User user, List<RequestStatus> statusList,
-                                            List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+                                           List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
                 return requestRepository.findByParentUser(user, requestTypes, pageable);
@@ -290,7 +330,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     private Page<Request> findByUser(User user, List<RequestStatus> statusList,
-                                          List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+                                     List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
                 return requestRepository.findByUser(user, requestTypes, pageable);
@@ -308,7 +348,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     private Page<Request> findAll(List<RequestStatus> statusList,
-                                       List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
+                                  List<Long> groupIds, List<RequestTypes> requestTypes, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
                 return requestRepository.findAll(requestTypes, pageable);
