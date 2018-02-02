@@ -53,7 +53,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
 
         var formOk = true;
 
-        // For GP is is speciality
+        // For GP id is speciality
         if($scope.request.specialty == '8' ){
             groupId = $scope.request.specialty;
         }else{
