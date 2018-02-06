@@ -256,7 +256,7 @@ INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation
 /* used for storing staff entered results */
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (7, 'Staff Entered Data', 'STAFF_ENTERED', null, 2, false, now(), 1, false, 'Staff Entered');
 /* General Practice specialty, used as parent for all groups of type GENERAL_PRACTICE */
-INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (8, 'General Practice', 'GP', 'GENERAL_PRACTICE', null, 2, false, now(),1 , false);
+INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (8, 'General Practice', 'GP', 'GENERAL_PRACTICE', null, 2, false, now(),1 , true);
 
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '20', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '40', true, 'Unit Admin', now(), '1');
