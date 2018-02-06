@@ -10,7 +10,9 @@ function (RouteService, AuthService, $scope, ENV, $timeout) {
             // successfully changed user password
             $scope.successMessage = 'Your new password has been sent to your email address. When you receive ' +
                 'it you can use it to log on. After logging on you will be asked to change your password.';
+            $scope.errorMessage = null;
         }, function (failure) {
+            resetCaptcha();
             if (failure.status === 404) {
                 $scope.errorMessage = 'Error: The account could not be found';
             } else {
