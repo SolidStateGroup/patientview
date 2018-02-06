@@ -75,7 +75,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     @Override
     public Request add(Request request) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (captchaService.verify(request.getCaptcha())) {
+        if (!captchaService.verify(request.getCaptcha())) {
             throw new ResourceForbiddenException("Captcha exception");
         }
 

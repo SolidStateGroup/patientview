@@ -449,7 +449,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://localhost:' + port + '/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
                         buildDateTime: Date.now()
                     }
                 }
@@ -462,7 +462,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: '/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
                         buildDateTime: Date.now()
                     }
                 }
@@ -514,7 +514,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
                         buildDateTime: Date.now()
                     }
                 }
