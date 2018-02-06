@@ -121,6 +121,32 @@ public class RequestServiceTest {
         Assert.assertNotNull("The group should not be null", request.getGroup());
     }
 
+    @Test
+    public void testAddGPRequest() throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
+
+        Group group = TestUtils.createGroup("GeneralPractice");
+        group.setId(8L);// need 8 for GP group
+
+        Request request = new Request();
+        request.setForename("Test");
+        request.setSurname("User");
+        request.setDateOfBirth(new Date());
+        request.setGroupId(group.getId());
+        request.setType(RequestTypes.JOIN_REQUEST);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(requestRepository.save(any(Request.class))).thenReturn(request);
+
+        request = requestService.add(request);
+
+        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
+        verify(requestRepository, Mockito.times(1)).save(any(Request.class));
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+
+        Assert.assertNotNull("The return request should not be null", request);
+        Assert.assertNotNull("The group should not be null", request.getGroup());
+    }
+
     /**
      * Test: Attempt to create a request with an invalid specialty
      * Fail: The request is created without error
