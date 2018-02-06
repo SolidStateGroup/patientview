@@ -54,9 +54,9 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         var formOk = true;
 
         // For GP id is speciality
-        if($scope.request.specialty == '8' ){
+        if ($scope.request.specialty == '8') {
             groupId = $scope.request.specialty;
-        }else{
+        } else {
             // otherwise unit id
             if (typeof $scope.request.unit === 'undefined') {
                 $scope.errorMessage = 'Please select a unit';
@@ -108,20 +108,21 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
     $scope.refreshUnits = function() {
         $scope.units = [];
         $scope.request.showunits=false;
+        $scope.request.unit = null;
         if (typeof $scope.request.specialty !== 'undefined') {
 
             // Hide Units if GP speciality selected
-            if($scope.request.specialty == '8' ){
-                $scope.request.showunits=false;
-            }else{
-                $scope.request.showunits=true;
-                $scope.childUnits.forEach(function(unit) {
+            if ($scope.request.specialty == '8') {
+                $scope.request.showunits = false;
+                $scope.units = [];
+            } else {
+                $scope.request.showunits = true;
+                $scope.childUnits.forEach(function (unit) {
                     if (_.findWhere(unit.parentGroups, {id: $scope.request.specialty})) {
                         $scope.units.push(unit);
                     }
                 });
             }
-
         }
     };
 
