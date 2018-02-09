@@ -369,6 +369,10 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (32, 5, 210,  '/nhsindicators', 'views/nhsindicators.html','NhsIndicatorsCtrl', 'NHS Indicators', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (33, 5, 220,  '/resultsedit', 'views/resultsedit.html','ResultsEditCtrl', 'Edit Own Results', now(), 1);
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (34, 4, 16,  '/research', 'views/research.html','ResearchCtrl', 'Research Studies', now(), 1);
+
+
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
@@ -511,6 +515,12 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 /* Edit patient entered results */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (67, 33, null, 1, null, now(), 1 );
+
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (68, 34, 1, null, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (69, 34, null, 11, null, now(), 1);
+
 
 /* External Standards, used by Codes */
 INSERT INTO PV_External_Standard (Id, Name, Description) VALUES
