@@ -6,6 +6,7 @@ import org.patientview.api.service.StaticDataManager;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * RESTful interface for the management and retrieval of News. NewsItems are made visible to specific Groups, Roles and
@@ -57,7 +57,7 @@ public class RearchStudyController extends BaseController<RearchStudyController>
      */
     @RequestMapping(value = "/research", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<ResearchStudy>> get()
+    public ResponseEntity<Page<ResearchStudy>> get()
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(researchService.getAll(), HttpStatus.OK);
     }
