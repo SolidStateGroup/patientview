@@ -11,6 +11,9 @@ import org.patientview.persistence.repository.ResearchStudyRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -61,9 +64,10 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     }
 
     @Override
-    @CacheEvict(value = "findAll", allEntries = true)
-    public List<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException {
-        return Lists.newArrayList(researchStudyRepository.findAll());
+    public Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException {
+        PageRequest pageable = createPageRequest(1, 1, null, null);
+
+        return new PageImpl<>(Lists.newArrayList(researchStudyRepository.findAll()), pageable, 1);
     }
 
     @Override

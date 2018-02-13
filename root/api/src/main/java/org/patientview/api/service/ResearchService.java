@@ -5,6 +5,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
 import org.patientview.persistence.model.enums.RoleName;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +60,7 @@ public interface ResearchService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
-    List<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
+    Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Update a NewsItem.
