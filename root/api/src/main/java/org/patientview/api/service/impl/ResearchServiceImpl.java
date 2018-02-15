@@ -6,6 +6,7 @@ import org.patientview.api.service.StaticDataManager;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ResearchStudyRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -65,9 +66,17 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
     @Override
     public Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException {
-        PageRequest pageable = createPageRequest(1, 1, null, null);
 
-        return new PageImpl<>(Lists.newArrayList(researchStudyRepository.findAll()), pageable, 1);
+        List<ResearchStudy> list = Lists.newArrayList(researchStudyRepository.findAll());
+        PageRequest pageable = createPageRequest(1, list.size(), null, null);
+
+        return new PageImpl<>(list, pageable, list.size());
+    }
+
+    @Override
+    public Page<ResearchStudy> getAllForUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        return getAll();
     }
 
     @Override
