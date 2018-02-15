@@ -16,7 +16,7 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 var deferred = $q.defer();
 
                 // GET /user/{userId}/news?page=0&size=5
-                Restangular.one('user', userId).one('news').get(
+                Restangular.one('user', userId).one('research').get(
                     {
                         'page': page,
                         'newsType': newsType,
@@ -29,11 +29,17 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                     });
                 return deferred.promise;
             },
-            getAll: function () {
+            getAll: function (userId) {
                 var deferred = $q.defer();
 
                 // GET /research
-                Restangular.one('research').get().then(function (successResult) {
+                Restangular.one('user', userId).one('research').get(
+                    {
+                        'page': page,
+                        'newsType': newsType,
+                        'limitResults': limitResults,
+                        'size': size
+                    }).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);

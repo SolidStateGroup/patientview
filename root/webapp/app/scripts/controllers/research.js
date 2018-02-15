@@ -72,8 +72,7 @@ angular.module('patientviewApp').controller('ResearchCtrl', ['$scope', '$modal',
         // get page of data every time currentPage is changed
         $scope.$watch('currentPage', function (newValue) {
             $scope.loading = true;
-            ResearchService.getAll().then(function (page) {
-                debugger;
+            ResearchService.getByUser($scope.loggedInUser.id).then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
@@ -83,6 +82,26 @@ angular.module('patientviewApp').controller('ResearchCtrl', ['$scope', '$modal',
                 // error
             });
         });
+
+        $scope.viewResearchStudyModal = function (study) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/modal/viewResearchStudyModal.html',
+                controller: ViewResearchStudyModalInstanceCtrl,
+                size: 'lg',
+                resolve: {
+                    researchStudy: function () {
+                        return study;
+                    },
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok (not used)
+            }, function () {
+                // closed
+            });
+        };
+
 
         $scope.init();
     }]);

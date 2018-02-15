@@ -10,9 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,5 +74,27 @@ public class RearchStudyController extends BaseController<RearchStudyController>
     @ResponseBody
     public void save(@RequestBody ResearchStudy researchStudy) throws ResourceNotFoundException, ResourceForbiddenException {
         researchService.save(researchStudy);
+    }
+
+    /**
+     * Get a Page of NewsItems for a specific User.
+     * @param userId ID of User to retrieve news for
+     * @param size Size of the page
+     * @param newsTypeString the id of the items we want to show
+     * @param limitResults if we want to show all items or just 2 items per group (dashboard only)
+     * @param page Page number
+     * @return Page of NewsItem for a specific User
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/research", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<ResearchStudy>> findByUserId(
+            @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "newsType", required = false) String newsTypeString,
+            @RequestParam(value = "limitResults", required = false) boolean limitResults,
+            @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException,
+            ResourceForbiddenException {
+        return new ResponseEntity<>(researchService.getAllForUser(userId), HttpStatus.OK);
     }
 }
