@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import generated.Sex;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -12,25 +14,26 @@ import java.util.Date;
 /**
  * Models a research study that is available to a user
  */
-@Entity
-@Table(name = "pv_research_study_criteria")
-public class ResearchStudyCriteria extends BaseModel {
+public class ResearchStudyCriteria {
 
-//    @OneToOne
-//    @JoinColumn(name = "research_study_id")
-//    private ResearchStudy researchStudy;
-
-
-    @Column(name = "gender")
-    private char gender;
-
-    @Column(name = "from_age")
+    private Sex gender;
     private Integer fromAge;
-
-    @Column(name = "to_age")
     private Integer toAge;
+    private String diagnosis_id;
+    private String group_id;
+    private String treatment_id;
+
+    public ResearchStudyCriteria() {
+    }
 
 
+    public Sex getGender() {
+        return gender;
+    }
+
+    public void setGender(Sex gender) {
+        this.gender = gender;
+    }
 
     public Integer getFromAge() {
         return fromAge;
@@ -38,6 +41,30 @@ public class ResearchStudyCriteria extends BaseModel {
 
     public void setFromAge(Integer fromAge) {
         this.fromAge = fromAge;
+    }
+
+    public String getDiagnosis_id() {
+        return diagnosis_id;
+    }
+
+    public void setDiagnosis_id(String diagnosis_id) {
+        this.diagnosis_id = diagnosis_id;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
+    }
+
+    public String getTreatment_id() {
+        return treatment_id;
+    }
+
+    public void setTreatment_id(String treatment_id) {
+        this.treatment_id = treatment_id;
     }
 
     public Integer getToAge() {

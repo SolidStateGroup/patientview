@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ResearchService;
 import org.patientview.api.service.StaticDataManager;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
@@ -94,7 +95,7 @@ public class RearchStudyController extends BaseController<RearchStudyController>
             @RequestParam(value = "newsType", required = false) String newsTypeString,
             @RequestParam(value = "limitResults", required = false) boolean limitResults,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException,
-            ResourceForbiddenException {
+            ResourceForbiddenException, FhirResourceException {
         return new ResponseEntity<>(researchService.getAllForUser(userId), HttpStatus.OK);
     }
 }
