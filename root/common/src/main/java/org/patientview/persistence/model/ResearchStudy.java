@@ -1,5 +1,10 @@
 package org.patientview.persistence.model;
 
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+import org.patientview.persistence.model.types.StringJsonUserType;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +23,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "pv_research_study")
+@TypeDefs({ @TypeDef(name = "StringJsonObject", typeClass = StringJsonUserType.class) })
 public class ResearchStudy extends BaseModel {
     @Column(name = "name")
     private String researchName;
@@ -61,8 +67,9 @@ public class ResearchStudy extends BaseModel {
     @Column(name = "contact_phone")
     private String contactPhone;
 
-//    @OneToMany(mappedBy = "criteria", cascade = {CascadeType.ALL})
-//    private Set<ResearchStudyCriteria> researchStudyCriterias;
+//    @Type(type = "StringJsonObject")
+//    @Column(name = "criteria")
+//    private ResearchStudyCriteria researchStudyCriterias;
 
 
     public String getResearchName() {
@@ -161,11 +168,11 @@ public class ResearchStudy extends BaseModel {
         this.lastUpdater = lastUpdater;
     }
 //
-//    public Set<ResearchStudyCriteria> getResearchStudyCriterias() {
+//    public ResearchStudyCriteria getResearchStudyCriterias() {
 //        return researchStudyCriterias;
 //    }
 //
-//    public void setResearchStudyCriterias(Set<ResearchStudyCriteria> researchStudyCriterias) {
+//    public void setResearchStudyCriterias(ResearchStudyCriteria researchStudyCriterias) {
 //        this.researchStudyCriterias = researchStudyCriterias;
 //    }
 }

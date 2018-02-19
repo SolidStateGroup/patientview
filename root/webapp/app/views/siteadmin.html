@@ -2,38 +2,135 @@
 
 <div class="content-panel user-settings">
     <div class="content-inner">
-        <form class="form-horizontal" data-ng-cloak id="account-settings-form">
-            <h4>GP Practice Lists - Master File Import</h4>
-            <p>This will update the master GP table in the "patientview" database using a background task.</p>
+        <h4>Research Study Admin</h4>
+        <p>Something needs to go here to explain what this is........</p>
+
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-title" class="control-label">Title of Study <span class="error" data-ng-show="newsFormNew.heading.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-title" placeholder="Title of Study" name="titleOfStudy" data-ng-model="researchStudy.title" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-description" class="control-label">Description of Study <span class="error" data-ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-description" placeholder="Description of Study" name="description" data-ng-model="researchStudy.description" required></textarea>
+                </div>
+            </div>
+        </div>
+        <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label class="control-label">Preview of Descrption</label>
+                    <div class="message-summary">
+                        <h2 class="message-title">
+                            {{researchStudy.title}}
+                        </h2>
+                        <div class="last-message">
+                            <p class="message-content" data-ng-bind-html="parseHTMLText(researchStudy.description)"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Criteria</h4>
+
+
+        <div>
+            <i>Criteria goes here</i>
+            <span></span>
+        </div>
+
+        <h4>Details of who to Contact</h4>
+
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-name" class="control-label">Contact Name <span class="error" data-ng-show="newsFormNew.heading.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name" name="titleOfStudy" data-ng-model="researchStudy.title" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-email" class="control-label">Contact Email <span class="error" data-ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email" name="titleOfStudy" data-ng-model="researchStudy.title" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-phone" class="control-label">Contact Phone Number <span class="error" data-ng-show="newsFormNew.heading.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone" name="titleOfStudy" data-ng-model="researchStudy.title" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-description" class="control-label">Contact Address <span class="error" data-ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-contact-address" placeholder="Physical Address" name="description" data-ng-model="researchStudy.description" required></textarea>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                <span class="inline-span"> Available From: &nbsp;</span>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableFrom.day"
+                        data-ng-options="day as day for day in days">
+                </select>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableFrom.month"
+                        data-ng-options="month as month for month in months">
+                </select>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableFrom.year"
+                        data-ng-options="year as year for year in years">
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                <span class="inline-span"> Available To: &nbsp;</span>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableTo.day"
+                        data-ng-options="day as day for day in days">
+                </select>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableTo.month"
+                        data-ng-options="month as month for month in months">
+                </select>
+                <select class="form-control date-input" data-ng-model="researchStudy.availableTo.year"
+                        data-ng-options="year as year for year in years">
+                </select>
+            </div>
+        </div>
+
+
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()"
+                    data-ng-disabled="!newsFormNew.$valid || (newNews.groups.length + newNews.roles.length < 1)">Save
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-panel user-settings">
+    <div class="content-inner">
+            <h4>Site Administration</h4>
+            <p>Site admin</p>
             <p>Excel lists of GP Practices for England & Wales, as well as separate lists for Scotland and
                 Northern Ireland are available online and refreshed regularly. Filenames are set in .properties files
                 and must be checked before the update process is started.</p>
-
-            <p>England & Wales: <a href="http://systems.hscic.gov.uk/data/ods/datadownloads/gppractice">epracurr.zip</a>
-                (See PDF in zip file download for xls column info) </p>
-
-            <p>Scotland: <a href="http://www.isdscotland.org/Health-Topics/General-Practice/Workforce-and-Practice-Populations/Practices-and-Their-Populations/">
-                Prac_ContactDetails_Oct2015_final.xls</a></p>
-
-            <p>NI: <a href="http://www.hscbusiness.hscni.net/services/1816.htm">Northern_Ireland_GP_List_010216.xls</a></p>
-
-            <div class="form-group">
-                <div class="col-md-12">
-                    <button data-ng-click="updateGPs()" class="btn blue" data-ng-disabled="updateGpRunning">Update master GP table</button>
-                    <a href="../api/gp/mastertable/download?token={{authToken}}" class="btn blue">Download</a>
-                </div>
-            </div>
-            <div class="form-group" data-ng-show="gpErrorMessage">
-                <div class="col-sm-12 alert alert-danger">
-                    <p><strong>Error updating master GP table:</strong> {{gpErrorMessage}}</p>
-                </div>
-            </div>
-            <div class="form-group" data-ng-show="gpSuccessMessage">
-                <div class="col-sm-12 alert alert-success">
-                    <p>{{gpSuccessMessage}}</p>
-                </div>
-            </div>
-        </form>
-
+            <a href="/#/admin">Click here</a> to access GP Practice management
     </div>
 </div>
