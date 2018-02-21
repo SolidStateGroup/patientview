@@ -23,11 +23,4 @@ import java.util.List;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ResearchStudyRepository extends CrudRepository<ResearchStudy, Long> {
-
-
-
-    @Query("SELECT r " +
-            "FROM   ResearchStudy r "
-             )
-    List<ResearchStudy> findByUser();
 }

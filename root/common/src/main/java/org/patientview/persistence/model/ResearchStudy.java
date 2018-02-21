@@ -1,9 +1,5 @@
 package org.patientview.persistence.model;
 
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-import org.patientview.persistence.model.types.StringJsonUserType;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -61,10 +57,6 @@ public class ResearchStudy extends BaseModel {
 
     @Column(name = "contact_phone")
     private String contactPhone;
-
-//    @Type(type = "StringJsonObject")
-//    @Column(name = "criteria")
-//    private ResearchStudyCriteria researchStudyCriterias;
 
 
     public String getResearchName() {
@@ -162,12 +154,5 @@ public class ResearchStudy extends BaseModel {
     public void setLastUpdater(User lastUpdater) {
         this.lastUpdater = lastUpdater;
     }
-//
-//    public ResearchStudyCriteria getResearchStudyCriterias() {
-//        return researchStudyCriterias;
-//    }
-//
-//    public void setResearchStudyCriterias(ResearchStudyCriteria researchStudyCriterias) {
-//        this.researchStudyCriterias = researchStudyCriterias;
-//    }
+
 }
