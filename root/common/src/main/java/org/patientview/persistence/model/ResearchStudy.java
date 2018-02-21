@@ -1,35 +1,30 @@
 package org.patientview.persistence.model;
 
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.patientview.persistence.model.types.StringJsonUserType;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Models a research study criteria that is available to a user
  */
 @Entity
 @Table(name = "pv_research_study")
-@TypeDefs({ @TypeDef(name = "StringJsonObject", typeClass = StringJsonUserType.class) })
 public class ResearchStudy extends BaseModel {
     @Column(name = "name")
     private String researchName;
 
     @Column(name = "description")
-    private String researchDescription;
+    private String description;
 
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -81,11 +76,11 @@ public class ResearchStudy extends BaseModel {
     }
 
     public String getDescription() {
-        return researchDescription;
+        return description;
     }
 
     public void setDescription(String researchDescription) {
-        this.researchDescription = researchDescription;
+        this.description = researchDescription;
     }
 
     public Date getAvailableFrom() {
