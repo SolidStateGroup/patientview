@@ -3,11 +3,10 @@ package org.patientview.api.service.impl;
 import com.google.common.collect.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
-import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.model.Patient;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.ResearchService;
-import org.patientview.api.service.StaticDataManager;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -15,22 +14,25 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.NewsItem;
+import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.ResearchStudy;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ResearchStudyRepository;
-import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Class to control the crud operations of the News.
@@ -53,17 +55,38 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
     @Override
     public Long add(ResearchStudy researchStudy) {
-        return null;
+        // set updater and update time (used for ordering correctly)
+        User currentUser = getCurrentUser();
+        researchStudy.setCreator(currentUser);
+        researchStudy.setCreatedDate(new Date());
+        researchStudy.setLastUpdater(currentUser);
+        researchStudy.setLastUpdate(researchStudy.getCreatedDate());
+
+        return researchStudyRepository.save(researchStudy).getId();
     }
 
     @Override
     public void delete(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
+        ResearchStudy researchStudy = researchStudyRepository.findOne(researchItemId);
+        if (researchStudy == null) {
+            throw new ResourceNotFoundException("Research Study does not exist");
+        }
+        
+        if (!canModifyResearchStudy(researchStudy)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
 
+        researchStudyRepository.delete(researchItemId);
     }
 
     @Override
     public ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
-        return null;
+        ResearchStudy researchStudy = researchStudyRepository.findOne(researchItemId);
+        if (researchStudy == null) {
+            throw new ResourceNotFoundException("Research Study does not exist");
+        }
+
+        return researchStudy;
     }
 
     @Override
@@ -83,7 +106,11 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         List<Patient> patients = apiPatientService.get(user.getId(), null);
 
         //Create the criteria that they will match
-        LocalDate birthdate = LocalDate.fromDateFields(user.getDateOfBirth());
+        Date date = user.getDateOfBirth();
+        if (date == null) {
+            date = new Date();
+        }
+        LocalDate birthdate = LocalDate.fromDateFields(date);
         LocalDate now = new LocalDate();
         int age = Years.yearsBetween(birthdate, now).getYears();
         String gender = null;
@@ -117,4 +144,19 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public void save(ResearchStudy researchItem) throws ResourceNotFoundException, ResourceForbiddenException {
 
     }
+
+    private boolean canModifyResearchStudy(ResearchStudy researchStudy) {
+        if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            return true;
+        }
+
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return false;
+        }
+
+        return (researchStudy.getCreator() != null && researchStudy.getCreator().getId().equals(currentUser.getId()))
+                || (researchStudy.getLastUpdater() != null && researchStudy.getLastUpdater().getId().equals(currentUser.getId()));
+    }
+
 }

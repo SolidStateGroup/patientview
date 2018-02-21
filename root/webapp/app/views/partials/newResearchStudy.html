@@ -1,0 +1,117 @@
+
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <h4>Research Study Admin</h4>
+        <p>Something needs to go here to explain what this is........</p>
+
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-title" class="control-label">Title of Study <span class="error" data-ng-show="researchStudyFormNew.researchName.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-title" placeholder="Title of Study" name="titleOfStudy" data-ng-model="newResearchStudy.researchName" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-description" class="control-label">Description of Study <span class="error" data-ng-show="researchStudyFormNew.description.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-description" placeholder="Description of Study" name="description" data-ng-model="newResearchStudy.description" required></textarea>
+                </div>
+            </div>
+        </div>
+        <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label class="control-label">Preview of Descrption</label>
+                    <div class="message-summary">
+                        <h2 class="message-title">
+                            {{newResearchStudy.title}}
+                        </h2>
+                        <div class="last-message">
+                            <p class="message-content" data-ng-bind-html="parseHTMLText(newResearchStudy.description)"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Criteria</h4>
+        <div>
+            <i>Criteria goes here</i>
+            <span></span>
+        </div>
+
+        <h4>Details of who to Contact</h4>
+
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-name" class="control-label">Contact Name <span class="error" data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name" name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-email" class="control-label">Contact Email <span class="error" data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email" name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-phone" class="control-label">Contact Phone Number <span class="error" data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone" name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-address" class="control-label">Contact Address <span class="error" data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-contact-address" placeholder="Physical Address" name="contactAddress" data-ng-model="newResearchStudy.contactAddress" required></textarea>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                <span class="inline-span"> Available From: &nbsp;
+                <span class="error" data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                </span>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day"
+                        data-ng-options="day as day for day in days">
+                </select>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month"
+                        data-ng-options="month as month for month in months">
+                </select>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year"
+                        data-ng-options="year as year for year in years">
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                <span class="inline-span"> Available To: &nbsp;
+                    <span class="error" data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                </span>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day"
+                        data-ng-options="day as day for day in days">
+                </select>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month"
+                        data-ng-options="month as month for month in months">
+                </select>
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year"
+                        data-ng-options="year as year for year in years">
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

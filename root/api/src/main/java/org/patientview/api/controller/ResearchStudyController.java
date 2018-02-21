@@ -31,7 +31,7 @@ import javax.inject.Inject;
  */
 @RestController
 @ExcludeFromApiDoc
-public class RearchStudyController extends BaseController<RearchStudyController> {
+public class ResearchStudyController extends BaseController<ResearchStudyController> {
 
     @Inject
     private ResearchService researchService;
@@ -51,6 +51,18 @@ public class RearchStudyController extends BaseController<RearchStudyController>
         return new ResponseEntity<>(researchService.add(researchStudy), HttpStatus.CREATED);
     }
 
+    /**
+     * Get all NewsItem.
+     * @return ResearchStudy object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/research", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Page<ResearchStudy>> getAll()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(researchService.getAll(), HttpStatus.OK);
+    }
 
     /**
      * Get a single NewsItem.
@@ -58,11 +70,11 @@ public class RearchStudyController extends BaseController<RearchStudyController>
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RequestMapping(value = "/research", method = RequestMethod.GET)
+    @RequestMapping(value = "/research/{researchStudyId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Page<ResearchStudy>> get()
+    public ResponseEntity<ResearchStudy> get(@PathVariable("researchStudyId") Long researchStudyId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(researchService.getAll(), HttpStatus.OK);
+        return new ResponseEntity<>(researchService.get(researchStudyId), HttpStatus.OK);
     }
 
     /**

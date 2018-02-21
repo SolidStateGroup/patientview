@@ -5,7 +5,7 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
         return {
             get: function (researchId) {
                 var deferred = $q.defer();
-                Restangular.one('news', newsId).get().then(function (successResult) {
+                Restangular.one('research', researchId).get().then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);
@@ -46,17 +46,14 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 });
                 return deferred.promise;
             },
-            create: function (newsItem) {
+            create: function (researchStudy) {
                 var i;
 
-                newsItem = UtilService.cleanObject(newsItem, 'newsItem');
-                for (i = 0; i < newsItem.newsLinks.length; i++) {
-                    newsItem.newsLinks[i].group = UtilService.cleanObject(newsItem.newsLinks[i].group, 'group');
-                    newsItem.newsLinks[i].role = UtilService.cleanObject(newsItem.newsLinks[i].role, 'role');
-                }
+                researchStudy = UtilService.cleanObject(researchStudy, 'researchStudy');
+                //TODO add in clean criteria
 
                 var deferred = $q.defer();
-                Restangular.all('news').post(newsItem).then(function (successResult) {
+                Restangular.all('research').post(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);
@@ -64,11 +61,11 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 return deferred.promise;
             },
             // save code
-            save: function (newsItem) {
+            save: function (researchStudy) {
                 var deferred = $q.defer();
-                newsItem = UtilService.cleanObject(newsItem, 'newsItem');
+                researchStudy = UtilService.cleanObject(researchStudy, 'researchStudy');
 
-                Restangular.all('news').customPUT(newsItem).then(function (successResult) {
+                Restangular.all('news').customPUT(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);
@@ -86,10 +83,10 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 return deferred.promise;
             },
             // Add new group and role to news links
-            addGroupAndRole: function (newsItemId, groupId, roleId) {
+            addGroupAndRole: function (researchStudyId, groupId, roleId) {
                 var deferred = $q.defer();
                 // PUT /group/{groupId}/role/{roleId}/news/{newsId}
-                Restangular.one('group', groupId).one('role', roleId).one('news', newsItemId).put().then(function (successResult) {
+                Restangular.one('group', groupId).one('role', roleId).one('news', researchStudyId).put().then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);
@@ -97,10 +94,10 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 return deferred.promise;
             },
             // remove a news link
-            removeNewsLink: function (newsItemId, newsLinkId) {
+            removeNewsLink: function (researchStudyId, newsLinkId) {
                 var deferred = $q.defer();
-                // DELETE /news/{newsItemId}/newslinks/{newsLinkId}
-                Restangular.one('news', newsItemId).one('newslinks', newsLinkId).remove().then(function (successResult) {
+                // DELETE /news/{researchStudyId}/newslinks/{newsLinkId}
+                Restangular.one('news', researchStudyId).one('newslinks', newsLinkId).remove().then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);
