@@ -17,8 +17,11 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.ResearchStudy;
+import org.patientview.persistence.model.ResearchStudyCriteria;
+import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
 import org.patientview.persistence.repository.ResearchStudyRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -30,7 +33,9 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
@@ -47,6 +52,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     private ResearchStudyRepository researchStudyRepository;
 
     @Inject
+    private ResearchStudyCriteriaRepository researchStudyCriteriaRepository;
+
+    @Inject
     private UserRepository userRepository;
 
     @Inject
@@ -57,10 +65,20 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public Long add(ResearchStudy researchStudy) {
         // set updater and update time (used for ordering correctly)
         User currentUser = getCurrentUser();
-        researchStudy.setCreator(currentUser);
-        researchStudy.setCreatedDate(new Date());
-        researchStudy.setLastUpdater(currentUser);
-        researchStudy.setLastUpdate(researchStudy.getCreatedDate());
+//        researchStudy.setCreator(currentUser);
+//        researchStudy.setCreatedDate(new Date());
+//        researchStudy.setLastUpdater(currentUser);
+//        researchStudy.setLastUpdate(researchStudy.getCreatedDate());
+        ResearchStudyCriteria criteria = new ResearchStudyCriteria();
+        ResearchStudyCriteriaData data = new ResearchStudyCriteriaData();
+        data.setGender("M");
+        //criteria.setResearchStudyCriterias(data);
+        criteria.setResearchStudy(researchStudy);
+
+        researchStudyCriteriaRepository.save(criteria);
+
+        Set<ResearchStudyCriteria> criteriaHashSet = new HashSet<>();
+        criteriaHashSet.add(criteria);
 
         return researchStudyRepository.save(researchStudy).getId();
     }
@@ -134,7 +152,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         }
 
         //Make the request
-        List<ResearchStudy> list = researchStudyRepository.findByUser();
+        //List<ResearchStudy> list = researchStudyRepository.findByUser();
+        List<ResearchStudy> list = Lists.newArrayList(researchStudyRepository.findAll());
         PageRequest pageable = createPageRequest(1, list.size(), null, null);
 
         return new PageImpl<>(list, pageable, list.size());
@@ -154,9 +173,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         if (currentUser == null) {
             return false;
         }
-
-        return (researchStudy.getCreator() != null && researchStudy.getCreator().getId().equals(currentUser.getId()))
-                || (researchStudy.getLastUpdater() != null && researchStudy.getLastUpdater().getId().equals(currentUser.getId()));
+        return true;
+//        return (researchStudy.getCreator() != null && researchStudy.getCreator().getId().equals(currentUser.getId()))
+//                || (researchStudy.getLastUpdater() != null && researchStudy.getLastUpdater().getId().equals(currentUser.getId()));
     }
 
 }
