@@ -53,6 +53,8 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 //TODO add in clean criteria
 
                 var deferred = $q.defer();
+                researchStudy.criteria = [ { 'researchStudyCriterias' : { 'gender' : 'Male' , 'fromAge' : 0 }}];
+
                 Restangular.all('research').post(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {

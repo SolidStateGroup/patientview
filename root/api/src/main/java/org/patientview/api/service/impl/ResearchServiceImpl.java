@@ -14,11 +14,8 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.NewsItem;
-import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.ResearchStudy;
 import org.patientview.persistence.model.ResearchStudyCriteria;
-import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
@@ -28,14 +25,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
@@ -65,21 +59,21 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public Long add(ResearchStudy researchStudy) {
         // set updater and update time (used for ordering correctly)
         User currentUser = getCurrentUser();
-//        researchStudy.setCreator(currentUser);
-//        researchStudy.setCreatedDate(new Date());
-//        researchStudy.setLastUpdater(currentUser);
-//        researchStudy.setLastUpdate(researchStudy.getCreatedDate());
-        ResearchStudyCriteria criteria = new ResearchStudyCriteria();
-        ResearchStudyCriteriaData data = new ResearchStudyCriteriaData();
-        data.setGender("M");
-        //criteria.setResearchStudyCriterias(data);
-        criteria.setResearchStudy(researchStudy);
+        researchStudy.setCreator(currentUser);
+        researchStudy.setCreatedDate(new Date());
+        researchStudy.setLastUpdater(currentUser);
+        researchStudy.setLastUpdate(researchStudy.getCreatedDate());
+        researchStudyRepository.save(researchStudy).getId();
 
-        researchStudyCriteriaRepository.save(criteria);
-
-        Set<ResearchStudyCriteria> criteriaHashSet = new HashSet<>();
-        criteriaHashSet.add(criteria);
-
+        ResearchStudyCriteria[] criteriaArray = researchStudy.getCriteria();
+        if (criteriaArray != null) {
+            for (ResearchStudyCriteria criteria : criteriaArray) {
+                criteria.setResearchStudy(researchStudy);
+                criteria.setCreatedDate(new Date());
+                criteria.setCreator(currentUser);
+                researchStudyCriteriaRepository.save(criteria);
+            }
+        }
         return researchStudyRepository.save(researchStudy).getId();
     }
 
@@ -89,7 +83,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         if (researchStudy == null) {
             throw new ResourceNotFoundException("Research Study does not exist");
         }
-        
+
         if (!canModifyResearchStudy(researchStudy)) {
             throw new ResourceForbiddenException("Forbidden");
         }

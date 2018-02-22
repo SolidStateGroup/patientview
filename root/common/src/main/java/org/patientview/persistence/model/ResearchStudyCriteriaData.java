@@ -11,8 +11,9 @@ import lombok.Setter;
 @Setter
 public class ResearchStudyCriteriaData {
 
-    private Long groupId;
-    private Long treatmentId;
+    private Long[] groupIds;
+    private Long[] treatmentIds;
+    private Long[] diagnosisIds;
     private String gender;
     private Integer fromAge;
     private Integer toAge;
