@@ -61,25 +61,28 @@
                     </select>
                 </div>
                 <div class="row inline-row">
-                    <span class="inline-span"> Diagnosis: &nbsp;</span>
-                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.diagnosis"
-                            data-ng-options="day as day for day in days" />
+                    <span class="inline-span"> Treatment: &nbsp;</span>
+
+                    <div class="selectize-treatment">
+                        <select id="select-treatment" class="selectized-treatment"
+                                placeholder="Type a treatment"></select>
+                    </div>
                         <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
 
                 </div>
                 <div class="row inline-row">
-                    <span class="inline-span"> Treatment: &nbsp;</span>
-                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.treatment"
-                            data-ng-options="day as day for day in days" />
+                    <span class="inline-span"> Diagnosis: &nbsp;</span>
+                    <div class="selectize-diagnosis">
+                        <select id="select-diagnosis" class="selectized-diagnosis"
+                                placeholder="Type a diagnosis"></select>
+                    </div>
+                    <!--<select class="selectized" data-ng-model="criteria.researchStudyCriterias.treatment"-->
+                            <!--data-ng-options="diagnosis.id as diagnosis.name for diagnosis in diagnosisCodes" />-->
                     <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
 
                 </div>
                 <div class="row inline-row">
                     <span class="inline-span"> PV Group: &nbsp;</span>
-                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.group"
-                            data-ng-options="day as day for day in days" />
-                    <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
-
                     <div class="group-add-container">
                         <div class="select-add-group">
                             <select class="form-control" data-ng-model="groupToAdd"
@@ -90,18 +93,14 @@
                         </div>
                     </div>
 
-                    <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="newsLink in criteria.researchStudyCriterias.group" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+                    <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="group in criteria.researchStudyCriterias.groups">
                         <li class="group-list-name pull-left">
-                            <span class="group-list-name" data-ng-show="criteria.researchStudyCriterias.group">{{newsLink.group.name}}</span>
-                        </li>
-                        <li class="group-list-role  pull-left">
-                            <span class="group-list-role" data-ng-show="newsLink.role">{{newsLink.role.description}}</span>
-                            <span class="group-list-role" data-ng-show="!newsLink.role.id">All Roles</span>
+                            <span class="group-list-name" data-ng-show="criteria.researchStudyCriterias.group">{{criteria.group.name}}</span>
                         </li>
                         <li class="group-list-delete pull-left">
-                <span class="group-list-delete">
-                    <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" data-ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</button>
-                </span>
+                        <span class="group-list-delete">
+                            <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" data-ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</button>
+                        </span>
                         </li>
                     </ul>
 

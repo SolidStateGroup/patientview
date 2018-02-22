@@ -627,4 +627,72 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         return reduced;
     }
+
+
+    @Override
+    public List<BaseCode> searchAdminDiagnosisCodes(String searchTerm)
+            throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("DIAGNOSIS Code type not found");
+        }
+
+        Page<Code> found;
+
+        List<Long> codeTypesList = new ArrayList<>();
+        codeTypesList.add(codeType.getId());
+
+        if (searchTerm == null) {
+            searchTerm = "%%";
+        } else {
+            searchTerm = "%" + searchTerm.toUpperCase() + "%";
+        }
+
+
+        found = codeRepository.findAllByCodeTypesFiltered(
+                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+
+        List<BaseCode> reduced = new ArrayList<>();
+
+        for (Code code : found.getContent()) {
+                reduced.add(new BaseCode(code));
+        }
+
+        return reduced;
+    }
+
+    @Override
+    public List<BaseCode> searchTreatmentCodes(String searchTerm) throws ResourceNotFoundException {
+        Lookup codeType = lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString());
+        if (codeType == null) {
+            throw new ResourceNotFoundException("TREATMENT Code type not found");
+        }
+
+        Page<Code> found;
+
+        List<Long> codeTypesList = new ArrayList<>();
+        codeTypesList.add(codeType.getId());
+
+        if (searchTerm == null) {
+            searchTerm = "%%";
+        } else {
+            searchTerm = "%" + searchTerm.toUpperCase() + "%";
+        }
+
+        found = codeRepository.findAllByCodeTypesFiltered(
+                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+
+
+        List<BaseCode> reduced = new ArrayList<>();
+
+        if (found != null && !CollectionUtils.isEmpty(found.getContent())) {
+            for (Code code : found.getContent()) {
+                if (!code.isHideFromPatients() && !code.isRemovedExternally()) {
+                    reduced.add(new BaseCode(code));
+                }
+            }
+        }
+
+        return reduced;
+    }
 }
