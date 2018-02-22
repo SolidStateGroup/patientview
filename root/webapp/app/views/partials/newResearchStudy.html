@@ -1,5 +1,4 @@
-
-<div class="content-panel user-settings">
+<div class="content-panel user-settings" div data-ng-show="!loading">
     <div class="content-inner">
         <h4>Research Study Admin</h4>
         <p>Something needs to go here to explain what this is........</p>
@@ -39,8 +38,77 @@
 
         <h4>Criteria</h4>
         <div>
-            <i>Criteria goes here</i>
-            <span></span>
+            <i>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to appear under their PatientView Research menu.</i>
+            <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add</a>
+
+            <div id="criteria" style="margin-left : 10px;" data-ng-repeat="criteria in newResearchStudy.criteria">
+                <hr/>
+
+                <div class="row inline-row">
+                    <span class="inline-span"> From Age: &nbsp;</span>
+                    <input type="text" class="inline-span form-control" width="50px"
+                           data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3">
+
+                    <span class="inline-span"> To Age: &nbsp;</span>
+                    <input type="text" class="form-control" width="50px"
+                           data-ng-model="criteria.researchStudyCriterias.toAge" required maxlength="3">
+
+                    <span class="inline-span"> Gender</span>
+                    <select class="form-control date-input" data-ng-model="criteria.researchStudyCriterias.gender">
+                        <option>Any</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                    </select>
+                </div>
+                <div class="row inline-row">
+                    <span class="inline-span"> Diagnosis: &nbsp;</span>
+                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.diagnosis"
+                            data-ng-options="day as day for day in days" />
+                        <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
+
+                </div>
+                <div class="row inline-row">
+                    <span class="inline-span"> Treatment: &nbsp;</span>
+                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.treatment"
+                            data-ng-options="day as day for day in days" />
+                    <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
+
+                </div>
+                <div class="row inline-row">
+                    <span class="inline-span"> PV Group: &nbsp;</span>
+                    <select class="form-control" data-ng-model="criteria.researchStudyCriterias.group"
+                            data-ng-options="day as day for day in days" />
+                    <a href="" data-ng-click="addDiagnosis()" class="btn blue">Add</a>
+
+                    <div class="group-add-container">
+                        <div class="select-add-group">
+                            <select class="form-control" data-ng-model="groupToAdd"
+                                    data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in groups | orderBy:[orderGroups,'name']">
+                            </select>
+                            <button type="button" class="btn blue group-add-button"
+                                    data-ng-click="addGroup(groupToAdd)" data-ng-disabled="groupToAdd == -1">Add</button>
+                        </div>
+                    </div>
+
+                    <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="newsLink in criteria.researchStudyCriterias.group" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+                        <li class="group-list-name pull-left">
+                            <span class="group-list-name" data-ng-show="criteria.researchStudyCriterias.group">{{newsLink.group.name}}</span>
+                        </li>
+                        <li class="group-list-role  pull-left">
+                            <span class="group-list-role" data-ng-show="newsLink.role">{{newsLink.role.description}}</span>
+                            <span class="group-list-role" data-ng-show="!newsLink.role.id">All Roles</span>
+                        </li>
+                        <li class="group-list-delete pull-left">
+                <span class="group-list-delete">
+                    <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" data-ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</button>
+                </span>
+                        </li>
+                    </ul>
+
+                </div>
+
+            </div>
+
         </div>
 
         <h4>Details of who to Contact</h4>
@@ -113,5 +181,12 @@
                 </select>
             </div>
         </div>
+    </div>
+</div>
+
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Research Studies</h3>
     </div>
 </div>
