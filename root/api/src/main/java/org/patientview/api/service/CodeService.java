@@ -190,4 +190,21 @@ public interface CodeService {
      */
     @RoleOnly(roles = { RoleName.PATIENT })
     List<BaseCode> searchDiagnosisCodes(String searchTerm, String standardType) throws ResourceNotFoundException;
+
+    /**
+     * Get diagnosis Codes with a search term, used by admins when searching for diagnosis
+     * @param searchTerm String term to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    List<BaseCode> searchAdminDiagnosisCodes(String searchTerm) throws ResourceNotFoundException;
+
+    /**
+     * Get diagnosis Codes by standard type and with a search term, used by patients when searching for conditions
+     * @param searchTerm String term to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = { RoleName.PATIENT })
+    List<BaseCode> searchTreatmentCodes(String searchTerm) throws ResourceNotFoundException;
 }
