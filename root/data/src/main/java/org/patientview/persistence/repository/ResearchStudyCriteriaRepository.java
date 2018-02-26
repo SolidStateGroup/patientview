@@ -1,10 +1,18 @@
 package org.patientview.persistence.repository;
 
+import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.ResearchStudyCriteria;
+import org.patientview.persistence.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * This gets all the news associated with a user. News can be link via
@@ -16,4 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ResearchStudyCriteriaRepository extends CrudRepository<ResearchStudyCriteria, Long> {
+    @Query("SELECT DISTINCT r FROM ResearchStudyCriteria r WHERE r.researchStudy = :researchId")
+    List<ResearchStudyCriteria> getByResearchStudyId(@Param("researchId") Long researchId);
 }

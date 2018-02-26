@@ -7,7 +7,7 @@
     <h5>
         Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}<span data-ng-if="news.creator"> by {{researchStudy.creator.forename}}
             {{researchStudy.creator.surname}}</span>
-        <span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.created">,
+        <span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
         updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
             <span data-ng-if="researchStudy.lastUpdater">
                 by {{researchStudy.lastUpdater.forename}} {{researchStudy.lastUpdater.surname}}
@@ -22,7 +22,7 @@
         <span style="font-weight: bold">Contact Details</span>
         <p>Name: {{researchStudy.contactName}}</p>
         <p>Email: {{researchStudy.contactEmail}}</p>
-        <p>Address: {{researchStudy.conatctAddress}}</p>
+        <p>Address: {{researchStudy.contactAddress}}</p>
 
         <span style="font-weight: bold">Study Availability</span>
         <p>From: {{researchStudy.availableFrom | date:'dd-MMM-yyyy HH:mm' }}</p>

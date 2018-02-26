@@ -19,9 +19,8 @@ import java.util.Date;
 @Table(name = "pv_research_study_criteria")
 public class ResearchStudyCriteria extends BaseModel{
 
-    @OneToOne
-    @JoinColumn(name = "research_study_id")
-    private ResearchStudy researchStudy;
+    @Column(name = "research_study_id")
+    private Long researchStudy;
 
 
     @Column(name = "criteria")
@@ -49,15 +48,18 @@ public class ResearchStudyCriteria extends BaseModel{
         return researchStudyCriterias;
     }
 
+    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
+            parameters = {@Parameter(name = "classType",
+                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
     public void setResearchStudyCriterias(ResearchStudyCriteriaData researchStudyCriterias) {
         this.researchStudyCriterias = researchStudyCriterias;
     }
 
-    public ResearchStudy getResearchStudy() {
+    public Long getResearchStudy() {
         return researchStudy;
     }
 
-    public void setResearchStudy(ResearchStudy researchStudy) {
+    public void setResearchStudy(Long researchStudy) {
         this.researchStudy = researchStudy;
     }
 

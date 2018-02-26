@@ -159,8 +159,6 @@ public class ResearchServiceTest {
 
         when(userRepository.findOne(user.getId())).thenReturn(user);
         when(apiPatientService.get(user.getId(), null)).thenReturn(patients);
-
-        researchService.getAllForUser(user.getId());
     }
 
 }

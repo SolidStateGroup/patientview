@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ResearchService;
 import org.patientview.api.service.StaticDataManager;
@@ -8,6 +9,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +76,9 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     @ResponseBody
     public ResponseEntity<ResearchStudy> get(@PathVariable("researchStudyId") Long researchStudyId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(researchService.get(researchStudyId), HttpStatus.OK);
+        ResearchStudy study = researchService.get(researchStudyId);
+
+        return new ResponseEntity<>(study, HttpStatus.OK);
     }
 
     /**
@@ -108,6 +112,19 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
             @RequestParam(value = "limitResults", required = false) boolean limitResults,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException,
             ResourceForbiddenException, FhirResourceException {
-        return new ResponseEntity<>(researchService.getAllForUser(userId), HttpStatus.OK);
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : null;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
+
+        if (pageConverted != null && sizeConverted != null) {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        } else {
+            pageable = new PageRequest(0, Integer.MAX_VALUE);
+        }
+
+
+
+        return new ResponseEntity<>(researchService.getAllForUser(userId, limitResults, pageable), HttpStatus.OK);
     }
 }
