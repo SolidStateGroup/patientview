@@ -3,6 +3,9 @@ package org.patientview.persistence.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Transient;
+import java.util.List;
+
 /**
  * Models a research study that is available to a user
  */
@@ -17,4 +20,11 @@ public class ResearchStudyCriteriaData {
     private String gender;
     private Integer fromAge;
     private Integer toAge;
+
+    @Transient
+    private transient List groups;
+    @Transient
+    private transient List<Code> treatments;
+    @Transient
+    private transient List<Code> diagnosis;
 }

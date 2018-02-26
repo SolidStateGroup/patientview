@@ -107,7 +107,7 @@ public class ResearchStudyRepositoryTest {
         ResearchStudyCriteriaData data = new ResearchStudyCriteriaData();
         data.setGender("M");
         //criteria.setResearchStudyCriterias(data);
-        criteria.setResearchStudy(researchStudy);
+        criteria.setResearchStudy(researchStudy.getId());
 
         researchStudyCriteriaRepository.save(criteria);
 

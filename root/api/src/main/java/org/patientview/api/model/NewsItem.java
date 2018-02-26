@@ -1,3 +1,4 @@
+
 package org.patientview.api.model;
 
 import java.util.ArrayList;

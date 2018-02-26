@@ -8,6 +8,7 @@ import org.patientview.persistence.model.ResearchStudy;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +74,7 @@ public interface ResearchService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
-    Page<ResearchStudy> getAllForUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+    Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
      * Update a NewsItem.

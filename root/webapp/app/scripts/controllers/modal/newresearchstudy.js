@@ -1,6 +1,8 @@
 'use strict';
-var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$modalInstance', 'CodeService', 'GroupService', 'RoleService', 'ResearchService', 'UtilService', 'permissions',
-    function ($scope, $timeout, $rootScope, $modalInstance, CodeService, GroupService, RoleService, ResearchService, UtilService, permissions) {
+var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$modalInstance', 'CodeService',
+    'GroupService', 'RoleService', 'ResearchService', 'UtilService', 'permissions', 'researchStudy',
+    function ($scope, $timeout, $rootScope, $modalInstance, CodeService, GroupService, RoleService,
+              ResearchService, UtilService, permissions, researchStudy) {
         var i, group, newsLink = {};
         $scope.modalLoading = true;
         $scope.loading = true;
@@ -8,22 +10,6 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
 
         $scope.diagnosisCodes = [];
         $scope.treatmentCode = [];
-        // for (var i in data.content) {
-        //     var item = data.content[i];
-        //
-        //     if (item.codeType.id === 12) {
-        //         $scope.diagnosisCodes.push({
-        //             id: item.id,
-        //             name: item.patientFriendlyName
-        //         })
-        //     } else if (item.codeType.id === 13) {
-        //         $scope.treatmentCode.push({
-        //             id: item.id,
-        //             name: item.patientFriendlyName
-        //         });
-        //     }
-        // }
-
 
         $scope.permissions = permissions;
         $scope.groupToAdd = -1;
@@ -41,12 +27,18 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
         $scope.loading = false;
 
 
+        if (researchStudy.id) {
+            ResearchService.get(researchStudy.id).then(function (savedStudy) {
+                $scope.newResearchStudy = savedStudy;
+                selectize(true);
+            });
+        }
+
         $scope.ok = function () {
 
             $scope.newResearchStudy.creator = {};
             $scope.newResearchStudy.creator.id = $scope.loggedInUser.id;
-
-            debugger;
+            
             ResearchService.create($scope.newResearchStudy).then(function () {
                 $modalInstance.close();
             }, function (result) {
@@ -73,30 +65,32 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
             if ($scope.newResearchStudy.criteria == undefined) {
                 $scope.newResearchStudy.criteria = [];
             }
-            $scope.newResearchStudy.criteria.push([{researchStudyCriterias: {fromAge: 0}}])
+            $scope.newResearchStudy.criteria.push({
+                researchStudyCriterias: {
+                    diagnosisIds: [],
+                    treatmentIds: [],
+                    groupIds: []
+                }
+            });
             selectize();
-        }
+        };
 
 
-        var selectize = function () {
+        var selectize = function (doNotClear) {
             $timeout(function () {
-                var $select = $('.selectized-diagnosis').selectize({
+                var diagnosisSelector = $('.selectized-diagnosis').selectize({
                     closeAfterSelect: true,
-                    valueField: 'code',
+                    valueField: 'id',
                     labelField: 'description',
                     searchField: 'description',
                     sortField: 'description',
+                    maxItems: 10,
                     onChange: function (searchTerm) {
                         $scope.noResults = false;
 
                         if (searchTerm != null && searchTerm != undefined && searchTerm != '') {
                             if (!_.findWhere($scope.selectedConditions, {code: searchTerm})) {
-                                CodeService.searchDiagnosisCodes(searchTerm)
-                                    .then(function (codes) {
-                                        $select[0].selectize.clear();
-                                    });
-                            } else {
-                                $select[0].selectize.clear();
+                                CodeService.searchDiagnosisCodes(searchTerm);
                             }
                         }
                     },
@@ -124,23 +118,28 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                         });
                     }
                 });
-                var $select = $('.selectized-treatment').selectize({
+                var groupSelector = $('.selectized-pv-group').selectize({
+                    valueField: 'id',
+                    labelField: 'name',
+                    searchField: 'name',
+                    sortField: 'name',
                     closeAfterSelect: true,
-                    valueField: 'code',
+                    maxItems: 10,
+                    options: $scope.groups
+                });
+                var treatmentSelector = $('.selectized-treatment').selectize({
+                    valueField: 'id',
+                    closeAfterSelect: true,
                     labelField: 'description',
                     searchField: 'description',
                     sortField: 'description',
+                    maxItems: 10,
                     onChange: function (searchTerm) {
                         $scope.noResults = false;
 
                         if (searchTerm != null && searchTerm != undefined && searchTerm != '') {
                             if (!_.findWhere($scope.selectedConditions, {code: searchTerm})) {
-                                CodeService.searchTreatmentCodes(searchTerm)
-                                    .then(function (codes) {
-                                        $select[0].selectize.clear();
-                                    });
-                            } else {
-                                $select[0].selectize.clear();
+                                CodeService.searchTreatmentCodes(searchTerm);
                             }
                         }
                     },
@@ -168,7 +167,11 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                         });
                     }
                 });
-
+                if(!doNotClear) {
+                    diagnosisSelector[0].selectize.clear();
+                    treatmentSelector[0].selectize.clear();
+                    groupSelector[0].selectize.clear();
+                }
                 $scope.loading = false;
             });
         }

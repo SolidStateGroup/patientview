@@ -9,6 +9,7 @@ import org.hibernate.internal.util.ReflectHelper;
 import org.hibernate.type.SerializationException;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
+import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.postgresql.util.PGobject;
 import org.springframework.util.ObjectUtils;
 
@@ -26,10 +27,9 @@ public class StringJsonUserType implements UserType, ParameterizedType, Serializ
     private final Gson gson = new GsonBuilder().serializeNulls().create();
     private static final String CLASS_TYPE = "classType";
     private static final String TYPE = "type";
-    private static final int[] SQL_TYPES = new int[] { Types.LONGVARCHAR, Types.CLOB, Types.BLOB, Types.OTHER };
+    private static final int[] SQL_TYPES = new int[]{Types.LONGVARCHAR, Types.CLOB, Types.BLOB, Types.OTHER};
     private Class<?> classType;
     private int sqlType = Types.JAVA_OBJECT; // before any guessing
-
 
 
     @Override
@@ -64,10 +64,11 @@ public class StringJsonUserType implements UserType, ParameterizedType, Serializ
     @Override
     public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
         PGobject o = (PGobject) rs.getObject(names[0]);
-        if (o.getValue() != null) {
-            return gson.fromJson(o.getValue(), Map.class);
+        if (o != null) {
+            if (o.getValue() != null) {
+                return gson.fromJson(o.getValue(), ResearchStudyCriteriaData.class);
+            }
         }
-
         return new HashMap<String, String>();
     }
 

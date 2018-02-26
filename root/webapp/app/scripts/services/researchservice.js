@@ -12,31 +12,13 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 });
                 return deferred.promise;
             },
-            getByUser: function (userId, newsType, limitResults, page, size) {
+            getByUser: function (userId, limitResults, page, size) {
                 var deferred = $q.defer();
 
-                // GET /user/{userId}/news?page=0&size=5
+                // GET /user/{userId}/research?page=0&size=5
                 Restangular.one('user', userId).one('research').get(
                     {
                         'page': page,
-                        'newsType': newsType,
-                        'limitResults': limitResults,
-                        'size': size
-                    }).then(function (successResult) {
-                        deferred.resolve(successResult);
-                    }, function (failureResult) {
-                        deferred.reject(failureResult);
-                    });
-                return deferred.promise;
-            },
-            getAll: function (userId) {
-                var deferred = $q.defer();
-
-                // GET /research
-                Restangular.one('user', userId).one('research').get(
-                    {
-                        'page': page,
-                        'newsType': newsType,
                         'limitResults': limitResults,
                         'size': size
                     }).then(function (successResult) {
@@ -48,13 +30,18 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
             },
             create: function (researchStudy) {
                 var i;
-
+                if (researchStudy.id) {
+                    return this.save(researchStudy);
+                }
                 researchStudy = UtilService.cleanObject(researchStudy, 'researchStudy');
                 //TODO add in clean criteria
+                var availableFrom = researchStudy.availableFrom;
+                var availableTo = researchStudy.availableTo;
 
+                researchStudy.availableFrom = new Date(availableFrom.year, availableFrom.month - 1, availableFrom.day);
+                researchStudy.availableTo = new Date(availableTo.year, availableTo.month - 1, availableTo.day);
                 var deferred = $q.defer();
-                researchStudy.criteria = [ { 'researchStudyCriterias' : { 'gender' : 'Male' , 'fromAge' : 0 }}];
-
+                
                 Restangular.all('research').post(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
@@ -67,7 +54,7 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 var deferred = $q.defer();
                 researchStudy = UtilService.cleanObject(researchStudy, 'researchStudy');
 
-                Restangular.all('news').customPUT(researchStudy).then(function (successResult) {
+                Restangular.all('research').customPUT(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
                     deferred.reject(failureResult);

@@ -19,7 +19,7 @@
             <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="ok()"
-                    data-ng-disabled="!newsFormNew.$valid || (newNews.groups.length + newNews.roles.length < 1)">Create Research Study
+                    data-ng-disabled="!newsFormNew.$valid">Save Research Study
             </button>
         </div>
     </script>
@@ -46,7 +46,7 @@
                             <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>-->
                             Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}
                             <span data-ng-if="researchStudy.creator"> by {{researchStudy.creator.forename}}
-                                {{researchStudy.creator.surname}}</span><span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.created">,
+                                {{researchStudy.creator.surname}}</span><span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
                                 updated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
                                 <span data-ng-if="researchStudy.lastUpdater">
                                     by {{researchStudy.lastUpdater.forename}} {{researchStudy.lastUpdater.surname}}
@@ -67,12 +67,6 @@
                                 </span>
                         </p>
                     </div>
-                </div>
-
-                <div class="quick-reply content-panel" data-ng-show="researchStudy.showEdit">
-                    <form name="newsForm" data-ng-model="editNews">
-                        <div data-ng-include src="'views/partials/newsDetails.html'" data-ng-controller="NewsDetailsCtrl"></div>
-                    </form>
                 </div>
             </div>
 
