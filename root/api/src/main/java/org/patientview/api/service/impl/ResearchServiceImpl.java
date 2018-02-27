@@ -231,8 +231,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             }
         }
 
-        gender = "Male";
-
         if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN) ||
                 ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN) ||
                 ApiUtil.currentUserHasRole(RoleName.GP_ADMIN) ||
