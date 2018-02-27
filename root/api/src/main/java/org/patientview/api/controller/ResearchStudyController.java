@@ -24,12 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
- * RESTful interface for the management and retrieval of News. NewsItems are made visible to specific Groups, Roles and
- * combinations of the two using NewsLinks. NewsItems can be made publicly available where they will appear on the home
- * page without logging in.
- *
- * Created by james@solidstategroup.com
- * Created on 20/06/2014
+ * RESTful interface for the management and retrieval of Research Studies. Research Studies are made visible to
+ * specific Groups, Roles and Diagnosis
  */
 @RestController
 @ExcludeFromApiDoc
@@ -42,7 +38,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     private StaticDataManager staticDataManager;
 
     /**
-     * Add a NewsItem.
+     * Add a Research Study.
      * @param researchStudy Research Study to add
      * @return Long ID of the newly added NewsItem
      * @throws ResourceNotFoundException
@@ -54,7 +50,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     }
 
     /**
-     * Get all NewsItem.
+     * Get all ResearchStudies.
      * @return ResearchStudy object
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -67,7 +63,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     }
 
     /**
-     * Get a single NewsItem.
+     * Get a single ResearchStudy.
      * @return ResearchStudy object
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -82,7 +78,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     }
 
     /**
-     * Update a NewsItem.
+     * Update a Research Study.
      * @param researchStudy Research Study to update
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -94,11 +90,11 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     }
 
     /**
-     * Get a Page of NewsItems for a specific User.
-     * @param userId ID of User to retrieve news for
+     * Get a Page of Research studies for a specific User.
+     * @param userId ID of User to retrieve research studies for
      * @param size Size of the page
      * @param newsTypeString the id of the items we want to show
-     * @param limitResults if we want to show all items or just 2 items per group (dashboard only)
+     * @param limitResults if we want to show all items or just 2 items per group
      * @param page Page number
      * @return Page of NewsItem for a specific User
      * @throws ResourceNotFoundException

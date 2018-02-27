@@ -61,10 +61,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by james@solidstategroup.com
- * Created on 20/06/2014
- */
 public class ResearchServiceTest {
 
     User creator;
@@ -94,7 +90,7 @@ public class ResearchServiceTest {
     }
 
     /**
-     * Test: To see if the news is returned for a user
+     * Test: To see if the research Study is returned for a user
      * Fail: The calls to the repository are not made, not the right number, not in right order
      */
     @Test
