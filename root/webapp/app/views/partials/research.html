@@ -1,0 +1,98 @@
+
+<div data-ng-show="!loading">
+        <button class="btn blue" data-ng-click="openModalNewResearchStudy('lg')" data-ng-show="permissions.canAddStudies">Create New</button>
+    <p data-ng-show="permissions.canAddStudies"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
+                                                   target="_blank">Guidance on creating research studies.</a></p>
+
+
+    <!-- new news modal template -->
+    <script type="text/ng-template" id="newResearchStudy.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create Research Study</h3>
+        </div>
+        <div class="modal-body">
+            <form name="newsFormNew" data-ng-model="newNews">
+                <div data-ng-include src="'views/partials/newResearchStudy.html'" data-ng-controller="NewsDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()"
+                    data-ng-disabled="!newsFormNew.$valid">Save Research Study
+            </button>
+        </div>
+    </script>
+
+
+    <div data-ng-show="!loading" data-ng-cloak>
+        <div class="message-item" data-ng-repeat="researchStudy in pagedItems">
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                    <li><a href="" class="aside-link active" data-ng-click="edit(researchStudy)" data-ng-show="permissions.canAddStudies">Edit</a></li>
+                    <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(researchStudy)"
+                                               data-ng-confirm-click="Are you sure you want to delete this research study?" data-ng-show="permissions.canAddStudies">Delete</a></li>
+                </ul>
+                <div class="message-summary">
+                    <h2 class="message-title">
+                        <a href="" data-ng-click="viewNewsItem(researchStudy)">
+                            {{researchStudy.researchName}}
+                        </a>
+
+                    </h2>
+                    <div class="last-message">
+                        <p class="date-stamp">
+                            <!--<strong data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</strong>
+                            <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>-->
+                            Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}
+                            <span data-ng-if="researchStudy.creator"> by {{researchStudy.creator.forename}}
+                                {{researchStudy.creator.surname}}</span><span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
+                                updated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+                                <span data-ng-if="researchStudy.lastUpdater">
+                                    by {{researchStudy.lastUpdater.forename}} {{researchStudy.lastUpdater.surname}}
+                                </span>
+                            </span>
+                        </p>
+                        <p class="message-content">
+                            <span class="text">
+                                Available {{researchStudy.availableFrom | date:'dd-MMM-yyyy'}} - {{researchStudy.availableTo | date:'dd-MMM-yyyy'}}
+                            </span>
+                        </p>
+                        </span>
+                             <p class="message-content">
+                                <span class="text">
+                                    <span data-ng-bind-html="parseHTMLText(researchStudy.description)"></span>
+                                    <br/>
+                                    <span><a href="" data-ng-click="viewResearchStudyModal(researchStudy)">More....</a></span>
+                                </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length == 0">
+            <h4>No Research Studies Found</h4>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Research Studies</h3>
+    </div>
+</div>

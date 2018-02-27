@@ -3,3 +3,5 @@
 webapp/dist/**/*
 **/node_modules
 webapp/dist
+webapp/app/bower_components
+**/.tmp
