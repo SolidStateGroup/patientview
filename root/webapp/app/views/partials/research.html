@@ -69,24 +69,24 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div data-ng-show="pagedItems.length < 1">
-                <h4>No Research Studies Found</h4>
-            </div>
+        <div data-ng-show="pagedItems.length == 0">
+            <h4>No Research Studies Found</h4>
+        </div>
 
-            <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
-                <ul class="pagination">
-                    <li data-ng-class="prevPageDisabled()">
-                        <a href data-ng-click="prevPage()">« Prev</a>
-                    </li>
-                    <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
-                        <a href>{{n+1}}</a>
-                    </li>
-                    <li data-ng-class="nextPageDisabled()">
-                        <a href data-ng-click="nextPage()">Next »</a>
-                    </li>
-                </ul>
-            </div>
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
