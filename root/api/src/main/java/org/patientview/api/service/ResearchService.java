@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * Research service, for the management and retrieval of Research Studies. Research are made visible to specific
  * criteria of patients, based on age/condition etc
- *
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ResearchService {
@@ -29,7 +28,7 @@ public interface ResearchService {
      * @return Long ID of the newly added NewsItem
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
     Long add(ResearchStudy researchStudy);
 
     /**
@@ -39,7 +38,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
     void delete(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -51,7 +50,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
     ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -62,7 +61,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
     Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -73,7 +72,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
+    @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
     Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
@@ -83,6 +82,6 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
     void save(ResearchStudy researchItem) throws ResourceNotFoundException, ResourceForbiddenException;
 }

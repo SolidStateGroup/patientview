@@ -197,6 +197,7 @@ public interface CodeService {
      * @return List of BaseCode
      * @throws ResourceNotFoundException
      */
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
     List<BaseCode> searchAdminDiagnosisCodes(String searchTerm) throws ResourceNotFoundException;
 
     /**
@@ -205,6 +206,6 @@ public interface CodeService {
      * @return List of BaseCode
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = { RoleName.PATIENT })
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
     List<BaseCode> searchTreatmentCodes(String searchTerm) throws ResourceNotFoundException;
 }

@@ -45,7 +45,7 @@ import java.util.Set;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
- * Class to control the crud operations of the News.
+ * Class to control the crud operations of the Research Studies.
  * <p>
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
@@ -272,7 +272,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
             return manuallyPage(studies, pageable);
         }
-
     }
 
     @Override
@@ -311,8 +310,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 researchStudyCriteriaRepository.save(newCriteria);
             }
         }
-
-
     }
 
     private boolean canModifyResearchStudy(ResearchStudy researchStudy) {
