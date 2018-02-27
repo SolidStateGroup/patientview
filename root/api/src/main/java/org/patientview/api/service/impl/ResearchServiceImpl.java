@@ -244,9 +244,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                             "join pv_research_study_criteria rc on rc.research_study_id = r.id WHERE ";
 
             if (gender == null) {
-                query += "(rc.criteria->>'gender' IS null) AND ";
+                query += "(CAST(rc.criteria ->> 'gender' AS TEXT) IS NULL) AND ";
             } else {
-                query += "(rc.criteria->>'gender'= '" + gender + "' OR rc.criteria->>'gender' IS null) AND \n";
+                query += "(rc.criteria->>'gender'= '" + gender + "' OR (CAST(rc.criteria ->> 'gender' AS TEXT) IS NULL)) AND \n";
             }
             query += "(CAST(rc.criteria->>'toAge' AS INT) >= " + age + " OR (CAST(rc.criteria ->> 'toAge' AS TEXT) IS NULL)) AND \n" +
                     "(CAST(rc.criteria->>'fromAge' AS INT) <= " + age + " OR (CAST(rc.criteria ->> 'fromAge' AS TEXT) IS NULL)) \n " +
