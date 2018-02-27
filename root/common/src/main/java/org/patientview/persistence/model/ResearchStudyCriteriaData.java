@@ -24,7 +24,7 @@ public class ResearchStudyCriteriaData {
     @Transient
     private transient List groups;
     @Transient
-    private transient List<Code> treatments;
+    private transient List treatments;
     @Transient
-    private transient List<Code> diagnosis;
+    private transient List diagnosis;
 }

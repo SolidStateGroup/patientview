@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
+import org.patientview.api.model.BaseCode;
 import org.patientview.api.model.Patient;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.CodeService;
@@ -142,13 +143,24 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 }
                 if (data.getTreatmentIds() != null) {
                     for (Long code : data.getTreatmentIds()) {
-                        data.getTreatments().add(codeService.get(code));
+                        Code savedCode = codeService.get(code);
+                        BaseCode treatmentCode = new BaseCode();
+                        treatmentCode.setId(savedCode.getId());
+                        treatmentCode.setDescription(savedCode.getDescription());
+                        treatmentCode.setCode(savedCode.getCode());
 
+                        data.getTreatments().add(treatmentCode);
                     }
                 }
                 if (data.getDiagnosisIds() != null) {
                     for (Long code : data.getDiagnosisIds()) {
-                        data.getDiagnosis().add(codeService.get(code));
+                        Code savedCode = codeService.get(code);
+                        BaseCode diagnosisCode = new BaseCode();
+                        diagnosisCode.setId(savedCode.getId());
+                        diagnosisCode.setDescription(savedCode.getDescription());
+                        diagnosisCode.setCode(savedCode.getCode());
+
+                        data.getDiagnosis().add(diagnosisCode);
                     }
                 }
 
@@ -285,14 +297,18 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         ResearchStudyCriteria[] criteriaArray = researchStudy.getCriteria();
         if (criteriaArray != null) {
             for (ResearchStudyCriteria criteria : criteriaArray) {
-                criteria.setResearchStudy(researchStudy.getId());
-                criteria.setCreatedDate(new Date());
+                ResearchStudyCriteria newCriteria = new ResearchStudyCriteria();
+                newCriteria.setResearchStudy(researchStudy.getId());
+                newCriteria.setCreatedDate(new Date());
+                newCriteria.setResearchStudyCriterias(criteria.getResearchStudyCriterias());
+                newCriteria.setCreator(criteria.getCreator());
+                newCriteria.setCreator(getCurrentUser());
+
                 if (criteria.getResearchStudyCriterias().getGender() != null &&
                         criteria.getResearchStudyCriterias().getGender().equals("Any")) {
-                    criteria.getResearchStudyCriterias().setGender(null);
+                    newCriteria.getResearchStudyCriterias().setGender(null);
                 }
-                criteria.setCreator(getCurrentUser());
-                researchStudyCriteriaRepository.save(criteria);
+                researchStudyCriteriaRepository.save(newCriteria);
             }
         }
 

@@ -6,16 +6,22 @@
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-title" class="control-label">Title of Study <span class="error" data-ng-show="researchStudyFormNew.researchName.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-title" placeholder="Title of Study" name="titleOfStudy" data-ng-model="newResearchStudy.researchName" required maxlength="100"></div>
+                    <label for="research-title" class="control-label">Title of Study <span class="error"
+                                                                                           data-ng-show="researchStudyFormNew.researchName.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-title" placeholder="Title of Study"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.researchName" required
+                                maxlength="100"></div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-description" class="control-label">Description of Study <span class="error" data-ng-show="researchStudyFormNew.description.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <textarea class="form-control article-content" id="research-description" placeholder="Description of Study" name="description" data-ng-model="newResearchStudy.description" required></textarea>
+                    <label for="research-description" class="control-label">Description of Study <span class="error"
+                                                                                                       data-ng-show="researchStudyFormNew.description.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-description"
+                              placeholder="Description of Study" name="description"
+                              data-ng-model="newResearchStudy.description" required></textarea>
                 </div>
             </div>
         </div>
@@ -29,7 +35,8 @@
                             {{newResearchStudy.title}}
                         </h2>
                         <div class="last-message">
-                            <p class="message-content" data-ng-bind-html="parseHTMLText(newResearchStudy.description)"></p>
+                            <p class="message-content"
+                               data-ng-bind-html="parseHTMLText(newResearchStudy.description)"></p>
                         </div>
                     </div>
                 </div>
@@ -38,7 +45,8 @@
 
         <h4>Criteria</h4>
         <div>
-            <i>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to appear under their PatientView Research menu.</i>
+            <i>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to
+                appear under their PatientView Research menu.</i>
             <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add</a>
 
             <div id="criteria" style="margin-left : 10px;" data-ng-repeat="criteria in newResearchStudy.criteria">
@@ -64,7 +72,7 @@
                     <span class="inline-span"> Treatment: &nbsp;</span>
 
                     <div class="selectize-treatment">
-                        <select id="select-treatment" data-ng-model="criteria.researchStudyCriterias.treatmentIds"
+                        <select data-ng-model="criteria.researchStudyCriterias.treatmentIds"
                                 class="selectized-treatment"
                                 placeholder="Type a treatment"></select>
                     </div>
@@ -72,7 +80,7 @@
                 <div class="row inline-row">
                     <span class="inline-span"> Diagnosis: &nbsp;</span>
                     <div class="selectize-diagnosis">
-                        <select id="select-diagnosis"  data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
+                        <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
                                 class="selectized-diagnosis"
                                 placeholder="Type a diagnosis"></select>
                     </div>
@@ -80,7 +88,7 @@
                 <div class="row inline-row">
                     <span class="inline-span"> PV Group: &nbsp;</span>
                     <div class="selectize-pv-group">
-                        <select id="select-group" class="selectized-pv-group"
+                        <select class="selectized-pv-group"
                                 data-ng-model="criteria.researchStudyCriterias.groupIds"
                                 placeholder="Type a PatientView Group">
                         </select>
@@ -96,32 +104,44 @@
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-contact-name" class="control-label">Contact Name <span class="error" data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name" name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required maxlength="100"></div>
+                    <label for="research-contact-name" class="control-label">Contact Name <span class="error"
+                                                                                                data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required
+                                maxlength="100"></div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-contact-email" class="control-label">Contact Email <span class="error" data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email" name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required maxlength="100"></div>
+                    <label for="research-contact-email" class="control-label">Contact Email <span class="error"
+                                                                                                  data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required
+                                maxlength="100"></div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-contact-phone" class="control-label">Contact Phone Number <span class="error" data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone" name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required maxlength="100"></div>
+                    <label for="research-contact-phone" class="control-label">Contact Phone Number <span class="error"
+                                                                                                         data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required
+                                maxlength="100"></div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label for="research-contact-address" class="control-label">Contact Address <span class="error" data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <textarea class="form-control article-content" id="research-contact-address" placeholder="Physical Address" name="contactAddress" data-ng-model="newResearchStudy.contactAddress" required></textarea>
+                    <label for="research-contact-address" class="control-label">Contact Address <span class="error"
+                                                                                                      data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control article-content" id="research-contact-address"
+                              placeholder="Physical Address" name="contactAddress"
+                              data-ng-model="newResearchStudy.contactAddress" required></textarea>
                 </div>
             </div>
         </div>
@@ -130,7 +150,8 @@
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
                 <span class="inline-span"> Available From: &nbsp;
-                <span class="error" data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                <span class="error"
+                      data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </span>
                 <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day"
                         data-ng-options="day as day for day in days">
@@ -138,8 +159,10 @@
                 <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month"
                         data-ng-options="month as month for month in months">
                 </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year"
-                        data-ng-options="year as year for year in years">
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year">
+                    <option ng-repeat="year in years" value="{{year}}"
+                            ng-selected="newResearchStudy.availableFrom.year == year">{{year}}
+                    </option>
                 </select>
             </div>
         </div>
@@ -148,7 +171,8 @@
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
                 <span class="inline-span"> Available To: &nbsp;
-                    <span class="error" data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                    <span class="error"
+                          data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </span>
                 <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day"
                         data-ng-options="day as day for day in days">
@@ -156,8 +180,10 @@
                 <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month"
                         data-ng-options="month as month for month in months">
                 </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year"
-                        data-ng-options="year as year for year in years">
+                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year">
+                    <option ng-repeat="year in years" value="{{year}}"
+                            ng-selected="newResearchStudy.availableTo.year == year">{{year}}
+                    </option>
                 </select>
             </div>
         </div>

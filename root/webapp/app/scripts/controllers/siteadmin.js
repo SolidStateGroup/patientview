@@ -78,6 +78,9 @@ angular.module('patientviewApp').controller('SiteAdminCtrl', ['$scope', '$modal'
                     },
                     permissions: function () {
                         return $scope.permissions;
+                    },
+                    researchStudy: function () {
+                        return null;
                     }
                 }
             });
