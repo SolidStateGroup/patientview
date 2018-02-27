@@ -27,10 +27,28 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
         $scope.loading = false;
 
 
-        if (researchStudy.id) {
+        if (researchStudy && researchStudy.id) {
             ResearchService.get(researchStudy.id).then(function (savedStudy) {
                 $scope.newResearchStudy = savedStudy;
-                selectize(true);
+                var availableFrom = $scope.newResearchStudy.availableFrom;
+                var availableTo = $scope.newResearchStudy.availableTo;
+
+                $scope.newResearchStudy.availableFrom = {day: null, month: null, year: null};
+                $scope.newResearchStudy.availableTo = {day: null, month: null, year: null};
+
+                $scope.newResearchStudy.availableFrom.day =
+                    ('0' + new Date(availableFrom).getDate().toString()).slice(-2);
+                $scope.newResearchStudy.availableFrom.month =
+                    ('0' + new Date(availableFrom).getMonth().toString()).slice(-2);
+                $scope.newResearchStudy.availableFrom.year = (new Date(availableFrom).getFullYear()).toString();
+
+                $scope.newResearchStudy.availableTo.day =
+                    ('0' + new Date(availableTo).getDate().toString()).slice(-2);
+                $scope.newResearchStudy.availableTo.month =
+                    ('0' + new Date(availableTo).getMonth().toString()).slice(-2);
+                $scope.newResearchStudy.availableTo.year = new Date(availableTo).getFullYear().toString();
+
+                selectize($scope.newResearchStudy.criteria);
             });
         }
 
@@ -38,7 +56,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
 
             $scope.newResearchStudy.creator = {};
             $scope.newResearchStudy.creator.id = $scope.loggedInUser.id;
-            
+
             ResearchService.create($scope.newResearchStudy).then(function () {
                 $modalInstance.close();
             }, function (result) {
@@ -72,13 +90,15 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                     groupIds: []
                 }
             });
-            selectize();
+            setTimeout(function(){
+                selectize($scope.newResearchStudy.criteria);
+            }, 500);
         };
 
 
-        var selectize = function (doNotClear) {
+        var selectize = function (model) {
             $timeout(function () {
-                var diagnosisSelector = $('.selectized-diagnosis').selectize({
+                $('.selectized-diagnosis').selectize({
                     closeAfterSelect: true,
                     valueField: 'id',
                     labelField: 'description',
@@ -118,7 +138,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                         });
                     }
                 });
-                var groupSelector = $('.selectized-pv-group').selectize({
+                $('.selectized-pv-group').selectize({
                     valueField: 'id',
                     labelField: 'name',
                     searchField: 'name',
@@ -127,7 +147,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                     maxItems: 10,
                     options: $scope.groups
                 });
-                var treatmentSelector = $('.selectized-treatment').selectize({
+                $('.selectized-treatment').selectize({
                     valueField: 'id',
                     closeAfterSelect: true,
                     labelField: 'description',
@@ -167,10 +187,78 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                         });
                     }
                 });
-                if(!doNotClear) {
-                    diagnosisSelector[0].selectize.clear();
-                    treatmentSelector[0].selectize.clear();
-                    groupSelector[0].selectize.clear();
+
+                //Get the selectors into an array
+                var diagnosisSelectors = [];
+                var groupsSelectors = [];
+                var treatmentSelectors = [];
+                $('.selectized-diagnosis').each(function () {
+                    if (this.selectize && this.nodeName == "SELECT") {
+                        diagnosisSelectors.push(this);
+                    }
+                });
+
+                $('.selectized-pv-group').each(function () {
+                    if (this.selectize && this.nodeName == "SELECT") {
+                        groupsSelectors.push(this);
+                    }
+                });
+
+                $('.selectized-treatment').each(function () {
+                    if (this.selectize && this.nodeName == "SELECT") {
+                        treatmentSelectors.push(this);
+                    }
+                });
+
+                /**
+                 * Selectize adds in hashes from angular, if we're creating a new criteria block
+                 * only remove the 'first' row
+                 */
+                $('.selectized-diagnosis').each(function () {
+                    if (this.selectize) {
+                        this.selectize.clear();
+                    }
+                });
+
+                $('.selectized-pv-group').each(function () {
+                    if (this.selectize) {
+                        this.selectize.clear();
+                    }
+                });
+
+                $('.selectized-treatment').each(function () {
+                    if (this.selectize) {
+                        this.selectize.clear();
+                    }
+                });
+
+
+                if (model) {
+                    model.map(function (criteria, index) {
+                        if (criteria.researchStudyCriterias.groups) {
+                            var modelIds = criteria.researchStudyCriterias.groups.map(function (m) {
+                                groupsSelectors[index].selectize.addOption(m);
+                                return m.id
+                            });
+                            groupsSelectors[index].selectize.addItems(modelIds);
+                        }
+
+                        if (criteria.researchStudyCriterias.diagnosis) {
+                            var modelIds = criteria.researchStudyCriterias.diagnosis.map(function (m) {
+                                diagnosisSelectors[index].selectize.addOption(m);
+                                return m.id
+                            });
+                            diagnosisSelectors[index].selectize.addItems(modelIds);
+                        }
+
+                        if (criteria.researchStudyCriterias.treatments) {
+                            var modelIds = criteria.researchStudyCriterias.treatments.map(function (m) {
+                                treatmentSelectors[index].selectize.addOption(m);
+                                return m.id
+                            });
+                            treatmentSelectors[index].selectize.addItems(modelIds);
+                        }
+                    });
                 }
                 $scope.loading = false;
             });

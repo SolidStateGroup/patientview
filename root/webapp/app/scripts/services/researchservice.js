@@ -54,6 +54,12 @@ angular.module('patientviewApp').factory('ResearchService', ['$q', 'Restangular'
                 var deferred = $q.defer();
                 researchStudy = UtilService.cleanObject(researchStudy, 'researchStudy');
 
+                var availableFrom = researchStudy.availableFrom;
+                var availableTo = researchStudy.availableTo;
+
+                researchStudy.availableFrom = new Date(availableFrom.year, availableFrom.month - 1, availableFrom.day);
+                researchStudy.availableTo = new Date(availableTo.year, availableTo.month - 1, availableTo.day);
+                
                 Restangular.all('research').customPUT(researchStudy).then(function (successResult) {
                     deferred.resolve(successResult);
                 }, function (failureResult) {
