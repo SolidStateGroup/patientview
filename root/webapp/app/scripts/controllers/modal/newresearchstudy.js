@@ -68,11 +68,6 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
             });
         };
 
-        $scope.addGroup = function (groupToAdd) {
-            debugger;
-            console.log(groupToAdd);
-        }
-
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
