@@ -252,16 +252,16 @@ CREATE TABLE PV_News_Link (
 
 
 -- CREATE TABLE "pv_research_study_criteria" -------------------
-CREATE TABLE "public"."pv_research_study_criteria" (
+CREATE TABLE pv_research_study_criteria (
 	"id" Bigint NOT NULL,
 	"research_study_id" Bigint NOT NULL,
 	"creation_date" Timestamp Without Time Zone NOT NULL,
 	"created_by" Bigint,
 	"criteria" JSONB,
 	PRIMARY KEY ( "id" ) );
- ;
 
- CREATE TABLE "public"."pv_research_study" (
+
+ CREATE TABLE pv_research_study (
 	"id" Bigint NOT NULL,
 	"name" Character Varying( 200 ),
 	"description" Character Varying( 200 ),
