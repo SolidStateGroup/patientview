@@ -1,0 +1,35 @@
+<h1>Site Administration (Global Administrators only)</h1>
+
+<div>
+    <div>
+        <ul class="nav nav-tabs">
+            <li data-ng-class="{active:(activeTab === 'RESEARCH' || activeTab === null || activeTab === undefined)}">
+                <a data-ng-click="activeTab = 'RESEARCH'">Research Studies</a></li>
+            <li data-ng-class="{active:(activeTab === 'GP_MASTER_LIST')}">
+                <a data-ng-click="activeTab = 'GP_MASTER_LIST'">GP Master List</a>
+            </li>
+            <!--<li data-ng-class="{active:activeTab === 'SURVEYS'}"><a data-ng-click="activeTab = 'SURVEYS'">My Health Surveys</a></li>-->
+            <!--<li data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">Entered Diagnoses</a></li>-->
+        </ul>
+        <div class="tab-content">
+
+
+        <div class="panel panel-default" data-ng-if="(activeTab === 'RESEARCH' || activeTab === null || activeTab === undefined)">
+            <div class="panel-heading"><h3>Research Studies</h3></div>
+                <div class="panel-body">
+                    <div data-ng-include src="'views/partials/research.html'"></div>
+                </div>
+            </div>
+        </div>
+            <div class="panel panel-default" data-ng-if="(activeTab === 'GP_MASTER_LIST')">
+                <div class="panel-heading"><h3>GP Master List</h3></div>
+                <div class="panel-body">
+                    <p>Excel lists of GP Practices for England & Wales, as well as separate lists for Scotland and
+                        Northern Ireland are available online and refreshed regularly. Filenames are set in .properties files
+                        and must be checked before the update process is started.</p>
+                    <a href="/#/admin">Click here</a> to access GP Practice management
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

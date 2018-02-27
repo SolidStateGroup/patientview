@@ -219,4 +219,38 @@ public class CodeController extends BaseController<CodeController> {
             throws ResourceNotFoundException {
         return new ResponseEntity<>(codeService.searchDiagnosisCodes(searchTerm, standardType), HttpStatus.OK);
     }
+
+
+    /**
+     * Get diagnosis Codes by standard type and with a search term, used by patients when searching for conditions
+     * @param searchTerm String term to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/codes/diagnosis/{searchTerm}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> searchDiagnosisCodes(@PathVariable("searchTerm") String searchTerm)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.searchAdminDiagnosisCodes(searchTerm), HttpStatus.OK);
+    }
+
+
+    /**
+     * Get treatment Codes by standard type and with a search term, used by admin when searching for treatments
+     * @param searchTerm String term to search for
+     * @return List of BaseCode
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/codes/treatment/{searchTerm}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<BaseCode>> searchTreatmentCodes(@PathVariable("searchTerm") String searchTerm)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.searchTreatmentCodes(searchTerm), HttpStatus.OK);
+    }
+
+
+
+
 }

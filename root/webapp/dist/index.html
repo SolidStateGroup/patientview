@@ -10,9 +10,17 @@
         <meta name="viewport" content="width=device-width">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="initial-scale=1" />
-        <link rel="stylesheet" href="styles/vendor.css"/>
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="bower_components/selectize/dist/css/selectize.css" />
+        <!-- endbower -->
+        <!-- endbuild -->
 
-        <link rel="stylesheet" href="styles/patientview.css"/>
+        <!-- build:css({.tmp,app}) styles/patientview.css -->
+        <link rel="stylesheet" href="styles/patientview/stylesheets/screen.css">
+        <link rel="stylesheet" href="styles/patientview/stylesheets/sweet-alerts.css">
+        <!-- endbuild -->
         <!--[if IE]>
         <link href="styles/patientview/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
         <![endif]-->
@@ -29,9 +37,6 @@
         </script>
     </head>
     <body>
-        <!--[if lt IE 7]>
-        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
 
         <!-- Application content here -->
         <div ng-include src="'views/partials/menus.html'"></div>
@@ -80,8 +85,216 @@
                 </div>
             </div>
         </div>
-        <script src="scripts/ab19231f.vendor.js"></script>
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/es5-shim/es5-shim.js"></script>
+        <script src="bower_components/angular/angular.js"></script>
+        <script src="bower_components/json3/lib/json3.min.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
+        <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+        <script src="bower_components/angular-route/angular-route.js"></script>
+        <script src="bower_components/lodash/dist/lodash.compat.js"></script>
+        <script src="bower_components/restangular/dist/restangular.js"></script>
+        <script src="bower_components/respond/dest/respond.src.js"></script>
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+        <script src="bower_components/angular-local-storage/angular-local-storage.js"></script>
+        <script src="bower_components/jquery-htmlclean/jquery.htmlClean.js"></script>
+        <script src="bower_components/waypoints/waypoints.js"></script>
+        <script src="bower_components/SHA-1/sha1.js"></script>
+        <script src="bower_components/angulartics/src/angulartics.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-adobe.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-chartbeat.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-cnzz.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-flurry.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-ga-cordova.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-ga.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-gtm.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-kissmetrics.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-mixpanel.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-piwik.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-scroll.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-segmentio.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-splunk.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-woopra.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-marketo.js"></script>
+        <script src="bower_components/angulartics/src/angulartics-intercom.js"></script>
+        <script src="bower_components/highstock-release/highstock.js"></script>
+        <script src="bower_components/highstock-release/highcharts-more.js"></script>
+        <script src="bower_components/highstock-release/modules/exporting.js"></script>
+        <script src="bower_components/angular-bindonce/bindonce.js"></script>
+        <script src="bower_components/fastclick/lib/fastclick.js"></script>
+        <script src="bower_components/angular-file-upload/angular-file-upload.min.js"></script>
+        <script src="bower_components/sifter/sifter.js"></script>
+        <script src="bower_components/microplugin/src/microplugin.js"></script>
+        <script src="bower_components/selectize/dist/js/selectize.js"></script>
+        <script src="bower_components/angular-touch/angular-touch.js"></script>
+        <script src="bower_components/venturocket-angular-slider/build/angular-slider.js"></script>
+        <script src="bower_components/ng-debounce/angular-debounce.js"></script>
+        <script src="bower_components/moment/moment.js"></script>
+        <script src="bower_components/angular-inview/angular-inview.js"></script>
+        <!-- endbower -->
+        <!-- required for ie8 and file upload, not included by bower by default -->
+        <script src="bower_components/es5-shim/es5-sham.js"></script>
+        <!-- endbuild -->
 
-        <script src="scripts/cdb46147.scripts.js"></script>
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/config.js"></script>
+
+        <script src="scripts/controllers/account.js"></script>
+        <script src="scripts/controllers/admin.js"></script>
+        <script src="scripts/controllers/apidocs.js"></script>
+        <script src="scripts/controllers/categories.js"></script>
+        <script src="scripts/controllers/codes.js"></script>
+        <script src="scripts/controllers/codedetails.js"></script>
+        <script src="scripts/controllers/contact.js"></script>
+        <script src="scripts/controllers/contactunitdetails.js"></script>
+        <script src="scripts/controllers/conversationdetails.js"></script>
+        <script src="scripts/controllers/conversations.js"></script>
+        <script src="scripts/controllers/dashboard.js"></script>
+        <script src="scripts/controllers/diagnostics.js"></script>
+        <script src="scripts/controllers/feedback.js"></script>
+        <script src="scripts/controllers/fooddiary.js"></script>
+        <script src="scripts/controllers/forgottenpassword.js"></script>
+        <script src="scripts/controllers/gplogin.js"></script>
+        <script src="scripts/controllers/groups.js"></script>
+        <script src="scripts/controllers/groupdetails.js"></script>
+        <script src="scripts/controllers/help.js"></script>
+        <script src="scripts/controllers/ibdcontrol.js"></script>
+        <script src="scripts/controllers/ibdfatigue.js"></script>
+        <script src="scripts/controllers/ibdpatientmanagement.js"></script>
+        <script src="scripts/controllers/ibdselfmanagement.js"></script>
+        <script src="scripts/controllers/letters.js"></script>
+        <script src="scripts/controllers/log.js"></script>
+        <script src="scripts/controllers/login.js"></script>
+        <script src="scripts/controllers/logout.js"></script>
+        <script src="scripts/controllers/main.js"></script>
+        <script src="scripts/controllers/medicines.js"></script>
+        <script src="scripts/controllers/myconditions.js"></script>
+        <script src="scripts/controllers/myconditionssurveys.js"></script>
+        <script src="scripts/controllers/mydetails.js"></script>
+        <script src="scripts/controllers/news.js"></script>
+        <script src="scripts/controllers/newsdetails.js"></script>
+        <script src="scripts/controllers/newuser.js"></script>
+        <script src="scripts/controllers/nhsindicators.js"></script>
+        <script src="scripts/controllers/observationheadings.js"></script>
+        <script src="scripts/controllers/observationheadingdetails.js"></script>
+        <script src="scripts/controllers/passwordchange.js"></script>
+        <script src="scripts/controllers/patients.js"></script>
+        <script src="scripts/controllers/privacy.js"></script>
+        <script src="scripts/controllers/results.js"></script>
+        <script src="scripts/controllers/resultsdetail.js"></script>
+        <script src="scripts/controllers/resultstable.js"></script>
+        <script src="scripts/controllers/request.js"></script>
+        <script src="scripts/controllers/requestadmin.js"></script>
+        <script src="scripts/controllers/resultsenter.js"></script>
+        <script src="scripts/controllers/resultsedit.js"></script>
+        <script src="scripts/controllers/setsecretword.js"></script>
+        <script src="scripts/controllers/settings.js"></script>
+        <script src="scripts/controllers/staff.js"></script>
+        <script src="scripts/controllers/symptomscores.js"></script>
+        <script src="scripts/controllers/terms.js"></script>
+        <script src="scripts/controllers/userdetails.js"></script>
+        <script src="scripts/controllers/verify.js"></script>
+        <script src="scripts/controllers/whatcanitdo.js"></script>
+        <script src="scripts/controllers/surveys/managing.js"></script>
+        <script src="scripts/controllers/surveys/overall.js"></script>
+        <script src="scripts/controllers/surveys/symptoms.js"></script>
+
+        <script src="scripts/controllers/modal/addsurgery.js"></script>
+        <script src="scripts/controllers/modal/changeconversationrecipients.js"></script>
+        <script src="scripts/controllers/modal/contactunit.js"></script>
+        <script src="scripts/controllers/modal/createmembershiprequest.js"></script>
+        <script src="scripts/controllers/modal/deletecategory.js"></script>
+        <script src="scripts/controllers/modal/deletecode.js"></script>
+        <script src="scripts/controllers/modal/deletefooddiary.js"></script>
+        <script src="scripts/controllers/modal/deleteletter.js"></script>
+        <script src="scripts/controllers/modal/deletepatient.js"></script>
+        <script src="scripts/controllers/modal/deletestaff.js"></script>
+        <script src="scripts/controllers/modal/deleteresult.js"></script>
+        <script src="scripts/controllers/modal/enterdiagnoses.js"></script>
+        <script src="scripts/controllers/modal/exportcsv.js"></script>
+        <script src="scripts/controllers/modal/findexistingpatient.js"></script>
+        <script src="scripts/controllers/modal/findexistingstaff.js"></script>
+        <script src="scripts/controllers/modal/furtherinformation.js"></script>
+        <script src="scripts/controllers/modal/groupstatistics.js"></script>
+        <script src="scripts/controllers/modal/invitegp.js"></script>
+        <script src="scripts/controllers/modal/newcategory.js"></script>
+        <script src="scripts/controllers/modal/newcode.js"></script>
+        <script src="scripts/controllers/modal/newconversation.js"></script>
+        <script src="scripts/controllers/modal/newfooddiary.js"></script>
+        <script src="scripts/controllers/modal/newgroup.js"></script>
+        <script src="scripts/controllers/modal/newnews.js"></script>
+        <script src="scripts/controllers/modal/newobservationheading.js"></script>
+        <script src="scripts/controllers/modal/newpatientconversation.js"></script>
+        <script src="scripts/controllers/modal/observationheadinginfo.js"></script>
+        <script src="scripts/controllers/modal/resetpassword.js"></script>
+        <script src="scripts/controllers/modal/sendverificationemail.js"></script>
+        <script src="scripts/controllers/modal/surveyresponsedetail.js"></script>
+        <script src="scripts/controllers/modal/surveyresponsedetailnew.js"></script>
+        <script src="scripts/controllers/modal/updatefooddiary.js"></script>
+        <script src="scripts/controllers/modal/viewletter.js"></script>
+        <script src="scripts/controllers/modal/viewnews.js"></script>
+        <script src="scripts/controllers/modal/viewxml.js"></script>
+
+        <script src="scripts/services/alertservice.js"></script>
+        <script src="scripts/services/auditservice.js"></script>
+        <script src="scripts/services/authservice.js"></script>
+        <script src="scripts/services/categoryservice.js"></script>
+        <script src="scripts/services/codeservice.js"></script>
+        <script src="scripts/services/codeexternalstandardservice.js"></script>
+        <script src="scripts/services/contactpointservice.js"></script>
+        <script src="scripts/services/conversationservice.js"></script>
+        <script src="scripts/services/diagnosisservice.js"></script>
+        <script src="scripts/services/diagnosticservice.js"></script>
+        <script src="scripts/services/documentservice.js"></script>
+        <script src="scripts/services/exportservice.js"></script>
+        <script src="scripts/services/featureservice.js"></script>
+        <script src="scripts/services/fooddiaryservice.js"></script>
+        <script src="scripts/services/gpservice.js"></script>
+        <script src="scripts/services/groupservice.js"></script>
+        <script src="scripts/services/identifierservice.js"></script>
+        <script src="scripts/services/letterservice.js"></script>
+        <script src="scripts/services/linkservice.js"></script>
+        <script src="scripts/services/locationservice.js"></script>
+        <script src="scripts/services/medicationservice.js"></script>
+        <script src="scripts/services/newsservice.js"></script>
+        <script src="scripts/services/observationheadingservice.js"></script>
+        <script src="scripts/services/observationservice.js"></script>
+        <script src="scripts/services/patientservice.js"></script>
+        <script src="scripts/services/requestservice.js"></script>
+        <script src="scripts/services/roleservice.js"></script>
+        <script src="scripts/services/routeservice.js"></script>
+        <script src="scripts/services/staticdataservice.js"></script>
+        <script src="scripts/services/surveyresponseservice.js"></script>
+        <script src="scripts/services/surveyservice.js"></script>
+        <script src="scripts/services/userservice.js"></script>
+        <script src="scripts/services/utilservice.js"></script>
+
+        <script src="scripts/interceptors/httprequestinterceptor.js"></script>
+        <script src="scripts/interceptors/httpresponseinterceptor.js"></script>
+
+        <script src="scripts/filters/addcodefilter.js"></script>
+        <script src="scripts/filters/addhttpfilter.js"></script>
+        <script src="scripts/filters/codetypefilter.js"></script>
+        <script src="scripts/filters/filesizefilter.js"></script>
+        <script src="scripts/filters/groupfilter.js"></script>
+        <script src="scripts/filters/grouptypefilter.js"></script>
+        <script src="scripts/filters/menufilter.js"></script>
+        <script src="scripts/filters/rolefilter.js"></script>
+        <script src="scripts/filters/standardtypefilter.js"></script>
+
+        <script src="scripts/directives/buttongroup.js"></script>
+        <script src="scripts/directives/confirmclick.js"></script>
+        <script src="scripts/directives/onlycapitalletters.js"></script>
+        <script src="scripts/directives/onlynum.js"></script>
+        <script src="scripts/directives/pagination.js"></script>
+        <script src="scripts/directives/strengthcheck.js"></script>
+
+        <script src="scripts/mixins/mixins.js"></script>
+        <!-- endbuild -->
     </body>
 </html>

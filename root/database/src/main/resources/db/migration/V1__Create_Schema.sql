@@ -250,6 +250,34 @@ CREATE TABLE PV_News_Link (
   PRIMARY KEY (Id)
 );
 
+
+-- CREATE TABLE "pv_research_study_criteria" -------------------
+CREATE TABLE "public"."pv_research_study_criteria" (
+	"id" Bigint NOT NULL,
+	"research_study_id" Bigint NOT NULL,
+	"creation_date" Timestamp Without Time Zone NOT NULL,
+	"created_by" Bigint,
+	"criteria" JSONB,
+	PRIMARY KEY ( "id" ) );
+ ;
+
+ CREATE TABLE "public"."pv_research_study" (
+	"id" Bigint NOT NULL,
+	"name" Character Varying( 200 ),
+	"description" Character Varying( 200 ),
+	"contact_name" Character Varying( 500 ),
+	"contact_email" Character Varying( 200 ),
+	"contact_phone" Character Varying( 200 ),
+	"contact_address" Character Varying( 200 ),
+	"available_from" Timestamp Without Time Zone,
+	"available_to" Timestamp Without Time Zone,
+	"created_date" Timestamp Without Time Zone,
+	"last_update_date" Timestamp Without Time Zone,
+	"last_updated_by" Bigint,
+	"created_by" Bigint,
+	PRIMARY KEY ( "id" ) );
+
+
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
   Type             VARCHAR(255) NOT NULL,
