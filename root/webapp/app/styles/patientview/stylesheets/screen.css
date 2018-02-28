@@ -16,44 +16,59 @@
   float: left;
 }
 
-/* line 14, ../sass/_utils.scss */
+/* line 13, ../sass/_utils.scss */
+.content-box {
+  box-sizing: content-box;
+}
+
+/* line 17, ../sass/_utils.scss */
+.pl {
+  padding-left: 15px;
+}
+
+/* line 21, ../sass/_utils.scss */
+.pr {
+  padding-right: 15px;
+}
+
+/* line 26, ../sass/_utils.scss */
 .hide,
 .hidden {
   display: none;
 }
 
-/* line 19, ../sass/_utils.scss */
+/* line 31, ../sass/_utils.scss */
 .show {
   display: block;
 }
 
-/* line 24, ../sass/_utils.scss */
+/* line 36, ../sass/_utils.scss */
 .invisible {
   visibility: hidden;
 }
 
-/* line 29, ../sass/_utils.scss */
+/* line 41, ../sass/_utils.scss */
 .text-left {
   text-align: left;
 }
 
-/* line 33, ../sass/_utils.scss */
+/* line 45, ../sass/_utils.scss */
 .text-right {
   text-align: right;
 }
 
-/* line 37, ../sass/_utils.scss */
+/* line 49, ../sass/_utils.scss */
 .text-center,
 .centered {
   text-align: center;
 }
 
-/* line 42, ../sass/_utils.scss */
+/* line 54, ../sass/_utils.scss */
 .no-pad {
   padding: 0;
 }
 
-/* line 47, ../sass/_utils.scss */
+/* line 59, ../sass/_utils.scss */
 .truncate {
   display: block;
   overflow: hidden;
@@ -62,7 +77,7 @@
   width: 100%;
 }
 
-/* line 56, ../sass/_utils.scss */
+/* line 68, ../sass/_utils.scss */
 .clearfix {
   *zoom: 1;
 }
@@ -76,18 +91,18 @@
   clear: both;
 }
 
-/* line 60, ../sass/_utils.scss */
+/* line 72, ../sass/_utils.scss */
 .clear-left {
   clear: left;
   width: 100%;
 }
 
-/* line 65, ../sass/_utils.scss */
+/* line 77, ../sass/_utils.scss */
 .no-pad-top {
   margin-top: 0 !important;
 }
 
-/* line 69, ../sass/_utils.scss */
+/* line 81, ../sass/_utils.scss */
 ul.unstyled, ul.inline,
 ol.unstyled,
 ol.inline {
@@ -96,37 +111,37 @@ ol.inline {
   list-style: none;
 }
 
-/* line 79, ../sass/_utils.scss */
+/* line 91, ../sass/_utils.scss */
 .inline > li {
   display: inline-block;
 }
-/* line 82, ../sass/_utils.scss */
+/* line 94, ../sass/_utils.scss */
 .inline > li:first-child {
   padding-left: 0;
 }
-/* line 86, ../sass/_utils.scss */
+/* line 98, ../sass/_utils.scss */
 .inline > li > a {
   display: inline-block;
 }
 
-/* line 92, ../sass/_utils.scss */
+/* line 104, ../sass/_utils.scss */
 .error {
   color: #f20d2e;
   font-weight: normal;
 }
 
-/* line 97, ../sass/_utils.scss */
+/* line 109, ../sass/_utils.scss */
 .no-items {
   font-style: italic;
   font-weight: 100;
 }
 
-/* line 102, ../sass/_utils.scss */
+/* line 114, ../sass/_utils.scss */
 .loading {
   text-align: center;
 }
 
-/* line 106, ../sass/_utils.scss */
+/* line 118, ../sass/_utils.scss */
 .align-bottom {
   position: absolute;
   right: 0;
@@ -135,18 +150,18 @@ ol.inline {
 }
 
 /** todo revise james' css **/
-/* line 115, ../sass/_utils.scss */
+/* line 127, ../sass/_utils.scss */
 input.ng-pristine + ul#strength {
   display: none;
 }
 
 /** TODO review this, has effect across all input fields */
-/* line 120, ../sass/_utils.scss */
+/* line 132, ../sass/_utils.scss */
 input.ng-dirty.ng-invalid {
   border: 1px solid Red;
 }
 
-/* line 124, ../sass/_utils.scss */
+/* line 136, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -156,12 +171,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 132, ../sass/_utils.scss */
+/* line 144, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 135, ../sass/_utils.scss */
+/* line 147, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -171,7 +186,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 143, ../sass/_utils.scss */
+/* line 155, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;
@@ -2682,9 +2697,21 @@ textarea.form-control.article-content {
   height: 40px;
 }
 
-/* line 531, ../sass/_forms.scss */
+/* line 533, ../sass/_forms.scss */
+.selectize-control.multi .selectize-input > div {
+  background: #00adc6;
+  border-radius: 4px;
+  color: white;
+}
+
+/* line 539, ../sass/_forms.scss */
 .selectize-dropdown, .selectize-input, .selectize-input input {
   font-size: inherit;
+}
+
+/* line 543, ../sass/_forms.scss */
+input.ng-invalid, textarea.ng-invalid {
+  border-color: red;
 }
 
 /* line 1, ../sass/_lists.scss */
