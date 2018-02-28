@@ -10,6 +10,18 @@
     float: left;
 }
 
+.content-box{
+    box-sizing: content-box;
+}
+
+.pl{
+    padding-left:15px;
+}
+
+.pr{
+    padding-right:15px;
+}
+
 // Toggling content
 .hide,
 .hidden {

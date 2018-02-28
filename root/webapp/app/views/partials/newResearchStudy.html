@@ -49,49 +49,71 @@
                 appear under their PatientView Research menu.</i>
             <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add</a>
 
-            <div id="criteria" style="margin-left : 10px;" data-ng-repeat="criteria in newResearchStudy.criteria">
+            <div id="criteria" data-ng-repeat="criteria in newResearchStudy.criteria">
                 <hr/>
 
                 <div class="row inline-row">
-                    <span class="inline-span"> From Age: &nbsp;</span>
-                    <input type="text" class="inline-span form-control" width="50px"
-                           data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3">
-
-                    <span class="inline-span"> To Age: &nbsp;</span>
-                    <input type="text" class="form-control" width="50px"
-                           data-ng-model="criteria.researchStudyCriterias.toAge" required maxlength="3">
-
-                    <span class="inline-span"> Gender</span>
-                    <select class="form-control date-input" data-ng-model="criteria.researchStudyCriterias.gender">
-                        <option>Any</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                    </select>
-                </div>
-                <div class="row inline-row">
-                    <span class="inline-span"> Treatment: &nbsp;</span>
-
-                    <div class="selectize-treatment">
-                        <select data-ng-model="criteria.researchStudyCriterias.treatmentIds"
-                                class="selectized-treatment"
-                                placeholder="Type a treatment"></select>
+                    <div class="col-md-2">
+                        <label class="control-label">Age</label>
+                        <div class="row">
+                            <div class="col-md-12 content-box">
+                                <div class="pull-left">
+                                    <!--<span class="inline-span"> From &nbsp;</span>-->
+                                    <input type="text" class="inline-span form-control" width="50px"
+                                   data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3" placeholder="From">
+                                </div>
+                                <div class="pull-left pl">
+                                    <!--<span class="inline-span"> To </span>-->
+                                    <input type="text" class="form-control" width="50px"
+                                           data-ng-model="criteria.researchStudyCriterias.toAge" required maxlength="3" placeholder="To">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label"> Gender</label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <select class="form-control date-input" data-ng-model="criteria.researchStudyCriterias.gender">
+                                    <option value="" selected disabled hidden>Gender</option>
+                                    <option>Any</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row inline-row">
-                    <span class="inline-span"> Diagnosis: &nbsp;</span>
-                    <div class="selectize-diagnosis">
-                        <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
-                                class="selectized-diagnosis"
-                                placeholder="Type a diagnosis"></select>
+                    <div class="col-md-12">
+                        <span class="inline-span"> Treatment: &nbsp;</span>
+
+                        <div class="selectize-treatment">
+                            <select data-ng-model="criteria.researchStudyCriterias.treatmentIds"
+                                    class="selectized-treatment"
+                                    placeholder="Type a treatment"></select>
+                        </div>
                     </div>
                 </div>
                 <div class="row inline-row">
-                    <span class="inline-span"> PV Group: &nbsp;</span>
-                    <div class="selectize-pv-group">
-                        <select class="selectized-pv-group"
-                                data-ng-model="criteria.researchStudyCriterias.groupIds"
-                                placeholder="Type a PatientView Group">
-                        </select>
+                    <div class="col-md-12">
+                        <span class="inline-span"> Diagnosis: &nbsp;</span>
+                        <div class="selectize-diagnosis">
+                            <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
+                                    class="selectized-diagnosis"
+                                    placeholder="Type a diagnosis"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-12">
+                        <span class="inline-span"> PV Group: &nbsp;</span>
+                        <div class="selectize-pv-group">
+                            <select class="selectized-pv-group"
+                                    data-ng-model="criteria.researchStudyCriterias.groupIds"
+                                    placeholder="Type a PatientView Group">
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -149,42 +171,60 @@
 
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
-                <span class="inline-span"> Available From: &nbsp;
-                <span class="error"
-                      data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
-                </span>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day"
-                        data-ng-options="day as day for day in days">
-                </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month"
-                        data-ng-options="month as month for month in months">
-                </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year">
-                    <option ng-repeat="year in years" value="{{year}}"
-                            ng-selected="newResearchStudy.availableFrom.year == year">{{year}}
-                    </option>
-                </select>
+                <label class="control-label"> Available From: &nbsp;
+                    <span class="error"
+                          data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                </label>
+                <div class="">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day">
+                        <option value="" selected disabled hidden>DD</option>
+                        <option ng-repeat="day in days" value="{{day}}"
+                                ng-selected="newResearchStudy.availableFrom.day == day">{{day}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month">
+                        <option value="" selected disabled hidden>MM</option>
+                        <option ng-repeat="month in months" value="{{month}}"
+                                ng-selected="newResearchStudy.availableFrom.month == month">{{month}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year">
+                        <option value="" selected disabled hidden>YYYY</option>
+                        <option ng-repeat="year in years" value="{{year}}"
+                                ng-selected="newResearchStudy.availableFrom.year == year">{{year}}
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
 
 
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
-                <span class="inline-span"> Available To: &nbsp;
+                <label class="control-label"> Available To: &nbsp;
                     <span class="error"
                           data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
-                </span>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day"
-                        data-ng-options="day as day for day in days">
-                </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month"
-                        data-ng-options="month as month for month in months">
-                </select>
-                <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year">
-                    <option ng-repeat="year in years" value="{{year}}"
-                            ng-selected="newResearchStudy.availableTo.year == year">{{year}}
-                    </option>
-                </select>
+                </label>
+                <div>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day">
+                        <option value="" selected disabled hidden>DD</option>
+                        <option ng-repeat="day in days" value="{{day}}"
+                                ng-selected="newResearchStudy.availableTo.day == day">{{day}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month">
+                        <option value="" selected disabled hidden>MM</option>
+                        <option ng-repeat="month in months" value="{{month}}"
+                                ng-selected="newResearchStudy.availableTo.month == month">{{month}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year">
+                        <option value="" selected disabled hidden>YYYY</option>
+                        <option ng-repeat="year in years" value="{{year}}"
+                                ng-selected="newResearchStudy.availableTo.year == year">{{year}}
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
