@@ -3838,30 +3838,42 @@ hr.solid {
 }
 
 /* line 217, ../sass/_components.scss */
+.message-preview {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+}
+
+/* line 224, ../sass/_components.scss */
+.research-study .textarea {
+  height: auto;
+}
+
+/* line 229, ../sass/_components.scss */
 ::-ms-tooltip {
   display: none;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 224, ../sass/_components.scss */
+  /* line 239, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 228, ../sass/_components.scss */
+  /* line 243, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 1199px) {
-  /* line 236, ../sass/_components.scss */
+  /* line 251, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media all and (max-width: 600px) {
-  /* line 245, ../sass/_components.scss */
+  /* line 260, ../sass/_components.scss */
   g.highcharts-input-group {
     display: none;
   }
