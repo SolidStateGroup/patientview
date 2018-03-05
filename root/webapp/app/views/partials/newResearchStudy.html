@@ -71,7 +71,7 @@
                     <label for="research-contact-phone" class="control-label">Phone Number <span class="error"
                                                                                                          data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
                     <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone"
-                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone"
                                 maxlength="100"></div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                                                                                                       data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
                     <textarea class="form-control" id="research-contact-address"
                               placeholder="Physical Address" name="contactAddress"
-                              data-ng-model="newResearchStudy.contactAddress" required></textarea>
+                              data-ng-model="newResearchStudy.contactAddress"></textarea>
                 </div>
             </div>
         </div>
@@ -161,6 +161,9 @@
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="row inline-row">
+                    <a href="" data-ng-click="removeCriteriaCluster($index)" class="btn negative">Remove This Criteria</a>
                 </div>
                 <hr/>
             </div>

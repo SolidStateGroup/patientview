@@ -17,7 +17,7 @@
         </div>
         <div class="modal-footer">
             <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
-            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-grey" data-ng-confirm-click="Are you sure you want to cancel creating this research study?"  data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="ok()"
                     data-ng-disabled="!newsFormNew.$valid">Save Research Study
             </button>

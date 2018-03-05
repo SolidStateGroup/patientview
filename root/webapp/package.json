@@ -47,6 +47,7 @@
   },
   "scripts": {
     "test": "grunt test",
-    "start": "bower install && grunt servelocal --port 8080"
+    "start": "bower install && grunt servelocal --port 8080",
+    "startLocal": "bower install && grunt serveApi"
   }
 }
