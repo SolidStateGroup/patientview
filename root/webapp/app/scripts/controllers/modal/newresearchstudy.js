@@ -17,7 +17,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
 
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
-        $scope.years = UtilService.generateYears(new Date().getFullYear() - 1, new Date().getFullYear() + 10).reverse();
+        $scope.years = UtilService.generateYears(new Date().getFullYear(), new Date().getFullYear() + 3).reverse();
 
         // populate list of allowed groups for current user
         $scope.groups = $scope.loggedInUser.userInformation.userGroups;
@@ -50,6 +50,19 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
 
                 selectize($scope.newResearchStudy.criteria);
             });
+        } else {
+            $scope.newResearchStudy = {
+                availableFrom : {
+                day : null,
+                month : null,
+                year: null
+            }};
+
+            $scope.newResearchStudy.availableFrom.day =
+                ('0' + (new Date().getDate()).toString()).slice(-2);
+            $scope.newResearchStudy.availableFrom.month =
+                ('0' + (new Date().getMonth() + 1).toString()).slice(-2);
+            $scope.newResearchStudy.availableFrom.year = (new Date().getFullYear()).toString();
         }
 
         $scope.ok = function () {
@@ -73,7 +86,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
         };
 
 
-        $scope.addCriteriaCluster = function (resultCluster) {
+        $scope.addCriteriaCluster = function () {
             delete $scope.successMessage;
             if ($scope.newResearchStudy.criteria == undefined) {
                 $scope.newResearchStudy.criteria = [];
@@ -89,6 +102,12 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                 selectize($scope.newResearchStudy.criteria);
             }, 500);
         };
+
+        $scope.removeCriteriaCluster = function (index) {
+            delete $scope.newResearchStudy.criteria.splice(index, 1);
+        };
+
+        
 
 
         var selectize = function (model) {

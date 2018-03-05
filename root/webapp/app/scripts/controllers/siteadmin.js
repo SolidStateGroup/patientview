@@ -149,15 +149,7 @@ angular.module('patientviewApp').controller('SiteAdminCtrl', ['$scope', '$modal'
         $scope.remove = function (researchStudy) {
             ResearchService.remove(researchStudy).then(function () {
                 $scope.loading = true;
-                ResearchService.getByUser($scope.loggedInUser.id).then(function (page) {
-                    $scope.pagedItems = page.content;
-                    $scope.total = page.totalElements;
-                    $scope.totalPages = page.totalPages;
-                    $scope.loading = false;
-                    $scope.successMessage = 'Research Study successfully deleted';
-                }, function () {
-                    $scope.loading = false;
-                });
+                $scope.getPagedResearchStudies();
             }, function () {
                 alert('Error deleting research study');
                 $scope.loading = false;
@@ -165,14 +157,15 @@ angular.module('patientviewApp').controller('SiteAdminCtrl', ['$scope', '$modal'
         };
 
         $scope.getPagedResearchStudies = function(){
-            ResearchService.getByUser($scope.loggedInUser.id, false, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+            $scope.loading = true;
+            ResearchService.getByUser($scope.loggedInUser.id).then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
                 $scope.loading = false;
+                $scope.successMessage = 'Research Study successfully deleted';
             }, function () {
                 $scope.loading = false;
-                // error
             });
         };
 
