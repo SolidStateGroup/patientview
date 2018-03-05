@@ -1,8 +1,6 @@
-<div class="content-panel user-settings" div data-ng-show="!loading">
+<div class="content-panel research-study" div data-ng-show="!loading">
     <div class="content-inner">
-        <h4>Research Study Admin</h4>
-        <p>Something needs to go here to explain what this is........</p>
-
+        <h4>Research Study Specification</h4>
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
@@ -19,7 +17,7 @@
                 <div class="col-md-12">
                     <label for="research-description" class="control-label">Description of Study <span class="error"
                                                                                                        data-ng-show="researchStudyFormNew.description.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <textarea class="form-control article-content" id="research-description"
+                    <textarea class="form-control" id="research-description"
                               placeholder="Description of Study" name="description"
                               data-ng-model="newResearchStudy.description" required></textarea>
                 </div>
@@ -30,7 +28,7 @@
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
                     <label class="control-label">Preview of Descrption</label>
-                    <div class="message-summary">
+                    <div class="message-summary message-preview">
                         <h2 class="message-title">
                             {{newResearchStudy.title}}
                         </h2>
@@ -43,14 +41,62 @@
             </div>
         </div>
 
-        <h4>Criteria</h4>
-        <div>
-            <i>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to
-                appear under their PatientView Research menu.</i>
-            <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add</a>
+        <h4>Details of who to contact if interested to participate</h4>
 
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-name" class="control-label">Name <span class="error"
+                                                                                                data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-email" class="control-label">Email address<span class="error"
+                                                                                                  data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-phone" class="control-label">Phone Number <span class="error"
+                                                                                                         data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-address" class="control-label">Physical Address <span class="error"
+                                                                                                      data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control" id="research-contact-address"
+                              placeholder="Physical Address" name="contactAddress"
+                              data-ng-model="newResearchStudy.contactAddress" required></textarea>
+                </div>
+            </div>
+        </div>
+
+        <h4>Patient Selection Criteria</h4>
+        <div>
+            <p>Click 'Add Criteria' to specify eligibility for the study. Clicking multiple times will introduce multiple eligibility criteria e.g. CRITERIA A OR CRITERIA B OR CRITERIA C.</p>
+            <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add Criteria</a>
+            <hr/>
             <div id="criteria" data-ng-repeat="criteria in newResearchStudy.criteria">
-                <hr/>
+                <h5>Now Entering: Eligibility Criteria</h5>
+                <p>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to
+                    appear under their PatientView Research menu.</p>
 
                 <div class="row inline-row">
                     <div class="col-md-2">
@@ -60,7 +106,7 @@
                                 <div class="pull-left">
                                     <!--<span class="inline-span"> From &nbsp;</span>-->
                                     <input type="text" class="inline-span form-control" width="50px"
-                                   data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3" placeholder="From">
+                                           data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3" placeholder="From">
                                 </div>
                                 <div class="pull-left pl">
                                     <!--<span class="inline-span"> To </span>-->
@@ -116,62 +162,15 @@
                         </div>
                     </div>
                 </div>
-
+                <hr/>
             </div>
 
         </div>
-
-        <h4>Details of who to Contact</h4>
-
-        <div class="row">
-            <div class="form-horizontal" role="form">
-                <div class="col-md-12">
-                    <label for="research-contact-name" class="control-label">Contact Name <span class="error"
-                                                                                                data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name"
-                                name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required
-                                maxlength="100"></div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-horizontal" role="form">
-                <div class="col-md-12">
-                    <label for="research-contact-email" class="control-label">Contact Email <span class="error"
-                                                                                                  data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email"
-                                name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required
-                                maxlength="100"></div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-horizontal" role="form">
-                <div class="col-md-12">
-                    <label for="research-contact-phone" class="control-label">Contact Phone Number <span class="error"
-                                                                                                         data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone"
-                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone" required
-                                maxlength="100"></div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-horizontal" role="form">
-                <div class="col-md-12">
-                    <label for="research-contact-address" class="control-label">Contact Address <span class="error"
-                                                                                                      data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
-                    <textarea class="form-control article-content" id="research-contact-address"
-                              placeholder="Physical Address" name="contactAddress"
-                              data-ng-model="newResearchStudy.contactAddress" required></textarea>
-                </div>
-            </div>
-        </div>
-
-
+        <h4>From/To Dates</h4>
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
-                <label class="control-label"> Available From: &nbsp;
+                <p>These drive the time period during which the research study information should be displayed to patients assuming that they meet the relevant criteria.</p>
+                <label class="control-label">'From' date &nbsp;
                     <span class="error"
                           data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </label>
@@ -201,7 +200,7 @@
 
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
-                <label class="control-label"> Available To: &nbsp;
+                <label class="control-label">'To' date &nbsp;
                     <span class="error"
                           data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </label>
