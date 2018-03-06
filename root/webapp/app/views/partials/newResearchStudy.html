@@ -1,3 +1,9 @@
+<style>
+    .research-study-age {
+        width: 60px;
+    }
+</style>
+
 <div class="content-panel research-study" div data-ng-show="!loading">
     <div class="content-inner">
         <h4>Research Study Specification</h4>
@@ -105,13 +111,13 @@
                             <div class="col-md-12 content-box">
                                 <div class="pull-left">
                                     <!--<span class="inline-span"> From &nbsp;</span>-->
-                                    <input type="text" class="inline-span form-control" width="50px"
-                                           data-ng-model="criteria.researchStudyCriterias.fromAge" required maxlength="3" placeholder="From">
+                                    <input type="text" class="form-control" style="width:60px;"
+                                           data-ng-model="criteria.researchStudyCriterias.fromAge" maxlength="2" placeholder="From" ng-pattern="onlyNumbers">
                                 </div>
                                 <div class="pull-left pl">
                                     <!--<span class="inline-span"> To </span>-->
-                                    <input type="text" class="form-control" width="50px"
-                                           data-ng-model="criteria.researchStudyCriterias.toAge" required maxlength="3" placeholder="To">
+                                    <input type="text" class="form-control" style="width:60px;"
+                                           data-ng-model="criteria.researchStudyCriterias.toAge"  maxlength="2" placeholder="To" ng-pattern="onlyNumbers">
                                 </div>
                             </div>
                         </div>
@@ -132,6 +138,16 @@
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
+                        <span class="inline-span"> Diagnosis: &nbsp;</span>
+                        <div class="selectize-diagnosis">
+                            <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
+                                    class="selectized-diagnosis"
+                                    placeholder="Type a diagnosis"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-12">
                         <span class="inline-span"> Treatment: &nbsp;</span>
 
                         <div class="selectize-treatment">
@@ -143,17 +159,7 @@
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
-                        <span class="inline-span"> Diagnosis: &nbsp;</span>
-                        <div class="selectize-diagnosis">
-                            <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
-                                    class="selectized-diagnosis"
-                                    placeholder="Type a diagnosis"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row inline-row">
-                    <div class="col-md-12">
-                        <span class="inline-span"> PV Group: &nbsp;</span>
+                        <span class="inline-span"> PatientView Group: &nbsp;</span>
                         <div class="selectize-pv-group">
                             <select class="selectized-pv-group"
                                     data-ng-model="criteria.researchStudyCriterias.groupIds"
@@ -163,7 +169,9 @@
                     </div>
                 </div>
                 <div class="row inline-row">
-                    <a href="" data-ng-click="removeCriteriaCluster($index)" class="btn negative">Remove This Criteria</a>
+                    <div class="col-md-2">
+                        <a href="" data-ng-click="removeCriteriaCluster($index)" class="btn negative">Remove This Criteria</a>
+                    </div>
                 </div>
                 <hr/>
             </div>
@@ -178,19 +186,19 @@
                           data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </label>
                 <div class="">
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day" required>
                         <option value="" selected disabled hidden>DD</option>
                         <option ng-repeat="day in days" value="{{day}}"
                                 ng-selected="newResearchStudy.availableFrom.day == day">{{day}}
                         </option>
                     </select>
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month" required>
                         <option value="" selected disabled hidden>MM</option>
                         <option ng-repeat="month in months" value="{{month}}"
                                 ng-selected="newResearchStudy.availableFrom.month == month">{{month}}
                         </option>
                     </select>
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year" required>
                         <option value="" selected disabled hidden>YYYY</option>
                         <option ng-repeat="year in years" value="{{year}}"
                                 ng-selected="newResearchStudy.availableFrom.year == year">{{year}}
@@ -208,19 +216,19 @@
                           data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
                 </label>
                 <div>
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day" required>
                         <option value="" selected disabled hidden>DD</option>
                         <option ng-repeat="day in days" value="{{day}}"
                                 ng-selected="newResearchStudy.availableTo.day == day">{{day}}
                         </option>
                     </select>
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month" required>
                         <option value="" selected disabled hidden>MM</option>
                         <option ng-repeat="month in months" value="{{month}}"
                                 ng-selected="newResearchStudy.availableTo.month == month">{{month}}
                         </option>
                     </select>
-                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year" required>
                         <option value="" selected disabled hidden>YYYY</option>
                         <option ng-repeat="year in years" value="{{year}}"
                                 ng-selected="newResearchStudy.availableTo.year == year">{{year}}

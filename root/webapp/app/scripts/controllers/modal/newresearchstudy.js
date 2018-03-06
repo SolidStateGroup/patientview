@@ -7,7 +7,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
         $scope.modalLoading = true;
         $scope.loading = true;
 
-
+        $scope.onlyNumbers = /^\d+$/;
         $scope.diagnosisCodes = [];
         $scope.treatmentCode = [];
 
@@ -39,13 +39,13 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                 $scope.newResearchStudy.availableFrom.day =
                     ('0' + new Date(availableFrom).getDate().toString()).slice(-2);
                 $scope.newResearchStudy.availableFrom.month =
-                    ('0' + new Date(availableFrom).getMonth().toString()).slice(-2);
+                    ('0' + (new Date(availableFrom).getMonth() + 1).toString()).slice(-2);
                 $scope.newResearchStudy.availableFrom.year = (new Date(availableFrom).getFullYear()).toString();
 
                 $scope.newResearchStudy.availableTo.day =
                     ('0' + new Date(availableTo).getDate().toString()).slice(-2);
                 $scope.newResearchStudy.availableTo.month =
-                    ('0' + new Date(availableTo).getMonth().toString()).slice(-2);
+                    ('0' + (new Date(availableTo).getMonth() + 1).toString()).slice(-2);
                 $scope.newResearchStudy.availableTo.year = new Date(availableTo).getFullYear().toString();
 
                 selectize($scope.newResearchStudy.criteria);

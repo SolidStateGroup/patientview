@@ -84,8 +84,14 @@ angular.module('patientviewApp').controller('SiteAdminCtrl', ['$scope', '$modal'
                     }
                 }
             });
-
-            $scope.getPagedResearchStudies();
+            
+            modalInstance.result.then(function () {
+                $scope.loading = true;
+                $scope.getPagedResearchStudies();
+            }, function () {
+                // cancel
+                $scope.newResearchStudy = '';
+            });
         };
 
 
