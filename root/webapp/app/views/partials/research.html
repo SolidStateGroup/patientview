@@ -45,10 +45,10 @@
                             <!--<strong data-ng-if="news.lastUpdate">{{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}</strong>
                             <strong data-ng-if="!news.lastUpdate">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong>-->
                             Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}
-                            <span data-ng-if="researchStudy.creator"> by {{researchStudy.creator.forename}}
+                            <span data-ng-if="researchStudy.creator" data-ng-show="permissions.canAddStudies"> by {{researchStudy.creator.forename}}
                                 {{researchStudy.creator.surname}}</span><span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
-                                updated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
-                                <span data-ng-if="researchStudy.lastUpdater">
+                                UOpdated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+                                <span data-ng-if="researchStudy.lastUpdater" data-ng-show="permissions.canAddStudies">
                                     by {{researchStudy.lastUpdater.forename}} {{researchStudy.lastUpdater.surname}}
                                 </span>
                             </span>
