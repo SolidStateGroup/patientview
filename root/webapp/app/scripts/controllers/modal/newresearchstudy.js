@@ -23,11 +23,12 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
         $scope.groups = $scope.loggedInUser.userInformation.userGroups;
         // add GLOBAL_ADMIN role (no group) to all news by default
         newsLink.role = $scope.permissions.globalAdminRole;
-        $scope.modalLoading = false;
-        $scope.loading = false;
 
 
         if (researchStudy && researchStudy.id) {
+            $scope.modalTypeTitle = "Edit";
+            $scope.cancelModalTypeTitle = "editing";
+
             ResearchService.get(researchStudy.id).then(function (savedStudy) {
                 $scope.newResearchStudy = savedStudy;
                 var availableFrom = $scope.newResearchStudy.availableFrom;
@@ -49,23 +50,59 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                 $scope.newResearchStudy.availableTo.year = new Date(availableTo).getFullYear().toString();
 
                 selectize($scope.newResearchStudy.criteria);
+                $scope.modalLoading = false;
+                $scope.loading = false;
             });
         } else {
+            $scope.modalTypeTitle = "Create";
+            $scope.cancelModalTypeTitle = "creating";
+
             $scope.newResearchStudy = {
-                availableFrom : {
-                day : null,
-                month : null,
-                year: null
-            }};
+                availableFrom: {
+                    day: null,
+                    month: null,
+                    year: null
+                }
+            };
 
             $scope.newResearchStudy.availableFrom.day =
                 ('0' + (new Date().getDate()).toString()).slice(-2);
             $scope.newResearchStudy.availableFrom.month =
                 ('0' + (new Date().getMonth() + 1).toString()).slice(-2);
             $scope.newResearchStudy.availableFrom.year = (new Date().getFullYear()).toString();
+            $scope.modalLoading = false;
+            $scope.loading = false;
         }
 
         $scope.ok = function () {
+
+            //Check that the available to date is after the from date
+            var availableFrom = new Date($scope.newResearchStudy.availableFrom.year, $scope.newResearchStudy.availableFrom.month - 1, $scope.newResearchStudy.availableFrom.day);
+            var availableTo = new Date($scope.newResearchStudy.availableTo.year, $scope.newResearchStudy.availableTo.month - 1, $scope.newResearchStudy.availableTo.day);
+
+            if (availableTo.getTime() < availableFrom.getTime()) {
+                $scope.availableDateError = "The  'To' date should be on or after the  'From' date";
+            }
+
+            //If there are no criteria, show the error
+            if ($scope.newResearchStudy.criteria == null || $scope.newResearchStudy.criteria.length == 0) {
+                $scope.criteriaError = true;
+            }
+            //If there is a critera, check that there is content there
+            if ($scope.newResearchStudy.criteria != null && $scope.newResearchStudy.criteria.length != 0 &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.diagnosisIds.length == 0 &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.treatmentIds.length == 0 &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.groupIds.length == 0 &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.fromAge == null &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.toAge == null &&
+                $scope.newResearchStudy.criteria[0].researchStudyCriterias.gender == null) {
+                $scope.criteriaError = true;
+            }
+
+            //If we have an error, stop!
+            if ($scope.criteriaError || $scope.availableDateError) {
+                return;
+            }
 
             $scope.newResearchStudy.creator = {};
             $scope.newResearchStudy.creator.id = $scope.loggedInUser.id;
@@ -91,23 +128,24 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
             if ($scope.newResearchStudy.criteria == undefined) {
                 $scope.newResearchStudy.criteria = [];
             }
+            $scope.criteriaError = false;
+
             $scope.newResearchStudy.criteria.push({
                 researchStudyCriterias: {
                     diagnosisIds: [],
                     treatmentIds: [],
-                    groupIds: []
+                    groupIds: [],
+                    fromAge: 18,
+                    toAge: 99,
+                    gender: 'Any'
                 }
             });
-            setTimeout(function(){
-                selectize($scope.newResearchStudy.criteria);
-            }, 500);
+            selectize($scope.newResearchStudy.criteria);
         };
 
         $scope.removeCriteriaCluster = function (index) {
             delete $scope.newResearchStudy.criteria.splice(index, 1);
         };
-
-        
 
 
         var selectize = function (model) {
@@ -271,6 +309,10 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                                 return m.id
                             });
                             treatmentSelectors[index].selectize.addItems(modelIds);
+                        }
+
+                        if (criteria.researchStudyCriterias.gender == null) {
+                            criteria.researchStudyCriterias.gender = 'Any';
                         }
                     });
                 }

@@ -1,4 +1,3 @@
-
 <div data-ng-show="!loading">
         <button class="btn blue" data-ng-click="openModalNewResearchStudy('lg')" data-ng-show="permissions.canAddStudies">Create New</button>
     <p data-ng-show="permissions.canAddStudies"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
@@ -8,7 +7,7 @@
     <!-- new news modal template -->
     <script type="text/ng-template" id="newResearchStudy.html">
         <div class="modal-header">
-            <h3 class="modal-title">Create Research Study</h3>
+            <h3 class="modal-title">{{modalTypeTitle}} Research Study</h3>
         </div>
         <div class="modal-body">
             <form name="newsFormNew" data-ng-model="newNews">
@@ -17,7 +16,7 @@
         </div>
         <div class="modal-footer">
             <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
-            <button class="btn btn-grey" data-ng-confirm-click="Are you sure you want to cancel creating this research study?"  data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-grey" data-ng-confirm-click="Are you sure you want to cancel {{cancelModalTypeTitle}} this research study?"  data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="ok()"
                     data-ng-disabled="!newsFormNew.$valid">Save Research Study
             </button>
@@ -47,7 +46,7 @@
                             Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}
                             <span data-ng-if="researchStudy.creator" data-ng-show="permissions.canAddStudies"> by {{researchStudy.creator.forename}}
                                 {{researchStudy.creator.surname}}</span><span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
-                                UOpdated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+                                Updated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
                                 <span data-ng-if="researchStudy.lastUpdater" data-ng-show="permissions.canAddStudies">
                                     by {{researchStudy.lastUpdater.forename}} {{researchStudy.lastUpdater.surname}}
                                 </span>

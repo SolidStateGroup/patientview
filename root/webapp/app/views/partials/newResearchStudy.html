@@ -1,9 +1,3 @@
-<style>
-    .research-study-age {
-        width: 60px;
-    }
-</style>
-
 <div class="content-panel research-study" div data-ng-show="!loading">
     <div class="content-inner">
         <h4>Research Study Specification</h4>
@@ -33,7 +27,7 @@
         <div class="row">
             <div class="form-horizontal" role="form">
                 <div class="col-md-12">
-                    <label class="control-label">Preview of Descrption</label>
+                    <label class="control-label">Preview of Description</label>
                     <div class="message-summary message-preview">
                         <h2 class="message-title">
                             {{newResearchStudy.title}}
@@ -98,6 +92,8 @@
         <div>
             <p>Click 'Add Criteria' to specify eligibility for the study. Clicking multiple times will introduce multiple eligibility criteria e.g. CRITERIA A OR CRITERIA B OR CRITERIA C.</p>
             <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add Criteria</a>
+            <span class="error"
+                  data-ng-show="criteriaError">Please enter at least one set of criteria before saving</span>
             <hr/>
             <div id="criteria" data-ng-repeat="criteria in newResearchStudy.criteria">
                 <h5>Now Entering: Eligibility Criteria</h5>
@@ -159,7 +155,7 @@
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
-                        <span class="inline-span"> PatientView Group: &nbsp;</span>
+                        <span> PatientView Group: &nbsp;</span>
                         <div class="selectize-pv-group">
                             <select class="selectized-pv-group"
                                     data-ng-model="criteria.researchStudyCriterias.groupIds"
@@ -180,6 +176,8 @@
         <h4>From/To Dates</h4>
         <div class="row inline-row enter-results-row">
             <div class="col-md-12">
+                 <span class="error"
+                       data-ng-show="availableDateError">{{availableDateError}}</span>
                 <p>These drive the time period during which the research study information should be displayed to patients assuming that they meet the relevant criteria.</p>
                 <label class="control-label">'From' date &nbsp;
                     <span class="error"
@@ -243,6 +241,6 @@
 
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">
-        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Research Studies</h3>
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Research Study</h3>
     </div>
 </div>

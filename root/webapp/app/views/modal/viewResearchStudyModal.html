@@ -5,9 +5,9 @@
 </div>
 <div class="modal-body">
     <h5>
-        Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}}
-        <span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">,
-        Updated {{news.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
+        Created {{researchStudy.createdDate | date:'dd-MMM-yyyy HH:mm'}},
+        <span data-ng-if="researchStudy.lastUpdate && researchStudy.lastUpdate !== researchStudy.createdDate">
+        Updated {{researchStudy.lastUpdate | date:'dd-MMM-yyyy HH:mm'}}
         </span>
 
     </h5>
@@ -27,4 +27,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+    <button class="btn btn-blue" data-ng-click="print()">Print</button>
 </div>
