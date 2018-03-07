@@ -115,6 +115,7 @@ angular.module('patientviewApp').controller('SiteAdminCtrl', ['$scope', '$modal'
             $scope.errorMessage = '';
             $scope.editMode = false;
             $scope.currentStudy = study;
+            
             var modalInstance = $modal.open({
                 templateUrl: 'newResearchStudy.html',
                 controller: NewResearchStudyModalInstanceCtrl,

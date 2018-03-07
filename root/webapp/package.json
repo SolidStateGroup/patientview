@@ -48,6 +48,6 @@
   "scripts": {
     "test": "grunt test",
     "start": "bower install && grunt servelocal --port 8080",
-    "startLocal": "bower install && grunt serveApi"
+    "startLocal": "bower install && grunt serveapi"
   }
 }
