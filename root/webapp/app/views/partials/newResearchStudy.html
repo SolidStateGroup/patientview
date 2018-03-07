@@ -138,6 +138,7 @@
                         <div class="selectize-diagnosis">
                             <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
                                     class="selectized-diagnosis"
+                                    id="selectized-diagnosis-{{$index}}"
                                     placeholder="Type a diagnosis"></select>
                         </div>
                     </div>
@@ -149,6 +150,7 @@
                         <div class="selectize-treatment">
                             <select data-ng-model="criteria.researchStudyCriterias.treatmentIds"
                                     class="selectized-treatment"
+                                    id="selectized-treatment-{{$index}}"
                                     placeholder="Type a treatment"></select>
                         </div>
                     </div>
@@ -159,6 +161,7 @@
                         <div class="selectize-pv-group">
                             <select class="selectized-pv-group"
                                     data-ng-model="criteria.researchStudyCriterias.groupIds"
+                                    id="selectized-pv-group-{{$index}}"
                                     placeholder="Type a PatientView Group">
                             </select>
                         </div>
