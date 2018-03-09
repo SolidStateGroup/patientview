@@ -97,6 +97,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 if (criteria.getResearchStudyCriterias().getGender().equals("Any")) {
                     criteria.getResearchStudyCriterias().setGender(null);
                 }
+
                 criteria.setCreator(currentUser);
                 researchStudyCriteriaRepository.save(criteria);
             }
@@ -267,7 +268,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             query += "(CAST(rc.criteria->>'toAge' AS INT) >= " + age + " OR (CAST(rc.criteria ->> 'toAge' AS TEXT) IS NULL)) AND \n" +
                     "(CAST(rc.criteria->>'fromAge' AS INT) <= " + age + " OR (CAST(rc.criteria ->> 'fromAge' AS TEXT) IS NULL)) \n " +
 
-                    "AND (((rc.criteria ->> 'groupIds') IS NULL) OR " +
+                    "AND (((rc.criteria ->> 'groupIds') = '[]') OR " +
                     "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'groupIds' AS jsonb) AS text), '[]','{}') AS INT[])) && '{" + StringUtils.join(groups, ",") + "}')) \n" +
 
                     "AND (((rc.criteria ->> 'treatmentIds') IS NULL) OR " +
