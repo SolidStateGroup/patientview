@@ -529,6 +529,10 @@ textarea.form-control{
     height: 40px;
 }
 
+.selectize-control.loading{
+    text-align: left!important;
+}
+
 .selectize-control.multi .selectize-input{
     > div{
         background:#00adc6;

@@ -2707,19 +2707,24 @@ textarea.form-control.article-content {
   height: 40px;
 }
 
-/* line 533, ../sass/_forms.scss */
+/* line 532, ../sass/_forms.scss */
+.selectize-control.loading {
+  text-align: left !important;
+}
+
+/* line 537, ../sass/_forms.scss */
 .selectize-control.multi .selectize-input > div {
   background: #00adc6;
   border-radius: 4px;
   color: white;
 }
 
-/* line 539, ../sass/_forms.scss */
+/* line 543, ../sass/_forms.scss */
 .selectize-dropdown, .selectize-input, .selectize-input input {
   font-size: inherit;
 }
 
-/* line 543, ../sass/_forms.scss */
+/* line 547, ../sass/_forms.scss */
 input.ng-invalid, textarea.ng-invalid {
   border-color: red;
 }
