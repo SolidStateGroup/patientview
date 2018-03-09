@@ -92,6 +92,12 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                     } else {
                         $scope.availableDateError = "";
                     }
+                }else{
+                    if (availableTo.getTime() < availableFrom.getTime()) {
+                        $scope.availableDateError = "The 'To' date should be on or after the 'From' date";
+                    } else {
+                        $scope.availableDateError = "";
+                    }
                 }
 
                 //If there are no criteria, show the error
