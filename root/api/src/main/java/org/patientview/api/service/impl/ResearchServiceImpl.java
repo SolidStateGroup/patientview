@@ -27,6 +27,8 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
 import org.patientview.persistence.repository.ResearchStudyRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +55,7 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
 @Service
 public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl> implements ResearchService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ResearchServiceImpl.class);
 
     @Inject
     private EntityManager entityManager;
@@ -278,6 +281,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
             List<ResearchStudy> studies;
             query = query.replaceAll(":", "\\\\:");
+            LOG.info(query);
+
             studies = entityManager.createNativeQuery(query, ResearchStudy.class).getResultList();
             Collections.reverse(studies);
 
