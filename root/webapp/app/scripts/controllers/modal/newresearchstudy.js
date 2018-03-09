@@ -79,16 +79,19 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                 //Check that the available to date is after the from date
                 var availableFrom = new Date($scope.newResearchStudy.availableFrom.year, $scope.newResearchStudy.availableFrom.month - 1, $scope.newResearchStudy.availableFrom.day);
                 var availableTo = new Date($scope.newResearchStudy.availableTo.year, $scope.newResearchStudy.availableTo.month - 1, $scope.newResearchStudy.availableTo.day);
+                var today = new Date();
+                today.setHours(0,0,0,0);
 
-                if (availableTo.getTime() < availableFrom.getTime()) {
-                    $scope.availableDateError = "The 'To' date should be on or after the 'From' date";
-                }
-                if (availableTo.getTime() < new Date().getTime()) {
-                    $scope.availableDateError = "The  'To' date should be today or later.";
-                }
-
-                if (availableFrom.getTime() < new Date().getTime()) {
-                    $scope.availableDateError = "The  'From' date should be today or later.";
+                if (!$scope.newResearchStudy.id) {
+                    if (availableTo.getTime() < availableFrom.getTime()) {
+                        $scope.availableDateError = "The 'To' date should be on or after the 'From' date";
+                    } else if (availableTo.getTime() < today.getTime()) {
+                        $scope.availableDateError = "The  'To' date should be today or later.";
+                    } else if (availableFrom.getTime() < today.getTime()) {
+                        $scope.availableDateError = "The  'From' date should be today or later.";
+                    } else {
+                        $scope.availableDateError = "";
+                    }
                 }
 
                 //If there are no criteria, show the error
@@ -97,9 +100,9 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                 }
                 //If there is a critera, check that there is content there
                 if ($scope.newResearchStudy.criteria != null && $scope.newResearchStudy.criteria.length != 0 &&
-                    $scope.newResearchStudy.criteria[0].researchStudyCriterias.diagnosisIds.length == 0 &&
-                    $scope.newResearchStudy.criteria[0].researchStudyCriterias.treatmentIds.length == 0 &&
-                    $scope.newResearchStudy.criteria[0].researchStudyCriterias.groupIds.length == 0 &&
+                    ($scope.newResearchStudy.criteria[0].researchStudyCriterias.diagnosisIds == null || $scope.newResearchStudy.criteria[0].researchStudyCriterias.diagnosisIds.length == 0) &&
+                    ($scope.newResearchStudy.criteria[0].researchStudyCriterias.treatmentIds == null || $scope.newResearchStudy.criteria[0].researchStudyCriterias.treatmentIds.length == 0) &&
+                    ($scope.newResearchStudy.criteria[0].researchStudyCriterias.groupIds == null || $scope.newResearchStudy.criteria[0].researchStudyCriterias.groupIds.length == 0) &&
                     $scope.newResearchStudy.criteria[0].researchStudyCriterias.fromAge == null &&
                     $scope.newResearchStudy.criteria[0].researchStudyCriterias.toAge == null &&
                     $scope.newResearchStudy.criteria[0].researchStudyCriterias.gender == null) {
@@ -314,10 +317,7 @@ var NewResearchStudyModalInstanceCtrl = ['$scope', '$timeout', '$rootScope', '$m
                         });
                     }
                     $scope.loading = false;
-                })
-                ;
+                }) ;
             }
         }
-    ]
-    ;
-
+    ];
