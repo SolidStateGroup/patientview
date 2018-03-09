@@ -1,8 +1,8 @@
 <div data-ng-show="!loading">
-        <button class="btn blue" data-ng-click="openModalNewResearchStudy('lg')" data-ng-show="permissions.canAddStudies">Create New</button>
-    <p data-ng-show="permissions.canAddStudies"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
-                                                   target="_blank">Guidance on creating research studies.</a></p>
-
+        <p data-ng-show="permissions.canAddStudies">This section is used to create and manage research studies that are then displayed under the patient Research menu, allowing the patient to join as a volunteer.<br>
+            Only relevant studies ought to be displayed to patients, thus when creating a new study be careful to add the correct study criteria (on any combination of age group/ gender/ group membership/ diagnosis/ treatment).</p>
+    <p data-ng-show="!permissions.canAddStudies"> This section displays the known research studies that you may be able to participate in.</p>
+    <button class="btn blue" data-ng-click="openModalNewResearchStudy('lg')" data-ng-show="permissions.canAddStudies">Create New</button>
 
     <!-- new news modal template -->
     <script type="text/ng-template" id="newResearchStudy.html">
