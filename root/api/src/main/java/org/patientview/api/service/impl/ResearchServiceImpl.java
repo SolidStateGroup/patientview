@@ -231,6 +231,19 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             }
         }
 
+        //Due to different formats, ensure we have the right matching criteria
+        if (gender != null) {
+            switch (gender) {
+                case "M":
+                    gender = "Male";
+                    break;
+                case "F":
+                    gender = "Female";
+                    break;
+            }
+        }
+
+
         if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN) ||
                 ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN) ||
                 ApiUtil.currentUserHasRole(RoleName.GP_ADMIN) ||
