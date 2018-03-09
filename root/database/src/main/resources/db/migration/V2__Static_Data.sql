@@ -370,7 +370,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (33, 5, 220,  '/resultsedit', 'views/resultsedit.html','ResultsEditCtrl', 'Edit Own Results', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (34, 4, 16,  '/research', 'views/research.html','ResearchCtrl', 'Research Studies', now(), 1);
+  (34, 4, 80,  '/research', 'views/research.html','ResearchCtrl', 'Research Studies', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (35, 5, 160,  '/siteadmin', 'views/siteadmin.html','AdminCtrl', 'Site Administration', now(), 1 );
 
