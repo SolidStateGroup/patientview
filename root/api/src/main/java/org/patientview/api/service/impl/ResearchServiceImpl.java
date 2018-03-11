@@ -9,6 +9,7 @@ import org.patientview.api.model.Patient;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.LookupService;
 import org.patientview.api.service.ResearchService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -22,7 +23,9 @@ import org.patientview.persistence.model.ResearchStudy;
 import org.patientview.persistence.model.ResearchStudyCriteria;
 import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
 import org.patientview.persistence.repository.ResearchStudyRepository;
@@ -65,6 +68,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
     @Inject
     private CodeService codeService;
+
+    @Inject
+    private LookupService lookupService;
 
     @Inject
     private GroupService groupService;
@@ -232,8 +238,12 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 LOG.info(String.format("Encounter %d Code %s identifier %s status %s",
                         encounter.getId(), encounter.getEncounterType(),
                         encounter.getIdentifier(), encounter.getStatus()));
-                if (encounter.getEncounterType().equals(EncounterTypes.TREATMENT)) {
-                    treatmentCodes.add(encounter.getId());
+
+                List<Code> codes = codeService.findAllByCodeAndType(encounter.getStatus(),
+                        lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
+
+                if (!codes.isEmpty()) {
+                    treatmentCodes.add(codes.get(0).getId());
                 }
             }
 
