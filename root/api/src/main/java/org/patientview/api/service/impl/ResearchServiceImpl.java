@@ -191,14 +191,15 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     }
 
     @Override
-    public Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+    public Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable)
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         User user = userRepository.findOne(userId);
         // get role, group and grouprole specific news (directly accessed through newsLink)
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Set<ResearchStudy> researchStudySet = new HashSet<>();
 
         //Get the user
-        List<Patient> patients = apiPatientService.get(user.getId(), null);
+        List<Patient> patients = apiPatientService.getPatientResearchStudyCriteria(user.getId());
 
         //Create the criteria that they will match
         Date date = user.getDateOfBirth();
@@ -225,6 +226,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             for (Code diagnosis : patient.getDiagnosisCodes()) {
                 diagnosisCodes.add(diagnosis.getId());
             }
+
+
             for (FhirEncounter encounter : patient.getFhirEncounters()) {
                 LOG.info(String.format("Encounter %d Code %s identifier %s status %s",
                         encounter.getId(), encounter.getEncounterType(),
@@ -233,6 +236,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                     treatmentCodes.add(encounter.getId());
                 }
             }
+
             if (gender == null) {
                 gender = patient.getFhirPatient().getGender();
             }

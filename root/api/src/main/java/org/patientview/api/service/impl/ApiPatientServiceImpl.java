@@ -276,15 +276,68 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                     org.patientview.api.model.Patient patient
                             = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
 
-                    // set practitioners
-                    patient = setPractitioners(patient, fhirPatient);
-
                     // set conditions
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
                     // set encounters (treatment)
                     patient = setEncounters(
                             patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
+
+                    patients.add(patient);
+                }
+            }
+        }
+
+        return patients;
+    }
+
+
+    @Override
+    public List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId) throws ResourceNotFoundException, FhirResourceException {
+        // check User exists
+        User user = userService.get(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<org.patientview.api.model.Patient> patients = new ArrayList<>();
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.addAll(user.getFhirLinks());
+
+        // sort fhirLinks by id
+        Collections.sort(fhirLinks, new Comparator<FhirLink>() {
+            public int compare(FhirLink f1, FhirLink f2) {
+                return f2.getCreated().compareTo(f1.getCreated());
+            }
+        });
+
+        // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getActive() && !ApiUtil.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
+                Patient fhirPatient = get(fhirLink.getResourceId());
+
+                if (fhirPatient != null) {
+                    // create basic patient with group
+                    org.patientview.api.model.Patient patient
+                            = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
+
+                    // set practitioners
+                    patient = setPractitioners(patient, fhirPatient);
+
+                    // set edta diagnosis if present based on available codes in conditions
+                    patient = setDiagnosisCodes(patient);
+
+                    // set conditions
+                    patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
+
+                    // set encounters (treatment)
+                    List<Encounter> encounters = encounterService.get(fhirLink.getResourceId());
+
+                    // replace fhirEncounter type field with a more useful description if it exists in codes
+                    for (Encounter encounter : encounters) {
+                        FhirEncounter fhirEncounter = new FhirEncounter(encounter);
+                        patient.getFhirEncounters().add(fhirEncounter);
+                    }
 
                     patients.add(patient);
                 }
