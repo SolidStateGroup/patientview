@@ -226,8 +226,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 diagnosisCodes.add(diagnosis.getId());
             }
             for (FhirEncounter encounter : patient.getFhirEncounters()) {
-                LOG.info(String.format("Encounter %d Code %s identifier %s",
-                        encounter.getId(), encounter.getEncounterType(), encounter.getIdentifier()));
+                LOG.info(String.format("Encounter %d Code %s identifier %s status %s",
+                        encounter.getId(), encounter.getEncounterType(),
+                        encounter.getIdentifier(), encounter.getStatus()));
                 if (encounter.getEncounterType().equals(EncounterTypes.TREATMENT)) {
                     treatmentCodes.add(encounter.getId());
                 }
