@@ -16,6 +16,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -235,6 +236,16 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 diagnosisCodes.add(diagnosis.getId());
             }
 
+            for (FhirCondition conditions : patient.getFhirConditions()) {
+                LOG.info(String.format("Conditions %s %s", conditions.getCode(), conditions.getDescription()));
+
+                List<Code> codes = codeService.findAllByCodeAndType(conditions.getCode(),
+                        lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+
+                if (!codes.isEmpty()) {
+                    diagnosisCodes.add(codes.get(0).getId());
+                }
+            }
 
             for (FhirEncounter encounter : patient.getFhirEncounters()) {
                 LOG.info(String.format("Encounter %d Code %s identifier %s status %s",
