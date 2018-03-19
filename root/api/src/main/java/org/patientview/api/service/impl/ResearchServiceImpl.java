@@ -230,6 +230,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
         for (Patient patient : patients) {
             for (Code diagnosis : patient.getDiagnosisCodes()) {
+                LOG.info(String.format("Conditions %s %s", diagnosis.getCode(), diagnosis.getDescription()));
+
                 diagnosisCodes.add(diagnosis.getId());
             }
 
