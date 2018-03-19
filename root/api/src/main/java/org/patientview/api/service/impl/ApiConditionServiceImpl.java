@@ -290,7 +290,6 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
 
             for (Condition condition : conditions) {
                 FhirCondition fhirCondition = createFhirCondition(condition);
-                LOG.info("Temp log  user entered code - " + fhirCondition.getCode());
 
                 // get code and links if present
                 Code code = codeRepository.findOneByCode(fhirCondition.getCode());
