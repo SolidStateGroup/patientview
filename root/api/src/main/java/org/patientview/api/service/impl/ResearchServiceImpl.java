@@ -231,14 +231,10 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
         for (Patient patient : patients) {
             for (Code diagnosis : patient.getDiagnosisCodes()) {
-                LOG.info(String.format("Conditions %s %s", diagnosis.getCode(), diagnosis.getDescription()));
-
                 diagnosisCodes.add(diagnosis.getId());
             }
 
             for (FhirCondition conditions : patient.getFhirConditions()) {
-                LOG.info(String.format("Conditions %s %s", conditions.getCode(), conditions.getDescription()));
-
                 List<Code> codes = codeService.findAllByCodeAndType(conditions.getCode(),
                         lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
 
@@ -248,10 +244,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             }
 
             for (FhirEncounter encounter : patient.getFhirEncounters()) {
-                LOG.info(String.format("Encounter %d Code %s identifier %s status %s",
-                        encounter.getId(), encounter.getEncounterType(),
-                        encounter.getIdentifier(), encounter.getStatus()));
-
                 List<Code> codes = codeService.findAllByCodeAndType(encounter.getStatus(),
                         lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
 
