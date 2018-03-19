@@ -53,7 +53,7 @@ public interface ApiPatientService {
      * @throws FhirResourceException
      */
     List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId)
-            throws ResourceNotFoundException, FhirResourceException;
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.

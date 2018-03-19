@@ -126,7 +126,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
      * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
-     * @param userId ID of User to retrieve patient record for
+     *
+     * @param userId   ID of User to retrieve patient record for
      * @param groupIds IDs of Groups to retrieve patient records from
      * @return List of Patient objects containing patient encounters, conditions etc
      * @throws FhirResourceException
@@ -233,6 +234,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
     /**
      * Get a FHIR Patient record given the UUID associated with the Patient in FHIR.
+     *
      * @param uuid UUID of Patient in FHIR to retrieve
      * @return FHIR Patient
      * @throws FhirResourceException
@@ -293,7 +295,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
 
     @Override
-    public List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId) throws ResourceNotFoundException, FhirResourceException {
+    public List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
         // check User exists
         User user = userService.get(userId);
         if (user == null) {
@@ -326,6 +329,12 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
                     // set edta diagnosis if present based on available codes in conditions
                     patient = setDiagnosisCodes(patient);
+
+                    // set staff entered conditions
+                    patient = setStaffEnteredConditions(patient, user.getId());
+
+                    // set patient entered conditions
+                    patient = setPatientEnteredConditions(patient, user.getId());
 
                     // set conditions
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
@@ -523,6 +532,15 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         return patient;
     }
 
+    private org.patientview.api.model.Patient setPatientEnteredConditions(
+            org.patientview.api.model.Patient patient, Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        patient.getFhirConditions().addAll(
+                apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, false));
+        return patient;
+    }
+
+
     private org.patientview.api.model.Patient setStaffEnteredConditions(
             org.patientview.api.model.Patient patient, Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
@@ -548,7 +566,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     }
 
     private org.patientview.api.model.Patient setEncounters(org.patientview.api.model.Patient patient,
-                                List<Encounter> encounters, User user, Group group) throws FhirResourceException {
+                                                            List<Encounter> encounters, User user, Group group)
+            throws FhirResourceException {
 
         boolean hasTreatment = false;
         patient.setFhirEncounters(new ArrayList<FhirEncounter>());
@@ -606,7 +625,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     }
 
     private org.patientview.api.model.Patient setNonTestObservations(org.patientview.api.model.Patient patient,
-                                                            FhirLink fhirLink) {
+                                                                     FhirLink fhirLink) {
         try {
             List<String> nonTestTypes = new ArrayList<>();
             for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
