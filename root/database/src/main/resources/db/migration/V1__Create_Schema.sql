@@ -228,6 +228,38 @@ CREATE TABLE PV_User_Token
   PRIMARY KEY (Id)
 );
 
+
+-- CREATE TABLE "pv_my_media" ----------------------------------
+CREATE TABLE PV_My_Media (
+	media_type         VARCHAR( 10 ) NOT NULL,
+	local_path         VARCHAR( 2044 ),
+	file_description   VARCHAR( 200 ),
+	filename_ui        VARCHAR( 200 ),
+	path               VARCHAR( 2044 ),
+	height             INTEGER,
+	filesize           INTEGER,
+	width              INTEGER,
+	thumbnail          VARCHAR( 2044 ),
+	deleted            BOOLEAN DEFAULT false NOT NULL,
+	creation_date      TIMESTAMP NOT NULL,
+	created_by         BIGINT NOT NULL,
+	id                 BIGINT NOT NULL,
+	data               Bytea,
+	PRIMARY KEY ( "id" )
+	);
+
+
+CREATE TABLE PV_File_Data
+(
+  Id              BIGINT NOT NULL,
+  Name            TEXT NOT NULL,
+  Type            TEXT NOT NULL,
+  Size            BIGINT NOT NULL,
+  Content         BYTEA NOT NULL,
+  Creation_Date   TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_News_Item (
   Id               BIGINT    NOT NULL,
   Heading          VARCHAR(100),
