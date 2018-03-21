@@ -72,6 +72,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // public news
         publicUrls.add("/public/news");
 
+        // public reviews
+        publicUrls.add("/public/reviews");
+        publicUrls.add("/public/reviews/create");
+
         // patient join requests
         publicUrls.add("/public/group");
         publicUrls.add("/public/request");
