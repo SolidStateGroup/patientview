@@ -144,7 +144,7 @@
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>PatientView Mobile App</h3>
             </div>
-            <div class="content-panel">
+            <div class="content-panel mb">
                 <div class="content-inner clearfix">
                     <img class="pull-left app-image" src="http://placehold.it/120x200" alt="PatientView App"/>
                     <p>Access your PatientView records and messages even more swiftly, and gain access to selected mobile-only features.</p>
@@ -152,29 +152,48 @@
                     <a href=""><img class="app-store" src="../images/play-store.png" alt="Google Play store"/></a>
                 </div>
             </div>
-            <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><i class="icon-facebook pull-left"></i> <h3>Find us on Facebook</h3></a>
         </div>
 
         <div class="reviews">
             <div class="panel-header content-panel lowlight">
-                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>System reviews</h3>
+                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>Product reviews</h3>
             </div>
-            <div class="content-panel">
+            <div class="content-panel mb">
                 <div class="content-inner clearfix">
-                    <img class="pull-left app-image" src="http://placehold.it/120x200" alt="PatientView App"/>
-                    <p>Access your PatientView records and messages even more swiftly, and gain access to selected mobile-only features.</p>
-                    <a href=""><img class="app-store" src="../images/app-store.png" alt="Apple App store"/></a>
-                    <a href=""><img class="app-store" src="../images/play-store.png" alt="Google Play store"/></a>
+                    <ul class="list-unstyled">
+                        <li class="review">
+                            <ul class="list-inline list-unstyled rating pull-right">
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                            </ul>
+                            <h5>Bobby Testerman</h5>
+                            <p>Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.</p>
+                        </li>
+                        <li class="review">
+                            <ul class="list-inline list-unstyled rating pull-right">
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                                <li><i class="fa fa-star"></i></li>
+                            </ul>
+                            <h5>Bobby Testerman</h5>
+                            <p>Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.</p>
+                        </li>
+                    </ul>
                 </div>
+                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h5><i class="fa fa-thumbs-up"></i> See all facebook reviews</h5></a>
             </div>
-            <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><i class="icon-facebook pull-left"></i> <h3>Find us on Facebook</h3></a>
         </div>
 
-        <div class="news-container">
+        <div class="news-container" data-ng-show="newsItems">
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
-            <ul class="unstyled" data-ng-show="newsItems">
+            <ul class="unstyled">
                 <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: lastUpdate">
                     <div class="content-inner">
                         <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
@@ -190,13 +209,6 @@
                                 <button class="btn blue" data-ng-click="viewNewsItem(news)">Read more</button>
                             </div>
                         </div>
-                    </div>
-                </li>
-            </ul>
-            <ul class="unstyled" data-ng-hide="newsItems">
-                <li class="news-item content-panel">
-                    <div class="content-inner">
-                        <h4>No Current News</h4>
                     </div>
                 </li>
             </ul>
