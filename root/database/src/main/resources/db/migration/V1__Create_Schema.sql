@@ -251,6 +251,16 @@ CREATE TABLE PV_News_Link (
 );
 
 
+CREATE TABLE PV_Reviews (
+  Id            BIGINT    NOT NULL,
+  review_text   VARCHAR(1000),
+  reviewer_name VARCHAR(200),
+  source        VARCHAR(10),
+  rating        INT,
+  Creation_Date TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 -- CREATE TABLE "pv_research_study_criteria" -------------------
 CREATE TABLE pv_research_study_criteria (
 	"id" Bigint NOT NULL,

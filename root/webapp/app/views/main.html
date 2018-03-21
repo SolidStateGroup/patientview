@@ -160,28 +160,13 @@
             </div>
             <div class="content-panel mb">
                 <div class="content-inner clearfix">
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" data-ng-repeat="review in reviews | orderBy: createdDate">
                         <li class="review">
                             <ul class="list-inline list-unstyled rating pull-right">
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
+                                <li ng-repeat-n="review.rating"><i class="fa fa-star"></i>{{review.rating}}</li>
                             </ul>
-                            <h5>Bobby Testerman</h5>
-                            <p>Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.</p>
-                        </li>
-                        <li class="review">
-                            <ul class="list-inline list-unstyled rating pull-right">
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                            </ul>
-                            <h5>Bobby Testerman</h5>
-                            <p>Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.Here is a review and its really cool.</p>
+                            <h5>{{review.reviewerName}}</h5>
+                            <p>{{review.reviewText}}</p>
                         </li>
                     </ul>
                 </div>
