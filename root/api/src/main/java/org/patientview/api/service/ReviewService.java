@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -28,5 +29,5 @@ public interface ReviewService {
      * @throws IOException when an IOException happens
      * @throws ParseException when date cannot be parsed
      */
-    void pollForNewReviews() throws IOException, ParseException;
+    void pollForNewReviews() throws IOException, ParseException, GeneralSecurityException;
 }

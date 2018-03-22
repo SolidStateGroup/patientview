@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -54,7 +55,8 @@ public class ReviewsController extends BaseController<ReviewsController> {
     @RequestMapping(value = "/public/reviews/create", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Review>> createReviews()
-            throws ResourceNotFoundException, ResourceForbiddenException, IOException, ParseException {
+            throws ResourceNotFoundException, ResourceForbiddenException, IOException,
+            ParseException, GeneralSecurityException {
         reviewService.pollForNewReviews();
         return new ResponseEntity<>(reviewService.getReviewsToDisplay(), HttpStatus.OK);
     }

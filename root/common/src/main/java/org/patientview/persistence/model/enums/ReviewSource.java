@@ -4,7 +4,9 @@ package org.patientview.persistence.model.enums;
  * Review Source, for product reviews
  */
 public enum ReviewSource {
-    FACEBOOK("Facebook");
+    FACEBOOK("Facebook"),
+    IOS("ios"),
+    GOOGLE_PLAY("GooglePlay");
 
     private String name;
     ReviewSource(String name) { this.name = name; }

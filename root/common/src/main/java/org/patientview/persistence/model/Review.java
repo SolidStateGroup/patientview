@@ -52,6 +52,9 @@ public class Review extends BaseModel {
     @Column(name = "review_text")
     private String reviewText;
 
+    @Column(name = "external_id")
+    private String externalId;
+
     @Column(name = "reviewer_name")
     private String reviewerName;
 
