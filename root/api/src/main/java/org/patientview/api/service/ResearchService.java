@@ -5,14 +5,11 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ResearchStudy;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Research service, for the management and retrieval of Research Studies. Research are made visible to specific
@@ -28,7 +25,7 @@ public interface ResearchService {
      * @return Long ID of the newly added NewsItem
      * @throws ResourceNotFoundException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Long add(ResearchStudy researchStudy);
 
     /**
@@ -38,7 +35,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void delete(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -50,7 +47,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN})
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
@@ -61,7 +58,7 @@ public interface ResearchService {
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
     Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
 
 
