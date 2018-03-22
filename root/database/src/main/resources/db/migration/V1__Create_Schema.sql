@@ -256,6 +256,7 @@ CREATE TABLE PV_Reviews (
   review_text   VARCHAR(1000),
   reviewer_name VARCHAR(200),
   source        VARCHAR(10),
+  external_id   VARCHAR(50),
   rating        INT,
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
