@@ -10,7 +10,7 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-public class IOSReview1 extends BaseModel {
+public class IOSReview extends BaseModel {
 
     private Feed feed;
 
