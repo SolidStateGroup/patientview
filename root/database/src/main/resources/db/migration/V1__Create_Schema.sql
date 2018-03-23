@@ -255,8 +255,9 @@ CREATE TABLE PV_Reviews (
   Id            BIGINT    NOT NULL,
   review_text   VARCHAR(1000),
   reviewer_name VARCHAR(200),
-  source        VARCHAR(10),
+  review_source VARCHAR(255),
   external_id   VARCHAR(50),
+  excluded      BOOLEAN NOT NULL DEFAULT FALSE,
   rating        INT,
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)

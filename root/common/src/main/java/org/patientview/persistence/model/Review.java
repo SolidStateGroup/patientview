@@ -47,6 +47,8 @@ public class Review extends BaseModel {
         this.setReviewText(review.getReview_text().replaceAll("[^\\p{ASCII}]", " "));
         this.setReviewerName(review.getReviewer().getName().replaceAll("[^\\p{ASCII}]", " "));
         this.setRating(review.getRating());
+        this.setReviewSource(review.getReviewSource());
+        this.setExcluded(false);
     }
 
     @Column(name = "review_text")
@@ -61,11 +63,14 @@ public class Review extends BaseModel {
     @Column(name = "rating")
     private int rating;
 
+    @Column(name = "excluded")
+    private Boolean excluded;
+
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-    @Column(name = "source")
+    @Column(name = "review_source")
     @Enumerated(EnumType.STRING)
     private ReviewSource reviewSource;
 

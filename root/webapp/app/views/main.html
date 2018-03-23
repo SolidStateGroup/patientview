@@ -154,26 +154,6 @@
             </div>
         </div>
 
-        <div class="reviews">
-            <div class="panel-header content-panel lowlight">
-                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>Product reviews</h3>
-            </div>
-            <div class="content-panel mb">
-                <div class="content-inner clearfix">
-                    <ul class="list-unstyled" data-ng-repeat="review in reviews | orderBy: createdDate">
-                        <li class="review">
-                            <ul class="list-inline list-unstyled rating pull-right">
-                                <li ng-repeat-n="review.rating"><i class="fa fa-star"></i>{{review.rating}}</li>
-                            </ul>
-                            <h5>{{review.reviewerName}}</h5>
-                            <p>{{review.reviewText}}</p>
-                        </li>
-                    </ul>
-                </div>
-                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h5><i class="fa fa-thumbs-up"></i> See all facebook reviews</h5></a>
-            </div>
-        </div>
-
         <div class="news-container" data-ng-show="newsItems">
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
@@ -197,6 +177,26 @@
                     </div>
                 </li>
             </ul>
+        </div>
+
+        <div class="reviews">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>User reviews</h3>
+            </div>
+            <div class="content-panel mb">
+                <div class="content-inner clearfix">
+                    <ul class="list-unstyled" data-ng-repeat="review in reviews | orderBy: createdDate">
+                        <li class="review">
+                            <ul class="list-inline list-unstyled rating pull-right">
+                                <li ng-repeat-n="review.rating"><i class="fa fa-star"></i>{{review.rating}}</li>
+                            </ul>
+                            <h5>{{review.reviewerName}}</h5>
+                            <p>{{review.reviewText}}</p>
+                        </li>
+                    </ul>
+                </div>
+                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h5><i class="fa fa-thumbs-up"></i> See all facebook reviews</h5></a>
+            </div>
         </div>
     </aside>
 </div>
