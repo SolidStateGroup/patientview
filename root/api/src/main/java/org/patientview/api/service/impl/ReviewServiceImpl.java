@@ -14,18 +14,20 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.patientview.api.model.FacebookReviews;
 import org.patientview.api.service.ReviewService;
+import org.patientview.persistence.model.IOSReview;
 import org.patientview.persistence.model.Review;
 import org.patientview.persistence.model.enums.ReviewSource;
-import org.patientview.persistence.model.IOSReview;
 import org.patientview.persistence.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
@@ -98,9 +100,23 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
      */
     @Override
     public void pollForNewReviews() throws IOException, ParseException, GeneralSecurityException {
-        pollForAndroidReviews();
-        pollForiOSReviews();
-        pollForFacebookReviews();
+        try {
+            pollForAndroidReviews();
+        } catch (Exception e) {
+            LOG.error("Unable to get Google Play Reviews ", e);
+        }
+
+        try {
+            pollForiOSReviews();
+        } catch (Exception e) {
+            LOG.error("Unable to get iOS Reviews ", e);
+        }
+
+        try {
+            pollForFacebookReviews();
+        } catch (Exception e) {
+            LOG.error("Unable to get Facebook Reviews ", e);
+        }
     }
 
 
@@ -215,13 +231,14 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
     /**
      * Polls for new android reviews using the service account
+     *
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    private void pollForAndroidReviews() throws IOException, GeneralSecurityException {
+    private void pollForAndroidReviews() throws IOException, GeneralSecurityException, URISyntaxException {
         // Create the API service.
         final AndroidPublisher service = init(
-                "PatientView", "appstore-reviews@api-8062291460258891828-482938.iam.gserviceaccount.com");
+                "PatientView");
 
         ReviewsListResponse reviews =
                 service.reviews().list("org.patientview.mobile").setMaxResults(1000L).execute();
@@ -255,14 +272,12 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
      * Performs all necessary setup steps for running requests against the API.
      *
      * @param applicationName     the name of the application: com.example.app
-     * @param serviceAccountEmail the Service Account Email (empty if using
      *                            installed application)
      * @return the {@Link AndroidPublisher} service
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    private static AndroidPublisher init(String applicationName,
-                                         String serviceAccountEmail) throws IOException, GeneralSecurityException {
+    private static AndroidPublisher init(String applicationName) throws IOException, GeneralSecurityException, URISyntaxException {
 
         // Authorization.
         newTrustedTransport();
@@ -292,17 +307,19 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
     /**
      * Create a GoogleCredential service account for API requests
      *
-     * @param serviceAccountEmail the email address of the service account
      * @return Credential authorised google credential
      * @throws GeneralSecurityException
      * @throws IOException
      */
     private static Credential authorizeWithServiceAccount()
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, URISyntaxException {
+        URL filePath = Thread.currentThread().getContextClassLoader().getResource(
+                "google-play-key.json");
 
+        File file = new File(filePath.toURI());
 
         GoogleCredential credential = GoogleCredential.fromStream(
-                new FileInputStream("src/main/resources/google-play-key.json"))
+                new FileInputStream(file))
                 .createScoped(Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER));
 
         return credential;
