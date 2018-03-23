@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -47,6 +48,9 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
     @Inject
     private ReviewRepository reviewRepository;
+
+    @Inject
+    private Properties properties;
 
     /**
      * Global instance of the HTTP transport.
@@ -63,11 +67,9 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             "id=1263839920/sortBy=mostRecent/json";
 
     //URL
-    private static String FACEBOOK_REVIEWS_URL = "https://graph.facebook.com/v2.11/freemans.endowed/" +
+    private static String FACEBOOK_REVIEWS_URL = "https://graph.facebook.com/v2.11/PatientView/" +
             "ratings?fields=review_text%2Creviewer%2Chas_rating%2Crating%2Ccreated_time&limit=100%2Cid" +
-            "&access_token=EAAbRjIsHEDsBAE5CK3279MgLG3UkhBnnfyZCZB189scxqwCe1ZAsC5ve6n5a6VEe6bB0K1TGHX" +
-            "hOmclJ4lJPeO2Xn74KZALdsnrtRQiQbsgzKpNrVLk8WIZARqzfPUN7xhPwQLkN50yaMvfjIZCAfZAszKZCWZCrdgS" +
-            "ZANWSfd4FGe5OSqKxRvhksN2zyN71FD410ZD";
+            "&access_token=";
 
     /**
      * {@inheritDoc}
@@ -75,7 +77,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
     @Override
     public List<Review> getReviewsToDisplay() {
         Map<Long, Review> reviews = new HashMap<>();
-        List<Review> returnedReviews = reviewRepository.findAll();
+        List<Review> returnedReviews = reviewRepository.findByExcluded(false);
 
         if (returnedReviews.size() <= 3) {
             return returnedReviews;
@@ -85,7 +87,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             //Get a random selection of reviews
             int randomNum = ThreadLocalRandom.current().nextInt(0, returnedReviews.size() + 1);
 
-            if (randomNum > reviews.size()) {
+            if (randomNum > returnedReviews.size()) {
                 randomNum = 0;
             }
             if (reviews.get(returnedReviews.get(randomNum).getId()) == null) {
@@ -129,7 +131,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
     private void pollForFacebookReviews() throws IOException, ParseException {
         //https://stackoverflow.com/questions/17197970/facebook-permanent-page-access-token
         //Long lived token
-        URL url = new URL(FACEBOOK_REVIEWS_URL);
+        URL url = new URL(FACEBOOK_REVIEWS_URL + properties.getProperty("facebook.token"));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -156,7 +158,9 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
         }
 
         //Delete the existing reviews as facebook doesnt have ids on the ratings
-        reviewRepository.deleteByType(ReviewSource.FACEBOOK);
+        List<Review> reviews = reviewRepository.findByReviewSource(ReviewSource.FACEBOOK);
+        reviewRepository.delete(reviews);
+
         //Save the new ones
         reviewRepository.save(reviewsToSave);
     }
@@ -193,6 +197,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
                 Review newReview = new Review();
                 newReview.setReviewSource(ReviewSource.IOS);
+                newReview.setExcluded(false);
                 for (Map.Entry<String, Object> entryValue : entry.entrySet()) {
 
                     switch (entryValue.getKey()) {
@@ -225,7 +230,9 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             }
 
             //Delete the existing reviews as ios doesnt have ids on the ratings
-            reviewRepository.deleteByType(ReviewSource.IOS);
+            List<Review> reviews = reviewRepository.findByReviewSource(ReviewSource.IOS);
+            reviewRepository.delete(reviews);
+
             //Save the new ones
             reviewRepository.save(reviewsToSave);
         }
@@ -254,11 +261,15 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             }
             newReview.setExternalId(review.getReviewId());
             newReview.setReviewerName(review.getAuthorName().replaceAll("[^\\p{ASCII}]", " "));
+            newReview.setExcluded(false);
 
-            if (newReview.getRating() > 3 &&
-                    !(newReview.getReviewText().contains("bug") ||
-                            newReview.getReviewText().contains("issue") ||
-                            newReview.getReviewText().contains("crash"))) {
+            if (newReview.getRating() > 3) {
+
+                if (newReview.getReviewText().contains("bug") ||
+                        newReview.getReviewText().contains("issue") ||
+                        newReview.getReviewText().contains("crash")) {
+                    newReview.setExcluded(true);
+                }
                 //Check if we have that id, as android doesnt maintain a history more than 1 week
                 reviewRepository.getByExternalId(newReview.getExternalId());
                 reviewsToSave.add(newReview);
