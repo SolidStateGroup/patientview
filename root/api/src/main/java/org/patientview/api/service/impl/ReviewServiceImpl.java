@@ -87,7 +87,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             //Get a random selection of reviews
             int randomNum = ThreadLocalRandom.current().nextInt(0, returnedReviews.size() + 1);
 
-            if (randomNum > returnedReviews.size()) {
+            if (randomNum >= returnedReviews.size()) {
                 randomNum = 0;
             }
             if (reviews.get(returnedReviews.get(randomNum).getId()) == null) {
