@@ -188,45 +188,47 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
                 }.getType());
 
         List<Review> reviewsToSave = new ArrayList<>();
-        for (Map<String, Object> entry : returnedData.getFeed().getEntry()) {
+        if (returnedData.getFeed().getEntry() != null) {
+            for (Map<String, Object> entry : returnedData.getFeed().getEntry()) {
 
-            Review newReview = new Review();
-            newReview.setReviewSource(ReviewSource.IOS);
-            for (Map.Entry<String, Object> entryValue : entry.entrySet()) {
+                Review newReview = new Review();
+                newReview.setReviewSource(ReviewSource.IOS);
+                for (Map.Entry<String, Object> entryValue : entry.entrySet()) {
 
-                switch (entryValue.getKey()) {
-                    case "author":
-                        newReview.setReviewerName(((Map) ((Map) entryValue.getValue())
-                                .get("name"))
-                                .get("label").toString());
-                        break;
-                    case "im:rating":
-                        newReview.setRating(
-                                java.lang.Integer.parseInt(((Map) entryValue.getValue()).get("label").toString()));
-                        break;
-                    case "title":
-                        //Accounts for when a title is given, but no content
-                        if (newReview.getReviewText() == null) {
+                    switch (entryValue.getKey()) {
+                        case "author":
+                            newReview.setReviewerName(((Map) ((Map) entryValue.getValue())
+                                    .get("name"))
+                                    .get("label").toString());
+                            break;
+                        case "im:rating":
+                            newReview.setRating(
+                                    java.lang.Integer.parseInt(((Map) entryValue.getValue()).get("label").toString()));
+                            break;
+                        case "title":
+                            //Accounts for when a title is given, but no content
+                            if (newReview.getReviewText() == null) {
+                                newReview.setReviewText(((Map) entryValue.getValue()).get("label").toString());
+                            }
+                            break;
+                        case "content":
                             newReview.setReviewText(((Map) entryValue.getValue()).get("label").toString());
-                        }
-                        break;
-                    case "content":
-                        newReview.setReviewText(((Map) entryValue.getValue()).get("label").toString());
-                        break;
+                            break;
+                    }
+                }
+                if (newReview.getRating() > 3 && newReview.getReviewerName() != null &&
+                        !(newReview.getReviewText().contains("bug") ||
+                                newReview.getReviewText().contains("issue") ||
+                                newReview.getReviewText().contains("crash"))) {
+                    reviewsToSave.add(newReview);
                 }
             }
-            if (newReview.getRating() > 3 && newReview.getReviewerName() != null &&
-                    !(newReview.getReviewText().contains("bug") ||
-                            newReview.getReviewText().contains("issue") ||
-                            newReview.getReviewText().contains("crash"))) {
-                reviewsToSave.add(newReview);
-            }
-        }
 
-        //Delete the existing reviews as ios doesnt have ids on the ratings
-        reviewRepository.deleteByType(ReviewSource.IOS);
-        //Save the new ones
-        reviewRepository.save(reviewsToSave);
+            //Delete the existing reviews as ios doesnt have ids on the ratings
+            reviewRepository.deleteByType(ReviewSource.IOS);
+            //Save the new ones
+            reviewRepository.save(reviewsToSave);
+        }
     }
 
     /**
@@ -271,8 +273,8 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
     /**
      * Performs all necessary setup steps for running requests against the API.
      *
-     * @param applicationName     the name of the application: com.example.app
-     *                            installed application)
+     * @param applicationName the name of the application: com.example.app
+     *                        installed application)
      * @return the {@Link AndroidPublisher} service
      * @throws GeneralSecurityException
      * @throws IOException
