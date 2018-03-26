@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -8,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.config.TestCommonConfig;
-import org.patientview.api.service.impl.NhsChoicesServiceImpl;
+import org.patientview.api.service.impl.PavNhsChoicesServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -24,7 +23,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,13 +30,16 @@ import java.util.Set;
  * Created on 18/01/2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestCommonConfig.class, NhsChoicesServiceImpl.class})
+@ContextConfiguration(classes = {TestCommonConfig.class, PavNhsChoicesServiceImpl.class})
 public class NhsChoicesServiceIntegrationTest {
 
     User creator;
 
     @Autowired
-    NhsChoicesServiceImpl nhsChoicesService;
+    PavNhsChoicesServiceImpl pavNhsChoicesService;
+
+//    @Autowired
+//    CategoryRepository categoryRepository;
 
     @Before
     public void setup() {
@@ -52,7 +53,7 @@ public class NhsChoicesServiceIntegrationTest {
     }
 
     @Test
-    @Ignore("fails on build, test locally")
+    //@Ignore("fails on build, test locally")
     public void testOrganisationsUpdate()
             throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
 
@@ -66,15 +67,37 @@ public class NhsChoicesServiceIntegrationTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        nhsChoicesService.updateOrganisations();
+        pavNhsChoicesService.updateOrganisations();
+    }
+
+    @Test
+    //@Ignore("fails on build, test locally")
+    public void testConditionsUpdate()
+            throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            pavNhsChoicesService.updateConditions();
+        } catch (Exception e) {
+            System.out.println("Error updating from NHS Choices: " + e.getMessage());
+        }
     }
 
     @Test
     @Ignore("fails on build, test locally")
     public void testGetDetailsByPracticeCode() {
-        Map<String, String> details = nhsChoicesService.getDetailsByPracticeCode("P91017");
-        Assert.assertNotNull(details);
-        Assert.assertNotNull(details.get("url"));
-        System.out.println(details.get("url"));
+//        Map<String, String> details = nhsChoicesService.getDetailsByPracticeCode("P91017");
+//        Assert.assertNotNull(details);
+//        Assert.assertNotNull(details.get("url"));
+//        System.out.println(details.get("url"));
     }
 }
