@@ -146,7 +146,7 @@
             </div>
             <div class="content-panel mb">
                 <div class="content-inner clearfix">
-                    <img class="pull-left app-image" src="http://placehold.it/120x200" alt="PatientView App"/>
+                    <img class="pull-left app-image" src="../images/graph-200-100.png" alt="PatientView App"/>
                     <p>Access your PatientView records and messages even more swiftly, and gain access to selected mobile-only features.</p>
                     <a href=""><img class="app-store" src="../images/app-store.png" alt="Apple App store"/></a>
                     <a href=""><img class="app-store" src="../images/play-store.png" alt="Google Play store"/></a>
@@ -187,15 +187,19 @@
                 <div class="content-inner clearfix">
                     <ul class="list-unstyled" data-ng-repeat="review in reviews | orderBy: createdDate">
                         <li class="review">
-                            <ul class="list-inline list-unstyled rating pull-right">
-                                <li ng-repeat-n="review.rating"><i class="fa fa-star"></i>{{review.rating}}</li>
+                            <ul class="list-inline list-unstyled rating pull-right stars-{{review.rating}}">
+                                <li class="one"><i class="fa fa-star"></i></li>
+                                <li class="two"><i class="fa fa-star"></i></li>
+                                <li class="three"><i class="fa fa-star"></i></li>
+                                <li class="four"><i class="fa fa-star"></i></li>
+                                <li class="five"><i class="fa fa-star"></i></li>
                             </ul>
                             <h5>{{review.reviewerName}}</h5>
                             <p>{{review.reviewText}}</p>
                         </li>
                     </ul>
                 </div>
-                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h5><i class="fa fa-thumbs-up"></i> See all facebook reviews</h5></a>
+                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h4><i class="fab fa-facebook-square"></i> Find us on Facebook</h4></a>
             </div>
         </div>
     </aside>
