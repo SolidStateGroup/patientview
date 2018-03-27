@@ -1,6 +1,7 @@
 package org.patientview.api.client.nhschoices;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +17,9 @@ import java.util.List;
 public class NhsChoicesApiClientTest {
 
     private Logger log = LoggerFactory.getLogger(getClass());
-    //private static String apiKey = "{add-your-key-here}";
-    private static String apiKey = "1ef7a9bf9c1c41deaeff37a5bdf9e615";
+    private static String apiKey = "{add-your-key-here}";
 
-    // @Ignore("Need to add nhs choices api key to run the test")
+    @Ignore("Need to add nhs choices api key to run the test")
     @Test
     public void testApiClient_Return_Success_When_Letter_Valid() throws IOException {
         String letter = "A";
@@ -39,7 +39,7 @@ public class NhsChoicesApiClientTest {
         }
     }
 
-    // @Ignore("Need to add nhs choices api key to run the test")
+    @Ignore("Need to add nhs choices api key to run the test")
     @Test
     public void testApiClient_Return_All_Conditions_Success() throws IOException {
 
@@ -59,7 +59,7 @@ public class NhsChoicesApiClientTest {
         }
     }
 
-    // @Ignore("Need to add nhs choices api key to run the test")
+    @Ignore("Need to add nhs choices api key to run the test")
     @Test
     public void testApiClient_Return_Success_When_Letter_Invalid_No_Conditions() throws IOException {
 
@@ -78,7 +78,7 @@ public class NhsChoicesApiClientTest {
         Assert.assertNull("Should not get any conditions in response", conditionLinks);
     }
 
-    // @Ignore("Need to add nhs choices api key to run the test")
+    @Ignore("Need to add nhs choices api key to run the test")
     @Test
     public void testApiClient_Return_Null_When_Api_Key_Invalid() throws IOException {
 
@@ -96,7 +96,6 @@ public class NhsChoicesApiClientTest {
     public void testAtoZ() {
         int count = 0;
         for (char alphabet = 'A'; alphabet <= 'Z'; alphabet++) {
-            System.out.println(alphabet);
             count++;
         }
         Assert.assertTrue("Should have 26 letters", count == 26);
