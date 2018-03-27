@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Representation of NHSChoices response json model for API v2.
@@ -19,7 +20,7 @@ import java.io.IOException;
 public class NhsChoicesResponseJson {
 
     @JsonProperty("significantLink")
-    private ConditionLink[] conditionLinks;
+    private List<ConditionLink> conditionLinks;
 
     @JsonIgnore
     public void parse(String body) throws IOException {
@@ -36,11 +37,11 @@ public class NhsChoicesResponseJson {
         setConditionLinks(prototype.getConditionLinks());
     }
 
-    public ConditionLink[] getConditionLinks() {
+    public List<ConditionLink> getConditionLinks() {
         return conditionLinks;
     }
 
-    public void setConditionLinks(ConditionLink[] conditionLinks) {
+    public void setConditionLinks(List<ConditionLink> conditionLinks) {
         this.conditionLinks = conditionLinks;
     }
 
