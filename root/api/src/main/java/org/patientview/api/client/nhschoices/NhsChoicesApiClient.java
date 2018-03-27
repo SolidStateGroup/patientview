@@ -57,7 +57,7 @@ public final class NhsChoicesApiClient {
      * Retrieves NHSChoices conditions for give letter
      *
      * @param letter an A-Z letter to filter conditions
-     * @return a list of condition
+     * @return a list of condition, or null if nothing found or cannot contact api
      */
     public List<ConditionLink> getConditions(String letter) {
         if (letter == null || letter.isEmpty()) {
@@ -78,7 +78,7 @@ public final class NhsChoicesApiClient {
     /**
      * Finds all NHSChoices conditions
      *
-     * @return a list of all condition
+     * @return a list of all condition, or null if nothing found or cannot contact api
      */
     public List<ConditionLink> getAllConditions() {
 
