@@ -1,9 +1,7 @@
-package org.patientview.api.client;
+package org.patientview.api.client.nhschoices;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.patientview.api.client.nhschoices.ConditionLink;
-import org.patientview.api.client.nhschoices.NhsChoicesResponseJson;
 
 import java.io.IOException;
 
@@ -120,7 +118,7 @@ public class NhsChoicesResponseTest {
         NhsChoicesResponseJson json = new NhsChoicesResponseJson();
         json.parse(RESPONSE_JSON);
         Assert.assertNotNull("Should get condition links in response", json.getConditionLinks());
-        Assert.assertTrue("Should have condition links in response", json.getConditionLinks().length > 0);
+        Assert.assertTrue("Should have condition links in response", json.getConditionLinks().size() > 0);
 
         for (ConditionLink link : json.getConditionLinks()) {
             Assert.assertNotNull("Should get condition name", link.getName());
