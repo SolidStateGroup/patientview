@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
@@ -43,5 +44,15 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     @Override
     public MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
         return myMediaRepository.findOne(id);
+    }
+
+    @Override
+    public void delete(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
+        myMediaRepository.delete(myMedia);
+    }
+
+    @Override
+    public List<MyMedia> getAllForUser(User user) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
+        return myMediaRepository.getByCreator(user);
     }
 }
