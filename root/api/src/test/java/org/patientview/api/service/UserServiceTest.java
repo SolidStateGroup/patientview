@@ -1139,6 +1139,7 @@ public class UserServiceTest {
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
+        when(captchaService.verify(any(String.class))).thenReturn(true);
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail(), "capture");
 
         verify(emailService, times(1)).sendEmail(any(Email.class));
@@ -1157,7 +1158,7 @@ public class UserServiceTest {
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
-
+        when(captchaService.verify(any(String.class))).thenReturn(true);
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail", "capture");
 
         verify(emailService, times(0)).sendEmail(any(Email.class));
@@ -1176,7 +1177,7 @@ public class UserServiceTest {
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
         when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(null);
-
+        when(captchaService.verify(any(String.class))).thenReturn(true);
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail", "capture");
 
         verify(emailService, times(0)).sendEmail(any(Email.class));
