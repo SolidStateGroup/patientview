@@ -556,8 +556,12 @@ hr{
         }
 
         i{
-            color:#368de8;
+            color:#f0ad4e;
             font-size:12px;
+        }
+
+        h5{
+            font-weight:700;
         }
     }
 
@@ -567,6 +571,55 @@ hr{
             color:#368de8;
         }
     }
+
+    ul.rating{
+        &.stars-5{
+            *{
+                display:inline-block;
+            }
+        }
+
+        &.stars-4{
+            *{
+                display:inline-block;
+            }
+
+            .five{
+                display:none!important;
+            }
+        }
+
+        &.stars-3{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four{
+                display:none!important;
+            }
+        }
+
+        &.stars-2{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four, .three{
+                display:none!important;
+            }
+        }
+
+        &.stars-1{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four, .three, .two{
+                display:none!important;
+            }
+        }
+    }
+
 }
 
 .user-details-header{
