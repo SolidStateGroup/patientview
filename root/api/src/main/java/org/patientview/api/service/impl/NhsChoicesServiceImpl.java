@@ -803,6 +803,12 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     saveCurrentCode = true;
                 }
 
+                // update description with condition description
+                if (!StringUtils.isEmpty(currentCode.getDescription())) {
+                    currentCode.setDescription(condition.getName());
+                    saveCurrentCode = true;
+                }
+
                 // if changed, then save
                 if (saveCurrentCode) {
                     currentCode.setLastUpdater(currentUser);
