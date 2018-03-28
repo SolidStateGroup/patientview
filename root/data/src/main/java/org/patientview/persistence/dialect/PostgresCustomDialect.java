@@ -4,6 +4,9 @@ import org.hibernate.NullPrecedence;
 import org.hibernate.dialect.PostgreSQL9Dialect;
 import org.hibernate.metamodel.spi.TypeContributions;
 import org.hibernate.type.PostgresUUIDType;
+import org.patientview.persistence.model.types.StringJsonUserType;
+
+import java.sql.Types;
 
 /**
  * Created to register the UUID for Postgres as it's not done by default.
@@ -14,6 +17,11 @@ import org.hibernate.type.PostgresUUIDType;
  * https://forum.hibernate.org/viewtopic.php?f=1&t=1014157
  */
 public class PostgresCustomDialect extends PostgreSQL9Dialect {
+
+
+    public PostgresCustomDialect() {
+        registerColumnType(Types.JAVA_OBJECT, "jsonb");
+    }
 
     @Override
     public void contributeTypes(final TypeContributions typeContributions, final org.hibernate.service.ServiceRegistry serviceRegistry) {

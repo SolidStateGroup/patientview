@@ -401,9 +401,10 @@ public interface UserService {
      * @throws ResourceNotFoundException
      * @throws MailException
      * @throws MessagingException
+     * @throws ResourceForbiddenException
      */
-    void resetPasswordByUsernameAndEmail(String username, String email)
-            throws ResourceNotFoundException, MailException, MessagingException;
+    void resetPasswordByUsernameAndEmail(String username, String email, String capture)
+            throws ResourceNotFoundException, MailException, MessagingException, ResourceForbiddenException;
 
     /**
      * Send verification email to a User in order to validate their email address is correct.

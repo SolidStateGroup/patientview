@@ -528,8 +528,24 @@ textarea.form-control{
 .selectize-input {
     height: 40px;
 }
+
+.selectize-control.loading{
+    text-align: left!important;
+}
+
+.selectize-control.multi .selectize-input{
+    > div{
+        background:#00adc6;
+        border-radius:4px;
+        color:white;
+    }
+}
 .selectize-dropdown, .selectize-input, .selectize-input input {
     font-size: inherit;
+}
+
+input.ng-invalid, textarea.ng-invalid {
+    border-color: red
 }
 
 
