@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * This gets all the news associated with a user. News can be link via
  * group or role.
@@ -23,4 +25,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface MyMediaRepository extends CrudRepository<MyMedia, Long> {
 
+    List<MyMedia> getByCreator(User user);
 }
