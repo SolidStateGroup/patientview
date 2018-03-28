@@ -46,6 +46,8 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "bower install && grunt servelocal --port 8080",
+    "startLocal": "bower install && grunt serveapi"
   }
 }

@@ -256,7 +256,7 @@ INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation
 /* used for storing staff entered results */
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (7, 'Staff Entered Data', 'STAFF_ENTERED', null, 2, false, now(), 1, false, 'Staff Entered');
 /* General Practice specialty, used as parent for all groups of type GENERAL_PRACTICE */
-INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (8, 'General Practice', 'GP', 'GENERAL_PRACTICE', null, 2, false, now(),1 , false);
+INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (8, 'General Practice', 'GP', 'GENERAL_PRACTICE', null, 2, false, now(),1 , true);
 
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '20', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '40', true, 'Unit Admin', now(), '1');
@@ -356,7 +356,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (26, 5, 122,  '/newstaff', 'views/newstaff.html','NewUserCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (27, 5, 160,  '/admin', 'views/admin.html','AdminCtrl', 'Site Administration', now(), 1 );
+  (27, 4, 160,  '/admin', 'views/siteadmin.html','SiteAdminCtrl', 'Site Administration', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (28, 5, 170,  '/surveys/managing', 'views/surveys/managing.html','SurveysManagingCtrl', 'Managing Your Health', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -369,6 +369,12 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (32, 5, 210,  '/nhsindicators', 'views/nhsindicators.html','NhsIndicatorsCtrl', 'NHS Indicators', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (33, 5, 220,  '/resultsedit', 'views/resultsedit.html','ResultsEditCtrl', 'Edit Own Results', now(), 1);
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (34, 4, 80,  '/research', 'views/research.html','ResearchCtrl', 'Research', now(), 1);
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (35, 5, 160,  '/siteadmin', 'views/admin.html','AdminCtrl', 'Admin', now(), 1 );
+
+
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
@@ -511,6 +517,15 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 /* Edit patient entered results */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (67, 33, null, 1, null, now(), 1 );
+
+/* Research studies */
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (69, 34, null, 1, null, now(), 1 );
+
+/* site administration */
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (70, 35, null, 5, null, now(), 1 );
+
 
 /* External Standards, used by Codes */
 INSERT INTO PV_External_Standard (Id, Name, Description) VALUES

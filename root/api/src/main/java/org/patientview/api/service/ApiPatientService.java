@@ -45,11 +45,23 @@ public interface ApiPatientService {
     Patient get(UUID uuid) throws FhirResourceException;
 
     /**
+     * Internal method used to get required fields for a research study
+     * Encounters are returned as db encounters
+     *
+     * @param userId
+     * @return FHIR Patient
+     * @throws FhirResourceException
+     */
+    List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
+
+    /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
      * Produces a list of basic patient information. Used by CKD.
      * @param userId ID of User to retrieve patient record for
      * @return List of Patient objects containing patient information
      * @throws FhirResourceException
+     * @throws ResourceNotFoundException
      * @throws ResourceNotFoundException
      */
     @UserOnly
