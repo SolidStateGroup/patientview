@@ -7,9 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ReviewServiceImpl;
+import org.patientview.persistence.model.Review;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ReviewRepository;
 import org.patientview.test.util.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -24,6 +27,8 @@ public class ReviewServiceTest {
 
     @InjectMocks
     ReviewService reviewService = new ReviewServiceImpl();
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReviewServiceTest.class);
 
 
     @Before
@@ -42,4 +47,16 @@ public class ReviewServiceTest {
         reviewService.pollForNewReviews();
     }
 
+    @Test
+    public void testForNameCorrection() throws ParseException {
+        Review review = new Review();
+        review.setReview_text("This is á test");
+        review.createAndSetReviewer("Siobhán Willy-Furth ");
+
+        Review newReview = new Review(review);
+
+        LOG.info(newReview.getReviewerName());
+        LOG.info(newReview.getReviewText());
+
+    }
 }
