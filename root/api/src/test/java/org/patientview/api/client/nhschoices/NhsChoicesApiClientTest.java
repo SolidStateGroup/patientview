@@ -34,7 +34,7 @@ public class NhsChoicesApiClientTest {
 
         for (ConditionLink link : conditionLinks) {
             Assert.assertNotNull("Should get condition name", link.getName());
-            Assert.assertNotNull("Should get condition url", link.getUrl());
+            Assert.assertNotNull("Should get condition url", link.getApiUrl());
             Assert.assertNotNull("Should get condition description", link.getDescription());
         }
     }
@@ -54,7 +54,7 @@ public class NhsChoicesApiClientTest {
 
         for (ConditionLink link : conditionLinks) {
             Assert.assertNotNull("Should get condition name", link.getName());
-            Assert.assertNotNull("Should get condition url", link.getUrl());
+            Assert.assertNotNull("Should get condition url", link.getApiUrl());
             Assert.assertNotNull("Should get condition description", link.getDescription());
         }
     }

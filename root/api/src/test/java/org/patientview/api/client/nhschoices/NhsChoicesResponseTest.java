@@ -122,7 +122,7 @@ public class NhsChoicesResponseTest {
 
         for (ConditionLink link : json.getConditionLinks()) {
             Assert.assertNotNull("Should get condition name", link.getName());
-            Assert.assertNotNull("Should get condition url", link.getUrl());
+            Assert.assertNotNull("Should get condition url", link.getApiUrl());
             Assert.assertNotNull("Should get condition description", link.getDescription());
         }
     }
