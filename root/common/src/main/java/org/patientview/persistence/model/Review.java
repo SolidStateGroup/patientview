@@ -44,8 +44,10 @@ public class Review extends BaseModel {
         } catch (Exception e) {
 
         }
-        this.setReviewText(review.getReview_text().replaceAll("[^\\p{ASCII}]", " "));
-        this.setReviewerName(review.getReviewer().getName().replaceAll("[^\\p{ASCII}]", " "));
+        this.setReviewText(org.apache.commons.lang3.StringUtils.stripAccents(review.getReview_text())
+                .replaceAll("[^\\p{ASCII}]", " "));
+        this.setReviewerName(org.apache.commons.lang3.StringUtils.stripAccents(review.getReviewer().getName())
+                .replaceAll("[^\\p{ASCII}]", " "));
         this.setRating(review.getRating());
         this.setReviewSource(review.getReviewSource());
         this.setExcluded(false);
@@ -90,11 +92,15 @@ public class Review extends BaseModel {
     @JsonIgnore
     private String created_time;
 
+    @JsonIgnore
+    public void createAndSetReviewer(String name){
+        this.reviewer = new Reviewer();
+        this.reviewer.setName(name);
+    }
 
     @Data
     class Reviewer {
         private String name;
         private String id;
     }
-
 }
