@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.config.TestCommonConfig;
-import org.patientview.api.service.impl.PavNhsChoicesServiceImpl;
+import org.patientview.api.service.impl.NhsChoicesServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -30,17 +30,14 @@ import java.util.Set;
  * Created on 18/01/2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestCommonConfig.class, PavNhsChoicesServiceImpl.class})
+@ContextConfiguration(classes = {TestCommonConfig.class, NhsChoicesServiceImpl.class})
 public class NhsChoicesServiceIntegrationTest {
 
     User creator;
 
     @Autowired
-    PavNhsChoicesServiceImpl pavNhsChoicesService;
-
-//    @Autowired
-//    CategoryRepository categoryRepository;
-
+    NhsChoicesServiceImpl nhsChoicesService;
+    
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -53,7 +50,7 @@ public class NhsChoicesServiceIntegrationTest {
     }
 
     @Test
-    //@Ignore("fails on build, test locally")
+    @Ignore("fails on build, test locally")
     public void testOrganisationsUpdate()
             throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
 
@@ -67,11 +64,11 @@ public class NhsChoicesServiceIntegrationTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        pavNhsChoicesService.updateOrganisations();
+        nhsChoicesService.updateOrganisations();
     }
 
     @Test
-    //@Ignore("fails on build, test locally")
+    @Ignore("fails on build, test locally")
     public void testConditionsUpdate()
             throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
 
@@ -86,7 +83,7 @@ public class NhsChoicesServiceIntegrationTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            pavNhsChoicesService.updateConditions();
+            nhsChoicesService.updateConditions();
         } catch (Exception e) {
             System.out.println("Error updating from NHS Choices: " + e.getMessage());
         }
