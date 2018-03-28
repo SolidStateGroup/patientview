@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Api Client implementation for NhsChoises API v2
+ * Api Client implementation for NhsChoices API v2
  */
 public final class NhsChoicesApiClient {
 
@@ -89,6 +89,8 @@ public final class NhsChoicesApiClient {
                 NhsChoicesResponseJson responseJson = doGet(String.valueOf(alphabet), CONDITIONS_URI);
                 if (responseJson != null) {
                     allConditions.addAll(responseJson.getConditionLinks());
+                } else {
+                    LOG.warn("NhsChoicesResponseJson is null for  " + alphabet);
                 }
             } catch (Exception e) {
                 LOG.error("Exception in NhsChoicesApiClient.getAllConditions() ", e);
@@ -96,7 +98,7 @@ public final class NhsChoicesApiClient {
 
             // test system need to throttle as allowed 10 calls/minute up to a maximum of 1000 calls per month
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException ie) {
                 LOG.error("InterruptedException in NhsChoicesApiClient ", ie);
             }
