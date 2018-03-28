@@ -214,9 +214,24 @@ hr.solid{
 .slider span.bubble.low, .slider span.bubble.high {
 }
 
+.message-preview{
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+.research-study{
+    .textarea{
+        height:auto;
+    }
+}
+
 ::-ms-tooltip {
     display: none;
 }
+
+
+//BREAKPOINTS ----------------
 
 @media only screen
 and (max-width : 1024px) {

@@ -188,6 +188,28 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        searchDiagnosisCodes: function (searchTerm) {
+            var deferred = $q.defer();
+            // GET /codes/diagnosis/{searchTerm}/standard/{standardType}
+            Restangular.one('codes/diagnosis', searchTerm).get()
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
+        },
+        searchTreatmentCodes: function (searchTerm) {
+            var deferred = $q.defer();
+            // GET /codes/diagnosis/{searchTerm}/standard/{standardType}
+            Restangular.one('codes/treatment', searchTerm).get()
+                .then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
+                });
+            return deferred.promise;
         }
     };
 }]);

@@ -34,7 +34,7 @@
         </div>
         
         <div class="alert alert-success" data-ng-show="successMessage && request.type==='FORGOT_LOGIN'">
-            <strong>Thank you for submitting your forgotten login request. Your unit will follow up shortly
+            <strong>Thank you for submitting your forgotten login request. An administrator will follow up shortly
                 and contact you with details of how to log in to PatientView.</strong>
         </div>
         
@@ -114,8 +114,7 @@
                             class="form-control"></select>
                 </div>
             </div>
-
-            <div class="form-group">
+            <div class="form-group" ng-show="request.showunits">
                 <label class="col-md-4 control-label" for="unit">Unit (required):</label>
                 <div class="col-md-5">
                     <select id="unit"
@@ -148,7 +147,7 @@
                 <div class="col-md-5 col-sm-offset-4">
                     <button data-ng-click="submit()" class="btn blue"
                             data-ng-disabled="!request.selectedDay || !request.selectedMonth || !request.selectedYear
-                            || !request.email || !units.length || !request.unit || !request.captcha">
+                            || !request.email || (!request.unit && request.showunits) || !request.captcha">
                         Submit Request</button>
                 </div>
             </div>

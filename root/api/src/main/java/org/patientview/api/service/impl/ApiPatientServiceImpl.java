@@ -126,7 +126,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     /**
      * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
      * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
-     * @param userId ID of User to retrieve patient record for
+     *
+     * @param userId   ID of User to retrieve patient record for
      * @param groupIds IDs of Groups to retrieve patient records from
      * @return List of Patient objects containing patient encounters, conditions etc
      * @throws FhirResourceException
@@ -233,6 +234,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
 
     /**
      * Get a FHIR Patient record given the UUID associated with the Patient in FHIR.
+     *
      * @param uuid UUID of Patient in FHIR to retrieve
      * @return FHIR Patient
      * @throws FhirResourceException
@@ -276,15 +278,75 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                     org.patientview.api.model.Patient patient
                             = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
 
-                    // set practitioners
-                    patient = setPractitioners(patient, fhirPatient);
-
                     // set conditions
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
                     // set encounters (treatment)
                     patient = setEncounters(
                             patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
+
+                    patients.add(patient);
+                }
+            }
+        }
+
+        return patients;
+    }
+
+
+    @Override
+    public List<org.patientview.api.model.Patient> getPatientResearchStudyCriteria(Long userId)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+        // check User exists
+        User user = userService.get(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<org.patientview.api.model.Patient> patients = new ArrayList<>();
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.addAll(user.getFhirLinks());
+
+        // sort fhirLinks by id
+        Collections.sort(fhirLinks, new Comparator<FhirLink>() {
+            public int compare(FhirLink f1, FhirLink f2) {
+                return f2.getCreated().compareTo(f1.getCreated());
+            }
+        });
+
+        // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getActive() && !ApiUtil.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
+                Patient fhirPatient = get(fhirLink.getResourceId());
+
+                if (fhirPatient != null) {
+                    // create basic patient with group
+                    org.patientview.api.model.Patient patient
+                            = new org.patientview.api.model.Patient(fhirPatient, fhirLink.getGroup());
+
+                    // set practitioners
+                    patient = setPractitioners(patient, fhirPatient);
+
+                    // set edta diagnosis if present based on available codes in conditions
+                    patient = setDiagnosisCodes(patient);
+
+                    // set staff entered conditions
+                    patient = setStaffEnteredConditions(patient, user.getId());
+
+                    // set patient entered conditions
+                    patient = setPatientEnteredConditions(patient, user.getId());
+
+                    // set conditions
+                    patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
+
+                    // set encounters (treatment)
+                    List<Encounter> encounters = encounterService.get(fhirLink.getResourceId());
+
+                    // replace fhirEncounter type field with a more useful description if it exists in codes
+                    for (Encounter encounter : encounters) {
+                        FhirEncounter fhirEncounter = new FhirEncounter(encounter);
+                        patient.getFhirEncounters().add(fhirEncounter);
+                    }
 
                     patients.add(patient);
                 }
@@ -470,6 +532,15 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         return patient;
     }
 
+    private org.patientview.api.model.Patient setPatientEnteredConditions(
+            org.patientview.api.model.Patient patient, Long userId)
+            throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        patient.getFhirConditions().addAll(
+                apiConditionService.getUserEntered(userId, DiagnosisTypes.DIAGNOSIS_PATIENT_ENTERED, false));
+        return patient;
+    }
+
+
     private org.patientview.api.model.Patient setStaffEnteredConditions(
             org.patientview.api.model.Patient patient, Long userId)
             throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
@@ -495,7 +566,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     }
 
     private org.patientview.api.model.Patient setEncounters(org.patientview.api.model.Patient patient,
-                                List<Encounter> encounters, User user, Group group) throws FhirResourceException {
+                                                            List<Encounter> encounters, User user, Group group)
+            throws FhirResourceException {
 
         boolean hasTreatment = false;
         patient.setFhirEncounters(new ArrayList<FhirEncounter>());
@@ -553,7 +625,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     }
 
     private org.patientview.api.model.Patient setNonTestObservations(org.patientview.api.model.Patient patient,
-                                                            FhirLink fhirLink) {
+                                                                     FhirLink fhirLink) {
         try {
             List<String> nonTestTypes = new ArrayList<>();
             for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {

@@ -1,0 +1,251 @@
+<div class="content-panel research-study" div data-ng-show="!loading">
+    <div class="content-inner">
+        <h4>Research Study Specification</h4>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-title" class="control-label">Title of Study <span class="error"
+                                                                                           data-ng-show="researchStudyFormNew.researchName.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-title" placeholder="Title of Study"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.researchName" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-description" class="control-label">Description of Study <span class="error"
+                                                                                                       data-ng-show="researchStudyFormNew.description.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control" id="research-description"
+                              placeholder="Description of Study" name="description"
+                              data-ng-model="newResearchStudy.description" required></textarea>
+                </div>
+            </div>
+        </div>
+        <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label class="control-label">Preview of Description</label>
+                    <div class="message-summary message-preview">
+                        <h2 class="message-title">
+                            {{newResearchStudy.title}}
+                        </h2>
+                        <div class="last-message">
+                            <p class="message-content"
+                               data-ng-bind-html="parseHTMLText(newResearchStudy.description)"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Details of who to contact if interested to participate</h4>
+
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-name" class="control-label">Name <span class="error"
+                                                                                                data-ng-show="researchStudyFormNew.heading.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-name" placeholder="Contact Name"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactName" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-email" class="control-label">Email address<span class="error"
+                                                                                                  data-ng-show="researchStudyFormNew.contactEmail.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-email" placeholder="Contact Email"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactEmail" required
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-phone" class="control-label">Phone Number <span class="error"
+                                                                                                         data-ng-show="researchStudyFormNew.contactPhone.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <div><input type="text" class="form-control" id="research-contact-phone" placeholder="Contact Phone"
+                                name="titleOfStudy" data-ng-model="newResearchStudy.contactPhone"
+                                maxlength="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-horizontal" role="form">
+                <div class="col-md-12">
+                    <label for="research-contact-address" class="control-label">Physical Address <span class="error"
+                                                                                                      data-ng-show="researchStudyFormNew.contactAddress.$error.required && !researchStudyFormNew.$pristine"> *required</span></label>
+                    <textarea class="form-control" id="research-contact-address"
+                              placeholder="Physical Address" name="contactAddress"
+                              data-ng-model="newResearchStudy.contactAddress"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <h4>Patient Selection Criteria (At Least One Mandatory)</h4>
+        <div>
+            <p>Click 'Add Criteria' to specify eligibility for the study. Clicking multiple times will introduce multiple eligibility criteria e.g. CRITERIA A <b>OR</b> CRITERIA B <b>OR</b> CRITERIA C.</p>
+            <a href="" data-ng-click="addCriteriaCluster(selectedResultCluster)" class="btn blue">Add Criteria</a>
+            <span class="error"
+                  data-ng-show="criteriaError">Please enter at least one set of criteria before saving</span>
+            <hr/>
+            <div id="criteria" data-ng-repeat="criteria in newResearchStudy.criteria">
+                <h5>Now Entering: Eligibility Criteria</h5>
+                <p>Enter eligibility criteria for this study. Patients must satisfy ALL conditions below for this study to
+                    appear under their PatientView Research menu.<br>
+                    If multiple diagnoses are entered, patient can match on any of the diagnoses to qualify. The same matching behaviour is enforced if multiple treatments or multiple groups are entered.
+                </p>
+
+                <div class="row inline-row">
+                    <div class="col-md-2">
+                        <label class="control-label">Age</label>
+                        <div class="row">
+                            <div class="col-md-12 content-box">
+                                <div class="pull-left">
+                                    <!--<span class="inline-span"> From &nbsp;</span>-->
+                                    <input type="text" class="form-control" style="width:60px;"
+                                           data-ng-model="criteria.researchStudyCriterias.fromAge" maxlength="2" placeholder="From" ng-pattern="onlyNumbers">
+                                </div>
+                                <div class="pull-left pl">
+                                    <!--<span class="inline-span"> To </span>-->
+                                    <input type="text" class="form-control" style="width:60px;"
+                                           data-ng-model="criteria.researchStudyCriterias.toAge"  maxlength="2" placeholder="To" ng-pattern="onlyNumbers">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label"> Gender</label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <select class="form-control date-input" data-ng-model="criteria.researchStudyCriterias.gender">
+                                    <option value="" selected disabled hidden>Gender</option>
+                                    <option>Any</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-12">
+                        <span class="inline-span"> Diagnosis: &nbsp;</span>
+                        <div class="selectize-diagnosis">
+                            <select data-ng-model="criteria.researchStudyCriterias.diagnosisIds"
+                                    class="selectized-diagnosis"
+                                    id="selectized-diagnosis-{{$index}}"
+                                    placeholder="Type a diagnosis"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-12">
+                        <span class="inline-span"> Treatment: &nbsp;</span>
+
+                        <div class="selectize-treatment">
+                            <select data-ng-model="criteria.researchStudyCriterias.treatmentIds"
+                                    class="selectized-treatment"
+                                    id="selectized-treatment-{{$index}}"
+                                    placeholder="Type a treatment"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-12">
+                        <span> PatientView Group: &nbsp;</span>
+                        <div class="selectize-pv-group">
+                            <select class="selectized-pv-group"
+                                    data-ng-model="criteria.researchStudyCriterias.groupIds"
+                                    id="selectized-pv-group-{{$index}}"
+                                    placeholder="Type a PatientView Group">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-md-2">
+                        <a href="" data-ng-click="removeCriteriaCluster($index)" class="btn negative">Remove This Criteria</a>
+                    </div>
+                </div>
+                <hr/>
+            </div>
+
+        </div>
+        <h4>From/To Dates (Mandatory)</h4>
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                 <span class="error"
+                       data-ng-show="availableDateError">{{availableDateError}}</span>
+                <p>These drive the time period during which the research study information should be displayed to patients assuming that they meet the relevant criteria.</p>
+                <label class="control-label">'From' date &nbsp;
+                    <span class="error"
+                          data-ng-show="researchStudyFormNew.availableFrom.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                </label>
+                <div class="">
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.day" required>
+                        <option value="" selected disabled hidden>DD</option>
+                        <option ng-repeat="day in days" value="{{day}}"
+                                ng-selected="newResearchStudy.availableFrom.day == day">{{day}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.month" required>
+                        <option value="" selected disabled hidden>MM</option>
+                        <option ng-repeat="month in months" value="{{month}}"
+                                ng-selected="newResearchStudy.availableFrom.month == month">{{month}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableFrom.year" required>
+                        <option value="" selected disabled hidden>YYYY</option>
+                        <option ng-repeat="year in years" value="{{year}}"
+                                ng-selected="newResearchStudy.availableFrom.year == year">{{year}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row inline-row enter-results-row">
+            <div class="col-md-12">
+                <label class="control-label">'To' date (no longer visible)&nbsp;
+                    <span class="error"
+                          data-ng-show="researchStudyFormNew.availableTo.$error.required && !researchStudyFormNew.$pristine"> *required</span>
+                </label>
+                <div>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.day" required>
+                        <option value="" selected disabled hidden>DD</option>
+                        <option ng-repeat="day in days" value="{{day}}"
+                                ng-selected="newResearchStudy.availableTo.day == day">{{day}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.month" required>
+                        <option value="" selected disabled hidden>MM</option>
+                        <option ng-repeat="month in months" value="{{month}}"
+                                ng-selected="newResearchStudy.availableTo.month == month">{{month}}
+                        </option>
+                    </select>
+                    <select class="form-control date-input" data-ng-model="newResearchStudy.availableTo.year" required>
+                        <option value="" selected disabled hidden>YYYY</option>
+                        <option ng-repeat="year in years" value="{{year}}"
+                                ng-selected="newResearchStudy.availableTo.year == year">{{year}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Research Study</h3>
+    </div>
+</div>

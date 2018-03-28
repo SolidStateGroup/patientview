@@ -101,6 +101,7 @@ public class AuthControllerTest {
         ForgottenCredentials forgottenCredentials = new ForgottenCredentials();
         forgottenCredentials.setEmail("rememberedEmail");
         forgottenCredentials.setUsername("rememberedUsername");
+        forgottenCredentials.setCaptcha("capture");
 
         String url = "/auth/forgottenpassword";
 
@@ -110,7 +111,9 @@ public class AuthControllerTest {
 
         verify(userService, Mockito.times(1))
                 .resetPasswordByUsernameAndEmail(
-                        Matchers.eq(forgottenCredentials.getUsername()), Matchers.eq(forgottenCredentials.getEmail()));
+                        Matchers.eq(forgottenCredentials.getUsername()),
+                        Matchers.eq(forgottenCredentials.getEmail()),
+                        Matchers.eq(forgottenCredentials.getCaptcha()));
     }
 
     /**
