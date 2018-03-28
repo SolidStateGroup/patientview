@@ -140,11 +140,25 @@
         </div>
     </div>
     <aside class="col-md-4">
-        <div class="news-container">
+        <div class="mobile-app">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>PatientView Mobile App</h3>
+            </div>
+            <div class="content-panel mb">
+                <div class="content-inner clearfix">
+                    <img class="pull-left app-image" src="../images/graph-200-100.png" alt="PatientView App"/>
+                    <p>Access your PatientView records and messages even more swiftly, and gain access to selected mobile-only features.</p>
+                    <a href="https://itunes.apple.com/app/patientview/id1263839920"><img class="app-store" src="../images/app-store.png" alt="Apple App store"/></a>
+                    <a href="https://play.google.com/store/apps/details?id=org.patientview.mobile"><img class="app-store" src="../images/play-store.png" alt="Google Play store"/></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="news-container" data-ng-show="newsItems">
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
-            <ul class="unstyled" data-ng-show="newsItems">
+            <ul class="unstyled">
                 <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: lastUpdate">
                     <div class="content-inner">
                         <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
@@ -163,14 +177,30 @@
                     </div>
                 </li>
             </ul>
-            <ul class="unstyled" data-ng-hide="newsItems">
-                <li class="news-item content-panel">
-                    <div class="content-inner">
-                        <h4>No Current News</h4>
-                    </div>
-                </li>
-            </ul>
-            <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><i class="icon-facebook pull-left"></i> <h3>Find us on Facebook</h3></a>
+        </div>
+
+        <div class="reviews">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span>User Reviews</h3>
+            </div>
+            <div class="content-panel mb">
+                <div class="content-inner clearfix">
+                    <ul class="list-unstyled" data-ng-repeat="review in reviews | orderBy: createdDate">
+                        <li class="review">
+                            <ul class="list-inline list-unstyled rating pull-right stars-{{review.rating}}">
+                                <li class="one"><i class="fa fa-star"></i></li>
+                                <li class="two"><i class="fa fa-star"></i></li>
+                                <li class="three"><i class="fa fa-star"></i></li>
+                                <li class="four"><i class="fa fa-star"></i></li>
+                                <li class="five"><i class="fa fa-star"></i></li>
+                            </ul>
+                            <h5>{{review.reviewerName}}</h5>
+                            <p>{{review.reviewText}}</p>
+                        </li>
+                    </ul>
+                </div>
+                <a class="clearfix full-width social-link" target="_blank" href="https://www.facebook.com/patientview"><h4><i class="fab fa-facebook-square"></i> Find us on Facebook</h4></a>
+            </div>
         </div>
     </aside>
 </div>

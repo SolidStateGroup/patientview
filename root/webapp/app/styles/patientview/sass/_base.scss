@@ -161,7 +161,7 @@ hr{
 
 .panel-header {
     padding: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 
     h3{
         margin:0;
@@ -531,6 +531,95 @@ hr{
   .news-container{
     margin-top:0;
   }
+}
+
+.mobile-app{
+    img.app-store{
+        height:44px;
+        margin-bottom:10px;
+    }
+
+    .app-image{
+        margin-right:10px;
+    }
+}
+
+.reviews{
+    .review{
+        border-bottom:1px solid #f8f8f8;
+
+        .rating{
+            margin-top:-5px;
+            li{
+                padding-right:0;
+            }
+        }
+
+        i{
+            color:#f0ad4e;
+            font-size:12px;
+        }
+
+        h5{
+            font-weight:700;
+        }
+    }
+
+    .social-link{
+        text-align: center;
+        i{
+            color:#368de8;
+        }
+    }
+
+    ul.rating{
+        &.stars-5{
+            *{
+                display:inline-block;
+            }
+        }
+
+        &.stars-4{
+            *{
+                display:inline-block;
+            }
+
+            .five{
+                display:none!important;
+            }
+        }
+
+        &.stars-3{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four{
+                display:none!important;
+            }
+        }
+
+        &.stars-2{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four, .three{
+                display:none!important;
+            }
+        }
+
+        &.stars-1{
+            *{
+                display:inline-block;
+            }
+
+            .five, .four, .three, .two{
+                display:none!important;
+            }
+        }
+    }
+
 }
 
 .user-details-header{

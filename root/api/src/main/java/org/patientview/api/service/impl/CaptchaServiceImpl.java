@@ -45,7 +45,8 @@ public class CaptchaServiceImpl extends AbstractServiceImpl<CaptchaServiceImpl> 
 
             String stringResult = result.toString();
             JSONObject jsonObj = new JSONObject(stringResult);
-            return jsonObj.get("success").equals("true");
+
+            return jsonObj.getBoolean("success");
         } catch (IOException e) {
             LOG.error("Cannot verify captcha: ", e);
             return false;

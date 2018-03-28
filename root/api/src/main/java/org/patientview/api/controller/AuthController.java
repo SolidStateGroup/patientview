@@ -57,8 +57,9 @@ public class AuthController extends BaseController<AuthController> {
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void forgottenPassword(@RequestBody ForgottenCredentials credentials)
-            throws ResourceNotFoundException, MailException, MessagingException  {
-        userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
+            throws ResourceNotFoundException, MailException, MessagingException, ResourceForbiddenException  {
+        userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail(),
+                credentials.getCaptcha());
     }
 
     /**
