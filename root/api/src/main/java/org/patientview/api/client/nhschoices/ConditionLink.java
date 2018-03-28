@@ -2,6 +2,7 @@ package org.patientview.api.client.nhschoices;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Json representation of Condition link as part of the NhsChoicesResponseJson
@@ -11,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ConditionLink {
 
     private String name;
-    private String url;
+    @JsonProperty("url")
+    private String apiUrl;
     private String description;
 
     public String getName() {
@@ -22,12 +24,12 @@ public class ConditionLink {
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
+    public String getApiUrl() {
+        return apiUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
     }
 
     public String getDescription() {
