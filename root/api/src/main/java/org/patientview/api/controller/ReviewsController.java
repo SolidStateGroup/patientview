@@ -19,8 +19,8 @@ import java.text.ParseException;
 import java.util.List;
 
 /**
- * RESTful interface for the management and retrieval of Research Studies. Research Studies are made visible to
- * specific Groups, Roles and Diagnosis
+ * RESTful interface for the management and retrieval of Platform reviews
+ * These include reviews from Facebook, Google Play and iOS
  */
 @RestController
 @ExcludeFromApiDoc
@@ -41,23 +41,6 @@ public class ReviewsController extends BaseController<ReviewsController> {
     @ResponseBody
     public ResponseEntity<List<Review>> getAll()
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(reviewService.getReviewsToDisplay(), HttpStatus.OK);
-    }
-
-    /**
-     * Temporary endpoint to create new reviews
-     * @return The new reviews
-     * @throws ResourceNotFoundException
-     * @throws ResourceForbiddenException
-     * @throws IOException
-     * @throws ParseException
-     */
-    @RequestMapping(value = "/public/reviews/create", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<Review>> createReviews()
-            throws ResourceNotFoundException, ResourceForbiddenException, IOException,
-            ParseException, GeneralSecurityException {
-        reviewService.pollForNewReviews();
         return new ResponseEntity<>(reviewService.getReviewsToDisplay(), HttpStatus.OK);
     }
 }
