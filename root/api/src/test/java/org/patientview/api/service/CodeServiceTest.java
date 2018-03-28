@@ -99,8 +99,7 @@ public class CodeServiceTest {
         Assert.assertNotNull("The returned Code should not be null", foundCode);
 
         verify(codeRepository, Mockito.times(1)).findOne(eq(code.getId()));
-        verify(nhsChoicesService, Mockito.times(1)).setIntroductionUrl(eq(code.getCode()));
-        verify(nhsChoicesService, Mockito.times(1)).setDescription(eq(code.getCode()));
+        verify(nhsChoicesService, Mockito.times(1)).updateCodeData(eq(code));
     }
 
     @Test
