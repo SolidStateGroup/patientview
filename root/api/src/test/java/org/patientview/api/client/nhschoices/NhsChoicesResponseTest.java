@@ -1,8 +1,5 @@
 package org.patientview.api.client.nhschoices;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -180,71 +177,6 @@ public class NhsChoicesResponseTest {
             "            \"@i$nil\": \"true\"\n" +
             "        },\n" +
             "        \"PimsOrganisationTypeId\": \"0\",\n" +
-            "        \"ProfileLinks\": {\n" +
-            "            \"@xmlns$d2p1\": \"http://schemas.datacontract.org/2004/07/NHSChoices.Syndication.Resources\",\n" +
-            "            \"d2p1$Link\": [\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Overview\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/overview\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Services\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/services\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Staff\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/staff\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Facilities\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/facilities\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Core Indicators\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/indicators/core\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Treatment Indicators\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/indicators/treatment\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Faq\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/faq\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Performance\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/performance\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"profile\",\n" +
-            "                    \"d2p1$Text\": \"Contact\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/contact\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"comments\",\n" +
-            "                    \"d2p1$Text\": \"Comments Before\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/commentsbefore\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"comments\",\n" +
-            "                    \"d2p1$Text\": \"Comments Since\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/commentssince\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"d2p1$Class\": \"comments\",\n" +
-            "                    \"d2p1$Text\": \"All Comments\",\n" +
-            "                    \"d2p1$Uri\": \"https://api.nhs.uk/data/gppractices/11926/comments\"\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        },\n" +
             "        \"Ratings\": {\n" +
             "            \"rating\": [\n" +
             "                {\n" +
@@ -310,6 +242,53 @@ public class NhsChoicesResponseTest {
             "    }\n" +
             "}";
 
+    private static final String FEED_JSON = "{\n" +
+            "    \"version\": \"1.0\", \n" +
+            "    \"encoding\": \"utf-8\", \n" +
+            "    \"feed\": {\n" +
+            "        \"@xmlns\": \"http://www.w3.org/2005/Atom\", \n" +
+            "        \"title\": {\n" +
+            "            \"@type\": \"text\", \n" +
+            "            \"#text\": \"NHS Choices - Brook Green Surgery - Overview\"\n" +
+            "        }, \n" +
+            "        \"id\": \"https://api.nhs.uk/data/gppractices/11926/overview\", \n" +
+            "        \"rights\": {\n" +
+            "            \"@type\": \"text\", \n" +
+            "            \"#text\": \"© Crown Copyright 2009\"\n" +
+            "        }, \n" +
+            "        \"updated\": \"2018-01-08T10:39:39Z\", \n" +
+            "        \"category\": {\n" +
+            "            \"@term\": \"Overview\"\n" +
+            "        }, \n" +
+            "        \"logo\": \"http://www.nhs.uk/nhscwebservices/documents/logo1.jpg\", \n" +
+            "        \"author\": {\n" +
+            "            \"name\": \"NHS Choices\", \n" +
+            "            \"uri\": \"http://www.nhs.uk\", \n" +
+            "            \"email\": \"webservices@nhschoices.nhs.uk\"\n" +
+            "        }, \n" +
+            "        \"link\": [\n" +
+            "            {\n" +
+            "                \"@rel\": \"self\", \n" +
+            "                \"@type\": \"application/xml\", \n" +
+            "                \"@title\": \"NHS Choices - Brook Green Surgery - Overview\", \n" +
+            "                \"@href\": \"https://api.nhs.uk/data/gppractices/11926/overview\"\n" +
+            "            }, \n" +
+            "            {\n" +
+            "                \"@rel\": \"alternate\", \n" +
+            "                \"@title\": \"NHS Choices - Brook Green Surgery - Overview\", \n" +
+            "                \"@href\": \"http://www.nhs.uk/Services/GP/Overview/DefaultView.aspx?id=42973\"\n" +
+            "            }\n" +
+            "        ], \n" +
+            "        \"tracking\": {\n" +
+            "            \"@xmlns\": \"https://api.nhs.uk/data/services\", \n" +
+            "            \"#text\": \"\"\n" +
+            "        }, \n" +
+            "        \"complete\": {\n" +
+            "            \"@xmlns\": \"http://purl.org/syndication/history/1.0\"\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+
     @Test
     public void testParse_RESPONCE_SUCCESS() throws IOException {
 
@@ -329,16 +308,22 @@ public class NhsChoicesResponseTest {
     public void testParse_ORGANIZATION_SUCCESS() throws IOException {
 
         // get JSON for organisation from NHS choices
-        JsonParser jp = new JsonParser();
-        JsonElement root = jp.parse(GP_ORGANISATION_JSON);
-        JsonObject rootobj = root.getAsJsonObject();
-        JsonObject orgobj = rootobj.get("Organisation").getAsJsonObject();
+        NhsChoicesResponseJson json = new NhsChoicesResponseJson();
+        json.parse(GP_ORGANISATION_JSON);
+        //Assert.assertNotNull("Should get Organisation in response", json.getOrganisation());
 
-        String organisationId = orgobj.get("OrganisationId").getAsString();
-        String telephone = orgobj.get("Telephone").getAsString();
+        Assert.assertNotNull("Should have OrganisationId", json.getOrganisationId());
+        Assert.assertNotNull("Should have Telephone", json.getOrganisationPhone());
 
-        Assert.assertNotNull("Should have OrganisationId", organisationId);
-        Assert.assertNotNull("Should have Telephone", telephone);
+    }
 
+    @Test
+    public void testParse_FEED_SUCCESS() throws IOException {
+
+        // get JSON for organisation from NHS choices
+        NhsChoicesResponseJson json = new NhsChoicesResponseJson();
+        json.parse(FEED_JSON);
+        Assert.assertNotNull("Should get response", json);
+        Assert.assertNotNull("Should get Feed URL in response", json.getOrganisationUrl());
     }
 }
