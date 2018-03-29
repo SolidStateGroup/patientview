@@ -2,14 +2,19 @@ package org.patientview.api.controller;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.patientview.api.config.ExcludeFromApiDoc;
+import org.patientview.api.model.Conversation;
+import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MediaTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,20 +27,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.List;
 
 import static org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl.LOGGER;
 
 /**
- * Admin RESTful interface for managing MadlinePlus services
+ * Admin RESTful interface for managing MyMedia services
  */
 @ExcludeFromApiDoc
 @RestController
@@ -44,49 +53,99 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @Inject
     private MyMediaService myMediaService;
 
+
+    @Inject
+    private ConversationService conversationService;
+
     @RequestMapping(value = "/mymedia/upload", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public MyMedia uploadMyMedia(@RequestBody MyMedia myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
-            UnsupportedEncodingException {
+            IOException {
         return myMediaService.save(myMedia);
     }
 
 
     @RequestMapping(value = "/mymedia/{id}/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public void getMYMediaContent(@PathVariable("id") final Long id, HttpServletResponse response)
+    public void getMyMediaContent(@PathVariable("id") final Long id, HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
         MyMedia myMedia = myMediaService.get(id);
 
         //Throw an exception if the current user isnt the owner
-        if (!myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId())) {
-
+        if (!myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId()) &&
+                !ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            throw new ResourceForbiddenException("You are not authorised to view this media");
         }
 
-
+        //Check what kind of media it is and stream the response
         if (myMedia.getType().equals(MediaTypes.IMAGE)) {
-            getMyMediaImage(myMedia, response);
+            getMyMediaImage(myMedia.getContent(), response);
         } else {
+            getMyMediaVideo(myMedia, response);
+        }
+    }
 
+    @RequestMapping(value = "/mymedia/{id}/preview", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public void getMyMediaPreview(@PathVariable("id") final Long id, HttpServletResponse response)
+            throws ResourceNotFoundException, IOException, ResourceForbiddenException {
+        InputStream is = null;
+        MyMedia myMedia = myMediaService.get(id);
+
+        //Throw an exception if the current user isnt the owner
+        if (!myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId()) &&
+                !ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)) {
+            throw new ResourceForbiddenException("You are not authorised to view this media");
+        }
+
+        //Check what kind of media it is and stream the response
+        if (myMedia.getType().equals(MediaTypes.IMAGE)) {
+            getMyMediaImage(myMediaService.getPreviewImage(myMedia, 300, 300), response);
+        } else {
+            getMyMediaVideo(myMedia, response);
+        }
+    }
+
+    @RequestMapping(value = "/message/{messageId}/attachement", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public void getAttachmentsForConversation(@PathVariable("messageId") final Long messageId,
+                                              HttpServletResponse response)
+            throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
+        //Check that the current user is part of a conversation and get the message
+        Message message = conversationService.getMessageById(messageId);
+
+        if (message.getMyMedia().getType().equals(MediaTypes.IMAGE)) {
+            getMyMediaImage(message.getMyMedia().getContent(), response);
+        } else {
+            getMyMediaVideo(message.getMyMedia(), response);
         }
     }
 
 
-    private void getMyMediaImage(MyMedia myMedia, HttpServletResponse response)
+    /**
+     * Internal method to get the image of a my media object
+     *
+     * @param content  - the media object to get
+     * @param response the response to stream back to the FE
+     * @throws ResourceNotFoundException
+     * @throws UnsupportedEncodingException
+     * @throws ResourceForbiddenException
+     */
+    private void getMyMediaImage(byte[] content, HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
 
         try {
             response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-            is = new ByteArrayInputStream(myMedia.getContent());
+            is = new ByteArrayInputStream(content);
 
             IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();
             response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
-            LOGGER.error("Failed to my media image id {}, exception: {}", myMedia.getId(), e.getMessage(), e);
+            LOGGER.error("Failed to my media image, exception: {}", e.getMessage(), e);
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         } finally {
             if (is != null) {
@@ -99,7 +158,15 @@ public class MyMediaController extends BaseController<MyMediaController> {
         }
     }
 
-
+    /**
+     * Stream a video to the FE
+     *
+     * @param myMedia  - the media to stream
+     * @param response - the response to stream back to
+     * @throws ResourceNotFoundException
+     * @throws UnsupportedEncodingException
+     * @throws ResourceForbiddenException
+     */
     private void getMyMediaVideo(MyMedia myMedia,
                                  HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
@@ -117,10 +184,9 @@ public class MyMediaController extends BaseController<MyMediaController> {
             IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();
             response.setStatus(HttpStatus.OK.value());
-
+            temp.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

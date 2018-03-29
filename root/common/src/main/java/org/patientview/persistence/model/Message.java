@@ -1,6 +1,8 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 import org.patientview.persistence.model.enums.MessageTypes;
 
 import javax.persistence.CascadeType;
@@ -57,6 +59,14 @@ public class Message extends BaseModel {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "created_by")
     private User creator;
+
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "attachment")
+    @Getter
+    @Setter
+    private MyMedia myMedia;
+
 
     @OneToMany(mappedBy = "message", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<MessageReadReceipt> readReceipts;

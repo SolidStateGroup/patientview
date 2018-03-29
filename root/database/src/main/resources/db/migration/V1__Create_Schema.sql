@@ -345,6 +345,7 @@ CREATE TABLE PV_Message (
   User_Id         BIGINT    REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  attachment      BIGINT REFERENCES PV_My_Media (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)

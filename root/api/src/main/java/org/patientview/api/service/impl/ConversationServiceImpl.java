@@ -1343,6 +1343,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Message getMessageById(Long messageId) throws ResourceNotFoundException, ResourceForbiddenException {
+        Message message = messageRepository.findOne(messageId);
+
+        //check if message has permission
+        this.findByConversationId(message.getConversation().getId());
+
+        return message;
+    }
+
+    /**
      * Get a Map of BaseUsers organised by Role type for global admins, used for potential Conversation recipients.
      *
      * @param groupId ID of Group to get recipients for (optional, will get for all Groups if null)

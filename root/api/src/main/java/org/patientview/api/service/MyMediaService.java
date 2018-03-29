@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface MyMediaService {
 
     //@RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT })
     MyMedia save(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            UnsupportedEncodingException;
+            IOException;
 
     MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
@@ -34,4 +35,14 @@ public interface MyMediaService {
     //@RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT })
     List<MyMedia> getAllForUser(User user) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
+
+    /**
+     * Resize an image
+     *
+     * @param myMedia my media object
+     * @param height  height to use
+     * @param width   width to use
+     * @return byte array of the image
+     */
+    byte[] getPreviewImage(MyMedia myMedia, int height, int width) throws IOException;
 }
