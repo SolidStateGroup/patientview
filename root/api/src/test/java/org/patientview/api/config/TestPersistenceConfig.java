@@ -49,7 +49,6 @@ public class TestPersistenceConfig {
         factory.setJpaProperties(properties);
         factory.afterPropertiesSet();
 
-
         return factory.getObject();
     }
 
@@ -70,9 +69,7 @@ public class TestPersistenceConfig {
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
-
         transactionManager.setJpaProperties(properties);
-
 
         return transactionManager;
     }
