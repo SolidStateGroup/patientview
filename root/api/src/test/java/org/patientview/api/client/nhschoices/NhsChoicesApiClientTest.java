@@ -27,12 +27,12 @@ public class NhsChoicesApiClientTest {
                 .setApiKey(apiKey)
                 .build();
 
-        List<ConditionLink> conditionLinks = apiClient.getConditions(letter);
+        List<ConditionLinkJson> conditionLinks = apiClient.getConditions(letter);
 
         Assert.assertNotNull("Should get condition links in response", conditionLinks);
         Assert.assertTrue("Should have condition links in response", conditionLinks.size() > 0);
 
-        for (ConditionLink link : conditionLinks) {
+        for (ConditionLinkJson link : conditionLinks) {
             Assert.assertNotNull("Should get condition name", link.getName());
             Assert.assertNotNull("Should get condition url", link.getApiUrl());
             Assert.assertNotNull("Should get condition description", link.getDescription());
@@ -47,12 +47,12 @@ public class NhsChoicesApiClientTest {
                 .setApiKey(apiKey)
                 .build();
 
-        List<ConditionLink> conditionLinks = apiClient.getAllConditions();
+        List<ConditionLinkJson> conditionLinks = apiClient.getAllConditions();
 
         Assert.assertNotNull("Should get condition links in response", conditionLinks);
         Assert.assertTrue("Should have condition links in response", conditionLinks.size() > 0);
 
-        for (ConditionLink link : conditionLinks) {
+        for (ConditionLinkJson link : conditionLinks) {
             Assert.assertNotNull("Should get condition name", link.getName());
             Assert.assertNotNull("Should get condition url", link.getApiUrl());
             Assert.assertNotNull("Should get condition description", link.getDescription());
@@ -69,7 +69,7 @@ public class NhsChoicesApiClientTest {
                 .setApiKey(apiKey)
                 .build();
 
-        List<ConditionLink> conditionLinks = apiClient.getConditions(invalidLetter);
+        List<ConditionLinkJson> conditionLinks = apiClient.getConditions(invalidLetter);
 
 
         /**
@@ -88,7 +88,7 @@ public class NhsChoicesApiClientTest {
                 .setApiKey("invalid_key")
                 .build();
 
-        List<ConditionLink> conditionLinks = apiClient.getConditions(letter);
+        List<ConditionLinkJson> conditionLinks = apiClient.getConditions(letter);
         Assert.assertNull("Should get feed in response", conditionLinks);
     }
 

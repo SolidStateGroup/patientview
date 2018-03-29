@@ -19,7 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hl7.fhir.utilities.xml.NamespaceContextMap;
 import org.joda.time.DateTime;
-import org.patientview.api.client.nhschoices.ConditionLink;
+import org.patientview.api.client.nhschoices.ConditionLinkJson;
 import org.patientview.api.client.nhschoices.NhsChoicesApiClient;
 import org.patientview.api.service.MedlinePlusService;
 import org.patientview.api.service.NhsChoicesService;
@@ -910,7 +910,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 .setApiKey(apiKey)
                 .build();
 
-        List<ConditionLink> allConditions = apiClient.getAllConditions();
+        List<ConditionLinkJson> allConditions = apiClient.getAllConditions();
         // can be null if we have communication issue
         if (allConditions == null || allConditions.isEmpty()) {
             throw new ImportResourceException("Error reading alphabetical listing of NHS Choices conditions");
@@ -918,9 +918,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         LOG.info("Found NhschoicesConditions api: " + allConditions.size());
 
-        // Transform ConditionLink into local NhschoicesCondition object, we should have
+        // Transform ConditionLinkJson into local NhschoicesCondition object, we should have
         Map<String, NhschoicesCondition> newConditionsMap = new HashMap<>();
-        for (ConditionLink condition : allConditions) {
+        for (ConditionLinkJson condition : allConditions) {
             NhschoicesCondition newCondition = new NhschoicesCondition();
             String code = getConditionCodeFromUri(condition.getApiUrl());
             newCondition.setCode(code);
@@ -952,7 +952,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         List<String> newConditionCodes = new ArrayList<>();
         Date now = new Date();
-        for (ConditionLink condition : allConditions) {
+        for (ConditionLinkJson condition : allConditions) {
             String conditionCode = getConditionCodeFromUri(condition.getApiUrl());
             newConditionCodes.add(conditionCode);
             // build condition public url from api url

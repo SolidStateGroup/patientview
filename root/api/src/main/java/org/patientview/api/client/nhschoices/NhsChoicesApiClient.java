@@ -59,7 +59,7 @@ public final class NhsChoicesApiClient {
      * @param letter an A-Z letter to filter conditions
      * @return a list of condition, or null if nothing found or cannot contact api
      */
-    public List<ConditionLink> getConditions(String letter) {
+    public List<ConditionLinkJson> getConditions(String letter) {
         if (letter == null || letter.isEmpty()) {
             throw new IllegalArgumentException("Please provide letter");
         }
@@ -80,9 +80,9 @@ public final class NhsChoicesApiClient {
      *
      * @return a list of all condition, or null if nothing found or cannot contact api
      */
-    public List<ConditionLink> getAllConditions() {
+    public List<ConditionLinkJson> getAllConditions() {
 
-        List<ConditionLink> allConditions = new ArrayList<>();
+        List<ConditionLinkJson> allConditions = new ArrayList<>();
 
         for (char alphabet = 'A'; alphabet <= 'Z'; alphabet++) {
             try {
