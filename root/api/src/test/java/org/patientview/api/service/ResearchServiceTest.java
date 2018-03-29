@@ -96,29 +96,10 @@ public class ResearchServiceTest {
     @Test
     public void testGetAllForUser() throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
         // auth
-        Group group1 = TestUtils.createGroup("testGroup");
-        Role staffRole = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
-        User staff = TestUtils.createUser("testStaff");
-        GroupRole groupRole1 = TestUtils.createGroupRole(staffRole, group1, staff);
-        Set<GroupRole> groupRoles1 = new HashSet<>();
-        groupRoles1.add(groupRole1);
-        staff.getGroupRoles().add(groupRole1);
-        TestUtils.authenticateTest(staff, groupRoles1);
-
-
         FhirPatient fhirPatient = new FhirPatient();
         fhirPatient.setGender(Sex.MALE.toString());
 
-        Group group2 = new Group();
-        group2.setId(1L);
-        group2.setCode("GROUP1");
-
-        GroupRole groupRole2 = new GroupRole();
-        groupRole2.setId(1L);
-        groupRole2.setGroup(group2);
-
-        HashSet<GroupRole> groupRoleSet = new HashSet<>();
-        groupRoleSet.add(groupRole2);
+        Group group = TestUtils.createGroup("testGroup");
 
         // code (diagnosis)
         Code code = TestUtils.createCode("Crohn's Disease");
@@ -131,13 +112,12 @@ public class ResearchServiceTest {
         User user = TestUtils.createUser("patient");
         user.setDateOfBirth(new Date(642380400000L));
 
-
-
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group2, user);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, user);
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
         user.setGroupRoles(groupRolesPatient);
+        TestUtils.authenticateTest(user, groupRolesPatient);
 
         // identifier
         Identifier identifier = TestUtils.createIdentifier(
@@ -150,17 +130,17 @@ public class ResearchServiceTest {
         user.setFhirLinks(new HashSet<FhirLink>());
         user.getFhirLinks().add(fhirLink);
 
-        Patient patient = new Patient();
-        patient.setFhirPatient(fhirPatient);
+        Patient patient1 = new Patient();
+        patient1.setFhirPatient(fhirPatient);
 
         FhirEncounter encounter = new FhirEncounter();
         encounter.setEncounterType(EncounterTypes.TREATMENT.toString());
         ArrayList<FhirEncounter> encounters = new ArrayList<>();
         encounters.add(encounter);
-        patient.setFhirEncounters(encounters);
+        patient1.setFhirEncounters(encounters);
 
         ArrayList<Patient> patients = new ArrayList<>();
-        patients.add(patient);
+        patients.add(patient1);
 
 
 
