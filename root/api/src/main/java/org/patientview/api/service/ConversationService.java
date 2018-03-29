@@ -8,6 +8,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.springframework.data.domain.Page;
@@ -161,6 +162,16 @@ public interface ConversationService {
      */
     @UserOnly
     Long getStaffRecipientCountByFeature(Long userId, String featureName) throws ResourceNotFoundException;
+
+    /**
+     * Get the specificied message by id
+     *
+     * @param messageId ID of the message to get
+     * @return Message that has ben found
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    Message getMessageById(Long messageId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Fast method of returning available Conversation recipients when a User has selected a Group in the UI.
