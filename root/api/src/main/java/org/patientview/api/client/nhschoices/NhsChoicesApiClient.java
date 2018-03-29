@@ -1,5 +1,6 @@
 package org.patientview.api.client.nhschoices;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.geronimo.mail.util.StringBufferOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -16,7 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Api Client implementation for NhsChoices API v2
@@ -29,7 +32,11 @@ public final class NhsChoicesApiClient {
 
     private static final String BASE_URL = "https://api.nhs.uk/";
     protected static final String CONDITIONS_URI = "conditions/";
-    protected static final String ORGANISATION_URI = "data/{Organisation}/all";
+    // https://api.nhs.uk/data/gppractices/odscode/{odscode} get details of GP
+    protected static final String GP_ORGANISATION_URI = "data/gppractices/odscode/";
+    // https://api.nhs.uk/data/gppractices/{id}}/overview
+    protected static final String GP_ORGANISATION_OVERVIEW_URI = "data/gppractices/";
+
 
     private String apiUrl;
     private String contentType;
@@ -60,17 +67,19 @@ public final class NhsChoicesApiClient {
      * @return a list of condition, or null if nothing found or cannot contact api
      */
     public List<ConditionLinkJson> getConditions(String letter) {
-        if (letter == null || letter.isEmpty()) {
+        if (StringUtils.isBlank(letter)) {
             throw new IllegalArgumentException("Please provide letter");
         }
+
+        // request parameters
         List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair(PARAM_SYNONYMS, "false"));
         parameters.add(new BasicNameValuePair(PARAM_CONDITION_CATEGORY, letter));
+        parameters.add(new BasicNameValuePair(PARAM_SYNONYMS, "false"));
 
         try {
             NhsChoicesResponseJson responseJson = doGet(parameters, CONDITIONS_URI);
             if (responseJson != null) {
-                responseJson.getConditionLinks();
+                return responseJson.getConditionLinks();
             }
         } catch (Exception e) {
             LOG.error("Exception in NhsChoicesApiClient ", e);
@@ -117,6 +126,52 @@ public final class NhsChoicesApiClient {
         return allConditions;
     }
 
+    /**
+     * Get GP details from NHS Choices API, used to update GpMaster url if url is not set.
+     * <p>
+     * Potentially can extract more info if needed.
+     * <p>
+     * Requires 2 calls
+     * 1. Get GP organisation id from https://api.nhs.uk/data/gppractices/odscode/{code}
+     * 2. then using id get more details from https://api.nhs.uk/data/gppractices/{id}}/overview
+     *
+     * @param practiceCode a odscode of practice
+     * @return Map of details, just url -> "http://www.nhs.uk/somepractice.com" and telephone -> 02030302002
+     */
+    public Map<String, String> getGPDetailsByPracticeCode(String practiceCode) {
+        if (StringUtils.isBlank(practiceCode)) {
+            throw new IllegalArgumentException("Please provide GP practice code");
+        }
+
+        // Step 1: Get details of GP to get organization id (/data/gppractices/odscode/{odscode})
+        String uri = GP_ORGANISATION_URI + practiceCode;
+
+        try {
+            NhsChoicesResponseJson responseJson = doGet(null, uri);
+            if (responseJson != null) {
+                String organizationId = responseJson.getOrganisationId();
+                if (StringUtils.isNotBlank(organizationId)) {
+                    // STEP 2: get  GP url and phone (/data/gppractices/{id}}/overview)
+                    String overviewUri = GP_ORGANISATION_OVERVIEW_URI + organizationId + "/overview";
+                    NhsChoicesResponseJson overviewResponseJson = doGet(null, overviewUri);
+                    if (overviewResponseJson != null) {
+                        Map<String, String> details = new HashMap<>();
+                        details.put("telephone", overviewResponseJson.getOrganisationPhone());
+                        details.put("url", overviewResponseJson.getOrganisationUrl());
+                        return details;
+                    } else {
+                        LOG.error("NhsChoicesResponseJson is null for overview uri" + overviewUri);
+                    }
+                } else {
+                    LOG.error("Could not find GP organization for practice code " + practiceCode);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Exception in NhsChoicesApiClient ", e);
+        }
+        return null;
+    }
+
     public void close() {
         try {
             client.close();
@@ -131,7 +186,6 @@ public final class NhsChoicesApiClient {
         if (parameters != null) {
             urlBuilder.addParameters(parameters);
         }
-
 
         HttpGet get = new HttpGet(urlBuilder.build());
         // set headers
