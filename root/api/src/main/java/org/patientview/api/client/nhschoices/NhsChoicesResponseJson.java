@@ -20,7 +20,7 @@ import java.util.List;
 public class NhsChoicesResponseJson {
 
     @JsonProperty("significantLink")
-    private List<ConditionLink> conditionLinks;
+    private List<ConditionLinkJson> conditionLinks;
 
     @JsonIgnore
     public void parse(String body) throws IOException {
@@ -37,11 +37,11 @@ public class NhsChoicesResponseJson {
         setConditionLinks(prototype.getConditionLinks());
     }
 
-    public List<ConditionLink> getConditionLinks() {
+    public List<ConditionLinkJson> getConditionLinks() {
         return conditionLinks;
     }
 
-    public void setConditionLinks(List<ConditionLink> conditionLinks) {
+    public void setConditionLinks(List<ConditionLinkJson> conditionLinks) {
         this.conditionLinks = conditionLinks;
     }
 
