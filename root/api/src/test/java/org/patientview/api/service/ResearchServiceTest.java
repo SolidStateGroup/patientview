@@ -95,19 +95,30 @@ public class ResearchServiceTest {
      */
     @Test
     public void testGetAllForUser() throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        // auth
+        Group group1 = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole1 = TestUtils.createGroupRole(staffRole, group1, staff);
+        Set<GroupRole> groupRoles1 = new HashSet<>();
+        groupRoles1.add(groupRole1);
+        staff.getGroupRoles().add(groupRole1);
+        TestUtils.authenticateTest(staff, groupRoles1);
+
+
         FhirPatient fhirPatient = new FhirPatient();
         fhirPatient.setGender(Sex.MALE.toString());
 
-        Group group = new Group();
-        group.setId(1L);
-        group.setCode("GROUP1");
+        Group group2 = new Group();
+        group2.setId(1L);
+        group2.setCode("GROUP1");
 
-        GroupRole groupRole = new GroupRole();
-        groupRole.setId(1L);
-        groupRole.setGroup(group);
+        GroupRole groupRole2 = new GroupRole();
+        groupRole2.setId(1L);
+        groupRole2.setGroup(group2);
 
         HashSet<GroupRole> groupRoleSet = new HashSet<>();
-        groupRoleSet.add(groupRole);
+        groupRoleSet.add(groupRole2);
 
         // code (diagnosis)
         Code code = TestUtils.createCode("Crohn's Disease");
@@ -123,7 +134,7 @@ public class ResearchServiceTest {
 
 
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, user);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group2, user);
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
         user.setGroupRoles(groupRolesPatient);
