@@ -63,9 +63,12 @@ public final class NhsChoicesApiClient {
         if (letter == null || letter.isEmpty()) {
             throw new IllegalArgumentException("Please provide letter");
         }
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair(PARAM_SYNONYMS, "false"));
+        parameters.add(new BasicNameValuePair(PARAM_CONDITION_CATEGORY, letter));
 
         try {
-            NhsChoicesResponseJson responseJson = doGet(letter, CONDITIONS_URI);
+            NhsChoicesResponseJson responseJson = doGet(parameters, CONDITIONS_URI);
             if (responseJson != null) {
                 responseJson.getConditionLinks();
             }
@@ -84,9 +87,16 @@ public final class NhsChoicesApiClient {
 
         List<ConditionLinkJson> allConditions = new ArrayList<>();
 
+        // request parameters
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair(PARAM_SYNONYMS, "false"));
+
+        // run from A-Z to get all conditions
         for (char alphabet = 'A'; alphabet <= 'Z'; alphabet++) {
             try {
-                NhsChoicesResponseJson responseJson = doGet(String.valueOf(alphabet), CONDITIONS_URI);
+                // add code parameter
+                parameters.add(new BasicNameValuePair(PARAM_CONDITION_CATEGORY, String.valueOf(alphabet)));
+                NhsChoicesResponseJson responseJson = doGet(parameters, CONDITIONS_URI);
                 if (responseJson != null) {
                     allConditions.addAll(responseJson.getConditionLinks());
                 } else {
@@ -115,16 +125,13 @@ public final class NhsChoicesApiClient {
         }
     }
 
-    private NhsChoicesResponseJson doGet(String letter, String uri) throws IOException, URISyntaxException {
-
-        // add code parameter
-        List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair(PARAM_CONDITION_CATEGORY, letter));
-        parameters.add(new BasicNameValuePair(PARAM_SYNONYMS, "false"));
-
+    private NhsChoicesResponseJson doGet(List<NameValuePair> parameters, String uri) throws IOException, URISyntaxException {
         // Build the server url together with the parameters you wish to pass
         URIBuilder urlBuilder = new URIBuilder(buildFullUrl(uri));
-        urlBuilder.addParameters(parameters);
+        if (parameters != null) {
+            urlBuilder.addParameters(parameters);
+        }
+
 
         HttpGet get = new HttpGet(urlBuilder.build());
         // set headers
