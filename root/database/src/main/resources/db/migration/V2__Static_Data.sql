@@ -356,7 +356,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (26, 5, 122,  '/newstaff', 'views/newstaff.html','NewUserCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (27, 5, 160,  '/admin', 'views/admin.html','AdminCtrl', 'Site Administration', now(), 1 );
+  (27, 4, 160,  '/admin', 'views/siteadmin.html','SiteAdminCtrl', 'Site Administration', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (28, 5, 170,  '/surveys/managing', 'views/surveys/managing.html','SurveysManagingCtrl', 'Managing Your Health', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -370,9 +370,9 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (33, 5, 220,  '/resultsedit', 'views/resultsedit.html','ResultsEditCtrl', 'Edit Own Results', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (34, 4, 80,  '/research', 'views/research.html','ResearchCtrl', 'Research Studies', now(), 1);
+  (34, 4, 80,  '/research', 'views/research.html','ResearchCtrl', 'Research', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (35, 5, 160,  '/siteadmin', 'views/siteadmin.html','AdminCtrl', 'Site Administration', now(), 1 );
+  (35, 5, 160,  '/siteadmin', 'views/admin.html','AdminCtrl', 'Admin', now(), 1 );
 
 
 
@@ -520,7 +520,7 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 
 /* Research studies */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
-  (68, 34, 1, null, null, now(), 1 );
+  (69, 34, null, 1, null, now(), 1 );
 
 /* site administration */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES

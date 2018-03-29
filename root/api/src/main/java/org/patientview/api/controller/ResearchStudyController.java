@@ -119,8 +119,6 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
-
-
         return new ResponseEntity<>(researchService.getAllForUser(userId, limitResults, pageable), HttpStatus.OK);
     }
 }
