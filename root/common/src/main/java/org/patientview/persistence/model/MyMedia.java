@@ -72,7 +72,7 @@ public class MyMedia extends BaseModel {
     //Used when Frontend sends content up
     @Transient
     private String data;
-    
+
     public String getThumbnail(){
         return String.format("%s/mymedia/%d/content", properties.getProperty("site.url"), getId());
     }
