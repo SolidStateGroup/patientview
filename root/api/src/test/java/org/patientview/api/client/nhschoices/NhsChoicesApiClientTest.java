@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tests for NhsChoices v2 api client implementation
@@ -90,6 +91,35 @@ public class NhsChoicesApiClientTest {
 
         List<ConditionLinkJson> conditionLinks = apiClient.getConditions(letter);
         Assert.assertNull("Should get feed in response", conditionLinks);
+    }
+
+    @Ignore("Need to add nhs choices api key to run the test")
+    @Test
+    public void testApiClient_Return_GP_Details_When_Practice_Code_Valid() throws IOException {
+
+        NhsChoicesApiClient apiClient = NhsChoicesApiClient.newBuilder()
+                .setApiKey(apiKey)
+                .build();
+
+        String gpPracticeCode = "E85074";
+
+        Map<String, String> gpDetails = apiClient.getGPDetailsByPracticeCode(gpPracticeCode);
+        Assert.assertNotNull("Should get GP details in response", gpDetails);
+    }
+
+    @Ignore("Need to add nhs choices api key to run the test")
+    @Test
+    public void testApiClient_Return_Null_When_Practice_Code_Invalid() throws IOException {
+
+        // send invalid letter
+        String letter = "A";
+        NhsChoicesApiClient apiClient = NhsChoicesApiClient.newBuilder()
+                .setApiKey(apiKey)
+                .build();
+        String invalidPracticeCode = "123";
+
+        Map<String, String> gpDetails = apiClient.getGPDetailsByPracticeCode(invalidPracticeCode);
+        Assert.assertNull("Should Not get any GP details in response", gpDetails);
     }
 
     @Test
