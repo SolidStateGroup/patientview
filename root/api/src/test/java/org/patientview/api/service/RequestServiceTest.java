@@ -110,7 +110,7 @@ public class RequestServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(requestRepository.save(any(Request.class))).thenReturn(request);
-
+        when(captchaService.verify(any(String.class))).thenReturn(true);
         request = requestService.add(request);
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
@@ -136,6 +136,7 @@ public class RequestServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(requestRepository.save(any(Request.class))).thenReturn(request);
+        when(captchaService.verify(any(String.class))).thenReturn(true);
 
         request = requestService.add(request);
 
@@ -165,6 +166,7 @@ public class RequestServiceTest {
         request.setGroupId(group.getId());
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
+        when(captchaService.verify(any(String.class))).thenReturn(true);
 
         requestService.add(request);
 
