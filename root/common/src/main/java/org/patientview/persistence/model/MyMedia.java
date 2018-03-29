@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.patientview.persistence.model.enums.MediaTypes;
 
+import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,11 +16,16 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import java.util.Date;
+import java.util.Properties;
 
 @Entity
 @Data
 @Table(name = "pv_my_media")
 public class MyMedia extends BaseModel {
+
+    @Inject
+    private Properties properties;
+
 
     @Column(name = "media_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -46,7 +52,6 @@ public class MyMedia extends BaseModel {
     @Column(name = "width")
     private int width;
 
-    @Column(name = "thumbnail")
     private String thumbnail;
 
     @Column(name = "deleted", nullable = false)
@@ -67,6 +72,8 @@ public class MyMedia extends BaseModel {
     //Used when Frontend sends content up
     @Transient
     private String data;
-
+    
+    public String getThumbnail(){
+        return String.format("%s/mymedia/%d/content", properties.getProperty("site.url"), getId());
+    }
 }
-
