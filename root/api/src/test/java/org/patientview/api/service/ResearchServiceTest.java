@@ -95,19 +95,11 @@ public class ResearchServiceTest {
      */
     @Test
     public void testGetAllForUser() throws FhirResourceException, ResourceForbiddenException, ResourceNotFoundException {
+        // auth
         FhirPatient fhirPatient = new FhirPatient();
         fhirPatient.setGender(Sex.MALE.toString());
 
-        Group group = new Group();
-        group.setId(1L);
-        group.setCode("GROUP1");
-
-        GroupRole groupRole = new GroupRole();
-        groupRole.setId(1L);
-        groupRole.setGroup(group);
-
-        HashSet<GroupRole> groupRoleSet = new HashSet<>();
-        groupRoleSet.add(groupRole);
+        Group group = TestUtils.createGroup("testGroup");
 
         // code (diagnosis)
         Code code = TestUtils.createCode("Crohn's Disease");
@@ -120,13 +112,12 @@ public class ResearchServiceTest {
         User user = TestUtils.createUser("patient");
         user.setDateOfBirth(new Date(642380400000L));
 
-
-
         Role patientRole = TestUtils.createRole(RoleName.PATIENT);
         GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, user);
         Set<GroupRole> groupRolesPatient = new HashSet<>();
         groupRolesPatient.add(groupRolePatient);
         user.setGroupRoles(groupRolesPatient);
+        TestUtils.authenticateTest(user, groupRolesPatient);
 
         // identifier
         Identifier identifier = TestUtils.createIdentifier(
@@ -139,17 +130,17 @@ public class ResearchServiceTest {
         user.setFhirLinks(new HashSet<FhirLink>());
         user.getFhirLinks().add(fhirLink);
 
-        Patient patient = new Patient();
-        patient.setFhirPatient(fhirPatient);
+        Patient patient1 = new Patient();
+        patient1.setFhirPatient(fhirPatient);
 
         FhirEncounter encounter = new FhirEncounter();
         encounter.setEncounterType(EncounterTypes.TREATMENT.toString());
         ArrayList<FhirEncounter> encounters = new ArrayList<>();
         encounters.add(encounter);
-        patient.setFhirEncounters(encounters);
+        patient1.setFhirEncounters(encounters);
 
         ArrayList<Patient> patients = new ArrayList<>();
-        patients.add(patient);
+        patients.add(patient1);
 
 
 

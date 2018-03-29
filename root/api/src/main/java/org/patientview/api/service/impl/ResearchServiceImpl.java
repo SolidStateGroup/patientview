@@ -285,19 +285,25 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             if (gender == null) {
                 query += "(CAST(rc.criteria ->> 'gender' AS TEXT) IS NULL) AND ";
             } else {
-                query += "(rc.criteria->>'gender'= '" + gender + "' OR (CAST(rc.criteria ->> 'gender' AS TEXT) IS NULL)) AND \n";
+                query += "(rc.criteria->>'gender'= '" + gender +
+                        "' OR (CAST(rc.criteria ->> 'gender' AS TEXT) IS NULL)) AND \n";
             }
-            query += "(CAST(rc.criteria->>'toAge' AS INT) >= " + age + " OR (CAST(rc.criteria ->> 'toAge' AS TEXT) IS NULL)) AND \n" +
-                    "(CAST(rc.criteria->>'fromAge' AS INT) <= " + age + " OR (CAST(rc.criteria ->> 'fromAge' AS TEXT) IS NULL)) \n " +
+            query += "(CAST(rc.criteria->>'toAge' AS INT) >= " + age +
+                    " OR (CAST(rc.criteria ->> 'toAge' AS TEXT) IS NULL)) AND \n" +
+                    "(CAST(rc.criteria->>'fromAge' AS INT) <= " + age +
+                    " OR (CAST(rc.criteria ->> 'fromAge' AS TEXT) IS NULL)) \n " +
 
                     "AND (((rc.criteria ->> 'groupIds') = '[]') OR " +
-                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'groupIds' AS jsonb) AS text), '[]','{}') AS INT[])) && '{" + StringUtils.join(groups, ",") + "}')) \n" +
+                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'groupIds' AS jsonb) AS text), '[]','{}') AS INT[])) " +
+                    "&& '{" + StringUtils.join(groups, ",") + "}')) \n" +
 
                     "AND (((rc.criteria ->> 'treatmentIds') IS NULL) OR " +
-                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'treatmentIds' AS jsonb) AS text), '[]','{}') AS INT[])) && '{" + StringUtils.join(treatmentCodes, ",") + "}')) \n" +
+                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'treatmentIds' AS jsonb) AS text), '[]','{}') AS INT[]))" +
+                    " && '{" + StringUtils.join(treatmentCodes, ",") + "}')) \n" +
 
                     "AND (((rc.criteria ->> 'diagnosisIds') IS NULL) OR " +
-                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'diagnosisIds' AS jsonb) AS text), '[]','{}') AS INT[])) && '{" + StringUtils.join(diagnosisCodes, ",") + "}')) \n" +
+                    "((CAST(TRANSLATE(CAST(CAST(rc.criteria->'diagnosisIds' AS jsonb) AS text), '[]','{}') AS INT[]))" +
+                    " && '{" + StringUtils.join(diagnosisCodes, ",") + "}')) \n" +
 
                     "AND available_from <= NOW() AND available_to >= NOW() " +
                     "ORDER BY r.created_date DESC";
