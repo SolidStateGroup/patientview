@@ -19,8 +19,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.codes = [];
         $scope.observations = [];
 
-        $scope.vscale = 50;
-
+        $scope.vscale = 0;
+        $scope.lastvscale = 0;
         // handle single result type from query parameter
         var code = $routeParams.code;
 
@@ -172,7 +172,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         legend.enabled = $scope.codes.length > 1;
 
-        $('#chart_div').highcharts('StockChart', {
+        var chart = $('#chart_div').highcharts('StockChart', {
             rangeSelector : {
                 buttons: [{
                     type: 'month',
@@ -209,15 +209,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             },
             series: series,
             chart: {
-                events: {
-                    zoomType: 'x',
-                    redraw: function (event) {
-                        var minDate = event.target.xAxis[0].min;
-                        var maxDate = event.target.xAxis[0].max;
-                        $scope.showHideObservationsInTable(minDate, maxDate);
-                    }
-                },
-                zoomType: 'xy'
+                followTouchMove:false,
+                ignoreHiddenSeries:true,
+                zoomType: 'xy',
+                panning: true,
+                panKey: 'shift'
             },
             xAxis: {
                 minTickInterval: 864000000,
@@ -235,7 +231,12 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 text: 'ESEMPIO',
                 ordinal: false
             },
-            yAxis: yAxis,
+            yAxis: {
+                scrollbar: {
+                    enabled: true,
+                    showFull: false
+                }
+            },
             tooltip: {
                 minTickInterval: 864000000,
                 type: 'datetime',
@@ -253,7 +254,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         });
         $scope.setRangeInDays(9999);
-
         $scope.chartLoading = false;
     };
 
@@ -402,10 +402,33 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         });
     };
 
-    $scope.sliderChanged = function (value) {
-        console.log("Got scale value " + value);
-        //return Math.pow(value,3);
+    $scope.sliderChanged = function () {
+        if (this.debouncedSliderChanged)
+            clearTimeout(this.debouncedSliderChanged);
+        this.debouncedSliderChanged = setTimeout(function () {
+            if ($scope.lastvscale != $scope.vscale) {
+                $scope.lastvscale = $scope.vscale;
+                var value = $scope.vscale/100;
+                var chart = $('#chart_div').highcharts();
+                //reduce % each side
+                if (chart) {
+                    var min = chart.yAxis[0].dataMin;
+                    var max = chart.yAxis[0].dataMax;
+                    var range = (max - min)/2;
+                    var diff = range * value;
+                    chart.yAxis[0].setExtremes(min+diff,max-diff)
+                    console.log(value,chart);
+                    console.log("chart")
+                } else {
+                    console.log("ok")
+                }
+            }
+
+        },200)
+
+
     };
+
 
     $scope.extendXAxis = function (value) {
         console.log("X Axis changed " + value);
