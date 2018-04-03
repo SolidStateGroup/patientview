@@ -11,13 +11,16 @@ import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,14 +60,21 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @Inject
     private ConversationService conversationService;
 
-    @RequestMapping(value = "/mymedia/upload", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/{userId}/mymedia/upload", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public MyMedia uploadMyMedia(@RequestBody MyMedia myMedia)
+    public MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
             IOException {
-        return myMediaService.save(myMedia);
+        return myMediaService.save(userId, myMedia);
     }
 
+    @RequestMapping(value = "/user/{userId}/mymedia", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<List<MyMedia>>> getMyMedia(@PathVariable("userId") Long userId,
+                                                          GetParameters getParameters)
+            throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
+        return new ResponseEntity<>(myMediaService.getAllForUser(userId, getParameters), HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/mymedia/{id}/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

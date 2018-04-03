@@ -5,6 +5,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-public interface MyMediaRepository extends CrudRepository<MyMedia, Long> {
+public interface MyMediaRepository extends JpaRepository<MyMedia, Long> {
 
-    List<MyMedia> getByCreator(User user);
+    Page<List<MyMedia>> getByCreator(User user, Pageable pageable);
 }

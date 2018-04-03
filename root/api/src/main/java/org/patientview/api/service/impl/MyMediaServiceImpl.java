@@ -1,14 +1,19 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.MyMediaRepository;
 import org.apache.commons.codec.binary.Base64;
+import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -19,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
-import static org.patientview.api.util.ApiUtil.getCurrentUser;
 
 /**
  * Class to control the crud operations of the News.
@@ -35,9 +38,14 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     private MyMediaRepository myMediaRepository;
 
 
+    @Autowired
+    private UserRepository userRepository;
+
+
     @Override
-    public MyMedia save(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException, IOException {
-        User currentUser = getCurrentUser();
+    public MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
+            IOException {
+        User currentUser = userRepository.findOne(userId);
         myMedia.setCreator(currentUser);
 
         if (myMedia.getData() != null) {
@@ -51,18 +59,30 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     }
 
     @Override
-    public MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
+    public MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
+            UnsupportedEncodingException {
         return myMediaRepository.findOne(id);
     }
 
     @Override
-    public void delete(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
+    public void delete(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
+            UnsupportedEncodingException {
         myMediaRepository.delete(myMedia);
     }
 
     @Override
-    public List<MyMedia> getAllForUser(User user) throws ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
-        return myMediaRepository.getByCreator(user);
+    public Page<List<MyMedia>> getAllForUser(Long userId, GetParameters getParameters) throws
+            ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
+
+        return myMediaRepository.getByCreator(userRepository.findOne(userId), pageable);
     }
 
     @Override

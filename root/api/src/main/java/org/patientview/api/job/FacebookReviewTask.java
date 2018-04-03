@@ -26,7 +26,7 @@ public class FacebookReviewTask {
      * Pull in new reviews
      */
     @Scheduled(cron = "0 0 2 * * ?") // every day at 02:00
-    public void removeOldAuditXml() throws ResourceNotFoundException, FhirResourceException, UktException {
+    public void pollForNewReviews() throws ResourceNotFoundException, FhirResourceException, UktException {
         try {
             LOG.info("Getting new Facebook reviews");
             reviewService.pollForNewReviews();

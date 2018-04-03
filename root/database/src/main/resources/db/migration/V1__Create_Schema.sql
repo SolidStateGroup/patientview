@@ -253,7 +253,7 @@ CREATE TABLE PV_File_Data
 (
   Id              BIGINT NOT NULL,
   Name            TEXT NOT NULL,
-  Type            TEXT NOT NULL,
+  Type            TEXT NOT NULL,s
   Size            BIGINT NOT NULL,
   Content         BYTEA NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
@@ -345,6 +345,7 @@ CREATE TABLE PV_Message (
   User_Id         BIGINT    REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Has_Attachment  BOOL      NULL,
   attachment      BIGINT REFERENCES PV_My_Media (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
