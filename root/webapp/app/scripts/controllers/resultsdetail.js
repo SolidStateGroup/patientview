@@ -19,6 +19,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.codes = [];
         $scope.observations = [];
 
+        $scope.vscale = 50;
+
         // handle single result type from query parameter
         var code = $routeParams.code;
 
@@ -214,7 +216,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                         var maxDate = event.target.xAxis[0].max;
                         $scope.showHideObservationsInTable(minDate, maxDate);
                     }
-                }
+                },
+                zoomType: 'xy'
             },
             xAxis: {
                 minTickInterval: 864000000,
@@ -397,6 +400,28 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         }, function () {
             // closed
         });
+    };
+
+    $scope.sliderChanged = function (value) {
+        console.log("Got scale value " + value);
+        //return Math.pow(value,3);
+    };
+
+    $scope.extendXAxis = function (value) {
+        console.log("X Axis changed " + value);
+        var months = value;
+        var charts = $('#chart_div').highcharts();
+        var xaxis = charts.xAxis[0];
+        var min = charts.xAxis[0].min;
+        var max = charts.xAxis[0].max;
+        var maxDate = new Date(charts.xAxis[0].max);
+        var newMaxDate = new Date(new Date(maxDate).setMonth(maxDate.getMonth()+6));
+        //new Date(dt.setMonth(dt.getMonth() + n));
+        // newMax.setMonth(maxDate.getMonth() + value)
+        // console.log("X Axis min " + charts.xAxis[0].min);
+        // console.log("X Axis max " + charts.xAxis[0].max);
+        console.log("X Axis newMax " + newMaxDate);
+        //charts.xAxis[0].setExtremes(min, newMaxDate.getTime());
     };
 
     $scope.init();
