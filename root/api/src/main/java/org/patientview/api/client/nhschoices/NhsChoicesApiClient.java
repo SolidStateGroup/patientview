@@ -22,7 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Api Client implementation for NhsChoices API v2
+ * Api Client implementation for NhsChoices API v2.
+ *
+ * This client covers 2 NhsChoices service subscriptions: Conditions and Organisation data.
+ *
+ * Each of them requires different ste of api key, which can be found under Developers
+ * console (https://developer.api.nhs.uk/developer)
  */
 public final class NhsChoicesApiClient {
 
