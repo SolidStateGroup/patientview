@@ -269,9 +269,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
 
         try {
-            String apiKey = properties.getProperty("nhschoices.api.key");
+            // need to use different api key for each service
+            String apiKey = properties.getProperty("nhschoices.organisation.api.key");
 
-            // Get details from NHSChoice API
+            // Get details from NHSChoice Organisation data API
             NhsChoicesApiClient apiClient = NhsChoicesApiClient.newBuilder()
                     .setApiKey(apiKey)
                     .build();
@@ -833,9 +834,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         LOG.info("START Update NhschoicesCondition process");
         long start = System.currentTimeMillis();
 
-        String apiKey = properties.getProperty("nhschoices.api.key");
+        // need to use different api key for each service
+        String apiKey = properties.getProperty("nhschoices.conditions.api.key");
 
-        // contact NHSChoices API to get all the conditions
+        // contact NHSChoices Conditions API to get all the conditions
         // and transform them into local NhschoicesCondition object
         // we should have enough information to build full object
         NhsChoicesApiClient apiClient = NhsChoicesApiClient.newBuilder()
