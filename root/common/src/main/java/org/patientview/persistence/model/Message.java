@@ -67,6 +67,10 @@ public class Message extends BaseModel {
     @Setter
     private MyMedia myMedia;
 
+    @Column(name = "has_attachment")
+    @Getter
+    @Setter
+    private Boolean hasAttachment;
 
     @OneToMany(mappedBy = "message", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<MessageReadReceipt> readReceipts;

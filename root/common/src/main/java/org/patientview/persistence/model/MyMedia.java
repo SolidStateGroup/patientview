@@ -23,10 +23,6 @@ import java.util.Properties;
 @Table(name = "pv_my_media")
 public class MyMedia extends BaseModel {
 
-    @Inject
-    private Properties properties;
-
-
     @Column(name = "media_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private MediaTypes type;
@@ -52,8 +48,6 @@ public class MyMedia extends BaseModel {
     @Column(name = "width")
     private int width;
 
-    private String thumbnail;
-
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
 
@@ -71,9 +65,10 @@ public class MyMedia extends BaseModel {
 
     //Used when Frontend sends content up
     @Transient
+    @JsonIgnore
     private String data;
 
     public String getThumbnail(){
-        return String.format("%s/mymedia/%d/content", properties.getProperty("site.url"), getId());
+        return String.format("/mymedia/%d/content", getId());
     }
 }

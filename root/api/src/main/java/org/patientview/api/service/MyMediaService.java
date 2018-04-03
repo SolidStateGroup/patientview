@@ -4,12 +4,11 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.MyMedia;
-import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,21 +19,23 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface MyMediaService {
 
-    //@RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT })
-    MyMedia save(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
+    @UserOnly
+    MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
             IOException;
 
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT})
     MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
 
-    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT })
+    @UserOnly
     void delete(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
 
 
-    //@RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT })
-    List<MyMedia> getAllForUser(User user) throws ResourceNotFoundException, ResourceForbiddenException,
-            UnsupportedEncodingException;
+    @UserOnly
+    Page<List<MyMedia>> getAllForUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException,
+            ResourceForbiddenException, UnsupportedEncodingException;
+
 
     /**
      * Resize an image

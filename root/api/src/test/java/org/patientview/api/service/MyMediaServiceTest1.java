@@ -45,7 +45,7 @@ public class MyMediaServiceTest1 {
         myMedia.setCreator(creator);
         when(myMediaRepository.save(eq(myMedia))).thenReturn(myMedia);
 
-        MyMedia savedMyMedia = myMediaService.save(myMedia);
+        MyMedia savedMyMedia = myMediaService.save(creator.getId(), myMedia);
 
         assertNotNull(savedMyMedia);
     }

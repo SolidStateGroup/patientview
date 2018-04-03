@@ -25,6 +25,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
+import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
@@ -42,6 +43,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.MessageRepository;
+import org.patientview.persistence.repository.MyMediaRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
@@ -78,6 +80,9 @@ public class ConversationServiceTest {
 
     @InjectMocks
     ConversationService conversationService = new ConversationServiceImpl();
+
+    @Mock
+    MyMediaRepository myMediaRepository;
 
     @Mock
     EmailService emailService;
@@ -751,6 +756,174 @@ public class ConversationServiceTest {
                 email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
         assertTrue("Email should contain patient role",
                 email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
+    }
+
+    @Test
+    public void testCreateConversation_PatientToUnitAdmin_WithMedia() throws Exception {
+        // set up group
+        Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        // add user1 as patient
+        User user1 = TestUtils.createUser("newTestUser1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(groupRole);
+        user1.setUserFeatures(new HashSet<UserFeature>());
+
+        // add user2 as unit admin
+        User user2 = TestUtils.createUser("newTestUser2");
+        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
+        user2.setGroupRoles(new TreeSet<GroupRole>());
+        user2.getGroupRoles().add(groupRole2);
+        user2.setUserFeatures(new HashSet<UserFeature>());
+        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
+        user2.getUserFeatures().add(userFeature2);
+
+        // authenticate user1
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.MESSAGE);
+
+        MyMedia myMedia = new MyMedia();
+        myMedia.setId(123L);
+        myMedia.setCreator(user1);
+
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.MESSAGE);
+        message.setMyMedia(myMedia);
+
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+        when(myMediaRepository.findOne(myMedia.getId())).thenReturn(myMedia);
+
+        conversationService.addConversation(user1.getId(), conversation);
+
+        verify(emailService, times(1)).sendEmail(emailCaptor.capture());
+
+        Email email = emailCaptor.getValue();
+        List<String> recipients = Arrays.asList(email.getRecipients());
+
+        assertTrue("Email should be sent to correct recipient", recipients.contains(user2.getEmail()));
+        assertTrue("Email should contain patient name", email.getBody().contains(user1.getName()));
+        assertTrue("Email should contain patient group",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getGroup().getName()));
+        assertTrue("Email should contain patient role",
+                email.getBody().contains(user1.getGroupRoles().iterator().next().getRole().getName().getName()));
+    }
+
+    @Test(expected=ResourceForbiddenException.class)
+    public void testCreateConversation_PatientToUnitAdmin_WithMediaException() throws Exception {
+        // set up group
+        Group testGroup = TestUtils.createGroup("testGroup");
+        testGroup.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        Feature messagingFeature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(messagingFeature, testGroup);
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        // add user1 as patient
+        User user1 = TestUtils.createUser("newTestUser1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(groupRole);
+        user1.setUserFeatures(new HashSet<UserFeature>());
+
+        // add user2 as unit admin
+        User user2 = TestUtils.createUser("newTestUser2");
+        Role role2 = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, testGroup, user2);
+        user2.setGroupRoles(new TreeSet<GroupRole>());
+        user2.getGroupRoles().add(groupRole2);
+        user2.setUserFeatures(new HashSet<UserFeature>());
+        UserFeature userFeature2 = TestUtils.createUserFeature(messagingFeature, user2);
+        user2.getUserFeatures().add(userFeature2);
+
+        // authenticate user1
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.MESSAGE);
+
+        MyMedia myMedia = new MyMedia();
+        myMedia.setId(123L);
+        myMedia.setCreator(user2);
+
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.MESSAGE);
+        message.setMyMedia(myMedia);
+
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+        when(myMediaRepository.findOne(myMedia.getId())).thenReturn(myMedia);
+
+        conversationService.addConversation(user1.getId(), conversation);
     }
 
     @Test

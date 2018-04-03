@@ -1,6 +1,8 @@
 package org.patientview.api.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MessageTypes;
 
@@ -13,14 +15,13 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 19/09/2014
  */
-@Data
 public class Message {
 
     private Long id;
     private MessageTypes type;
     private BaseUser user;
     private String message;
-    private MyMedia myMedia;
+    private Long myMediaId;
     private Date created;
     private Set<MessageReadReceipt> readReceipts;
 
@@ -75,6 +76,14 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Long getMyMediaId() {
+        return myMediaId;
+    }
+
+    public void setMyMediaId(Long myMediaId) {
+        this.myMediaId = myMediaId;
     }
 
     public Date getCreated() {
