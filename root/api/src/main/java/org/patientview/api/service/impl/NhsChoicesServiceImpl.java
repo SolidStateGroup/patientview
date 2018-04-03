@@ -1,17 +1,11 @@
 package org.patientview.api.service.impl;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.abdera.Abdera;
-import org.apache.abdera.i18n.iri.IRI;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-import org.apache.abdera.model.Link;
 import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.parser.Parser;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -275,76 +269,14 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
 
         try {
-            Map<String, String> details = new HashMap<>();
             String apiKey = properties.getProperty("nhschoices.api.key");
 
-            // get organisation ID from NHS choices
-            URL practiceUrl = new URL("http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/odscode/"
-                    + practiceCode
-                    + ".json?apikey="
-                    + apiKey);
+            // Get details from NHSChoice API
+            NhsChoicesApiClient apiClient = NhsChoicesApiClient.newBuilder()
+                    .setApiKey(apiKey)
+                    .build();
 
-            // get JSON for organisation from NHS choices
-            JsonParser jp = new JsonParser();
-            JsonElement root = jp.parse(IOUtils.toString(practiceUrl));
-            JsonObject rootobj = root.getAsJsonObject();
-
-            // must be an object
-            if (!rootobj.isJsonObject()) {
-                return null;
-            }
-
-            // must have organisation id
-            JsonElement organisationIdObj = rootobj.get("OrganisationId");
-            if (organisationIdObj == null) {
-                return null;
-            }
-
-            String organisationId = organisationIdObj.getAsString();
-            if (StringUtils.isEmpty(organisationId)) {
-                return null;
-            }
-
-            JsonElement telephoneObj = rootobj.get("Telephone");
-            if (telephoneObj != null) {
-                String telephone = telephoneObj.getAsString();
-                if (StringUtils.isNotEmpty(telephone)) {
-                    details.put("telephone", telephone);
-                }
-            }
-
-            // generate overview URL from found organisationId
-            URL overviewUrl = new URL(
-                    "http://v1.syndication.nhschoices.nhs.uk/organisations/gppractices/"
-                            + organisationId
-                            + "/overview.xml?apikey="
-                            + apiKey);
-
-            if (abdera == null) {
-                abdera = new Abdera();
-            }
-
-            if (documentBuilderFactory == null) {
-                documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            }
-
-            // try and read overview XML (atom format)
-            Parser parser = abdera.getParser();
-            Document<Feed> doc = parser.parse(overviewUrl.openStream(), overviewUrl.toString());
-            Feed feed = doc.getRoot();
-            if (CollectionUtils.isEmpty(feed.getEntries())) {
-                return null;
-            }
-
-            // NHS choices url stored in first entry under alternate link
-            Entry firstEntry = feed.getEntries().get(0);
-            Link link = firstEntry.getAlternateLink();
-            if (link != null) {
-                IRI iri = link.getHref();
-                if (iri != null) {
-                    details.put("url", iri.toString());
-                }
-            }
+            Map<String, String> details = apiClient.getGPDetailsByPracticeCode(practiceCode);
 
             // return full path
             return details;
