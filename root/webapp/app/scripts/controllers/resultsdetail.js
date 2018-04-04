@@ -117,6 +117,14 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
                     // don't display textual results on graph
                     if (!isNaN(row[1])) {
+
+                        //skip invalid results
+                        if (observeHeading.maxGraph && row[1]>observeHeading.maxGraph) {
+                            continue;
+                        } else if (observeHeading.minGraph && row[1] < observeHeading.minGraph) {
+                            continue;
+                        }
+
                         data[code].push(row);
 
                         // get min/max values for y-axis
