@@ -135,6 +135,8 @@
                         </div>
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
+                        <a ng-show="conversation.messages[conversation.messages.length-1].hasAttachment" 
+                        data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1].myMedia)">Click here to view attachment</a>
 
                         <span class="date-stamp">
                             <ul class="inline pull-right">
@@ -194,6 +196,10 @@
                             <span data-ng-show="!message.user">[Deleted User]</span>
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
+                        
+                        <a ng-show="message.hasAttachment" 
+                        data-ng-click="viewMyMedia(message.myMedia)">Click here to view attachment</a>
+
                         <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                     </div>
                     <hr/>
