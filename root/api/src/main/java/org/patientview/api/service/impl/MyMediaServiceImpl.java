@@ -1,15 +1,17 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
+import org.im4java.core.IM4JavaException;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.repository.MyMediaRepository;
-import org.apache.commons.codec.binary.Base64;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,7 +48,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
     @Override
     public MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            IOException {
+            IOException, IM4JavaException, InterruptedException {
         User currentUser = userRepository.findOne(userId);
         myMedia.setCreator(currentUser);
 
@@ -52,6 +56,11 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             byte[] decodedString = Base64.decodeBase64(new String(myMedia.getData()).getBytes("UTF-8"));
             myMedia.setContent(decodedString);
 
+            if (myMedia.getType().equals(MediaTypes.IMAGE)) {
+                myMedia.setThumbnailContent(this.getPreviewImage(myMedia, 200));
+            } else if (myMedia.getType().equals(MediaTypes.VIDEO)) {
+
+            }
             //TODO need to create the video thumbnail here
         }
 
@@ -65,9 +74,9 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     }
 
     @Override
-    public void delete(MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
+    public void delete(Long myMediaId) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
-        myMediaRepository.delete(myMedia);
+        myMediaRepository.delete(myMediaId);
     }
 
     @Override
@@ -86,19 +95,25 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     }
 
     @Override
-    public byte[] getPreviewImage(MyMedia myMedia, int height, int width) throws IOException {
+    public byte[] getPreviewImage(MyMedia myMedia, int height) throws IOException, IM4JavaException,
+            InterruptedException {
         // convert byte array back to BufferedImage
         InputStream in = new ByteArrayInputStream(myMedia.getContent());
-        BufferedImage bImageFromConvert = ImageIO.read(in);
+        BufferedImage image = ImageIO.read(in);
+        Double newWidth = image.getWidth() / (image.getHeight() / height * 1.00);
 
-        Image tmp = bImageFromConvert.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = resized.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
+        final int type = image.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : image.getType();
+        final BufferedImage scaledImg = new BufferedImage(newWidth.intValue(), height, type);
+        final Graphics2D g = scaledImg.createGraphics();
+        g.drawImage(image, 0, 0, height, newWidth.intValue(), null);
+        g.dispose();
+        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(resized, "jpg", baos);
+        ImageIO.write(scaledImg, "jpg", baos);
         return baos.toByteArray();
     }
 }

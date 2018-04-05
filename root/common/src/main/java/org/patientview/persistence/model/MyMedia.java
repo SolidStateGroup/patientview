@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.patientview.persistence.model.enums.MediaTypes;
 
@@ -36,9 +37,6 @@ public class MyMedia extends BaseModel {
     @Column(name = "local_path")
     private String localPath;
 
-    @Column(name = "path")
-    private String path;
-
     @Column(name = "height")
     private int height;
 
@@ -60,15 +58,24 @@ public class MyMedia extends BaseModel {
     private User creator;
 
     @Column(name = "data")
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private byte[] content;
+
+    @Column(name = "thumbnail_data")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private byte[] thumbnailContent;
 
     //Used when Frontend sends content up
     @Transient
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String data;
 
     public String getThumbnail(){
+        return String.format("/mymedia/%d/preview", getId());
+    }
+
+
+    public String getPath(){
         return String.format("/mymedia/%d/content", getId());
     }
 }

@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.im4java.core.IM4JavaException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,8 @@ public class MyMediaServiceTest1 {
 
 
     @Test
-    public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, IOException {
+    public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, IOException,
+            IM4JavaException, InterruptedException {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreator(creator);
         when(myMediaRepository.save(eq(myMedia))).thenReturn(myMedia);
@@ -51,31 +53,31 @@ public class MyMediaServiceTest1 {
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() {
 
     }
 
 
     @Test
-    public void testGetFullImage(){
+    public void testGetFullImage() {
 
     }
 
 
     @Test
-    public void testGetThumbnailImage(){
+    public void testGetThumbnailImage() {
 
     }
 
 
     @Test
-    public void testGetAllThumbnailsForUser(){
+    public void testGetAllThumbnailsForUser() {
 
     }
 
 
     @Test
-    public void testGetMyMediaById(){
+    public void testGetMyMediaById() {
 
     }
 
@@ -83,7 +85,6 @@ public class MyMediaServiceTest1 {
     public void tearDown() {
         TestUtils.removeAuthentication();
     }
-
 
 
 }

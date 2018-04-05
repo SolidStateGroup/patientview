@@ -684,8 +684,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
 
-        if (message.getMyMediaId() != null) {
-            MyMedia myMedia = myMediaRepository.findOne(message.getMyMediaId());
+        if (message.getMyMedia() != null) {
+            MyMedia myMedia = myMediaRepository.findOne(message.getMyMedia().getId());
 
             //Only allow the owner to attach the media to a conversation
             if (entityUser.getId().equals(myMedia.getCreator().getId())) {
@@ -794,6 +794,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setType(message.getType());
             newMessage.setMessage(message.getMessage());
             newMessage.setCreated(message.getCreated());
+            newMessage.setMyMedia(message.getMyMedia());
+            newMessage.setHasAttachment(message.getHasAttachment());
 
             if (message.getUser() != null) {
                 if (anonUserIds.contains(message.getUser().getId())) {

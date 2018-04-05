@@ -6,6 +6,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum MessageTypes {
     MESSAGE("Message"),
+    MEDIA("Media"),
     FEEDBACK("Feedback"),
     SHARED_THOUGHT("Shared Thought"),
     CONTACT_UNIT("Contact Unit"),

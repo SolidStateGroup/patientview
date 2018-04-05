@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.im4java.core.IM4JavaException;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Conversation;
 import org.patientview.api.service.ConversationService;
@@ -60,12 +61,21 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @Inject
     private ConversationService conversationService;
 
-    @RequestMapping(value = "/user/{userId}/mymedia/upload", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/{userId}/mymedia/upload", method = RequestMethod.POST, consumes = MediaType
+            .APPLICATION_JSON_VALUE)
     @ResponseBody
     public MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
-            IOException {
+            IOException, IM4JavaException, InterruptedException {
         return myMediaService.save(userId, myMedia);
+    }
+
+    @RequestMapping(value = "/user/{userId}/mymedia/{myMediaId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteMyMedia(@PathVariable("userId") Long userId, @PathVariable("myMediaId") Long myMediaId)
+            throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
+            IOException, IM4JavaException, InterruptedException {
+        myMediaService.delete(myMediaId);
     }
 
     @RequestMapping(value = "/user/{userId}/mymedia", method = RequestMethod.GET,
@@ -100,7 +110,8 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @RequestMapping(value = "/mymedia/{id}/preview", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public void getMyMediaPreview(@PathVariable("id") final Long id, HttpServletResponse response)
-            throws ResourceNotFoundException, IOException, ResourceForbiddenException {
+            throws ResourceNotFoundException, IOException, ResourceForbiddenException, IM4JavaException,
+            InterruptedException {
         InputStream is = null;
         MyMedia myMedia = myMediaService.get(id);
 
@@ -112,7 +123,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
 
         //Check what kind of media it is and stream the response
         if (myMedia.getType().equals(MediaTypes.IMAGE)) {
-            getMyMediaImage(myMediaService.getPreviewImage(myMedia, 300, 300), response);
+            getMyMediaImage(myMedia.getThumbnailContent(), response);
         } else {
             getMyMediaVideo(myMedia, response);
         }
