@@ -1,8 +1,5 @@
 package org.patientview.api.model;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MessageTypes;
 
@@ -21,7 +18,8 @@ public class Message {
     private MessageTypes type;
     private BaseUser user;
     private String message;
-    private Long myMediaId;
+    private MyMedia myMedia;
+    private Boolean hasAttachment;
     private Date created;
     private Set<MessageReadReceipt> readReceipts;
 
@@ -36,7 +34,8 @@ public class Message {
         }
         setMessage(message.getMessage());
         setCreated(message.getCreated());
-
+        setHasAttachment(message.getHasAttachment());
+        setMyMedia(message.getMyMedia());
         setReadReceipts(new HashSet<MessageReadReceipt>());
 
         if (message.getReadReceipts() != null) {
@@ -78,14 +77,6 @@ public class Message {
         this.message = message;
     }
 
-    public Long getMyMediaId() {
-        return myMediaId;
-    }
-
-    public void setMyMediaId(Long myMediaId) {
-        this.myMediaId = myMediaId;
-    }
-
     public Date getCreated() {
         return created;
     }
@@ -100,5 +91,21 @@ public class Message {
 
     public void setReadReceipts(Set<MessageReadReceipt> readReceipts) {
         this.readReceipts = readReceipts;
+    }
+
+    public Boolean getHasAttachment() {
+        return hasAttachment;
+    }
+
+    public void setHasAttachment(Boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
+    }
+
+    public MyMedia getMyMedia() {
+        return myMedia;
+    }
+
+    public void setMyMedia(MyMedia myMedia) {
+        this.myMedia = myMedia;
     }
 }

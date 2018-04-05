@@ -1,0 +1,14 @@
+<div class="modal-body">
+    <div ng-show="'IMAGE' == media.type">
+        <img ng-src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" width="100%">
+    </div>
+    <div ng-show="VIDEO == media.type">
+        Video
+    </div>
+    <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+    <p>File Size: {{media.filesize/1000}} kb</p>
+    <p>File Type: {{media.type}}</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+</div>

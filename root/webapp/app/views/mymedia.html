@@ -1,0 +1,58 @@
+<style>
+    .margin-right {
+        margin-right: 5px;
+    }
+</style>
+
+<div data-ng-show="!loading">
+    <h1>MyMedia</h1>
+
+    <div data-ng-show="!loading" data-ng-cloak>
+        <div class="message-item" data-ng-repeat="media in pagedItems">
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                        <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(media)" data-ng-confirm-click="Are you sure you want to delete this media item?">Delete</a></li>
+                    </ul>
+                <div class="message-summary">
+                            <div ng-show="'IMAGE' == media.type">
+                                <a href="" data-ng-click="viewMyMedia(media)">
+                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}">
+                                </a>
+                                </div>
+                                <div ng-show="VIDEO == media.type">
+                                    Video
+                                </div>
+                    <div class="last-message">
+                        <p class="date-stamp"></p>
+                            Created {{media.created | date:'dd-MMM-yyyy HH:mm'}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length < 1">
+            <h4>You do not have any MyMedia. To find out more....(insert text)</h4>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading MyMedia</h3>
+    </div>
+</div>

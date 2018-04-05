@@ -235,16 +235,15 @@ CREATE TABLE PV_My_Media (
 	local_path         VARCHAR( 2044 ),
 	file_description   VARCHAR( 200 ),
 	filename_ui        VARCHAR( 200 ),
-	path               VARCHAR( 2044 ),
 	height             INTEGER,
 	filesize           INTEGER,
 	width              INTEGER,
-	thumbnail          VARCHAR( 2044 ),
 	deleted            BOOLEAN DEFAULT false NOT NULL,
 	creation_date      TIMESTAMP NOT NULL,
 	created_by         BIGINT NOT NULL,
 	id                 BIGINT NOT NULL,
 	data               Bytea,
+	thumbnail_data     Bytea,
 	PRIMARY KEY ( "id" )
 	);
 
