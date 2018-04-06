@@ -136,8 +136,12 @@
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
                         <p>
-                            <a ng-show="conversation.messages[conversation.messages.length-1].hasAttachment"
+                            <a ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
+                            conversation.messages[conversation.messages.length-1].myMedia != null"
                             data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1].myMedia)">Click here to view attachment</a>
+                        <p ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
+                        conversation.messages[conversation.messages.length-1].myMedia == null">Attachment has been removed and may have been deleted</p>
+
                         </p>
                         <span class="date-stamp">
                             <ul class="inline pull-right">
@@ -198,9 +202,9 @@
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
                         
-                        <a ng-show="message.hasAttachment && message.myMedia"
+                        <a ng-show="message.hasAttachment && message.myMedia != null"
                         data-ng-click="viewMyMedia(message.myMedia)">Click here to view attachment</a>
-                        <p ng-show="message.hasAttachment && !message.myMedia">Attachment has been deleted</p>
+                        <p ng-show="message.hasAttachment && message.myMedia == null">Attachment has been removed and may have been deleted</p>
                         <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                     </div>
                     <hr/>
