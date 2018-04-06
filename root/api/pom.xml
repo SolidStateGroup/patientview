@@ -285,6 +285,13 @@
             <artifactId>im4java</artifactId>
             <version>1.4.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec</artifactId>
+            <version>0.2.2</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>

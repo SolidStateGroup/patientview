@@ -58,11 +58,11 @@ public class MyMedia extends BaseModel {
     private User creator;
 
     @Column(name = "data")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     private byte[] content;
 
     @Column(name = "thumbnail_data")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     private byte[] thumbnailContent;
 
     //Used when Frontend sends content up
