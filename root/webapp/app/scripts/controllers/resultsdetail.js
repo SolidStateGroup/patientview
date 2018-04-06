@@ -158,12 +158,6 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                         format: '{value}'
                     };
 
-                    if (!sameScale) {
-                        yAxisData.opposite = index == 0;
-                        yAxisData.max = maxValue[code];
-                        yAxisData.min = minValue[code];
-                    }
-
                     yAxis.push(yAxisData);
 
                     var seriesData = {};
