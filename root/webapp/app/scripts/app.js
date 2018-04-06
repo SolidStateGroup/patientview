@@ -41,10 +41,10 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngResource',
     'ngRoute',
     'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
+    'rzModule',             // https://github.com/angular-slider/angularjs-slider
     'angulartics.google.analytics',
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
-    'vr.directives.slider', // https://github.com/venturocket/angular-slider
     'debounce',             // https://github.com/shahata/angular-debounce
     'angular-inview'        // https://github.com/thenikso/angular-inview
 ]);
