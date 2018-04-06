@@ -41,6 +41,8 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             codes.push(codeToCompare);
             $scope.codes = codes;
 
+            $scope.vscale = 0;
+            $scope.sliderChanged();
             $scope.loading = true;
             $scope.chartLoading = true;
             $scope.getObservations();
@@ -91,12 +93,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             var firstObservations = [];
             var series = [];
             var yAxis = [];
-            var yAxisData = {
-                scrollbar: {
-                    enabled: true,
-                    showFull: false
-                }
-            };
+
             var legend = {};
 
             // special options for blood pressure
@@ -128,7 +125,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                         if (!isNaN(row[1])) {
 
                             //skip invalid results
-                            if (observeHeading.maxGraph && row[1]>observeHeading.maxGraph) {
+                            if (observeHeading.maxGraph && row[1] > observeHeading.maxGraph) {
                                 continue;
                             } else if (observeHeading.minGraph && row[1] < observeHeading.minGraph) {
                                 continue;
@@ -149,14 +146,27 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                 }
 
                 if (data[code]) {
+                    var yAxisData = {};
                     if ($scope.codes.length > 1 && !sameScale) {
                         yAxisData.title = {
                             text: firstObservations[code].name
                         };
+                    } else {
+                        yAxisData.scrollbar = {
+                            enabled: true,
+                            showFull: false
+                        }
+
                     }
                     yAxisData.labels = {
                         format: '{value}'
                     };
+
+                    if (!sameScale) {
+                        yAxisData.opposite = index == 0;
+                        yAxisData.max = maxValue[code];
+                        yAxisData.min = minValue[code];
+                    }
 
                     yAxis.push(yAxisData);
 
@@ -179,7 +189,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             });
 
             legend.enabled = $scope.codes.length > 1;
-
+            $('#chart_div').html("")
             var chart = $('#chart_div').highcharts('StockChart', {
                 rangeSelector: {
                     buttons: [{
@@ -247,7 +257,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                     text: 'ESEMPIO',
                     ordinal: false
                 },
-                yAxis:yAxis,
+                yAxis: yAxis,
                 tooltip: {
                     minTickInterval: 864000000,
                     type: 'datetime',
@@ -428,8 +438,13 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                         var range = (max - min) / 2;
                         var diff = range * value;
                         chart.yAxis[0].setExtremes(min + diff, max - diff)
-                        console.log(value, chart);
-                        console.log("chart")
+                        if (chart.yAxis[1]) {
+                            var min = chart.yAxis[1].dataMin;
+                            var max = chart.yAxis[1].dataMax;
+                            var range = (max - min) / 2;
+                            var diff = range * value;
+                            chart.yAxis[1].setExtremes(min + diff, max - diff)
+                        }
                     } else {
                         console.log("ok")
                     }
@@ -443,9 +458,9 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
         $scope.sliderOptions = {
             floor: 0,
             ceil: 100,
-            onChange:$scope.sliderChanged,
-            hideLimitLabels:true,
-            hidePointerLabels:true
+            onChange: $scope.sliderChanged,
+            hideLimitLabels: true,
+            hidePointerLabels: true
         };
 
         $scope.extendXAxis = function () {
