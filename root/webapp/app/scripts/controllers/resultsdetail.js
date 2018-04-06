@@ -91,6 +91,12 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             var firstObservations = [];
             var series = [];
             var yAxis = [];
+            var yAxisData = {
+                scrollbar: {
+                    enabled: true,
+                    showFull: false
+                }
+            };
             var legend = {};
 
             // special options for blood pressure
@@ -143,7 +149,6 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                 }
 
                 if (data[code]) {
-                    var yAxisData = {};
                     if ($scope.codes.length > 1 && !sameScale) {
                         yAxisData.title = {
                             text: firstObservations[code].name
@@ -248,12 +253,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                     text: 'ESEMPIO',
                     ordinal: false
                 },
-                yAxis: {
-                    scrollbar: {
-                        enabled: true,
-                        showFull: false
-                    }
-                },
+                yAxis:yAxis,
                 tooltip: {
                     minTickInterval: 864000000,
                     type: 'datetime',
