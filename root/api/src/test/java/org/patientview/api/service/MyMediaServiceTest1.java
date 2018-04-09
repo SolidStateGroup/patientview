@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.im4java.core.IM4JavaException;
+import org.jcodec.api.JCodecException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class MyMediaServiceTest1 {
 
     @Test
     public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, IOException,
-            IM4JavaException, InterruptedException {
+            IM4JavaException, InterruptedException, JCodecException {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreator(creator);
         when(myMediaRepository.save(eq(myMedia))).thenReturn(myMedia);

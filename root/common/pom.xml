@@ -154,6 +154,19 @@
             <artifactId>jmf</artifactId>
             <version>2.1.1e</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.bramp.ffmpeg/ffmpeg -->
+        <dependency>
+            <groupId>net.bramp.ffmpeg</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>0.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,15 +1,19 @@
 package org.patientview.api.service.impl;
 
 import com.xuggle.mediatool.IMediaReader;
-import com.xuggle.mediatool.IMediaViewer;
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Picture;
 import org.im4java.core.IM4JavaException;
+import org.jcodec.api.FrameGrab;
+import org.jcodec.api.JCodecException;
+import org.jcodec.scale.AWTUtil;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -58,7 +62,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
     @Override
     public MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException {
+            IOException, IM4JavaException, InterruptedException, JCodecException {
         User currentUser = userRepository.findOne(userId);
         myMedia.setCreator(currentUser);
 
@@ -69,9 +73,11 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             if (myMedia.getType().equals(MediaTypes.IMAGE)) {
                 myMedia.setThumbnailContent(this.getPreviewImage(myMedia, 200));
             } else if (myMedia.getType().equals(MediaTypes.VIDEO)) {
-                transcodeVideo(myMedia);
+                //TODO need to create the video thumbnail here.
+                //TODO This will need to use either xuggler or ffmpg to convert mov files to mp4
+                myMedia.setThumbnailContent(getVideoThumbnail(myMedia));
             }
-            //TODO need to create the video thumbnail here
+
         }
 
         return myMediaRepository.save(myMedia);
@@ -128,13 +134,29 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     }
 
 
-    private byte[] getVideoThumbnail(){
-        int frameNumber = 42;
-        Picture picture = FrameGrab.getFrameFromFile(new File("video.mp4"), frameNumber);
+    private byte[] getVideoThumbnail(MyMedia myMedia) throws IOException, JCodecException {
+        String[] localPath = myMedia.getLocalPath().split("/");
+        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
+        if (fileExtension.equals("mp4") || fileExtension.equals("mpeg4")) {
+            String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
+            File temp = File.createTempFile(inputFileName, "." + fileExtension);
+            FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
 
-        //for JDK (jcodec-javase)
-        BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
-        ImageIO.write(bufferedImage, "png", new File("frame42.png"));
+            int frameNumber = 2;
+            org.jcodec.common.model.Picture picture = FrameGrab.getFrameFromFile(temp, frameNumber);
+
+            //for JDK (jcodec-javase)
+            BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpg", baos);
+
+            temp.delete();
+
+            return baos.toByteArray();
+        } else {
+            return null;
+        }
     }
 
     private byte[] transcodeVideo(MyMedia myMedia) throws IOException {
@@ -157,18 +179,46 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         // add a writer to the reader, to create the output file
         mediaReader.addListener(mediaWriter);
 
-        // create a media viewer with stats enabled
-        IMediaViewer mediaViewer = ToolFactory.makeViewer(true);
-
-        // add a viewer to the reader, to see the decoded media
-        mediaReader.addListener(mediaViewer);
-
         // read and decode packets from the source file and
         // and dispatch decoded audio and video to the writer
         while (mediaReader.readPacket() == null) ;
 
         Long end = System.currentTimeMillis();
         System.out.println("Time Taken In Milli Seconds: " + (end - st));
+        byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
+
+        temp.delete();
+        outputTemp.delete();
+
+        return toReturn;
+    }
+
+
+    private byte[] ffmpg(MyMedia myMedia) throws IOException {
+        String[] localPath = myMedia.getLocalPath().split("/");
+        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
+
+        String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
+        File temp = File.createTempFile(inputFileName, "." + fileExtension);
+        File outputTemp = File.createTempFile(inputFileName, ".mp4");
+
+        FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
+
+
+        FFmpegBuilder builder =
+                new FFmpegBuilder()
+                        .addInput(temp.getPath())
+                        .addOutput(outputTemp.getPath())
+                        .setVideoFrameRate(FFmpeg.FPS_24)
+                        .done();
+
+
+        //FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+
+        // Run a one-pass encode
+        //executor.createJob(builder).run();
+
+
         byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
 
         temp.delete();
