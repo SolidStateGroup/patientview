@@ -5,17 +5,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.MyMedia;
-import org.patientview.persistence.model.ResearchStudy;
-import org.patientview.persistence.model.ResearchStudyCriteria;
-import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.repository.GroupRelationshipRepository;
-import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.repository.MyMediaRepository;
-import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
-import org.patientview.persistence.repository.ResearchStudyRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -26,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -70,6 +61,7 @@ public class MyMediaRepositoryTest {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreated(new Date());
         myMedia.setCreator(creator);
+        myMedia.setType(MediaTypes.IMAGE);
 
         MyMedia returnedItem = myMediaRepository.save(myMedia);
         assertNotNull(returnedItem.getId());
