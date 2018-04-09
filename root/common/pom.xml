@@ -141,12 +141,7 @@
             <version>1.16.18</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/xuggle/xuggle-xuggler -->
-        <dependency>
-            <groupId>xuggle</groupId>
-            <artifactId>xuggle-xuggler</artifactId>
-            <version>5.4</version>
-        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/javax.media/jmf -->
         <dependency>
@@ -155,18 +150,25 @@
             <version>2.1.1e</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/net.bramp.ffmpeg/ffmpeg -->
-        <dependency>
-            <groupId>net.bramp.ffmpeg</groupId>
-            <artifactId>ffmpeg</artifactId>
-            <version>0.6.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/xuggle/xuggle-xuggler &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>xuggle</groupId>-->
+            <!--<artifactId>xuggle-xuggler</artifactId>-->
+            <!--<version>5.4</version>-->
+        <!--</dependency>-->
+        <!---->
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/net.bramp.ffmpeg/ffmpeg &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>net.bramp.ffmpeg</groupId>-->
+            <!--<artifactId>ffmpeg</artifactId>-->
+            <!--<version>0.6.2</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>com.google.guava</groupId>-->
+                    <!--<artifactId>guava</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
