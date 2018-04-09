@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.patientview.persistence.model.enums.MediaTypes;
 
-import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,7 +16,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import java.util.Date;
-import java.util.Properties;
 
 @Entity
 @Data
@@ -70,12 +68,16 @@ public class MyMedia extends BaseModel {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String data;
 
-    public String getThumbnail(){
-        return String.format("/mymedia/%d/preview", getId());
+    public String getThumbnail() {
+
+        if (thumbnailContent != null) {
+            return String.format("/mymedia/%d/preview", getId());
+        } else {
+            return null;
+        }
     }
 
-
-    public String getPath(){
+    public String getPath() {
         return String.format("/mymedia/%d/content", getId());
     }
 }

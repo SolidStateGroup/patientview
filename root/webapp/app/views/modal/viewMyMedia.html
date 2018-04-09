@@ -2,8 +2,16 @@
     <div ng-show="'IMAGE' == media.type">
         <img ng-src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" width="100%">
     </div>
-    <div ng-show="VIDEO == media.type">
-        Video
+    <div ng-show="'VIDEO' == media.type">
+        <video id="my-video" class="video-js" controls preload="auto" width="100%"
+               poster="images/pv-video.png" data-setup="{}">
+            <source src="{{mediaUrl}}">
+            <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider upgrading to a web browser that
+                <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+        </video>
+        <script src="http://vjs.zencdn.net/6.6.3/video.js"></script>
     </div>
     <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
     <p>File Size: {{media.filesize/1000}} kb</p>

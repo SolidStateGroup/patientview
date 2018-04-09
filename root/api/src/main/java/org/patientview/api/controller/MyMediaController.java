@@ -2,10 +2,9 @@ package org.patientview.api.controller;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.im4java.core.IM4JavaException;
+import org.jcodec.api.JCodecException;
 import org.patientview.api.config.ExcludeFromApiDoc;
-import org.patientview.api.model.Conversation;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
@@ -17,28 +16,22 @@ import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -66,7 +59,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @ResponseBody
     public MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException {
+            IOException, IM4JavaException, InterruptedException, JCodecException {
         return myMediaService.save(userId, myMedia);
     }
 
@@ -195,17 +188,17 @@ public class MyMediaController extends BaseController<MyMediaController> {
 
         try {
             String fileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
-            File temp = File.createTempFile(fileName, ".tmp");
+            String[] localPath = myMedia.getLocalPath().split("/");
+            String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
+
+            File temp = File.createTempFile(fileName, "." + fileExtension);
             FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
-
-
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            is = new ByteArrayInputStream(myMedia.getContent());
 
-            IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-            response.setStatus(HttpStatus.OK.value());
-            temp.delete();
+
+            try (final InputStream myFile = new FileInputStream(temp)) {
+                IOUtils.copy(myFile, response.getOutputStream());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

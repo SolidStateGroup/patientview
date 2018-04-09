@@ -96,6 +96,12 @@
             <groupId>com.mangofactory</groupId>
             <artifactId>swagger-springmvc</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- mysql required only for migration -->
@@ -123,10 +129,11 @@
             </exclusions>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
-            <groupId>org.patientview2</groupId>
-            <artifactId>common</artifactId>
-            <version>2.4.2-RELEASE</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
         </dependency>
 
         <dependency>
@@ -289,9 +296,15 @@
         <dependency>
             <groupId>org.jcodec</groupId>
             <artifactId>jcodec</artifactId>
-            <version>0.2.2</version>
+            <version>0.2.3</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.2.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>

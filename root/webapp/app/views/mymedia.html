@@ -17,10 +17,14 @@
                             <div ng-show="'IMAGE' == media.type">
                                 <a href="" data-ng-click="viewMyMedia(media)">
                                     <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}">
+                                    View Media
                                 </a>
                                 </div>
-                                <div ng-show="VIDEO == media.type">
-                                    Video
+                                <div ng-show="'VIDEO' == media.type">
+                                    <a href="" data-ng-click="viewMyMedia(media)">
+                                        <img src="images/pv-video.png">
+                                        View Media
+                                    </a>
                                 </div>
                     <div class="last-message">
                         <p class="date-stamp"></p>

@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.im4java.core.IM4JavaException;
+import org.jcodec.api.JCodecException;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -21,7 +22,7 @@ public interface MyMediaService {
 
     @UserOnly
     MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException;
+            IOException, IM4JavaException, InterruptedException, JCodecException;
 
     @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT})
     MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
