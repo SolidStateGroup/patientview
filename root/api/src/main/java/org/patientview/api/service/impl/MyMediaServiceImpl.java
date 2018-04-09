@@ -1,11 +1,5 @@
 package org.patientview.api.service.impl;
 
-import com.xuggle.mediatool.IMediaReader;
-import com.xuggle.mediatool.IMediaWriter;
-import com.xuggle.mediatool.ToolFactory;
-import net.bramp.ffmpeg.FFmpeg;
-import net.bramp.ffmpeg.FFmpegExecutor;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -158,72 +152,72 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             return null;
         }
     }
-
-    private byte[] transcodeVideo(MyMedia myMedia) throws IOException {
-        String[] localPath = myMedia.getLocalPath().split("/");
-        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
-
-        String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
-        File temp = File.createTempFile(inputFileName, "." + fileExtension);
-        File outputTemp = File.createTempFile(inputFileName, ".mp4");
-
-        FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
-        Long st = System.currentTimeMillis();
-
-        // create a media reader
-        IMediaReader mediaReader = ToolFactory.makeReader(temp.getPath());
-
-        // create a media writer
-        IMediaWriter mediaWriter = ToolFactory.makeWriter(outputTemp.getPath(), mediaReader);
-
-        // add a writer to the reader, to create the output file
-        mediaReader.addListener(mediaWriter);
-
-        // read and decode packets from the source file and
-        // and dispatch decoded audio and video to the writer
-        while (mediaReader.readPacket() == null) ;
-
-        Long end = System.currentTimeMillis();
-        System.out.println("Time Taken In Milli Seconds: " + (end - st));
-        byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
-
-        temp.delete();
-        outputTemp.delete();
-
-        return toReturn;
-    }
-
-
-    private byte[] ffmpg(MyMedia myMedia) throws IOException {
-        String[] localPath = myMedia.getLocalPath().split("/");
-        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
-
-        String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
-        File temp = File.createTempFile(inputFileName, "." + fileExtension);
-        File outputTemp = File.createTempFile(inputFileName, ".mp4");
-
-        FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
-
-
-        FFmpegBuilder builder =
-                new FFmpegBuilder()
-                        .addInput(temp.getPath())
-                        .addOutput(outputTemp.getPath())
-                        .setVideoFrameRate(FFmpeg.FPS_24)
-                        .done();
-
-
-        //FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
-
-        // Run a one-pass encode
-        //executor.createJob(builder).run();
-
-
-        byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
-
-        temp.delete();
-        outputTemp.delete();
-
-        return toReturn;
-    }
+//
+//    private byte[] transcodeVideo(MyMedia myMedia) throws IOException {
+//        String[] localPath = myMedia.getLocalPath().split("/");
+//        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
+//
+//        String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
+//        File temp = File.createTempFile(inputFileName, "." + fileExtension);
+//        File outputTemp = File.createTempFile(inputFileName, ".mp4");
+//
+//        FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
+//        Long st = System.currentTimeMillis();
+//
+//        // create a media reader
+//        IMediaReader mediaReader = ToolFactory.makeReader(temp.getPath());
+//
+//        // create a media writer
+//        IMediaWriter mediaWriter = ToolFactory.makeWriter(outputTemp.getPath(), mediaReader);
+//
+//        // add a writer to the reader, to create the output file
+//        mediaReader.addListener(mediaWriter);
+//
+//        // read and decode packets from the source file and
+//        // and dispatch decoded audio and video to the writer
+//        while (mediaReader.readPacket() == null) ;
+//
+//        Long end = System.currentTimeMillis();
+//        System.out.println("Time Taken In Milli Seconds: " + (end - st));
+//        byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
+//
+//        temp.delete();
+//        outputTemp.delete();
+//
+//        return toReturn;
+//    }
+//
+//
+//    private byte[] ffmpg(MyMedia myMedia) throws IOException {
+//        String[] localPath = myMedia.getLocalPath().split("/");
+//        String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
+//
+//        String inputFileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
+//        File temp = File.createTempFile(inputFileName, "." + fileExtension);
+//        File outputTemp = File.createTempFile(inputFileName, ".mp4");
+//
+//        FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
+//
+//
+//        FFmpegBuilder builder =
+//                new FFmpegBuilder()
+//                        .addInput(temp.getPath())
+//                        .addOutput(outputTemp.getPath())
+//                        .setVideoFrameRate(FFmpeg.FPS_24)
+//                        .done();
+//
+//
+//        //FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+//
+//        // Run a one-pass encode
+//        //executor.createJob(builder).run();
+//
+//
+//        byte[] toReturn = Files.readAllBytes(outputTemp.toPath());
+//
+//        temp.delete();
+//        outputTemp.delete();
+//
+//        return toReturn;
+//    }
 }
