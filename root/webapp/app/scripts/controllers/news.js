@@ -35,6 +35,16 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
                     newsTypesArray[newsType.id] = newsType;
                 });
                 $scope.newsTypesArray = newsTypesArray;
+
+                $scope.editNewsTypes = [];
+                for (var newsType in newsTypesArray) {
+                    if (newsTypesArray.hasOwnProperty(newsType)) {
+                        var type = newsTypesArray[newsType];
+                        if (type.value != "ALL") {
+                            $scope.editNewsTypes.push(type);
+                        }
+                    }
+                }
             });
 
             // set roles that can be added
