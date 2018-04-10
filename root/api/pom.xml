@@ -129,6 +129,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.patientview2</groupId>
+            <artifactId>common</artifactId>
+            <version>2.4.2-RELEASE</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
