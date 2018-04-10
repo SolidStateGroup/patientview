@@ -110,7 +110,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
 
                     data[code] = [];
 
-                    for (i = $scope.observations[code].length - 1; i >= 0; i--) {
+                    for (var i = $scope.observations[code].length - 1; i >= 0; i--) {
                         var observation = $scope.observations[code][i];
 
                         if (i == $scope.observations[code].length - 1) {
@@ -227,6 +227,17 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                 },
                 series: series,
                 chart: {
+                    events: {
+                        load: function () {
+                            $scope.min = [];
+                            $scope.max = [];
+                            var chart = $('#chart_div').highcharts();
+                            for (var i = 0; i < chart.yAxis.length; i++) {
+                                $scope.min.push(chart.yAxis[i].getExtremes().min);
+                                $scope.max.push(chart.yAxis[i].getExtremes().max);
+                            }
+                        }
+                    },
                     followTouchMove: false,
                     ignoreHiddenSeries: true,
                     zoomType: 'xy',
@@ -275,6 +286,8 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                 }
             });
             $scope.setRangeInDays(9999);
+
+
             $scope.chartLoading = false;
         };
 
@@ -429,21 +442,18 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             this.debouncedSliderChanged = setTimeout(function () {
                 if ($scope.lastvscale != $scope.vscale) {
                     $scope.lastvscale = $scope.vscale;
-                    var value = $scope.vscale / 100;
+                    var scale = $scope.vscale >= 0 ? $scope.vscale : $scope.vscale*4;
+                    var value = scale / 100;
                     var chart = $('#chart_div').highcharts();
                     //reduce % each side
                     if (chart) {
-                        var min = chart.yAxis[0].dataMin;
-                        var max = chart.yAxis[0].dataMax;
-                        var range = (max - min) / 2;
-                        var diff = range * value;
-                        chart.yAxis[0].setExtremes(min + diff, max - diff)
-                        if (chart.yAxis[1]) {
-                            var min = chart.yAxis[1].dataMin;
-                            var max = chart.yAxis[1].dataMax;
+                        for (var i = 0; i < chart.yAxis.length; i++) {
+                            var min = $scope.min[i];
+                            var max = $scope.max[i];
                             var range = (max - min) / 2;
                             var diff = range * value;
-                            chart.yAxis[1].setExtremes(min + diff, max - diff)
+                            chart.yAxis[i].setExtremes(min + diff, max - diff)
+                            console.log("Setting y"+i,min + diff, max - diff);
                         }
                     } else {
                         console.log("ok")
@@ -456,7 +466,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
         };
 
         $scope.sliderOptions = {
-            floor: 0,
+            floor: -50,
             ceil: 100,
             onChange: $scope.sliderChanged,
             hideLimitLabels: true,
