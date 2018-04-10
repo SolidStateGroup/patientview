@@ -532,7 +532,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItem.getId()));
         }
-
+        entityNewsItem.setNewsType(newsItem.getNewsType());
         entityNewsItem.setHeading(newsItem.getHeading());
         entityNewsItem.setStory(newsItem.getStory());
         entityNewsItem.setLastUpdate(new Date());
