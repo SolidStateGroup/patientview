@@ -101,12 +101,7 @@
                             </a>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-9 col-lg-offset-3">
-                            <a data-ng-if="observationHeadings.length && hasBloodPressure()"
-                               href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
-                        </div>
-                    </div>
+
                     <br/>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Scale vertically</label>
@@ -134,6 +129,12 @@
                             <a ng-click="extendXAxis()" href="" target="_blank" >
                                 <span class="info-link">Apply</span>
                             </a>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-9 col-lg-offset-3">
+                                <a data-ng-if="observationHeadings.length && hasBloodPressure()"
+                                   href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
+                            </div>
                         </div>
                     </div>
 
