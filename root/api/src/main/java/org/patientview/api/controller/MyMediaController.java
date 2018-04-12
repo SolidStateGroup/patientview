@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.im4java.core.IM4JavaException;
 import org.jcodec.api.JCodecException;
@@ -30,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -187,20 +184,31 @@ public class MyMediaController extends BaseController<MyMediaController> {
         InputStream is = null;
 
         try {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            // Set the content type and attachment header.
             String fileName = String.format("%d-%d", new Date().getTime(), ApiUtil.getCurrentUser().getId());
             String[] localPath = myMedia.getLocalPath().split("/");
             String fileExtension = localPath[localPath.length - 1].split("\\.")[1];
 
-            File temp = File.createTempFile(fileName, "." + fileExtension);
-            FileUtils.writeByteArrayToFile(temp, myMedia.getContent());
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            response.addHeader("Content-disposition", String.format("attachment;filename=%s.%s", fileName,
+                    fileExtension));
 
+            is = new ByteArrayInputStream(myMedia.getContent());
 
-            try (final InputStream myFile = new FileInputStream(temp)) {
-                IOUtils.copy(myFile, response.getOutputStream());
-            }
+            IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
+            response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to my media image, exception: {}", e.getMessage(), e);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to close input stream {}", e.getMessage());
+                }
+            }
         }
     }
 }
