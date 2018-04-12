@@ -28,7 +28,7 @@ public interface MyMediaService {
     MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
 
-    @UserOnly
+    @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT})
     void delete(Long myMediaId) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException;
 
