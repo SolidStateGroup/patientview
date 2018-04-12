@@ -86,7 +86,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     public void delete(Long myMediaId) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
         MyMedia myMedia = myMediaRepository.findOne(myMediaId);
-        if (ApiUtil.getCurrentUser().getId().equals(myMedia.getCreator().getChangePassword())) {
+        if (ApiUtil.getCurrentUser().getId().equals(myMedia.getCreator().getId())) {
             myMediaRepository.delete(myMediaId);
         } else {
             throw new ResourceForbiddenException("Unauthorised");
