@@ -65,11 +65,13 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
             if (myMedia.getType().equals(MediaTypes.IMAGE)) {
                 myMedia.setThumbnailContent(this.getPreviewImage(myMedia, 200));
-            } else if (myMedia.getType().equals(MediaTypes.VIDEO)) {
-                //TODO need to create the video thumbnail here.
-                //TODO This will need to use either xuggler or ffmpg to convert mov files to mp4
-                myMedia.setThumbnailContent(getVideoThumbnail(myMedia));
             }
+            //TODO this bit is too slow. Need to backgroun it and get mov working
+//            else if (myMedia.getType().equals(MediaTypes.VIDEO)) {
+//                //TODO need to create the video thumbnail here.
+//                //TODO This will need to use either xuggler or ffmpg to convert mov files to mp4
+//                myMedia.setThumbnailContent(getVideoThumbnail(myMedia));
+//            }
 
         }
 
