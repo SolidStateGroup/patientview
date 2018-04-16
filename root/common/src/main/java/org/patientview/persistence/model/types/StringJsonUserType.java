@@ -33,7 +33,8 @@ public class StringJsonUserType implements UserType, ParameterizedType, Serializ
 
 
     @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+                            SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             st.setNull(index, Types.OTHER);
         } else {
@@ -106,6 +107,7 @@ public class StringJsonUserType implements UserType, ParameterizedType, Serializ
 
         return x.hashCode();
     }
+
 
     @Override
     public boolean equals(Object x, Object y) throws HibernateException {
