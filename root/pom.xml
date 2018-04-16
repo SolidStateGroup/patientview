@@ -8,6 +8,13 @@
         <version>1.0.2.RELEASE</version>
     </parent>
 
+    <properties>
+        <pv-hibernate.version>5.1.13.Final</pv-hibernate.version>
+        <spring.version>4.2.5.RELEASE</spring.version>
+        <junit.version>4.12</junit.version>
+        <aspectj.version>1.8.9</aspectj.version>
+    </properties>
+
   <groupId>org.patientview2</groupId>
   <artifactId>root</artifactId>
   <version>2.4.2-RELEASE</version>
