@@ -88,13 +88,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>${pv-hibernate.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>me.fhir</groupId>
             <artifactId>fhir-dstu1</artifactId>
             <version>0.0.81.2489</version>

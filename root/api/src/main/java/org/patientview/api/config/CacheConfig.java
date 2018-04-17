@@ -101,7 +101,7 @@ public class CacheConfig implements CachingConfigurer {
     @Bean
     @Override
     public CacheResolver cacheResolver() {
-        return new SimpleCacheResolver();
+        return new SimpleCacheResolver(cacheManager());
     }
 
     @Bean
