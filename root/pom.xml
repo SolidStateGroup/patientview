@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -10,44 +11,60 @@
 
     <properties>
         <pv-hibernate.version>5.1.13.Final</pv-hibernate.version>
-        <spring.version>4.2.5.RELEASE</spring.version>
+        <spring.version>4.3.16.RELEASE</spring.version>
         <junit.version>4.12</junit.version>
         <aspectj.version>1.8.9</aspectj.version>
     </properties>
 
-  <groupId>org.patientview2</groupId>
-  <artifactId>root</artifactId>
-  <version>2.4.2-RELEASE</version>
-  <packaging>pom</packaging>
-  <name>root</name>
-  <modules>
-    <module>database</module>
-    <module>common</module>
-    <module>data</module>
-    <module>importer</module>
-    <module>api</module>
-  </modules>
+    <groupId>org.patientview2</groupId>
+    <artifactId>root</artifactId>
+    <version>2.4.2-RELEASE</version>
+    <packaging>pom</packaging>
+    <name>root</name>
+    <modules>
+        <module>database</module>
+        <module>common</module>
+        <module>data</module>
+        <module>importer</module>
+        <module>api</module>
+    </modules>
 
-   <build>
-      <plugins>
-      <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-surefire-plugin</artifactId>
-               <configuration>
-                   <forkMode>pertest</forkMode>
-                   <argLine>-Xms512m -Xmx1024m</argLine>
-                   <testFailureIgnore>false</testFailureIgnore>
-               </configuration>
-           </plugin>
-      </plugins>
-   </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${pv-hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${pv-hibernate.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms512m -Xmx1024m</argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <!-- Add Spring repositories -->
     <!-- (you don't need this if you are using a .RELEASE version) -->
     <repositories>
         <repository>
             <id>spring-snapshots</id>
             <url>http://repo.spring.io/snapshot</url>
-            <snapshots><enabled>true</enabled></snapshots>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>nexus</id>
