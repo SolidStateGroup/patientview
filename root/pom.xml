@@ -12,6 +12,7 @@
     <properties>
         <pv-hibernate.version>5.1.13.Final</pv-hibernate.version>
         <spring.version>4.3.16.RELEASE</spring.version>
+        <spring-security.version>4.2.5.RELEASE</spring-security.version>
         <junit.version>4.12</junit.version>
         <aspectj.version>1.8.9</aspectj.version>
     </properties>
@@ -40,6 +41,27 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
             <version>${pv-hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.3-1100-jdbc41</version>
+        </dependency>
+        <!-- Object to String conversion using Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.8.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.11</version>
         </dependency>
     </dependencies>
 
