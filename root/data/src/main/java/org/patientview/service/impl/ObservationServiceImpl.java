@@ -2,6 +2,7 @@ package org.patientview.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
@@ -563,7 +564,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 sb.append(obs.getResourceType()).append("','");
                 sb.append(obs.getPublished().toString()).append("','");
                 sb.append(obs.getUpdated().toString()).append("','");
-                sb.append(obs.getContent());
+                sb.append(StringEscapeUtils.escapeSql(obs.getContent()));
                 sb.append("')");
                 if (i != (fhirDatabaseObservations.size() - 1)) {
                     sb.append(",");
