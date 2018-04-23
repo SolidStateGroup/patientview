@@ -89,7 +89,13 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             UnsupportedEncodingException {
         MyMedia myMedia = myMediaRepository.findOne(myMediaId);
         if (ApiUtil.getCurrentUser().getId().equals(myMedia.getCreator().getId())) {
-            myMediaRepository.delete(myMediaId);
+            //Because media can be shared across multiple conversations etc, we just remove the content
+            //From the db so we can display an error
+            myMedia.setDeleted(true);
+            myMedia.setContent(null);
+            myMedia.setThumbnailContent(null);
+            myMedia.setLocalPath(null);
+            myMediaRepository.save(myMedia);
         } else {
             throw new ResourceForbiddenException("Unauthorised");
         }

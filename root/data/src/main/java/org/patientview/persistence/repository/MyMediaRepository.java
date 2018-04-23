@@ -26,5 +26,8 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface MyMediaRepository extends JpaRepository<MyMedia, Long> {
 
-    Page<List<MyMedia>> getByCreator(User user, Pageable pageable);
+    @Query("SELECT c FROM MyMedia WHERE creator = :user AND deleted = :deleted")
+    Page<List<MyMedia>> getByCreator(@Param("user") User user,
+                                     @Param("deleted") Boolean deleted,
+                                     Pageable pageable);
 }
