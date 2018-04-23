@@ -5,8 +5,8 @@
 </style>
 
 <div data-ng-show="!loading">
-    <h1>MyMedia</h1>
-
+    <h1>My Media</h1>
+    <p>This section displays any files that you have uploaded using the PatientView mobile application. With the app, you can upload media related to your condition, such as photos taken by your mobile device.</p>
     <div data-ng-show="!loading" data-ng-cloak>
         <div class="message-item" data-ng-repeat="media in pagedItems">
             <div class="content-panel">
@@ -16,27 +16,23 @@
                 <div class="message-summary">
                             <div ng-show="'IMAGE' == media.type">
                                 <a href="" data-ng-click="viewMyMedia(media)">
-                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}">
+                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}"><br />
                                     View Media
                                 </a>
                                 </div>
                                 <div ng-show="'VIDEO' == media.type">
                                     <a href="" data-ng-click="viewMyMedia(media)">
-                                        <img src="images/pv-video.png">
+                                        <img src="images/pv-video.png"><br />
                                         View Media
                                     </a>
                                 </div>
                     <div class="last-message">
-                        <p class="date-stamp"></p>
-                            Created {{media.created | date:'dd-MMM-yyyy HH:mm'}}
-                        </p>
+                        <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        <p>File Size: {{media.filesize/1000}} kb</p>
+                        <p>File Type: {{media.type}}</p>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div data-ng-show="pagedItems.length < 1">
-            <h4>You do not have any MyMedia. To find out more....(insert text)</h4>
         </div>
 
         <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
