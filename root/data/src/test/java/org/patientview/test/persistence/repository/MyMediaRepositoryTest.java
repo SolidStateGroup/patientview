@@ -1,5 +1,6 @@
 package org.patientview.test.persistence.repository;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Tests concerned with retrieving the correct news for a user.
- *
+ * <p>
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
  */
@@ -60,7 +61,7 @@ public class MyMediaRepositoryTest {
 
 
     @Test
-    public void addMyMedia(){
+    public void addMyMedia() {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreated(new Date());
         myMedia.setCreator(creator);
@@ -72,7 +73,7 @@ public class MyMediaRepositoryTest {
 
 
     @Test
-    public void getMediaSize(){
+    public void getMediaSize() {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreated(new Date());
         myMedia.setCreator(creator);
@@ -80,7 +81,23 @@ public class MyMediaRepositoryTest {
         myMedia.setDeleted(false);
 
         //Original String
-        String string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        String string =
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        string = string + string + string + string + string + string + string + string + string + string;
+        string = string + string + string + string + string + string + string + string + string + string;
+        string = string + string + string + string + string + string + string + string + string + string;
+        string = string + string + string + string + string + string + string + string + string + string;
 
         //Convert to byte[]
         byte[] bytes = string.getBytes();
@@ -89,13 +106,13 @@ public class MyMediaRepositoryTest {
         myMediaRepository.save(myMedia);
         Long number = myMediaRepository.getUserTotal(creator, false);
 
-        assertTrue(number == 1L);
+        assertTrue(number == 21L);
 
     }
 
 
     @Test
-    public void getMediaForUser(){
+    public void getMediaForUser() {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreated(new Date());
         myMedia.setCreator(creator);
@@ -108,8 +125,32 @@ public class MyMediaRepositoryTest {
     }
 
 
+
     @Test
-    public void getMediaForUse2(){
+    public void getMediaForUserORderCheck() {
+        MyMedia myMedia = new MyMedia();
+        myMedia.setCreated(new Date());
+        myMedia.setCreator(creator);
+        myMedia.setLocalPath("MEDIA1");
+        myMedia.setType(MediaTypes.IMAGE);
+
+        myMediaRepository.save(myMedia);
+
+        myMedia = new MyMedia();
+        myMedia.setCreated(new DateTime().minusDays(10).toDate());
+        myMedia.setCreator(creator);
+        myMedia.setLocalPath("MEDIA2");
+        myMedia.setType(MediaTypes.IMAGE);
+
+        myMediaRepository.save(myMedia);
+        PageRequest pageable = new PageRequest(0, 100);
+
+        assertEquals(2, myMediaRepository.getByCreator(creator, false, pageable).getNumberOfElements());
+    }
+
+
+    @Test
+    public void getMediaForUse2() {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreated(new Date());
         myMedia.setCreator(creator);
