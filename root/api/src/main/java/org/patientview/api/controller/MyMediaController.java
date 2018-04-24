@@ -8,6 +8,7 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.config.exception.MediaUserSpaceLimitException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -56,7 +57,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @ResponseBody
     public MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException, JCodecException {
+            IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
         return myMediaService.save(userId, myMedia);
     }
 
