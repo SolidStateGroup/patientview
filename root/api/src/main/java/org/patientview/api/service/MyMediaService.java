@@ -4,6 +4,7 @@ import org.im4java.core.IM4JavaException;
 import org.jcodec.api.JCodecException;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.config.exception.MediaUserSpaceLimitException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -22,7 +23,7 @@ public interface MyMediaService {
 
     @UserOnly
     MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException, JCodecException;
+            IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException;
 
     @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.PATIENT})
     MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
