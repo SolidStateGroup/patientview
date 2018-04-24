@@ -6,7 +6,7 @@
   "name": "production",
   "apiEndpoint": "http://localhost:8080/api",
   "reCaptchaPublicKey": "6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m",
-  "buildDateTime": 1524491564165
+  "buildDateTime": 1524584673224
 })
 
 ;

@@ -9,6 +9,8 @@ angular.module('patientviewApp').factory('MyMediaService', ['$q', 'Restangular',
                 // GET /user/{userId}/news?page=0&size=5
                 Restangular.one('user', userId).one('mymedia').get(
                     {
+                        'sortDirection' : 'DESC',
+                        'sortField' : 'created',
                         'page': page,
                         'limitResults': limitResults,
                         'size': size
