@@ -63,7 +63,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
         Long userSpaceSize = myMediaRepository.getUserTotal(currentUser, false);
 
-        if (userSpaceSize >= 50) {
+        if (userSpaceSize != null && userSpaceSize >= 50) {
             throw new MediaUserSpaceLimitException("You currently have " + userSpaceSize + "mb of files." +
                     "Please delete some files to make space for new media.");
         }
