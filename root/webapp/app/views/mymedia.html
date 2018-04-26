@@ -12,25 +12,33 @@
         <div class="message-item" data-ng-repeat="media in pagedItems">
             <div class="content-panel">
                 <ul class="pull-right aside-actions unstyled">
-                        <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(media)" data-ng-confirm-click="Are you sure you want to delete this media item?">Delete</a></li>
-                    </ul>
-                <div class="message-summary">
+                    <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(media)" data-ng-confirm-click="Are you sure you want to delete this media item?">Delete</a></li>
+                </ul>
+                <div class=" media-message clearfix">
+                    <div class="media-thumbnail pull-left">
+                        <div class="media-body">
                             <div ng-show="'IMAGE' == media.type">
                                 <a href="" data-ng-click="viewMyMedia(media)">
                                     <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}"><br />
-                                    View Media
+                                    <span class="image-action">
+                                        <i class="fas fa-search-plus"></i> Click to view
+                                    </span>
                                 </a>
-                                </div>
-                                <div ng-show="'VIDEO' == media.type">
-                                    <a href="" data-ng-click="viewMyMedia(media)">
-                                        <img src="images/pv-video.png"><br />
-                                        View Media
-                                    </a>
-                                </div>
-                    <div class="last-message">
-                        <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-                        <p>File Size: {{media.filesize/1000}} kb</p>
-                        <p>File Type: {{media.type}}</p>
+                            </div>
+                            <div ng-show="'VIDEO' == media.type">
+                                <a href="" data-ng-click="viewMyMedia(media)">
+                                    <img src="images/pv-video.png"><br />
+                                    <span class="image-action">
+                                        <i class="fas fa-search-plus"></i> Click to view
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="media-meta">
+                            <p>File Type: {{media.type}}</p>
+                            <p>File Size: {{media.filesize/1000}} kb</p>
+                            <p class="timestamp">Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        </div>
                     </div>
                 </div>
             </div>
