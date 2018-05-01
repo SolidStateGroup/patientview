@@ -4,9 +4,9 @@
 
 .constant("ENV", {
   "name": "production",
-  "apiEndpoint": "https://test.patientview.org/api",
-  "reCaptchaPublicKey": "",
-  "buildDateTime": 1524731547569
+  "apiEndpoint": "http://localhost:8080/api",
+  "reCaptchaPublicKey": "6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m",
+  "buildDateTime": 1525197921092
 })
 
 ;

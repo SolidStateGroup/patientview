@@ -137,10 +137,11 @@
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
                         <div class="media-thumbnail pull-left">
                             <div class="media-body">
-                                <div>
-                                    <a data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1].myMedia)" style="cursor: pointer;">
-                                        <!--TODO: Update image token-->
-                                        <img ng-src="{{apiEndpoint +''+ conversation.messages[conversation.messages.length-1].myMedia.thumbnail +'?token=' + authToken}}"><br />
+                                <div ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
+                        conversation.messages[conversation.messages.length-1].myMedia != null &&
+                        !conversation.messages[conversation.messages.length-1].myMedia.deleted">
+                                    <a data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1])" style="cursor: pointer;">
+                                        <img ng-src="{{apiEndpoint +''+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}"><br />
                                         <span class="image-action">
                                 <i class="fas fa-search-plus"></i> Click to view
                                 </span>
@@ -153,7 +154,7 @@
                                 <p class="timestamp">Created: {{conversation.messages[conversation.messages.length-1].myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             </div>
                         </div>
-                        </p>
+
                         <p ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
                         conversation.messages[conversation.messages.length-1].myMedia == null ||
                         conversation.messages[conversation.messages.length-1].myMedia.deleted">
@@ -222,8 +223,8 @@
                         <div class="media-thumbnail pull-left">
                             <div class="media-body">
                                 <div>
-                                    <a ng-show="message.hasAttachment && message.myMedia != null"
-                                       data-ng-click="viewMyMedia(message.myMedia)">
+                                    <a ng-show="message.hasAttachment && (message.myMedia != null && !message.myMedia.deleted)"
+                                       data-ng-click="viewMyMedia(message)">
                                         <img ng-src="{{apiEndpoint +''+ message.myMedia.thumbnail +'?token=' + authToken}}"><br />
                                         <span class="image-action">
                             <i class="fas fa-search-plus"></i> Click to view
@@ -238,7 +239,7 @@
                             </div>
                         </div>
 
-                        <p ng-show="message.hasAttachment && message.myMedia == null">Attachment has been removed and may have been deleted</p>
+                        <p ng-show="message.hasAttachment && (message.myMedia == null || message.myMedia.deleted)">Attachment has been removed and may have been deleted</p>
                     </div>
                     <hr/>
                 </div>

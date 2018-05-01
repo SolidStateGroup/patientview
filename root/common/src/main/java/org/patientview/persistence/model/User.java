@@ -35,9 +35,11 @@ public class User extends RangeModel implements UserDetails {
     private String username;
 
     @Column(name = "password")
+    @JsonIgnore
     private String password;
 
     @Column(name = "salt")
+    @JsonIgnore
     private String salt;
 
     @Column(name = "change_password")
@@ -88,6 +90,7 @@ public class User extends RangeModel implements UserDetails {
     private boolean hideSecretWordNotification = false;
 
     @Column(name = "secret_word")
+    @JsonIgnore
     private String secretWord;
 
     @Transient
@@ -147,6 +150,7 @@ public class User extends RangeModel implements UserDetails {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -155,9 +159,11 @@ public class User extends RangeModel implements UserDetails {
         this.password = password;
     }
 
+    @JsonIgnore
     public String getSalt(){
         return salt;
     }
+
     public void setSalt(String salt){
         this.salt = salt;
     }

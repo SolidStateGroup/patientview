@@ -1,16 +1,35 @@
 <div class="modal-body">
-    <div ng-show="'IMAGE' == media.type">
-        <img ng-src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" width="100%">
+    <div ng-if="message">
+        <p>{{message.myMedia}}</p>
+        <div ng-show="'IMAGE' == message.myMedia.type">
+
+            <img ng-src="{{apiEndpoint +''+ message.id +'/attachment?token=' + authToken}}"
+                 width="100%">
+        </div>
+        <div ng-show="'VIDEO' ==  message.myMedia.type">
+            <video id="my-video" class="video-js" controls preload="auto" width="100%"
+                   poster="images/pv-video.png">
+                <source src="{{apiEndpoint +''+ message.id +'/attachment?token=' + authToken}}" type="video/mp4">
+            </video>
+        </div>
+        <p>Created: {{message.myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+        <p>File Size: {{message.myMedia.filesize/1000}} kb</p>
+        <p>File Type: {{message.myMedia.type}}</p>
     </div>
-    <div ng-show="'VIDEO' == media.type">
-        <video id="my-video" class="video-js" controls preload="auto" width="100%"
-               poster="images/pv-video.png">
-            <source src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" type="video/mp4">
-        </video>
+    <div ng-if="media.id">
+        <div ng-show="'IMAGE' == media.type">
+            <img ng-src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" width="100%">
+        </div>
+        <div ng-show="'VIDEO' == media.type">
+            <video id="my-video" class="video-js" controls preload="auto" width="100%"
+                   poster="images/pv-video.png">
+                <source src="{{apiEndpoint +''+ media.path +'?token=' + authToken}}" type="video/mp4">
+            </video>
+        </div>
+        <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+        <p>File Size: {{media.filesize/1000}} kb</p>
+        <p>File Type: {{media.type}}</p>
     </div>
-    <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-    <p>File Size: {{media.filesize/1000}} kb</p>
-    <p>File Type: {{media.type}}</p>
 </div>
 <div class="modal-footer">
     <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
