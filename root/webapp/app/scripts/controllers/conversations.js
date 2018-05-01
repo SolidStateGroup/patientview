@@ -91,14 +91,17 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         return unreadMessages > 0;
     };
 
-    $scope.viewMyMedia = function (media) {
+    $scope.viewMyMedia = function (fromMessage) {
         var modalInstance = $modal.open({
             templateUrl: 'views/modal/viewMyMedia.html',
             controller: ViewMyMediaModalInstanceCtrl,
             size: 'lg',
             resolve: {
-                myMedia: function () {
-                    return media;
+                myMedia: function(){
+                    return {};
+                },
+                message: function () {
+                    return fromMessage;
                 },
             }
         });

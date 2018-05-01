@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -8,6 +9,7 @@ import org.im4java.core.IM4JavaException;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.scale.AWTUtil;
+import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.MediaUserSpaceLimitException;
@@ -21,6 +23,7 @@ import org.patientview.persistence.repository.MyMediaRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,7 +60,8 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
 
     @Override
-    public MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
+    public org.patientview.api.model.MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException,
+            ResourceForbiddenException,
             IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
         User currentUser = userRepository.findOne(userId);
         myMedia.setCreator(currentUser);
@@ -84,13 +90,13 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
         }
 
-        return myMediaRepository.save(myMedia);
+        return createMyMediaDto(myMediaRepository.save(myMedia));
     }
 
     @Override
-    public MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
+    public org.patientview.api.model.MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
-        return myMediaRepository.findOne(id);
+        return createMyMediaDto(myMediaRepository.findOne(id));
     }
 
     @Override
@@ -111,7 +117,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     }
 
     @Override
-    public Page<List<MyMedia>> getAllForUser(Long userId, GetParameters getParameters) throws
+    public PageImpl<org.patientview.api.model.MyMedia> getAllForUser(Long userId, GetParameters getParameters) throws
             ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
         String size = getParameters.getSize();
         String page = getParameters.getPage();
@@ -122,7 +128,16 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
         PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
-        return myMediaRepository.getByCreator(userRepository.findOne(userId), false, pageable);
+        Page<List<MyMedia>> media =
+                myMediaRepository.getByCreator(userRepository.findOne(userId), false, pageable);
+
+        List<org.patientview.api.model.MyMedia> mediaToReturn = new ArrayList();
+
+        for (int i = 0; i < media.getContent().size(); i++) {
+            mediaToReturn.add(this.createMyMediaDto((MyMedia) media.getContent().get(i)));
+        }
+
+        return new PageImpl<>(mediaToReturn, pageable, media.getTotalElements());
     }
 
     @Override
@@ -137,11 +152,10 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         return baos.toByteArray();
     }
 
-    private boolean overFileSpaceLimit(User user) {
-        // studies = entityManager.createNativeQuery(query, ResearchStudy.class).getResultList();
-        return false;
+    @Override
+    public org.patientview.api.model.MyMedia createMyMediaDto(MyMedia myMedia) {
+        return new org.patientview.api.model.MyMedia(myMedia);
     }
-
 
     private byte[] getVideoThumbnail(MyMedia myMedia) throws IOException, JCodecException {
         String[] localPath = myMedia.getLocalPath().split("/");
@@ -267,4 +281,6 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 //
 //        return toReturn;
 //    }
+
+
 }

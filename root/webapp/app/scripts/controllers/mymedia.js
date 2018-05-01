@@ -44,6 +44,9 @@ angular.module('patientviewApp').controller('MyMediaCtrl', ['$scope', '$modal', 
                     myMedia: function () {
                         return media;
                     },
+                    message: function() {
+                        return {};
+                    }
                 }
             });
 

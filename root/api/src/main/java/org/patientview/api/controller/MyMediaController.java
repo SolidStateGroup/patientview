@@ -16,7 +16,7 @@ import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.List;
 
 import static org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl.LOGGER;
 
@@ -55,7 +54,8 @@ public class MyMediaController extends BaseController<MyMediaController> {
     @RequestMapping(value = "/user/{userId}/mymedia/upload", method = RequestMethod.POST, consumes = MediaType
             .APPLICATION_JSON_VALUE)
     @ResponseBody
-    public MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia myMedia)
+    public org.patientview.api.model.MyMedia uploadMyMedia(@PathVariable("userId") Long userId, @RequestBody MyMedia
+            myMedia)
             throws ResourceNotFoundException, ImportResourceException, ResourceForbiddenException,
             IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
         return myMediaService.save(userId, myMedia);
@@ -71,8 +71,8 @@ public class MyMediaController extends BaseController<MyMediaController> {
 
     @RequestMapping(value = "/user/{userId}/mymedia", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<List<MyMedia>>> getMyMedia(@PathVariable("userId") Long userId,
-                                                          GetParameters getParameters)
+    public ResponseEntity<PageImpl<org.patientview.api.model.MyMedia>> getMyMedia(@PathVariable("userId") Long userId,
+                                                                                  GetParameters getParameters)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         return new ResponseEntity<>(myMediaService.getAllForUser(userId, getParameters), HttpStatus.OK);
     }
@@ -82,7 +82,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
     public void getMyMediaContent(@PathVariable("id") final Long id, HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
-        MyMedia myMedia = myMediaService.get(id);
+        org.patientview.api.model.MyMedia myMedia = myMediaService.get(id);
 
         //Throw an exception if the current user isnt the owner
         if (!myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId()) &&
@@ -104,7 +104,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
             throws ResourceNotFoundException, IOException, ResourceForbiddenException, IM4JavaException,
             InterruptedException {
         InputStream is = null;
-        MyMedia myMedia = myMediaService.get(id);
+        org.patientview.api.model.MyMedia myMedia = myMediaService.get(id);
 
         //Throw an exception if the current user isnt the owner
         if (!myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId()) &&
@@ -130,6 +130,22 @@ public class MyMediaController extends BaseController<MyMediaController> {
 
         if (message.getMyMedia().getType().equals(MediaTypes.IMAGE)) {
             getMyMediaImage(message.getMyMedia().getContent(), response);
+        } else {
+            getMyMediaVideo(message.getMyMedia(), response);
+        }
+    }
+
+
+    @RequestMapping(value = "/message/{messageId}/attachement/preview", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public void getAttachmentPreviewForConversation(@PathVariable("messageId") final Long messageId,
+                                                    HttpServletResponse response)
+            throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
+        //Check that the current user is part of a conversation and get the message
+        Message message = conversationService.getMessageById(messageId);
+
+        if (message.getMyMedia().getType().equals(MediaTypes.IMAGE)) {
+            getMyMediaImage(message.getMyMedia().getThumbnailContent(), response);
         } else {
             getMyMediaVideo(message.getMyMedia(), response);
         }
@@ -170,6 +186,12 @@ public class MyMediaController extends BaseController<MyMediaController> {
         }
     }
 
+    private void getMyMediaVideo(MyMedia myMedia,
+                                 HttpServletResponse response) throws UnsupportedEncodingException,
+            ResourceForbiddenException, ResourceNotFoundException {
+        getMyMediaVideo(myMediaService.createMyMediaDto(myMedia), response);
+    }
+
     /**
      * Stream a video to the FE
      *
@@ -179,7 +201,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
      * @throws UnsupportedEncodingException
      * @throws ResourceForbiddenException
      */
-    private void getMyMediaVideo(MyMedia myMedia,
+    private void getMyMediaVideo(org.patientview.api.model.MyMedia myMedia,
                                  HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
