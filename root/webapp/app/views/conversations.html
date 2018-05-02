@@ -135,13 +135,13 @@
                         </div>
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
-                        <div class="media-thumbnail pull-left">
+                        <div class="media-thumbnail pull-left" ng-show="conversation.messages[conversation.messages.length-1].hasAttachment">
                             <div class="media-body">
                                 <div ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
                         conversation.messages[conversation.messages.length-1].myMedia != null &&
                         !conversation.messages[conversation.messages.length-1].myMedia.deleted">
                                     <a data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1])" style="cursor: pointer;">
-                                        <img ng-src="{{apiEndpoint +''+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}"><br />
+                                        <img ng-src="{{apiEndpoint +'/message/'+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}"><br />
                                         <span class="image-action">
                                 <i class="fas fa-search-plus"></i> Click to view
                                 </span>
@@ -220,12 +220,12 @@
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
 
-                        <div class="media-thumbnail pull-left">
+                        <div class="media-thumbnail pull-left" ng-show="message.hasAttachment">
                             <div class="media-body">
                                 <div>
                                     <a ng-show="message.hasAttachment && (message.myMedia != null && !message.myMedia.deleted)"
                                        data-ng-click="viewMyMedia(message)">
-                                        <img ng-src="{{apiEndpoint +''+ message.myMedia.thumbnail +'?token=' + authToken}}"><br />
+                                        <img ng-src="{{apiEndpoint +'/message/'+ message.id +'/attachment/preview?token=' + authToken}}"><br />
                                         <span class="image-action">
                             <i class="fas fa-search-plus"></i> Click to view
                             </span>
