@@ -57,7 +57,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
      */
     @RequestMapping(value = "/research", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Page<ResearchStudy>> getAll()
+    public ResponseEntity<Page<org.patientview.api.model.ResearchStudy>> getAll()
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(researchService.getAll(), HttpStatus.OK);
     }
@@ -70,9 +70,9 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
      */
     @RequestMapping(value = "/research/{researchStudyId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<ResearchStudy> get(@PathVariable("researchStudyId") Long researchStudyId)
+    public ResponseEntity<org.patientview.api.model.ResearchStudy> get(@PathVariable("researchStudyId") Long researchStudyId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        ResearchStudy study = researchService.get(researchStudyId);
+        org.patientview.api.model.ResearchStudy study = researchService.get(researchStudyId);
 
         return new ResponseEntity<>(study, HttpStatus.OK);
     }
@@ -102,7 +102,7 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
     @RequestMapping(value = "/user/{userId}/research", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Page<ResearchStudy>> findByUserId(
+    public ResponseEntity<Page<org.patientview.api.model.ResearchStudy>> findByUserId(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
             @RequestParam(value = "newsType", required = false) String newsTypeString,
             @RequestParam(value = "limitResults", required = false) boolean limitResults,

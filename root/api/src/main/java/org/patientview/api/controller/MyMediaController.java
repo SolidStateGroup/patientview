@@ -120,7 +120,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
         }
     }
 
-    @RequestMapping(value = "/message/{messageId}/attachement", method = RequestMethod.GET,
+    @RequestMapping(value = "/message/{messageId}/attachment", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public void getAttachmentsForConversation(@PathVariable("messageId") final Long messageId,
                                               HttpServletResponse response)
@@ -136,7 +136,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
     }
 
 
-    @RequestMapping(value = "/message/{messageId}/attachement/preview", method = RequestMethod.GET,
+    @RequestMapping(value = "/message/{messageId}/attachment/preview", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public void getAttachmentPreviewForConversation(@PathVariable("messageId") final Long messageId,
                                                     HttpServletResponse response)

@@ -1,15 +1,13 @@
 <div class="modal-body">
     <div ng-if="message">
-        <p>{{message.myMedia}}</p>
         <div ng-show="'IMAGE' == message.myMedia.type">
-
-            <img ng-src="{{apiEndpoint +''+ message.id +'/attachment?token=' + authToken}}"
+            <img ng-src="{{apiEndpoint +'/message/'+ message.id +'/attachment?token=' + authToken}}"
                  width="100%">
         </div>
         <div ng-show="'VIDEO' ==  message.myMedia.type">
             <video id="my-video" class="video-js" controls preload="auto" width="100%"
                    poster="images/pv-video.png">
-                <source src="{{apiEndpoint +''+ message.id +'/attachment?token=' + authToken}}" type="video/mp4">
+                <source src="{{apiEndpoint +'/message/'+ message.id +'/attachment?token=' + authToken}}" type="video/mp4">
             </video>
         </div>
         <p>Created: {{message.myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>

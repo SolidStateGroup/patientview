@@ -6,7 +6,7 @@ var ViewMyMediaModalInstanceCtrl = ['$scope', '$modalInstance', 'myMedia', 'mess
             $scope.media = myMedia;
         }
 
-        if (typeof message.if !== 'undefined') {
+        if (typeof message.id !== 'undefined') {
             $scope.message = message;
         }
 
