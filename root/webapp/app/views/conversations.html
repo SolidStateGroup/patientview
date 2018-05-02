@@ -152,7 +152,7 @@
                             </div>
                             <div class="media-meta">
                                 <p>File Type: {{conversation.messages[conversation.messages.length-1].myMedia.type}}</p>
-                                <p>File Size: {{conversation.messages[conversation.messages.length-1].myMedia.filesize/1000}} kb</p>
+                                <p>File Size: {{conversation.messages[conversation.messages.length-1].myMedia.filesize/1000  | number : 0}} kb</p>
                                 <p class="timestamp">Created: {{conversation.messages[conversation.messages.length-1].myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             </div>
                         </div>
@@ -238,9 +238,9 @@
                                 </div>
                             </div>
                             <div class="media-meta">
-                                <p>File Type: {{conversation.messages[conversation.messages.length-1].myMedia.type}}</p>
-                                <p>File Size: {{conversation.messages[conversation.messages.length-1].myMedia.filesize/1000}} kb</p>
-                                <p class="timestamp">Created: {{conversation.messages[conversation.messages.length-1].myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                                <p>File Type: {{message.myMedia.type}}</p>
+                                <p>File Size: {{message.myMedia.filesize/1000  | number : 0}} kb</p>
+                                <p class="timestamp">Created: {{message.myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             </div>
                         </div>
 
