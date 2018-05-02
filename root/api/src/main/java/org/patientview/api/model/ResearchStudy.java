@@ -1,7 +1,13 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.ResearchStudyCriteria;
 import org.patientview.persistence.model.User;
@@ -20,9 +26,11 @@ import java.util.Date;
 /**
  * Models a research study criteria that is available to a user
  */
-@Getter
-@Setter
-public class ResearchStudy extends BaseModel {
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@Data
+@Accessors(fluent = true)
+public class ResearchStudy {
+    private Long id;
     private String researchName;
     private String description;
     private Date createdDate;
@@ -39,12 +47,18 @@ public class ResearchStudy extends BaseModel {
 
 
     public ResearchStudy(org.patientview.persistence.model.ResearchStudy researchStudy) {
+        this.id = researchStudy.getId();
         this.researchName = researchStudy.getResearchName();
         this.description = researchStudy.getDescription();
         this.createdDate = researchStudy.getCreatedDate();
-        this.creator = new BaseUser(researchStudy.getCreator());
+        if (researchStudy.getCreator() != null) {
+            this.creator = new BaseUser(researchStudy.getCreator());
+        }
+        if (researchStudy.getLastUpdater() != null) {
+            this.lastUpdater = new BaseUser(researchStudy.getLastUpdater());
+        }
         this.lastUpdate = researchStudy.getLastUpdate();
-        this.lastUpdater = new BaseUser(researchStudy.getLastUpdater());
+
         this.availableFrom = researchStudy.getAvailableFrom();
         this.availableTo = researchStudy.getAvailableTo();
         this.contactAddress = researchStudy.getContactAddress();
