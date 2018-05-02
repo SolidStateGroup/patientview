@@ -141,9 +141,9 @@
                         conversation.messages[conversation.messages.length-1].myMedia != null &&
                         !conversation.messages[conversation.messages.length-1].myMedia.deleted">
                                     <a data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1])" style="cursor: pointer;">
-                                        <img  ng-show="'IMAGE' ==  conversation.messages[conversation.messages.length-1].myMedia.type" ng-src="{{apiEndpoint +'/message/'+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}"><br />
+                                        <img  ng-show="'IMAGE' ==  conversation.messages[conversation.messages.length-1].myMedia.type" ng-src="{{apiEndpoint +'/message/'+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}">
                                         <img ng-show="'VIDEO' ==  conversation.messages[conversation.messages.length-1].myMedia.type"
-                                             src="images/pv-video.png"><br />
+                                             src="images/pv-video.png">
                                         <span class="image-action">
                                 <i class="fas fa-search-plus"></i> Click to view
                                 </span>
@@ -228,9 +228,9 @@
                                     <a ng-show="message.hasAttachment && (message.myMedia != null && !message.myMedia.deleted)"
                                        data-ng-click="viewMyMedia(message)">
                                         <img ng-show="'IMAGE' ==  message.myMedia.type"
-                                             ng-src="{{apiEndpoint +'/message/'+ message.id +'/attachment/preview?token=' + authToken}}"><br />
+                                             ng-src="{{apiEndpoint +'/message/'+ message.id +'/attachment/preview?token=' + authToken}}">
                                         <img ng-show="'VIDEO' ==  message.myMedia.type"
-                                             src="images/pv-video.png"><br />
+                                             src="images/pv-video.png">
                                         <span class="image-action">
                             <i class="fas fa-search-plus"></i> Click to view
                             </span>
