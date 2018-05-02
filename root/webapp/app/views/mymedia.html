@@ -19,7 +19,7 @@
                         <div class="media-body">
                             <div ng-show="'IMAGE' == media.type">
                                 <a href="" data-ng-click="viewMyMedia(media)">
-                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}"><br />
+                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}">
                                     <span class="image-action">
                                         <i class="fas fa-search-plus"></i> Click to view
                                     </span>
@@ -27,7 +27,7 @@
                             </div>
                             <div ng-show="'VIDEO' == media.type">
                                 <a href="" data-ng-click="viewMyMedia(media)">
-                                    <img src="images/pv-video.png"><br />
+                                    <img src="images/pv-video.png">
                                     <span class="image-action">
                                         <i class="fas fa-search-plus"></i> Click to view
                                     </span>
@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<div data-ng-show="loading" class="container"><br/><br/>
+<div data-ng-show="loading" class="container">
     <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading MyMedia</h3>
     </div>
