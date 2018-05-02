@@ -4006,13 +4006,14 @@ hr.solid {
 /* line 13, ../sass/_media.scss */
 .media-thumbnail .media-body a {
   display: block;
+  cursor: pointer;
 }
-/* line 17, ../sass/_media.scss */
+/* line 18, ../sass/_media.scss */
 .media-thumbnail .media-body img {
   width: 100%;
   height: 150px;
 }
-/* line 22, ../sass/_media.scss */
+/* line 23, ../sass/_media.scss */
 .media-thumbnail .media-meta {
   width: 100%;
   background: #f3f6f9;
@@ -4020,17 +4021,17 @@ hr.solid {
   padding: 4px 10px;
   color: #aebccf;
 }
-/* line 29, ../sass/_media.scss */
+/* line 30, ../sass/_media.scss */
 .media-thumbnail .media-meta p {
   margin: 0;
 }
-/* line 33, ../sass/_media.scss */
+/* line 34, ../sass/_media.scss */
 .media-thumbnail .media-meta .timestamp {
   font-size: 11px;
   margin-top: 10px;
 }
 
-/* line 40, ../sass/_media.scss */
+/* line 41, ../sass/_media.scss */
 .image-action {
   position: absolute;
   bottom: 0;
@@ -4042,7 +4043,7 @@ hr.solid {
   padding: 10px;
   color: white;
 }
-/* line 51, ../sass/_media.scss */
+/* line 52, ../sass/_media.scss */
 .image-action i {
   color: white;
   font-size: 16px;
