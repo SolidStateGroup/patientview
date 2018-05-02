@@ -45,7 +45,9 @@ public class MyMedia {
             this.width = myMedia.getWidth();
             this.deleted = myMedia.getDeleted();
             this.created = myMedia.getCreated();
-            this.creator = new BaseUser(myMedia.getCreator());
+            if (myMedia.getCreator() != null) {
+                this.creator = new BaseUser(myMedia.getCreator());
+            }
             this.thumbnail = myMedia.getThumbnail();
             this.path = myMedia.getPath();
             this.content = myMedia.getContent();
