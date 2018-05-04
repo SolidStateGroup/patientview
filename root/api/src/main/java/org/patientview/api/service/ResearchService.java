@@ -48,7 +48,7 @@ public interface ResearchService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
+    org.patientview.api.model.ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**
@@ -59,7 +59,7 @@ public interface ResearchService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN })
-    Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
+    Page<org.patientview.api.model.ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**
@@ -70,7 +70,7 @@ public interface ResearchService {
      * @throws ResourceForbiddenException
      */
     @RoleOnly(roles = {RoleName.PATIENT, RoleName.UNIT_ADMIN, RoleName.GLOBAL_ADMIN})
-    Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
+    Page<org.patientview.api.model.ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
      * Update a NewsItem.

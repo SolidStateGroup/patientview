@@ -25,7 +25,6 @@ import org.patientview.persistence.model.ResearchStudyCriteria;
 import org.patientview.persistence.model.ResearchStudyCriteriaData;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
-import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ResearchStudyCriteriaRepository;
@@ -127,7 +126,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     }
 
     @Override
-    public ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public org.patientview.api.model.ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
         ResearchStudy researchStudy = researchStudyRepository.findOne(researchItemId);
 
         List<ResearchStudyCriteria> criteriaList =
@@ -184,21 +183,25 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             throw new ResourceNotFoundException("Research Study does not exist");
         }
 
-        return researchStudy;
+        return new org.patientview.api.model.ResearchStudy(researchStudy);
     }
 
     @Override
-    public Page<ResearchStudy> getAll() throws ResourceNotFoundException, ResourceForbiddenException {
+    public Page<org.patientview.api.model.ResearchStudy> getAll() throws ResourceNotFoundException,
+            ResourceForbiddenException {
 
-        List<ResearchStudy> list = Lists.newArrayList(researchStudyRepository.findAll());
+        List<org.patientview.api.model.ResearchStudy> list = convertToDto(Lists.newArrayList(researchStudyRepository
+                .findAll()));
         Collections.reverse(list);
+
         PageRequest pageable = createPageRequest(1, list.size(), null, null);
 
         return new PageImpl<>(list, pageable, list.size());
     }
 
     @Override
-    public Page<ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable pageable)
+    public Page<org.patientview.api.model.ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable
+            pageable)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         User user = userRepository.findOne(userId);
         // get role, group and grouprole specific news (directly accessed through newsLink)
@@ -315,7 +318,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             studies = entityManager.createNativeQuery(query, ResearchStudy.class).getResultList();
             Collections.reverse(studies);
 
-            return manuallyPage(studies, pageable);
+            return manuallyPage(convertToDto(studies), pageable);
         }
     }
 
@@ -367,24 +370,33 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             return false;
         }
         return (researchStudy.getCreator() != null && researchStudy.getCreator().getId().equals(currentUser.getId()))
-                || (researchStudy.getLastUpdater() != null && researchStudy.getLastUpdater().getId().equals(currentUser.getId()));
+                || (researchStudy.getLastUpdater() != null && researchStudy.getLastUpdater().getId().equals
+                (currentUser.getId()));
     }
 
 
-    private List<ResearchStudy> getAllResearchStudies() {
-        List<ResearchStudy> list = new ArrayList<>();
-        for (ResearchStudy researchStudy : Lists.newArrayList(researchStudyRepository.findAll())) {
-            if (canModifyResearchStudy(researchStudy)) {
-                list.add(researchStudy);
-            }
-        }
+    private List<org.patientview.api.model.ResearchStudy> getAllResearchStudies() {
+        List<org.patientview.api.model.ResearchStudy> list = convertToDto(Lists.newArrayList(researchStudyRepository
+                .findAll()));
 
         Collections.reverse(list);
         return list;
     }
 
+    private List<org.patientview.api.model.ResearchStudy> convertToDto(List<ResearchStudy> researchStudies) {
+        List<org.patientview.api.model.ResearchStudy> toReturn = new ArrayList<>();
 
-    private PageImpl<ResearchStudy> manuallyPage(List<ResearchStudy> list, Pageable pageable) {
+        for (ResearchStudy researchStudy : researchStudies) {
+            toReturn.add(new org.patientview.api.model.ResearchStudy(researchStudy));
+        }
+
+        return toReturn;
+    }
+
+
+    private PageImpl<org.patientview.api.model.ResearchStudy> manuallyPage(List<org.patientview.api.model
+            .ResearchStudy> list, Pageable
+                                                                                   pageable) {
         // manually do pagination
         int startIndex = pageable.getOffset();
         int endIndex;
@@ -395,7 +407,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
             endIndex = startIndex + pageable.getPageSize();
         }
 
-        List<ResearchStudy> pagedNewsItems = new ArrayList<>();
+        List<org.patientview.api.model.ResearchStudy> pagedNewsItems = new ArrayList<>();
 
         if (!list.isEmpty()) {
             pagedNewsItems = list.subList(startIndex, endIndex);
