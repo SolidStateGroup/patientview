@@ -1,0 +1,67 @@
+<style>
+    .margin-right {
+        margin-right: 5px;
+    }
+</style>
+
+<div data-ng-show="!loading">
+    <h1>My Media</h1>
+    <p>This section displays any files that you have uploaded using the PatientView mobile application.</p>
+    <p>With the app, you can upload media related to your condition, such as photos taken by your mobile device.</p>
+    <div data-ng-show="!loading" data-ng-cloak>
+        <div class="message-item" data-ng-repeat="media in pagedItems">
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                    <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(media)" data-ng-confirm-click="Are you sure you want to delete this media item?">Delete</a></li>
+                </ul>
+                <div class=" media-message clearfix">
+                    <div class="media-thumbnail pull-left">
+                        <div class="media-body">
+                            <div ng-show="'IMAGE' == media.type">
+                                <a href="" data-ng-click="viewMyMedia(media)">
+                                    <img ng-src="{{apiEndpoint +''+ media.thumbnail +'?token=' + authToken}}">
+                                    <span class="image-action">
+                                        <i class="fas fa-search-plus"></i> Click to view
+                                    </span>
+                                </a>
+                            </div>
+                            <div ng-show="'VIDEO' == media.type">
+                                <a href="" data-ng-click="viewMyMedia(media)">
+                                    <img src="images/pv-video.png">
+                                    <span class="image-action">
+                                        <i class="fas fa-search-plus"></i> Click to view
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="media-meta">
+                            <p>File Type: {{media.type}}</p>
+                            <p>File Size: {{media.filesize/1000 | number : 0}} kb</p>
+                            <p class="timestamp">Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container">
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading MyMedia</h3>
+    </div>
+</div>
