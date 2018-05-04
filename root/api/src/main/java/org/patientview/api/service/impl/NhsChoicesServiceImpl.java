@@ -852,22 +852,6 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
 
         LOG.info("Found NhschoicesConditions api: " + allConditions.size());
 
-        // Transform ConditionLinkJson into local NhschoicesCondition object, we should have
-        Map<String, NhschoicesCondition> newConditionsMap = new HashMap<>();
-        for (ConditionLinkJson condition : allConditions) {
-            NhschoicesCondition newCondition = new NhschoicesCondition();
-            String code = getConditionCodeFromUri(condition.getApiUrl());
-            newCondition.setCode(code);
-            newCondition.setName(condition.getName());
-            newCondition.setDescription(condition.getDescription());
-            newCondition.setDescriptionLastUpdateDate(new Date());
-            newCondition.setIntroductionUrl(buildUrlFromApiUrl(condition.getApiUrl()));
-            newCondition.setIntroductionUrlLastUpdateDate(new Date());
-            newCondition.setUri(condition.getApiUrl());
-
-            newConditionsMap.put(code, newCondition);
-        }
-
         // compare to existing using uri, adding if required with correct details
         List<NhschoicesCondition> currentConditions = nhschoicesConditionRepository.findAll();
         List<String> currentConditionCodes = new ArrayList<>();
