@@ -115,6 +115,5 @@ public class NhsChoicesServiceTest {
                 .findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(codeType.getValue()));
         verify(lookupRepository, Mockito.times(1))
                 .findByTypeAndValue(eq(LookupTypes.CODE_STANDARD), eq(standardType.getValue()));
-        verify(nhschoicesConditionRepository, Mockito.times(1)).save(any(List.class));
     }
 }
