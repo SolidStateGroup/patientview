@@ -1,8 +1,8 @@
 package org.patientview.persistence.dialect;
 
 import org.hibernate.NullPrecedence;
+import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.dialect.PostgreSQL9Dialect;
-import org.hibernate.metamodel.spi.TypeContributions;
 import org.hibernate.type.PostgresUUIDType;
 import org.patientview.persistence.model.types.StringJsonUserType;
 

@@ -69,7 +69,7 @@ public class GroupStatisticsServiceIntegrationTest {
 
     @Configuration
     @Import(TestPersistenceConfig.class)
-    static class config {
+    public static class config {
         @Bean(name = "groupStatisticService")
         public GroupStatisticService groupStatisticServiceBean() {
             return new GroupStatisticsServiceImpl();
