@@ -78,24 +78,68 @@
         <div class="result-item-container" data-ng-hide="loading || chartLoading || observationHeadings.length < 2">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Showing_a_graph" target="_blank" class="pull-right">
-                        <span class="info-link pull-right">Show me how</span>
-                    </a>
                     <ul class="unstyled info-list">
-                        <li><strong>Compare Results</strong></li>
+                        <li><strong>Graph Actions</strong></li>
                     </ul>
                 </div>
-                <div class="pull-left" >
-                    <br/>
-                    <select class="form-control" data-ng-model="compareCode"
-                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
+
+                <br/>
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Compare Results</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" data-ng-model="compareCode"
+                                    data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings
                                 | orderBy:'heading' | addCodeFilter:codes"
-                            data-ng-change="compareResults(compareCode)">
-                        <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
-                    </select>
+                                    data-ng-change="compareResults(compareCode)">
+                                <option value="">Select a result type to compare with {{observationHeading.heading}}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <a href="http://rixg.org/patientview2/howto/user-guide-for-patients/#Showing_a_graph" target="_blank" >
+                                <span class="info-link">Show me how</span>
+                            </a>
+                        </div>
+                    </div>
+
                     <br/>
-                    <a data-ng-if="observationHeadings.length && hasBloodPressure()" href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
-                </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Scale vertically</label>
+                        <div class="col-sm-9">
+                            <rzslider
+                                    rz-slider-model="vscale"
+                                    rz-slider-options="sliderOptions"></rzslider>
+                            <span>Reduce</span>
+                            <span class="pull-right">Increase</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Extend x-axis (projection)</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" data-ng-model="xAxisRange">
+                                <option value="0">None</option>
+                                <option value="6">Extend 6 months</option>
+                                <option value="12">Extend 1 year</option>
+                                <option value="36">Extend 3 years</option>
+                                <option value="60">Extend 5 years</option>
+                                <option value="120">Extend 10 years</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <a ng-click="extendXAxis()" href="" target="_blank" >
+                                <span class="info-link">Apply</span>
+                            </a>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-9 col-lg-offset-3">
+                                <a data-ng-if="observationHeadings.length && hasBloodPressure()"
+                                   href="#/resultsdetail?code=bpsys&code=bpdia">Show blood pressure</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
             </div>
         </div>
     </div>

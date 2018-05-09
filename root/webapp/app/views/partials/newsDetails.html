@@ -44,11 +44,22 @@
 </div>
 
 <br/>
+<div class="row form-edit-row">
+    <div class="col-md-12" data-ng-show="!modalLoading">
+        <label class="inner-title">News Item Type </label>
+        <div class="group-add-container">
+            <div class="select-add-group">
+                <select class="form-control" data-ng-model="editNews.newsType"  data-ng-options="newsType.id as newsType.description for newsType in editNewsTypes" />
+            </div>
+        </div>
+    </div>
+</div>
 <button type="button" class="btn blue pull-right" data-ng-click="save(newsForm, editNews)" data-ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>
 <span class="saved-notification pull-right" data-ng-show="newsForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 
 <div class="row form-edit-row">
     <hr/>
+
     <div class="col-md-12">
         <label class="inner-title">Groups &amp; Roles </label>
         <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="newsLink in editNews.newsLinks" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">

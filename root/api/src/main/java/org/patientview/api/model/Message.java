@@ -1,7 +1,9 @@
 package org.patientview.api.model;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.patientview.persistence.model.enums.MessageTypes;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +19,8 @@ public class Message {
     private MessageTypes type;
     private BaseUser user;
     private String message;
+    private MyMedia myMedia;
+    private Boolean hasAttachment;
     private Date created;
     private Set<MessageReadReceipt> readReceipts;
 
@@ -31,13 +35,22 @@ public class Message {
         }
         setMessage(message.getMessage());
         setCreated(message.getCreated());
-
+        setHasAttachment(message.getHasAttachment());
         setReadReceipts(new HashSet<MessageReadReceipt>());
 
         if (message.getReadReceipts() != null) {
             for (org.patientview.persistence.model.MessageReadReceipt readReceipt : message.getReadReceipts()) {
                 getReadReceipts().add(new MessageReadReceipt(readReceipt));
             }
+        }
+        try {
+            if (message.getMyMedia() != null) {
+                setMyMedia(message.getMyMedia());
+            }
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 
@@ -87,5 +100,22 @@ public class Message {
 
     public void setReadReceipts(Set<MessageReadReceipt> readReceipts) {
         this.readReceipts = readReceipts;
+    }
+
+    public Boolean getHasAttachment() {
+        return hasAttachment;
+    }
+
+    public void setHasAttachment(Boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
+    }
+
+    public MyMedia getMyMedia() {
+        return myMedia;
+    }
+
+    public void setMyMedia(org.patientview.persistence.model.MyMedia myMedia) throws InvocationTargetException,
+            IllegalAccessException {
+        this.myMedia = new org.patientview.api.model.MyMedia(myMedia);
     }
 }

@@ -12,6 +12,7 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
@@ -29,6 +30,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
+import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
@@ -54,6 +56,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
+import org.patientview.persistence.repository.MyMediaRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.service.AuditService;
@@ -138,6 +141,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private MessageRepository messageRepository;
 
     @Inject
+    private MyMediaRepository myMediaRepository;
+
+    @Inject
     private Properties properties;
 
     @Inject
@@ -204,6 +210,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
             newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
             newMessage.setCreator(newMessage.getCreator() == null ? entityUser : newMessage.getCreator());
+
+            if (message.getMyMedia() != null) {
+                MyMedia myMedia = myMediaRepository.findOne(message.getMyMedia().getId());
+                if (myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId())) {
+                    newMessage.setMyMedia(myMedia);
+                    newMessage.setHasAttachment(true);
+                } else {
+                    throw new ResourceForbiddenException("Forbidden (MyMedia cannot be attached)");
+                }
+            }
+
 
             List<Message> messageSet = new ArrayList<>();
             messageSet.add(newMessage);
@@ -666,6 +683,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setConversation(entityConversation);
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
+
+        if (message.getMyMedia() != null) {
+            MyMedia myMedia = myMediaRepository.findOne(message.getMyMedia().getId());
+
+            //Only allow the owner to attach the media to a conversation
+            if (entityUser.getId().equals(myMedia.getCreator().getId())) {
+                newMessage.setHasAttachment(true);
+                newMessage.setMyMedia(myMedia);
+            }
+        }
         messageRepository.save(newMessage);
 
         newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
@@ -767,6 +794,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setType(message.getType());
             newMessage.setMessage(message.getMessage());
             newMessage.setCreated(message.getCreated());
+            newMessage.setMyMedia(message.getMyMedia());
+            newMessage.setHasAttachment(message.getHasAttachment());
 
             if (message.getUser() != null) {
                 if (anonUserIds.contains(message.getUser().getId())) {
@@ -1343,6 +1372,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Message getMessageById(Long messageId) throws ResourceNotFoundException, ResourceForbiddenException {
+        Message message = messageRepository.findOne(messageId);
+
+        //check if message has permission
+        this.findByConversationId(message.getConversation().getId());
+
+        return message;
+    }
+
+    /**
      * Get a Map of BaseUsers organised by Role type for global admins, used for potential Conversation recipients.
      *
      * @param groupId ID of Group to get recipients for (optional, will get for all Groups if null)
@@ -1612,6 +1654,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * TODO: Add more comments to describe logic
+     *
      * @inheritDoc
      */
     @Override
