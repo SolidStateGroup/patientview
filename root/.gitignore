@@ -5,5 +5,8 @@ webapp/dist/**/*
 webapp/dist
 webapp/app/bower_components
 **/.tmp
+**/.settings
 
 **/google-play-key.json
+.project
+.classpath

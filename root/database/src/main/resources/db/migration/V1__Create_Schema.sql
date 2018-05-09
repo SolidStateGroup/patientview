@@ -228,6 +228,37 @@ CREATE TABLE PV_User_Token
   PRIMARY KEY (Id)
 );
 
+
+-- CREATE TABLE "pv_my_media" ----------------------------------
+CREATE TABLE PV_My_Media (
+	media_type         VARCHAR( 10 ) NOT NULL,
+	local_path         VARCHAR( 2044 ),
+	file_description   VARCHAR( 200 ),
+	filename_ui        VARCHAR( 200 ),
+	height             INTEGER,
+	filesize           INTEGER,
+	width              INTEGER,
+	deleted            BOOLEAN DEFAULT false NOT NULL,
+	creation_date      TIMESTAMP NOT NULL,
+	created_by         BIGINT NOT NULL,
+	id                 BIGINT NOT NULL,
+	data               Bytea,
+	thumbnail_data     Bytea,
+	PRIMARY KEY ( "id" )
+	);
+
+
+CREATE TABLE PV_File_Data
+(
+  Id              BIGINT NOT NULL,
+  Name            TEXT NOT NULL,
+  Type            TEXT NOT NULL,s
+  Size            BIGINT NOT NULL,
+  Content         BYTEA NOT NULL,
+  Creation_Date   TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_News_Item (
   Id               BIGINT    NOT NULL,
   Heading          VARCHAR(100),
@@ -313,6 +344,8 @@ CREATE TABLE PV_Message (
   User_Id         BIGINT    REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Has_Attachment  BOOL      NULL,
+  attachment      BIGINT REFERENCES PV_My_Media (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)

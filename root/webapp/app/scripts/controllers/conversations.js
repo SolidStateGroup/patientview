@@ -1,10 +1,13 @@
 'use strict';
 angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$rootScope', '$modal', '$q', '$filter',
-    'ConversationService', 'GroupService', 'UserService', 'AuthService', '$location', 'localStorageService', '$cookies',
+    'ConversationService', 'GroupService', 'UserService', 'AuthService', 'UtilService', '$location',
+    'localStorageService', '$cookies',
 function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupService, UserService, AuthService,
-          $location, localStorageService, $cookies) {
+          UtilService, $location, localStorageService, $cookies) {
 
     var init = function() {
+        $scope.formatBytes = UtilService.formatBytes;
+
         $scope.itemsPerPage = 5;
         $scope.currentPage = 0;
 
@@ -91,6 +94,28 @@ function ($scope, $rootScope, $modal, $q, $filter, ConversationService, GroupSer
         return unreadMessages > 0;
     };
 
+    $scope.viewMyMedia = function (fromMessage) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/modal/viewMyMedia.html',
+            controller: ViewMyMediaModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                myMedia: function(){
+                    return {};
+                },
+                message: function () {
+                    return fromMessage;
+                },
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
+    
     $scope.viewMessages = function(conversation) {
         delete $scope.successMessage;
         delete $scope.errorMessage;
