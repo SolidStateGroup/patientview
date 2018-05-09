@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('MyMediaCtrl', ['$scope', '$modal', 'MyMediaService',
-    function ($scope, $modal, MyMediaService) {
+angular.module('patientviewApp').controller('MyMediaCtrl', ['$scope', '$modal', 'MyMediaService', 'UtilService',
+    function ($scope, $modal, MyMediaService, UtilService) {
+        $scope.formatBytes = UtilService.formatBytes;
         $scope.itemsPerPage = 10;
         $scope.currentPage = 0;
 

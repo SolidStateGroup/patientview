@@ -36,7 +36,7 @@
                         </div>
                         <div class="media-meta">
                             <p>File Type: {{media.type}}</p>
-                            <p>File Size: {{media.filesize/1000 | number : 0}} kb</p>
+                            <p>File Size: {{formatBytes(media.filesize)}}</p>
                             <p class="timestamp">Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                         </div>
                     </div>
