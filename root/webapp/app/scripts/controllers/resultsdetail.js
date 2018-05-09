@@ -151,12 +151,11 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                         yAxisData.title = {
                             text: firstObservations[code].name
                         };
-                    } else {
-                        yAxisData.scrollbar = {
-                            enabled: true,
-                            showFull: false
-                        }
-
+                    }
+                    yAxisData.opposite = (!index || index % 2) ? true : false;
+                    yAxisData.scrollbar = {
+                        enabled: true,
+                        showFull: false
                     }
                     yAxisData.labels = {
                         format: '{value}'
@@ -227,6 +226,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                 },
                 series: series,
                 chart: {
+                    alignTicks: false,
                     events: {
                         load: function () {
                             $scope.min = [];
@@ -442,7 +442,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
             this.debouncedSliderChanged = setTimeout(function () {
                 if ($scope.lastvscale != $scope.vscale) {
                     $scope.lastvscale = $scope.vscale;
-                    var scale = $scope.vscale >= 0 ? $scope.vscale : $scope.vscale*4;
+                    var scale = $scope.vscale >= 0 ? $scope.vscale : $scope.vscale * 4;
                     var value = scale / 100;
                     var chart = $('#chart_div').highcharts();
                     //reduce % each side
@@ -453,7 +453,7 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl', ['$scope', '$ro
                             var range = (max - min) / 2;
                             var diff = range * value;
                             chart.yAxis[i].setExtremes(min + diff, max - diff)
-                            console.log("Setting y"+i,min + diff, max - diff);
+                            console.log("Setting y" + i, min + diff, max - diff);
                         }
                     } else {
                         console.log("ok")
