@@ -88,7 +88,7 @@
                     <li><a href="" class="aside-link active" data-ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
                     <li><a href="" class="aside-link qreply" data-ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
                 </ul>
-                <div class="message-summary">
+                <div class="message-summary clearfix">
                     <h2 class="message-title">
                         <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">
                             {{conversation.title}} 
@@ -115,7 +115,7 @@
                         </span>
                     </h2>
                     <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
-                    <div class="last-message">
+                    <div class="last-message clearfix">
                         <h4 data-ng-if="getLastMessageUser(conversation)">Most recent message from:
                             <a href="" title="View Patient" data-ng-click="viewUser(getLastMessageUser(conversation).id)" data-ng-if="getLastMessageUser(conversation).canSwitchUser">
                                 <span class="label label-info conversation-user-label">
@@ -135,25 +135,44 @@
                         </div>
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
-                        <p>
-                            <a ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
-                            conversation.messages[conversation.messages.length-1].myMedia != null"
-                            data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1].myMedia)">Click here to view attachment</a>
-                        <p ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
-                        conversation.messages[conversation.messages.length-1].myMedia == null">Attachment has been removed and may have been deleted</p>
+                        <div class="media-thumbnail pull-left" ng-show="conversation.messages[conversation.messages.length-1].hasAttachment">
+                            <div class="media-body">
+                                <div ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
+                        conversation.messages[conversation.messages.length-1].myMedia != null &&
+                        !conversation.messages[conversation.messages.length-1].myMedia.deleted">
+                                    <a data-ng-click="viewMyMedia(conversation.messages[conversation.messages.length-1])" style="cursor: pointer;">
+                                        <img  ng-show="'IMAGE' ==  conversation.messages[conversation.messages.length-1].myMedia.type" ng-src="{{apiEndpoint +'/message/'+ conversation.messages[conversation.messages.length-1].id +'/attachment/preview?token=' + authToken}}">
+                                        <img ng-show="'VIDEO' ==  conversation.messages[conversation.messages.length-1].myMedia.type"
+                                             src="images/pv-video.png">
+                                        <span class="image-action">
+                                <i class="fas fa-search-plus"></i> Click to view
+                                </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="media-meta">
+                                <p>File Type: {{conversation.messages[conversation.messages.length-1].myMedia.type}}</p>
+                                <p>File Size: {{formatBytes(conversation.messages[conversation.messages.length-1].myMedia.filesize)}}</p>
+                                <p class="timestamp">Created: {{conversation.messages[conversation.messages.length-1].myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                            </div>
+                        </div>
 
+                        <p ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
+                        conversation.messages[conversation.messages.length-1].myMedia == null ||
+                        conversation.messages[conversation.messages.length-1].myMedia.deleted">
+                            Attachment has been removed and may have been deleted
                         </p>
-                        <span class="date-stamp">
-                            <ul class="inline pull-right">
-                                <li><a class="archive-link" href="" data-ng-click="openModalChangeConversationRecipients(conversation)">Change Participants</a></li>
-                                <li><a class="archive-link" href="" data-ng-click="printConversation(conversation)">Print</a></li>
-                                <li><a class="archive-link" href="" data-ng-click="archive(conversation)" data-ng-show="!conversation.archived">
-                                    Archive</a></li>
-                                <li><a class="archive-link" href="" data-ng-click="unArchive(conversation)" data-ng-show="conversation.archived">
-                                    Unarchive</a></li>
-                            </ul>
-                            <strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong>
-                        </span>
+                    </div>
+                    <div class="full-width date-stamp">
+                        <ul class="inline pull-right">
+                            <li><a class="archive-link" href="" data-ng-click="openModalChangeConversationRecipients(conversation)">Change Participants</a></li>
+                            <li><a class="archive-link" href="" data-ng-click="printConversation(conversation)">Print</a></li>
+                            <li><a class="archive-link" href="" data-ng-click="archive(conversation)" data-ng-show="!conversation.archived">
+                                Archive</a></li>
+                            <li><a class="archive-link" href="" data-ng-click="unArchive(conversation)" data-ng-show="conversation.archived">
+                                Unarchive</a></li>
+                        </ul>
+                        <strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong>
                     </div>
                 </div>
             </div>
@@ -175,6 +194,7 @@
             <div class="quick-reply content-panel" data-ng-show="conversation.showMessages">
                 <div class="message-summary" data-ng-repeat="message in conversation.messages | orderBy:'created'">
                     <div class="last-message">
+                        <p class="date-stamp pull-right"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                         <h4 class="message-title">
                             <span data-ng-show="message.unread" class="label label-success pull-right new-message">New</span>
                             <span data-ng-show="message.user">
@@ -201,20 +221,42 @@
                             <span data-ng-show="!message.user">[Deleted User]</span>
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
-                        
-                        <a ng-show="message.hasAttachment && message.myMedia != null"
-                        data-ng-click="viewMyMedia(message.myMedia)">Click here to view attachment</a>
-                        <p ng-show="message.hasAttachment && message.myMedia == null">Attachment has been removed and may have been deleted</p>
-                        <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+
+                        <div class="media-thumbnail pull-left" ng-show="message.hasAttachment">
+                            <div class="media-body">
+                                <div>
+                                    <a ng-show="message.hasAttachment && (message.myMedia != null && !message.myMedia.deleted)"
+                                       data-ng-click="viewMyMedia(message)">
+                                        <img ng-show="'IMAGE' ==  message.myMedia.type"
+                                             ng-src="{{apiEndpoint +'/message/'+ message.id +'/attachment/preview?token=' + authToken}}">
+                                        <img ng-show="'VIDEO' ==  message.myMedia.type"
+                                             src="images/pv-video.png">
+                                        <span class="image-action">
+                            <i class="fas fa-search-plus"></i> Click to view
+                            </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="media-meta">
+                                <p>File Type: {{message.myMedia.type}}</p>
+                                <p>File Size: {{formatBytes(message.myMedia.filesize)}}</p>
+                                <p class="timestamp">Created: {{message.myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                            </div>
+                        </div>
+
+                        <p ng-show="message.hasAttachment && (message.myMedia == null || message.myMedia.deleted)">Attachment has been removed and may have been deleted</p>
                     </div>
                     <hr/>
                 </div>
 
-                <form class="form-quick-reply">
+
+                <form class="form-quick-reply full-width pull-left clearfix">
                     <div class="alert alert-success" data-ng-show="conversation.successMessage">{{conversation.successMessage}}</div>
-                    <label for="add-message-input">Add Message</label>
-                    <textarea id="add-message-input" data-ng-model="conversation.addMessageContent"></textarea>
-                    <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <div>
+                        <label for="add-message-input">Reply</label>
+                        <textarea id="add-message-input" data-ng-model="conversation.addMessageContent"></textarea>
+                        <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    </div>
                     <br/>
                     <fieldset>
                         <div class="btn-group pull-right">

@@ -17,68 +17,73 @@
 }
 
 /* line 13, ../sass/_utils.scss */
+.full-width {
+  width: 100%;
+}
+
+/* line 17, ../sass/_utils.scss */
 .content-box {
   box-sizing: content-box;
 }
 
-/* line 17, ../sass/_utils.scss */
+/* line 21, ../sass/_utils.scss */
 .pl {
   padding-left: 15px;
 }
 
-/* line 21, ../sass/_utils.scss */
+/* line 25, ../sass/_utils.scss */
 .pr {
   padding-right: 15px;
 }
 
-/* line 25, ../sass/_utils.scss */
+/* line 29, ../sass/_utils.scss */
 .mb {
   margin-bottom: 15px;
 }
 
-/* line 29, ../sass/_utils.scss */
+/* line 33, ../sass/_utils.scss */
 .mt {
   margin-top: 15px;
 }
 
-/* line 34, ../sass/_utils.scss */
+/* line 38, ../sass/_utils.scss */
 .hide,
 .hidden {
   display: none;
 }
 
-/* line 39, ../sass/_utils.scss */
+/* line 43, ../sass/_utils.scss */
 .show {
   display: block;
 }
 
-/* line 44, ../sass/_utils.scss */
+/* line 48, ../sass/_utils.scss */
 .invisible {
   visibility: hidden;
 }
 
-/* line 49, ../sass/_utils.scss */
+/* line 53, ../sass/_utils.scss */
 .text-left {
   text-align: left;
 }
 
-/* line 53, ../sass/_utils.scss */
+/* line 57, ../sass/_utils.scss */
 .text-right {
   text-align: right;
 }
 
-/* line 57, ../sass/_utils.scss */
+/* line 61, ../sass/_utils.scss */
 .text-center,
 .centered {
   text-align: center;
 }
 
-/* line 62, ../sass/_utils.scss */
+/* line 66, ../sass/_utils.scss */
 .no-pad {
   padding: 0;
 }
 
-/* line 67, ../sass/_utils.scss */
+/* line 71, ../sass/_utils.scss */
 .truncate {
   display: block;
   overflow: hidden;
@@ -87,7 +92,7 @@
   width: 100%;
 }
 
-/* line 76, ../sass/_utils.scss */
+/* line 80, ../sass/_utils.scss */
 .clearfix {
   *zoom: 1;
 }
@@ -101,18 +106,18 @@
   clear: both;
 }
 
-/* line 80, ../sass/_utils.scss */
+/* line 84, ../sass/_utils.scss */
 .clear-left {
   clear: left;
   width: 100%;
 }
 
-/* line 85, ../sass/_utils.scss */
+/* line 89, ../sass/_utils.scss */
 .no-pad-top {
   margin-top: 0 !important;
 }
 
-/* line 89, ../sass/_utils.scss */
+/* line 93, ../sass/_utils.scss */
 ul.unstyled, ul.inline,
 ol.unstyled,
 ol.inline {
@@ -121,37 +126,37 @@ ol.inline {
   list-style: none;
 }
 
-/* line 99, ../sass/_utils.scss */
+/* line 103, ../sass/_utils.scss */
 .inline > li {
   display: inline-block;
 }
-/* line 102, ../sass/_utils.scss */
+/* line 106, ../sass/_utils.scss */
 .inline > li:first-child {
   padding-left: 0;
 }
-/* line 106, ../sass/_utils.scss */
+/* line 110, ../sass/_utils.scss */
 .inline > li > a {
   display: inline-block;
 }
 
-/* line 112, ../sass/_utils.scss */
+/* line 116, ../sass/_utils.scss */
 .error {
   color: #f20d2e;
   font-weight: normal;
 }
 
-/* line 117, ../sass/_utils.scss */
+/* line 121, ../sass/_utils.scss */
 .no-items {
   font-style: italic;
   font-weight: 100;
 }
 
-/* line 122, ../sass/_utils.scss */
+/* line 126, ../sass/_utils.scss */
 .loading {
   text-align: center;
 }
 
-/* line 126, ../sass/_utils.scss */
+/* line 130, ../sass/_utils.scss */
 .align-bottom {
   position: absolute;
   right: 0;
@@ -160,18 +165,18 @@ ol.inline {
 }
 
 /** todo revise james' css **/
-/* line 135, ../sass/_utils.scss */
+/* line 139, ../sass/_utils.scss */
 input.ng-pristine + ul#strength {
   display: none;
 }
 
 /** TODO review this, has effect across all input fields */
-/* line 140, ../sass/_utils.scss */
+/* line 144, ../sass/_utils.scss */
 input.ng-dirty.ng-invalid {
   border: 1px solid Red;
 }
 
-/* line 144, ../sass/_utils.scss */
+/* line 148, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -181,12 +186,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 152, ../sass/_utils.scss */
+/* line 156, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 155, ../sass/_utils.scss */
+/* line 159, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -196,7 +201,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 163, ../sass/_utils.scss */
+/* line 167, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;
@@ -3107,25 +3112,29 @@ input.ng-invalid, textarea.ng-invalid {
 .message-item .quick-reply .message-summary, .tab-panel-item .quick-reply .message-summary {
   padding-top: 0;
 }
-/* line 49, ../sass/_messages.scss */
+/* line 46, ../sass/_messages.scss */
+.message-item .quick-reply .message-summary .date-stamp, .tab-panel-item .quick-reply .message-summary .date-stamp {
+  margin-top: 0;
+}
+/* line 53, ../sass/_messages.scss */
 .message-item .delete-news a, .tab-panel-item .delete-news a {
   background: #f20d2e;
   color: #ffffff;
   height: 72px;
 }
 
-/* line 57, ../sass/_messages.scss */
+/* line 61, ../sass/_messages.scss */
 .preview-news-link-labels .label {
   font-size: 14px;
   line-height: 25px;
 }
 
-/* line 62, ../sass/_messages.scss */
+/* line 66, ../sass/_messages.scss */
 .message-summary {
   padding: 15px;
   font-size: 1rem;
 }
-/* line 66, ../sass/_messages.scss */
+/* line 70, ../sass/_messages.scss */
 .message-summary .message-title {
   color: #353535;
   margin: 0;
@@ -3133,18 +3142,18 @@ input.ng-invalid, textarea.ng-invalid {
   font-weight: bold;
   max-width: 84%;
 }
-/* line 73, ../sass/_messages.scss */
+/* line 77, ../sass/_messages.scss */
 .message-summary .message-title .label-archived {
   font-size: 11px;
   position: relative;
   top: -2px;
 }
-/* line 79, ../sass/_messages.scss */
+/* line 83, ../sass/_messages.scss */
 .message-summary .message-title a {
   padding-right: 10px;
   width: 94%;
 }
-/* line 84, ../sass/_messages.scss */
+/* line 88, ../sass/_messages.scss */
 .message-summary .message-title .recipient {
   color: #909090;
   font-size: 1.5rem;
@@ -3153,68 +3162,77 @@ input.ng-invalid, textarea.ng-invalid {
   clear: left;
   margin-bottom: 10px;
 }
-/* line 94, ../sass/_messages.scss */
+/* line 98, ../sass/_messages.scss */
 .message-summary .view-patient {
   margin-left: 10px;
   font-weight: bold;
   text-decoration: underline;
 }
-/* line 100, ../sass/_messages.scss */
+/* line 104, ../sass/_messages.scss */
 .message-summary .last-message {
   clear: left;
 }
-/* line 102, ../sass/_messages.scss */
+/* line 106, ../sass/_messages.scss */
 .message-summary .last-message h4 {
   color: #368de8;
   font-size: 1.5rem;
   margin-bottom: 0;
 }
-/* line 107, ../sass/_messages.scss */
+/* line 111, ../sass/_messages.scss */
 .message-summary .last-message .message-content {
   color: #353535;
   font-size: 1.5rem;
 }
-/* line 111, ../sass/_messages.scss */
+/* line 115, ../sass/_messages.scss */
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;
 }
-/* line 115, ../sass/_messages.scss */
+/* line 119, ../sass/_messages.scss */
 .message-summary .last-message .date-stamp ul {
   margin-bottom: 0;
   position: relative;
   bottom: -5px;
 }
-/* line 120, ../sass/_messages.scss */
+/* line 124, ../sass/_messages.scss */
 .message-summary .last-message .date-stamp ul .archive-link {
   padding-right: 10px;
   padding-left: 10px;
 }
-/* line 127, ../sass/_messages.scss */
+/* line 131, ../sass/_messages.scss */
 .message-summary .last-message .conversation-user-picture {
   margin-right: 10px;
   margin-top: 5px;
   max-height: 50px;
 }
+/* line 138, ../sass/_messages.scss */
+.message-summary .date-stamp {
+  margin-top: 10px;
+  font-size: 14px;
+}
+/* line 143, ../sass/_messages.scss */
+.message-summary .date-stamp ul li {
+  padding: 0 5px;
+}
 
-/* line 136, ../sass/_messages.scss */
+/* line 150, ../sass/_messages.scss */
 .message-content > p {
   max-height: 40px;
   overflow: hidden;
 }
 
-/* line 142, ../sass/_messages.scss */
+/* line 156, ../sass/_messages.scss */
 .news-date {
   color: #a8a8a8;
 }
 
-/* line 146, ../sass/_messages.scss */
+/* line 160, ../sass/_messages.scss */
 .news-actions {
   text-align: left;
   margin-bottom: 10px;
 }
 
-/* line 151, ../sass/_messages.scss */
+/* line 165, ../sass/_messages.scss */
 .message-type-badge {
   clear: left;
   background: #00adc6;
@@ -3231,12 +3249,12 @@ input.ng-invalid, textarea.ng-invalid {
 }
 
 @media (max-width: 767px) {
-  /* line 166, ../sass/_messages.scss */
+  /* line 180, ../sass/_messages.scss */
   .message-summary .message-title {
     width: 80%;
   }
 
-  /* line 169, ../sass/_messages.scss */
+  /* line 183, ../sass/_messages.scss */
   .message-type-badge {
     position: relative;
     top: 0;
@@ -3968,4 +3986,67 @@ hr.solid {
   g.highcharts-input-group {
     display: none;
   }
+}
+/* line 1, ../sass/_media.scss */
+.media-message {
+  padding: 20px;
+}
+
+/* line 5, ../sass/_media.scss */
+.media-thumbnail {
+  position: relative;
+  border: 1px solid #00adc6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* line 11, ../sass/_media.scss */
+.media-thumbnail .media-body {
+  position: relative;
+}
+/* line 13, ../sass/_media.scss */
+.media-thumbnail .media-body a {
+  display: block;
+  cursor: pointer;
+  text-align: center;
+}
+/* line 19, ../sass/_media.scss */
+.media-thumbnail .media-body img {
+  height: 130px;
+  width: auto;
+}
+/* line 24, ../sass/_media.scss */
+.media-thumbnail .media-meta {
+  width: 100%;
+  background: #f3f6f9;
+  border-top: 1px solid #e4e9f0;
+  padding: 4px 10px;
+  color: #aebccf;
+}
+/* line 31, ../sass/_media.scss */
+.media-thumbnail .media-meta p {
+  margin: 0;
+}
+/* line 35, ../sass/_media.scss */
+.media-thumbnail .media-meta .timestamp {
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+/* line 42, ../sass/_media.scss */
+.image-action {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  height: 40px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75));
+  padding: 10px;
+  color: white;
+}
+/* line 53, ../sass/_media.scss */
+.image-action i {
+  color: white;
+  font-size: 16px;
+  margin-right: 5px;
 }

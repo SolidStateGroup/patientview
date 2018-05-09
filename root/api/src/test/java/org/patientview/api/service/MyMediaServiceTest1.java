@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.MyMediaServiceImpl;
+import org.patientview.config.exception.MediaUserSpaceLimitException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.MyMedia;
@@ -43,12 +44,12 @@ public class MyMediaServiceTest1 {
 
     @Test
     public void testSave() throws ResourceNotFoundException, ResourceForbiddenException, IOException,
-            IM4JavaException, InterruptedException, JCodecException {
+            IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
         MyMedia myMedia = new MyMedia();
         myMedia.setCreator(creator);
         when(myMediaRepository.save(eq(myMedia))).thenReturn(myMedia);
 
-        MyMedia savedMyMedia = myMediaService.save(creator.getId(), myMedia);
+        org.patientview.api.model.MyMedia savedMyMedia = myMediaService.save(creator.getId(), myMedia);
 
         assertNotNull(savedMyMedia);
     }

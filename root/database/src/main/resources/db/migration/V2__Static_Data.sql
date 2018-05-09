@@ -374,7 +374,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (35, 5, 160,  '/siteadmin', 'views/admin.html','AdminCtrl', 'Admin', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (36, 4, 80,  '/mymedia', 'views/mymedia.html','MyMediaCtrl', 'My Media', now(), 1 );
+  (36, 4, 80,  '/mymedia', 'views/mymedia.html','MyMediaCtrl', 'Media', now(), 1 );
 
 
 

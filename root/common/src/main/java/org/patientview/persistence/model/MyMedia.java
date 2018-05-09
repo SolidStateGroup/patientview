@@ -69,7 +69,9 @@ public class MyMedia extends BaseModel {
     private String data;
 
     public String getThumbnail() {
-
+        if (getDeleted()) {
+            return "";
+        }
         if (thumbnailContent != null) {
             return String.format("/mymedia/%d/preview", getId());
         } else {
@@ -78,6 +80,9 @@ public class MyMedia extends BaseModel {
     }
 
     public String getPath() {
+        if (getDeleted()) {
+            return "";
+        }
         return String.format("/mymedia/%d/content", getId());
     }
 }

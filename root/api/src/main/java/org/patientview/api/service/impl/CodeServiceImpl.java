@@ -325,21 +325,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         // handle check against NHS Choices, avoid hitting NHS api too much during sync
         if (code.getStandardType().getValue().equals(CodeStandardTypes.PATIENTVIEW.toString())) {
             try {
-                // sets introduction url on NhschoicesCondition and adds/updates link on Code if not set in last month
-                nhsChoicesService.setIntroductionUrl(code.getCode());
+                // updates Code fullDescription and name and adds/updates link on Code
+                nhsChoicesService.updateCodeData(code);
             } catch (ResourceNotFoundException | ImportResourceException e) {
-                LOG.info("Error updating Introduction URL Link, continuing: " + e.getMessage());
-            }
-            try {
-                // sets description on NhsChoiceCondition and updates Code fullDescription if available and not
-                // already set and not set in last month
-                Code updatedCode = nhsChoicesService.setDescription(code.getCode());
-                if (updatedCode != null) {
-                    // has had description updated
-                    return updatedCode;
-                }
-            } catch (ResourceNotFoundException | ImportResourceException e) {
-                LOG.info("Error updating Description, continuing: " + e.getMessage());
+                LOG.info("Error updating Code data, continuing: " + e.getMessage());
             }
         }
 
@@ -434,22 +423,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             // handle check against NHS Choices, avoid hitting NHS api too much during sync
             if (code.getStandardType().getValue().equals(CodeStandardTypes.PATIENTVIEW.toString())) {
                 try {
-                    // sets introduction url on NhschoicesCondition and adds/updates
-                    // link on Code if not set in last month
-                    nhsChoicesService.setIntroductionUrl(code.getCode());
+                    // updates Code fullDescription and name and adds/updates link on Code
+                    nhsChoicesService.updateCodeData(code);
                 } catch (ResourceNotFoundException | ImportResourceException e) {
-                    LOG.info("Error updating Introduction URL Link, continuing: " + e.getMessage());
-                }
-                try {
-                    // sets description on NhsChoiceCondition and updates Code fullDescription if available and not
-                    // already set and not set in last month
-                    Code updatedCode = nhsChoicesService.setDescription(code.getCode());
-                    if (updatedCode != null) {
-                        // has had description updated
-                        return updatedCode;
-                    }
-                } catch (ResourceNotFoundException | ImportResourceException e) {
-                    LOG.info("Error updating Description, continuing: " + e.getMessage());
+                    LOG.info("Error updating Code data, continuing: " + e.getMessage());
                 }
             }
         }

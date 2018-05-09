@@ -26,5 +26,12 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface MyMediaRepository extends JpaRepository<MyMedia, Long> {
 
-    Page<List<MyMedia>> getByCreator(User user, Pageable pageable);
+    @Query("SELECT c FROM MyMedia c WHERE c.creator = :user AND c.deleted = :deleted")
+    Page<List<MyMedia>> getByCreator(@Param("user") User user,
+                                     @Param("deleted") Boolean deleted,
+                                     Pageable pageable);
+
+    @Query("SELECT SUM(octet_length(c.content))/1000000 FROM MyMedia c WHERE c.creator = :user AND c.deleted = :deleted")
+    Long getUserTotal(@Param("user") User user, @Param("deleted") Boolean deleted);
+
 }
