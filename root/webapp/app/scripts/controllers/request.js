@@ -40,6 +40,9 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
                 } else if (group.groupType.value === 'UNIT') {
                     $scope.childUnits.push(group);
                 }
+                // need to show GP on Forgot Password request
+            } else if ($scope.request.type = 'FORGOT_LOGIN' && group.id == '8'){
+                $scope.specialties.push(group);
             }
         });
     });

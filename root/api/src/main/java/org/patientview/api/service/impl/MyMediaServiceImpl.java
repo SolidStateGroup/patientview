@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -8,8 +9,10 @@ import org.im4java.core.IM4JavaException;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.scale.AWTUtil;
+import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
+import org.patientview.config.exception.MediaUserSpaceLimitException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -20,6 +23,7 @@ import org.patientview.persistence.repository.MyMediaRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,10 +60,19 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
 
     @Override
-    public MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException, ResourceForbiddenException,
-            IOException, IM4JavaException, InterruptedException, JCodecException {
+    public org.patientview.api.model.MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException,
+            ResourceForbiddenException,
+            IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
         User currentUser = userRepository.findOne(userId);
         myMedia.setCreator(currentUser);
+
+
+        Long userSpaceSize = myMediaRepository.getUserTotal(currentUser, false);
+
+        if (userSpaceSize != null && userSpaceSize >= 50) {
+            throw new MediaUserSpaceLimitException("You currently have " + userSpaceSize + "mb of files." +
+                    "Please delete some files to make space for new media.");
+        }
 
         if (myMedia.getData() != null) {
             byte[] decodedString = Base64.decodeBase64(new String(myMedia.getData()).getBytes("UTF-8"));
@@ -75,13 +90,13 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
         }
 
-        return myMediaRepository.save(myMedia);
+        return createMyMediaDto(myMediaRepository.save(myMedia));
     }
 
     @Override
-    public MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
+    public org.patientview.api.model.MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
-        return myMediaRepository.findOne(id);
+        return createMyMediaDto(myMediaRepository.findOne(id));
     }
 
     @Override
@@ -89,14 +104,20 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             UnsupportedEncodingException {
         MyMedia myMedia = myMediaRepository.findOne(myMediaId);
         if (ApiUtil.getCurrentUser().getId().equals(myMedia.getCreator().getId())) {
-            myMediaRepository.delete(myMediaId);
+            //Because media can be shared across multiple conversations etc, we just remove the content
+            //From the db so we can display an error
+            myMedia.setDeleted(true);
+            myMedia.setContent(null);
+            myMedia.setThumbnailContent(null);
+            myMedia.setLocalPath(null);
+            myMediaRepository.save(myMedia);
         } else {
             throw new ResourceForbiddenException("Unauthorised");
         }
     }
 
     @Override
-    public Page<List<MyMedia>> getAllForUser(Long userId, GetParameters getParameters) throws
+    public PageImpl<org.patientview.api.model.MyMedia> getAllForUser(Long userId, GetParameters getParameters) throws
             ResourceNotFoundException, ResourceForbiddenException, UnsupportedEncodingException {
         String size = getParameters.getSize();
         String page = getParameters.getPage();
@@ -107,7 +128,16 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 
         PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
-        return myMediaRepository.getByCreator(userRepository.findOne(userId), pageable);
+        Page<List<MyMedia>> media =
+                myMediaRepository.getByCreator(userRepository.findOne(userId), false, pageable);
+
+        List<org.patientview.api.model.MyMedia> mediaToReturn = new ArrayList();
+
+        for (int i = 0; i < media.getContent().size(); i++) {
+            mediaToReturn.add(this.createMyMediaDto((MyMedia) media.getContent().get(i)));
+        }
+
+        return new PageImpl<>(mediaToReturn, pageable, media.getTotalElements());
     }
 
     @Override
@@ -116,23 +146,16 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         // convert byte array back to BufferedImage
         InputStream in = new ByteArrayInputStream(myMedia.getContent());
         BufferedImage image = ImageIO.read(in);
-        Double newWidth = image.getWidth() / (image.getHeight() / height * 1.00);
-
-        final int type = image.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : image.getType();
-        final BufferedImage scaledImg = new BufferedImage(newWidth.intValue(), height, type);
-        final Graphics2D g = scaledImg.createGraphics();
-        g.drawImage(image, 0, 0, height, newWidth.intValue(), null);
-        g.dispose();
-        g.setComposite(AlphaComposite.Src);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(scaledImg, "jpg", baos);
+        ImageIO.write(scale(image), "jpg", baos);
         return baos.toByteArray();
     }
 
+    @Override
+    public org.patientview.api.model.MyMedia createMyMediaDto(MyMedia myMedia) {
+        return new org.patientview.api.model.MyMedia(myMedia);
+    }
 
     private byte[] getVideoThumbnail(MyMedia myMedia) throws IOException, JCodecException {
         String[] localPath = myMedia.getLocalPath().split("/");
@@ -158,6 +181,38 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
             return null;
         }
     }
+
+    private BufferedImage scale(BufferedImage originalBufferedImage) {
+        int thumbnailWidth = 150;
+
+        int widthToScale, heightToScale;
+        if (originalBufferedImage.getWidth() > originalBufferedImage.getHeight()) {
+
+            heightToScale = (int) (1.1 * thumbnailWidth);
+            widthToScale = (int) ((heightToScale * 1.0) / originalBufferedImage.getHeight()
+                    * originalBufferedImage.getWidth());
+
+        } else {
+            widthToScale = (int) (1.1 * thumbnailWidth);
+            heightToScale = (int) ((widthToScale * 1.0) / originalBufferedImage.getWidth()
+                    * originalBufferedImage.getHeight());
+        }
+
+        BufferedImage resizedImage = new BufferedImage(widthToScale,
+                heightToScale, originalBufferedImage.getType());
+        Graphics2D g = resizedImage.createGraphics();
+
+        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g.drawImage(originalBufferedImage, 0, 0, widthToScale, heightToScale, null);
+        g.dispose();
+
+        return resizedImage;
+    }
+
 //
 //    private byte[] transcodeVideo(MyMedia myMedia) throws IOException {
 //        String[] localPath = myMedia.getLocalPath().split("/");
@@ -226,4 +281,6 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
 //
 //        return toReturn;
 //    }
+
+
 }
