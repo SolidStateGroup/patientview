@@ -1,6 +1,7 @@
 'use strict';
-var ViewMyMediaModalInstanceCtrl = ['$scope', '$modalInstance', 'myMedia', 'message',
-    function ($scope, $modalInstance, myMedia, message) {
+var ViewMyMediaModalInstanceCtrl = ['$scope', '$modalInstance', 'myMedia', 'message', 'UtilService',
+    function ($scope, $modalInstance, myMedia, message, UtilService) {
+        $scope.formatBytes = UtilService.formatBytes;
 
         if (typeof myMedia !== 'undefined') {
             $scope.media = myMedia;

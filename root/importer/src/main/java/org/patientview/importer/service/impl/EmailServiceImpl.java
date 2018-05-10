@@ -101,7 +101,7 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
     private boolean sendEmail(Email email) throws MailException, MessagingException {
         //LOG.info("Email: Preparing to send email");
         // only send emails if enabled in properties file
-        if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
+        if (Boolean.parseBoolean(properties.getProperty("email.importer.enabled"))) {
 
             // set HTML email content
             MimeMessage message = javaMailSender.createMimeMessage();

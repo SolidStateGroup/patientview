@@ -31,14 +31,16 @@ public class TestPersistenceConfig {
 
     private Properties properties;
 
+    @PostConstruct
+    public void init() {
+        properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl.auto", "create");
+        properties.setProperty("hibernate.show_sql", "true");
+        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
+    }
 
     @Bean
     public EntityManagerFactory entityManagerFactory() {
-
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "create");
-        properties.setProperty("hibernate.show_sql", "false");
-        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setGenerateDdl(true);
@@ -60,6 +62,7 @@ public class TestPersistenceConfig {
         dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
+
         return dataSource;
     }
 
@@ -69,7 +72,6 @@ public class TestPersistenceConfig {
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
-        transactionManager.setJpaProperties(properties);
 
         return transactionManager;
     }
