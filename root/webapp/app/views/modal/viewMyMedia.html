@@ -11,7 +11,7 @@
             </video>
         </div>
         <p>Created: {{message.myMedia.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-        <p>File Size: {{message.myMedia.filesize/1000 | number : 0}} kb</p>
+        <p>File Size: {{formatBytes(message.myMedia.filesize)}}</p>
         <p>File Type: {{message.myMedia.type}}</p>
     </div>
     <div ng-if="media.id">
@@ -25,7 +25,7 @@
             </video>
         </div>
         <p>Created: {{media.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-        <p>File Size: {{media.filesize/1000 | number : 0}} kb</p>
+        <p>File Size: {{formatBytes(media.filesize)}}</p>
         <p>File Type: {{media.type}}</p>
     </div>
 </div>
