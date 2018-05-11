@@ -248,17 +248,6 @@ CREATE TABLE PV_My_Media (
 	);
 
 
-CREATE TABLE PV_File_Data
-(
-  Id              BIGINT NOT NULL,
-  Name            TEXT NOT NULL,
-  Type            TEXT NOT NULL,s
-  Size            BIGINT NOT NULL,
-  Content         BYTEA NOT NULL,
-  Creation_Date   TIMESTAMP NOT NULL,
-  PRIMARY KEY (Id)
-);
-
 CREATE TABLE PV_News_Item (
   Id               BIGINT    NOT NULL,
   Heading          VARCHAR(100),
