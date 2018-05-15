@@ -15,17 +15,6 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         $scope.request.selectedMonth = '';
         $scope.request.selectedDay = '';
         $scope.request.showunits=true;
-        
-        // get type of request from route parameters, if none then assume JOIN_REQUEST
-        if ($routeParams.type !== undefined) {
-            if ($routeParams.type === 'FORGOT_LOGIN') {
-                $scope.request.type = 'FORGOT_LOGIN';
-            } else {
-                $location.path('/');
-            }
-        } else {
-            $scope.request.type = 'JOIN_REQUEST';
-        }
     };
 
     GroupService.getAllPublic().then(function(groups) {
@@ -95,6 +84,17 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         }
 
         if (formOk) {
+            // get type of request from route parameters, if none then assume JOIN_REQUEST
+            if ($routeParams.type !== undefined) {
+                if ($routeParams.type === 'FORGOT_LOGIN') {
+                    $scope.request.type = 'FORGOT_LOGIN';
+                } else {
+                    $location.path('/');
+                }
+            } else {
+                $scope.request.type = 'JOIN_REQUEST';
+            }
+
             RequestService.create(groupId, $scope.request).then(function () {
                 $scope.successMessage = 'Your request has been submitted';
                 $scope.loading = false;
