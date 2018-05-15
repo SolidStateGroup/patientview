@@ -51,6 +51,9 @@ public class ApiConfig {
             public void customConfiguration() {
                 // Uses Enum.toString() for serialization of an Enum
                 this.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+                // RPV-768 trying to fix com.fasterxml.jackson.databind.JsonMappingException: failed to lazily
+                // initialize a collection
+                this.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
                 // Uses Enum.toString() for deserialization of an Enum
                 this.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
             }
