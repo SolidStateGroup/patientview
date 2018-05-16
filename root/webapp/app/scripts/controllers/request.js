@@ -15,6 +15,17 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
         $scope.request.selectedMonth = '';
         $scope.request.selectedDay = '';
         $scope.request.showunits=true;
+
+        // get type of request from route parameters, if none then assume JOIN_REQUEST
+        if ($routeParams.type !== undefined) {
+            if ($routeParams.type === 'FORGOT_LOGIN') {
+                $scope.request.type = 'FORGOT_LOGIN';
+            } else {
+                $location.path('/');
+            }
+        } else {
+            $scope.request.type = 'JOIN_REQUEST';
+        }
     };
 
     GroupService.getAllPublic().then(function(groups) {
@@ -30,7 +41,7 @@ function (GroupService, RequestService, StaticDataService, $scope, $rootScope, U
                     $scope.childUnits.push(group);
                 }
                 // need to show GP on Forgot Password request
-            } else if ($scope.request.type = 'FORGOT_LOGIN' && group.id == '8'){
+            } else if ($scope.request.type == 'FORGOT_LOGIN' && group.id == '8'){
                 $scope.specialties.push(group);
             }
         });
