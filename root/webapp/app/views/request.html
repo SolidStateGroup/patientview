@@ -56,6 +56,17 @@
 
             <br/>
 
+            <div class="form-group" data-ng-if="request.type==='FORGOT_LOGIN'">
+                <label class="col-md-4 control-label">Are you Healthcare Professional or Patient (required):</label>
+                <div class="col-md-5">
+                    <select required="required" class="form-control"
+                            data-ng-model="request.selectedUserType" >
+                        <option value="PATIENT">Patient</option>
+                        <option value="PROFESSIONAL">Healthcare Professional</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="forename" class="col-md-4 control-label">Forename (required):</label>
                 <div class="col-md-5">
@@ -97,6 +108,13 @@
             </div>
 
             <div class="form-group">
+                <label for="email" class="col-md-4 control-label">Email (required):</label>
+                <div class="col-md-5">
+                    <input id="email" name="email" type="text" class="form-control" data-ng-model="request.email" required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="nhsNumber" class="col-md-4 control-label">NHS/CHI/H&SC Number if known (10 digits):</label>
                 <div class="col-md-5">
                     <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="request.nhsNumber"/>
@@ -110,7 +128,7 @@
                             required="required"
                             data-ng-model="request.specialty"
                             data-ng-change="refreshUnits()"
-                            data-ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
+                            data-ng-options="obj.id as obj.name for obj in specialties | filterSpecialitiesByUser:request.selectedUserType:request.type | orderBy:['name']"
                             class="form-control"></select>
                 </div>
             </div>
@@ -129,13 +147,6 @@
                     <p data-ng-show="!units.length && request.type==='FORGOT_LOGIN'">
                         You must choose a specialty with available units
                     </p>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="col-md-4 control-label">Email (required):</label>
-                <div class="col-md-5">
-                    <input id="email" name="email" type="text" class="form-control" data-ng-model="request.email" required=""/>
                 </div>
             </div>
 
