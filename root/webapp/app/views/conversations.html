@@ -192,7 +192,7 @@
                 </form>
             </div>
             <div class="quick-reply content-panel" data-ng-show="conversation.showMessages">
-                <div class="message-summary" data-ng-repeat="message in conversation.messages | orderBy:'created'">
+                <div class="message-summary" data-ng-repeat="message in conversation.messages | orderBy:'-created'">
                     <div class="last-message">
                         <p class="date-stamp pull-right"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                         <h4 class="message-title">
