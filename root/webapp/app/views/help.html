@@ -129,171 +129,26 @@
 
     </div>
 
-    <!-- Staff user help -->
-    <div class="content-inner help-staff" data-ng-show="staffUser">
+    <!-- Staff and Patient user help -->
+    <div class="content-inner help-staff" data-ng-show="patientUser || staffUser">
 
         <h3>Questions about your own information</h3>
-        <p>If you are a patient, and suspect that wrong information is being shown, you need to contact the place that sends
-            your info to PatientView. <a href="/#/contact">Click here to send a message to your unit</a></p>
-        <h3>Other questions</h3>
+        <p>If you are a patient, and suspect that wrong information is being shown, you need to contact the place that
+            sends your info to PatientView.
+            <a href="/#/contact">Click here to send a message to your unit</a></p>
 
-        <p>For any queries about login problems, incorrect details on the site, content issues, results not appearing or being
-            wrong, or any concerns or feedback, please read the FAQs below, but if they aren’t answered there please contact us.
+        <h3>Other questions</h3>
+        <p>For any queries about login problems, incorrect details on the site, content issues, results not appearing
+            or being wrong, or any concerns or feedback, please read the FAQs below, but if they aren’t answered
+            there please contact us.
             <a href="/#/contact">Click here to send a message to your unit</a></p>
 
         <h3>Questions about the system</h3>
         <p>First see our Frequently Asked Questions (FAQs), listed below.</p>
 
         <h3>FAQs about PatientView</h3>
-        <p>These answers are mostly phrased for patients - for technical Qs, see info links at the foot of the home page or in
-            ‘News’ when logged in as an Admin.</p>
-
-        <ul>
-            <li><a href="/#/help/#faqstaff10">I've forgotten my login / I'm locked out</a></li>
-            <li><a href="/#/help/#faqstaff20">How does it work?</a></li>
-            <li><a href="/#/help/#faqstaff30">Who can read it?</a></li>
-            <li><a href="/#/help/#faqstaff40">Where has this come from?</a></li>
-            <li><a href="/#/help/#faqstaff50">How do I join?</a></li>
-            <li><a href="/#/help/#faqstaff60">My unit isn't using PatientView. How can I get it to join?</a></li>
-            <li><a href="/#/help/#faqstaff70">What if I don't use the Internet?</a></li>
-            <li><a href="/#/help/#faqstaff80">What does it cost?</a></li>
-            <li><a href="/#/help/#faqstaff90">What if I move?</a></li>
-            <li><a href="/#/help/#faqstaff100">Who can see what?</a></li>
-            <li><a href="/#/help/#faqstaff110">Is it safe? Security and confidentiality</a></li>
-            <li><a href="/#/help/#faqstaff120">How can I change what is shown?</a></li>
-            <li><a href="/#/help/#faqstaff130">What if I want to remove my information from the system?</a></li>
-            <li><a href="/#/help/#faqstaff140">Further Information</a></li>
-        </ul>
-
-        <h3><a id="faqstaff10"></a>I've forgotten my login / I'm locked out</h3>
-        <p>If you have forgotten your password, you can reset it yourself if: </p>
-        <ul>
-            <li>You know your username, AND</li>
-            <li>Your current email address is registered in the system</li>
-        </ul>
-        <p>Click on Login, then on 'Forgotten your password?'. If you do not know your username and email address you
-            can contact your local units administrator by clicking the 'Contact' button at the bottom of the page.</p>
-
-        <h3><a id="faqstaff20"></a>How does it work?</h3>
-        <p>PatientView takes information from your unit's computer system and links it to useful explanations
-            about your kidney condition and its treatment. It shows blood test results, clinic letters (if they are on
-            your unit's computer system), and much more. It is updated at least once a day so that it should be up
-            to date. Because it shows information from your local unit's computer system, you should contact your local
-            unit if you see (or suspect) errors. Technical information: Downloads for a patient are activated by a flag
-            in the local information system. This is triggered by a local administrator after receiving your signed
-            agreement. </p>
-
-        <h3><a id="faqstaff30"></a>Who can read it?</h3>
-        <p>Patients can, a patient's GP can, and a limited number of staff from the unit can. Also, patients may
-            share their password with anyone they want. So it can be used to show information to relatives, friends, and
-            to healthcare staff in other locations where notes are not available. </p>
-
-        <h3><a id="faqstaff40"></a>Where has this come from?</h3>
-        <p>PatientView was developed by  <a href="http://www.rixg.org/" target="_blank">RIXG</a>, the Renal Information
-            EXchange Group. This is a group representing patients and renal teams which was formed in 2003 to make
-            advances in IT work to help renal patients. The PatientView pilot project began in 2004, funded by the
-            Department of Health, and the full project was officially launched in 2005. It is officially hosted now by
-            the UK Renal Association (www.renal.org)</p>
-
-        <h3><a id="faqstaff50"></a>How do I join?</h3>
-        <p>PatientView is only available at participating units, but that is now most units in the UK. To
-            join, you sign the enrolment form after seeing examples or a demo. A member of staff signs the form too.
-            It is then given to your local PatientView administrator. They will send starter information, and
-            your username and password, to you and to your GP (your GP has a different login). You can also send your
-            request to join by clicking on the 'I want to join' button at
-            <a href="http://www.patientview.org" target="_blank">www.patientview.org</a>. </p>
-
-        <h3><a id="faqstaff60"></a>My unit isn't using PatientView. How can I get it to join?</h3>
-        <p>We hope that soon almost all units will be participating. In some units, changes to their local computer
-            systems have delayed joining. A few units, especially at children's hospitals, don't have computer-held
-            records at all, and this has delayed them.</p>
-
-        <h3><a id="faqstaff70"></a>What if I don't use the Internet?</h3>
-        <p>Maybe you have a friend or family member that does, and they could help you? Public libraries often have
-            computers you could use. We are also working to make PatientView available through phones and possibly via digital
-            TVs. </p>
-
-        <h3><a id="faqstaff80"></a>What does it cost?</h3>
-        <p>It is free to patients. There is a small annual cost to each unit to join the system.</p>
-
-        <h3><a id="faqstaff90"></a>What if I move?</h3>
-        <p>If you move to a different unit, either permanently or temporarily (e.g. for a transplant), you can sign up
-            in the new centre too, and your records will be combined. This can be very useful to staff in both centres,
-            as well as to patients.</p>
-
-        <h3><a id="faqstaff100"></a>Who can see what?</h3>
-        <p>The information presented is the same for all users. So staff can read patient information, and patients can
-            read medical information.</p>
-        <ul>
-            <li>Patients see only their own results and other information.</li>
-            <li>GPs have a unique login for each of their registered patients at present. So if they have multiple patients,
-                they must login again to see another.</li>
-            <li>Unit staff who have logins may see the records of any PatientView patient from their unit.</li>
-        </ul>
-
-        <p>Patients may share their logins with relatives, staff in clinics that they are referred to, staff at other surgeries
-            or foreign hospitals - or anyone else they choose. They can change their password at any time to restrict access
-            again.</p>
-        <p>Staff must not share their logins.</p>
-
-        <h3><a id="faqstaff110"></a>Is it safe? Security and confidentiality</h3>
-        <p>We believe the system should be very safe. It uses security systems like the ones used for credit cards on
-            the Internet.</p>
-        <p>All information is encrypted during transmission. The web server is very secure. External review of the system's
-            security is undertaken. A detailed log of who has accessed what information is kept.</p>
-        <p>To maximise your security online, you should always click the 'logout' button in the top right of the screen. Once
-            you have done this, close your web browser by clicking the 'x' in the top right corner.</p>
-        <ul>
-            <li><strong>Patients</strong>: The major risk is of someone else finding out or guessing your
-                username/password. If you think someone may have discovered your password, you can change it at any
-                time. Your information only goes onto PatientView at your request, and you can have it all removed from
-                the system if you want.</li>
-            <li><strong>Staff</strong>: The major risk is of a username/password combination being guessed or
-                discovered. You will be aware how sensitive some information could be, and it is essential that you keep
-                your login details secret and safe. Staff logins must not be shared. The correct way to permit an
-                external person to see a PatientView record is for the patient to share their username and password.</li>
-        </ul>
-
-        <h3><a id="faqstaff120"></a>How can I change what is shown?</h3>
-        <p>PatientView shows mostly information that is recorded in other computer systems. To change it, changes need
-            to be made at the place it is coming from. When a change is made, it may not be updated on the PatientView
-            server for up to 24h. Changes to any of the last 10 items under each heading should be corrected this way.
-            Older information will require manual intervention by a local administrator. If you yourself have entered
-            information that is incorrect, you should contact your local PatientView Admin. </p>
-
-        <h3><a id="faqstaff130"></a>What if I want to remove my information from the system?</h3>
-        <p>That is fine. However as it may be impossible to recreate the valuable record that PatientView builds up over
-            time, we ask for a formal signed request before withdrawing patients from the system. If you are registered
-            in more than one unit, you will need to withdraw from each unit. We are reviewing how we do this at present
-            (2014), and may give more options soon.</p>
-
-        <h3><a id="faqstaff140"></a>Further Information</h3>
-        <ul>
-            <li><a href="http://renalpatientview.blogspot.co.uk/" target="_blank">renalpatientview.blogspot.co.uk</a>
-                has news.</li>
-            <li><a href="http://rixg.org/patientview2/" target="_blank">www.rixg.org/patientview2</a>
-                has info about how to use PatientView, including videos and a Recruitment Toolkit.</li>
-            <li><a href="https://www.facebook.com/patientview" target="_blank">www.facebook.com/patientview</a>
-                is our FaceBook page for PatientView.</li>
-        </ul>
-    </div>
-    
-    <!-- Patient user help -->
-    <div class="content-inner help-staff" data-ng-show="patientUser">
-
-        <h3>Questions about your own information</h3>
-        <p>If you are a patient, and suspect that wrong information is being shown, you need to contact your local
-            PatientView administrator. If you are logged in <a href="/#/contact">Click here to send a message</a></p>
-
-        <h3>Other questions</h3>
-        <p>For any queries about login problems, incorrect details on the site, content issues, results not appearing or being
-            wrong, or any concerns or feedback, please read the FAQs below, but if they aren’t answered there please contact us.
-            <a href="/#/contact">Click here to send a message to your unit</a></p>
-
-        <h3>Questions about the system generally</h3>
-        <p>You can send a message to the system designers. If you are logged in you can
-            <a href="/#/contact">Click here to send a message to your unit</a></p>
-
+        <p>These answers are mostly phrased for patients - for technical queries, see our
+            <a href="http://rixg.org/patientview2/admin-and-technical/" target="_blank">admin technical help page.</a></p>
         <ul>
             <li><a href="/#/help/#faqpatient10">I've forgotten my login / I'm locked out</a></li>
             <li><a href="/#/help/#faqpatient20">How does it work?</a></li>
@@ -301,7 +156,6 @@
             <li><a href="/#/help/#faqpatient40">Where has this come from?</a></li>
             <li><a href="/#/help/#faqpatient50">How do I join?</a></li>
             <li><a href="/#/help/#faqpatient60">My unit isn't using PatientView. How can I get it to join?</a></li>
-            <li><a href="/#/help/#faqpatient70">What if I don't use the Internet?</a></li>
             <li><a href="/#/help/#faqpatient80">What does it cost?</a></li>
             <li><a href="/#/help/#faqpatient90">What if I move?</a></li>
             <li><a href="/#/help/#faqpatient100">Who can see what?</a></li>
@@ -317,48 +171,47 @@
             <li>You know your username, AND</li>
             <li>Your current email address is registered in the system</li>
         </ul>
-        <p>Click on Login, then on 'Forgotten your password?'. If you do not know your username and email address you
-            can contact your local units administrator by clicking the 'Contact' button at the bottom of the page.</p>
+        <p>Click on Login, then on 'Forgotten your password?' then fill out the form. If you do not know your username
+            and email address you can contact your local unit administrator by clicking the
+            ‘Submit Forgotten Login Request' button at the bottom of the same page.</p>
 
         <h3><a id="faqpatient20"></a>How does it work?</h3>
-        <p>PatientView takes information from your unit's computer system and links it to useful explanations
-            about your kidney condition and its treatment. It shows blood test results, clinic letters (if they are
-            on your unit's computer system), and much more. It is updated at least once a day so that it should
-            be up to date. Because it shows information from your local unit's computer system, you should contact your
-            local unit if you see (or suspect) errors. Technical information: Downloads for a patient are activated by
-            a flag in the local information system. This is triggered by a local administrator after receiving your
-            signed agreement. </p>
+        <p>PatientView takes information from your unit's computer system and links it to useful explanations about
+            your condition and its treatment. It shows blood test results, clinic letters (if they are on your unit's
+            computer system), medicines and much more. It is updated at least once a day so that it should be up to
+            date. Because it shows information from your local unit's computer system, you should contact your local
+            unit if you see (or suspect) errors. Technical information: Downloads for a patient are activated by a flag
+            in the local information system. This is triggered by a local administrator after receiving your signed
+            agreement.
+        </p>
 
         <h3><a id="faqpatient30"></a>Who can read it?</h3>
-        <p>Patients can, a patient's GP can, and a limited number of staff from the unit can. Also, patients may
-            share their password with anyone they want. So it can be used to show information to relatives, friends, and
-            to healthcare staff in other locations where notes are not available. </p>
+        <p>Patients can, a patient's GP can, and a limited number of staff from the unit and system administrators can.
+            Also, patients may share their password with anyone they want. So it can be used to show information to
+            relatives, friends, and to healthcare staff in other locations where notes are not available.
+        </p>
 
         <h3><a id="faqpatient40"></a>Where has this come from?</h3>
         <p>PatientView was developed by  <a href="http://www.rixg.org/" target="_blank">RIXG</a>, the Renal Information
             EXchange Group. This is a group representing patients and renal teams which was formed in 2003 to make
-            advances in IT work to help renal patients. The PatientView pilot project began in 2004, funded by the
-            Department of Health, and the full project was officially launched in 2005. It is officially hosted now by
-            the UK Renal Association (www.renal.org)</p>
+            advances in IT work to help renal patients. The PatientView pilot project began in 2004,
+            funded by the Department of Health, and the full project was officially launched in 2005.
+            PatientView 2 (2015) was a full rebuild based on the learning from the original PatientView
+            and extended to potentially cater for any patient, on any device, with any condition.
+            In 2018, mobile apps for the iOS and Android platforms were launched (see homepage links). </p>
 
         <h3><a id="faqpatient50"></a>How do I join?</h3>
-        <p>Renal PatientView is only available at participating units, but that is now most units in the UK. Check
-            on this list if you don't know if yours has it, or is due to get it. To join, you sign the enrolment form
-            after seeing examples or a demo. A member of staff signs the form too. It is then given to your local
-            PatientView administrator. They will send starter information, and your username and password, to you and
-            to your GP (your GP has a different login). You can also send your request to join by clicking on the 'I
-            want to join' button at
+        <p>PatientView is only available at participating units, but that is now most units in the UK.
+            To join, you sign the enrolment form after seeing examples or a demo.
+            A member of staff signs the form too. It is then given to your local PatientView administrator.
+            They will send starter information, and your username and password, to you. You can also send your request to join by clicking on the 'I want to join' button
             <a href="http://www.patientview.org" target="_blank">www.patientview.org</a>. </p>
 
         <h3><a id="faqpatient60"></a>My unit isn't using PatientView. How can I get it to join?</h3>
         <p>We hope that soon almost all units will be participating. In some units, changes to their local computer
             systems have delayed joining. A few units, especially at children's hospitals, don't have computer-held
-            records at all, and this has delayed them.</p>
-
-        <h3><a id="faqpatient70"></a>What if I don't use the Internet?</h3>
-        <p>Maybe you have a friend or family member that does, and they could help you? Public libraries often have
-            computers you could use. We are also working to make PatientView available through phones and possibly via digital
-            TVs. </p>
+            records at all, and this has delayed them.
+        </p>
 
         <h3><a id="faqpatient80"></a>What does it cost?</h3>
         <p>It is free to patients. There is a small annual cost to each unit to join the system.</p>
@@ -366,62 +219,72 @@
         <h3><a id="faqpatient90"></a>What if I move?</h3>
         <p>If you move to a different unit, either permanently or temporarily (e.g. for a transplant), you can sign up
             in the new centre too, and your records will be combined. This can be very useful to staff in both centres,
-            as well as to patients.</p>
+            as well as to patients.
+        </p>
 
         <h3><a id="faqpatient100"></a>Who can see what?</h3>
-        <p>The information presented is the same for all users. So staff can read patient information, and patients can
-            read medical information.</p>
+        <p>The information presented is the same for all users. So staff can read patient information, and patients
+            can read medical information.
+        </p>
         <ul>
             <li>Patients see only their own results and other information.</li>
-            <li>GPs have a unique login for each of their registered patients at present. So if they have multiple patients,
-                they must login again to see another.</li>
+            <li>Registered GPs may see the records of any PatientView patient from their practice.</li>
             <li>Unit staff who have logins may see the records of any PatientView patient from their unit.</li>
         </ul>
 
-        <p>Patients may share their logins with relatives, staff in clinics that they are referred to, staff at other surgeries
-            or foreign hospitals - or anyone else they choose. They can change their password at any time to restrict access
-            again.</p>
+        <p>Patients may share their logins with relatives, staff in clinics that they are referred to, staff at other
+            surgeries or foreign hospitals - or anyone else they choose. They can change their password or secret word
+            at any time to restrict access again.
+        </p>
         <p>Staff must not share their logins.</p>
 
         <h3><a id="faqpatient110"></a>Is it safe? Security and confidentiality</h3>
-        <p>We believe the system should be very safe. It uses security systems like the ones used for credit cards on
-            the Internet.</p>
-        <p>All information is encrypted during transmission. The web server is very secure. External review of the system's
-            security is undertaken. A detailed log of who has accessed what information is kept.</p>
-        <p>To maximise your security online, you should always click the 'logout' button in the top right of the screen. Once
-            you have done this, close your web browser by clicking the 'x' in the top right corner.</p>
+        <p>We believe the system should be very safe. It uses security systems like the ones used for credit cards
+            on the Internet.
+        </p>
+        <p>All information is encrypted during transmission. The web server is very secure. External review of the
+            system's security is undertaken on a regular basis. A detailed log of who has accessed what information
+            is kept.
+        </p>
+        <p>To maximise your security online, you should always click the 'logout' button in the top right of the screen.
+            Once you have done this, close your web browser by clicking the 'x' in the top right corner.
+        </p>
         <ul>
-            <li><strong>Patients</strong>: The major risk is of someone else finding out or guessing your
-                username/password. If you think someone may have discovered your password, you can change it at any
-                time. Your information only goes onto PatientView at your request, and you can have it all removed from
-                the system if you want.</li>
-            <li><strong>Staff</strong>: The major risk is of a username/password combination being guessed or
-                discovered. You will be aware how sensitive some information could be, and it is essential that you keep
-                your login details secret and safe. Staff logins must not be shared. The correct way to permit an
-                external person to see a PatientView record is for the patient to share their username and password.</li>
+            <li><strong>Patients</strong>: The major risk is of someone else finding out or guessing your login
+                credentials. If you think someone may have discovered your password, you can change it at any time.
+                We also recommend setting a secret word to further strengthen security (mandatory for mobile app use).
+                Your information only goes onto PatientView at your request, and you can have it all removed from the
+                system if you want.</li>
+            <li><strong>Staff</strong>: The major risk is of a username / password / secret word combination being
+                guessed or discovered. You will be aware how sensitive some information could be, and it is essential
+                that you keep your login details secret and safe. Staff logins must not be shared. The correct way to
+                permit an external person to see a PatientView record is for the patient to share their login
+                credentials.
+            </li>
         </ul>
 
         <h3><a id="faqpatient120"></a>How can I change what is shown?</h3>
         <p>PatientView shows mostly information that is recorded in other computer systems. To change it, changes need
             to be made at the place it is coming from. When a change is made, it may not be updated on the PatientView
-            server for up to 24h. Changes to any of the last 10 items under each heading should be corrected this way.
-            Older information will require manual intervention by a local administrator. If you yourself have entered
-            information that is incorrect, you should contact your local PatientView Admin. </p>
+            server for up to 24h. Changes to any of the latest 10 items under each result heading should be corrected
+            this way. Older information will require manual intervention by a local administrator.
+            If you yourself have entered information that is incorrect, you can edit or delete it yourself by
+            following the links to ‘Edit Own Results’.
+        </p>
 
         <h3><a id="faqpatient130"></a>What if I want to remove my information from the system?</h3>
-        <p>That is fine. However as it may be impossible to recreate the valuable record that PatientView builds up over
-            time, we ask for a formal signed request before withdrawing patients from the system. If you are registered
-            in more than one unit, you will need to withdraw from each unit. We are reviewing how we do this at present
-            (2014), and may give more options soon.</p>
+        <p>That is fine. However, as it may be impossible to recreate the valuable record that PatientView builds up
+            over time, we ask for a formal signed request before withdrawing patients from the system.
+            If you are registered in more than one unit, you will need to withdraw from each unit.
+        </p>
 
         <h3><a id="faqpatient140"></a>Further Information</h3>
         <ul>
-            <li><a href="http://renalpatientview.blogspot.co.uk/" target="_blank">renalpatientview.blogspot.co.uk</a>
-                has news.</li>
             <li><a href="http://rixg.org/patientview2/" target="_blank">www.rixg.org/patientview2</a>
                 has info about how to use PatientView, including videos and a Recruitment Toolkit.</li>
             <li><a href="https://www.facebook.com/patientview" target="_blank">www.facebook.com/patientview</a>
-                is our FaceBook page for PatientView.</li>
+                is our Facebook page for PatientView, where important notices and info about new releases are made
+                available. Please ‘Like’ and follow the page if you have a Facebook account.</li>
         </ul>
     </div>
 </div>

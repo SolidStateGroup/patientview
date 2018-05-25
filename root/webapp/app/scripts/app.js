@@ -59,6 +59,25 @@ patientviewApp.filter('startFrom', function () {
     };
 });
 
+// need this filter to remove GP Specialty on forgot login request for patient
+patientviewApp.filter('filterSpecialitiesByUser', function () {
+    return function (items, userType, requestType) {
+        var filterSpecialties = [];
+        if (requestType == 'FORGOT_LOGIN') {
+            if (userType == "PATIENT") {
+                filterSpecialties = items.filter(function (speciality) {
+                    return speciality.id != '8';
+                });
+            } else if (userType == "PROFESSIONAL") {
+                filterSpecialties = items;
+            }
+        } else {
+            filterSpecialties = items;
+        }
+        return filterSpecialties;
+    };
+});
+
 patientviewApp.filter('orderObjectBy', function () {
     return function (items, field, reverse) {
         // Build array
