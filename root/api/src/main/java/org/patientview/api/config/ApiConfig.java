@@ -1,8 +1,10 @@
 package org.patientview.api.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.client.FirebaseClient;
@@ -10,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -63,6 +67,17 @@ public class ApiConfig {
     }
 
     @Bean
+    public Jackson2ObjectMapperBuilder configureObjectMapper() {
+        return new Jackson2ObjectMapperBuilder()
+                .modulesToInstall(Hibernate5Module.class);
+    }
+
+    @Bean
+    public Module datatypeHibernateModule() {
+        return new Hibernate5Module();
+    }
+
+    @Bean
     public SecurityAspect securityAspectBean() {
         return SecurityAspect.aspectOf();
     }
@@ -113,6 +128,7 @@ public class ApiConfig {
 
     /**
      * Allow scheduled tasks to run on different threads.
+     *
      * @return Executor
      */
     @Bean
