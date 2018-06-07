@@ -313,7 +313,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
             List<ResearchStudy> studies;
             query = query.replaceAll(":", "\\\\:");
-            LOG.info(query);
 
             studies = entityManager.createNativeQuery(query, ResearchStudy.class).getResultList();
             Collections.reverse(studies);
