@@ -11,7 +11,7 @@
 
     <groupId>org.patientview2</groupId>
     <artifactId>root</artifactId>
-    <version>2.5.1-RELEASE</version>
+    <version>2.5.0-RELEASE</version>
     <packaging>pom</packaging>
     <name>root</name>
 
