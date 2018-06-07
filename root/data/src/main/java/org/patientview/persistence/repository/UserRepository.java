@@ -228,7 +228,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
             "AND u.deleted = false " +
             "GROUP BY u.id")
-    List<User> findAllPatients();
+    Page<User> findAllPatients(Pageable pageable);
 
     @Query("SELECT count (distinct u) " +
             "FROM User u " +
