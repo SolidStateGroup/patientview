@@ -21,6 +21,8 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.service.EncounterService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -42,7 +44,8 @@ import java.util.UUID;
  * Created by jamesr@solidstategroup.com
  * Created on 05/01/2015
  */
-@Service public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implements UktService {
+@Service
+public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implements UktService {
 
     @Inject
     private ApiPatientService apiPatientService;
@@ -64,7 +67,8 @@ import java.util.UUID;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.
-     * @param user User to store a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR for
+     *
+     * @param user   User to store a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR for
      * @param status String status of kidney transplant
      * @throws FhirResourceException
      * @throws ResourceNotFoundException
@@ -98,6 +102,7 @@ import java.util.UUID;
 
     /**
      * Remove quotes ", brackets [ ] ( ) from input text String.
+     *
      * @param text String to remove quotes ", brackets [ ] ( ) from
      * @return Cleaned String
      */
@@ -110,6 +115,7 @@ import java.util.UUID;
 
     /**
      * Export UKT data to text file from FHIR.
+     *
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      * @throws UktException
@@ -136,45 +142,59 @@ import java.util.UUID;
 
                 logWriter.write(new Date().toString() + ": Started");
                 logWriter.newLine();
-                List<User> patients = userRepository.findAllPatients();
-                logWriter.write(new Date().toString() + ": " + patients.size() + " patients");
-                logWriter.newLine();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                for (User user : patients) {
-                    if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-                        for (Identifier identifier : user.getIdentifiers()) {
+                //Get the initial page
+                PageRequest pageRequest = new PageRequest(0, 1000);
+                Page<User> initialPatientsPage = userRepository.findAllPatients(pageRequest);
+                //Get the numner of pages
+                int numberOfPages = initialPatientsPage.getTotalPages();
 
-                            if (isValidIdentifier(identifier)) {
-                                writer.write("\"");
-                                writer.write(identifier.getIdentifier());
-                                writer.write("\",\"");
-                                writer.write(clean(user.getSurname()));
-                                writer.write("\",\"");
-                                writer.write(clean(user.getForename()));
-                                writer.write("\",\"");
-                                if (user.getDateOfBirth() != null) {
-                                    writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                //Loop over the pagination to get 1000 patients at a time.
+                for (int i = 0; i < numberOfPages; i++) {
+                    //Get the initial page
+                    pageRequest = new PageRequest(i, 1000);
+                    initialPatientsPage = userRepository.findAllPatients(pageRequest);
+                    List<User> patients = initialPatientsPage.getContent();
+
+                    logWriter.write(new Date().toString() + ": " + patients.size() + " patients");
+                    logWriter.newLine();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+                    for (User user : patients) {
+                        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+                            for (Identifier identifier : user.getIdentifiers()) {
+
+                                if (isValidIdentifier(identifier)) {
+                                    writer.write("\"");
+                                    writer.write(identifier.getIdentifier());
+                                    writer.write("\",\"");
+                                    writer.write(clean(user.getSurname()));
+                                    writer.write("\",\"");
+                                    writer.write(clean(user.getForename()));
+                                    writer.write("\",\"");
+                                    if (user.getDateOfBirth() != null) {
+                                        writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                                    }
+                                    writer.write("\",\"");
+                                    writer.write(getPostcode(user));
+                                    writer.write("\"");
+                                    writer.newLine();
+                                } else {
+                                    writerFailed.write("\"");
+                                    writerFailed.write(identifier.getIdentifier());
+                                    writerFailed.write("\",\"");
+                                    writerFailed.write(user.getSurname());
+                                    writerFailed.write("\",\"");
+                                    writerFailed.write(user.getForename());
+                                    writerFailed.write("\",\"");
+                                    if (user.getDateOfBirth() != null) {
+                                        writerFailed.write(simpleDateFormat.format(user.getDateOfBirth()));
+                                    }
+                                    writerFailed.write("\",\"");
+                                    writerFailed.write(getPostcode(user));
+                                    writerFailed.write("\"");
+                                    writerFailed.newLine();
                                 }
-                                writer.write("\",\"");
-                                writer.write(getPostcode(user));
-                                writer.write("\"");
-                                writer.newLine();
-                            } else {
-                                writerFailed.write("\"");
-                                writerFailed.write(identifier.getIdentifier());
-                                writerFailed.write("\",\"");
-                                writerFailed.write(user.getSurname());
-                                writerFailed.write("\",\"");
-                                writerFailed.write(user.getForename());
-                                writerFailed.write("\",\"");
-                                if (user.getDateOfBirth() != null) {
-                                    writerFailed.write(simpleDateFormat.format(user.getDateOfBirth()));
-                                }
-                                writerFailed.write("\",\"");
-                                writerFailed.write(getPostcode(user));
-                                writerFailed.write("\"");
-                                writerFailed.newLine();
                             }
                         }
                     }
@@ -210,6 +230,7 @@ import java.util.UUID;
 
     /**
      * Given a User, search FHIR for a postcode associated with any of the User's patient records.
+     *
      * @param user User to search for postcode for
      * @return String postcode, retrieved from FHIR
      * @throws FhirResourceException
@@ -236,6 +257,7 @@ import java.util.UUID;
 
     /**
      * Import UKT transplant status data from text file and store in FHIR.
+     *
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      * @throws UktException
@@ -255,7 +277,7 @@ import java.util.UUID;
 
             try {
                 BufferedWriter logWriter
-                    = new BufferedWriter(new FileWriter(importDirectory + "/" + logFilename, true));
+                        = new BufferedWriter(new FileWriter(importDirectory + "/" + logFilename, true));
                 br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
                 String line;
                 logWriter.write(new Date().toString() + ": Started");
@@ -297,6 +319,7 @@ import java.util.UUID;
 
     /**
      * Check Identifier text value is a correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER.
+     *
      * @param identifier Identifier to check has correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER
      * @return True if valid, false if not
      */
