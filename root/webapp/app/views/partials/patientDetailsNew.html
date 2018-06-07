@@ -139,7 +139,7 @@
         <div class="added-container">
             <label class="inner-title">Identifiers <span class="error" data-ng-show="editUser.identifiers.length < 1 && !userFormNew.$pristine">Please add an identifier for this patient</span></label>
             <div class="identifier-list-item row" data-ng-repeat="identifier in editUser.identifiers">
-                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="Identifier" name="identifier" data-ng-model="identifier.identifier" required></div>
+                <div class="col-sm-5"><input type="text" disabled="disabled" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="Identifier" name="identifier" data-ng-model="identifier.identifier" required></div>
                 <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
                 <div class="btn-group">
                     <button type="button" class="btn negative link-delete-button" data-ng-click="removeIdentifier(userFormNew, editUser, identifier)">Delete</button>
