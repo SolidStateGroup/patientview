@@ -220,6 +220,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("featureIds") List<Long> featureIds,
                                  Pageable pageable);
 
+
     // used by UKT
     @Query("SELECT u " +
             "FROM User u " +
