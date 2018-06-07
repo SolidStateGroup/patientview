@@ -220,6 +220,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("featureIds") List<Long> featureIds,
                                  Pageable pageable);
 
+
     // used by UKT
     @Query("SELECT u " +
             "FROM User u " +
@@ -228,7 +229,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
             "AND u.deleted = false " +
             "GROUP BY u.id")
-    Page<User> findAllPatients(Pageable pageable);
+    Page<User> getAllPatientsForUKTExport(Pageable pageable);
 
     @Query("SELECT count (distinct u) " +
             "FROM User u " +
