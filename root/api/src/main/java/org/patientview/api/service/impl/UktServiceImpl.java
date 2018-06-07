@@ -144,16 +144,17 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 logWriter.newLine();
 
                 //Get the initial page
-                PageRequest pageRequest = new PageRequest(0, 1000);
-                Page<User> initialPatientsPage = userRepository.findAllPatients(pageRequest);
+                PageRequest pageRequest = createPageRequest(0, 1000, null, null);
+
+                Page<User> initialPatientsPage = userRepository.getAllPatientsForUKTExport(pageRequest);
                 //Get the numner of pages
                 int numberOfPages = initialPatientsPage.getTotalPages();
 
                 //Loop over the pagination to get 1000 patients at a time.
                 for (int i = 0; i < numberOfPages; i++) {
                     //Get the initial page
-                    pageRequest = new PageRequest(i, 1000);
-                    initialPatientsPage = userRepository.findAllPatients(pageRequest);
+                    pageRequest = createPageRequest(0, 1000, null, null);
+                    initialPatientsPage = userRepository.getAllPatientsForUKTExport(pageRequest);
                     List<User> patients = initialPatientsPage.getContent();
 
                     logWriter.write(new Date().toString() + ": " + patients.size() + " patients");
