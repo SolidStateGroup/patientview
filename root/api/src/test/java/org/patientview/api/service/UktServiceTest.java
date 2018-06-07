@@ -26,7 +26,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.service.EncounterService;
 import org.patientview.test.util.TestUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -175,11 +174,11 @@ public class UktServiceTest {
         //Get the initial page
         PageRequest pageRequest = new PageRequest(0, 1000);
 
-        when(userRepository.findAllPatients(pageRequest)).thenReturn(new PageImpl<>(users));
+        when(userRepository.getAllPatientsForUKTExport(pageRequest)).thenReturn(new PageImpl<>(users));
         when(apiPatientService.get(eq(resourceId))).thenReturn(patient);
 
         uktService.exportData();
 
-        verify(userRepository, Mockito.times(2)).findAllPatients(pageRequest);
+        verify(userRepository, Mockito.times(2)).getAllPatientsForUKTExport(pageRequest);
     }
 }
