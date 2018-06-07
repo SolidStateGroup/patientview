@@ -295,7 +295,8 @@ function ($scope, $rootScope, UserService, IdentifierService, localStorageServic
 
             // must always have at least one identifier
             if (user.identifiers.length < 2) {
-                alert('Must have at least one identifier');
+                alert('Must have at least one identifier.\n' +
+                    'If you have made a mistake, please add the correct identifier before deleting this one.');
             } else {
                 IdentifierService.remove(identifier).then(function () {
 

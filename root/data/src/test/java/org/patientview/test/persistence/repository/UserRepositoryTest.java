@@ -130,9 +130,12 @@ public class UserRepositoryTest {
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user, group2, role);
 
-        List<User> users = userRepository.findAllPatients();
+        //Get the initial page
+        PageRequest pageRequest = new PageRequest(0, 1000);
 
-        Assert.assertEquals("Should be one user returned", 1, users.size());
+        Page<User> users = userRepository.findAllPatients(pageRequest);
+
+        Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
 
     @Test

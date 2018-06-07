@@ -144,10 +144,14 @@ public class MyMediaController extends BaseController<MyMediaController> {
         //Check that the current user is part of a conversation and get the message
         Message message = conversationService.getMessageById(messageId);
 
-        if (message.getMyMedia().getType().equals(MediaTypes.IMAGE)) {
-            getMyMediaImage(message.getMyMedia().getThumbnailContent(), response);
+        if (message.getMyMedia() != null) {
+            if (message.getMyMedia().getType().equals(MediaTypes.IMAGE)) {
+                getMyMediaImage(message.getMyMedia().getThumbnailContent(), response);
+            } else {
+                getMyMediaVideo(message.getMyMedia(), response);
+            }
         } else {
-            getMyMediaVideo(message.getMyMedia(), response);
+            LOGGER.warn("Trying to view non-existent media in a message (" + messageId + ")");
         }
     }
 
