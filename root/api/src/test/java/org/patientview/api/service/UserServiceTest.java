@@ -18,6 +18,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -40,6 +41,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -94,6 +96,9 @@ public class UserServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private ApiKeyRepository apiKeyRepository;
 
     @Mock
     private ConversationService conversationService;
@@ -194,6 +199,7 @@ public class UserServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRoleRepository.save(eq(newGroupRole))).thenReturn(newGroupRole);
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(apiKeyRepository.getAllKeysForUser(any(User.class))).thenReturn(new ArrayList<ApiKey>());
         when(userRepository.save(eq(newUser))).thenReturn(newUser);
 
         userService.add(newUser);
