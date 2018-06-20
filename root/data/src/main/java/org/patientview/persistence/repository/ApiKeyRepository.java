@@ -34,6 +34,12 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     List<ApiKey> findByKeyAndTypeAndUser(@Param("key") String key, @Param("type") ApiKeyTypes type,
                                          @Param("user") User user);
 
+
+    @Query("SELECT   a " +
+            "FROM    ApiKey a " +
+            "WHERE   a.user = :user")
+    List<ApiKey> getAllKeysForUser(@Param("user") User user);
+
     @Query("SELECT   a " +
             "FROM    ApiKey a " +
             "WHERE   a.user = :user " +
