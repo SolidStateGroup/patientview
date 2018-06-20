@@ -125,6 +125,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private AlertRepository alertRepository;
 
     @Inject
+    private ApiKeyRepository apiKeyRepository;
+
+    @Inject
     private AuditService auditService;
 
     @Inject
@@ -189,9 +192,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private UserRepository userRepository;
-
-    @Inject
-    private ApiKeyRepository apiKeyRepository;
 
     @Inject
     private DocumentService documentService;
@@ -796,6 +796,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 alertRepository.deleteByUserId(user.getId());
                 LOG.info("user: " + user.getId() + ", delete fhir links");
                 deleteFhirLinks(user.getId());
+                LOG.info("user: " + user.getId() + ", delete apiKeys");
+                deleteApiKeys(user.getId());
                 LOG.info("user: " + user.getId() + ", delete identifiers");
                 deleteIdentifiers(user.getId());
                 LOG.info("user: " + user.getId() + ", delete user");
@@ -867,6 +869,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(user, feature));
+    }
+
+    @Override
+    public void deleteApiKeys(Long userId) {
+        User user = userRepository.findOne(userId);
+        List<ApiKey> apiKeys = apiKeyRepository.getAllKeysForUser(user);
+
+        for(ApiKey apiKey : apiKeys){
+            apiKeyRepository.delete(apiKey);
+        }
     }
 
     @Override
