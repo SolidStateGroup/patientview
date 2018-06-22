@@ -347,6 +347,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     newUser, patientManagementGroup, firstIdentifier, user.getPatientManagement());
         }
 
+        //Check whether this needs to be sent to ukrdc
+        sendUserUpdatedGroupNotification(user, true);
+
         return newUser.getId();
     }
 
@@ -528,6 +531,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = userRepository.findOne(userId);
         user.setPicture(base64);
         userRepository.save(user);
+    }
+
+    @Override
+    public void bulkSendUKRDCNotification() {
+        // Get the initial page
+        PageRequest pageRequest = createPageRequest(0, 1000, null, null);
+
+        Page<User> initialPatientsPage = userRepository.getAllPatientsForExport(pageRequest);
+        // Get the number of pages
+        int numberOfPages = initialPatientsPage.getTotalPages();
+
+        // Loop over the pagination to get 1000 patients at a time.
+        for (int i = 0; i < numberOfPages; i++) {
+            //Get the initial page
+            pageRequest = createPageRequest(i, 1000, null, null);
+            initialPatientsPage = userRepository.getAllPatientsForExport(pageRequest);
+            List<User> patients = initialPatientsPage.getContent();
+
+            for (User user : patients) {
+                this.sendUserUpdatedGroupNotification(user, true);
+            }
+        }
+
     }
 
     // We do this so early one gets the generic group
@@ -780,6 +806,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
+            //Send any updates if required
+            sendUserUpdatedGroupNotification(user, false);
+
+
             if (isPatient || forceDelete) {
                 // patient, delete from conversations and associated messages, other non user tables
                 LOG.info("user: " + user.getId() + ", delete user from conversations");
@@ -876,7 +906,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = userRepository.findOne(userId);
         List<ApiKey> apiKeys = apiKeyRepository.getAllKeysForUser(user);
 
-        for(ApiKey apiKey : apiKeys){
+        for (ApiKey apiKey : apiKeys) {
             apiKeyRepository.delete(apiKey);
         }
     }
@@ -947,9 +977,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Cleanup all the session tokens for the user except the current session.
-     *
+     * <p>
      * Used when user changes his password we need to invalidate all the session except the current one.
-     *
+     * <p>
      * This method require user to be logged in as UserToken associated with current security context is
      * used to compare with other sessions in DB.
      *
@@ -971,6 +1001,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         } catch (Exception e) {
             LOG.error("Failed to cleanup user sessions, after password update", e);
+        }
+    }
+
+    /**
+     * Sends a user updated notification for UKRDC group roles
+     *
+     * @param user - user that has been updated
+     */
+    private void sendUserUpdatedGroupNotification(User user, boolean adding) {
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            // send membership notification to RDC, not GroupTypes.SPECIALTY
+            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                sendGroupMemberShipNotification(groupRole, adding);
+            }
         }
     }
 
@@ -1932,35 +1976,78 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Date now = new Date();
         // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        StringBuilder xml = new StringBuilder("<Container><Patient><PatientNumbers>");
+        StringBuilder xml = new StringBuilder("<<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
+                "<SendingFacility>XXX</SendingFacility>" +
+                "<SendingExtract>XXX</SendingExtract><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
                 xml.append("<PatientNumber><Number>");
                 xml.append(identifier.getIdentifier());
                 xml.append("</Number><Organization>");
-                xml.append(identifier.getIdentifierType().getValue());
-                xml.append("</Organization></PatientNumber>");
+                switch (identifier.getIdentifierType().getValue()) {
+                    case "HSC_NUMBER":
+                        xml.append("HSC");
+                        break;
+                    case "NHS_NUMBER":
+                        xml.append("NHS");
+                        break;
+                    case "CHI_NUMBER":
+                        xml.append("CHI");
+                        break;
+                    case "NON_UK_UNIQUE":
+                        xml.append("NON_UK_UNIQUE");
+                        break;
+                    case "HOSPITAL_NUMBER":
+                        xml.append("HOSPITAL_NUMBER");
+                        break;
+                    case "RADAR_NUMBER":
+                        xml.append("RADAR_NUMBER");
+                        break;
+                }
+                xml.append("</Organization>");
+                if (identifier.getIdentifierType().getValue().equals("NHS_NUMBER")) {
+                    xml.append("<NumberType>NI</NumberType>");
+                }
+
+                xml.append("</PatientNumber>");
             }
         }
+        xml.append("</PatientNumbers>");
+        xml.append("<Names><Name use=\"L\"><Prefix/>");
+        xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));
+        xml.append(String.format("<Given>%s</Given>", groupRole.getUser().getForename()));
+        xml.append("<Suffix/>");
+        xml.append("</Names>");
 
-        xml.append("</PatientNumbers></Patient><ProgramMemberships><ProgramMembership><EnteredBy>");
-        xml.append(getCurrentUser().getUsername());
-        xml.append("</EnteredBy><EnteredAt>PV2</EnteredAt><EnteredOn>");
+        xml.append(String.format("<BirthTime>%s</BirthTime>", df.format(groupRole.getUser().getDateOfBirth())));
+
+        xml.append("</Patient>");
+        xml.append("<ProgramMemberships><ProgramMembership><EnteredBy><CodingStandard>");
+        xml.append(groupRole.getLastUpdater().getUsername());
+        xml.append("</CodingStandard><Code>PV_USERS<Code>");
+        xml.append("<Description>");
+        xml.append(groupRole.getLastUpdater().getName());
+        xml.append("</Description></EnteredBy>");
+        xml.append("<EnteredAt><CodingStandard>");
+        xml.append(groupRole.getGroup().getCode());
+        xml.append("</CodingStandard><Code>PV_UNITS</Code><Description>");
+        xml.append(groupRole.getGroup().getName());
+        xml.append("</Description></EnteredAt><UpdatedOn>");
         xml.append(df.format(now));
-        xml.append("</EnteredOn><ExternalId>");
+        xml.append("</UpdatedOn><ExternalId>");
         xml.append(groupRole.getId());
         xml.append("</ExternalId><ProgramName>");
-        xml.append(groupRole.getGroup().getCode());
+        xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
         xml.append("</ProgramName><ProgramDescription>");
-        xml.append(groupRole.getGroup().getName());
+        xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
         xml.append("</ProgramDescription><FromTime>");
         xml.append(df.format(groupRole.getCreated()));
         xml.append("</FromTime><ToTime>");
         if (!adding) {
             xml.append(df.format(now));
         }
-        xml.append("</ToTime></ProgramMembership></ProgramMemberships></Container>");
+        xml.append("</ToTime></ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
         externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
                 getCurrentUser(), now);

@@ -99,6 +99,11 @@ public interface UserService {
     void addPicture(Long userId, String base64);
 
     /**
+     * Send a bulk groups to UKRDC
+     */
+    void bulkSendUKRDCNotification();
+
+    /**
      * Used when a User changes their own password.
      * @param userId ID of User to change password
      * @param password New password
