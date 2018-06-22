@@ -1012,7 +1012,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private void sendUserUpdatedGroupNotification(User user, boolean adding) {
         for (GroupRole groupRole : user.getGroupRoles()) {
             // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            if (groupRole.getGroup().getGroupType() != null &&
+                    !groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                 sendGroupMemberShipNotification(groupRole, adding);
             }
         }
