@@ -2020,15 +2020,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("<Suffix/>");
         xml.append("</Names>");
 
-        xml.append(String.format("<BirthTime>%s</BirthTime>", df.format(groupRole.getUser().getDateOfBirth())));
+        if (groupRole.getUser() != null && groupRole.getUser().getDateOfBirth() != null) {
+            xml.append(String.format("<BirthTime>%s</BirthTime>", df.format(groupRole.getUser().getDateOfBirth())));
+        }
 
         xml.append("</Patient>");
-        xml.append("<ProgramMemberships><ProgramMembership><EnteredBy><CodingStandard>");
-        xml.append(groupRole.getLastUpdater().getUsername());
-        xml.append("</CodingStandard><Code>PV_USERS<Code>");
-        xml.append("<Description>");
-        xml.append(groupRole.getLastUpdater().getName());
-        xml.append("</Description></EnteredBy>");
+        xml.append("<ProgramMemberships><ProgramMembership><EnteredBy>");
+
+        if (groupRole.getLastUpdater() != null) {
+            xml.append(String.format("<CodingStandard>%s</CodingStandard>", groupRole.getLastUpdater().getUsername()));
+        }
+        xml.append("<Code>PV_USERS<Code>");
+        if (groupRole.getLastUpdater() != null) {
+            xml.append(String.format("<Description>%s</Description>", groupRole.getLastUpdater().getName()));
+        }
+        xml.append("</EnteredBy>");
         xml.append("<EnteredAt><CodingStandard>");
         xml.append(groupRole.getGroup().getCode());
         xml.append("</CodingStandard><Code>PV_UNITS</Code><Description>");
