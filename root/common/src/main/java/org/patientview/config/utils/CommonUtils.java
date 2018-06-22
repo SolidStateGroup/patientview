@@ -94,7 +94,7 @@ public final class CommonUtils {
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
 
-        return toHex(salt);
+        return toHex(salt).trim();
     }
 
     public static Date getDateFromString(String text) {
