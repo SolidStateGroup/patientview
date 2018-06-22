@@ -186,8 +186,8 @@ public class AuthenticationServiceTest {
      */
     @Test
     public void testAuthenticate_apiKey() {
-        String password = "doNotShow";
-        String salt = "saltsaltsalt";
+        String password = "33AQrwN8U";
+        String salt = "4540a13621487cffa67522d2bd180d48";
 
         // User
         User user = new User();
@@ -196,6 +196,7 @@ public class AuthenticationServiceTest {
         user.setEmailVerified(true);
         user.setLocked(false);
         user.setDeleted(false);
+        user.setSalt(salt);
         user.setSecretWord("{"
                 + "\"salt\" : \"" + salt + "\", "
                 + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "

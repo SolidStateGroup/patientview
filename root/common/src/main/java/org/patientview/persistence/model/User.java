@@ -152,7 +152,7 @@ public class User extends RangeModel implements UserDetails {
 
     @JsonIgnore
     public String getPassword() {
-        return password;
+        return password.trim();
     }
 
     public void setPassword(final String password) {
