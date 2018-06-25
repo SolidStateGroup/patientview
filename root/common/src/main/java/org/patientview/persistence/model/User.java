@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * Main user class for the PatientView application
- *
+ * <p>
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
@@ -72,15 +72,15 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-    
+
     // only for staff users
     @Column(name = "deleted")
     private Boolean deleted;
-    
+
     // only for staff users
     @Column(name = "role_description")
-    private String roleDescription;   
-    
+    private String roleDescription;
+
     // image data stored in base64
     @Column(name = "picture")
     private String picture;
@@ -140,6 +140,9 @@ public class User extends RangeModel implements UserDetails {
     private boolean canSwitchUser;
 
     @Transient
+    private String creationPassword;
+
+    @Transient
     private PatientManagement patientManagement;
 
     public String getUsername() {
@@ -155,16 +158,23 @@ public class User extends RangeModel implements UserDetails {
         return password;
     }
 
+    public String getCreationPassword() {
+        if (creationPassword == null) {
+            creationPassword = "";
+        }
+        return creationPassword.trim();
+    }
+
     public void setPassword(final String password) {
         this.password = password;
     }
 
     @JsonIgnore
-    public String getSalt(){
+    public String getSalt() {
         return salt;
     }
 
-    public void setSalt(String salt){
+    public void setSalt(String salt) {
         this.salt = salt;
     }
 
@@ -290,29 +300,25 @@ public class User extends RangeModel implements UserDetails {
 
     @JsonIgnore
     @Override
-    public boolean isAccountNonExpired()
-    {
+    public boolean isAccountNonExpired() {
         return true;
     }
 
     @JsonIgnore
     @Override
-    public boolean isAccountNonLocked()
-    {
+    public boolean isAccountNonLocked() {
         return true;
     }
 
     @JsonIgnore
     @Override
-    public boolean isCredentialsNonExpired()
-    {
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @JsonIgnore
     @Override
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return true;
     }
 
