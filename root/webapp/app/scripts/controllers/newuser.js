@@ -239,7 +239,7 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
         $scope.saving = true;
         // generate password
         var password = UtilService.generatePassword();
-        $scope.editUser.password = password;
+        $scope.editUser.creationPassword = password;
 
         UserService.create($scope.editUser).then(function(userId) {
             UserService.get(userId).then(function(result) {
