@@ -664,7 +664,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         try {
             String salt = CommonUtils.generateSalt();
             user.setSalt(salt);
-            user.setPassword(DigestUtils.sha256Hex(user.getPassword() + salt));
+            user.setPassword(DigestUtils.sha256Hex(user.getCreationPassword() + salt));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
