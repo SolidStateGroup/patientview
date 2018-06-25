@@ -194,6 +194,7 @@ public class AuthenticationServiceTest {
         user.setUsername("testUsername");
         user.setPassword(DigestUtils.sha256Hex(password + salt));
         user.setEmailVerified(true);
+        user.setSalt(salt);
         user.setLocked(false);
         user.setDeleted(false);
         user.setSecretWord("{"
