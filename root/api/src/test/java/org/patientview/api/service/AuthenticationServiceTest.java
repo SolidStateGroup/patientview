@@ -186,8 +186,8 @@ public class AuthenticationServiceTest {
      */
     @Test
     public void testAuthenticate_apiKey() {
-        String password = "33AQrwN8U";
-        String salt = "4540a13621487cffa67522d2bd180d48";
+        String password = "doNotShow";
+        String salt = "saltsaltsalt";
 
         // User
         User user = new User();
