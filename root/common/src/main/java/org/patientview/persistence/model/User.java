@@ -140,6 +140,9 @@ public class User extends RangeModel implements UserDetails {
     private boolean canSwitchUser;
 
     @Transient
+    private String creationPassword;
+
+    @Transient
     private PatientManagement patientManagement;
 
     public String getUsername() {
@@ -153,6 +156,10 @@ public class User extends RangeModel implements UserDetails {
     @JsonIgnore
     public String getPassword() {
         return password.trim();
+    }
+
+    public String getCreationPassword() {
+        return creationPassword.trim();
     }
 
     public void setPassword(final String password) {
