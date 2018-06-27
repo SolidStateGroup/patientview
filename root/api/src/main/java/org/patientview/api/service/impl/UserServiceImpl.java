@@ -1978,8 +1978,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
-                "<SendingFacility>XXX</SendingFacility>" +
-                "<SendingExtract>XXX</SendingExtract><Patient><PatientNumbers>");
+                "<SendingFacility>PV</SendingFacility>" +
+                "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
