@@ -98,12 +98,12 @@
             <version>1.0.2</version>
         </dependency>
 
-        <!--&lt;!&ndash; mysql required only for migration &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>mysql</groupId>-->
-            <!--<artifactId>mysql-connector-java</artifactId>-->
-            <!--<version>5.1.26</version>-->
-        <!--</dependency>-->
+        <!-- mysql required only for migration -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.26</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

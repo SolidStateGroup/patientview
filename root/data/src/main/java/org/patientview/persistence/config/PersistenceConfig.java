@@ -74,6 +74,18 @@ public class PersistenceConfig extends CommonConfig {
         dataSource.setPassword(properties.getProperty("fhir.password"));
         return dataSource;
     }
+
+    @Bean(name = "patientView1")
+    public BasicDataSource patientView1DataSource() {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setMaxTotal(50);
+        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setUrl(properties.getProperty("pv1.url"));
+        dataSource.setUsername(properties.getProperty("pv1.user"));
+        dataSource.setPassword(properties.getProperty("pv1.password"));
+        return dataSource;
+    }
+
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
