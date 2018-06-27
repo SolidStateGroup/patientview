@@ -1977,7 +1977,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Date now = new Date();
         // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        StringBuilder xml = new StringBuilder("<<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
+        StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>XXX</SendingFacility>" +
                 "<SendingExtract>XXX</SendingExtract><Patient><PatientNumbers>");
 
@@ -2018,7 +2018,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("<Names><Name use=\"L\"><Prefix/>");
         xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));
         xml.append(String.format("<Given>%s</Given>", groupRole.getUser().getForename()));
-        xml.append("<Suffix/>");
+        xml.append("<Suffix/></Name>");
         xml.append("</Names>");
 
         if (groupRole.getUser() != null && groupRole.getUser().getDateOfBirth() != null) {
@@ -2026,7 +2026,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         xml.append("</Patient>");
-        xml.append("<ProgramMemberships><ProgramMembership><EnteredBy>");
+        xml.append("<ProgramMemberships><ProgramMembership><EnteredAt>");
 
         if (groupRole.getLastUpdater() != null) {
             xml.append(String.format("<CodingStandard>%s</CodingStandard>", groupRole.getLastUpdater().getUsername()));
@@ -2035,12 +2035,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (groupRole.getLastUpdater() != null) {
             xml.append(String.format("<Description>%s</Description>", groupRole.getLastUpdater().getName()));
         }
-        xml.append("</EnteredBy>");
-        xml.append("<EnteredAt><CodingStandard>");
+        xml.append("</EnteredAt>");
+        xml.append("<EnteredBy><CodingStandard>");
         xml.append(groupRole.getGroup().getCode());
         xml.append("</CodingStandard><Code>PV_UNITS</Code><Description>");
         xml.append(groupRole.getGroup().getName());
-        xml.append("</Description></EnteredAt><UpdatedOn>");
+        xml.append("</Description></EnteredBy><UpdatedOn>");
         xml.append(df.format(now));
         xml.append("</UpdatedOn><ExternalId>");
         xml.append(groupRole.getId());
@@ -2050,11 +2050,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
         xml.append("</ProgramDescription><FromTime>");
         xml.append(df.format(groupRole.getCreated()));
-        xml.append("</FromTime><ToTime>");
+        xml.append("</FromTime>");
         if (!adding) {
-            xml.append(df.format(now));
+            xml.append("<ToTime>" + df.format(now) + "</ToTime>");
         }
-        xml.append("</ToTime></ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
+        xml.append("</ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
         externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
                 getCurrentUser(), now);
