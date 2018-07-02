@@ -2015,15 +2015,36 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
         xml.append("</PatientNumbers>");
-        xml.append("<Names><Name use=\"L\"><Prefix/>");
+        xml.append("<Names><Name use=\"L\">");
         xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));
         xml.append(String.format("<Given>%s</Given>", groupRole.getUser().getForename()));
-        xml.append("<Suffix/></Name>");
+        xml.append("</Name>");
         xml.append("</Names>");
 
         if (groupRole.getUser() != null && groupRole.getUser().getDateOfBirth() != null) {
             xml.append(String.format("<BirthTime>%s</BirthTime>", df.format(groupRole.getUser().getDateOfBirth())));
         }
+        //Add unknown gender
+        xml.append("<Gender>0</Gender>");
+
+        //Get the gender
+//        boolean foundGender = false;
+//        int i = 0;
+//        while (!foundGender && i < groupRole.getUser().getIdentifiers().size()) {
+//            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+//                try {
+//                    String gender = patientManagementService.get(groupRole.getUser().getId(), groupRole.getGroup().getId(), identifier.getId()).getPatient().getGender();
+//                    if(gender.toLowerCase().equals("male") || gender.toLowerCase().equals("m")){
+//                        xml.append("<Gender>1</Gender>");
+//                    }else if(gender.toLowerCase().equals("female") || gender.toLowerCase().equals("f")){
+//                        xml.append("<Gender>1</Gender>");
+//                    }
+//                } catch (Exception e) {
+//
+//                }
+//            }
+//
+//        }
 
         xml.append("</Patient>");
         xml.append("<ProgramMemberships><ProgramMembership><EnteredAt>");
@@ -2048,11 +2069,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
         xml.append("</ProgramName><ProgramDescription>");
         xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
-        xml.append("</ProgramDescription><FromTime>");
+        xml.append("</ProgramDescription><FromTime type=\"xs:dateTime\">");
         xml.append(df.format(groupRole.getCreated()));
         xml.append("</FromTime>");
         if (!adding) {
-            xml.append("<ToTime>" + df.format(now) + "</ToTime>");
+            xml.append("<ToTime type=\"xs:dateTime\">" + df.format(now) + "</ToTime>");
         }
         xml.append("</ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
