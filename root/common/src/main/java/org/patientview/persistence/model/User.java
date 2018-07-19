@@ -155,7 +155,7 @@ public class User extends RangeModel implements UserDetails {
 
     @JsonIgnore
     public String getPassword() {
-        return password.trim();
+        return password;
     }
 
     public String getCreationPassword() {
