@@ -84,6 +84,7 @@ function ($scope, $timeout, $modal, AuditService, $routeParams) {
 
     $scope.getItems = function() {
         $scope.loading = true;
+
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;

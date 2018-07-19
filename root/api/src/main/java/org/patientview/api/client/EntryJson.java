@@ -9,21 +9,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EntryJson {
-
-    private String lang;
     private ValueTypeJson title;
     private LinkJson[] link;
     private ValueTypeJson id;
     private ValueTypeJson updated;
     private ValueTypeJson summary;
 
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
 
     public ValueTypeJson getTitle() {
         return title;

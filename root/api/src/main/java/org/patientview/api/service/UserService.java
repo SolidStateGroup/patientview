@@ -99,6 +99,11 @@ public interface UserService {
     void addPicture(Long userId, String base64);
 
     /**
+     * Send a bulk groups to UKRDC
+     */
+    void bulkSendUKRDCNotification();
+
+    /**
      * Used when a User changes their own password.
      * @param userId ID of User to change password
      * @param password New password
@@ -190,6 +195,12 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteFeature(Long userId, Long featureId)
         throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Delete all API Keys belonging to a User, used during deletion of a patient.
+     * @param userId ID of User to delete APIKeys from
+     */
+    void deleteApiKeys(Long userId);
 
     /**
      * Delete all FhirLinks belonging to a User, used during deletion of a patient and in migration.
