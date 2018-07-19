@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
-import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.impl.UserServiceImpl;
@@ -18,6 +17,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -40,6 +40,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -94,6 +95,9 @@ public class UserServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private ApiKeyRepository apiKeyRepository;
 
     @Mock
     private ConversationService conversationService;
@@ -194,6 +198,7 @@ public class UserServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRoleRepository.save(eq(newGroupRole))).thenReturn(newGroupRole);
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(apiKeyRepository.getAllKeysForUser(any(User.class))).thenReturn(new ArrayList<ApiKey>());
         when(userRepository.save(eq(newUser))).thenReturn(newUser);
 
         userService.add(newUser);
@@ -282,6 +287,64 @@ public class UserServiceTest {
         verify(externalServiceService, times(0))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
                         any(String.class), any(User.class), any(Date.class));
+    }
+
+    /**
+     * Test: To save a Group with Role to a user
+     * Fail: The repository does not get called
+     */
+    @Test
+    public void testAddGroupRolePatient() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to modify
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Lookup lookupValue = new Lookup();
+        lookupValue.setValue("");
+        group2.setGroupType(lookupValue);
+        group.setGroupType(lookupValue);
+
+
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        // new role
+        Role newStaffRole = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.PATIENT);
+        newStaffRole.setRoleType(roleType);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
+        when(roleRepository.findOne(eq(newStaffRole.getId()))).thenReturn(newStaffRole);
+        when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole);
+
+        // add GroupRole to staff user
+        groupRole = userService.addGroupRole(staffUser.getId(), group.getId(), newStaffRole.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRole);
+        verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
+
+        // verify queued to RDC
+        verify(externalServiceService, times(1))
+                .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
+                        any(String.class), any(User.class), any(Date.class));
+
     }
 
     @Test

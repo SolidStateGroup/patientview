@@ -32,7 +32,7 @@ public final class MedlineplusApiClient {
 
     private String contentType;
     private CloseableHttpClient client;
-    private static final String BASE_URL = "https://apps.nlm.nih.gov/medlineplus/services/mpconnect_service.cfm";
+    private static final String BASE_URL = "https://connect.medlineplus.gov/service";
 
     private static final String CODE_SYSTEM_PARAM = "mainSearchCriteria.v.cs";
     private static final String RESPONSE_TYPE_PARAM = "knowledgeResponseType";

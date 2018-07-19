@@ -174,11 +174,11 @@ public class UktServiceTest {
         //Get the initial page
         PageRequest pageRequest = new PageRequest(0, 1000);
 
-        when(userRepository.getAllPatientsForUKTExport(pageRequest)).thenReturn(new PageImpl<>(users));
+        when(userRepository.getAllPatientsForExport(pageRequest)).thenReturn(new PageImpl<>(users));
         when(apiPatientService.get(eq(resourceId))).thenReturn(patient);
 
         uktService.exportData();
 
-        verify(userRepository, Mockito.times(2)).getAllPatientsForUKTExport(pageRequest);
+        verify(userRepository, Mockito.times(2)).getAllPatientsForExport(pageRequest);
     }
 }

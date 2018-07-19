@@ -197,6 +197,7 @@ public class AuthenticationServiceTest {
         user.setSalt(salt);
         user.setLocked(false);
         user.setDeleted(false);
+        user.setSalt(salt);
         user.setSecretWord("{"
                 + "\"salt\" : \"" + salt + "\", "
                 + "\"1\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
