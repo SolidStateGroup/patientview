@@ -113,7 +113,10 @@ function ($scope, $rootScope, $location, UserService, UtilService, StaticDataSer
                     // group features used for patient management
                     minimalGroup.groupFeatures = group.groupFeatures;
 
-                    $scope.allGroups.push(minimalGroup);
+                    //Added to avoid duplicates
+                    if ($scope.groupMap[group.id] === undefined) {
+                        $scope.allGroups.push(minimalGroup);
+                    }
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
                 }

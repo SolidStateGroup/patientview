@@ -101,16 +101,13 @@ public class MedlineplusResponseTest {
 
         // check entry in Feed json
         EntryJson entryJson = json.getFeed().getEntry()[0];
-        Assert.assertNotNull("Should get language in entry", entryJson.getLang());
         Assert.assertNotNull("Should get title in entry", entryJson.getTitle());
         Assert.assertNotNull("Should get title in entry", entryJson.getTitle().getValue());
 
         // check for Links, the actual data we need
         LinkJson linkJson = entryJson.getLink()[0];
         Assert.assertNotNull("Should get link in entry", linkJson);
-        Assert.assertNotNull("Should get title in link", linkJson.getTitle());
         Assert.assertNotNull("Should get rel in link", linkJson.getRel());
-        Assert.assertNotNull("Should get type in link", linkJson.getType());
         Assert.assertNotNull("Should get href in link", linkJson.getHref());
     }
 }

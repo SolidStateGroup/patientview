@@ -10,18 +10,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LinkJson {
 
-    private String title;
     private String rel;
-    private String type;
     private String href;
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public String getRel() {
         return rel;
@@ -29,14 +20,6 @@ public class LinkJson {
 
     public void setRel(String rel) {
         this.rel = rel;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getHref() {

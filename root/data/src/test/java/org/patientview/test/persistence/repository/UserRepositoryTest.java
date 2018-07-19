@@ -133,7 +133,7 @@ public class UserRepositoryTest {
         //Get the initial page
         PageRequest pageRequest = new PageRequest(0, 1000);
 
-        Page<User> users = userRepository.getAllPatientsForUKTExport(pageRequest);
+        Page<User> users = userRepository.getAllPatientsForExport(pageRequest);
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
