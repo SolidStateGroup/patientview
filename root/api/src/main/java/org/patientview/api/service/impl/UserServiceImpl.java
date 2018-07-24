@@ -230,7 +230,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
-        if (userRepository.findByEmailCaseInsensitive(user.getEmail())) {
+        if (userRepository.emailExistsCaseInsensitive(user.getEmail())) {
             throw new EntityExistsException("User already exists (email): " + user.getEmail());
         }
 
