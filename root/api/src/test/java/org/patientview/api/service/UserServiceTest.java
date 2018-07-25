@@ -1367,6 +1367,79 @@ public class UserServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
+    @Test
+    public void testUpdateUserEmailAlreadyExistsCheck() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        User staffUser2 = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.save(any(User.class))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+
+        staffUser2.setEmail("newemail@patientview.org");
+        userService.save(staffUser2);
+        verify(userRepository, times(1)).emailExistsCaseInsensitive(any(String.class));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test (expected = EntityExistsException.class)
+    public void testUpdateUserEmailAlreadyExistsFailure() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        User staffUser2 = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.emailExistsCaseInsensitive(eq("newemail@patientview.org"))).thenReturn(true);
+        when(userRepository.save(any(User.class))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+
+        staffUser2.setEmail("newemail@patientview.org");
+        userService.save(staffUser2);
+        verify(userRepository, times(1)).emailExistsCaseInsensitive(any(String.class));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
     @Test(expected = ResourceForbiddenException.class)
     public void testUpdateUserWrongGroup()
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {

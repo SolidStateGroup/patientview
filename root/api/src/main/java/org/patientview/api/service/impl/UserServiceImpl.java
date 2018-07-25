@@ -1917,6 +1917,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
             throw new EntityExistsException("Username in use by another User");
         }
+        //If the email address has changed, check if that email exists already
+        if (!user.getEmail().equals(originalEmail)) {
+            //If it does exist, throw an error
+            if (userRepository.emailExistsCaseInsensitive(user.getEmail())) {
+                throw new EntityExistsException("Email address in use by another User");
+            }
+        }
+
 
         boolean isPatient = false;
         boolean isLocked = user.getLocked() && !entityUser.getLocked();
