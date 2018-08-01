@@ -108,7 +108,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
                 // attempt to get identifier if exists, used by audit
                 String identifier = null;
                 try {
-                 identifier = ukrdcService.findIdentifier(patientRecord);
+                    identifier = ukrdcService.findIdentifier(patientRecord);
                 } catch (ImportResourceException ire2) {
                     // no match in PV db, fall back to first patient number
                     if (patientRecord.getPatient() != null
