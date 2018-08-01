@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.importer.rabbit.MessageProducer;
 import org.patientview.importer.service.impl.QueueServiceImpl;
 
 import javax.xml.bind.JAXBContext;
@@ -18,6 +19,9 @@ public class QueueServiceTest {
 
     @Mock
     Channel channel;
+
+    @Mock
+    MessageProducer messageProducer;
 
     @InjectMocks
     QueueService queueService = new QueueServiceImpl();
