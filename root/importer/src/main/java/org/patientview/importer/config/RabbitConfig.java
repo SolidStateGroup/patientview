@@ -20,12 +20,9 @@ import java.util.Properties;
 
 
 /**
- * Created by Pavlo Maksymchuk.
+ * Configuration for RabbitMQ spring implementation.
  *
- * mq.rabbit.sessionCacheSize=100
- * mq.rabbit.maxConsumers=20
- * mq.concurrent.consumers=20
- * mq.prefetch.count=10
+ * Created by Pavlo Maksymchuk.
  */
 @Configuration
 @ComponentScan(basePackages = {"org.patientview.importer.*", "org.patientview.persistence.*", "org.patientview.service.*"})
