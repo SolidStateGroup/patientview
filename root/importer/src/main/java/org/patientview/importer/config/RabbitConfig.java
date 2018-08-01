@@ -42,7 +42,6 @@ public class RabbitConfig {
     @Bean(name = "rabbitConnection")
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        //connectionFactory.setAddresses(rabbitmqIp);
         connectionFactory.setHost(properties.getProperty("rabbit.host"));
         connectionFactory.setUsername(properties.getProperty("rabbit.username"));
         connectionFactory.setPassword(properties.getProperty("rabbit.password"));
@@ -80,7 +79,6 @@ public class RabbitConfig {
     public Queue patientQueue() {
         return new Queue(PATIENT_QUEUE_NAME, true);
     }
-
 
     /**
      * Create and configure listener for the patient for patient_import Queue.
