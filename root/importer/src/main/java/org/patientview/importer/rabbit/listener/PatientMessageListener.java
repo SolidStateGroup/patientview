@@ -1,9 +1,6 @@
-package org.patientview.importer.processor;
+package org.patientview.importer.rabbit.listener;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
 import generated.Patientview;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ImportResourceException;
@@ -15,52 +12,39 @@ import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 
 /**
- * Created by james@solidstategroup.com
- * Created on 14/07/2014
+ * An implementation of the message listener to consume messages from the 'pateint_importer' Queue.
  *
- * The current implementation has few issue with consuming the Queue ('patient_import').
+ * Once we receive the message we process it.
+ * If processing is successful, this time use basicAck to confirm the message was consumed.
  *
- * The processor has internal thread pool to process messages.
- * Once messages are pushed to RabbitMQ this processor will consume all the messages from the queue
- * and put them into JVM to be processed later if no thread available to use.
+ * Channel.basicNack(long deliveryTag, boolean multiple, boolean requeue)
+ * - deliveryTag: the index of the message
+ * - multiple：whether it's a batch. true: All messages smaller than the deliveryTag will be rejected at one time。
+ * - requeue：Whether the rejected is re-queued
  *
- * This put strain on server resources and server restart or other issue will result in message loss.
  *
- * @deprecated this been deprecated in favour of Spring implementation
+ * Created by Pavlo Maksymchuk.
  */
-@Deprecated
-//@Component
-public class QueueProcessor extends DefaultConsumer {
-
-    @Inject
-    private AuditService auditService;
-
-    private Channel channel;
+@Service("patientMessageListener")
+public class PatientMessageListener implements ChannelAwareMessageListener {
+    private static final Logger LOG = LoggerFactory.getLogger(PatientMessageListener.class);
 
     @Inject
     private EmailService emailService;
-
-    @Inject
-    private ExecutorService executor;
-
     @Inject
     private ImportManager importManager;
+    @Inject
+    private AuditService auditService;
 
     private Long importerUserId;
-
-    private final static Logger LOG = LoggerFactory.getLogger(QueueProcessor.class);
-
-    private final static String QUEUE_NAME = "patient_import";
 
     @PostConstruct
     public void init() throws ResourceNotFoundException {
@@ -72,39 +56,44 @@ public class QueueProcessor extends DefaultConsumer {
         }
     }
 
-    @Inject
-    public QueueProcessor(@Named(value = "read") Channel channel) {
-        super(channel);
+    /**
+     * @param message
+     * @param channel
+     * @throws Exception
+     * @see org.springframework.amqp.rabbit.core.ChannelAwareMessageListener#onMessage(org.springframework.amqp.core.Message,
+     * com.rabbitmq.client.Channel)
+     */
+    public void onMessage(final Message message, final Channel channel) throws Exception {
+        final String body = new String(message.getBody(), "utf-8");
+
         try {
-            channel.basicConsume("patient_import", true, this);
-        } catch (IOException io) {
-            LOG.error("Cannot consume messages for '" + QUEUE_NAME + "' queue", io);
-            throw new IllegalStateException("Cannot start queue processor for '" + QUEUE_NAME + "' queue");
-        } catch (NullPointerException npe) {
-            LOG.error("Queue '" + QUEUE_NAME + "' is not available");
-            throw new IllegalStateException("The '" + QUEUE_NAME + "' queue is not available");
+            LOG.info(String.format("Received message (channel %d)", channel.getChannelNumber()));
+            new PatientTask().process(body);
+
+            // confirm message successfully consumed
+            // false only confirms that the current message is received,
+            // true confirms all messages obtained by the consumer
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            LOG.error("Failed to consume the message:" + "", e);
+            // TODO: check if we retrying once more or discarding?
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
         }
-        this.channel = channel;
-        LOG.info("Created queue processor for Surveys with queue name '" + QUEUE_NAME + "'");
     }
 
-    @PreDestroy
-    public void shutdown() throws IOException {
-        channel.close();
-    }
-
-    private class PatientTask implements Runnable {
+    /**
+     * Inner class for processing Patient xml, copy of QueueProcessor.PatientTask
+     */
+    private class PatientTask {
         Patientview patient = null;
-        String message;
 
-        public PatientTask(String message) {
-           this.message = message;
+        public PatientTask() {
         }
 
-        public void run() {
+        public void process(String message) {
             long start = System.currentTimeMillis();
 
-            LOG.info("STARTING QueueProcessor PatientTask");
+            LOG.info("STARTING PatientTask to process message...");
             boolean fail = false;
 
             // Unmarshall XML to Patient object
@@ -192,9 +181,10 @@ public class QueueProcessor extends DefaultConsumer {
 
         /**
          * Send importer error message to pv admins or central support using email service.
-         * @param message String error message
-         * @param identifier String patient identifier usually nhs number
-         * @param unitCode String unit/group code
+         *
+         * @param message              String error message
+         * @param identifier           String patient identifier usually nhs number
+         * @param unitCode             String unit/group code
          * @param onlyToCentralSupport true if email should only be sent to central support
          */
         private void sendErrorEmail(String message, String identifier, String unitCode, boolean onlyToCentralSupport) {
@@ -206,6 +196,7 @@ public class QueueProcessor extends DefaultConsumer {
 
         /**
          * Ignore certain errors (do not need email sending either to admins or central support)
+         *
          * @param errorMessage String error message
          * @return true if email should be sent
          */
@@ -219,14 +210,7 @@ public class QueueProcessor extends DefaultConsumer {
             if (errorMessage.contains("No space left on device")) {
                 return false;
             }
-
             return true;
         }
-    }
-
-    public void handleDelivery(String customerTag, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] body)
-            throws IOException {
-        LOG.info("QueueProcessor received message ....");
-        executor.submit(new PatientTask(new String(body)));
     }
 }
