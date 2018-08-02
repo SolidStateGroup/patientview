@@ -134,7 +134,6 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
      * @throws ResourceNotFoundException
      */
     @Override
-    @Transactional(readOnly = true)
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
 
