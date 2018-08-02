@@ -26,12 +26,15 @@ public class MessageProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendMessage(Object message) {
+    /**
+     * Sends message to the Queue.
+     *
+     * @param message a message to send to the queue
+     * @throws Exception when failed to send message to the queue
+     */
+    public void sendMessage(Object message) throws Exception {
         LOG.info("Sending message to queue {}", RabbitConfig.PATIENT_QUEUE_NAME);
-        try {
-            this.rabbitTemplate.convertAndSend(RabbitConfig.PATIENT_QUEUE_NAME, message);
-        } catch (Exception e) {
-            LOG.error("Failed to send message to the queue: ", e);
-        }
+
+        this.rabbitTemplate.convertAndSend(RabbitConfig.PATIENT_QUEUE_NAME, message);
     }
 }
