@@ -155,6 +155,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
             LOG.info("Successfully sent record to be processed for NHS number {}",
                     patientview.getPatient().getPersonaldetails().getNhsno());
         } catch (Exception e) {
+            LOG.error("Failed to send message to the queue: ", e);
             throw new ImportResourceException("Unable to send message onto queue");
         }
     }
