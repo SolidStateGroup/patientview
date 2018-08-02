@@ -134,6 +134,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
      * @throws ResourceNotFoundException
      */
     @Override
+    @Transactional(readOnly = true)
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException, ResourceForbiddenException {
 
@@ -198,6 +199,7 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
                                 patient, encounterService.get(fhirLink.getResourceId()), user, fhirLink.getGroup());
 
                         // set edta diagnosis if present based on available codes in conditions
+                        // BORKED on LAZY Init
                         patient = setDiagnosisCodes(patient);
 
                         // set non test observations
@@ -554,10 +556,16 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
             if (StringUtils.isNotEmpty(condition.getCategory())
                     && condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
 
-                List<Code> codes = codeService.findAllByCodeAndType(condition.getCode(),
+                // RPV-768 we are having issue with some patients to load diagnosis codes
+                // org.hibernate.LazyInitializationException: failed to lazily initialize a collection of
+                // role: org.patientview.persistence.model.Code.codeCategories, could not initialize proxy - no Session
+                //List<Code> codes = codeService.findAllByCodeAndType(condition.getCode(),
+                //      lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
+
+                Code code = codeService.findOneByCodeAndType(condition.getCode(),
                         lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
-                if (!codes.isEmpty()) {
-                    patient.getDiagnosisCodes().add(codes.get(0));
+                if (code != null) {
+                    patient.getDiagnosisCodes().add(code);
                 }
             }
         }

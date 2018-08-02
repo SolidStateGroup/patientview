@@ -316,6 +316,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     @Override
+    public Code findOneByCodeAndType(String code, Lookup codeType){
+        return codeRepository.findOneByCodeAndType(code, codeType);
+    }
+
+    @Override
     public Code get(final Long codeId) throws ResourceNotFoundException {
         Code code = codeRepository.findOne(codeId);
         if (code == null) {

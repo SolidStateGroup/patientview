@@ -100,6 +100,14 @@ public interface CodeService {
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
 
     /**
+     * Get single Code given a code String and code type.
+     * @param code String code to search for
+     * @param codeType Lookup type of code
+     * @return a Code object
+     */
+    Code findOneByCodeAndType(String code, Lookup codeType);
+
+    /**
      * Get a single Code given an ID.
      * @param codeId ID of Code to retrieve
      * @return Code object
