@@ -67,7 +67,13 @@ public class PatientMessageListener implements ChannelAwareMessageListener {
         final String body = new String(message.getBody(), "utf-8");
 
         try {
-            LOG.info(String.format("Received message (channel %d)", channel.getChannelNumber()));
+            LOG.info(String.format("Received message (channel %d) %s", channel.getChannelNumber(), body));
+
+            /*
+             task handles all known issue with xml and should not throw any exception
+             if exception thrown most like we have issue with DB
+             so we need to retry processing message again
+             */
             new PatientTask().process(body);
 
             // confirm message successfully consumed
@@ -75,9 +81,9 @@ public class PatientMessageListener implements ChannelAwareMessageListener {
             // true confirms all messages obtained by the consumer
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            LOG.error("Failed to consume the message:" + "", e);
-            // TODO: check if we retrying once more or discarding?
-            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            LOG.error("Failed to consume the message, re queueing:" , e);
+            // un handled exception, resend back to the queue
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
         }
     }
 
