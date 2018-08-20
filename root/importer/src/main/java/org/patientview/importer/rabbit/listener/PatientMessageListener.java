@@ -67,8 +67,6 @@ public class PatientMessageListener implements ChannelAwareMessageListener {
         final String body = new String(message.getBody(), "utf-8");
 
         try {
-            LOG.info(String.format("Received message (channel %d) %s", channel.getChannelNumber(), body));
-
             /*
              task handles all known issue with xml and should not throw any exception
              if exception thrown most like we have issue with DB
