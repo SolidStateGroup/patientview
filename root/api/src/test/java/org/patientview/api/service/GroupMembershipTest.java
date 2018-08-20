@@ -49,7 +49,7 @@ public class GroupMembershipTest {
 
 
     File getFileFromString(String fileLocation) throws IOException, URISyntaxException {
-        return new File("src/test/resources/" + fileLocation);
+        return new File("src/test/Resources/" + fileLocation);
     }
 
 }
