@@ -49,8 +49,7 @@ public class GroupMembershipTest {
 
 
     File getFileFromString(String fileLocation) throws IOException, URISyntaxException {
-        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileLocation);
-        return new File(xmlPath.toURI());
+        return new File("src/test/resources/" + fileLocation);
     }
 
 }
