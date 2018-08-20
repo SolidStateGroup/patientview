@@ -390,6 +390,8 @@ public class UserServiceTest {
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
         User patientUser = TestUtils.createUser("patient");
+        patientUser.setDateOfBirth(new Date());
+
         TestUtils.createIdentifier(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);

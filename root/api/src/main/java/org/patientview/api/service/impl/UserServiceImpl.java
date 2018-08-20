@@ -87,7 +87,10 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.awt.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -1989,7 +1992,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Date now = new Date();
         // for ISO1806 date format
         DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        DateFormat dateTimeFormattedWithTZ = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
@@ -2080,8 +2082,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("</Names>");
 
         if (groupRole.getUser() != null && groupRole.getUser().getDateOfBirth() != null) {
-            xml.append(String.format("<BirthTime>%s</BirthTime>",
-                    dateTimeFormattedWithTZ.format(groupRole.getUser().getDateOfBirth())));
+            try {
+                XMLGregorianCalendar xgc = DatatypeFactory
+                        .newInstance()
+                        .newXMLGregorianCalendar(
+                                new DateTime(groupRole.getUser().getDateOfBirth()).toGregorianCalendar());
+                xml.append(String.format("<BirthTime>%s</BirthTime>",
+                        xgc.toString()));
+            } catch (DatatypeConfigurationException e) {
+                e.printStackTrace();
+            }
         }
         //Add unknown gender
         xml.append("<Gender>9</Gender>");
@@ -2104,21 +2114,37 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         xml.append("</EnteredAt>");
 
-
-        xml.append("<UpdatedOn>");
-        xml.append(dateTimeFormatted.format(now));
-        xml.append("</UpdatedOn><ExternalId>");
-        xml.append(groupRole.getId());
-        xml.append("</ExternalId><ProgramName>");
+        xml.append("<ProgramName>");
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
-        xml.append("</ProgramName><ProgramDescription>");
+        xml.append("</ProgramName>");
+        xml.append("<ProgramDescription>");
         xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
-        xml.append("</ProgramDescription><FromTime>");
+        xml.append("</ProgramDescription>");
+
+        xml.append("<FromTime>");
         xml.append(df.format(groupRole.getCreated()));
         xml.append("</FromTime>");
         if (!adding) {
             xml.append("<ToTime>" + df.format(now) + "</ToTime>");
         }
+
+        xml.append("<UpdatedOn>");
+        try {
+            XMLGregorianCalendar xgc = DatatypeFactory
+                    .newInstance()
+                    .newXMLGregorianCalendar(
+                            new DateTime().toGregorianCalendar());
+            xml.append(xgc.toString());
+            xml.append("</UpdatedOn>");
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        xml.append("<ExternalId>");
+        xml.append(groupRole.getId());
+        xml.append("</ExternalId>");
+
+
         xml.append("</ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
         externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
