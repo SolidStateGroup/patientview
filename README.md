@@ -44,3 +44,23 @@ The main SQL files used to build the 'patientview' and 'fhir' databases prior to
 - V5__Post_Migration.sql (only used once migration has taken place from PV1)
 
 Note that migration is a one time task from PV1 and is not required to set up PV2.
+
+
+
+RabbitMQ
+========
+RabbitMQ is used as a queuing system to process messages. You can mount the rabbit MQ volume to your local disk using the -v parameter within docker.
+
+
+To run in docker use:
+```
+docker run -d --hostname rabbit --name patientview-mgtmt -e RABBITMQ_DEFAULT_USER=patientview -e RABBITMQ_DEFAULT_PASS=patientview -p 1212:15672 -p 4369:4369 -p 5671:5671 -p 5672:5672 -v /Users/username/RabbitMQ/data:/var/lib/rabbitmq rabbitmq:3-management
+```
+
+The rabbit MQ management console will then be available on port 1212, by visiting [http://localhost:1212](http://localhost:1212)
+
+You will need to create the following queues:
+`patient_import`
+`survey_import`
+`survey_response_import`
+`ukrdc_import`
